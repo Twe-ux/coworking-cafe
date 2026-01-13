@@ -1,0 +1,29 @@
+{
+  "name": "coworking-cafe-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CoworKing Café by Anticafé - Monorepo (Site + Admin)",
+  "scripts": {
+    "dev": "pnpm --parallel --stream dev",
+    "dev:site": "pnpm --filter @coworking/site dev",
+    "dev:admin": "pnpm --filter @coworking/admin dev",
+    "build": "pnpm --filter @coworking/database build && pnpm --filter @coworking/email build && pnpm --filter @coworking/shared build && pnpm --filter @coworking/site build && pnpm --filter @coworking/admin build",
+    "build:site": "pnpm --filter @coworking/site build",
+    "build:admin": "pnpm --filter @coworking/admin build",
+    "lint": "pnpm --parallel lint",
+    "type-check": "pnpm --parallel type-check",
+    "clean": "pnpm --parallel clean && rm -rf node_modules"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "keywords": [
+    "coworking",
+    "cafe",
+    "monorepo",
+    "nextjs",
+    "tailwind"
+  ]
+}
