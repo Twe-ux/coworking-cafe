@@ -1,9 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import logoCircle from "@/../public/logo/logo-circle.webp";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,7 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
 import { useState } from "react";
 
 export function LoginForm({
@@ -53,15 +53,16 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
+          <a href="/" className="flex justify-center mb-4">
             <Image
               src={logoCircle}
-              alt="CoworKing Café"
-              width={80}
-              height={80}
-              className="rounded-full"
+              alt="CoworKing Café Logo"
+              width={100}
+              height={100}
+              className="object-cover rounded-full"
             />
-          </div>
+          </a>
+
           <CardTitle className="text-xl">
             Bienvenue sur CoworKing Café
           </CardTitle>

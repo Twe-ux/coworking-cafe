@@ -59,11 +59,9 @@ export function Step4Administrative() {
           <CardTitle>Informations administratives</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Code pointage */}
           <div className="space-y-2">
             <Label htmlFor="clockingCode">
-              Code de pointage (PIN){' '}
-              <span className="text-destructive">*</span>
+              Code de pointage (PIN) <span className="text-destructive">*</span>
             </Label>
             <Input
               id="clockingCode"
@@ -88,7 +86,6 @@ export function Step4Administrative() {
             </p>
           </div>
 
-          {/* Rôle planning */}
           <div className="space-y-2">
             <Label htmlFor="role">
               Rôle (planning) <span className="text-destructive">*</span>
@@ -122,28 +119,27 @@ export function Step4Administrative() {
             </Select>
           </div>
 
-          {/* Couleur pour calendrier */}
           <div className="space-y-2">
             <Label>
               Couleur (calendrier) <span className="text-destructive">*</span>
             </Label>
             <div className="grid grid-cols-5 gap-2">
-              {EMPLOYEE_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setValue('color', color)}
-                  className={`
-                    h-10 rounded-md border-2 transition-all
-                    ${color}
-                    ${selectedColor === color ? 'ring-2 ring-primary ring-offset-2' : 'border-transparent'}
-                  `}
-                />
-              ))}
+              {EMPLOYEE_COLORS.map((color) => {
+                const isSelected = selectedColor === color
+                const buttonClass = `h-10 rounded-md border-2 transition-all ${color} ${isSelected ? 'ring-2 ring-primary ring-offset-2' : 'border-transparent'}`
+
+                return (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setValue('color', color)}
+                    className={buttonClass}
+                  />
+                )
+              })}
             </div>
           </div>
 
-          {/* Coordonnées bancaires (optionnel) */}
           <div className="space-y-4 pt-4 border-t">
             <Label className="text-base font-semibold">
               Coordonnées bancaires (optionnel)
@@ -182,7 +178,7 @@ export function Step4Administrative() {
       <div className="flex justify-end">
         <Button type="submit" size="lg" disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {loading ? 'Création en cours...' : 'Créer l'employé'}
+          {loading ? 'Création en cours...' : "Créer l'employé"}
         </Button>
       </div>
     </form>
