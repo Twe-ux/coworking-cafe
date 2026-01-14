@@ -1,95 +1,297 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
+
+/**
+ * Model Employee UNIFIÉ
+ * Combine HR complet (onboarding, contrat) + Planning (color, pin)
+ */
 
 export interface IEmployee extends Document {
-  _id: string
-  firstName: string
-  lastName: string
-  email?: string
-  phone?: string
-  pin: string
-  role:
-    | 'Manager'
-    | 'Reception'
-    | 'Security'
-    | 'Maintenance'
-    | 'Cleaning'
-    | 'Staff'
-  color: string
-  startDate: Date
-  isActive: boolean
-  createdAt: Date
-  updatedAt: Date
-  verifyPin(pin: string): boolean
-  updatePin(newPin: string): Promise<void>
+  _id: string;
+
+  // ===== PARTIE HR (de site) =====
+  // Informations personnelles
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  placeOfBirth?: string;
+  address: {
+    street: string;
+    postalCode: string;
+    city: string;
+  };
+  phone: string;
+  email: string;
+  socialSecurityNumber: string;
+
+  // Informations contractuelles
+  contractType: 'CDI' | 'CDD' | 'Stage';
+  contractualHours: number;
+  hireDate: Date;
+  hireTime?: string;
+  endDate?: Date;
+  endContractReason?: 'démission' | 'fin-periode-essai' | 'rupture';
+
+  // Rémunération
+  level: string;
+  step: number;
+  hourlyRate: number;
+  monthlySalary?: number;
+
+  // Rôle employé (pour HR)
+  employeeRole: 'Manager' | 'Employé';
+
+  // Disponibilités horaires
+  availability: {
+    monday: { available: boolean; slots: Array<{ start: string; end: string }> };
+    tuesday: { available: boolean; slots: Array<{ start: string; end: string }> };
+    wednesday: { available: boolean; slots: Array<{ start: string; end: string }> };
+    thursday: { available: boolean; slots: Array<{ start: string; end: string }> };
+    friday: { available: boolean; slots: Array<{ start: string; end: string }> };
+    saturday: { available: boolean; slots: Array<{ start: string; end: string }> };
+    sunday: { available: boolean; slots: Array<{ start: string; end: string }> };
+  };
+
+  // Statut onboarding
+  onboardingStatus: {
+    step1Completed: boolean;
+    step2Completed: boolean;
+    step3Completed: boolean;
+    step4Completed: boolean;
+    contractGenerated: boolean;
+    contractGeneratedAt?: Date;
+    dpaeCompleted: boolean;
+    dpaeCompletedAt?: Date;
+    medicalVisitCompleted?: boolean;
+    medicalVisitCompletedAt?: Date;
+    mutuelleCompleted?: boolean;
+    mutuelleCompletedAt?: Date;
+    bankDetailsProvided: boolean;
+    bankDetailsProvidedAt?: Date;
+    registerCompleted?: boolean;
+    registerCompletedAt?: Date;
+    contractSent: boolean;
+    contractSentAt?: Date;
+  };
+
+  // Planning de travail
+  workSchedule?: {
+    weeklyDistribution: string;
+    timeSlots: string;
+    weeklyDistributionData?: { [key: string]: { [week: string]: string } };
+  };
+
+  // Coordonnées bancaires
+  bankDetails?: {
+    iban: string;
+    bic: string;
+    bankName: string;
+  };
+
+  // ===== PARTIE PLANNING (de tmp) =====
+  // Code pointage (PIN 4 chiffres)
+  clockingCode: string;
+
+  // Couleur pour calendrier planning
+  color: string;
+
+  // Rôle planning (simplifié pour calendrier)
+  role: 'Manager' | 'Reception' | 'Security' | 'Maintenance' | 'Cleaning' | 'Staff';
+
+  // ===== COMMUN =====
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+
+  // Méthodes
+  getFullName(): string;
+  getOnboardingProgress(): number;
+  isOnboardingComplete(): boolean;
+  verifyPin(pin: string): boolean;
 }
 
 const employeeSchema = new Schema<IEmployee>(
   {
+    // Informations personnelles
     firstName: {
       type: String,
-      required: [true, 'Le prénom est obligatoire'],
+      required: [true, 'Le prénom est requis'],
       trim: true,
       minlength: [2, 'Le prénom doit contenir au moins 2 caractères'],
       maxlength: [50, 'Le prénom ne peut pas dépasser 50 caractères'],
     },
     lastName: {
       type: String,
-      required: [true, 'Le nom est obligatoire'],
+      required: [true, 'Le nom est requis'],
       trim: true,
       minlength: [2, 'Le nom doit contenir au moins 2 caractères'],
       maxlength: [50, 'Le nom ne peut pas dépasser 50 caractères'],
     },
-    email: {
+    dateOfBirth: {
+      type: Date,
+      required: [true, 'La date de naissance est requise'],
+    },
+    placeOfBirth: {
       type: String,
       trim: true,
-      lowercase: true,
-      match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        "Format d'email invalide",
-      ],
-      sparse: true, // Permet les valeurs nulles/undefined uniques
+    },
+    address: {
+      street: { type: String, trim: true },
+      postalCode: { type: String, trim: true },
+      city: { type: String, trim: true },
     },
     phone: {
       type: String,
+      required: [true, 'Le téléphone est requis'],
       trim: true,
-      match: [
-        /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/,
-        'Format de téléphone français invalide',
-      ],
-      sparse: true,
     },
-    pin: {
+    email: {
       type: String,
-      required: [true, 'Le PIN est obligatoire'],
-      default: '1111',
-      validate: {
-        validator: function (pin: string) {
-          return /^\d{4}$/.test(pin)
-        },
-        message: 'Le PIN doit être composé de 4 chiffres',
+      required: [true, "L'email est requis"],
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, 'Veuillez fournir une adresse email valide'],
+    },
+    socialSecurityNumber: {
+      type: String,
+      required: [true, 'Le numéro de sécurité sociale est requis'],
+      trim: true,
+      match: [/^\d{15}$/, 'Le numéro de sécurité sociale doit contenir 15 chiffres'],
+    },
+
+    // Informations contractuelles
+    contractType: {
+      type: String,
+      enum: ['CDI', 'CDD', 'Stage'],
+      required: [true, 'Le type de contrat est requis'],
+    },
+    contractualHours: {
+      type: Number,
+      required: [true, "Le nombre d'heures contractuelles est requis"],
+      min: [0, "Le nombre d'heures doit être positif"],
+    },
+    hireDate: {
+      type: Date,
+      required: [true, "La date d'embauche est requise"],
+    },
+    hireTime: {
+      type: String,
+      trim: true,
+    },
+    endDate: {
+      type: Date,
+    },
+    endContractReason: {
+      type: String,
+      enum: ['démission', 'fin-periode-essai', 'rupture'],
+    },
+
+    // Rémunération
+    level: {
+      type: String,
+      trim: true,
+    },
+    step: {
+      type: Number,
+      min: [1, "L'échelon doit être supérieur à 0"],
+    },
+    hourlyRate: {
+      type: Number,
+      min: [0, 'Le taux horaire doit être positif'],
+    },
+    monthlySalary: {
+      type: Number,
+      min: [0, 'Le salaire mensuel doit être positif'],
+    },
+
+    // Rôle employé (HR)
+    employeeRole: {
+      type: String,
+      enum: ['Manager', 'Employé'],
+      required: [true, "Le rôle de l'employé est requis"],
+      default: 'Employé',
+    },
+
+    // Disponibilités
+    availability: {
+      monday: {
+        available: { type: Boolean, default: true },
+        slots: { type: [{ start: String, end: String }], default: [] },
+      },
+      tuesday: {
+        available: { type: Boolean, default: true },
+        slots: { type: [{ start: String, end: String }], default: [] },
+      },
+      wednesday: {
+        available: { type: Boolean, default: true },
+        slots: { type: [{ start: String, end: String }], default: [] },
+      },
+      thursday: {
+        available: { type: Boolean, default: true },
+        slots: { type: [{ start: String, end: String }], default: [] },
+      },
+      friday: {
+        available: { type: Boolean, default: true },
+        slots: { type: [{ start: String, end: String }], default: [] },
+      },
+      saturday: {
+        available: { type: Boolean, default: false },
+        slots: { type: [{ start: String, end: String }], default: [] },
+      },
+      sunday: {
+        available: { type: Boolean, default: false },
+        slots: { type: [{ start: String, end: String }], default: [] },
       },
     },
-    role: {
-      type: String,
-      required: [true, 'Le rôle est obligatoire'],
-      enum: {
-        values: [
-          'Manager',
-          'Reception',
-          'Security',
-          'Maintenance',
-          'Cleaning',
-          'Staff',
-        ],
-        message:
-          'Rôle invalide. Rôles autorisés: Manager, Reception, Security, Maintenance, Cleaning, Staff',
-      },
+
+    // Onboarding
+    onboardingStatus: {
+      step1Completed: { type: Boolean, default: false },
+      step2Completed: { type: Boolean, default: false },
+      step3Completed: { type: Boolean, default: false },
+      step4Completed: { type: Boolean, default: false },
+      contractGenerated: { type: Boolean, default: false },
+      contractGeneratedAt: { type: Date },
+      dpaeCompleted: { type: Boolean, default: false },
+      dpaeCompletedAt: { type: Date },
+      medicalVisitCompleted: { type: Boolean, default: false },
+      medicalVisitCompletedAt: { type: Date },
+      mutuelleCompleted: { type: Boolean, default: false },
+      mutuelleCompletedAt: { type: Date },
+      bankDetailsProvided: { type: Boolean, default: false },
+      bankDetailsProvidedAt: { type: Date },
+      registerCompleted: { type: Boolean, default: false },
+      registerCompletedAt: { type: Date },
+      contractSent: { type: Boolean, default: false },
+      contractSentAt: { type: Date },
     },
+
+    // Planning de travail
+    workSchedule: {
+      weeklyDistribution: { type: String },
+      timeSlots: { type: String },
+      weeklyDistributionData: { type: Object },
+    },
+
+    // Coordonnées bancaires
+    bankDetails: {
+      iban: { type: String, trim: true },
+      bic: { type: String, trim: true },
+      bankName: { type: String, trim: true },
+    },
+
+    // Code pointage (PIN)
+    clockingCode: {
+      type: String,
+      required: [true, 'Le code de pointage est requis'],
+      match: [/^\d{4}$/, 'Le code de pointage doit contenir 4 chiffres'],
+    },
+
+    // Couleur pour planning
     color: {
       type: String,
       required: [true, 'La couleur est obligatoire'],
       default: function () {
-        // Attribution automatique de couleurs
         const colors = [
           'bg-blue-500',
           'bg-green-500',
@@ -101,95 +303,80 @@ const employeeSchema = new Schema<IEmployee>(
           'bg-pink-500',
           'bg-yellow-500',
           'bg-cyan-500',
-        ]
-        return colors[Math.floor(Math.random() * colors.length)]
-      },
-      validate: {
-        validator: function (color: string) {
-          // Valider format couleur (classe CSS ou code hex)
-          return /^(bg-\w+-\d+|#[0-9A-Fa-f]{6})$/.test(color)
-        },
-        message:
-          'Format de couleur invalide. Utilisez une classe Tailwind (ex: bg-blue-500) ou un code hex (ex: #3B82F6)',
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
       },
     },
-    startDate: {
-      type: Date,
-      required: [true, 'La date de début est obligatoire'],
-      default: Date.now,
+
+    // Rôle planning
+    role: {
+      type: String,
+      enum: ['Manager', 'Reception', 'Security', 'Maintenance', 'Cleaning', 'Staff'],
+      default: 'Staff',
     },
+
+    // Statut
     isActive: {
       type: Boolean,
       default: true,
     },
+
+    deletedAt: {
+      type: Date,
+    },
   },
   {
-    timestamps: true, // Ajoute automatiquement createdAt et updatedAt
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
-)
+);
 
-// Index pour optimiser les recherches
-employeeSchema.index({ isActive: 1 })
-employeeSchema.index({ role: 1 })
-employeeSchema.index({ firstName: 1, lastName: 1 })
+// Index
+employeeSchema.index({ email: 1 }, { unique: true, sparse: true });
+employeeSchema.index({ socialSecurityNumber: 1 }, { unique: true, sparse: true });
+employeeSchema.index({ clockingCode: 1 }, { unique: true, sparse: true });
+employeeSchema.index({ isActive: 1 });
+employeeSchema.index({ deletedAt: 1 });
+employeeSchema.index({ hireDate: 1 });
+employeeSchema.index({ firstName: 1, lastName: 1 });
 
-// Virtuel pour le nom complet
+// Virtuel fullName
 employeeSchema.virtual('fullName').get(function (this: IEmployee) {
-  return `${this.firstName} ${this.lastName}`
-})
+  return `${this.firstName} ${this.lastName}`;
+});
 
-// Middleware pour s'assurer qu'un email unique n'est pas dupliqué
-employeeSchema.pre('save', async function (next) {
-  if (this.email && this.isModified('email')) {
-    const existingEmployee = await mongoose.models.Employee.findOne({
-      email: this.email,
-      _id: { $ne: this._id },
-    })
-    if (existingEmployee) {
-      throw new Error('Un employé avec cet email existe déjà')
-    }
-  }
-  next()
-})
+// Méthodes d'instance
+employeeSchema.methods.getFullName = function (): string {
+  return `${this.firstName} ${this.lastName}`;
+};
 
-// Méthodes de l'instance
-employeeSchema.methods.deactivate = function () {
-  this.isActive = false
-  return this.save()
-}
+employeeSchema.methods.getOnboardingProgress = function (): number {
+  const steps = [
+    this.onboardingStatus.step1Completed,
+    this.onboardingStatus.step2Completed,
+    this.onboardingStatus.step3Completed,
+    this.onboardingStatus.step4Completed,
+  ];
+  const completed = steps.filter(Boolean).length;
+  return Math.round((completed / steps.length) * 100);
+};
 
-employeeSchema.methods.activate = function () {
-  this.isActive = true
-  return this.save()
-}
+employeeSchema.methods.isOnboardingComplete = function (): boolean {
+  return (
+    this.onboardingStatus.contractGenerated &&
+    this.onboardingStatus.dpaeCompleted &&
+    this.onboardingStatus.bankDetailsProvided &&
+    this.onboardingStatus.contractSent
+  );
+};
 
-// Méthodes statiques
-employeeSchema.statics.findActive = function () {
-  return this.find({ isActive: true }).sort({ firstName: 1, lastName: 1 })
-}
-
-employeeSchema.statics.findByRole = function (role: string) {
-  return this.find({ role, isActive: true }).sort({ firstName: 1, lastName: 1 })
-}
-
-// Méthodes d'instance pour PIN
 employeeSchema.methods.verifyPin = function (pin: string): boolean {
-  return this.pin === pin
-}
+  return this.clockingCode === pin;
+};
 
-employeeSchema.methods.updatePin = async function (newPin: string): Promise<void> {
-  if (!/^\d{4}$/.test(newPin)) {
-    throw new Error('Le PIN doit être composé de 4 chiffres')
-  }
-  this.pin = newPin
-  await this.save()
-}
-
-// Éviter la re-compilation du modèle
+// Éviter la re-compilation
 const Employee =
-  mongoose.models.Employee ||
-  mongoose.model<IEmployee>('Employee', employeeSchema)
+  mongoose.models.Employee || mongoose.model<IEmployee>('Employee', employeeSchema);
 
-export default Employee
+export default Employee;
