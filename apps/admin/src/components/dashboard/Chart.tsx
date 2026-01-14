@@ -8,26 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { Calendar, TrendingUp } from "lucide-react";
+import { Calendar } from "lucide-react";
+import { ChartControls } from "./chart/ChartControls";
+import { ChartAreaView } from "./chart/ChartAreaView";
+import { ChartBarView } from "./chart/ChartBarView";
+import { ChartSummary } from "./chart/ChartSummary";
 
 interface DailyComparisonData {
   date: string;
@@ -155,143 +140,26 @@ export function Chart({ mode }: ChartProps) {
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Select
-            value={daysRange.toString()}
-            onValueChange={(value: string) => setDaysRange(parseInt(value) as 7 | 30 | 90)}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">7 jours</SelectItem>
-              <SelectItem value="30">30 jours</SelectItem>
-              <SelectItem value="90">90 jours</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={chartType}
-            onValueChange={(value: string) => setChartType(value as "area" | "bar")}
-          >
-            <SelectTrigger className="w-28">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="area">Zone</SelectItem>
-              <SelectItem value="bar">Barres</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <ChartControls
+          daysRange={daysRange}
+          chartType={chartType}
+          onDaysRangeChange={setDaysRange}
+          onChartTypeChange={setChartType}
+        />
       </CardHeader>
 
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          {chartType === "area" ? (
-            <AreaChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="date"
-                className="fill-muted-foreground text-xs"
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                className="fill-muted-foreground text-xs"
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(value) => `€${value.toLocaleString()}`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--background))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "6px",
-                }}
-                formatter={(value) => `€${Number(value).toLocaleString()}`}
-              />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="lastYear"
-                name="Année -1"
-                stroke="#3b82f6"
-                fill="#3b82f6"
-                fillOpacity={0.2}
-                strokeWidth={2}
-              />
-              <Area
-                type="monotone"
-                dataKey="thisYear"
-                name="Cette année"
-                stroke="#10b981"
-                fill="#10b981"
-                fillOpacity={0.2}
-                strokeWidth={2}
-              />
-            </AreaChart>
-          ) : (
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="date"
-                className="fill-muted-foreground text-xs"
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                className="fill-muted-foreground text-xs"
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(value) => `€${value.toLocaleString()}`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--background))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "6px",
-                }}
-                formatter={(value) => `€${Number(value).toLocaleString()}`}
-              />
-              <Legend />
-              <Bar dataKey="lastYear" name="Année -1" fill="#3b82f6" />
-              <Bar dataKey="thisYear" name="Cette année" fill="#10b981" />
-            </BarChart>
-          )}
-        </ResponsiveContainer>
+        {chartType === "area" ? (
+          <ChartAreaView data={chartData} />
+        ) : (
+          <ChartBarView data={chartData} />
+        )}
 
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="flex items-center justify-between rounded-lg bg-muted/50 p-4">
-            <div>
-              <div className="text-xs text-muted-foreground">Année -1</div>
-              <div className="font-semibold">
-                €{Math.round(lastYearTotal).toLocaleString()}
-              </div>
-            </div>
-            <div className="h-3 w-3 rounded bg-blue-500" />
-          </div>
-          <div className="flex items-center justify-between rounded-lg bg-muted/50 p-4">
-            <div>
-              <div className="text-xs text-muted-foreground">Cette année</div>
-              <div className="font-semibold">
-                €{Math.round(thisYearTotal).toLocaleString()}
-              </div>
-            </div>
-            <div className="h-3 w-3 rounded bg-green-500" />
-          </div>
-        </div>
-
-        <div className="mt-2 flex items-center justify-center rounded-lg bg-muted/50 p-3">
-          <TrendingUp
-            className={`mr-2 h-4 w-4 ${
-              growth >= 0 ? "text-green-600" : "text-red-600"
-            }`}
-          />
-          <span className="text-sm font-medium">
-            {growth >= 0 ? "+" : ""}
-            {growth.toFixed(1)}% vs année précédente
-          </span>
-        </div>
+        <ChartSummary
+          thisYearTotal={thisYearTotal}
+          lastYearTotal={lastYearTotal}
+          growth={growth}
+        />
       </CardContent>
     </Card>
   );

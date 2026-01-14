@@ -1,22 +1,13 @@
 import { useState, useMemo, useCallback } from "react";
 import { useAccountingData } from "@/hooks/use-accounting-data";
 import { useChartData } from "@/hooks/use-chart-data";
-import type { CashEntry, CashEntryFormData, CashEntryRow } from "@/types/accounting";
-
-interface MergedCashData {
-  _id: string;
-  date: string;
-  TTC?: number;
-  HT?: number;
-  TVA?: number;
-  prestaB2B: Array<{ label: string; value: number }>;
-  depenses: Array<{ label: string; value: number }>;
-  virement: number | null;
-  especes: number | null;
-  cbClassique: number | null;
-  cbSansContact: number | null;
-  source: "turnover" | "cashEntry";
-}
+import type { CashEntryFormData, CashEntryRow } from "@/types/accounting";
+import {
+  mergeCashData,
+  transformToTableData,
+  formatFormDataForAPI,
+  getAPIEndpoint,
+} from "@/lib/utils/cash-control";
 
 const initialFormData: CashEntryFormData = {
   _id: "",
@@ -66,122 +57,13 @@ export function useCashControl() {
   }, [turnoverData, selectedYear, selectedMonth]);
 
   // Merger les données turnover + cashEntries pour avoir toutes les dates
-  const mergedData = useMemo((): MergedCashData[] => {
-    if (!filteredTurnoverData && !dataCash) return [];
-
-    const allDatesMap = new Map<string, MergedCashData>();
-
-    // Ajouter toutes les dates de turnover
-    filteredTurnoverData?.forEach((turnoverItem) => {
-      allDatesMap.set(turnoverItem.date, {
-        _id: turnoverItem.date,
-        date: turnoverItem.date,
-        TTC: turnoverItem.TTC,
-        HT: turnoverItem.HT,
-        TVA: turnoverItem.TVA ?? 0,
-        prestaB2B: [],
-        depenses: [],
-        virement: null,
-        especes: null,
-        cbClassique: null,
-        cbSansContact: null,
-        source: "turnover",
-      });
-    });
-
-    // Ajouter toutes les dates de cashEntry qui correspondent aux filtres
-    dataCash?.forEach((entry: CashEntry) => {
-      const entryDate = entry._id;
-
-      // Vérifier si cette date correspond aux filtres actuels
-      if (entryDate) {
-        const d = new Date(entryDate.replace(/\//g, "-"));
-        const yearMatch = d.getFullYear() === selectedYear;
-        const monthMatch = d.getMonth() === selectedMonth;
-
-        if (yearMatch && monthMatch) {
-          const existing = allDatesMap.get(entryDate);
-          if (existing) {
-            // Fusionner avec données turnover existantes
-            allDatesMap.set(entryDate, {
-              ...existing,
-              prestaB2B: entry.prestaB2B || [],
-              depenses: entry.depenses || [],
-              virement: entry.virement ?? null,
-              especes: entry.especes ?? null,
-              cbClassique: entry.cbClassique ?? null,
-              cbSansContact: entry.cbSansContact ?? null,
-            });
-          } else {
-            // Créer nouvelle entrée (date sans turnover)
-            allDatesMap.set(entryDate, {
-              _id: entryDate,
-              date: entryDate,
-              TTC: 0,
-              HT: 0,
-              TVA: 0,
-              prestaB2B: entry.prestaB2B || [],
-              depenses: entry.depenses || [],
-              virement: entry.virement ?? null,
-              especes: entry.especes ?? null,
-              cbClassique: entry.cbClassique ?? null,
-              cbSansContact: entry.cbSansContact ?? null,
-              source: "cashEntry",
-            });
-          }
-        }
-      }
-    });
-
-    // Convertir le Map en tableau et trier par date
-    return Array.from(allDatesMap.values()).sort(
-      (a, b) =>
-        new Date(a.date.replace(/\//g, "-")).getTime() -
-        new Date(b.date.replace(/\//g, "-")).getTime()
-    );
+  const mergedData = useMemo(() => {
+    return mergeCashData(filteredTurnoverData, dataCash, selectedYear, selectedMonth);
   }, [filteredTurnoverData, dataCash, selectedYear, selectedMonth]);
 
   // Transformer les données mergées en lignes pour le tableau
   const tableData: CashEntryRow[] = useMemo(() => {
-    return mergedData.map((entry) => {
-      const totalB2B =
-        entry.prestaB2B?.reduce(
-          (sum, item) => sum + (Number(item.value) || 0),
-          0
-        ) || 0;
-
-      const totalDepenses =
-        entry.depenses?.reduce(
-          (sum, item) => sum + (Number(item.value) || 0),
-          0
-        ) || 0;
-
-      const totalCA = totalB2B - totalDepenses;
-
-      const totalEncaissements =
-        (entry.especes || 0) +
-        (entry.virement || 0) +
-        (entry.cbClassique || 0) +
-        (entry.cbSansContact || 0);
-
-      return {
-        _id: entry._id,
-        date: entry.date,
-        TTC: entry.TTC || 0,
-        HT: entry.HT || 0,
-        TVA: entry.TVA || 0,
-        totalCA,
-        totalEncaissements,
-        totalB2B,
-        totalDepenses,
-        especes: entry.especes || 0,
-        virement: entry.virement || 0,
-        cbClassique: entry.cbClassique || 0,
-        cbSansContact: entry.cbSansContact || 0,
-        prestaB2B: entry.prestaB2B,
-        depenses: entry.depenses,
-      };
-    });
+    return transformToTableData(mergedData);
   }, [mergedData]);
 
   // Handler pour soumettre le formulaire (création ou modification)
@@ -190,55 +72,9 @@ export function useCashControl() {
       e.preventDefault();
       setFormStatus(null);
 
-      // Formater la date pour l'envoi
-      let dateToSend = form.date;
-      if (dateToSend.includes("/")) {
-        dateToSend = dateToSend.replace(/\//g, "-");
-      }
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateToSend)) {
-        const d = new Date(dateToSend);
-        if (!isNaN(d.getTime())) {
-          dateToSend = d.toISOString().slice(0, 10);
-        }
-      }
-
-      // Formater la date en YYYY/MM/DD pour la clé MongoDB
-      const dateKey = dateToSend.replace(/-/g, "/");
-
-      // Préparer les données à envoyer
-      const bodyData: Record<string, unknown> = {
-        date: dateToSend,
-        prestaB2B: form.prestaB2B
-          .filter((p) => p.label && p.value !== "" && !isNaN(Number(p.value)))
-          .map((p) => ({
-            label: p.label,
-            value: Number(p.value),
-          })),
-        depenses: form.depenses
-          .filter((d) => d.label && d.value !== "" && !isNaN(Number(d.value)))
-          .map((d) => ({
-            label: d.label,
-            value: Number(d.value),
-          })),
-        virement: form.virement !== "" ? Number(form.virement) : 0,
-        especes: form.especes !== "" ? Number(form.especes) : 0,
-        cbClassique: form.cbClassique !== "" ? Number(form.cbClassique) : 0,
-        cbSansContact:
-          form.cbSansContact !== "" ? Number(form.cbSansContact) : 0,
-      };
-
-      let url = "/api/cash-entry";
-      let method: "POST" | "PUT" = "POST";
-
-      if (form._id) {
-        // Mode édition
-        url = "/api/cash-entry/update";
-        method = "PUT";
-        bodyData.id = form._id;
-      } else {
-        // Mode création
-        bodyData._id = dateKey;
-      }
+      const isEdit = !!form._id;
+      const bodyData = formatFormDataForAPI(form, isEdit);
+      const { url, method } = getAPIEndpoint(isEdit);
 
       try {
         const res = await fetch(url, {
@@ -250,7 +86,7 @@ export function useCashControl() {
         const result = await res.json();
 
         if (result.success) {
-          setFormStatus(form._id ? "Modification réussie !" : "Ajout réussi !");
+          setFormStatus(isEdit ? "Modification réussie !" : "Ajout réussi !");
 
           // Rafraîchir les données
           await refetch();
