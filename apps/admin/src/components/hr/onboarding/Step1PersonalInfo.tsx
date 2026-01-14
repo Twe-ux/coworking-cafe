@@ -8,6 +8,13 @@ import { Label } from '@/components/ui/label'
 import { useOnboardingContext } from '@/contexts/OnboardingContext'
 import type { PersonalInfo } from '@/types/onboarding'
 
+// Formater une date ISO en YYYY-MM-DD pour les inputs
+const formatDateForInput = (dateString?: string): string => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toISOString().split('T')[0]
+}
+
 export function Step1PersonalInfo() {
   const { data, saveStep1 } = useOnboardingContext()
 
@@ -16,20 +23,25 @@ export function Step1PersonalInfo() {
     handleSubmit,
     formState: { errors },
   } = useForm<PersonalInfo>({
-    defaultValues: data.step1 || {
-      firstName: '',
-      lastName: '',
-      dateOfBirth: '',
-      placeOfBirth: '',
-      address: {
-        street: '',
-        postalCode: '',
-        city: '',
-      },
-      phone: '',
-      email: '',
-      socialSecurityNumber: '',
-    },
+    defaultValues: data.step1
+      ? {
+          ...data.step1,
+          dateOfBirth: formatDateForInput(data.step1.dateOfBirth),
+        }
+      : {
+          firstName: '',
+          lastName: '',
+          dateOfBirth: '',
+          placeOfBirth: '',
+          address: {
+            street: '',
+            postalCode: '',
+            city: '',
+          },
+          phone: '',
+          email: '',
+          socialSecurityNumber: '',
+        },
   })
 
   const onSubmit = (formData: PersonalInfo) => {

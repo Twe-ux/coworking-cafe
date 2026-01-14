@@ -35,8 +35,16 @@ export async function GET(request: NextRequest) {
     const active = searchParams.get('active')
     const search = searchParams.get('search')
 
+    // Paramètre pour inclure ou non les brouillons
+    const includeDrafts = searchParams.get('includeDrafts') === 'true'
+
     // Construction de la requête
-    const query: any = {}
+    const query: any = includeDrafts
+      ? {} // Inclure tout (brouillons + employés)
+      : {
+          // Exclure les brouillons de la liste par défaut
+          $or: [{ isDraft: { $exists: false } }, { isDraft: false }],
+        }
 
     if (role) {
       query.role = role
@@ -47,10 +55,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      query.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
+      query.$and = [
+        {
+          $or: [
+            { firstName: { $regex: search, $options: 'i' } },
+            { lastName: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } },
+          ],
+        },
       ]
     }
 
@@ -60,6 +72,7 @@ export async function GET(request: NextRequest) {
 
     // Formater les données pour l'interface
     const formattedEmployees = employees.map((employee: any) => ({
+      _id: employee._id.toString(),
       id: employee._id.toString(),
       firstName: employee.firstName,
       lastName: employee.lastName,
@@ -75,6 +88,7 @@ export async function GET(request: NextRequest) {
       endDate: employee.endDate,
       endContractReason: employee.endContractReason,
       isActive: employee.isActive,
+      isDraft: employee.isDraft || false,
       fullName: `${employee.firstName} ${employee.lastName}`,
       onboardingStatus: employee.onboardingStatus,
       onboardingProgress: employee.getOnboardingProgress?.() || 0,
@@ -164,6 +178,16 @@ export async function POST(request: NextRequest) {
     if (data.monthlySalary) employeeData.monthlySalary = data.monthlySalary
     if (data.availability) employeeData.availability = data.availability
     if (data.bankDetails) employeeData.bankDetails = data.bankDetails
+
+    // Définir onboardingStatus avec tous les steps complétés
+    employeeData.onboardingStatus = {
+      step1Completed: true,
+      step2Completed: true,
+      step3Completed: true,
+      step4Completed: true,
+      contractGenerated: false,
+      dpaeCompleted: false,
+    }
 
     const newEmployee = new Employee(employeeData)
     await newEmployee.save()

@@ -38,44 +38,99 @@ export function Step3Availability() {
   }
 
   const addSlot = (day: keyof Availability) => {
-    setAvailability((prev) => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        slots: [...prev[day].slots, { start: '09:00', end: '18:00' }],
-      },
-    }))
+    setAvailability((prev) => {
+      const newSlot = {
+        start: '09:00',
+        end: '18:00',
+        id: `${day}-${Date.now()}-${Math.random()}`
+      }
+      return {
+        ...prev,
+        [day]: {
+          ...prev[day],
+          slots: [...prev[day].slots, newSlot],
+        },
+      }
+    })
   }
 
-  const removeSlot = (day: keyof Availability, index: number) => {
+  const removeSlot = (day: keyof Availability, slotId: string) => {
     setAvailability((prev) => ({
       ...prev,
       [day]: {
         ...prev[day],
-        slots: prev[day].slots.filter((_, i) => i !== index),
+        slots: prev[day].slots.filter((slot: any) => slot.id !== slotId),
       },
     }))
   }
 
   const updateSlot = (
     day: keyof Availability,
-    index: number,
+    slotId: string,
     field: 'start' | 'end',
     value: string
   ) => {
+    setAvailability((prev) => {
+      // Créer une copie profonde des slots
+      const updatedSlots = prev[day].slots.map((slot: any) => ({
+        start: slot.start,
+        end: slot.end,
+        id: slot.id,
+      }))
+
+      // Trouver et mettre à jour le slot par son ID
+      const slotIndex = updatedSlots.findIndex((s: any) => s.id === slotId)
+      if (slotIndex !== -1) {
+        updatedSlots[slotIndex] = {
+          ...updatedSlots[slotIndex],
+          [field]: value,
+        }
+      }
+
+      // Ne PAS trier pendant la saisie pour éviter les bugs de focus
+      // Le tri se fera automatiquement à la soumission du formulaire
+
+      return {
+        ...prev,
+        [day]: {
+          ...prev[day],
+          slots: updatedSlots,
+        },
+      }
+    })
+  }
+
+  const sortSlots = (day: keyof Availability) => {
     setAvailability((prev) => ({
       ...prev,
       [day]: {
         ...prev[day],
-        slots: prev[day].slots.map((slot, i) =>
-          i === index ? { ...slot, [field]: value } : slot
-        ),
+        slots: [...prev[day].slots].sort((a, b) => a.start.localeCompare(b.start)),
       },
     }))
   }
 
   const handleSubmit = () => {
-    saveStep3(availability)
+    // Nettoyer les IDs et trier les créneaux avant de sauvegarder
+    const cleanedAvailability = Object.keys(availability).reduce((acc, day) => {
+      const dayKey = day as keyof Availability
+      const sortedSlots = [...availability[dayKey].slots]
+        .map((slot: any) => ({
+          start: slot.start,
+          end: slot.end,
+        }))
+        .sort((a, b) => a.start.localeCompare(b.start))
+
+      return {
+        ...acc,
+        [day]: {
+          available: availability[dayKey].available,
+          slots: sortedSlots,
+        },
+      }
+    }, {} as Availability)
+
+    saveStep3(cleanedAvailability)
   }
 
   return (
@@ -100,35 +155,37 @@ export function Step3Availability() {
 
               {availability[key].available && (
                 <div className="ml-8 space-y-2">
-                  {availability[key].slots.map((slot, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Input
-                        type="time"
-                        value={slot.start}
-                        onChange={(e) =>
-                          updateSlot(key, index, 'start', e.target.value)
-                        }
-                        className="w-32"
-                      />
-                      <span className="text-muted-foreground">à</span>
-                      <Input
-                        type="time"
-                        value={slot.end}
-                        onChange={(e) =>
-                          updateSlot(key, index, 'end', e.target.value)
-                        }
-                        className="w-32"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeSlot(key, index)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
+                  <div className="flex flex-wrap gap-2">
+                    {availability[key].slots.map((slot: any) => (
+                      <div key={slot.id} className="flex items-center gap-2">
+                        <Input
+                          type="time"
+                          value={slot.start}
+                          onChange={(e) =>
+                            updateSlot(key, slot.id, 'start', e.target.value)
+                          }
+                          className="w-28"
+                        />
+                        <span className="text-muted-foreground text-sm">à</span>
+                        <Input
+                          type="time"
+                          value={slot.end}
+                          onChange={(e) =>
+                            updateSlot(key, slot.id, 'end', e.target.value)
+                          }
+                          className="w-28"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeSlot(key, slot.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
 
                   <Button
                     type="button"

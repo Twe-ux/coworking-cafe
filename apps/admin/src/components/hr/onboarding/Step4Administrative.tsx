@@ -5,15 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Check } from 'lucide-react'
 import { useOnboardingContext } from '@/contexts/OnboardingContext'
 import type { AdministrativeInfo } from '@/types/onboarding'
 import { EMPLOYEE_COLORS } from '@/types/onboarding'
@@ -30,13 +24,13 @@ export function Step4Administrative() {
   } = useForm<AdministrativeInfo>({
     defaultValues: data.step4 || {
       clockingCode: '',
-      color: EMPLOYEE_COLORS[0],
-      role: 'Staff',
-      bankDetails: {
-        iban: '',
-        bic: '',
-        bankName: '',
-      },
+      color: EMPLOYEE_COLORS[0].value,
+      dpaeCompleted: false,
+      medicalVisitCompleted: false,
+      mutuelleCompleted: false,
+      bankDetailsProvided: false,
+      registerCompleted: false,
+      contractSent: false,
     },
   })
 
@@ -58,7 +52,8 @@ export function Step4Administrative() {
         <CardHeader>
           <CardTitle>Informations administratives</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+          {/* Code de pointage */}
           <div className="space-y-2">
             <Label htmlFor="clockingCode">
               Code de pointage (PIN) <span className="text-destructive">*</span>
@@ -86,90 +81,128 @@ export function Step4Administrative() {
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">
-              Rôle (planning) <span className="text-destructive">*</span>
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                setValue(
-                  'role',
-                  value as
-                    | 'Manager'
-                    | 'Reception'
-                    | 'Security'
-                    | 'Maintenance'
-                    | 'Cleaning'
-                    | 'Staff'
-                )
-              }
-              defaultValue={data.step4?.role || 'Staff'}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un rôle" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Manager">Manager</SelectItem>
-                <SelectItem value="Reception">Réception</SelectItem>
-                <SelectItem value="Security">Sécurité</SelectItem>
-                <SelectItem value="Maintenance">Maintenance</SelectItem>
-                <SelectItem value="Cleaning">Nettoyage</SelectItem>
-                <SelectItem value="Staff">Personnel</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
+          {/* Sélecteur de couleur */}
           <div className="space-y-2">
             <Label>
               Couleur (calendrier) <span className="text-destructive">*</span>
             </Label>
             <div className="grid grid-cols-5 gap-2">
-              {EMPLOYEE_COLORS.map((color) => {
-                const isSelected = selectedColor === color
-                const buttonClass = `h-10 rounded-md border-2 transition-all ${color} ${isSelected ? 'ring-2 ring-primary ring-offset-2' : 'border-transparent'}`
+              {EMPLOYEE_COLORS.map((colorOption) => {
+                const isSelected = selectedColor === colorOption.value
 
                 return (
                   <button
-                    key={color}
+                    key={colorOption.value}
                     type="button"
-                    onClick={() => setValue('color', color)}
-                    className={buttonClass}
-                  />
+                    onClick={() => setValue('color', colorOption.value)}
+                    className={`h-12 rounded-md border-2 transition-all relative group ${
+                      isSelected
+                        ? 'ring-2 ring-primary ring-offset-2 border-primary'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    style={{ backgroundColor: colorOption.value }}
+                    title={colorOption.name}
+                  >
+                    {isSelected && (
+                      <Check className="w-5 h-5 text-white absolute inset-0 m-auto drop-shadow-lg" />
+                    )}
+                    <span className="sr-only">{colorOption.name}</span>
+                  </button>
                 )
               })}
             </div>
+            <p className="text-xs text-muted-foreground">
+              Sélectionnez une couleur pour identifier l'employé dans le planning
+            </p>
           </div>
 
+          {/* Checkboxes de suivi administratif */}
           <div className="space-y-4 pt-4 border-t">
             <Label className="text-base font-semibold">
-              Coordonnées bancaires (optionnel)
+              Suivi administratif
             </Label>
+            <p className="text-xs text-muted-foreground">
+              Cochez les étapes administratives déjà complétées en dehors de ce wizard
+            </p>
 
-            <div className="space-y-2">
-              <Label htmlFor="bankDetails.iban">IBAN</Label>
-              <Input
-                id="bankDetails.iban"
-                placeholder="FR76 1234 5678 9012 3456 7890 123"
-                {...register('bankDetails.iban')}
-              />
-            </div>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="dpaeCompleted"
+                  checked={watch('dpaeCompleted')}
+                  onCheckedChange={(checked) =>
+                    setValue('dpaeCompleted', checked as boolean)
+                  }
+                />
+                <Label htmlFor="dpaeCompleted" className="font-normal cursor-pointer">
+                  DPAE effectuée
+                </Label>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="bankDetails.bic">BIC</Label>
-              <Input
-                id="bankDetails.bic"
-                placeholder="BNPAFRPPXXX"
-                {...register('bankDetails.bic')}
-              />
-            </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="medicalVisitCompleted"
+                  checked={watch('medicalVisitCompleted')}
+                  onCheckedChange={(checked) =>
+                    setValue('medicalVisitCompleted', checked as boolean)
+                  }
+                />
+                <Label htmlFor="medicalVisitCompleted" className="font-normal cursor-pointer">
+                  Visite médicale effectuée
+                </Label>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="bankDetails.bankName">Nom de la banque</Label>
-              <Input
-                id="bankDetails.bankName"
-                placeholder="BNP Paribas"
-                {...register('bankDetails.bankName')}
-              />
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="mutuelleCompleted"
+                  checked={watch('mutuelleCompleted')}
+                  onCheckedChange={(checked) =>
+                    setValue('mutuelleCompleted', checked as boolean)
+                  }
+                />
+                <Label htmlFor="mutuelleCompleted" className="font-normal cursor-pointer">
+                  Mutuelle souscrite
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="bankDetailsProvided"
+                  checked={watch('bankDetailsProvided')}
+                  onCheckedChange={(checked) =>
+                    setValue('bankDetailsProvided', checked as boolean)
+                  }
+                />
+                <Label htmlFor="bankDetailsProvided" className="font-normal cursor-pointer">
+                  RIB fourni
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="registerCompleted"
+                  checked={watch('registerCompleted')}
+                  onCheckedChange={(checked) =>
+                    setValue('registerCompleted', checked as boolean)
+                  }
+                />
+                <Label htmlFor="registerCompleted" className="font-normal cursor-pointer">
+                  Registre du personnel complété
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="contractSent"
+                  checked={watch('contractSent')}
+                  onCheckedChange={(checked) =>
+                    setValue('contractSent', checked as boolean)
+                  }
+                />
+                <Label htmlFor="contractSent" className="font-normal cursor-pointer">
+                  Contrat envoyé
+                </Label>
+              </div>
             </div>
           </div>
         </CardContent>

@@ -50,6 +50,7 @@ export async function GET(
 
     // Formater avec toutes les données HR
     const formattedEmployee = {
+      _id: (employee as any)._id.toString(),
       id: (employee as any)._id.toString(),
       firstName: (employee as any).firstName,
       lastName: (employee as any).lastName,

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type {
   OnboardingData,
@@ -9,30 +9,258 @@ import type {
   AdministrativeInfo,
 } from '@/types/onboarding'
 import { DEFAULT_AVAILABILITY } from '@/types/onboarding'
+import type { Employee } from '@/types/hr'
 
-export function useOnboarding() {
+interface UseOnboardingOptions {
+  initialEmployee?: Employee
+  mode?: 'create' | 'edit'
+  employeeId?: string
+}
+
+const STORAGE_KEY = 'onboarding-draft'
+
+export function useOnboarding(options?: UseOnboardingOptions) {
   const router = useRouter()
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>(1)
-  const [data, setData] = useState<OnboardingData>({
-    step3: DEFAULT_AVAILABILITY,
+  const { initialEmployee, mode = 'create', employeeId } = options || {}
+
+  const initialData = useMemo<OnboardingData>(() => {
+    // Mode édition : utiliser les données de l'employé
+    if (initialEmployee) {
+      return {
+        step1: {
+          firstName: initialEmployee.firstName,
+          lastName: initialEmployee.lastName,
+          dateOfBirth: initialEmployee.dateOfBirth,
+          placeOfBirth: initialEmployee.placeOfBirth,
+          address: initialEmployee.address,
+          phone: initialEmployee.phone,
+          email: initialEmployee.email,
+          socialSecurityNumber: initialEmployee.socialSecurityNumber,
+        },
+        step2: {
+          contractType: initialEmployee.contractType,
+          contractualHours: initialEmployee.contractualHours,
+          hireDate: initialEmployee.hireDate,
+          hireTime: initialEmployee.hireTime,
+          endDate: initialEmployee.endDate,
+          level: initialEmployee.level,
+          step: initialEmployee.step,
+          hourlyRate: initialEmployee.hourlyRate,
+          monthlySalary: initialEmployee.monthlySalary,
+          employeeRole: initialEmployee.employeeRole,
+        },
+        step3: (initialEmployee.availability as Availability) || DEFAULT_AVAILABILITY,
+        step4: {
+          clockingCode: initialEmployee.clockingCode,
+          color: initialEmployee.color || '#3b82f6',
+          dpaeCompleted: initialEmployee.onboardingStatus?.dpaeCompleted || false,
+          medicalVisitCompleted: initialEmployee.onboardingStatus?.medicalVisitCompleted || false,
+          mutuelleCompleted: initialEmployee.onboardingStatus?.mutuelleCompleted || false,
+          bankDetailsProvided: initialEmployee.onboardingStatus?.bankDetailsProvided || false,
+          registerCompleted: initialEmployee.onboardingStatus?.registerCompleted || false,
+          contractSent: initialEmployee.onboardingStatus?.contractSent || false,
+        },
+      }
+    }
+
+    return { step3: DEFAULT_AVAILABILITY }
+  }, [initialEmployee])
+
+  // Charger le brouillon depuis BD au montage (mode création uniquement)
+  useEffect(() => {
+    if (mode === 'create' && !initialEmployee) {
+      const loadDraft = async () => {
+        try {
+          const response = await fetch('/api/hr/employees/draft')
+          const result = await response.json()
+
+          if (result.success && result.data) {
+            const draft = result.data
+            const draftData: OnboardingData = {}
+
+            // Reconstituer les données du brouillon
+            if (draft.firstName) {
+              draftData.step1 = {
+                firstName: draft.firstName,
+                lastName: draft.lastName,
+                dateOfBirth: draft.dateOfBirth,
+                placeOfBirth: draft.placeOfBirth,
+                address: draft.address,
+                phone: draft.phone,
+                email: draft.email,
+                socialSecurityNumber: draft.socialSecurityNumber,
+              }
+            }
+
+            if (draft.contractType) {
+              draftData.step2 = {
+                contractType: draft.contractType,
+                contractualHours: draft.contractualHours,
+                hireDate: draft.hireDate,
+                hireTime: draft.hireTime,
+                endDate: draft.endDate,
+                level: draft.level,
+                step: draft.step,
+                hourlyRate: draft.hourlyRate,
+                monthlySalary: draft.monthlySalary,
+                employeeRole: draft.employeeRole,
+              }
+            }
+
+            if (draft.availability) {
+              draftData.step3 = draft.availability as Availability
+            }
+
+            if (draft.clockingCode) {
+              draftData.step4 = {
+                clockingCode: draft.clockingCode,
+                color: draft.color || '#3b82f6',
+                dpaeCompleted: draft.onboardingStatus?.dpaeCompleted || false,
+                medicalVisitCompleted: draft.onboardingStatus?.medicalVisitCompleted || false,
+                mutuelleCompleted: draft.onboardingStatus?.mutuelleCompleted || false,
+                bankDetailsProvided: draft.onboardingStatus?.bankDetailsProvided || false,
+                registerCompleted: draft.onboardingStatus?.registerCompleted || false,
+                contractSent: draft.onboardingStatus?.contractSent || false,
+              }
+            }
+
+            setData((prev) => ({ ...prev, ...draftData }))
+
+            // Définir l'étape courante selon la progression
+            if (draft.onboardingStatus) {
+              const status = draft.onboardingStatus
+              if (!status.step1Completed) setCurrentStep(1)
+              else if (!status.step2Completed) setCurrentStep(2)
+              else if (!status.step3Completed) setCurrentStep(3)
+              else if (!status.step4Completed) setCurrentStep(4)
+            }
+          }
+        } catch (err) {
+          console.error('Erreur chargement brouillon:', err)
+        }
+      }
+
+      loadDraft()
+    }
+  }, [mode, initialEmployee])
+
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>(() => {
+    if (typeof window !== 'undefined' && mode === 'create') {
+      const saved = localStorage.getItem(`${STORAGE_KEY}-step`)
+      if (saved) {
+        return parseInt(saved) as OnboardingStep
+      }
+    }
+    return 1
   })
+
+  const [data, setData] = useState<OnboardingData>(initialData)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const saveStep1 = useCallback((personalInfo: PersonalInfo) => {
-    setData((prev) => ({ ...prev, step1: personalInfo }))
-    setCurrentStep(2)
-  }, [])
+  // Sauvegarder dans localStorage à chaque changement (mode création uniquement)
+  useEffect(() => {
+    if (mode === 'create' && typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      localStorage.setItem(`${STORAGE_KEY}-step`, currentStep.toString())
+    }
+  }, [data, currentStep, mode])
 
-  const saveStep2 = useCallback((contractInfo: ContractInfo) => {
-    setData((prev) => ({ ...prev, step2: contractInfo }))
-    setCurrentStep(3)
-  }, [])
+  const saveStep1 = useCallback(
+    async (personalInfo: PersonalInfo) => {
+      const updatedData = { ...data, step1: personalInfo }
+      setData(updatedData)
 
-  const saveStep3 = useCallback((availability: Availability) => {
-    setData((prev) => ({ ...prev, step3: availability }))
-    setCurrentStep(4)
-  }, [])
+      // Sauvegarder en BD si mode création
+      if (mode === 'create') {
+        try {
+          await fetch('/api/hr/employees/draft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...personalInfo,
+              onboardingStatus: {
+                step1Completed: true,
+                step2Completed: false,
+                step3Completed: false,
+                step4Completed: false,
+              },
+            }),
+          })
+        } catch (err) {
+          console.error('Erreur sauvegarde brouillon:', err)
+        }
+      }
+
+      setCurrentStep(2)
+    },
+    [data, mode]
+  )
+
+  const saveStep2 = useCallback(
+    async (contractInfo: ContractInfo) => {
+      const updatedData = { ...data, step2: contractInfo }
+      setData(updatedData)
+
+      // Sauvegarder en BD si mode création
+      if (mode === 'create') {
+        try {
+          await fetch('/api/hr/employees/draft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...data.step1,
+              ...contractInfo,
+              onboardingStatus: {
+                step1Completed: true,
+                step2Completed: true,
+                step3Completed: false,
+                step4Completed: false,
+              },
+            }),
+          })
+        } catch (err) {
+          console.error('Erreur sauvegarde brouillon:', err)
+        }
+      }
+
+      setCurrentStep(3)
+    },
+    [data, mode]
+  )
+
+  const saveStep3 = useCallback(
+    async (availability: Availability) => {
+      const updatedData = { ...data, step3: availability }
+      setData(updatedData)
+
+      // Sauvegarder en BD si mode création
+      if (mode === 'create') {
+        try {
+          await fetch('/api/hr/employees/draft', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...data.step1,
+              ...data.step2,
+              availability,
+              onboardingStatus: {
+                step1Completed: true,
+                step2Completed: true,
+                step3Completed: true,
+                step4Completed: false,
+              },
+            }),
+          })
+        } catch (err) {
+          console.error('Erreur sauvegarde brouillon:', err)
+        }
+      }
+
+      setCurrentStep(4)
+    },
+    [data, mode]
+  )
 
   const saveStep4 = useCallback(
     async (adminInfo: AdministrativeInfo) => {
@@ -71,12 +299,32 @@ export function useOnboarding() {
           // Step 4 - Infos administratives
           clockingCode: adminInfo.clockingCode,
           color: adminInfo.color,
-          role: adminInfo.role,
-          bankDetails: adminInfo.bankDetails,
+          role: 'Staff', // Rôle planning par défaut
+
+          // Checkboxes administratives vont dans onboardingStatus
+          onboardingStatus: {
+            step1Completed: true,
+            step2Completed: true,
+            step3Completed: true,
+            step4Completed: true,
+            contractGenerated: false,
+            dpaeCompleted: adminInfo.dpaeCompleted || false,
+            medicalVisitCompleted: adminInfo.medicalVisitCompleted || false,
+            mutuelleCompleted: adminInfo.mutuelleCompleted || false,
+            bankDetailsProvided: adminInfo.bankDetailsProvided || false,
+            registerCompleted: adminInfo.registerCompleted || false,
+            contractSent: adminInfo.contractSent || false,
+          },
         }
 
-        const response = await fetch('/api/hr/employees', {
-          method: 'POST',
+        const url =
+          mode === 'edit'
+            ? `/api/hr/employees/${employeeId}`
+            : '/api/hr/employees'
+        const method = mode === 'edit' ? 'PUT' : 'POST'
+
+        const response = await fetch(url, {
+          method,
           headers: {
             'Content-Type': 'application/json',
           },
@@ -86,17 +334,37 @@ export function useOnboarding() {
         const result = await response.json()
 
         if (!response.ok) {
-          throw new Error(result.error || 'Erreur lors de la création')
+          throw new Error(
+            result.error ||
+              `Erreur lors de la ${mode === 'edit' ? 'modification' : 'création'}`
+          )
         }
 
-        // Rediriger vers la page de l'employé créé
-        router.push(`/hr/employees/${result.data.id}`)
+        // Nettoyer localStorage et brouillon après succès
+        if (mode === 'create') {
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(STORAGE_KEY)
+            localStorage.removeItem(`${STORAGE_KEY}-step`)
+          }
+
+          // Supprimer le brouillon en BD
+          try {
+            await fetch('/api/hr/employees/draft', {
+              method: 'DELETE',
+            })
+          } catch (err) {
+            console.error('Erreur suppression brouillon:', err)
+          }
+        }
+
+        // Rediriger vers la liste des employés
+        router.push('/hr')
       } catch (err: any) {
         setError(err.message || 'Une erreur est survenue')
         setLoading(false)
       }
     },
-    [data, router]
+    [data, router, mode, employeeId]
   )
 
   const goToStep = useCallback((step: OnboardingStep) => {

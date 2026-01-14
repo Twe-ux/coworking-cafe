@@ -49,12 +49,13 @@ export interface Availability {
 export interface AdministrativeInfo {
   clockingCode: string
   color: string
-  role: 'Manager' | 'Reception' | 'Security' | 'Maintenance' | 'Cleaning' | 'Staff'
-  bankDetails?: {
-    iban: string
-    bic: string
-    bankName: string
-  }
+  // Checkboxes de suivi administratif
+  dpaeCompleted?: boolean
+  medicalVisitCompleted?: boolean
+  mutuelleCompleted?: boolean
+  bankDetailsProvided?: boolean
+  registerCompleted?: boolean
+  contractSent?: boolean
 }
 
 export interface OnboardingData {
@@ -81,24 +82,29 @@ export const ONBOARDING_STEP_LABELS = {
 }
 
 export const EMPLOYEE_COLORS = [
-  'bg-blue-500',
-  'bg-green-500',
-  'bg-purple-500',
-  'bg-orange-500',
-  'bg-red-500',
-  'bg-teal-500',
-  'bg-indigo-500',
-  'bg-pink-500',
-  'bg-yellow-500',
-  'bg-cyan-500',
+  { name: 'Bleu', value: '#3B82F6' },
+  { name: 'Vert', value: '#10B981' },
+  { name: 'Violet', value: '#8B5CF6' },
+  { name: 'Orange', value: '#F97316' },
+  { name: 'Rouge', value: '#EF4444' },
+  { name: 'Cyan', value: '#06B6D4' },
+  { name: 'Indigo', value: '#6366F1' },
+  { name: 'Rose', value: '#EC4899' },
+  { name: 'Jaune', value: '#EAB308' },
+  { name: 'Lime', value: '#84CC16' },
+  { name: 'Emeraude', value: '#059669' },
+  { name: 'Fuchsia', value: '#D946EF' },
+  { name: 'Ambre', value: '#F59E0B' },
+  { name: 'Bleu ciel', value: '#0EA5E9' },
+  { name: 'Pourpre', value: '#A855F7' },
 ]
 
 export const DEFAULT_AVAILABILITY: Availability = {
-  monday: { available: true, slots: [] },
-  tuesday: { available: true, slots: [] },
-  wednesday: { available: true, slots: [] },
-  thursday: { available: true, slots: [] },
-  friday: { available: true, slots: [] },
+  monday: { available: false, slots: [] },
+  tuesday: { available: false, slots: [] },
+  wednesday: { available: false, slots: [] },
+  thursday: { available: false, slots: [] },
+  friday: { available: false, slots: [] },
   saturday: { available: false, slots: [] },
   sunday: { available: false, slots: [] },
 }

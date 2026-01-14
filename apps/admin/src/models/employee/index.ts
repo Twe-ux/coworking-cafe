@@ -99,6 +99,8 @@ export interface IEmployee extends Document {
 
   // ===== COMMUN =====
   isActive: boolean;
+  isDraft?: boolean; // Brouillon en cours de création
+  createdBy?: string; // ID de l'utilisateur qui a créé le brouillon
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
@@ -321,6 +323,15 @@ const employeeSchema = new Schema<IEmployee>(
       default: true,
     },
 
+    isDraft: {
+      type: Boolean,
+      default: false,
+    },
+
+    createdBy: {
+      type: String,
+    },
+
     deletedAt: {
       type: Date,
     },
@@ -337,6 +348,7 @@ employeeSchema.index({ email: 1 }, { unique: true, sparse: true });
 employeeSchema.index({ socialSecurityNumber: 1 }, { unique: true, sparse: true });
 employeeSchema.index({ clockingCode: 1 }, { unique: true, sparse: true });
 employeeSchema.index({ isActive: 1 });
+employeeSchema.index({ isDraft: 1, createdBy: 1 });
 employeeSchema.index({ deletedAt: 1 });
 employeeSchema.index({ hireDate: 1 });
 employeeSchema.index({ firstName: 1, lastName: 1 });

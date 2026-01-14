@@ -2,6 +2,7 @@
 
 import { createContext, useContext, ReactNode } from 'react'
 import { useOnboarding } from '@/hooks/hr/useOnboarding'
+import type { Employee } from '@/types/hr'
 
 type OnboardingContextType = ReturnType<typeof useOnboarding>
 
@@ -9,8 +10,20 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(
   undefined
 )
 
-export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const onboarding = useOnboarding()
+interface OnboardingProviderProps {
+  children: ReactNode
+  initialEmployee?: Employee
+  mode?: 'create' | 'edit'
+  employeeId?: string
+}
+
+export function OnboardingProvider({
+  children,
+  initialEmployee,
+  mode,
+  employeeId,
+}: OnboardingProviderProps) {
+  const onboarding = useOnboarding({ initialEmployee, mode, employeeId })
 
   return (
     <OnboardingContext.Provider value={onboarding}>

@@ -15,6 +15,13 @@ import {
 import { useOnboardingContext } from '@/contexts/OnboardingContext'
 import type { ContractInfo } from '@/types/onboarding'
 
+// Formater une date ISO en YYYY-MM-DD pour les inputs
+const formatDateForInput = (dateString?: string): string => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toISOString().split('T')[0]
+}
+
 export function Step2ContractInfo() {
   const { data, saveStep2 } = useOnboardingContext()
 
@@ -25,16 +32,22 @@ export function Step2ContractInfo() {
     watch,
     formState: { errors },
   } = useForm<ContractInfo>({
-    defaultValues: data.step2 || {
-      contractType: 'CDI',
-      contractualHours: 35,
-      hireDate: '',
-      hireTime: '',
-      level: '',
-      step: 1,
-      hourlyRate: 11.65,
-      employeeRole: 'Employé',
-    },
+    defaultValues: data.step2
+      ? {
+          ...data.step2,
+          hireDate: formatDateForInput(data.step2.hireDate),
+          endDate: formatDateForInput(data.step2.endDate),
+        }
+      : {
+          contractType: 'CDI',
+          contractualHours: 35,
+          hireDate: '',
+          hireTime: '',
+          level: '',
+          step: 1,
+          hourlyRate: 11.65,
+          employeeRole: 'Employé',
+        },
   })
 
   const contractType = watch('contractType')

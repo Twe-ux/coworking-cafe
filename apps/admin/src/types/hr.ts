@@ -81,8 +81,10 @@ export interface Employee {
   level: string;
   step: number;
   hourlyRate: number;
+  monthlySalary?: number;
   employeeRole: EmployeeRole;
   isActive: boolean;
+  isDraft?: boolean;
   hireDate: string;
   hireTime?: string;
   endDate?: string;
@@ -91,8 +93,16 @@ export interface Employee {
   workSchedule?: WorkSchedule;
   availability?: WeeklyAvailability;
   clockingCode?: string;
-  employeeColor?: string;
+  color?: string; // Couleur pour le planning/calendrier
+  role?: 'Manager' | 'Reception' | 'Security' | 'Maintenance' | 'Cleaning' | 'Staff'; // Rôle planning
+  bankDetails?: {
+    iban: string;
+    bic: string;
+    bankName: string;
+  };
   deletedAt?: Date;
+  createdBy?: string;
+  updatedAt?: Date;
 }
 
 export interface EmployeeFormData {
