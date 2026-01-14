@@ -80,7 +80,7 @@ importers:
         specifier: ^7.0.0
         version: 7.0.0
       mongoose:
-        specifier: ^8.0.0
+        specifier: ^8.21.0
         version: 8.21.0
       next:
         specifier: 14.2.17

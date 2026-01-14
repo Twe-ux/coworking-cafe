@@ -1,5 +1,5 @@
-import SchedulePage from '@/components/dashboard/schedule'
+import SchedulePage from "@/components/dashboard/schedule";
 
 export default function AdminSchedulePage() {
-  return <SchedulePage />
+  return <SchedulePage />;
 }
