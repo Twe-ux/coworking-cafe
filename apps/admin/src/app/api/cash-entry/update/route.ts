@@ -1,4 +1,4 @@
-import CashEntry from "@/lib/models/CashEntry"
+import CashEntry from "@/models/cashEntry"
 import { connectMongoose } from "@/lib/mongodb"
 import { NextRequest, NextResponse } from "next/server"
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectMongoose } from "@/lib/mongodb"
-import CashEntry from "@/lib/models/CashEntry"
+import CashEntry from "@/models/cashEntry"
 import type { PrestaB2BItem, DepenseItem } from "@/types/accounting"
 
 export async function POST(request: NextRequest) {

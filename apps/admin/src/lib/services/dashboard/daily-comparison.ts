@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectMongoose } from "@/lib/mongodb";
-import Turnover from "@/lib/models/Turnover";
+import Turnover from "@/models/turnover";
 import { formatDateForMongoDB } from "./date-utils";
 import type { DailyComparisonItem } from "./types";
 

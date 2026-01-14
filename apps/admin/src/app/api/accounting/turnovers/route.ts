@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectMongoose } from "@/lib/mongodb"
-import Turnover from "@/lib/models/Turnover"
+import Turnover from "@/models/turnover"
 
 export async function GET(request: NextRequest) {
   try {
