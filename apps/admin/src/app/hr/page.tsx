@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useEmployeesData } from "@/hooks/hr/useEmployeesData";
 import { EmployeeList } from "@/components/hr/employees";
 import type { Employee } from "@/types/hr";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 /**
  * Page HR Management - Admin/Dev only
@@ -18,7 +18,6 @@ export default function HRManagementPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const userRole = session?.user?.role;
-  const { toast } = useToast();
 
   const {
     employees,
@@ -46,13 +45,11 @@ export default function HRManagementPage() {
   // Afficher les erreurs
   useEffect(() => {
     if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
+      toast.error("Erreur", {
         description: error,
       });
     }
-  }, [error, toast]);
+  }, [error]);
 
   // Loading state
   if (!session) {
@@ -68,30 +65,26 @@ export default function HRManagementPage() {
 
   // Handlers (temporaires, les modals seront ajoutés après)
   const handleCreateNew = () => {
-    toast({
-      title: "À venir",
+    toast.info("À venir", {
       description: "Le formulaire de création sera disponible prochainement",
     });
   };
 
   const handleEdit = (employee: Employee) => {
     setSelectedEmployee(employee);
-    toast({
-      title: "À venir",
+    toast.info("À venir", {
       description: "Le formulaire d'édition sera disponible prochainement",
     });
   };
 
   const handleViewContract = (employee: Employee) => {
-    toast({
-      title: "À venir",
+    toast.info("À venir", {
       description: "La visualisation du contrat sera disponible prochainement",
     });
   };
 
   const handleEndContract = (employee: Employee) => {
-    toast({
-      title: "À venir",
+    toast.info("À venir", {
       description: "Le formulaire de fin de contrat sera disponible prochainement",
     });
   };
@@ -100,8 +93,7 @@ export default function HRManagementPage() {
     if (confirm(`Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?`)) {
       const result = await archiveEmployee(employee._id);
       if (result.success) {
-        toast({
-          title: "Succès",
+        toast.success("Succès", {
           description: "Employé archivé avec succès",
         });
       }

@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { RoleSwitcherProvider } from "@/contexts/role-switcher-context";
 import { AVAILABLE_ROLES } from "@/components/role-switcher";
 import { queryClient } from "@/lib/queryClient";
+import { Toaster } from "sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <RoleSwitcherProvider availableRoles={AVAILABLE_ROLES}>
           {children}
+          <Toaster position="top-right" richColors />
         </RoleSwitcherProvider>
       </QueryClientProvider>
     </SessionProvider>
