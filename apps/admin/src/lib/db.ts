@@ -1,4 +1,16 @@
-// Re-export the MongoDB connection from mongodb.ts
-// This provides a shorter alias: @/lib/db instead of @/lib/mongodb
-export { default } from './mongodb';
-export { default as connectDB } from './mongodb';
+/**
+ * Database connection helper for Mongoose
+ * Provides connectDB() for API routes
+ */
+import { connectMongoose } from './mongodb';
+
+/**
+ * Connect to MongoDB using Mongoose
+ * Used by API routes that need Mongoose models
+ */
+async function connectDB() {
+  return await connectMongoose();
+}
+
+export default connectDB;
+export { connectDB };
