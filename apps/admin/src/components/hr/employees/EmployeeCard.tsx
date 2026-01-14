@@ -75,7 +75,7 @@ export function EmployeeCard({
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
-                {employee.onboardingStatus.step4Completed && (
+                {employee.onboardingStatus?.step4Completed && (
                   <Button
                     variant="outline"
                     size="icon"
@@ -113,7 +113,9 @@ export function EmployeeCard({
               </div>
               <div className="mt-1 flex gap-2">
                 <Badge variant="secondary">{employee.contractType}</Badge>
-                <Badge variant="outline">{employee.contractualHours}h</Badge>
+                <Badge variant="outline">
+                  {employee.contractualHours ? `${employee.contractualHours}h` : 'N/A'}
+                </Badge>
                 <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
               </div>
             </div>
@@ -128,7 +130,7 @@ export function EmployeeCard({
             >
               <Edit className="h-4 w-4" />
             </Button>
-            {employee.onboardingStatus.step4Completed && (
+            {employee.onboardingStatus?.step4Completed && (
               <Button
                 variant="outline"
                 size="icon"
