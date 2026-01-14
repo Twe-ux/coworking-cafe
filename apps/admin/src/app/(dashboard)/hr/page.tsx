@@ -63,11 +63,9 @@ export default function HRManagementPage() {
     );
   }
 
-  // Handlers (temporaires, les modals seront ajoutés après)
+  // Handlers
   const handleCreateNew = () => {
-    toast.info("À venir", {
-      description: "Le formulaire de création sera disponible prochainement",
-    });
+    router.push("/hr/employees/new");
   };
 
   const handleEdit = (employee: Employee) => {
