@@ -1,0 +1,27 @@
+.manifest__section {
+  background-color: var(--main-clr);
+
+  .container {
+    max-width: 1096px;
+    margin: auto;
+  }
+  .mantra {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    font-style: italic;
+    margin-top: 0 !important;
+    color: var(--grayWhite-clr) !important;
+    @include breakpoint(sm) {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .spaces__wapper {
+    margin: 50px 100px;
+    @include breakpoint(sm) {
+      margin: 30px 20px;
+    }
+  }
+}

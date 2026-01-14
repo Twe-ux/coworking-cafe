@@ -1,0 +1,295 @@
+.services {
+  background-color: var(--main-clr);
+  padding-bottom: 0px;
+
+  &__title {
+    .title {
+      max-width: 555px;
+    }
+    .common__btn {
+      background-color: var(--btn-clr);
+      color: var(--secondary-clr);
+    }
+  }
+
+  &__wapper {
+    &_list {
+      margin-top: 36px;
+      div {
+        @include justify();
+        color: var(--grayWhite-clr);
+        padding: 54px 0;
+        border-bottom: 1px solid #e3ece71f;
+        gap: 30px;
+        &:last-child {
+          padding: 0px;
+          padding-top: 54px;
+          border-bottom: none;
+        }
+        @include breakpoint(md) {
+          flex-direction: column;
+          align-items: start;
+          gap: 15px;
+          padding: 40px 0;
+        }
+        .service__name {
+          @include flex();
+          gap: 4px;
+          max-width: 515px;
+          width: 100%;
+          sup {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: -10px;
+            display: block;
+            color: var(--btn-clr);
+          }
+          font-size: 42px;
+          font-weight: 600;
+          transition: all 0.5s ease-in-out;
+          @include breakpoint(xl) {
+            font-size: 30px;
+          }
+          @include breakpoint(md) {
+            font-size: 25px;
+          }
+        }
+        .describe {
+          max-width: 501px;
+          color: var(--grayWhite-clr);
+        }
+        .icon {
+          min-width: 66px;
+          min-height: 66px;
+          border-radius: 50%;
+          border: 1px solid var(--btn-clr);
+          @include center();
+          transition: all 0.5s ease-in-out;
+          .black {
+            display: none;
+          }
+          @include breakpoint(lg) {
+            min-width: 56px;
+            min-height: 56px;
+          }
+        }
+        &:hover {
+          .service__name {
+            color: var(--btn-clr);
+          }
+          .icon {
+            background-color: var(--btn-clr);
+            .black {
+              display: block;
+            }
+            .yellow {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .service__card {
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 10px;
+    transition: all 0.5s;
+    @include breakpoint(md) {
+      padding: 20px;
+    }
+    .fa-arrow-right{
+      transform: rotate(-45deg);
+      font-size: 18px;
+      margin-left: 4px;
+    }
+    &:hover {
+      background-color: var(--btn-clr);
+      p {
+        color: var(--secondary-clr);
+      }
+      a {
+        color: var(--secondary-clr);
+      }
+      .up__icon {
+        filter: brightness(70%) contrast(150%) saturate(0%);
+      }
+    }
+    h3 {
+      color: var(--secondary-clr);
+      margin-top: 30px;
+      display: block;
+      @include breakpoint(sm) {
+        margin-top: 20px;
+      }
+    }
+    p {
+      transition: all 0.5s;
+      color: #6e6f75;
+      margin-top: 30px;
+      margin-bottom: 46px;
+      @include breakpoint(sm) {
+        margin-top: 20px;
+        margin-bottom: 34px;
+      }
+    }
+    a {
+      transition: all 0.5s;
+      color: var(--main-clr);
+      font-weight: 600;
+    }
+    .black{
+      display: none;
+    }
+  }
+
+  .counter {
+    padding: 70px;
+    background-color: #588983;
+    border-radius: 10px;
+    width: 100%;
+    transform: translateY(50%);
+    display: flex;
+    justify-content: space-between;
+    @include breakpoint(lg) {
+      flex-wrap: wrap;
+      padding: 50px;
+    }
+    @include breakpoint(md) {
+      padding: 40px;
+      transform: translateY(40%);
+    }
+    @include breakpoint(sm) {
+      padding: 20px;
+    }
+    &__box {
+      margin-bottom: 25px;
+      @include breakpoint(lg) {
+        width: 50%;
+      }
+      &:hover {
+        .counter__number {
+          color: var(--btn-clr);
+          -webkit-text-stroke-color: var(--btn-clr);
+        }
+      }
+    }
+    &__number {
+      -webkit-text-stroke-width: 1px;
+      -webkit-text-stroke-color: var(--grayWhite-clr);
+      color: transparent;
+      font-weight: 700;
+      font-size: 80px;
+      line-height: 90px;
+      margin-bottom: 28px;
+      transition: all 0.5s;
+      @include breakpoint(xl) {
+        font-size: 60px;
+      }
+      @include breakpoint(lg) {
+        margin-bottom: 5px;
+      }
+      @include breakpoint(md) {
+        font-size: 40px;
+        margin-bottom: 0px;
+        line-height: 55px;
+      }
+    }
+    &__text {
+      color: var(--grayWhite-clr);
+    }
+  }
+}
+
+// ---------------- Services_2 for home page 2 and it exteds home page one service code
+.services__2 {
+  padding-bottom: 130px;
+  @include breakpoint(lg){
+    padding-bottom: 266px;
+  }
+  @include breakpoint(lg){
+    padding-bottom: 320px;
+  }
+  @include breakpoint(sm){
+    padding-bottom: 240px;
+  }
+  &_title {
+    p {
+      max-width: 536px;
+    }
+  }
+  &_wapper {
+    margin-top: 60px;
+    margin-bottom: -368px;
+    @include breakpoint(sm) {
+      margin-bottom: -265px;
+    }
+
+    .services__2_card {
+      background-color: #588983;
+      h3 {
+        color: var(--grayWhite-clr);
+        transition: all 0.5s;
+      }
+      p {
+        color: var(--grayWhite-clr);
+      }
+      a {
+        color: var(--btn-clr);
+      }
+      &:hover {
+        h3 {
+          color: var(--secondary-clr);
+        }
+      }
+    }
+    .two {
+      transform: translateY(50px);
+      @include breakpoint(xl) {
+        transform: translateY(0px);
+      }
+    }
+    .three {
+      transform: translateY(100px);
+      @include breakpoint(xl) {
+        transform: translateY(0px);
+      }
+    }
+    .video {
+      transform: translateY(15%);
+      @include breakpoint(lg) {
+        transform: translateY(100px);
+      }
+      @include breakpoint(md) {
+        transform: translateY(90px);
+      }
+      // @include breakpoint(sm) {
+      //   transform: translateY(90px);
+      // }
+    }
+  }
+
+  &_row {
+    margin-top: 89px;
+    @include breakpoint(xl) {
+      margin-top: 30px;
+    }
+    @include breakpoint(md) {
+      margin-top: 0px;
+    }
+    p {
+      color: var(--grayWhite-clr);
+    }
+    a {
+      color: var(--btn-clr);
+      font-weight: 700;
+    }
+  }
+}
+
+.all__services {
+  background-color: transparent;
+  margin-bottom: 181px;
+  padding-bottom: 130px;
+}

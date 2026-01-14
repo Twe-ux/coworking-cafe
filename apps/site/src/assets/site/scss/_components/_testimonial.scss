@@ -1,0 +1,209 @@
+.testimonial {
+  background-color: var(--main-clr);
+
+  @include breakpoint(xl) {
+    padding-bottom: 260px;
+  }
+  @include breakpoint(lg) {
+    padding-bottom: 380px;
+  }
+  @include breakpoint(md) {
+    padding-bottom: 300px;
+  }
+  @include breakpoint(sm) {
+    padding-bottom: 230px;
+  }
+
+  &__title {
+    max-width: 668px;
+    margin: auto;
+  }
+
+  &__wapper {
+    position: relative;
+    margin-top: 60px;
+    margin-bottom: -368px;
+    @include breakpoint(md) {
+      margin-bottom: -250px;
+    }
+    @include breakpoint(sm) {
+      margin-bottom: -200px;
+    }
+
+    .swiper-slide {
+      min-height: 426px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      @include breakpoint(xl) {
+        min-height: 452px;
+      }
+      @include breakpoint(lg) {
+        min-height: 546px;
+      }
+      @include breakpoint(md) {
+        min-height: 378px;
+      }
+    }
+
+    .w-380 {
+      width: 350px;
+      align-items: center !important;
+
+      &.swiper-pagination-custom {
+        width: 0;
+      }
+    }
+
+    .slide {
+      background-color: #588983;
+      border-radius: 10px;
+      padding: 40px;
+
+      @include breakpoint(md) {
+        padding: 30px;
+      }
+    }
+    .star {
+      i {
+        color: var(--btn-clr);
+      }
+    }
+    .review {
+      text-align: justify;
+      font-size: 18px;
+      color: var(--grayWhite-clr);
+      font-weight: 6000;
+      margin-bottom: 50px;
+      margin-top: 30px;
+      @include breakpoint(md) {
+        font-size: 15px;
+        margin-top: 25px;
+        margin-bottom: 40px;
+      }
+      @include breakpoint(sm) {
+        font-size: 13px;
+        margin-top: 22px;
+        margin-bottom: 30px;
+      }
+    }
+    .reviewer__info {
+      img {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+      }
+      p {
+        font-size: 20px;
+        font-weight: 500px;
+        color: var(--grayWhite-clr);
+        font-family: Kanit;
+      }
+      small {
+        color: var(--pra-clr);
+      }
+    }
+    .quotes {
+      @include breakpoint(sm) {
+        display: none;
+      }
+    }
+  }
+
+  .slick-slider {
+    position: static !important;
+  }
+  .slick-slide {
+    margin: 0 12px;
+  }
+  .slick-dots {
+    display: flex !important;
+    justify-content: center;
+    gap: 55px;
+    li {
+      width: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+    }
+  }
+  .slide-dots {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    @include center();
+    border: 1px solid var(--grayWhite-clr);
+    color: var(--grayWhite-clr);
+    cursor: pointer;
+  }
+  .slide-dots-active {
+    background-color: var(--btn-clr);
+    color: var(--secondary-clr);
+  }
+  .slide__nav {
+    @extend .slide-dots;
+    z-index: 1;
+    transition: all 0.5s;
+    cursor: pointer;
+    &:hover {
+      background-color: var(--btn-clr);
+      border: 1px solid var(--btn-clr);
+      color: var(--secondary-clr);
+    }
+  }
+}
+
+// ------------ testimonial__2 for home page 2 and it's extend code from main home page
+.testimonial__2 {
+  background-color: transparent;
+  .title {
+    color: var(--secondary-clr);
+  }
+  .slide {
+    background-color: white;
+    .review {
+      color: var(--secondary-clr);
+    }
+    .reviewer__info {
+      p {
+        color: var(--secondary-clr);
+      }
+      small {
+        color: var(--secondary-clr);
+      }
+    }
+  }
+  .slick-dots {
+    left: 11%;
+    width: auto !important;
+  }
+  .slide-dots {
+    border: 1px solid var(--secondary-clr);
+    color: var(--secondary-clr);
+  }
+  .slide__nav {
+    @extend .slide-dots;
+  }
+  .prev-arrow {
+    right: 57%;
+    @include breakpoint(xl) {
+      right: 75%;
+    }
+    @include breakpoint(lg) {
+      right: 83%;
+    }
+    @include breakpoint(md) {
+      right: 80%;
+    }
+    @include breakpoint(sm) {
+      right: 70%;
+    }
+  }
+  .next-arrow {
+    left: 2%;
+  }
+}
+
+// ------------ testimonial__3 for about page and it's extend code from main home page
+.testimonial__3 {
+  padding-top: 50px;
+}

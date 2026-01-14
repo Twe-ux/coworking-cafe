@@ -1,0 +1,66 @@
+// ----------- some code extend from banner 1
+.banner2 {
+  background-color: var(--main-clr);
+  padding-top: 107px;
+  padding-bottom: 108px;
+  
+  &__title {
+    h1 {
+      position: relative;
+      color: var(--grayWhite-clr);
+      display: inline-block;
+      &:first-child {
+        margin-bottom: 24px;
+      }
+      &:first-child::after {
+        content: "";
+        position: absolute;
+        bottom: -9px;
+        left: 0;
+        max-width: 624px;
+        width: 100%;
+        height: 5px;
+        background-color: var(--btn-clr);
+      }
+    }
+    p {
+      font-size: 16px;
+      color: var(--grayWhite-clr);
+      margin-top: 50px;
+    }
+  }
+  .buttons_file {
+    background-color: var(--btn-clr);
+    color: var(--secondary-clr);
+  }
+  &__number {
+    background-color: transparent;
+    margin-top: 100px;
+    padding: 0;
+    max-width: 613px;
+    @include breakpoint(sm) {
+      max-width: 100%;
+      margin-top: 50px;
+    }
+    @include breakpoint(md) {
+      margin-top: 60px;
+    }
+    @include breakpoint(lg) {
+      margin-top: 70px;
+    }
+    h4 {
+      color: var(--btn-clr);
+    }
+    p {
+      color: #f5f2e5;
+    }
+  }
+
+  .banner__right {
+    // top: 0;
+    background-image: url("/images/banner/OBJECTS.png");
+    background-size: contain;
+    background-position-x: left;
+    background-repeat: no-repeat;
+  }
+}

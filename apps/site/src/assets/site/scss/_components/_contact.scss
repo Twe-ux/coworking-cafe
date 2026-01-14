@@ -1,0 +1,145 @@
+.contact {
+  max-width: 1096px;
+  margin: auto;
+  padding-top: 166px;
+
+  #emplacement {
+    scroll-margin-top: 200px;
+  }
+
+  .location {
+    .location__disc {
+      color: #6e6f75;
+      margin-top: 35px;
+      margin-bottom: 40px;
+    }
+
+    ul {
+      li {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 37px;
+        align-items: flex-start;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        img {
+          margin-top: 5px;
+        }
+
+        b {
+          color: var(--secondary-clr);
+          font-size: 18px;
+          line-height: 30px;
+        }
+
+        p,
+        p .email {
+          color: #75706e;
+        }
+      }
+    }
+  }
+
+  .contact__form {
+    max-width: 648px;
+    margin-left: auto;
+
+    @include breakpoint(lg) {
+      max-width: 100%;
+    }
+
+    h5 {
+      margin-bottom: 30px;
+    }
+
+    input {
+      width: 100%;
+      border-radius: 10px;
+      border: none;
+      background-color: white;
+      padding: 22px 20px;
+      outline: none;
+      margin-bottom: 20px;
+
+      @include breakpoint(md) {
+        padding: 19px 17px;
+      }
+    }
+
+    textarea {
+      @extend input;
+      margin-bottom: 0;
+      min-height: 203px;
+
+      @include breakpoint(md) {
+        min-height: 180px;
+      }
+    }
+
+    .common__btn {
+      background-color: var(--main-clr);
+      border: 1px solid var(--main-clr);
+      margin-top: 20px;
+    }
+
+    .dropdown {
+      position: relative;
+      width: 100%;
+      margin-bottom: 20px;
+
+      .selectBox {
+        background: #fff;
+        padding: 22px 20px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .arrow {
+        font-size: 14px;
+      }
+
+      .optionsList {
+        position: absolute;
+        width: 100%;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-top: 5px;
+        list-style: none;
+        padding: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+
+        li {
+          padding: 10px;
+          cursor: pointer;
+          transition: background 0.3s;
+
+          &:hover {
+            background: #f1f1f1;
+          }
+        }
+      }
+    }
+  }
+}
+
+.map {
+  max-width: 1096px;
+  margin: auto;
+  margin-bottom: 181px;
+
+  iframe {
+    width: 100%;
+    min-height: 468px;
+  }
+}

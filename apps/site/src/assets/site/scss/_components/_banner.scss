@@ -1,0 +1,222 @@
+.banner {
+  background-color: #0f1b19;
+  padding-top: 107px;
+  padding-bottom: 108px;
+
+  @include breakpoint(lg) {
+    padding-top: 30px;
+  }
+
+  @include breakpoint(sm) {
+    padding-top: 60px;
+  }
+  &__content {
+    position: relative;
+    z-index: 10;
+    &_title {
+      h1 {
+        color: var(--primary-clr);
+        font-size: 60px;
+        line-height: 80px;
+        font-weight: 600;
+        @include breakpoint(xl) {
+          font-size: 80px;
+          line-height: 80px;
+        }
+        @include breakpoint(lg) {
+          font-size: 60px;
+          line-height: 60px;
+        }
+        @include breakpoint(sm) {
+          font-size: 26px;
+          line-height: 45px;
+        }
+      }
+      p {
+        max-width: 700px;
+        font-size: 22px;
+        line-height: 32px;
+        color: rgba(227, 236, 231, 0.67);
+        margin-top: 73px;
+        @include breakpoint(xl) {
+          margin-top: 50px;
+        }
+        @include breakpoint(lg) {
+          margin-top: 40px;
+        }
+        @include breakpoint(md) {
+          font-size: 18px;
+          line-height: 28px;
+        }
+      }
+    }
+
+    .buttons {
+      gap: 24px;
+      margin-top: 59px;
+      @include breakpoint(xl) {
+        margin-top: 50px;
+      }
+      @include breakpoint(lg) {
+        gap: 15px;
+        margin-top: 40px;
+        display: flex;
+      }
+      &_outline {
+        @include breakpoint(lg) {
+          margin-top: 0 !important;
+        }
+      }
+      &_file {
+        background-color: var(--main-clr);
+        border: 1px solid var(--main-clr);
+      }
+      &_outline {
+        color: var(--btn-clr);
+      }
+    }
+    &_number {
+      max-width: 745px;
+      background-color: #e7fece;
+      border-radius: 10px;
+      padding: 45px;
+      margin-top: 107px;
+      @include breakpoint(xl) {
+        padding: 40px;
+        margin-top: 90px;
+        max-width: 100%;
+      }
+      @include breakpoint(lg) {
+        padding: 20px;
+        margin-top: 70px;
+      }
+      @include breakpoint(md) {
+        padding: 15px;
+        margin-top: 50px;
+      }
+      h4 {
+        color: var(--grayBlack-clr);
+        font-size: 44px;
+        font-weight: 700;
+        @include breakpoint(xl) {
+          font-size: 35px;
+        }
+        @include breakpoint(lg) {
+          font-size: 30px;
+        }
+        @include breakpoint(md) {
+          font-size: 25px;
+        }
+        @include breakpoint(sm) {
+          font-size: 22px;
+        }
+      }
+      p {
+        color: var(--gry-clr);
+        font-weight: 400;
+        line-height: 26px;
+        margin-bottom: 0;
+        @include breakpoint(sm) {
+          font-size: 14px;
+        }
+        @include breakpoint(xs) {
+          line-height: 20px;
+        }
+      }
+    }
+  }
+  &__right {
+    position: relative;
+    height: 100%;
+    // z-index: 1;
+
+    .bg__img {
+      position: absolute;
+      height: 50%;
+      width: 650px;
+      object-fit: cover;
+      right: 0;
+      bottom: -50px;
+      border-radius: 10px;
+      border-top-left-radius: 150px;
+      z-index: 1;
+      @include breakpoint(xxl) {
+        width: 580px;
+      }
+      @include breakpoint(xl) {
+        width: 500px;
+      }
+      @include breakpoint(lg) {
+        width: 450px;
+        right: -20%;
+        opacity: 0.5;
+      }
+    }
+    .bg__shap {
+      position: absolute;
+      top: 70px;
+      z-index: 1;
+      @include breakpoint(lg) {
+        display: none;
+      }
+    }
+    .logo__circle {
+      position: absolute;
+      height: 200px;
+      right: 0;
+      top: 40px;
+      z-index: 1;
+      @include breakpoint(lg) {
+        display: none;
+      }
+    }
+  }
+
+  &__shap_1 {
+    position: absolute;
+    top: -40%;
+    left: 7%;
+    width: 478px;
+    height: 478px;
+    background-color: #956c00;
+    box-shadow: 400px 400px 400px;
+    border-radius: 9999px;
+    filter: blur(200px);
+    z-index: 0;
+  }
+  &__shap_2 {
+    position: absolute;
+    top: 0%;
+    right: 0%;
+    width: 498px;
+    height: 498px;
+    background-color: #40792c;
+    box-shadow: 400px 400px 400px;
+    border-radius: 9999px;
+    filter: blur(200px);
+    // z-index: -1;
+  }
+  &__shap_3 {
+    position: absolute;
+    bottom: -7%;
+    left: 7%;
+    width: 551px;
+    height: 551px;
+    background-color: #415110;
+    box-shadow: 400px 400px 400px;
+    border-radius: 9999px;
+    filter: blur(200px);
+  }
+  &__shap_4 {
+    position: absolute;
+    bottom: 0%;
+    right: 0%;
+    width: 498px;
+    height: 498px;
+    background-color: #417972;
+    box-shadow: 400px 400px 400px;
+    border-radius: 9999px;
+    filter: blur(200px);
+    // z-index: 0;
+  }
+}
