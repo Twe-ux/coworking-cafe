@@ -73,6 +73,7 @@ export async function GET(request: NextRequest) {
       hireDate: employee.hireDate,
       isActive: employee.isActive,
       fullName: `${employee.firstName} ${employee.lastName}`,
+      onboardingStatus: employee.onboardingStatus,
       onboardingProgress: employee.getOnboardingProgress?.() || 0,
       createdAt: employee.createdAt,
       updatedAt: employee.updatedAt,

@@ -87,7 +87,7 @@ export interface Employee {
   hireTime?: string;
   endDate?: string;
   endContractReason?: EndContractReason;
-  onboardingStatus: OnboardingStatus;
+  onboardingStatus?: OnboardingStatus;
   workSchedule?: WorkSchedule;
   availability?: WeeklyAvailability;
   clockingCode?: string;

@@ -9,6 +9,10 @@ import type { Employee, AvailabilityDay } from "@/types/hr";
  * Calculer la progression de l'onboarding (0-100%)
  */
 export function calculateOnboardingProgress(employee: Employee): number {
+  if (!employee.onboardingStatus) {
+    return 0;
+  }
+
   const steps = [
     employee.onboardingStatus.step1Completed,
     employee.onboardingStatus.step2Completed,
