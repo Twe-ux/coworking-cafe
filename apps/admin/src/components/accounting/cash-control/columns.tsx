@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { CashEntryRow } from "@/types/accounting"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, CellContext } from "@tanstack/react-table"
 import { MoreHorizontal } from "lucide-react"
 
 const AmountFormatter = new Intl.NumberFormat("fr", {
@@ -174,7 +174,7 @@ export const columns: ColumnDef<CashEntryRow>[] = [
   {
     id: "actions",
     header: "",
-    cell: (cell: any) => {
+    cell: (cell: CellContext<CashEntryRow, unknown> & { openForm?: (row: CashEntryRow) => void; onDelete?: (row: CashEntryRow) => void }) => {
       const { row, openForm, onDelete } = cell
       const handleOpenFormWithDate = () => {
         if (typeof openForm === "function") {

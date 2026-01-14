@@ -1,7 +1,25 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
+import type { User as NextAuthUser } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDatabase } from '@/lib/mongodb';
 import bcrypt from 'bcryptjs';
+import { ObjectId } from 'mongodb';
+
+// Types pour les documents MongoDB
+interface UserDocument {
+  _id: ObjectId;
+  email: string;
+  password: string;
+  givenName?: string;
+  username?: string;
+  role: ObjectId;
+}
+
+interface RoleDocument {
+  _id: ObjectId;
+  slug: string;
+  name: string;
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -11,7 +29,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<NextAuthUser | null> {
         try {
           console.log('🔐 Authorization attempt for:', credentials?.email);
 
@@ -24,8 +42,8 @@ export const authOptions: NextAuthOptions = {
           const { db } = await connectToDatabase();
 
           console.log('🔍 Looking for user:', credentials.email);
-          const usersCollection = db.collection('users');
-          const rolesCollection = db.collection('roles');
+          const usersCollection = db.collection<UserDocument>('users');
+          const rolesCollection = db.collection<RoleDocument>('roles');
 
           const user = await usersCollection.findOne({ email: credentials.email });
 
@@ -69,12 +87,13 @@ export const authOptions: NextAuthOptions = {
 
           console.log('✅ Role valid:', role.slug);
 
+          // Retourner l'objet utilisateur avec les champs requis par NextAuth
           return {
             id: user._id.toString(),
             email: user.email,
             name: user.givenName || user.username || user.email.split('@')[0],
             role: role.slug,
-          };
+          } as NextAuthUser;
         } catch (error) {
           console.error('❌ Authorization error:', error);
           throw error;
@@ -93,9 +112,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as string;
-        session.user.id = token.id as string;
-        session.user.name = token.name as string;
+        session.user.role = token.role ?? undefined;
+        session.user.id = token.id ?? '';
+        session.user.name = token.name ?? null;
       }
       return session;
     },

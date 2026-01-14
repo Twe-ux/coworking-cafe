@@ -1,44 +1,39 @@
-import { useState, useEffect, useCallback } from 'react'
-import type { Turnover } from '@/types/accounting'
-import { accountingApi } from '@/lib/api/accounting'
+import { useQuery } from "@tanstack/react-query"
+import type { Turnover } from "@/types/accounting"
+import { accountingApi } from "@/lib/api/accounting"
 
-export function useTurnoverData() {
-  const [dataTurnover, setDataTurnover] = useState<Turnover[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+interface UseTurnoverDataParams {
+  startDate?: string
+  endDate?: string
+}
 
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      const data = await accountingApi.turnovers.list()
-      setDataTurnover(data)
-    } catch (err) {
-      console.error('Error fetching turnovers:', err)
-      setError(err instanceof Error ? err.message : 'Failed to fetch data')
-      setDataTurnover([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+/**
+ * Récupère les turnovers depuis l'API
+ */
+async function fetchTurnovers(
+  params?: UseTurnoverDataParams
+): Promise<Turnover[]> {
+  return accountingApi.turnovers.list(params)
+}
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
-
-  const refetch = useCallback(() => {
-    fetchData()
-  }, [fetchData])
-
-  const invalidate = useCallback(() => {
-    fetchData()
-  }, [fetchData])
+/**
+ * Hook pour récupérer les turnovers
+ * Utilise React Query pour le cache et la gestion d'état
+ *
+ * @param params - Filtres optionnels (startDate, endDate)
+ * @returns {object} - { dataTurnover, isLoading, error, refetch }
+ */
+export function useTurnoverData(params?: UseTurnoverDataParams) {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["turnovers", params],
+    queryFn: () => fetchTurnovers(params),
+  })
 
   return {
-    dataTurnover,
+    dataTurnover: data ?? [],
     isLoading,
-    error,
+    error: error ? String(error) : null,
     refetch,
-    invalidate,
+    invalidate: refetch, // Alias pour compatibilité
   }
 }

@@ -5,7 +5,7 @@ interface CashEntryItem {
   value: number
 }
 
-export interface ICashEntry extends Document {
+export interface ICashEntry extends Omit<Document, '_id'> {
   _id: string
   prestaB2B?: CashEntryItem[]
   depenses?: CashEntryItem[]

@@ -1,31 +1,17 @@
 import { Button } from "@/components/ui/button";
 import React, { useEffect } from "react";
+import type { CashEntryFormData, CashEntryRow } from "@/types/accounting";
 
-interface Depense {
-  label: string;
-  value: string | number;
-}
-
-interface Presta {
-  label: string;
-  value: string | number;
-}
+// Types locaux pour les items du formulaire (string values)
+type DepenseFormItem = { label: string; value: string }
+type PrestaFormItem = { label: string; value: string }
 
 interface FormCashControlProps {
-  form: {
-    _id: string;
-    date: string;
-    prestaB2B: Presta[];
-    depenses: Depense[];
-    virement: string | number;
-    especes: string | number;
-    cbClassique: string | number;
-    cbSansContact: string | number;
-  };
-  setForm: React.Dispatch<React.SetStateAction<any>>;
+  form: CashEntryFormData;
+  setForm: React.Dispatch<React.SetStateAction<CashEntryFormData>>;
   formStatus: string | null;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  editingRow: any;
+  editingRow: CashEntryRow | null;
 }
 
 export function FormCashControl({
@@ -95,7 +81,7 @@ export function FormCashControl({
     if (Math.abs(currentEspeces - newEspeces) > 0.01) {
       // Formater avec 2 décimales pour l'affichage
       const formattedEspeces = newEspeces.toFixed(2);
-      setForm((f: any) => ({ ...f, especes: formattedEspeces }));
+      setForm((f) => ({ ...f, especes: formattedEspeces }));
     }
   }, [
     form.prestaB2B,
@@ -119,7 +105,7 @@ export function FormCashControl({
     >
       <div className="flex flex-col gap-2">
         <span className="font-semibold">Dépenses :</span>
-        {form.depenses.map((dep: Depense, idx: number) => (
+        {form.depenses.map((dep: DepenseFormItem, idx: number) => (
           <div key={idx} className="flex items-center gap-2">
             <input
               type="text"
@@ -127,9 +113,9 @@ export function FormCashControl({
               placeholder="Libellé"
               value={dep.label}
               onChange={(e) =>
-                setForm((f: any) => ({
+                setForm((f) => ({
                   ...f,
-                  depenses: f.depenses.map((d: Depense, i: number) =>
+                  depenses: f.depenses.map((d: DepenseFormItem, i: number) =>
                     i === idx ? { ...d, label: e.target.value } : d
                   ),
                 }))
@@ -141,9 +127,9 @@ export function FormCashControl({
               placeholder="Montant"
               value={dep.value}
               onChange={(e) =>
-                setForm((f: any) => ({
+                setForm((f) => ({
                   ...f,
-                  depenses: f.depenses.map((d: Depense, i: number) =>
+                  depenses: f.depenses.map((d: DepenseFormItem, i: number) =>
                     i === idx ? { ...d, value: e.target.value } : d
                   ),
                 }))
@@ -153,9 +139,9 @@ export function FormCashControl({
               type="button"
               className="font-bold text-red-500"
               onClick={() =>
-                setForm((f: any) => ({
+                setForm((f) => ({
                   ...f,
-                  depenses: f.depenses.filter((_: any, i: number) => i !== idx),
+                  depenses: f.depenses.filter((_, i: number) => i !== idx),
                 }))
               }
             >
@@ -167,7 +153,7 @@ export function FormCashControl({
           type="button"
           className="mt-1 text-sm text-green-600 underline hover:text-green-700"
           onClick={() =>
-            setForm((f: any) => ({
+            setForm((f) => ({
               ...f,
               depenses: [...f.depenses, { label: "", value: "" }],
             }))
@@ -179,7 +165,7 @@ export function FormCashControl({
 
       <div className="flex flex-col gap-2">
         <span className="font-semibold">Presta B2B :</span>
-        {form.prestaB2B.map((pre: Presta, idx: number) => (
+        {form.prestaB2B.map((pre: PrestaFormItem, idx: number) => (
           <div key={idx} className="flex items-center gap-2">
             <input
               type="text"
@@ -187,9 +173,9 @@ export function FormCashControl({
               placeholder="Libellé"
               value={pre.label}
               onChange={(e) =>
-                setForm((f: any) => ({
+                setForm((f) => ({
                   ...f,
-                  prestaB2B: f.prestaB2B.map((p: Presta, i: number) =>
+                  prestaB2B: f.prestaB2B.map((p: PrestaFormItem, i: number) =>
                     i === idx ? { ...p, label: e.target.value } : p
                   ),
                 }))
@@ -201,9 +187,9 @@ export function FormCashControl({
               placeholder="Montant"
               value={pre.value}
               onChange={(e) =>
-                setForm((f: any) => ({
+                setForm((f) => ({
                   ...f,
-                  prestaB2B: f.prestaB2B.map((p: Presta, i: number) =>
+                  prestaB2B: f.prestaB2B.map((p: PrestaFormItem, i: number) =>
                     i === idx ? { ...p, value: e.target.value } : p
                   ),
                 }))
@@ -213,10 +199,10 @@ export function FormCashControl({
               type="button"
               className="font-bold text-red-500"
               onClick={() =>
-                setForm((f: any) => ({
+                setForm((f) => ({
                   ...f,
                   prestaB2B: f.prestaB2B.filter(
-                    (_: any, i: number) => i !== idx
+                    (_, i: number) => i !== idx
                   ),
                 }))
               }
@@ -229,7 +215,7 @@ export function FormCashControl({
           type="button"
           className="mt-1 text-sm text-green-600 underline hover:text-green-700"
           onClick={() =>
-            setForm((f: any) => ({
+            setForm((f) => ({
               ...f,
               prestaB2B: [...f.prestaB2B, { label: "", value: "" }],
             }))
@@ -244,7 +230,7 @@ export function FormCashControl({
         placeholder="CB classique"
         value={form.cbClassique}
         onChange={(e) =>
-          setForm((f: any) => ({ ...f, cbClassique: e.target.value }))
+          setForm((f) => ({ ...f, cbClassique: e.target.value }))
         }
       />
       <input
@@ -253,7 +239,7 @@ export function FormCashControl({
         placeholder="CB sans contact"
         value={form.cbSansContact}
         onChange={(e) =>
-          setForm((f: any) => ({ ...f, cbSansContact: e.target.value }))
+          setForm((f) => ({ ...f, cbSansContact: e.target.value }))
         }
       />
       <div className="flex flex-col">
@@ -265,7 +251,7 @@ export function FormCashControl({
             placeholder="Espèces"
             value={form.especes}
             onChange={(e) => {
-              setForm((f: any) => ({ ...f, especes: e.target.value }));
+              setForm((f) => ({ ...f, especes: e.target.value }));
               setIsManuallyEdited(true);
             }}
             title="Montant calculé automatiquement mais modifiable manuellement"
@@ -275,7 +261,7 @@ export function FormCashControl({
               type="button"
               onClick={() => {
                 const autoValue = calculateEspeces().toFixed(2);
-                setForm((f: any) => ({ ...f, especes: autoValue }));
+                setForm((f) => ({ ...f, especes: autoValue }));
                 setIsManuallyEdited(false);
               }}
               className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
@@ -299,14 +285,14 @@ export function FormCashControl({
         placeholder="Virement"
         value={form.virement}
         onChange={(e) =>
-          setForm((f: any) => ({ ...f, virement: e.target.value }))
+          setForm((f) => ({ ...f, virement: e.target.value }))
         }
       />
       <Button
         type="submit"
         className="bg-primary text-white hover:bg-green-700"
       >
-        {editingRow._id === "" ? "Ajouter" : "Modifier"}
+        {!editingRow || editingRow._id === "" ? "Ajouter" : "Modifier"}
       </Button>
       {formStatus && (
         <span className="ml-4 text-sm font-semibold">{formStatus}</span>

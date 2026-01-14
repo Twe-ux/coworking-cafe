@@ -6,7 +6,7 @@ interface VATData {
   "total-taxes": number
 }
 
-export interface ITurnover extends Document {
+export interface ITurnover extends Omit<Document, '_id'> {
   _id: string
   "vat-20": VATData
   "vat-10": VATData

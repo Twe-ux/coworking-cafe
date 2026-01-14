@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectMongoose } from "@/lib/mongodb"
 import CashEntry from "@/lib/models/CashEntry"
+import type { PrestaB2BItem, DepenseItem } from "@/types/accounting"
 
 export async function GET(request: NextRequest) {
   try {
@@ -81,8 +82,8 @@ export async function POST(request: NextRequest) {
 
     const cashEntry = new CashEntry({
       _id: formattedDate,
-      prestaB2B: body.prestaB2B?.filter((item: any) => item.label && item.value),
-      depenses: body.depenses?.filter((item: any) => item.label && item.value),
+      prestaB2B: body.prestaB2B?.filter((item: PrestaB2BItem) => item.label && item.value),
+      depenses: body.depenses?.filter((item: DepenseItem) => item.label && item.value),
       virement: body.virement || 0,
       especes: body.especes || 0,
       cbClassique: body.cbClassique || 0,

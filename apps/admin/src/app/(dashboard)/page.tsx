@@ -32,7 +32,6 @@ export default function DashboardPage() {
   }, []);
 
   const displayName =
-    session?.user?.givenName ||
     session?.user?.name ||
     session?.user?.email?.split("@")[0] ||
     "Utilisateur";

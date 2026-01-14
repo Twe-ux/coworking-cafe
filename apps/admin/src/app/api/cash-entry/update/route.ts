@@ -77,10 +77,11 @@ export async function PUT(request: NextRequest) {
     console.log('CashEntry upserted successfully:', updatedEntry._id)
 
     return NextResponse.json({ success: true, data: updatedEntry })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Erreur lors de la mise à jour:", error)
+    const message = error instanceof Error ? error.message : "Une erreur est survenue"
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: message },
       { status: 500 },
     )
   }

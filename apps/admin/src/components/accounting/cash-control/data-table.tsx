@@ -4,6 +4,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  type ColumnDef,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -23,7 +24,7 @@ import { DataTableFooter } from "./DataTableFooter";
 import { formatDateDDMMYYYY } from "./utils/cashEntryFormatters";
 
 interface DataTableProps<TData> {
-  columns: unknown[];
+  columns: ColumnDef<TData>[];
   data: TData[];
   form: CashEntryFormData;
   setForm: React.Dispatch<React.SetStateAction<CashEntryFormData>>;

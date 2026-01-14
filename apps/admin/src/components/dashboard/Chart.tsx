@@ -158,7 +158,7 @@ export function Chart({ mode }: ChartProps) {
         <div className="flex items-center space-x-2">
           <Select
             value={daysRange.toString()}
-            onValueChange={(value: any) => setDaysRange(parseInt(value))}
+            onValueChange={(value: string) => setDaysRange(parseInt(value) as 7 | 30 | 90)}
           >
             <SelectTrigger className="w-32">
               <SelectValue />
@@ -172,7 +172,7 @@ export function Chart({ mode }: ChartProps) {
 
           <Select
             value={chartType}
-            onValueChange={(value: any) => setChartType(value)}
+            onValueChange={(value: string) => setChartType(value as "area" | "bar")}
           >
             <SelectTrigger className="w-28">
               <SelectValue />
@@ -208,7 +208,7 @@ export function Chart({ mode }: ChartProps) {
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "6px",
                 }}
-                formatter={(value: any) => `€${Number(value).toLocaleString()}`}
+                formatter={(value) => `€${Number(value).toLocaleString()}`}
               />
               <Legend />
               <Area
@@ -251,7 +251,7 @@ export function Chart({ mode }: ChartProps) {
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "6px",
                 }}
-                formatter={(value: any) => `€${Number(value).toLocaleString()}`}
+                formatter={(value) => `€${Number(value).toLocaleString()}`}
               />
               <Legend />
               <Bar dataKey="lastYear" name="Année -1" fill="#3b82f6" />

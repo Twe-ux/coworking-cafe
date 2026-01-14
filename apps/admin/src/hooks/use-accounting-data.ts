@@ -1,44 +1,39 @@
-import { useState, useEffect, useCallback } from 'react'
-import type { CashEntry } from '@/types/accounting'
-import { accountingApi } from '@/lib/api/accounting'
+import { useQuery } from "@tanstack/react-query"
+import type { CashEntry } from "@/types/accounting"
+import { accountingApi } from "@/lib/api/accounting"
 
-export function useAccountingData() {
-  const [dataCash, setDataCash] = useState<CashEntry[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+interface UseAccountingDataParams {
+  startDate?: string
+  endDate?: string
+}
 
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      const data = await accountingApi.cashEntries.list()
-      setDataCash(data)
-    } catch (err) {
-      console.error('Error fetching cash entries:', err)
-      setError(err instanceof Error ? err.message : 'Failed to fetch data')
-      setDataCash([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+/**
+ * Récupère les cash entries depuis l'API
+ */
+async function fetchCashEntries(
+  params?: UseAccountingDataParams
+): Promise<CashEntry[]> {
+  return accountingApi.cashEntries.list(params)
+}
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
-
-  const refetch = useCallback(() => {
-    fetchData()
-  }, [fetchData])
-
-  const invalidate = useCallback(() => {
-    fetchData()
-  }, [fetchData])
+/**
+ * Hook pour récupérer les cash entries
+ * Utilise React Query pour le cache et la gestion d'état
+ *
+ * @param params - Filtres optionnels (startDate, endDate)
+ * @returns {object} - { dataCash, isLoading, error, refetch }
+ */
+export function useAccountingData(params?: UseAccountingDataParams) {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["cash-entries", params],
+    queryFn: () => fetchCashEntries(params),
+  })
 
   return {
-    dataCash,
+    dataCash: data ?? [],
     isLoading,
-    error,
+    error: error ? String(error) : null,
     refetch,
-    invalidate,
+    invalidate: refetch, // Alias pour compatibilité
   }
 }

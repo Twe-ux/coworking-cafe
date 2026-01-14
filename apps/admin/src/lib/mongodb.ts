@@ -24,7 +24,9 @@ const options: MongoClientOptions = {
 };
 
 let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+let clientPromise: Promise<MongoClient> = Promise.reject(
+  new Error("MongoDB URI not configured")
+);
 
 const dbCache = new Map<string, Db>();
 
