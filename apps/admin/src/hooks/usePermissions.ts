@@ -18,6 +18,11 @@ export function usePermissions() {
     canManageUsers: isDev || isAdmin,
     canViewUsers: isDev || isAdmin,
 
+    // HR (Human Resources)
+    canManageHR: isDev || isAdmin,
+    canViewHR: isDev || isAdmin,
+    canViewOwnHRData: isDev || isAdmin || isStaff,
+
     // Bookings
     canManageBookings: isDev || isAdmin,
     canViewBookings: isDev || isAdmin || isStaff,

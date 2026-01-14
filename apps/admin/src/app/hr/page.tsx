@@ -4,7 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Calendar, Clock } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useEmployeesData } from "@/hooks/hr/useEmployeesData";
+import { EmployeeList } from "@/components/hr/employees";
+import type { Employee } from "@/types/hr";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Page HR Management - Admin/Dev only
@@ -14,6 +18,23 @@ export default function HRManagementPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const userRole = session?.user?.role;
+  const { toast } = useToast();
+
+  const {
+    employees,
+    loading,
+    error,
+    fetchEmployees,
+    archiveEmployee,
+  } = useEmployeesData();
+
+  // États pour les modals (à implémenter)
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+
+  // Charger les employés au montage
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
 
   // Rediriger staff vers leur vue dédiée
   useEffect(() => {
@@ -21,6 +42,17 @@ export default function HRManagementPage() {
       router.push("/staff/schedule");
     }
   }, [userRole, router]);
+
+  // Afficher les erreurs
+  useEffect(() => {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error,
+      });
+    }
+  }, [error, toast]);
 
   // Loading state
   if (!session) {
@@ -33,6 +65,48 @@ export default function HRManagementPage() {
       </div>
     );
   }
+
+  // Handlers (temporaires, les modals seront ajoutés après)
+  const handleCreateNew = () => {
+    toast({
+      title: "À venir",
+      description: "Le formulaire de création sera disponible prochainement",
+    });
+  };
+
+  const handleEdit = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    toast({
+      title: "À venir",
+      description: "Le formulaire d'édition sera disponible prochainement",
+    });
+  };
+
+  const handleViewContract = (employee: Employee) => {
+    toast({
+      title: "À venir",
+      description: "La visualisation du contrat sera disponible prochainement",
+    });
+  };
+
+  const handleEndContract = (employee: Employee) => {
+    toast({
+      title: "À venir",
+      description: "Le formulaire de fin de contrat sera disponible prochainement",
+    });
+  };
+
+  const handleDelete = async (employee: Employee) => {
+    if (confirm(`Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?`)) {
+      const result = await archiveEmployee(employee._id);
+      if (result.success) {
+        toast({
+          title: "Succès",
+          description: "Employé archivé avec succès",
+        });
+      }
+    }
+  };
 
   return (
     <div className="container mx-auto space-y-6 p-6">
@@ -62,11 +136,15 @@ export default function HRManagementPage() {
         </TabsList>
 
         <TabsContent value="employees" className="space-y-4">
-          <div className="rounded-lg border bg-card p-6">
-            <p className="text-sm text-muted-foreground">
-              Module Employés en cours de migration...
-            </p>
-          </div>
+          <EmployeeList
+            employees={employees}
+            loading={loading}
+            onCreateNew={handleCreateNew}
+            onEdit={handleEdit}
+            onViewContract={handleViewContract}
+            onEndContract={handleEndContract}
+            onDelete={handleDelete}
+          />
         </TabsContent>
 
         <TabsContent value="schedule" className="space-y-4">

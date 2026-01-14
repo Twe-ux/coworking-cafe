@@ -11,6 +11,7 @@ import {
   Send,
   Terminal,
   Users,
+  UserCog,
   Warehouse,
   type LucideIcon,
 } from "lucide-react";
@@ -30,6 +31,7 @@ interface Permissions {
   canViewAnalytics: boolean;
   canViewAccounting: boolean;
   canViewUsers: boolean;
+  canViewHR: boolean;
   canViewBookings: boolean;
   canManageBookings: boolean;
   canViewSpaces: boolean;
@@ -89,6 +91,29 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
       title: "Utilisateurs",
       url: "/users",
       icon: Users,
+    });
+  }
+
+  // RH (dev + admin)
+  if (permissions.canViewHR) {
+    items.push({
+      title: "Gestion RH",
+      url: "/hr",
+      icon: UserCog,
+      items: [
+        {
+          title: "Employés",
+          url: "/hr",
+        },
+        {
+          title: "Planning",
+          url: "/hr#schedule",
+        },
+        {
+          title: "Pointage",
+          url: "/hr#clocking",
+        },
+      ],
     });
   }
 
@@ -174,11 +199,20 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Planning (tous)
-  if (permissions.canViewOwnSchedule) {
+  // Planning (staff uniquement - vu staff)
+  if (permissions.canViewOwnSchedule && !permissions.canViewHR) {
     items.push({
-      title: "Planning",
-      url: "/schedule",
+      title: "Mon Planning",
+      url: "/staff/schedule",
+      icon: Calendar,
+    });
+  }
+
+  // Pointage (staff uniquement - vu staff)
+  if (permissions.canViewOwnSchedule && !permissions.canViewHR) {
+    items.push({
+      title: "Pointage",
+      url: "/staff/clocking",
       icon: Clock,
     });
   }
