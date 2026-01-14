@@ -81,14 +81,27 @@ export default function HRManagementPage() {
     });
   };
 
-  const handleEndContract = (employee: Employee) => {
-    toast.info("À venir", {
-      description: "Le formulaire de fin de contrat sera disponible prochainement",
-    });
+  const handleEndContract = async (employee: Employee) => {
+    if (
+      confirm(
+        `Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?\n\nCette action désactivera l'employé.`
+      )
+    ) {
+      const result = await archiveEmployee(employee._id);
+      if (result.success) {
+        toast.success("Succès", {
+          description: "Employé archivé avec succès",
+        });
+      }
+    }
   };
 
   const handleDelete = async (employee: Employee) => {
-    if (confirm(`Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?`)) {
+    if (
+      confirm(
+        `Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?`
+      )
+    ) {
       const result = await archiveEmployee(employee._id);
       if (result.success) {
         toast.success("Succès", {

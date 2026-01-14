@@ -11,7 +11,7 @@ import {
   getEndContractReasonLabel,
   isArchived,
 } from "@/lib/utils/hr/employee-utils";
-import { Edit, FileText, Trash2, UserX } from "lucide-react";
+import { Edit, FileText, UserX } from "lucide-react";
 
 interface EmployeeCardProps {
   employee: Employee;
@@ -144,19 +144,10 @@ export function EmployeeCard({
               variant="outline"
               size="icon"
               onClick={() => onEndContract(employee)}
-              title="Fin de contrat"
+              title="Fin de contrat / Archiver"
               className="text-orange-600 hover:text-orange-700"
             >
               <UserX className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onDelete(employee)}
-              title="Supprimer"
-              className="text-red-600 hover:text-red-700"
-            >
-              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
