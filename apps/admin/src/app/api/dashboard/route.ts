@@ -9,9 +9,205 @@ interface RangeData {
 
 /**
  * API unifiée pour récupérer toutes les données du dashboard en une seule requête
- * GET /api/dashboard
+ * GET /api/dashboard?days=7 (optional: pour la comparaison jour par jour)
  */
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const daysParam = searchParams.get("days");
+
+  // Si days est spécifié, retourner la comparaison jour par jour
+  if (daysParam) {
+    return getDailyComparison(parseInt(daysParam));
+  }
+
+  // Sinon, retourner les données agrégées par période
+  return getAggregatedData();
+}
+
+/**
+ * Récupère la comparaison jour par jour entre cette année et l'année précédente
+ */
+async function getDailyComparison(days: number) {
+  try {
+    await connectMongoose();
+    console.log(
+      `🚀 API DASHBOARD - Comparaison ${days} jours (année vs année -1)`
+    );
+
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - days);
+
+    // Dates pour cette année
+    const thisYearStart = `${startDate.getFullYear()}/${(
+      startDate.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${startDate.getDate().toString().padStart(2, "0")}`;
+    const thisYearEnd = `${today.getFullYear()}/${(today.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}/${today.getDate().toString().padStart(2, "0")}`;
+
+    // Dates pour l'année précédente (mêmes jours)
+    const lastYearStart = new Date(startDate);
+    lastYearStart.setFullYear(lastYearStart.getFullYear() - 1);
+    const lastYearEnd = new Date(today);
+    lastYearEnd.setFullYear(lastYearEnd.getFullYear() - 1);
+
+    const lastYearStartString = `${lastYearStart.getFullYear()}/${(
+      lastYearStart.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${lastYearStart.getDate().toString().padStart(2, "0")}`;
+    const lastYearEndString = `${lastYearEnd.getFullYear()}/${(
+      lastYearEnd.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${lastYearEnd.getDate().toString().padStart(2, "0")}`;
+
+    // Récupérer les données de cette année
+    const thisYearData = await Turnover.aggregate([
+      {
+        $match: {
+          _id: {
+            $gte: thisYearStart,
+            $lte: thisYearEnd,
+          },
+        },
+      },
+      {
+        $project: {
+          date: "$_id",
+          TTC: {
+            $round: [
+              {
+                $sum: [
+                  "$vat-20.total-ttc",
+                  "$vat-10.total-ttc",
+                  "$vat-55.total-ttc",
+                  "$vat-0.total-ttc",
+                ],
+              },
+              2,
+            ],
+          },
+          HT: {
+            $round: [
+              {
+                $sum: [
+                  "$vat-20.total-ht",
+                  "$vat-10.total-ht",
+                  "$vat-55.total-ht",
+                  "$vat-0.total-ht",
+                ],
+              },
+              2,
+            ],
+          },
+        },
+      },
+      { $sort: { date: 1 } },
+    ]);
+
+    // Récupérer les données de l'année précédente
+    const lastYearData = await Turnover.aggregate([
+      {
+        $match: {
+          _id: {
+            $gte: lastYearStartString,
+            $lte: lastYearEndString,
+          },
+        },
+      },
+      {
+        $project: {
+          date: "$_id",
+          TTC: {
+            $round: [
+              {
+                $sum: [
+                  "$vat-20.total-ttc",
+                  "$vat-10.total-ttc",
+                  "$vat-55.total-ttc",
+                  "$vat-0.total-ttc",
+                ],
+              },
+              2,
+            ],
+          },
+          HT: {
+            $round: [
+              {
+                $sum: [
+                  "$vat-20.total-ht",
+                  "$vat-10.total-ht",
+                  "$vat-55.total-ht",
+                  "$vat-0.total-ht",
+                ],
+              },
+              2,
+            ],
+          },
+        },
+      },
+      { $sort: { date: 1 } },
+    ]);
+
+    // Créer un mapping par date pour l'année précédente
+    const lastYearMap = new Map();
+    lastYearData.forEach((entry) => {
+      const date = new Date(entry.date.replace(/\//g, "-"));
+      const dayMonth = `${date.getMonth() + 1}-${date.getDate()}`;
+      lastYearMap.set(dayMonth, entry);
+    });
+
+    // Combiner les données
+    const dailyComparison = thisYearData.map((entry) => {
+      const date = new Date(entry.date.replace(/\//g, "-"));
+      const dayMonth = `${date.getMonth() + 1}-${date.getDate()}`;
+      const lastYearEntry = lastYearMap.get(dayMonth) || { TTC: 0, HT: 0 };
+
+      return {
+        date: entry.date,
+        displayDate: `${date.getDate()}/${date.getMonth() + 1}`,
+        thisYear: {
+          TTC: entry.TTC || 0,
+          HT: entry.HT || 0,
+        },
+        lastYear: {
+          TTC: lastYearEntry.TTC || 0,
+          HT: lastYearEntry.HT || 0,
+        },
+      };
+    });
+
+    console.log(
+      `✅ API DASHBOARD - ${dailyComparison.length} jours récupérés`
+    );
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: dailyComparison,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("❌ API DASHBOARD - Erreur comparaison:", errorMessage);
+    return NextResponse.json(
+      { success: false, error: errorMessage },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * Récupère les données agrégées par période
+ */
+async function getAggregatedData() {
   try {
     await connectMongoose();
     console.log("🚀 API DASHBOARD - Récupération de toutes les données");

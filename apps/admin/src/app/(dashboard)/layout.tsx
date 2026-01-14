@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Montserrat, Merriweather, Source_Code_Pro } from "next/font/google";
 import { Providers } from "@/components/providers";
-import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import "../globals.css";
 
 const montserrat = Montserrat({
@@ -33,14 +33,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={`${montserrat.variable} ${merriweather.variable} ${sourceCodePro.variable} font-sans antialiased`}>
+      <body
+        className={`${montserrat.variable} ${merriweather.variable} ${sourceCodePro.variable} font-sans antialiased`}
+      >
         <Providers>
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-              <main className="flex-1 p-6">
-                {children}
-              </main>
+              <main className="flex-1 px-6">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </Providers>

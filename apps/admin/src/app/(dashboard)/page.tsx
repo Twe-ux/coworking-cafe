@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
           {/* Graphiques */}
           <div className="px-4 lg:px-6">
-            <Chart />
+            <Chart mode={checked ? "TTC" : "HT"} />
           </div>
         </div>
       </RoleGuard>
