@@ -32,6 +32,7 @@ interface Permissions {
   canViewAccounting: boolean;
   canViewUsers: boolean;
   canViewHR: boolean;
+  canManageAllSchedules: boolean;
   canViewBookings: boolean;
   canManageBookings: boolean;
   canViewSpaces: boolean;
@@ -57,7 +58,48 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Analytics (dev + admin)
+  // RH (dev + admin)
+  if (permissions.canViewHR) {
+    items.push({
+      title: "Gestion RH",
+      url: "/hr/overview",
+      icon: UserCog,
+      items: [
+        {
+          title: "Employés",
+          url: "/hr",
+        },
+        {
+          title: "Planning",
+          url: "/schedule",
+        },
+        {
+          title: "Pointages",
+          url: "/clocking/admin",
+        },
+      ],
+    });
+  }
+
+  // Mon Planning (staff uniquement)
+  if (permissions.canViewOwnSchedule && !permissions.canViewHR) {
+    items.push({
+      title: "Mon Planning",
+      url: "/my-schedule",
+      icon: Calendar,
+    });
+  }
+
+  // Pointage (staff uniquement)
+  if (permissions.canViewOwnSchedule && !permissions.canViewHR) {
+    items.push({
+      title: "Pointage",
+      url: "/clocking",
+      icon: Clock,
+    });
+  }
+
+  // Analytics (dev + admin) - TODO: à implémenter
   if (permissions.canViewAnalytics) {
     items.push({
       title: "Analytics",
@@ -66,7 +108,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Comptabilité (dev + admin)
+  // Comptabilité (dev + admin) - TODO: à implémenter
   if (permissions.canViewAccounting) {
     items.push({
       title: "Comptabilité",
@@ -85,7 +127,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Utilisateurs (dev + admin)
+  // Utilisateurs (dev + admin) - TODO: à implémenter
   if (permissions.canViewUsers) {
     items.push({
       title: "Utilisateurs",
@@ -94,30 +136,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // RH (dev + admin)
-  if (permissions.canViewHR) {
-    items.push({
-      title: "Gestion RH",
-      url: "/hr",
-      icon: UserCog,
-      items: [
-        {
-          title: "Employés",
-          url: "/hr",
-        },
-        {
-          title: "Planning",
-          url: "/hr#schedule",
-        },
-        {
-          title: "Pointage",
-          url: "/hr#clocking",
-        },
-      ],
-    });
-  }
-
-  // Réservations (tous)
+  // Réservations (tous) - TODO: à implémenter
   if (permissions.canViewBookings) {
     items.push({
       title: "Réservations",
@@ -138,7 +157,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Espaces (dev + admin)
+  // Espaces (dev + admin) - TODO: à implémenter
   if (permissions.canViewSpaces) {
     items.push({
       title: "Espaces",
@@ -157,7 +176,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Produits (dev + admin)
+  // Produits (dev + admin) - TODO: à implémenter
   if (permissions.canViewProducts) {
     items.push({
       title: "Produits",
@@ -176,7 +195,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Blog (dev + admin)
+  // Blog (dev + admin) - TODO: à implémenter
   if (permissions.canViewBlog) {
     items.push({
       title: "Blog",
@@ -199,25 +218,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Planning (staff uniquement - vu staff)
-  if (permissions.canViewOwnSchedule && !permissions.canViewHR) {
-    items.push({
-      title: "Mon Planning",
-      url: "/staff/schedule",
-      icon: Calendar,
-    });
-  }
-
-  // Pointage (staff uniquement - vu staff)
-  if (permissions.canViewOwnSchedule && !permissions.canViewHR) {
-    items.push({
-      title: "Pointage",
-      url: "/staff/clocking",
-      icon: Clock,
-    });
-  }
-
-  // Messages (tous)
+  // Messages (tous) - TODO: à implémenter
   if (permissions.canUseMessages) {
     items.push({
       title: "Messages",
@@ -226,7 +227,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Dev Tools (dev only)
+  // Dev Tools (dev only) - TODO: à implémenter
   if (permissions.canAccessDevTools) {
     items.push({
       title: "Dev Tools",

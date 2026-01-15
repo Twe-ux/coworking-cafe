@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -25,23 +25,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/hooks/use-toast'
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import {
   ModerateCommentInput,
   ModerateCommentSchema,
-} from '@/lib/validation/blog'
-import { zodResolver } from '@hookform/resolvers/zod'
+} from "@/lib/validation/blog";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertTriangle,
   Check,
@@ -55,69 +55,69 @@ import {
   Trash2,
   User,
   X,
-} from 'lucide-react'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 interface Comment {
-  id: string
-  content: string
-  status: 'pending' | 'approved' | 'rejected' | 'spam'
-  type: 'comment' | 'reply'
-  authorName: string
-  authorEmail: string
-  authorWebsite?: string
-  ipAddress?: string
-  userAgent?: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  content: string;
+  status: "pending" | "approved" | "rejected" | "spam";
+  type: "comment" | "reply";
+  authorName: string;
+  authorEmail: string;
+  authorWebsite?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+  updatedAt: string;
   article: {
-    id: string
-    title: string
-    slug: string
-  }
+    id: string;
+    title: string;
+    slug: string;
+  };
   parentComment?: {
-    id: string
-    authorName: string
-    content: string
-  }
-  replies: Comment[]
-  moderationNote?: string
+    id: string;
+    authorName: string;
+    content: string;
+  };
+  replies: Comment[];
+  moderationNote?: string;
 }
 
 interface CommentsResponse {
-  success: boolean
-  data: Comment[]
+  success: boolean;
+  data: Comment[];
   pagination: {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
-  }
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
   stats: {
-    pending: number
-    approved: number
-    rejected: number
-    spam: number
-  }
+    pending: number;
+    approved: number;
+    rejected: number;
+    spam: number;
+  };
 }
 
 const statusOptions = [
-  { value: 'all', label: 'Tous les statuts' },
-  { value: 'pending', label: 'En attente', icon: Clock },
-  { value: 'approved', label: 'Approuvé', icon: Check },
-  { value: 'rejected', label: 'Rejeté', icon: X },
-  { value: 'spam', label: 'Spam', icon: AlertTriangle },
-]
+  { value: "all", label: "Tous les statuts" },
+  { value: "pending", label: "En attente", icon: Clock },
+  { value: "approved", label: "Approuvé", icon: Check },
+  { value: "rejected", label: "Rejeté", icon: X },
+  { value: "spam", label: "Spam", icon: AlertTriangle },
+];
 
 interface ModerationDialogProps {
-  comment: Comment | null
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (commentId: string, data: ModerateCommentInput) => void
-  isSubmitting: boolean
+  comment: Comment | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (commentId: string, data: ModerateCommentInput) => void;
+  isSubmitting: boolean;
 }
 
 function ModerationDialog({
@@ -130,18 +130,18 @@ function ModerationDialog({
   const form = useForm<ModerateCommentInput>({
     resolver: zodResolver(ModerateCommentSchema),
     defaultValues: {
-      action: 'approve',
-      note: '',
+      action: "approve",
+      note: "",
     },
-  })
+  });
 
   const handleSubmit = (data: ModerateCommentInput) => {
     if (comment) {
-      onSubmit(comment.id, data)
+      onSubmit(comment.id, data);
     }
-  }
+  };
 
-  if (!comment) return null
+  if (!comment) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -159,11 +159,11 @@ function ModerationDialog({
               <span>•</span>
               <span>{comment.authorEmail}</span>
               <span>•</span>
-              <span>{new Date(comment.createdAt).toLocaleString('fr-FR')}</span>
+              <span>{new Date(comment.createdAt).toLocaleString("fr-FR")}</span>
             </div>
             <p className="text-sm">{comment.content}</p>
             <div className="text-muted-foreground mt-2 text-xs">
-              Article:{' '}
+              Article:{" "}
               <Link
                 href={`/blog/${comment.article.slug}`}
                 className="underline"
@@ -239,7 +239,7 @@ function ModerationDialog({
                   Annuler
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Traitement...' : 'Confirmer'}
+                  {isSubmitting ? "Traitement..." : "Confirmer"}
                 </Button>
               </div>
             </form>
@@ -247,300 +247,300 @@ function ModerationDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 export default function CommentsPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { toast } = useToast()
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
 
-  const [comments, setComments] = useState<Comment[]>([])
-  const [selectedComments, setSelectedComments] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [selectedComments, setSelectedComments] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     pending: 0,
     approved: 0,
     rejected: 0,
     spam: 0,
-  })
-  const [page, setPage] = useState(1)
-  const [limit] = useState(20)
-  const [total, setTotal] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [isProcessing, setIsProcessing] = useState(false)
+  });
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [moderationComment, setModerationComment] = useState<Comment | null>(
     null
-  )
-  const [isModerationDialogOpen, setIsModerationDialogOpen] = useState(false)
-  const [isSubmittingModeration, setIsSubmittingModeration] = useState(false)
+  );
+  const [isModerationDialogOpen, setIsModerationDialogOpen] = useState(false);
+  const [isSubmittingModeration, setIsSubmittingModeration] = useState(false);
 
   // Filters state
   const [filters, setFilters] = useState({
-    search: searchParams?.get('search') || '',
-    status: searchParams?.get('status') || 'pending',
-    articleId: searchParams?.get('articleId') || 'all',
-  })
+    search: searchParams?.get("search") || "",
+    status: searchParams?.get("status") || "pending",
+    articleId: searchParams?.get("articleId") || "all",
+  });
 
   const fetchComments = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
-        sortBy: 'createdAt',
-        sortOrder: 'desc',
-      })
+        sortBy: "createdAt",
+        sortOrder: "desc",
+      });
 
       // Add filters to params
-      if (filters.search) params.set('search', filters.search)
-      if (filters.status !== 'all') params.set('status', filters.status)
-      if (filters.articleId !== 'all')
-        params.set('articleId', filters.articleId)
+      if (filters.search) params.set("search", filters.search);
+      if (filters.status !== "all") params.set("status", filters.status);
+      if (filters.articleId !== "all")
+        params.set("articleId", filters.articleId);
 
-      const response = await fetch(`/api/comments?${params.toString()}`)
-      const data: CommentsResponse = await response.json()
+      const response = await fetch(`/api/comments?${params.toString()}`);
+      const data: CommentsResponse = await response.json();
 
       if (data.success) {
-        setComments(data.data)
-        setTotal(data.pagination.total)
-        setTotalPages(data.pagination.totalPages)
-        setStats(data.stats)
+        setComments(data.data);
+        setTotal(data.pagination.total);
+        setTotalPages(data.pagination.totalPages);
+        setStats(data.stats);
       }
     } catch (error) {
-      console.error('Erreur lors de la récupération des commentaires:', error)
+      console.error("Erreur lors de la récupération des commentaires:", error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de récupérer les commentaires',
-        variant: 'destructive',
-      })
+        title: "Erreur",
+        description: "Impossible de récupérer les commentaires",
+        variant: "destructive",
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchComments()
-  }, [page, limit, filters.search, filters.status, filters.articleId])
+    fetchComments();
+  }, [page, limit, filters.search, filters.status, filters.articleId]);
 
   const updateURL = (newFilters: typeof filters) => {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams();
     Object.entries(newFilters).forEach(([key, value]) => {
-      if (value && value !== 'all') {
-        params.set(key, value)
+      if (value && value !== "all") {
+        params.set(key, value);
       }
-    })
+    });
     router.push(`/dashboard/admin/blog/comments?${params.toString()}`, {
       scroll: false,
-    })
-  }
+    });
+  };
 
   const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    const newFilters = { ...filters, [key]: value }
-    setFilters(newFilters)
-    setPage(1)
-    updateURL(newFilters)
-  }
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    setPage(1);
+    updateURL(newFilters);
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setPage(1)
-    fetchComments()
-  }
+    e.preventDefault();
+    setPage(1);
+    fetchComments();
+  };
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectedComments(checked ? comments.map((comment) => comment.id) : [])
-  }
+    setSelectedComments(checked ? comments.map((comment) => comment.id) : []);
+  };
 
   const handleSelectComment = (commentId: string, checked: boolean) => {
     setSelectedComments((prev) =>
       checked ? [...prev, commentId] : prev.filter((id) => id !== commentId)
-    )
-  }
+    );
+  };
 
   const handleBulkAction = async (
-    action: 'approve' | 'reject' | 'spam' | 'delete'
+    action: "approve" | "reject" | "spam" | "delete"
   ) => {
-    if (selectedComments.length === 0) return
+    if (selectedComments.length === 0) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
     try {
       const promises = selectedComments.map(async (commentId) => {
-        if (action === 'delete') {
+        if (action === "delete") {
           const response = await fetch(`/api/comments/${commentId}`, {
-            method: 'DELETE',
-          })
-          return response.ok
+            method: "DELETE",
+          });
+          return response.ok;
         } else {
           const response = await fetch(`/api/comments/${commentId}/moderate`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action }),
-          })
-          return response.ok
+          });
+          return response.ok;
         }
-      })
+      });
 
-      const results = await Promise.all(promises)
-      const successCount = results.filter(Boolean).length
+      const results = await Promise.all(promises);
+      const successCount = results.filter(Boolean).length;
 
       if (successCount === selectedComments.length) {
         toast({
-          title: 'Succès',
+          title: "Succès",
           description: `${successCount} commentaire(s) ${
-            action === 'approve'
-              ? 'approuvé(s)'
-              : action === 'reject'
-                ? 'rejeté(s)'
-                : action === 'spam'
-                  ? 'marqué(s) comme spam'
-                  : 'supprimé(s)'
+            action === "approve"
+              ? "approuvé(s)"
+              : action === "reject"
+              ? "rejeté(s)"
+              : action === "spam"
+              ? "marqué(s) comme spam"
+              : "supprimé(s)"
           }`,
-        })
-        setSelectedComments([])
-        fetchComments()
+        });
+        setSelectedComments([]);
+        fetchComments();
       } else {
         toast({
-          title: 'Partiellement réussi',
+          title: "Partiellement réussi",
           description: `${successCount}/${selectedComments.length} commentaires traités`,
-          variant: 'destructive',
-        })
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error("Erreur lors de l'action groupée:", error)
+      console.error("Erreur lors de l'action groupée:", error);
       toast({
-        title: 'Erreur',
+        title: "Erreur",
         description: "Impossible d'effectuer l'action groupée",
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   const handleModerate = (comment: Comment) => {
-    setModerationComment(comment)
-    setIsModerationDialogOpen(true)
-  }
+    setModerationComment(comment);
+    setIsModerationDialogOpen(true);
+  };
 
   const handleModerationSubmit = async (
     commentId: string,
     data: ModerateCommentInput
   ) => {
-    setIsSubmittingModeration(true)
+    setIsSubmittingModeration(true);
     try {
       const response = await fetch(`/api/comments/${commentId}/moderate`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (result.success) {
         toast({
-          title: 'Succès',
-          description: 'Commentaire modéré avec succès',
-        })
-        setIsModerationDialogOpen(false)
-        setModerationComment(null)
-        fetchComments()
+          title: "Succès",
+          description: "Commentaire modéré avec succès",
+        });
+        setIsModerationDialogOpen(false);
+        setModerationComment(null);
+        fetchComments();
       } else {
         toast({
-          title: 'Erreur',
-          description: result.error || 'Impossible de modérer le commentaire',
-          variant: 'destructive',
-        })
+          title: "Erreur",
+          description: result.error || "Impossible de modérer le commentaire",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error('Erreur lors de la modération:', error)
+      console.error("Erreur lors de la modération:", error);
       toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue lors de la modération',
-        variant: 'destructive',
-      })
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la modération",
+        variant: "destructive",
+      });
     } finally {
-      setIsSubmittingModeration(false)
+      setIsSubmittingModeration(false);
     }
-  }
+  };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')) return
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce commentaire ?")) return;
 
     try {
       const response = await fetch(`/api/comments/${commentId}`, {
-        method: 'DELETE',
-      })
+        method: "DELETE",
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (result.success) {
         toast({
-          title: 'Succès',
-          description: 'Commentaire supprimé avec succès',
-        })
-        fetchComments()
+          title: "Succès",
+          description: "Commentaire supprimé avec succès",
+        });
+        fetchComments();
       } else {
         toast({
-          title: 'Erreur',
-          description: result.error || 'Impossible de supprimer le commentaire',
-          variant: 'destructive',
-        })
+          title: "Erreur",
+          description: result.error || "Impossible de supprimer le commentaire",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error)
+      console.error("Erreur lors de la suppression:", error);
       toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue lors de la suppression',
-        variant: 'destructive',
-      })
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression",
+        variant: "destructive",
+      });
     }
-  }
+  };
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'approved':
-        return 'default'
-      case 'pending':
-        return 'secondary'
-      case 'rejected':
-        return 'outline'
-      case 'spam':
-        return 'destructive'
+      case "approved":
+        return "default";
+      case "pending":
+        return "secondary";
+      case "rejected":
+        return "outline";
+      case "spam":
+        return "destructive";
       default:
-        return 'secondary'
+        return "secondary";
     }
-  }
+  };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'approved':
-        return 'Approuvé'
-      case 'pending':
-        return 'En attente'
-      case 'rejected':
-        return 'Rejeté'
-      case 'spam':
-        return 'Spam'
+      case "approved":
+        return "Approuvé";
+      case "pending":
+        return "En attente";
+      case "rejected":
+        return "Rejeté";
+      case "spam":
+        return "Spam";
       default:
-        return status
+        return status;
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'approved':
-        return Check
-      case 'pending':
-        return Clock
-      case 'rejected':
-        return X
-      case 'spam':
-        return AlertTriangle
+      case "approved":
+        return Check;
+      case "pending":
+        return Clock;
+      case "rejected":
+        return X;
+      case "spam":
+        return AlertTriangle;
       default:
-        return MessageSquare
+        return MessageSquare;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -559,13 +559,13 @@ export default function CommentsPage() {
       {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         {statusOptions.slice(1).map((option) => {
-          const Icon = option.icon
-          const count = stats[option.value as keyof typeof stats]
+          const Icon = option.icon;
+          const count = stats[option.value as keyof typeof stats];
           return (
             <Card
               key={option.value}
               className={
-                filters.status === option.value ? 'border-primary' : ''
+                filters.status === option.value ? "border-primary" : ""
               }
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -580,13 +580,13 @@ export default function CommentsPage() {
                   variant="link"
                   size="sm"
                   className="text-muted-foreground h-auto p-0 text-xs"
-                  onClick={() => handleFilterChange('status', option.value)}
+                  onClick={() => handleFilterChange("status", option.value)}
                 >
                   Voir tout
                 </Button>
               </CardContent>
             </Card>
-          )
+          );
         })}
       </div>
 
@@ -624,14 +624,14 @@ export default function CommentsPage() {
                 <label className="text-sm font-medium">Statut</label>
                 <Select
                   value={filters.status}
-                  onValueChange={(value) => handleFilterChange('status', value)}
+                  onValueChange={(value) => handleFilterChange("status", value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {statusOptions.map((option) => {
-                      const Icon = option.icon || MessageSquare
+                      const Icon = option.icon || MessageSquare;
                       return (
                         <SelectItem key={option.value} value={option.value}>
                           <div className="flex items-center gap-2">
@@ -639,7 +639,7 @@ export default function CommentsPage() {
                             {option.label}
                           </div>
                         </SelectItem>
-                      )
+                      );
                     })}
                   </SelectContent>
                 </Select>
@@ -661,7 +661,7 @@ export default function CommentsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleBulkAction('approve')}
+                  onClick={() => handleBulkAction("approve")}
                   disabled={isProcessing}
                 >
                   <Check className="mr-2 h-4 w-4" />
@@ -670,7 +670,7 @@ export default function CommentsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleBulkAction('reject')}
+                  onClick={() => handleBulkAction("reject")}
                   disabled={isProcessing}
                 >
                   <X className="mr-2 h-4 w-4" />
@@ -679,7 +679,7 @@ export default function CommentsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleBulkAction('spam')}
+                  onClick={() => handleBulkAction("spam")}
                   disabled={isProcessing}
                 >
                   <AlertTriangle className="mr-2 h-4 w-4" />
@@ -688,7 +688,7 @@ export default function CommentsPage() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => handleBulkAction('delete')}
+                  onClick={() => handleBulkAction("delete")}
                   disabled={isProcessing}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -733,7 +733,7 @@ export default function CommentsPage() {
           ) : (
             <div className="divide-y">
               {comments.map((comment) => {
-                const StatusIcon = getStatusIcon(comment.status)
+                const StatusIcon = getStatusIcon(comment.status);
                 return (
                   <div
                     key={comment.id}
@@ -758,9 +758,9 @@ export default function CommentsPage() {
                         <span>{comment.authorEmail}</span>
                         <span>•</span>
                         <span>
-                          {new Date(comment.createdAt).toLocaleString('fr-FR')}
+                          {new Date(comment.createdAt).toLocaleString("fr-FR")}
                         </span>
-                        {comment.type === 'reply' && (
+                        {comment.type === "reply" && (
                           <>
                             <span>•</span>
                             <div className="flex items-center gap-1">
@@ -860,7 +860,7 @@ export default function CommentsPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                )
+                );
               })}
 
               {/* Select All Checkbox at top */}
@@ -887,9 +887,8 @@ export default function CommentsPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground text-sm">
-            Affichage {(page - 1) * limit + 1} à{' '}
-            {Math.min(page * limit, total)} sur{' '}
-            {total} commentaires
+            Affichage {(page - 1) * limit + 1} à {Math.min(page * limit, total)}{" "}
+            sur {total} commentaires
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -920,12 +919,12 @@ export default function CommentsPage() {
         comment={moderationComment}
         isOpen={isModerationDialogOpen}
         onClose={() => {
-          setIsModerationDialogOpen(false)
-          setModerationComment(null)
+          setIsModerationDialogOpen(false);
+          setModerationComment(null);
         }}
         onSubmit={handleModerationSubmit}
         isSubmitting={isSubmittingModeration}
       />
     </div>
-  )
+  );
 }

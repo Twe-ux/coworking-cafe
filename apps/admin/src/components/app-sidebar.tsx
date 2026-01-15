@@ -12,6 +12,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import {
   getNavigationItems,
@@ -32,7 +33,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const navSecondary = React.useMemo(() => getSecondaryNavigationItems(), []);
 
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant="floating" collapsible="icon" {...props}>
       <SidebarHeader>
         <RoleSwitcher />
       </SidebarHeader>
@@ -51,6 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           />
         )}
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

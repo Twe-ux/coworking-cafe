@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
-import { connectMongoose } from '@/lib/mongodb'
+import { connectToDatabase } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
 import type {
   TimeEntryFilter,
@@ -30,9 +30,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Vérification des permissions (dev, admin ou staff pour lecture)
+    // Vérification des permissions (admin, manager ou staff pour lecture)
     const userRole = (session?.user as any)?.role
-    if (!['dev', 'admin', 'staff'].includes(userRole)) {
+    if (!['admin', 'manager', 'staff'].includes(userRole)) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    await connectMongoose()
+    await connectToDatabase()
 
     // Extraction des paramètres de recherche
     const { searchParams } = new URL(request.url)
@@ -67,8 +67,7 @@ export async function GET(request: NextRequest) {
 
     // Validation des paramètres
     if (filters.page && filters.page < 1) filters.page = 1
-    if (filters.limit && (filters.limit < 1 || filters.limit > 100))
-      filters.limit = 50
+    if (filters.limit && (filters.limit < 1 || filters.limit > 100)) filters.limit = 50
 
     // Construction de la requête MongoDB
     const query: any = { isActive: true }
@@ -202,7 +201,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/time-entries - Créer un time entry manuellement (dev/admin uniquement)
+ * POST /api/time-entries - Créer un time entry manuellement (admin/manager uniquement)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -219,14 +218,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Vérification des permissions (dev ou admin uniquement)
+    // Vérification des permissions (admin ou manager uniquement)
     const userRole = (session?.user as any)?.role
-    if (!['dev', 'admin'].includes(userRole)) {
+    if (!['admin', 'manager'].includes(userRole)) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
           error:
-            'Seuls les développeurs et administrateurs peuvent créer des time entries manuellement',
+            'Seuls les administrateurs et managers peuvent créer des time entries manuellement',
           details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
         },
         { status: 403 }
@@ -248,7 +247,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await connectMongoose()
+    await connectToDatabase()
 
     // Créer les données du time entry
     const entryDate = date ? new Date(date) : new Date()

@@ -61,10 +61,53 @@ export interface ClockInRequest {
   clockIn?: string
 }
 
+export interface ClockOutRequest {
+  employeeId: string
+  pin: string
+  clockOut?: string
+}
+
 export interface VerifyPinRequest {
   employeeId: string
   pin: string
 }
+
+export interface TimeEntryUpdate {
+  clockIn?: string
+  clockOut?: string | null
+  totalHours?: number
+  status?: 'active' | 'completed'
+}
+
+export interface EmployeeTimeReport {
+  employeeId: string
+  employee: {
+    firstName: string
+    lastName: string
+    fullName: string
+    role: string
+  }
+  shifts: Array<{
+    shiftNumber: 1 | 2
+    clockIn: Date
+    clockOut?: Date | null
+    totalHours?: number
+    status: 'active' | 'completed'
+  }>
+  totalHours: number
+  activeShifts: number
+}
+
+export interface TimeTrackingStats {
+  totalHours: number
+  totalShifts: number
+  averageHoursPerShift: number
+  activeShifts: number
+  completedShifts: number
+}
+
+export type TimeEntryStatus = 'active' | 'completed'
+export type ShiftNumber = 1 | 2
 
 export const TIME_ENTRY_ERRORS = {
   UNAUTHORIZED: 'UNAUTHORIZED',
@@ -72,5 +115,11 @@ export const TIME_ENTRY_ERRORS = {
   EMPLOYEE_NOT_FOUND: 'EMPLOYEE_NOT_FOUND',
   INVALID_PIN: 'INVALID_PIN',
   ALREADY_CLOCKED_IN: 'ALREADY_CLOCKED_IN',
+  NOT_CLOCKED_IN: 'NOT_CLOCKED_IN',
   MAX_SHIFTS_EXCEEDED: 'MAX_SHIFTS_EXCEEDED',
+  INVALID_TIME_RANGE: 'INVALID_TIME_RANGE',
+  SHIFT_ALREADY_COMPLETED: 'SHIFT_ALREADY_COMPLETED',
+  TIME_ENTRY_NOT_FOUND: 'TIME_ENTRY_NOT_FOUND',
 } as const
+
+export type TimeEntryErrorCode = typeof TIME_ENTRY_ERRORS[keyof typeof TIME_ENTRY_ERRORS]

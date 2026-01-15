@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectMongoose } from '@/lib/mongodb'
+import { connectToDatabase } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import TimeEntry from '@/models/timeEntry'
 import type {
+  ClockOutRequest,
   ApiResponse,
   TimeEntry as TimeEntryType,
 } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
 
-interface ClockOutRequest {
-  employeeId: string
-  pin: string
-  clockOut?: string
-}
-
 /**
- * POST /api/time-entries/clock-out - Terminer le shift actif
+ * POST /api/time-entries/clock-out - Terminer un shift actif
  */
 export async function POST(request: NextRequest) {
   try {
@@ -45,10 +40,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await connectMongoose()
+    await connectToDatabase()
 
     // Vérifier l'employé et le PIN
-    const employee = await Employee.findById(body.employeeId)
+    const employee = await Employee.findById(body.employeeId).select('+pin')
 
     if (!employee) {
       return NextResponse.json<ApiResponse<null>>(
@@ -83,76 +78,103 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Trouver le shift actif pour aujourd'hui
-    const today = new Date()
-    const startOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    )
+    // Trouver le time entry à mettre à jour
+    let timeEntry
 
-    const activeShift = await TimeEntry.findOne({
-      employeeId: body.employeeId,
-      date: startOfDay,
-      status: 'active',
-      isActive: true,
-    })
+    if (body.timeEntryId) {
+      // Si un ID spécifique est fourni, l'utiliser
+      timeEntry = await TimeEntry.findOne({
+        _id: body.timeEntryId,
+        employeeId: body.employeeId,
+        status: 'active',
+        isActive: true,
+      }).populate('employeeId', 'firstName lastName role')
+    } else {
+      // Sinon, trouver le shift actif le plus récent
+      timeEntry = await TimeEntry.findOne({
+        employeeId: body.employeeId,
+        status: 'active',
+        isActive: true,
+      })
+        .sort({ clockIn: -1 })
+        .populate('employeeId', 'firstName lastName role')
+    }
 
-    if (!activeShift) {
+    if (!timeEntry) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          error: "Aucun shift actif trouvé pour aujourd'hui",
-          details: 'NO_ACTIVE_SHIFT',
+          error: 'Aucun shift actif trouvé pour cet employé',
+          details: TIME_ENTRY_ERRORS.NOT_CLOCKED_IN,
         },
         { status: 404 }
       )
     }
 
-    // Terminer le shift
+    // Vérifier que le shift n'est pas déjà terminé
+    if (timeEntry.status === 'completed') {
+      return NextResponse.json<ApiResponse<null>>(
+        {
+          success: false,
+          error: 'Ce shift est déjà terminé',
+          details: TIME_ENTRY_ERRORS.SHIFT_ALREADY_COMPLETED,
+        },
+        { status: 409 }
+      )
+    }
+
+    // Définir l'heure de sortie avec timezone correct  
     const clockOutTime = body.clockOut ? new Date(body.clockOut) : new Date()
+    // Utiliser directement l'heure locale du client (pas de conversion)
+    const localClockOutTime = clockOutTime
 
-    activeShift.clockOut = clockOutTime
-    activeShift.status = 'completed'
-    activeShift.totalHours = activeShift.calculateTotalHours()
+    // Valider que l'heure de sortie est après l'heure d'entrée
+    if (localClockOutTime <= timeEntry.clockIn) {
+      return NextResponse.json<ApiResponse<null>>(
+        {
+          success: false,
+          error: "L'heure de sortie doit être postérieure à l'heure d'entrée",
+          details: TIME_ENTRY_ERRORS.INVALID_TIME_RANGE,
+        },
+        { status: 400 }
+      )
+    }
 
-    await activeShift.save()
+    // Mettre à jour le time entry
+    timeEntry.clockOut = localClockOutTime
+    timeEntry.totalHours = timeEntry.calculateTotalHours()
+    timeEntry.status = 'completed'
 
-    // Populer les données de l'employé pour la réponse
-    await activeShift.populate('employeeId', 'firstName lastName role')
+    await timeEntry.save()
 
     // Formater la réponse
-    const populatedEmployee = activeShift.employeeId as any
+    const populatedEmployee = timeEntry.employeeId as any
     const formattedTimeEntry: TimeEntryType = {
-      id: activeShift._id.toString(),
+      id: timeEntry._id.toString(),
       employeeId: employee._id.toString(),
       employee: {
         id: populatedEmployee._id?.toString() || employee._id.toString(),
         firstName: populatedEmployee.firstName || employee.firstName,
         lastName: populatedEmployee.lastName || employee.lastName,
-        fullName:
-          populatedEmployee.fullName || employee.getFullName(),
+        fullName: populatedEmployee.fullName || employee.fullName,
         role: populatedEmployee.role || employee.role,
       },
-      date: activeShift.date,
-      clockIn: activeShift.clockIn,
-      clockOut: activeShift.clockOut,
-      shiftNumber: activeShift.shiftNumber,
-      totalHours: activeShift.totalHours,
-      status: activeShift.status,
-      isActive: activeShift.isActive,
-      createdAt: activeShift.createdAt,
-      updatedAt: activeShift.updatedAt,
+      date: timeEntry.date,
+      clockIn: timeEntry.clockIn,
+      clockOut: timeEntry.clockOut,
+      shiftNumber: timeEntry.shiftNumber,
+      totalHours: timeEntry.totalHours,
+      status: timeEntry.status,
+      isActive: timeEntry.isActive,
+      createdAt: timeEntry.createdAt,
+      updatedAt: timeEntry.updatedAt,
     }
 
-    return NextResponse.json<ApiResponse<TimeEntryType>>(
-      {
-        success: true,
-        data: formattedTimeEntry,
-        message: `Shift ${activeShift.shiftNumber} terminé avec succès (${activeShift.totalHours?.toFixed(2)}h)`,
-      },
-      { status: 200 }
-    )
+    return NextResponse.json<ApiResponse<TimeEntryType>>({
+      success: true,
+      data: formattedTimeEntry,
+      message: `Shift ${timeEntry.shiftNumber} terminé avec succès. Durée: ${timeEntry.totalHours}h`,
+    })
   } catch (error: any) {
     console.error('❌ Erreur API POST time-entries/clock-out:', error)
 
@@ -175,8 +197,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          error: "Format d'ID employé invalide",
-          details: TIME_ENTRY_ERRORS.EMPLOYEE_NOT_FOUND,
+          error: "Format d'ID invalide",
+          details: TIME_ENTRY_ERRORS.TIME_ENTRY_NOT_FOUND,
         },
         { status: 400 }
       )

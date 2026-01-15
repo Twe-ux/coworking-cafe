@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectMongoose } from '@/lib/mongodb'
+import { connectToDatabase } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import TimeEntry from '@/models/timeEntry'
 import type {
@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await connectMongoose()
+    await connectToDatabase()
 
     // Vérifier l'employé et le PIN
-    const employee = await Employee.findById(body.employeeId)
+    const employee = await Employee.findById(body.employeeId).select('+pin')
 
     if (!employee) {
       return NextResponse.json<ApiResponse<null>>(
@@ -123,13 +123,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Créer le nouveau time entry
+    // Créer le nouveau time entry avec timezone correct
     const clockInTime = body.clockIn ? new Date(body.clockIn) : new Date()
+    // Utiliser directement l'heure locale du client (pas de conversion)
+    const localTime = clockInTime
 
     const timeEntryData = {
       employeeId: body.employeeId,
       date: startOfDay,
-      clockIn: clockInTime,
+      clockIn: localTime,
       status: 'active' as const,
       shiftNumber: (totalShifts + 1) as 1 | 2,
     }
@@ -149,8 +151,7 @@ export async function POST(request: NextRequest) {
         id: populatedEmployee._id?.toString() || employee._id.toString(),
         firstName: populatedEmployee.firstName || employee.firstName,
         lastName: populatedEmployee.lastName || employee.lastName,
-        fullName:
-          populatedEmployee.fullName || employee.getFullName(),
+        fullName: populatedEmployee.fullName || employee.fullName,
         role: populatedEmployee.role || employee.role,
       },
       date: newTimeEntry.date,
