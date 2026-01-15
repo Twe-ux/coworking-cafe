@@ -95,6 +95,45 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // Générer une couleur par défaut si elle n'existe pas
+      const colors = [
+        '#3B82F6', // blue-500
+        '#10B981', // green-500
+        '#A855F7', // purple-500
+        '#F97316', // orange-500
+        '#EF4444', // red-500
+        '#14B8A6', // teal-500
+        '#6366F1', // indigo-500
+        '#EC4899', // pink-500
+        '#EAB308', // yellow-500
+        '#06B6D4', // cyan-500
+      ]
+
+      // Convertir les classes Tailwind en couleurs hex si nécessaire
+      const tailwindToHex: Record<string, string> = {
+        'bg-blue-500': '#3B82F6',
+        'bg-green-500': '#10B981',
+        'bg-purple-500': '#A855F7',
+        'bg-orange-500': '#F97316',
+        'bg-red-500': '#EF4444',
+        'bg-teal-500': '#14B8A6',
+        'bg-indigo-500': '#6366F1',
+        'bg-pink-500': '#EC4899',
+        'bg-yellow-500': '#EAB308',
+        'bg-cyan-500': '#06B6D4',
+      }
+
+      let employeeColor = employee.color
+      if (!employeeColor) {
+        // Pas de couleur définie, en générer une aléatoire
+        employeeColor = colors[Math.floor(Math.random() * colors.length)]
+      } else if (employeeColor.startsWith('bg-')) {
+        // Convertir classe Tailwind en hex
+        employeeColor = tailwindToHex[employeeColor] || employeeColor
+      }
+      // Si c'est déjà un hex, on garde tel quel
+      const defaultColor = employeeColor
+
       return {
         _id: employee._id.toString(),
         id: employee._id.toString(),
@@ -104,7 +143,7 @@ export async function GET(request: NextRequest) {
         phone: employee.phone,
         role: employee.role,
         employeeRole: employee.employeeRole,
-        color: employee.color,
+        color: defaultColor,
         clockingCode: employee.clockingCode,
         contractType: employee.contractType,
         contractualHours: employee.contractualHours,

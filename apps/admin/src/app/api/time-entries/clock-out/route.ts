@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Définir l'heure de sortie avec timezone correct  
+    // Définir l'heure de sortie avec timezone correct
     const clockOutTime = body.clockOut ? new Date(body.clockOut) : new Date()
     // Utiliser directement l'heure locale du client (pas de conversion)
     const localClockOutTime = clockOutTime

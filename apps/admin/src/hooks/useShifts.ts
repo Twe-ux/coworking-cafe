@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Shift, CreateShiftInput, UpdateShiftInput, UseShiftsOptions } from '@/types/shift'
 
+// Re-export types for convenience
+export type { Shift, CreateShiftInput, UpdateShiftInput } from '@/types/shift'
+
 /**
  * Helper to format date to YYYY-MM-DD in local timezone
  * Avoids timezone conversion issues with toISOString()

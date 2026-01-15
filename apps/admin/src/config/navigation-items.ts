@@ -10,8 +10,8 @@ import {
   Package,
   Send,
   Terminal,
-  Users,
   UserCog,
+  Users,
   Warehouse,
   type LucideIcon,
 } from "lucide-react";
@@ -62,20 +62,20 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
   if (permissions.canViewHR) {
     items.push({
       title: "Gestion RH",
-      url: "/hr/overview",
+      url: "/hr",
       icon: UserCog,
       items: [
         {
           title: "Employés",
-          url: "/hr",
+          url: "/hr/employees",
         },
         {
           title: "Planning",
-          url: "/schedule",
+          url: "/hr/schedule",
         },
         {
           title: "Pointages",
-          url: "/clocking-admin",
+          url: "/hr/clocking-admin",
         },
       ],
     });

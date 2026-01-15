@@ -1,275 +1,273 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Calendar, Clock, FileText, CalendarCheck2 } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Users,
+  Calendar,
+  Clock,
+  UserPlus,
+  FileText,
+  CalendarCheck,
+} from "lucide-react";
+import Link from "next/link";
+import { useEmployees } from "@/hooks/useEmployees";
 import { useEffect, useState } from "react";
-import { useEmployeesData } from "@/hooks/hr/useEmployeesData";
-import { useDrafts } from "@/hooks/hr/useDrafts";
-import { EmployeeList } from "@/components/hr/employees";
-import { DraftCard } from "@/components/hr/employees/DraftCard";
-import { EndContractModal } from "@/components/hr/modals/EndContractModal";
-import { ContractGenerationModal } from "@/components/hr/contract/ContractGenerationModal";
-import { AvailabilityCalendarTab } from "@/components/hr/availability/AvailabilityCalendarTab";
-import type { Employee } from "@/types/hr";
-import { toast } from "sonner";
 
-/**
- * Page HR Management - Admin/Dev only
- * Onglets : Employés, Disponibilités, Planning, Pointage
- */
-export default function HRManagementPage() {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const userRole = session?.user?.role;
+interface TimeEntriesStats {
+  totalEntries: number;
+  totalHours: number;
+  activeShifts: number;
+}
 
-  const { employees, loading, error, fetchEmployees, archiveEmployee } =
-    useEmployeesData();
+export default function HROverviewPage() {
+  const { employees, isLoading: loadingEmployees } = useEmployees();
+  const [timeStats, setTimeStats] = useState<TimeEntriesStats>({
+    totalEntries: 0,
+    totalHours: 0,
+    activeShifts: 0,
+  });
+  const [loadingTimeStats, setLoadingTimeStats] = useState(true);
 
-  const {
-    drafts,
-    loading: draftsLoading,
-    refetch: refetchDrafts,
-  } = useDrafts();
-
-  // États pour les modals
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null
-  );
-  const [endContractModalOpen, setEndContractModalOpen] = useState(false);
-  const [contractModalOpen, setContractModalOpen] = useState(false);
-  const [contractEmployee, setContractEmployee] = useState<Employee | null>(
-    null
-  );
-
-  // Charger les employés au montage
+  // Fetch time entries stats for current month
   useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
-
-  // Rediriger staff vers leur vue dédiée
-  useEffect(() => {
-    if (userRole === "staff") {
-      router.push("/staff/schedule");
-    }
-  }, [userRole, router]);
-
-  // Afficher les erreurs
-  useEffect(() => {
-    if (error) {
-      toast.error("Erreur", {
-        description: error,
-      });
-    }
-  }, [error]);
-
-  // Loading state
-  if (!session) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Chargement...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Handlers
-  const handleCreateNew = async () => {
-    // Nettoyer localStorage et brouillon BD avant de créer un nouvel employé
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("onboarding-draft");
-      localStorage.removeItem("onboarding-draft-step");
-    }
-
-    try {
-      await fetch("/api/hr/employees/draft", {
-        method: "DELETE",
-      });
-    } catch (err) {
-      console.error("Erreur suppression brouillon:", err);
-    }
-
-    router.push("/hr/employees/new");
-  };
-
-  const handleEdit = (employee: Employee) => {
-    router.push(`/hr/employees/${employee._id}/edit`);
-  };
-
-  const handleViewContract = (employee: Employee) => {
-    setContractEmployee(employee);
-    setContractModalOpen(true);
-  };
-
-  const handleEndContract = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setEndContractModalOpen(true);
-  };
-
-  const handleEndContractConfirm = async (endDate: string, reason: string) => {
-    if (!selectedEmployee) return;
-
-    try {
-      const response = await fetch(
-        `/api/hr/employees/${selectedEmployee._id}/end-contract`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ endDate, endContractReason: reason }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success("Succès", {
-          description: "Contrat terminé avec succès",
-        });
-        fetchEmployees();
-      } else {
-        toast.error("Erreur", {
-          description: data.error || "Impossible de terminer le contrat",
-        });
-      }
-    } catch (error) {
-      toast.error("Erreur", {
-        description: "Une erreur est survenue",
-      });
-    }
-  };
-
-  const handleDelete = async (employee: Employee) => {
-    if (
-      confirm(
-        `Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?`
-      )
-    ) {
-      const result = await archiveEmployee(employee._id);
-      if (result.success) {
-        toast.success("Succès", {
-          description: "Employé archivé avec succès",
-        });
-      }
-    }
-  };
-
-  const handleDeleteDraft = async (draftId: string) => {
-    if (confirm("Voulez-vous vraiment supprimer ce brouillon ?")) {
+    const fetchTimeStats = async () => {
       try {
-        await fetch("/api/hr/employees/draft", {
-          method: "DELETE",
-        });
-        toast.success("Succès", {
-          description: "Brouillon supprimé",
-        });
-        refetchDrafts();
-      } catch (err) {
-        toast.error("Erreur", {
-          description: "Impossible de supprimer le brouillon",
-        });
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        const response = await fetch(
+          `/api/time-entries?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`
+        );
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const entries = result.data;
+          const totalHours = entries.reduce(
+            (sum: number, entry: any) => sum + (entry.totalHours || 0),
+            0
+          );
+          const activeShifts = entries.filter(
+            (entry: any) => entry.status === "active"
+          ).length;
+
+          setTimeStats({
+            totalEntries: entries.length,
+            totalHours: Math.round(totalHours * 10) / 10,
+            activeShifts,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching time stats:", error);
+      } finally {
+        setLoadingTimeStats(false);
       }
-    }
-  };
+    };
+
+    fetchTimeStats();
+  }, []);
+
+  const activeEmployees = employees.filter((e) => e.isActive).length;
+  const draftEmployees = employees.filter((e) => e.status === "draft").length;
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestion RH</h1>
-          <p className="text-muted-foreground">
-            Gérez les employés, disponibilités, plannings et pointages
-          </p>
-        </div>
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold">Gestion RH</h1>
+        <p className="text-muted-foreground">
+          Vue d'ensemble de la gestion des ressources humaines
+        </p>
       </div>
 
-      <Tabs defaultValue="employees" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="employees" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Employés
-          </TabsTrigger>
-          <TabsTrigger value="availability" className="flex items-center gap-2">
-            <CalendarCheck2 className="h-4 w-4" />
-            Disponibilités
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="employees" className="space-y-4">
-          {/* Section Brouillons */}
-          {drafts.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-orange-600" />
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Brouillons en cours ({drafts.length})
-                </h2>
-              </div>
-              <div className="grid gap-3">
-                {drafts.map((draft) => (
-                  <DraftCard
-                    key={draft._id}
-                    draft={draft}
-                    onDelete={() => handleDeleteDraft(draft._id)}
-                  />
-                ))}
-              </div>
-              <div className="border-t pt-6" />
+      {/* Quick Stats */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Employés Actifs
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loadingEmployees ? "..." : activeEmployees}
             </div>
-          )}
-
-          {/* Liste des employés */}
-          <EmployeeList
-            employees={employees}
-            loading={loading}
-            onCreateNew={handleCreateNew}
-            onEdit={handleEdit}
-            onViewContract={handleViewContract}
-            onEndContract={handleEndContract}
-            onDelete={handleDelete}
-          />
-        </TabsContent>
-
-        <TabsContent value="availability" className="space-y-4">
-          <AvailabilityCalendarTab />
-        </TabsContent>
-
-        <TabsContent value="schedule" className="space-y-4">
-          <div className="rounded-lg border bg-card p-6">
-            <p className="text-sm text-muted-foreground">
-              Module Planning en cours de migration...
+            <p className="text-xs text-muted-foreground">
+              {draftEmployees > 0 && `${draftEmployees} en attente`}
             </p>
-          </div>
-        </TabsContent>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="clocking" className="space-y-4">
-          <div className="rounded-lg border bg-card p-6">
-            <p className="text-sm text-muted-foreground">
-              Module Pointage en cours de migration...
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Employés
+            </CardTitle>
+            <UserPlus className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loadingEmployees ? "..." : employees.length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Tous statuts confondus
             </p>
-          </div>
-        </TabsContent>
-      </Tabs>
+          </CardContent>
+        </Card>
 
-      <EndContractModal
-        employee={selectedEmployee}
-        open={endContractModalOpen}
-        onClose={() => {
-          setEndContractModalOpen(false);
-          setSelectedEmployee(null);
-        }}
-        onConfirm={handleEndContractConfirm}
-      />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Pointages ce mois
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loadingTimeStats ? "..." : timeStats.totalEntries}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {timeStats.activeShifts} shifts actifs
+            </p>
+          </CardContent>
+        </Card>
 
-      {contractEmployee && (
-        <ContractGenerationModal
-          employee={contractEmployee}
-          open={contractModalOpen}
-          onOpenChange={setContractModalOpen}
-        />
-      )}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Heures travaillées
+            </CardTitle>
+            <CalendarCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loadingTimeStats ? "..." : `${timeStats.totalHours}h`}
+            </div>
+            <p className="text-xs text-muted-foreground">Ce mois-ci</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Sections */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Employés */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              <CardTitle>Employés</CardTitle>
+            </div>
+            <CardDescription>
+              Gérer les employés, onboarding, contrats et disponibilités
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Button asChild className="w-full" variant="default">
+              <Link href="/hr/employees">
+                <Users className="mr-2 h-4 w-4" />
+                Voir tous les employés
+              </Link>
+            </Button>
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="col-span-2"
+              >
+                <Link href="/hr/employees?tab=availability">
+                  Disponibilités
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Planning */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              <CardTitle>Planning</CardTitle>
+            </div>
+            <CardDescription>
+              Planifier et gérer les horaires de tous les employés
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full" variant="default">
+              <Link href="/hr/schedule">
+                <Calendar className="mr-2 h-4 w-4" />
+                Gérer le planning
+              </Link>
+            </Button>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Créez et modifiez les créneaux horaires pour tous les employés
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Pointages */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" />
+              <CardTitle>Pointages</CardTitle>
+            </div>
+            <CardDescription>
+              Récapitulatif des heures et pointages mensuels
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full" variant="default">
+              <Link href="/hr/clocking-admin">
+                <Clock className="mr-2 h-4 w-4" />
+                Voir les pointages
+              </Link>
+            </Button>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Consultez et modifiez les entrées de temps des employés
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Actions rapides</CardTitle>
+          <CardDescription>
+            Accès direct aux fonctionnalités principales
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link href="/hr/employees?action=new">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Nouvel employé
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/hr/schedule">
+              <Calendar className="mr-2 h-4 w-4" />
+              Créer un créneau
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/hr/clocking-admin">
+              <Clock className="mr-2 h-4 w-4" />
+              Pointer un employé
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

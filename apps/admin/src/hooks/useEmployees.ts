@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Employee } from '@/types/hr'
 
+// Re-export Employee type for convenience
+export type { Employee } from '@/types/hr'
+
 interface UseEmployeesOptions {
   role?: string
   active?: boolean

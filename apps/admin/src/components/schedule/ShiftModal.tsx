@@ -126,7 +126,7 @@ export function ShiftModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
 
-  // Load shift types from localStorage
+  // Load shift types from localStorage initially, then from database
   const [shiftTypes, setShiftTypes] = useState<Record<string, ShiftTypeConfig>>(() => {
     if (typeof window !== 'undefined') {
       const savedShiftTypes = localStorage.getItem('allShiftTypes')
@@ -150,11 +150,48 @@ export function ShiftModal({
     icon: '',
   })
 
-  // Save shift types to localStorage
+  // Load shift types from database on mount
+  useEffect(() => {
+    const loadShiftTypes = async () => {
+      try {
+        const response = await fetch('/api/shift-types')
+
+        if (!response.ok) {
+          return
+        }
+
+        const result = await response.json()
+
+        if (result.success && result.data) {
+          setShiftTypes(result.data)
+          // Sync to localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('allShiftTypes', JSON.stringify(result.data))
+          }
+        }
+      } catch (error) {
+        // Silently fail, use localStorage or defaults
+      }
+    }
+
+    loadShiftTypes()
+  }, [])
+
+  // Save shift types to both localStorage and database
   const saveAllShiftTypes = (types: Record<string, ShiftTypeConfig>) => {
+    // Save to localStorage immediately
     if (typeof window !== 'undefined') {
       localStorage.setItem('allShiftTypes', JSON.stringify(types))
     }
+
+    // Save to database in background (don't await, don't block UI)
+    fetch('/api/shift-types', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shiftTypes: types }),
+    }).catch((error) => {
+      console.warn('Failed to save shift types to database:', error)
+    })
   }
 
   // Reset form when modal opens/closes or shift changes
@@ -682,15 +719,13 @@ export function ShiftModal({
                       label: e.target.value,
                     }))
                   } else if (editingShiftType) {
-                    const newTypes = {
+                    setShiftTypes({
                       ...shiftTypes,
                       [editingShiftType]: {
                         ...shiftTypes[editingShiftType],
                         label: e.target.value,
                       },
-                    }
-                    setShiftTypes(newTypes)
-                    saveAllShiftTypes(newTypes)
+                    })
                   }
                 }}
                 placeholder="ex: Morning, Custom Shift"
@@ -722,7 +757,6 @@ export function ShiftModal({
                         },
                       }
                       setShiftTypes(newTypes)
-                      saveAllShiftTypes(newTypes)
                     }
                   }}
                 />
@@ -752,7 +786,6 @@ export function ShiftModal({
                         },
                       }
                       setShiftTypes(newTypes)
-                      saveAllShiftTypes(newTypes)
                     }
                   }}
                 />
@@ -779,7 +812,6 @@ export function ShiftModal({
                       },
                     }
                     setShiftTypes(newTypes)
-                    saveAllShiftTypes(newTypes)
                   }
                 }}
               >
@@ -838,6 +870,9 @@ export function ShiftModal({
                       icon: '',
                     })
                   }
+                } else if (editingShiftType) {
+                  // Save existing shift type changes
+                  saveAllShiftTypes(shiftTypes)
                 }
                 setEditingShiftType(null)
               }}

@@ -87,10 +87,10 @@ export default function TimeEntriesList({
   const [editValue, setEditValue] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [filters, setFilters] = useState({
-    employeeId: 'all',
-    startDate: 'all',
+    employeeId: '',
+    startDate: '',
     endDate: '',
-    status: 'all',
+    status: '',
   })
   const [showAddShiftDialog, setShowAddShiftDialog] = useState(false)
   const [newShift, setNewShift] = useState({
@@ -196,8 +196,8 @@ export default function TimeEntriesList({
     setIsLoading(true)
     try {
       const params = new URLSearchParams()
-      if (filters.employeeId && filters.employeeId !== 'all') params.append('employeeId', filters.employeeId)
-      if (filters.status && filters.status !== 'all') params.append('status', filters.status)
+      if (filters.employeeId) params.append('employeeId', filters.employeeId)
+      if (filters.status) params.append('status', filters.status)
 
       // Utiliser currentDate pour filtrer par mois automatiquement
       const startOfMonth = new Date(
@@ -626,7 +626,7 @@ export default function TimeEntriesList({
                   <SelectValue placeholder="Tous les employés avec pointages" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">
+                  <SelectItem value="">
                     Tous les employés avec pointages
                   </SelectItem>
                   {availableEmployees.map((employee) => (
@@ -667,7 +667,7 @@ export default function TimeEntriesList({
                   <SelectValue placeholder="Toutes les dates avec pointages" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">
+                  <SelectItem value="">
                     Toutes les dates avec pointages
                   </SelectItem>
                   {availableDates.map((date) => (
@@ -694,7 +694,7 @@ export default function TimeEntriesList({
                   <SelectValue placeholder="Tous les statuts" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="">Tous les statuts</SelectItem>
                   <SelectItem value="active">En cours</SelectItem>
                   <SelectItem value="completed">Terminé</SelectItem>
                 </SelectContent>
