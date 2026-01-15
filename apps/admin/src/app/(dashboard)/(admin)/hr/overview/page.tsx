@@ -1,63 +1,81 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Users, Calendar, Clock, UserPlus, FileText, CalendarCheck } from 'lucide-react'
-import Link from 'next/link'
-import { useEmployees } from '@/hooks/useEmployees'
-import { useEffect, useState } from 'react'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Users,
+  Calendar,
+  Clock,
+  UserPlus,
+  FileText,
+  CalendarCheck,
+} from "lucide-react";
+import Link from "next/link";
+import { useEmployees } from "@/hooks/useEmployees";
+import { useEffect, useState } from "react";
 
 interface TimeEntriesStats {
-  totalEntries: number
-  totalHours: number
-  activeShifts: number
+  totalEntries: number;
+  totalHours: number;
+  activeShifts: number;
 }
 
 export default function HROverviewPage() {
-  const { employees, isLoading: loadingEmployees } = useEmployees()
+  const { employees, isLoading: loadingEmployees } = useEmployees();
   const [timeStats, setTimeStats] = useState<TimeEntriesStats>({
     totalEntries: 0,
     totalHours: 0,
     activeShifts: 0,
-  })
-  const [loadingTimeStats, setLoadingTimeStats] = useState(true)
+  });
+  const [loadingTimeStats, setLoadingTimeStats] = useState(true);
 
   // Fetch time entries stats for current month
   useEffect(() => {
     const fetchTimeStats = async () => {
       try {
-        const now = new Date()
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
         const response = await fetch(
           `/api/time-entries?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`
-        )
-        const result = await response.json()
+        );
+        const result = await response.json();
 
         if (result.success && result.data) {
-          const entries = result.data
-          const totalHours = entries.reduce((sum: number, entry: any) => sum + (entry.totalHours || 0), 0)
-          const activeShifts = entries.filter((entry: any) => entry.status === 'active').length
+          const entries = result.data;
+          const totalHours = entries.reduce(
+            (sum: number, entry: any) => sum + (entry.totalHours || 0),
+            0
+          );
+          const activeShifts = entries.filter(
+            (entry: any) => entry.status === "active"
+          ).length;
 
           setTimeStats({
             totalEntries: entries.length,
             totalHours: Math.round(totalHours * 10) / 10,
             activeShifts,
-          })
+          });
         }
       } catch (error) {
-        console.error('Error fetching time stats:', error)
+        console.error("Error fetching time stats:", error);
       } finally {
-        setLoadingTimeStats(false)
+        setLoadingTimeStats(false);
       }
-    }
+    };
 
-    fetchTimeStats()
-  }, [])
+    fetchTimeStats();
+  }, []);
 
-  const activeEmployees = employees.filter((e) => e.isActive).length
-  const draftEmployees = employees.filter((e) => e.status === 'draft').length
+  const activeEmployees = employees.filter((e) => e.isActive).length;
+  const draftEmployees = employees.filter((e) => e.status === "draft").length;
 
   return (
     <div className="space-y-6 p-6">
@@ -72,12 +90,14 @@ export default function HROverviewPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Employés Actifs</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Employés Actifs
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loadingEmployees ? '...' : activeEmployees}
+              {loadingEmployees ? "..." : activeEmployees}
             </div>
             <p className="text-xs text-muted-foreground">
               {draftEmployees > 0 && `${draftEmployees} en attente`}
@@ -87,25 +107,31 @@ export default function HROverviewPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Employés</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Employés
+            </CardTitle>
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loadingEmployees ? '...' : employees.length}
+              {loadingEmployees ? "..." : employees.length}
             </div>
-            <p className="text-xs text-muted-foreground">Tous statuts confondus</p>
+            <p className="text-xs text-muted-foreground">
+              Tous statuts confondus
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pointages ce mois</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pointages ce mois
+            </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loadingTimeStats ? '...' : timeStats.totalEntries}
+              {loadingTimeStats ? "..." : timeStats.totalEntries}
             </div>
             <p className="text-xs text-muted-foreground">
               {timeStats.activeShifts} shifts actifs
@@ -115,12 +141,14 @@ export default function HROverviewPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Heures travaillées</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Heures travaillées
+            </CardTitle>
             <CalendarCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loadingTimeStats ? '...' : `${timeStats.totalHours}h`}
+              {loadingTimeStats ? "..." : `${timeStats.totalHours}h`}
             </div>
             <p className="text-xs text-muted-foreground">Ce mois-ci</p>
           </CardContent>
@@ -154,7 +182,12 @@ export default function HROverviewPage() {
               <Button asChild variant="outline" size="sm">
                 <Link href="/hr?tab=contracts">Contrats</Link>
               </Button>
-              <Button asChild variant="outline" size="sm" className="col-span-2">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="col-span-2"
+              >
                 <Link href="/hr?tab=availability">Disponibilités</Link>
               </Button>
             </div>
@@ -214,7 +247,9 @@ export default function HROverviewPage() {
       <Card>
         <CardHeader>
           <CardTitle>Actions rapides</CardTitle>
-          <CardDescription>Accès direct aux fonctionnalités principales</CardDescription>
+          <CardDescription>
+            Accès direct aux fonctionnalités principales
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button asChild variant="outline">
@@ -238,5 +273,5 @@ export default function HROverviewPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

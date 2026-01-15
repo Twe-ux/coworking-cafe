@@ -75,7 +75,7 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
         },
         {
           title: "Pointages",
-          url: "/clocking/admin",
+          url: "/clocking-admin",
         },
       ],
     });
