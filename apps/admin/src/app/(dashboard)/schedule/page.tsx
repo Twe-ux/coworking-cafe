@@ -1,23 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { MonthlyCalendar } from "@/components/shared/calendar";
-import { ShiftModal } from "@/components/schedule/ShiftModal";
 import { DayShiftsModal } from "@/components/schedule/DayShiftsModal";
+import EmployeeMonthlyCard from "@/components/schedule/EmployeeMonthlyCard";
+import { ShiftModal } from "@/components/schedule/ShiftModal";
+import { MonthlyCalendar } from "@/components/shared/calendar";
 import { useShifts } from "@/hooks/useShifts";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Plus, Users, Clock, Calendar, Edit2, Trash2 } from "lucide-react";
 import type { Shift } from "@/types/shift";
+import { useCallback, useEffect, useState } from "react";
 
 interface Employee {
   id: string;
@@ -53,12 +42,13 @@ export default function SchedulePage() {
 
     // Calculate last day visible (6 weeks maximum)
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + (6 * 7) - 1);
+    endDate.setDate(endDate.getDate() + 6 * 7 - 1);
 
     return { startDate, endDate };
   };
 
-  const { startDate: calendarStartDate, endDate: calendarEndDate } = getCalendarDateRange(currentDate);
+  const { startDate: calendarStartDate, endDate: calendarEndDate } =
+    getCalendarDateRange(currentDate);
 
   // Fetch shifts for entire calendar view (including partial weeks)
   const {
@@ -345,13 +335,13 @@ export default function SchedulePage() {
 
   // Helper to normalize date to YYYY-MM-DD string (avoiding timezone issues)
   const formatDateToYMD = (date: Date | string): string => {
-    if (typeof date === 'string') {
+    if (typeof date === "string") {
       // Extract YYYY-MM-DD from ISO string or return as-is if already in that format
-      return date.split('T')[0];
+      return date.split("T")[0];
     }
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -377,40 +367,7 @@ export default function SchedulePage() {
           <h1 className="text-3xl font-bold">Planning</h1>
           <p className="text-gray-600">Gestion des créneaux de travail</p>
         </div>
-        {/* <Button onClick={() => {
-          setSelectedDate(new Date())
-          setSelectedShift(null)
-          setModalOpen(true)
-        }}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nouveau créneau
-        </Button> */}
       </div>
-
-      {/* Stats Cards */}
-      {/* <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border bg-card p-4 text-card-foreground shadow-sm">
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-blue-600" />
-            <h3 className="font-semibold">Employés actifs</h3>
-          </div>
-          <p className="mt-2 text-2xl font-bold">{employees.length}</p>
-        </div>
-        <div className="rounded-lg border bg-card p-4 text-card-foreground shadow-sm">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-green-600" />
-            <h3 className="font-semibold">Créneaux ce mois</h3>
-          </div>
-          <p className="mt-2 text-2xl font-bold">{shifts.length}</p>
-        </div>
-        <div className="rounded-lg border bg-card p-4 text-card-foreground shadow-sm">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-purple-600" />
-            <h3 className="font-semibold">Heures totales</h3>
-          </div>
-          <p className="mt-2 text-2xl font-bold">{totalHours.toFixed(0)}h</p>
-        </div>
-      </div> */}
 
       {/* Calendar */}
       {isLoading ? (
@@ -466,6 +423,17 @@ export default function SchedulePage() {
         selectedDate={selectedDate}
         existingShift={selectedShift}
       />
+
+      {/* Monthly Statistics */}
+      {!isLoading && employees.length > 0 && (
+        <EmployeeMonthlyCard
+          employees={employees}
+          shifts={shifts}
+          timeEntries={[]} // Will be populated in Phase 7b/7c
+          currentDate={currentDate}
+          className="mt-8"
+        />
+      )}
     </div>
   );
 }

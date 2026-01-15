@@ -178,6 +178,7 @@ export async function PUT(
     if (data.workSchedule !== undefined) updateData.workSchedule = data.workSchedule
     if (data.bankDetails !== undefined) updateData.bankDetails = data.bankDetails
     if (data.isActive !== undefined) updateData.isActive = data.isActive
+    if (data.isDraft !== undefined) updateData.isDraft = data.isDraft
     if (data.deletedAt !== undefined) updateData.deletedAt = data.deletedAt
 
     const updatedEmployee = await Employee.findByIdAndUpdate(

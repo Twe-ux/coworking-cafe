@@ -50,8 +50,12 @@ export async function GET(request: NextRequest) {
       query.role = role
     }
 
+    // Si aucun filtre active n'est spécifié, montrer les actifs ET ceux en attente
     if (active !== null) {
       query.isActive = active === 'true'
+    } else {
+      // Par défaut, afficher seulement les employés actifs ou en attente (pas les inactifs)
+      // On ne filtre pas ici car on va gérer cela après en vérifiant la date
     }
 
     if (search) {
@@ -70,31 +74,61 @@ export async function GET(request: NextRequest) {
       .sort({ firstName: 1, lastName: 1 })
       .lean()
 
-    // Formater les données pour l'interface
-    const formattedEmployees = employees.map((employee: any) => ({
-      _id: employee._id.toString(),
-      id: employee._id.toString(),
-      firstName: employee.firstName,
-      lastName: employee.lastName,
-      email: employee.email,
-      phone: employee.phone,
-      role: employee.role,
-      employeeRole: employee.employeeRole,
-      color: employee.color,
-      clockingCode: employee.clockingCode,
-      contractType: employee.contractType,
-      contractualHours: employee.contractualHours,
-      hireDate: employee.hireDate,
-      endDate: employee.endDate,
-      endContractReason: employee.endContractReason,
-      isActive: employee.isActive,
-      isDraft: employee.isDraft || false,
-      fullName: `${employee.firstName} ${employee.lastName}`,
-      onboardingStatus: employee.onboardingStatus,
-      onboardingProgress: employee.getOnboardingProgress?.() || 0,
-      createdAt: employee.createdAt,
-      updatedAt: employee.updatedAt,
-    }))
+    // Formater les données pour l'interface et filtrer
+    const formattedEmployees = employees
+      .map((employee: any) => {
+      // Calculer le statut d'emploi
+      let employmentStatus: 'draft' | 'waiting' | 'active' | 'inactive' = 'active'
+
+      if (employee.isDraft) {
+        employmentStatus = 'draft'
+      } else if (!employee.isActive) {
+        employmentStatus = 'inactive'
+      } else if (employee.hireDate) {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const hireDate = new Date(employee.hireDate)
+        hireDate.setHours(0, 0, 0, 0)
+
+        if (hireDate > today) {
+          employmentStatus = 'waiting'
+        }
+      }
+
+      return {
+        _id: employee._id.toString(),
+        id: employee._id.toString(),
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        email: employee.email,
+        phone: employee.phone,
+        role: employee.role,
+        employeeRole: employee.employeeRole,
+        color: employee.color,
+        clockingCode: employee.clockingCode,
+        contractType: employee.contractType,
+        contractualHours: employee.contractualHours,
+        hireDate: employee.hireDate,
+        endDate: employee.endDate,
+        endContractReason: employee.endContractReason,
+        isActive: employee.isActive,
+        isDraft: employee.isDraft || false,
+        employmentStatus,
+        fullName: `${employee.firstName} ${employee.lastName}`,
+        availability: employee.availability,
+        onboardingStatus: employee.onboardingStatus,
+        onboardingProgress: employee.getOnboardingProgress?.() || 0,
+        createdAt: employee.createdAt,
+        updatedAt: employee.updatedAt,
+      }
+    })
+    .filter((employee) => {
+      // Si aucun filtre active spécifié, exclure seulement les vraiment inactifs
+      if (active === null) {
+        return employee.employmentStatus !== 'inactive'
+      }
+      return true
+    })
 
     return NextResponse.json({
       success: true,
@@ -237,10 +271,19 @@ export async function POST(request: NextRequest) {
 
     // Gestion des erreurs de duplication
     if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern || {})[0]
+      const fieldNames: Record<string, string> = {
+        email: "cet email",
+        socialSecurityNumber: "ce numéro de sécurité sociale",
+        clockingCode: "ce code de pointage",
+      }
+      const fieldName = fieldNames[field] || "ces informations"
+
       return NextResponse.json(
         {
           success: false,
-          error: 'Un employé avec ces informations existe déjà',
+          error: `Un employé avec ${fieldName} existe déjà`,
+          field,
         },
         { status: 409 }
       )

@@ -101,12 +101,14 @@ export interface IEmployee extends Document {
   isActive: boolean;
   isDraft?: boolean; // Brouillon en cours de création
   createdBy?: string; // ID de l'utilisateur qui a créé le brouillon
+  employmentStatus?: 'draft' | 'waiting' | 'active' | 'inactive'; // Statut calculé
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
 
   // Méthodes
   getFullName(): string;
+  getEmploymentStatus(): 'draft' | 'waiting' | 'active' | 'inactive';
   getOnboardingProgress(): number;
   isOnboardingComplete(): boolean;
   verifyPin(pin: string): boolean;
@@ -361,6 +363,33 @@ employeeSchema.virtual('fullName').get(function (this: IEmployee) {
 // Méthodes d'instance
 employeeSchema.methods.getFullName = function (): string {
   return `${this.firstName} ${this.lastName}`;
+};
+
+employeeSchema.methods.getEmploymentStatus = function (): 'draft' | 'waiting' | 'active' | 'inactive' {
+  // Si c'est un brouillon
+  if (this.isDraft) {
+    return 'draft';
+  }
+
+  // Si l'employé est marqué comme inactif
+  if (!this.isActive) {
+    return 'inactive';
+  }
+
+  // Si la date d'embauche est dans le futur
+  if (this.hireDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const hireDate = new Date(this.hireDate);
+    hireDate.setHours(0, 0, 0, 0);
+
+    if (hireDate > today) {
+      return 'waiting';
+    }
+  }
+
+  // Sinon, employé actif
+  return 'active';
 };
 
 employeeSchema.methods.getOnboardingProgress = function (): number {

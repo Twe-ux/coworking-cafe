@@ -2,13 +2,15 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Plus, Trash2 } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Plus, Trash2, Calendar, Clock } from 'lucide-react'
 import { useOnboardingContext } from '@/contexts/OnboardingContext'
-import type { Availability, AvailabilitySlot } from '@/types/onboarding'
+import type { Availability, AvailabilitySlot, WeeklyDistributionData } from '@/types/onboarding'
 import { DEFAULT_AVAILABILITY } from '@/types/onboarding'
 
 const DAYS = [
@@ -26,6 +28,10 @@ export function Step3Availability() {
   const [availability, setAvailability] = useState<Availability>(
     data.step3 || DEFAULT_AVAILABILITY
   )
+  const [weeklyDistribution, setWeeklyDistribution] = useState<WeeklyDistributionData>(
+    data.weeklyDistribution || {}
+  )
+  const [activeTab, setActiveTab] = useState('availability')
 
   const toggleDay = (day: keyof Availability) => {
     setAvailability((prev) => ({
@@ -110,6 +116,35 @@ export function Step3Availability() {
     }))
   }
 
+  // Calculer le total d'heures par semaine
+  const calculateWeekTotal = (week: string) => {
+    return DAYS.reduce((total, { key }) => {
+      const hours = parseFloat(weeklyDistribution[key]?.[week as 'week1' | 'week2' | 'week3' | 'week4'] || '0')
+      return total + hours
+    }, 0)
+  }
+
+  // Calculer le total général
+  const calculateGrandTotal = () => {
+    return ['week1', 'week2', 'week3', 'week4'].reduce((sum, week) => {
+      return sum + calculateWeekTotal(week)
+    }, 0)
+  }
+
+  // Récupérer les heures contractuelles depuis Step 2
+  const contractualHours = data.step2?.contractualHours || 35
+  const expectedTotal = contractualHours * 4
+  const grandTotal = calculateGrandTotal()
+  const isDistributionValid = Math.abs(grandTotal - expectedTotal) < 0.1
+
+  // Vérifier qu'au moins un jour a des créneaux
+  const hasAvailability = DAYS.some(({ key }) =>
+    availability[key].available && availability[key].slots.length > 0
+  )
+
+  // Le bouton est activé si disponibilités ET répartition sont valides
+  const canSubmit = hasAvailability && isDistributionValid
+
   const handleSubmit = () => {
     // Nettoyer les IDs et trier les créneaux avant de sauvegarder
     const cleanedAvailability = Object.keys(availability).reduce((acc, day) => {
@@ -130,17 +165,31 @@ export function Step3Availability() {
       }
     }, {} as Availability)
 
-    saveStep3(cleanedAvailability)
+    saveStep3(cleanedAvailability, weeklyDistribution)
   }
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Disponibilités horaires</CardTitle>
+          <CardTitle>Disponibilités et Planning</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {DAYS.map(({ key, label }) => (
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="availability" className="gap-2">
+                <Clock className="w-4 h-4" />
+                Disponibilités
+              </TabsTrigger>
+              <TabsTrigger value="distribution" className="gap-2">
+                <Calendar className="w-4 h-4" />
+                Répartition hebdomadaire
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Onglet 1: Disponibilités */}
+            <TabsContent value="availability" className="space-y-6 mt-6">
+              {DAYS.map(({ key, label }) => (
             <div key={key} className="space-y-3 pb-4 border-b last:border-0">
               <div className="flex items-center gap-3">
                 <Checkbox
@@ -201,11 +250,153 @@ export function Step3Availability() {
               )}
             </div>
           ))}
+            </TabsContent>
+
+            {/* Onglet 2: Répartition hebdomadaire */}
+            <TabsContent value="distribution" className="space-y-6 mt-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-sm mb-2">
+                    Répartition de la durée du travail par semaine
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Indiquez le nombre d'heures de travail pour chaque jour et chaque semaine du mois.
+                    Les jours non disponibles sont marqués comme "Repos".
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-border">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="border border-border p-2 text-left font-semibold">
+                          Jour
+                        </th>
+                        <th className="border border-border p-2 text-center font-semibold">
+                          Semaine 1
+                        </th>
+                        <th className="border border-border p-2 text-center font-semibold">
+                          Semaine 2
+                        </th>
+                        <th className="border border-border p-2 text-center font-semibold">
+                          Semaine 3
+                        </th>
+                        <th className="border border-border p-2 text-center font-semibold">
+                          Semaine 4
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {DAYS.map(({ key, label }) => {
+                        const dayAvailable = availability[key].available
+
+                        return (
+                          <tr
+                            key={key}
+                            className={!dayAvailable ? 'bg-muted/30' : ''}
+                          >
+                            <td className="border border-border p-2 font-semibold">
+                              {label}
+                            </td>
+                            {['week1', 'week2', 'week3', 'week4'].map((week) => (
+                              <td key={week} className="border border-border p-2">
+                                {dayAvailable ? (
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="12"
+                                    step="0.5"
+                                    value={
+                                      weeklyDistribution[key]?.[week as 'week1' | 'week2' | 'week3' | 'week4'] || ''
+                                    }
+                                    onChange={(e) =>
+                                      setWeeklyDistribution((prev) => ({
+                                        ...prev,
+                                        [key]: {
+                                          ...prev[key],
+                                          [week]: e.target.value,
+                                        },
+                                      }))
+                                    }
+                                    placeholder="0"
+                                    className="text-center h-8"
+                                  />
+                                ) : (
+                                  <span className="text-muted-foreground text-sm block text-center">
+                                    Repos
+                                  </span>
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-muted/50 font-semibold">
+                        <td className="border border-border p-2">Total</td>
+                        <td className="border border-border p-2 text-center">
+                          {calculateWeekTotal('week1').toFixed(1)}h
+                        </td>
+                        <td className="border border-border p-2 text-center">
+                          {calculateWeekTotal('week2').toFixed(1)}h
+                        </td>
+                        <td className="border border-border p-2 text-center">
+                          {calculateWeekTotal('week3').toFixed(1)}h
+                        </td>
+                        <td className="border border-border p-2 text-center">
+                          {calculateWeekTotal('week4').toFixed(1)}h
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                <Alert variant={isDistributionValid ? 'default' : 'destructive'}>
+                  <AlertDescription>
+                    <div className="flex items-center gap-2">
+                      {isDistributionValid ? (
+                        <span className="text-green-600 font-semibold">
+                          ✓ Total mensuel : {grandTotal.toFixed(1)}h
+                        </span>
+                      ) : (
+                        <span className="font-semibold">
+                          ⚠️ Total mensuel : {grandTotal.toFixed(1)}h
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm mt-1">
+                      Attendu : {expectedTotal.toFixed(1)}h ({contractualHours}h/semaine × 4
+                      semaines)
+                    </div>
+                    {!isDistributionValid && (
+                      <div className="text-sm mt-2">
+                        Le total ne correspond pas aux heures contractuelles
+                      </div>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
+      {!canSubmit && (
+        <Alert>
+          <AlertDescription>
+            {!hasAvailability && (
+              <div>⚠️ Veuillez renseigner au moins un jour de disponibilité avec des créneaux horaires.</div>
+            )}
+            {hasAvailability && !isDistributionValid && (
+              <div>⚠️ Veuillez remplir la répartition hebdomadaire pour que le total corresponde aux heures contractuelles ({expectedTotal.toFixed(1)}h).</div>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex justify-end">
-        <Button onClick={handleSubmit} size="lg">
+        <Button onClick={handleSubmit} size="lg" disabled={!canSubmit}>
           Suivant
         </Button>
       </div>

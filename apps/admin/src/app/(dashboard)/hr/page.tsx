@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Calendar, Clock, FileText } from "lucide-react";
+import { Users, Calendar, Clock, FileText, CalendarCheck2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,25 +10,22 @@ import { useDrafts } from "@/hooks/hr/useDrafts";
 import { EmployeeList } from "@/components/hr/employees";
 import { DraftCard } from "@/components/hr/employees/DraftCard";
 import { EndContractModal } from "@/components/hr/modals/EndContractModal";
+import { ContractGenerationModal } from "@/components/hr/contract/ContractGenerationModal";
+import { AvailabilityCalendarTab } from "@/components/hr/availability/AvailabilityCalendarTab";
 import type { Employee } from "@/types/hr";
 import { toast } from "sonner";
 
 /**
  * Page HR Management - Admin/Dev only
- * Onglets : Employés, Planning, Pointage
+ * Onglets : Employés, Disponibilités, Planning, Pointage
  */
 export default function HRManagementPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const userRole = session?.user?.role;
 
-  const {
-    employees,
-    loading,
-    error,
-    fetchEmployees,
-    archiveEmployee,
-  } = useEmployeesData();
+  const { employees, loading, error, fetchEmployees, archiveEmployee } =
+    useEmployeesData();
 
   const {
     drafts,
@@ -37,8 +34,14 @@ export default function HRManagementPage() {
   } = useDrafts();
 
   // États pour les modals
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
   const [endContractModalOpen, setEndContractModalOpen] = useState(false);
+  const [contractModalOpen, setContractModalOpen] = useState(false);
+  const [contractEmployee, setContractEmployee] = useState<Employee | null>(
+    null
+  );
 
   // Charger les employés au montage
   useEffect(() => {
@@ -97,9 +100,8 @@ export default function HRManagementPage() {
   };
 
   const handleViewContract = (employee: Employee) => {
-    toast.info("À venir", {
-      description: "La visualisation du contrat sera disponible prochainement",
-    });
+    setContractEmployee(employee);
+    setContractModalOpen(true);
   };
 
   const handleEndContract = (employee: Employee) => {
@@ -178,24 +180,20 @@ export default function HRManagementPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Gestion RH</h1>
           <p className="text-muted-foreground">
-            Gérez les employés, plannings et pointages
+            Gérez les employés, disponibilités, plannings et pointages
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="employees" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="employees" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Employés
           </TabsTrigger>
-          <TabsTrigger value="schedule" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Planning
-          </TabsTrigger>
-          <TabsTrigger value="clocking" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Pointage
+          <TabsTrigger value="availability" className="flex items-center gap-2">
+            <CalendarCheck2 className="h-4 w-4" />
+            Disponibilités
           </TabsTrigger>
         </TabsList>
 
@@ -234,6 +232,10 @@ export default function HRManagementPage() {
           />
         </TabsContent>
 
+        <TabsContent value="availability" className="space-y-4">
+          <AvailabilityCalendarTab />
+        </TabsContent>
+
         <TabsContent value="schedule" className="space-y-4">
           <div className="rounded-lg border bg-card p-6">
             <p className="text-sm text-muted-foreground">
@@ -260,6 +262,14 @@ export default function HRManagementPage() {
         }}
         onConfirm={handleEndContractConfirm}
       />
+
+      {contractEmployee && (
+        <ContractGenerationModal
+          employee={contractEmployee}
+          open={contractModalOpen}
+          onOpenChange={setContractModalOpen}
+        />
+      )}
     </div>
   );
 }

@@ -68,8 +68,10 @@ export interface WorkSchedule {
 
 export interface Employee {
   _id: string;
+  id: string; // Alias for _id
   firstName: string;
   lastName: string;
+  fullName: string; // Computed: firstName + lastName
   dateOfBirth: string;
   placeOfBirth?: string;
   address: EmployeeAddress;
@@ -85,11 +87,14 @@ export interface Employee {
   employeeRole: EmployeeRole;
   isActive: boolean;
   isDraft?: boolean;
+  employmentStatus?: 'draft' | 'waiting' | 'active' | 'inactive';
+  status?: 'draft' | 'waiting' | 'active' | 'inactive'; // Alias for employmentStatus
   hireDate: string;
   hireTime?: string;
   endDate?: string;
   endContractReason?: EndContractReason;
   onboardingStatus?: OnboardingStatus;
+  onboardingProgress?: number;
   workSchedule?: WorkSchedule;
   availability?: WeeklyAvailability;
   clockingCode?: string;
@@ -101,6 +106,7 @@ export interface Employee {
     bankName: string;
   };
   deletedAt?: Date;
+  createdAt?: Date;
   createdBy?: string;
   updatedAt?: Date;
 }

@@ -50,10 +50,16 @@ export function useOnboarding(options?: UseOnboardingOptions) {
           employeeRole: initialEmployee.employeeRole,
         },
         step3: (initialEmployee.availability as Availability) || DEFAULT_AVAILABILITY,
+        weeklyDistribution: initialEmployee.workSchedule?.weeklyDistributionData || {},
         step4: {
-          clockingCode: initialEmployee.clockingCode,
+          clockingCode: initialEmployee.clockingCode || '',
           color: initialEmployee.color || '#3b82f6',
           dpaeCompleted: initialEmployee.onboardingStatus?.dpaeCompleted || false,
+          dpaeCompletedAt: initialEmployee.onboardingStatus?.dpaeCompletedAt
+            ? new Date(initialEmployee.onboardingStatus.dpaeCompletedAt)
+                .toISOString()
+                .split('T')[0]
+            : '',
           medicalVisitCompleted: initialEmployee.onboardingStatus?.medicalVisitCompleted || false,
           mutuelleCompleted: initialEmployee.onboardingStatus?.mutuelleCompleted || false,
           bankDetailsProvided: initialEmployee.onboardingStatus?.bankDetailsProvided || false,
@@ -63,7 +69,10 @@ export function useOnboarding(options?: UseOnboardingOptions) {
       }
     }
 
-    return { step3: DEFAULT_AVAILABILITY }
+    return {
+      step3: DEFAULT_AVAILABILITY,
+      weeklyDistribution: {}
+    }
   }, [initialEmployee])
 
   // Charger le brouillon depuis BD au montage (mode création uniquement)
@@ -116,6 +125,11 @@ export function useOnboarding(options?: UseOnboardingOptions) {
                 clockingCode: draft.clockingCode,
                 color: draft.color || '#3b82f6',
                 dpaeCompleted: draft.onboardingStatus?.dpaeCompleted || false,
+                dpaeCompletedAt: draft.onboardingStatus?.dpaeCompletedAt
+                  ? new Date(draft.onboardingStatus.dpaeCompletedAt)
+                      .toISOString()
+                      .split('T')[0]
+                  : '',
                 medicalVisitCompleted: draft.onboardingStatus?.medicalVisitCompleted || false,
                 mutuelleCompleted: draft.onboardingStatus?.mutuelleCompleted || false,
                 bankDetailsProvided: draft.onboardingStatus?.bankDetailsProvided || false,
@@ -124,7 +138,17 @@ export function useOnboarding(options?: UseOnboardingOptions) {
               }
             }
 
+            // Charger la répartition hebdomadaire
+            if (draft.workSchedule?.weeklyDistributionData) {
+              draftData.weeklyDistribution = draft.workSchedule.weeklyDistributionData
+            }
+
             setData((prev) => ({ ...prev, ...draftData }))
+
+            // Stocker l'ID du brouillon pour pouvoir le mettre à jour
+            if (draft._id) {
+              setDraftId(draft._id.toString())
+            }
 
             // Définir l'étape courante selon la progression
             if (draft.onboardingStatus) {
@@ -157,6 +181,7 @@ export function useOnboarding(options?: UseOnboardingOptions) {
   const [data, setData] = useState<OnboardingData>(initialData)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [draftId, setDraftId] = useState<string | null>(null)
 
   // Sauvegarder dans localStorage à chaque changement (mode création uniquement)
   useEffect(() => {
@@ -230,8 +255,12 @@ export function useOnboarding(options?: UseOnboardingOptions) {
   )
 
   const saveStep3 = useCallback(
-    async (availability: Availability) => {
-      const updatedData = { ...data, step3: availability }
+    async (availability: Availability, weeklyDistribution?: any) => {
+      const updatedData = {
+        ...data,
+        step3: availability,
+        weeklyDistribution
+      }
       setData(updatedData)
 
       // Sauvegarder en BD si mode création
@@ -244,6 +273,11 @@ export function useOnboarding(options?: UseOnboardingOptions) {
               ...data.step1,
               ...data.step2,
               availability,
+              workSchedule: weeklyDistribution ? {
+                weeklyDistribution: JSON.stringify(weeklyDistribution),
+                timeSlots: '',
+                weeklyDistributionData: weeklyDistribution,
+              } : undefined,
               onboardingStatus: {
                 step1Completed: true,
                 step2Completed: true,
@@ -293,8 +327,15 @@ export function useOnboarding(options?: UseOnboardingOptions) {
           monthlySalary: data.step2?.monthlySalary,
           employeeRole: data.step2!.employeeRole,
 
-          // Step 3 - Disponibilités
+          // Step 3 - Disponibilités + répartition hebdomadaire
           availability: data.step3!,
+          workSchedule: data.weeklyDistribution
+            ? {
+                weeklyDistribution: JSON.stringify(data.weeklyDistribution),
+                timeSlots: '',
+                weeklyDistributionData: data.weeklyDistribution,
+              }
+            : undefined,
 
           // Step 4 - Infos administratives
           clockingCode: adminInfo.clockingCode,
@@ -309,6 +350,9 @@ export function useOnboarding(options?: UseOnboardingOptions) {
             step4Completed: true,
             contractGenerated: false,
             dpaeCompleted: adminInfo.dpaeCompleted || false,
+            dpaeCompletedAt: adminInfo.dpaeCompletedAt
+              ? new Date(adminInfo.dpaeCompletedAt)
+              : undefined,
             medicalVisitCompleted: adminInfo.medicalVisitCompleted || false,
             mutuelleCompleted: adminInfo.mutuelleCompleted || false,
             bankDetailsProvided: adminInfo.bankDetailsProvided || false,
@@ -317,11 +361,28 @@ export function useOnboarding(options?: UseOnboardingOptions) {
           },
         }
 
+        // Déterminer isActive en fonction de la date d'embauche
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const hireDate = new Date(data.step2!.hireDate)
+        hireDate.setHours(0, 0, 0, 0)
+
+        // Actif si la date d'embauche est aujourd'hui ou dans le passé
+        employeeData.isActive = hireDate <= today
+
+        // Si on a un draftId, on met à jour le brouillon au lieu de créer un nouvel employé
         const url =
           mode === 'edit'
             ? `/api/hr/employees/${employeeId}`
-            : '/api/hr/employees'
-        const method = mode === 'edit' ? 'PUT' : 'POST'
+            : draftId
+              ? `/api/hr/employees/${draftId}`
+              : '/api/hr/employees'
+        const method = mode === 'edit' || draftId ? 'PUT' : 'POST'
+
+        // Si on finalise un brouillon, marquer isDraft: false
+        if (draftId) {
+          employeeData.isDraft = false
+        }
 
         const response = await fetch(url, {
           method,
@@ -340,31 +401,37 @@ export function useOnboarding(options?: UseOnboardingOptions) {
           )
         }
 
-        // Nettoyer localStorage et brouillon après succès
+        setLoading(false)
+
+        // Nettoyer localStorage après succès
         if (mode === 'create') {
           if (typeof window !== 'undefined') {
             localStorage.removeItem(STORAGE_KEY)
             localStorage.removeItem(`${STORAGE_KEY}-step`)
           }
 
-          // Supprimer le brouillon en BD
-          try {
-            await fetch('/api/hr/employees/draft', {
-              method: 'DELETE',
-            })
-          } catch (err) {
-            console.error('Erreur suppression brouillon:', err)
+          // Si on n'a PAS finalisé un brouillon (draftId === null), supprimer le brouillon en BD
+          // Si on a finalisé un brouillon, il a été transformé en employé donc pas besoin de le supprimer
+          if (!draftId) {
+            try {
+              await fetch('/api/hr/employees/draft', {
+                method: 'DELETE',
+              })
+            } catch (err) {
+              console.error('Erreur suppression brouillon:', err)
+            }
           }
         }
 
-        // Rediriger vers la liste des employés
-        router.push('/hr')
+        // Retourner l'employé créé au lieu de rediriger
+        return result.data
       } catch (err: any) {
         setError(err.message || 'Une erreur est survenue')
         setLoading(false)
+        return null
       }
     },
-    [data, router, mode, employeeId]
+    [data, mode, employeeId]
   )
 
   const goToStep = useCallback((step: OnboardingStep) => {
@@ -393,6 +460,7 @@ export function useOnboarding(options?: UseOnboardingOptions) {
     data,
     loading,
     error,
+    mode,
     saveStep1,
     saveStep2,
     saveStep3,

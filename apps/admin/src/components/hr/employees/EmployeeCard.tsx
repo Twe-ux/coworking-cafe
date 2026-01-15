@@ -93,9 +93,27 @@ export function EmployeeCard({
     );
   }
 
+  // Déterminer la classe de bordure selon le statut
+  const getBorderClass = () => {
+    if (employee.isDraft) return 'border-gray-300'
+
+    switch (employee.employmentStatus) {
+      case 'draft':
+        return 'border-gray-300'
+      case 'waiting':
+        return 'border-l-4 border-l-orange-500'
+      case 'active':
+        return 'border-l-4 border-l-green-500'
+      case 'inactive':
+        return 'border-l-4 border-l-red-500'
+      default:
+        return 'border-l-4 border-l-green-500'
+    }
+  }
+
   // Vue active complète
   return (
-    <Card>
+    <Card className={getBorderClass()}>
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
@@ -117,6 +135,11 @@ export function EmployeeCard({
                   {employee.contractualHours ? `${employee.contractualHours}h` : 'N/A'}
                 </Badge>
                 <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+                {employee.employmentStatus === 'waiting' && (
+                  <Badge variant="outline" className="border-orange-500 text-orange-700 bg-orange-50">
+                    En attente
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -152,14 +175,26 @@ export function EmployeeCard({
           </div>
         </div>
 
-        {/* Progression onboarding */}
+        {/* Progression intégration */}
         <div className="mt-4">
           <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="text-gray-600">Onboarding</span>
+            <span className="text-gray-600">Intégration</span>
             <span className="font-medium">{onboardingProgress}%</span>
           </div>
           <Progress value={onboardingProgress} className="h-2" />
         </div>
+
+        {/* Alerte employé en attente */}
+        {employee.employmentStatus === 'waiting' && employee.hireDate && (
+          <div className="mt-3 rounded-md bg-orange-50 p-3 text-sm">
+            <p className="font-medium text-orange-800">
+              Embauche prévue le {formatDateFR(employee.hireDate)}
+            </p>
+            <p className="text-orange-600">
+              L'employé sera automatiquement activé à cette date
+            </p>
+          </div>
+        )}
 
         {/* Alerte fin de contrat future */}
         {employee.endDate && new Date(employee.endDate) > new Date() && (

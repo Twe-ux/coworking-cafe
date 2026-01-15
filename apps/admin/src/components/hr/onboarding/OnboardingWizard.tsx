@@ -17,8 +17,8 @@ export function OnboardingWizard({ children }: OnboardingWizardProps) {
   return (
     <div className="space-y-6">
       {/* Stepper */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between">
+      <Card className="p-4 md:p-6">
+        <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4">
           {[1, 2, 3, 4].map((step) => {
             const stepNumber = step as OnboardingStep
             const isActive = stepNumber === currentStep
@@ -26,19 +26,19 @@ export function OnboardingWizard({ children }: OnboardingWizardProps) {
             const canAccess = canGoToStep(stepNumber)
 
             return (
-              <div key={step} className="flex items-center flex-1">
+              <div key={step} className="flex items-center">
                 <button
                   onClick={() => canAccess && goToStep(stepNumber)}
                   disabled={!canAccess}
-                  className="flex flex-col items-center gap-2 flex-1 group"
+                  className="flex flex-col items-center gap-1 sm:gap-2 w-16 sm:w-24 md:w-32 group"
                 >
                   <div
                     className={`
-                      w-10 h-10 rounded-full flex items-center justify-center font-semibold
+                      w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-sm sm:text-base
                       transition-all
                       ${
                         isActive
-                          ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+                          ? 'bg-primary text-primary-foreground ring-2 sm:ring-4 ring-primary/20'
                           : isCompleted
                             ? 'bg-green-500 text-white'
                             : canAccess
@@ -49,19 +49,20 @@ export function OnboardingWizard({ children }: OnboardingWizardProps) {
                   >
                     {isCompleted ? '✓' : step}
                   </div>
-                  <span
+                  <div
                     className={`
-                      text-xs text-center font-medium
+                      text-[10px] sm:text-xs text-center font-medium leading-tight
                       ${isActive ? 'text-primary' : isCompleted ? 'text-green-600' : 'text-muted-foreground'}
                     `}
                   >
-                    {ONBOARDING_STEP_LABELS[stepNumber]}
-                  </span>
+                    <div>{ONBOARDING_STEP_LABELS[stepNumber].line1}</div>
+                    <div>{ONBOARDING_STEP_LABELS[stepNumber].line2}</div>
+                  </div>
                 </button>
                 {step < 4 && (
                   <div
                     className={`
-                      h-0.5 flex-1 mx-2
+                      h-0.5 w-4 sm:w-8 md:w-16 mx-0.5 sm:mx-1 md:mx-2
                       ${isCompleted ? 'bg-green-500' : 'bg-muted'}
                     `}
                   />

@@ -131,6 +131,8 @@ export function useCashControl() {
     // Data
     years,
     tableData,
+    turnoverData: filteredTurnoverData,
+    cashEntries: dataCash,
 
     // Loading
     isLoading: isLoadingCash || isLoadingTurnover,

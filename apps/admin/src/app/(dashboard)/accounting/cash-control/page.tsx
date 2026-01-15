@@ -1,18 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useCashControl } from "@/hooks/useCashControl";
 import { columns } from "@/components/accounting/cash-control/columns";
 import { DataTable } from "@/components/accounting/cash-control/data-table";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { FileDown } from "lucide-react";
+import { generateCashControlPDF } from "@/lib/pdf/cash-control-pdf";
+import { toast } from "sonner";
 
 const monthsList = [
   "Janvier",
@@ -45,10 +40,30 @@ export default function CashControlPage() {
     formStatus,
     years,
     tableData,
+    turnoverData,
     isLoading,
     handleSubmit,
     handleDelete,
   } = useCashControl();
+
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  const handleGeneratePDF = async () => {
+    try {
+      setIsGeneratingPDF(true);
+      await generateCashControlPDF({
+        turnoverData: tableData,
+        month: selectedMonth,
+        year: selectedYear,
+      });
+      toast.success('PDF généré avec succès !');
+    } catch (error) {
+      console.error('Erreur génération PDF:', error);
+      toast.error('Erreur lors de la génération du PDF');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -60,24 +75,6 @@ export default function CashControlPage() {
 
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/accounting">Comptabilité</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Contrôle de Caisse</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="rounded-lg border bg-card p-6">
           <div className="mb-4 flex items-center justify-between">
@@ -85,7 +82,7 @@ export default function CashControlPage() {
               Contrôle de Caisse
             </h1>
 
-            {/* Filtres Année/Mois */}
+            {/* Filtres Année/Mois + Bouton PDF */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="font-semibold">Année :</span>
@@ -116,6 +113,21 @@ export default function CashControlPage() {
                   ))}
                 </select>
               </div>
+
+              <Button
+                onClick={handleGeneratePDF}
+                disabled={isGeneratingPDF || tableData.length === 0}
+                size="sm"
+              >
+                {isGeneratingPDF ? (
+                  <>Génération...</>
+                ) : (
+                  <>
+                    <FileDown className="w-4 h-4 mr-2" />
+                    Générer PDF
+                  </>
+                )}
+              </Button>
             </div>
           </div>
 
@@ -131,5 +143,5 @@ export default function CashControlPage() {
         </div>
       </div>
     </>
-  )
+  );
 }
