@@ -5,6 +5,9 @@ export interface TurnoverItem {
   TTC?: number;
   HT?: number;
   TVA?: number;
+  'ca-ht'?: { [key: string]: number };
+  'ca-tva'?: { [key: string]: number };
+  'ca-ttc'?: { [key: string]: number };
 }
 
 export interface MergedCashData {
@@ -13,6 +16,9 @@ export interface MergedCashData {
   TTC?: number;
   HT?: number;
   TVA?: number;
+  'ca-ht'?: { [key: string]: number };
+  'ca-tva'?: { [key: string]: number };
+  'ca-ttc'?: { [key: string]: number };
   prestaB2B: Array<{ label: string; value: number }>;
   depenses: Array<{ label: string; value: number }>;
   virement: number | null;
@@ -44,6 +50,9 @@ export function mergeCashData(
       TTC: turnoverItem.TTC,
       HT: turnoverItem.HT,
       TVA: turnoverItem.TVA ?? 0,
+      'ca-ht': turnoverItem['ca-ht'],
+      'ca-tva': turnoverItem['ca-tva'],
+      'ca-ttc': turnoverItem['ca-ttc'],
       prestaB2B: [],
       depenses: [],
       virement: null,
