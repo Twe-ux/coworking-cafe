@@ -30,9 +30,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Vérification des permissions (admin, manager ou staff pour lecture)
+    // Vérification des permissions (dev, admin ou staff pour lecture)
     const userRole = (session?.user as any)?.role
-    if (!['admin', 'manager', 'staff'].includes(userRole)) {
+    console.log('🔍 DEBUG API time-entries - User role:', userRole, 'Session user:', session?.user)
+
+    if (!['dev', 'admin', 'staff'].includes(userRole)) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -218,14 +220,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Vérification des permissions (admin ou manager uniquement)
+    // Vérification des permissions (dev ou admin uniquement)
     const userRole = (session?.user as any)?.role
-    if (!['admin', 'manager'].includes(userRole)) {
+    if (!['dev', 'admin'].includes(userRole)) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
           error:
-            'Seuls les administrateurs et managers peuvent créer des time entries manuellement',
+            'Seuls les développeurs et administrateurs peuvent créer des time entries manuellement',
           details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
         },
         { status: 403 }
