@@ -43,17 +43,17 @@ export default function RootLayout({
         className={`${montserrat.variable} ${merriweather.variable} ${sourceCodePro.variable} font-sans antialiased`}
       >
         <Providers>
-          <SidebarProvider defaultOpen={false}>
+          <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
               <header className="flex h-16 shrink-0 items-center gap-2">
-                <div className="flex items-center gap-2 pl-[5.5rem] pr-4">
-                  {/* <SidebarTrigger className="-ml-1" />
-                  <Separator orientation="vertical" className="mr-2 h-4" /> */}
+                <div className="flex items-center gap-2 px-4">
+                  <SidebarTrigger className="-ml-1" />
+                  <Separator orientation="vertical" className="mr-2 h-4" />
                   <DynamicBreadcrumb />
                 </div>
               </header>
-              <main className="flex-1 pl-16 pr-4">{children}</main>
+              <main className="flex-1 p-6">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </Providers>
