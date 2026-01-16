@@ -13,6 +13,10 @@ import { useOnboardingContext } from '@/contexts/OnboardingContext'
 import type { Availability, AvailabilitySlot, WeeklyDistributionData } from '@/types/onboarding'
 import { DEFAULT_AVAILABILITY } from '@/types/onboarding'
 
+interface TimeSlotWithId extends AvailabilitySlot {
+  id: string
+}
+
 const DAYS = [
   { key: 'monday', label: 'Lundi' },
   { key: 'tuesday', label: 'Mardi' },
@@ -65,7 +69,7 @@ export function Step3Availability() {
       ...prev,
       [day]: {
         ...prev[day],
-        slots: prev[day].slots.filter((slot: any) => slot.id !== slotId),
+        slots: prev[day].slots.filter((slot: TimeSlotWithId) => slot.id !== slotId),
       },
     }))
   }
@@ -78,14 +82,14 @@ export function Step3Availability() {
   ) => {
     setAvailability((prev) => {
       // Créer une copie profonde des slots
-      const updatedSlots = prev[day].slots.map((slot: any) => ({
+      const updatedSlots = prev[day].slots.map((slot: TimeSlotWithId) => ({
         start: slot.start,
         end: slot.end,
         id: slot.id,
       }))
 
       // Trouver et mettre à jour le slot par son ID
-      const slotIndex = updatedSlots.findIndex((s: any) => s.id === slotId)
+      const slotIndex = updatedSlots.findIndex((s: TimeSlotWithId) => s.id === slotId)
       if (slotIndex !== -1) {
         updatedSlots[slotIndex] = {
           ...updatedSlots[slotIndex],
@@ -150,7 +154,7 @@ export function Step3Availability() {
     const cleanedAvailability = Object.keys(availability).reduce((acc, day) => {
       const dayKey = day as keyof Availability
       const sortedSlots = [...availability[dayKey].slots]
-        .map((slot: any) => ({
+        .map((slot: TimeSlotWithId) => ({
           start: slot.start,
           end: slot.end,
         }))
@@ -205,7 +209,7 @@ export function Step3Availability() {
               {availability[key].available && (
                 <div className="ml-8 space-y-2">
                   <div className="flex flex-wrap gap-2">
-                    {availability[key].slots.map((slot: any) => (
+                    {availability[key].slots.map((slot: TimeSlotWithId) => (
                       <div key={slot.id} className="flex items-center gap-2">
                         <Input
                           type="time"

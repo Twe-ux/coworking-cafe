@@ -2,7 +2,7 @@
 
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { RowTabTurnover } from './RowTabTurnover';
-import type { CashEntryRow } from '@/types/accounting';
+import type { CashEntryRow, TurnoverData as BaseTurnoverData } from '@/types/accounting';
 
 const styles = StyleSheet.create({
   page: {
@@ -160,15 +160,8 @@ function formatDepensesDetails(
   return nonEmptyLines.join('\n');
 }
 
-interface TurnoverData {
+interface TurnoverData extends BaseTurnoverData {
   _id?: string;
-  date: string;
-  HT: number;
-  TTC: number;
-  TVA?: number;
-  'ca-ht'?: { [key: string]: number };
-  'ca-ttc'?: { [key: string]: number };
-  'ca-tva'?: { [key: string]: number };
   prestaB2B?: { label: string; value: number }[];
   depenses?: { label: string; value: number }[];
   cbClassique?: number | string;

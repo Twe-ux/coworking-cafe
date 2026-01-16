@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { type Employee } from '@/hooks/useEmployees'
+import { type TimeEntryUpdate } from '@/types/timeEntry'
 import { Calendar, Clock, Download, Filter, Plus } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -225,10 +226,10 @@ export default function TimeEntriesList({
       }
 
       const response = await fetch(`/api/time-entries?${params.toString()}`)
-      const data = await response.json()
+      const timeEntriesResponse = await response.json()
 
-      if (data.success) {
-        const entries = data.data || []
+      if (timeEntriesResponse.success) {
+        const entries = timeEntriesResponse.data || []
         setTimeEntries(entries)
         setGroupedEntries(groupTimeEntries(entries))
       }
@@ -433,7 +434,7 @@ export default function TimeEntriesList({
 
     setIsSaving(true)
     try {
-      let updateData: any = {}
+      let updateData: Partial<TimeEntryUpdate & { date: string }> = {}
 
       if (editingCell.field === 'date') {
         updateData.date = new Date(editValue).toISOString()
@@ -546,9 +547,9 @@ export default function TimeEntriesList({
         body: JSON.stringify(shiftData),
       })
 
-      const result = await response.json()
+      const createShiftResult = await response.json()
 
-      if (result.success) {
+      if (createShiftResult.success) {
         setShowAddShiftDialog(false)
         setNewShift({
           employeeId: '',
@@ -558,7 +559,7 @@ export default function TimeEntriesList({
         })
         await fetchTimeEntries() // Recharger les données
       } else {
-        alert(result.error || 'Erreur lors de la création du shift')
+        alert(createShiftResult.error || 'Erreur lors de la création du shift')
       }
     } catch (error) {
       console.error('Error creating shift:', error)

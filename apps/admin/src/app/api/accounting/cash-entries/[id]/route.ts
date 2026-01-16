@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth-options"
 import { connectMongoose } from "@/lib/mongodb"
 import CashEntry from "@/models/cashEntry"
 import type { PrestaB2BItem, DepenseItem } from "@/types/accounting"
@@ -8,6 +10,24 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Vérification d'authentification
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: "Non authentifié" },
+        { status: 401 }
+      )
+    }
+
+    // Vérification des permissions (dev ou admin uniquement)
+    const userRole = (session?.user as any)?.role
+    if (!["dev", "admin"].includes(userRole)) {
+      return NextResponse.json(
+        { success: false, error: "Permissions insuffisantes" },
+        { status: 403 }
+      )
+    }
+
     await connectMongoose()
 
     const entry = await CashEntry.findById(params.id).lean()
@@ -44,6 +64,24 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Vérification d'authentification
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: "Non authentifié" },
+        { status: 401 }
+      )
+    }
+
+    // Vérification des permissions (dev ou admin uniquement)
+    const userRole = (session?.user as any)?.role
+    if (!["dev", "admin"].includes(userRole)) {
+      return NextResponse.json(
+        { success: false, error: "Permissions insuffisantes" },
+        { status: 403 }
+      )
+    }
+
     await connectMongoose()
 
     const body = await request.json()
@@ -93,6 +131,24 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Vérification d'authentification
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: "Non authentifié" },
+        { status: 401 }
+      )
+    }
+
+    // Vérification des permissions (dev ou admin uniquement)
+    const userRole = (session?.user as any)?.role
+    if (!["dev", "admin"].includes(userRole)) {
+      return NextResponse.json(
+        { success: false, error: "Permissions insuffisantes" },
+        { status: 403 }
+      )
+    }
+
     await connectMongoose()
 
     const deletedEntry = await CashEntry.findByIdAndDelete(params.id).lean()

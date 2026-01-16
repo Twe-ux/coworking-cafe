@@ -67,7 +67,7 @@ export default function TimeTrackingCard({
         const today = new Date()
         const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
-        const todayEntries = (data.data || []).filter((entry: any) => {
+        const todayEntries = (data.data || []).filter((entry: TimeEntry) => {
           // entry.date is "YYYY-MM-DD" format
           return entry.date === todayStr
         })
@@ -105,7 +105,7 @@ export default function TimeTrackingCard({
 
     try {
       // First verify PIN
-      const pinResponse = await fetch('/api/employees/verify-pin', {
+      const pinResponse = await fetch('/api/hr/employees/verify-pin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

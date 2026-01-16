@@ -59,7 +59,7 @@ const BreadcrumbLink = React.forwardRef<
 
   return (
     <Link
-      ref={ref as any}
+      ref={ref as React.ForwardedRef<HTMLAnchorElement>}
       href={href}
       className={cn("transition-colors hover:text-foreground", className)}
       {...props}

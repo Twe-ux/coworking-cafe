@@ -47,15 +47,20 @@ export interface Turnover {
 
 export interface TurnoverData {
   date: string
+  HT: number
+  TTC: number
   TVA?: number
+  'ca-ht'?: { [key: string]: number }
+  'ca-ttc'?: { [key: string]: number }
+  'ca-tva'?: { [key: string]: number }
   [key: string]: unknown
 }
 
 export interface CashEntryRow {
   _id: string
   date: string
-  TTC?: number
-  HT?: number
+  TTC: number
+  HT: number
   TVA?: number
   totalCA: number
   totalEncaissements: number

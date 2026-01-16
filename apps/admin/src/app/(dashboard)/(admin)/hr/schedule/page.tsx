@@ -6,28 +6,9 @@ import { ShiftModal } from "@/components/schedule/ShiftModal";
 import { MonthlyCalendar } from "@/components/shared/calendar";
 import { useShifts } from "@/hooks/useShifts";
 import type { Shift } from "@/types/shift";
+import type { Employee } from "@/types/hr";
+import type { TimeEntry } from "@/types/timeEntry";
 import { useCallback, useEffect, useState } from "react";
-
-interface Employee {
-  id: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  role: string;
-  color: string;
-  isActive: boolean;
-}
-
-interface TimeEntry {
-  id: string;
-  employeeId: string;
-  date: string; // Format "YYYY-MM-DD"
-  clockIn: string; // Format "HH:mm"
-  clockOut?: string | null; // Format "HH:mm"
-  shiftNumber: 1 | 2;
-  totalHours?: number;
-  status: "active" | "completed";
-}
 
 export default function SchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -239,14 +220,16 @@ export default function SchedulePage() {
   const handleShiftClick = (shift: Shift, e: React.MouseEvent) => {
     e.stopPropagation();
     // Open day shifts modal for that shift's date
-    setDayShiftsDate(shift.date);
+    const dateValue = typeof shift.date === 'string' ? new Date(shift.date) : shift.date;
+    setDayShiftsDate(dateValue);
     setShowDayShiftsModal(true);
   };
 
   const handleEditShiftFromDay = (shift: Shift) => {
     // Close day shifts modal and open edit modal
     setShowDayShiftsModal(false);
-    setSelectedDate(shift.date);
+    const dateValue = typeof shift.date === 'string' ? new Date(shift.date) : shift.date;
+    setSelectedDate(dateValue);
     setSelectedShift(shift);
     setModalOpen(true);
   };

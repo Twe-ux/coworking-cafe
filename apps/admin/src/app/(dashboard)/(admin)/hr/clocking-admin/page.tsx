@@ -4,16 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import TimeEntriesList from '@/components/clocking/TimeEntriesList'
 import { Button } from '@/components/ui/button'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
-
-interface Employee {
-  id: string
-  firstName: string
-  lastName: string
-  fullName: string
-  role: string
-  color: string
-  isActive: boolean
-}
+import type { Employee } from '@/types/hr'
 
 export default function ClockingAdminPage() {
   const [employees, setEmployees] = useState<Employee[]>([])

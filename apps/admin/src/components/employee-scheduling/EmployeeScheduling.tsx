@@ -172,10 +172,21 @@ export default function EmployeeScheduling({
       params.append("endDate", endOfMonth.toISOString().split("T")[0]);
 
       const response = await fetch(`/api/time-entries?${params.toString()}`);
-      const data = await response.json();
+      const timeEntriesData = await response.json();
 
-      if (data.success) {
-        const entries = (data.data || []).map((entry: any) => ({
+      if (timeEntriesData.success) {
+        interface TimeEntryAPIResponse {
+          id: string
+          employeeId: string
+          date: string
+          clockIn: string
+          clockOut?: string | null
+          status: 'active' | 'completed'
+          shiftNumber: 1 | 2
+          totalHours?: number
+        }
+
+        const entries = (timeEntriesData.data || []).map((entry: TimeEntryAPIResponse) => ({
           ...entry,
           date: new Date(entry.date),
           clockIn: new Date(entry.clockIn),

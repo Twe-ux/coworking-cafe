@@ -161,7 +161,7 @@ export function AvailabilityModal({
               <Select
                 value={String(formData.dayOfWeek)}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, dayOfWeek: parseInt(value) as any }))
+                  setFormData((prev) => ({ ...prev, dayOfWeek: parseInt(value) as 0 | 1 | 2 | 3 | 4 | 5 | 6 }))
                 }
               >
                 <SelectTrigger>

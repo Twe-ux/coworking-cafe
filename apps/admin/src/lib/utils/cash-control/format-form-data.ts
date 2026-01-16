@@ -74,9 +74,9 @@ export function formatFormDataForAPI(
 /**
  * Retourne l'URL et la méthode HTTP selon le mode (création ou édition)
  */
-export function getAPIEndpoint(isEdit: boolean): { url: string; method: "POST" | "PUT" } {
-  if (isEdit) {
-    return { url: "/api/cash-entry/update", method: "PUT" };
+export function getAPIEndpoint(isEdit: boolean, id?: string): { url: string; method: "POST" | "PUT" } {
+  if (isEdit && id) {
+    return { url: `/api/accounting/cash-entries/${id}`, method: "PUT" };
   }
-  return { url: "/api/cash-entry", method: "POST" };
+  return { url: "/api/accounting/cash-entries", method: "POST" };
 }

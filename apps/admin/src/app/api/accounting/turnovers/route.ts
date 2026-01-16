@@ -1,9 +1,29 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth-options"
 import { connectMongoose } from "@/lib/mongodb"
 import Turnover from "@/models/turnover"
 
 export async function GET(request: NextRequest) {
   try {
+    // Vérification d'authentification
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: "Non authentifié" },
+        { status: 401 }
+      )
+    }
+
+    // Vérification des permissions (dev ou admin uniquement)
+    const userRole = (session?.user as any)?.role
+    if (!["dev", "admin"].includes(userRole)) {
+      return NextResponse.json(
+        { success: false, error: "Permissions insuffisantes" },
+        { status: 403 }
+      )
+    }
+
     await connectMongoose()
 
     const { searchParams } = new URL(request.url)
@@ -42,6 +62,24 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Vérification d'authentification
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: "Non authentifié" },
+        { status: 401 }
+      )
+    }
+
+    // Vérification des permissions (dev ou admin uniquement)
+    const userRole = (session?.user as any)?.role
+    if (!["dev", "admin"].includes(userRole)) {
+      return NextResponse.json(
+        { success: false, error: "Permissions insuffisantes" },
+        { status: 403 }
+      )
+    }
+
     await connectMongoose()
 
     const body = await request.json()

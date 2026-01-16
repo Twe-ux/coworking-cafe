@@ -164,7 +164,7 @@ export default function EditEmployeeModal({
 
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/employees/${employee.id}`, {
+      const response = await fetch(`/api/hr/employees/${employee.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

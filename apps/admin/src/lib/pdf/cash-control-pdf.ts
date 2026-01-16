@@ -1,14 +1,4 @@
-import type { CashEntryRow } from "@/types/accounting";
-
-interface TurnoverData {
-  date: string;
-  HT: number;
-  TTC: number;
-  TVA?: number;
-  'ca-ht'?: { [key: string]: number };
-  'ca-ttc'?: { [key: string]: number };
-  'ca-tva'?: { [key: string]: number };
-}
+import type { CashEntryRow, TurnoverData } from "@/types/accounting";
 
 export interface CashControlPDFOptions {
   turnoverData: TurnoverData[];

@@ -31,10 +31,22 @@ import {
   Lock,
 } from 'lucide-react'
 
+interface EmployeeResponse {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  role: string
+  color: string
+  startDate: string
+  pin: string
+}
+
 interface CreateEmployeeModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (employee: any) => void
+  onSuccess: (employee: EmployeeResponse) => void
 }
 
 const EMPLOYEE_ROLES = [
@@ -156,7 +168,7 @@ export default function CreateEmployeeModal({
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/employees', {
+      const response = await fetch('/api/hr/employees', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

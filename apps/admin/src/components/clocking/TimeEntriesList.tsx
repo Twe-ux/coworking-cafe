@@ -476,7 +476,13 @@ export default function TimeEntriesList({
 
     setIsSaving(true)
     try {
-      let updateData: any = {}
+      interface TimeEntryUpdate {
+        date?: string
+        clockIn?: string
+        clockOut?: string | null
+      }
+
+      const updateData: TimeEntryUpdate = {}
 
       if (editingCell.field === 'date') {
         // editValue is already in "YYYY-MM-DD" format from the date input

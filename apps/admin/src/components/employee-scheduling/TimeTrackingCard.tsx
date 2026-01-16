@@ -9,20 +9,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { type Employee } from '@/hooks/useEmployees'
+import { type TimeEntry } from '@/types/timeEntry'
 import { AlertCircle, Clock, Play, Square, User } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import PINKeypad from './PINKeypad'
-
-interface TimeEntry {
-  id: string
-  employeeId: string
-  date: Date
-  clockIn: Date
-  clockOut?: Date | null
-  shiftNumber: 1 | 2
-  totalHours?: number
-  status: 'active' | 'completed'
-}
 
 interface TimeTrackingCardProps {
   employee: Employee
@@ -64,7 +54,7 @@ export default function TimeTrackingCard({
 
       if (activeResponse.ok) {
         const activeData = await activeResponse.json()
-        const todayActiveEntries = (activeData.data || []).filter((entry: any) => {
+        const todayActiveEntries = (activeData.data || []).filter((entry: TimeEntry) => {
           const entryDate = new Date(entry.clockIn)
           return entryDate.toDateString() === today.toDateString()
         })
@@ -77,7 +67,7 @@ export default function TimeTrackingCard({
 
       if (allResponse.ok) {
         const allData = await allResponse.json()
-        const todayAllEntries = (allData.data || []).filter((entry: any) => {
+        const todayAllEntries = (allData.data || []).filter((entry: TimeEntry) => {
           const entryDate = new Date(entry.clockIn)
           return entryDate.toDateString() === today.toDateString()
         })
@@ -114,7 +104,7 @@ export default function TimeTrackingCard({
 
     try {
       // First verify PIN
-      const pinResponse = await fetch('/api/employees/verify-pin', {
+      const pinResponse = await fetch('/api/hr/employees/verify-pin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

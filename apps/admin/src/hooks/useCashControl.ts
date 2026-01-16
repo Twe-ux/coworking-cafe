@@ -74,7 +74,7 @@ export function useCashControl() {
 
       const isEdit = !!form._id;
       const bodyData = formatFormDataForAPI(form, isEdit);
-      const { url, method } = getAPIEndpoint(isEdit);
+      const { url, method } = getAPIEndpoint(isEdit, form._id);
 
       try {
         const res = await fetch(url, {
