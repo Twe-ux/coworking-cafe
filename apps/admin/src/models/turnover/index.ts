@@ -1,45 +1,25 @@
-import mongoose, { Document, Schema } from "mongoose"
+import { Model, model, models } from "mongoose";
+import { TurnoverDocument, TurnoverSchema } from "./document";
+import { attachHooks } from "./hooks";
+import { TurnoverMethods } from "./methods";
 
-interface VATData {
-  "total-ht": number
-  "total-ttc": number
-  "total-taxes": number
+export type Turnover = TurnoverDocument & TurnoverMethods;
+
+let TurnoverModel: Model<TurnoverDocument>;
+
+if (models.Turnover) {
+  TurnoverModel = models.Turnover as Model<TurnoverDocument>;
+} else {
+  attachHooks();
+  TurnoverModel = model<TurnoverDocument>("Turnover", TurnoverSchema);
 }
 
-export interface ITurnover extends Omit<Document, '_id'> {
-  _id: string
-  "vat-20": VATData
-  "vat-10": VATData
-  "vat-55": VATData
-  "vat-0": VATData
+if (!TurnoverModel) {
+  throw new Error("Turnover model not initialized");
 }
 
-const TurnoverSchema = new Schema<ITurnover>({
-  _id: { type: String, required: true },
-  "vat-20": {
-    "total-ht": { type: Number, required: true },
-    "total-ttc": { type: Number, required: true },
-    "total-taxes": { type: Number, required: true },
-  },
-  "vat-10": {
-    "total-ht": { type: Number, required: true },
-    "total-ttc": { type: Number, required: true },
-    "total-taxes": { type: Number, required: true },
-  },
-  "vat-55": {
-    "total-ht": { type: Number, required: true },
-    "total-ttc": { type: Number, required: true },
-    "total-taxes": { type: Number, required: true },
-  },
-  "vat-0": {
-    "total-ht": { type: Number, required: true },
-    "total-ttc": { type: Number, required: true },
-    "total-taxes": { type: Number, required: true },
-  },
-})
+export { TurnoverModel as Turnover };
+export type { TurnoverDocument } from "./document";
 
-if (mongoose.models.Turnover) {
-  delete mongoose.models.Turnover
-}
-
-export default mongoose.model<ITurnover>("Turnover", TurnoverSchema)
+// Default export for backward compatibility
+export default TurnoverModel;

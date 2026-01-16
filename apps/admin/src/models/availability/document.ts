@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document, Model } from 'mongoose'
+import mongoose, { Schema, Document } from 'mongoose'
 
-export interface IAvailability extends Document {
+/** Document of an {@link Availability}, as stored in the database. */
+export interface AvailabilityDocument extends Document {
   employeeId: mongoose.Types.ObjectId
   dayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6 // 0 = Dimanche, 1 = Lundi, etc.
   startTime: string // Format "HH:mm"
@@ -14,7 +15,8 @@ export interface IAvailability extends Document {
   updatedAt: Date
 }
 
-const AvailabilitySchema: Schema = new Schema(
+/** Schema used to validate Availability objects for the database. */
+export const AvailabilitySchema = new Schema<AvailabilityDocument>(
   {
     employeeId: {
       type: Schema.Types.ObjectId,
@@ -76,28 +78,5 @@ const AvailabilitySchema: Schema = new Schema(
   }
 )
 
-// Index composé pour éviter les doublons
+// Indexes
 AvailabilitySchema.index({ employeeId: 1, dayOfWeek: 1, startTime: 1, isActive: 1 })
-
-// Validation: endTime doit être après startTime
-AvailabilitySchema.pre('save', function (next) {
-  const availability = this as IAvailability
-
-  const startMinutes =
-    parseInt(availability.startTime.split(':')[0]) * 60 +
-    parseInt(availability.startTime.split(':')[1])
-  const endMinutes =
-    parseInt(availability.endTime.split(':')[0]) * 60 +
-    parseInt(availability.endTime.split(':')[1])
-
-  if (endMinutes <= startMinutes) {
-    return next(new Error('End time must be after start time'))
-  }
-
-  next()
-})
-
-const Availability: Model<IAvailability> =
-  mongoose.models.Availability || mongoose.model<IAvailability>('Availability', AvailabilitySchema)
-
-export default Availability

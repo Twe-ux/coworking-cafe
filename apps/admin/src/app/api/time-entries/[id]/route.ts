@@ -208,40 +208,44 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Validation spéciale pour les dates
-    if (actualUpdates.date) {
-      actualUpdates.date = new Date(actualUpdates.date)
-    }
-
-    if (actualUpdates.clockIn) {
-      actualUpdates.clockIn = new Date(actualUpdates.clockIn)
-    }
+    // Keep date and time as strings (no conversion needed)
+    // date format: "YYYY-MM-DD"
+    // clockIn/clockOut format: "HH:mm"
 
     if (actualUpdates.clockOut === null) {
       // Permettre de définir clockOut à null
       actualUpdates.clockOut = null
       actualUpdates.status = 'active'
       actualUpdates.totalHours = undefined
-    } else if (actualUpdates.clockOut) {
-      actualUpdates.clockOut = new Date(actualUpdates.clockOut)
     }
 
-    // Validation: clockOut doit être après clockIn
+    // Validation: clockOut doit être après clockIn (for times on same day)
     const finalClockIn = actualUpdates.clockIn || (timeEntry as any).clockIn
     const finalClockOut =
       actualUpdates.clockOut !== undefined
         ? actualUpdates.clockOut
         : (timeEntry as any).clockOut
 
-    if (finalClockOut && finalClockOut <= finalClockIn) {
-      return NextResponse.json<ApiResponse<null>>(
-        {
-          success: false,
-          error: "L'heure de sortie doit être postérieure à l'heure d'entrée",
-          details: TIME_ENTRY_ERRORS.INVALID_TIME_RANGE,
-        },
-        { status: 400 }
-      )
+    // Only validate if both times exist (handle night shifts later in model)
+    if (finalClockOut && finalClockIn) {
+      // Simple time comparison for same-day shifts
+      // Night shifts (clockOut < clockIn) are handled by the model
+      const [inH, inM] = finalClockIn.split(':').map(Number)
+      const [outH, outM] = finalClockOut.split(':').map(Number)
+      const inMinutes = inH * 60 + inM
+      const outMinutes = outH * 60 + outM
+
+      // Allow night shifts where out < in
+      if (outMinutes === inMinutes) {
+        return NextResponse.json<ApiResponse<null>>(
+          {
+            success: false,
+            error: "L'heure de sortie doit être différente de l'heure d'entrée",
+            details: TIME_ENTRY_ERRORS.INVALID_TIME_RANGE,
+          },
+          { status: 400 }
+        )
+      }
     }
 
     // Appliquer les modifications

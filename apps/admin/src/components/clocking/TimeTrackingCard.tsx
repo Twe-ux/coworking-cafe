@@ -16,9 +16,9 @@ import PINKeypad from './PINKeypad'
 interface TimeEntry {
   id: string
   employeeId: string
-  date: Date
-  clockIn: Date
-  clockOut?: Date | null
+  date: string // Format "YYYY-MM-DD"
+  clockIn: string // Format "HH:mm"
+  clockOut?: string | null // Format "HH:mm"
   shiftNumber: 1 | 2
   totalHours?: number
   status: 'active' | 'completed'
@@ -65,9 +65,11 @@ export default function TimeTrackingCard({
 
         // Filtrer côté client pour ne garder que les entrées d'aujourd'hui
         const today = new Date()
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
         const todayEntries = (data.data || []).filter((entry: any) => {
-          const entryDate = new Date(entry.clockIn)
-          return entryDate.toDateString() === today.toDateString()
+          // entry.date is "YYYY-MM-DD" format
+          return entry.date === todayStr
         })
 
         setActiveEntries(todayEntries)
@@ -158,17 +160,24 @@ export default function TimeTrackingCard({
     setError(null)
   }
 
-  const formatElapsedTime = (clockIn: Date) => {
-    const elapsed = Math.floor(
-      (currentTime.getTime() - new Date(clockIn).getTime()) / 1000
-    )
-    const hours = Math.floor(elapsed / 3600)
-    const minutes = Math.floor((elapsed % 3600) / 60)
-    const seconds = elapsed % 60
+  const formatElapsedTime = (clockInTime: string, date: string) => {
+    // clockInTime is "HH:mm" format, date is "YYYY-MM-DD"
+    const [hours, minutes] = clockInTime.split(':').map(Number)
+    const [year, month, day] = date.split('-').map(Number)
 
-    return `${hours.toString().padStart(2, '0')}:${minutes
+    // Create a Date object for the clock-in time
+    const clockInDate = new Date(year, month - 1, day, hours, minutes, 0)
+
+    const elapsed = Math.floor(
+      (currentTime.getTime() - clockInDate.getTime()) / 1000
+    )
+    const hrs = Math.floor(elapsed / 3600)
+    const mins = Math.floor((elapsed % 3600) / 60)
+    const secs = elapsed % 60
+
+    return `${hrs.toString().padStart(2, '0')}:${mins
       .toString()
-      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
   const canClockIn = activeEntries.length < 2
@@ -221,14 +230,10 @@ export default function TimeTrackingCard({
               </div>
               <div className="text-right">
                 <div className="font-mono text-sm text-green-700">
-                  {formatElapsedTime(entry.clockIn)}
+                  {formatElapsedTime(entry.clockIn, entry.date)}
                 </div>
                 <div className="text-xs text-gray-600">
-                  Début:{' '}
-                  {new Date(entry.clockIn).toLocaleTimeString('fr-FR', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  Début: {entry.clockIn}
                 </div>
               </div>
             </div>

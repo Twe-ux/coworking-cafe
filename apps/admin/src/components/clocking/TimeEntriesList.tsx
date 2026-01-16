@@ -108,20 +108,18 @@ export default function TimeEntriesList({
   }, [employees, timeEntries])
 
   const availableDates = useMemo(() => {
-    const dates = new Set(
-      timeEntries.map(
-        (entry) => new Date(entry.date).toISOString().split('T')[0]
-      )
-    )
+    // entry.date is already "YYYY-MM-DD" string
+    const dates = new Set(timeEntries.map((entry) => entry.date))
     return Array.from(dates).sort()
   }, [timeEntries])
 
   // Fonction pour déterminer si un shift est avant 14h30
-  const isShiftBeforeCutoff = (clockIn: Date) => {
-    const shiftTime = new Date(clockIn)
-    const cutoffTime = new Date(shiftTime)
-    cutoffTime.setHours(14, 30, 0, 0)
-    return shiftTime < cutoffTime
+  const isShiftBeforeCutoff = (clockIn: string) => {
+    // clockIn is "HH:mm" format
+    const [hours, minutes] = clockIn.split(':').map(Number)
+    const shiftMinutes = hours * 60 + minutes
+    const cutoffMinutes = 14 * 60 + 30 // 14h30
+    return shiftMinutes < cutoffMinutes
   }
 
   const getEmployee = useCallback(
@@ -140,15 +138,20 @@ export default function TimeEntriesList({
         const employee = entry.employee || getEmployee(entry.employeeId)
         if (!employee) return
 
-        const dateKey = `${entry.employeeId}-${new Date(entry.date).toDateString()}`
+        // entry.date is already "YYYY-MM-DD" string
+        const dateKey = `${entry.employeeId}-${entry.date}`
         const isMorning = isShiftBeforeCutoff(entry.clockIn)
 
         if (!grouped.has(dateKey)) {
+          // Parse date string "YYYY-MM-DD" to Date object
+          const [year, month, day] = entry.date.split('-').map(Number)
+          const dateObj = new Date(year, month - 1, day)
+
           grouped.set(dateKey, {
             employeeId: entry.employeeId,
             employee,
-            date: new Date(entry.date).toLocaleDateString('fr-FR'),
-            dateObj: new Date(entry.date),
+            date: dateObj.toLocaleDateString('fr-FR'),
+            dateObj,
             totalHours: 0,
             hasActiveShift: false,
             hasError: false,
@@ -161,10 +164,12 @@ export default function TimeEntriesList({
 
         // Organiser les shifts: premier shift dans morningShift, deuxième dans afternoonShift
         // Indépendamment de l'heure de début
-        const sortedShifts = group.allShifts.sort(
-          (a, b) =>
-            new Date(a.clockIn).getTime() - new Date(b.clockIn).getTime()
-        )
+        // clockIn is "HH:mm" format, convert to minutes for comparison
+        const sortedShifts = group.allShifts.sort((a, b) => {
+          const [aH, aM] = a.clockIn.split(':').map(Number)
+          const [bH, bM] = b.clockIn.split(':').map(Number)
+          return (aH * 60 + aM) - (bH * 60 + bM)
+        })
 
         if (sortedShifts.length >= 1) {
           group.morningShift = sortedShifts[0]
@@ -200,28 +205,28 @@ export default function TimeEntriesList({
       if (filters.status && filters.status !== 'all') params.append('status', filters.status)
 
       // Utiliser currentDate pour filtrer par mois automatiquement
-      const startOfMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        1
-      )
-      const endOfMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 1,
-        0
-      )
+      // Format directly as "YYYY-MM-DD" to avoid timezone issues
+      const year = currentDate.getFullYear()
+      const month = currentDate.getMonth()
+
+      // First day of month
+      const startOfMonthStr = `${year}-${String(month + 1).padStart(2, '0')}-01`
+
+      // Last day of month
+      const lastDay = new Date(year, month + 1, 0).getDate()
+      const endOfMonthStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
 
       // Si des filtres de date spécifiques sont définis, les utiliser à la place
       if (filters.startDate) {
         params.append('startDate', filters.startDate)
       } else {
-        params.append('startDate', startOfMonth.toISOString().split('T')[0])
+        params.append('startDate', startOfMonthStr)
       }
 
       if (filters.endDate) {
         params.append('endDate', filters.endDate)
       } else {
-        params.append('endDate', endOfMonth.toISOString().split('T')[0])
+        params.append('endDate', endOfMonthStr)
       }
 
       const response = await fetch(`/api/time-entries?${params.toString()}`)
@@ -279,12 +284,10 @@ export default function TimeEntriesList({
     return <Badge variant="secondary">Terminé</Badge>
   }
 
-  const formatTime = (date: Date | null | undefined) => {
-    if (!date) return '--:--'
-    return new Date(date).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+  const formatTime = (time: string | null | undefined) => {
+    if (!time) return '--:--'
+    // time is already in "HH:mm" format
+    return time
   }
 
   const renderEditableTime = (
@@ -356,7 +359,12 @@ export default function TimeEntriesList({
         onClick={() => handleCellClick(entry, 'date')}
         title="Cliquez pour modifier la date"
       >
-        {new Date(entry.date).toLocaleDateString('fr-FR')}
+        {(() => {
+          // entry.date is "YYYY-MM-DD" format
+          const [year, month, day] = entry.date.split('-').map(Number)
+          const dateObj = new Date(year, month - 1, day)
+          return dateObj.toLocaleDateString('fr-FR')
+        })()}
       </div>
     )
   }
@@ -446,11 +454,14 @@ export default function TimeEntriesList({
 
     let value = ''
     if (field === 'clockIn') {
-      value = new Date(entry.clockIn).toTimeString().slice(0, 5)
+      // clockIn is already "HH:mm" format
+      value = entry.clockIn
     } else if (field === 'clockOut' && entry.clockOut) {
-      value = new Date(entry.clockOut).toTimeString().slice(0, 5)
+      // clockOut is already "HH:mm" format
+      value = entry.clockOut
     } else if (field === 'date') {
-      value = new Date(entry.date).toISOString().slice(0, 10)
+      // date is already "YYYY-MM-DD" format
+      value = entry.date
     }
 
     setEditingCell({ entryId: entry.id, field })
@@ -468,32 +479,14 @@ export default function TimeEntriesList({
       let updateData: any = {}
 
       if (editingCell.field === 'date') {
-        updateData.date = new Date(editValue).toISOString()
+        // editValue is already in "YYYY-MM-DD" format from the date input
+        updateData.date = editValue
       } else if (editingCell.field === 'clockIn') {
-        const [hours, minutes] = editValue.split(':').map(Number)
-        const entry = timeEntries.find((e) => e.id === editingCell.entryId)
-        if (entry) {
-          const baseDate = new Date(entry.date)
-          const newTime = new Date(baseDate)
-          newTime.setHours(hours, minutes, 0, 0)
-          updateData.clockIn = newTime.toISOString()
-        }
+        // editValue is already in "HH:mm" format from the time input
+        updateData.clockIn = editValue
       } else if (editingCell.field === 'clockOut') {
-        const [hours, minutes] = editValue.split(':').map(Number)
-        const entry = timeEntries.find((e) => e.id === editingCell.entryId)
-        if (entry) {
-          const baseDate = new Date(entry.date)
-          const newTime = new Date(baseDate)
-          newTime.setHours(hours, minutes, 0, 0)
-
-          // Si l'heure de fin est avant l'heure de début, c'est le jour suivant
-          const clockInTime = new Date(entry.clockIn)
-          if (newTime <= clockInTime) {
-            newTime.setDate(newTime.getDate() + 1)
-          }
-
-          updateData.clockOut = newTime.toISOString()
-        }
+        // editValue is already in "HH:mm" format from the time input
+        updateData.clockOut = editValue
       }
 
       const response = await fetch(`/api/time-entries/${editingCell.entryId}`, {
@@ -562,11 +555,25 @@ export default function TimeEntriesList({
         }
       }
 
+      // Format dates as strings: date as "YYYY-MM-DD", times as "HH:mm"
+      const formatDate = (date: Date): string => {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+
+      const formatTime = (date: Date): string => {
+        const hours = String(date.getHours()).padStart(2, '0')
+        const minutes = String(date.getMinutes()).padStart(2, '0')
+        return `${hours}:${minutes}`
+      }
+
       const shiftData = {
         employeeId: newShift.employeeId,
-        date: baseDate.toISOString(),
-        clockIn: clockInDate.toISOString(),
-        clockOut: clockOutDate ? clockOutDate.toISOString() : null,
+        date: formatDate(baseDate),
+        clockIn: formatTime(clockInDate),
+        clockOut: clockOutDate ? formatTime(clockOutDate) : null,
         status: clockOutDate ? 'completed' : 'active',
       }
 
@@ -704,12 +711,17 @@ export default function TimeEntriesList({
                   </SelectItem>
                   {availableDates.map((date) => (
                     <SelectItem key={date} value={date}>
-                      {new Date(date).toLocaleDateString('fr-FR', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                      {(() => {
+                        // date is "YYYY-MM-DD" format
+                        const [year, month, day] = date.split('-').map(Number)
+                        const dateObj = new Date(year, month - 1, day)
+                        return dateObj.toLocaleDateString('fr-FR', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
+                      })()}
                     </SelectItem>
                   ))}
                 </SelectContent>

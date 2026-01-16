@@ -8,9 +8,9 @@ export interface TimeEntry {
     fullName: string
     role: string
   }
-  date: Date
-  clockIn: Date
-  clockOut?: Date | null
+  date: string // Format "YYYY-MM-DD"
+  clockIn: string // Format "HH:mm"
+  clockOut?: string | null // Format "HH:mm"
   shiftNumber: 1 | 2
   totalHours?: number
   status: 'active' | 'completed'
@@ -25,8 +25,8 @@ export interface TimeEntry {
 
 export interface TimeEntryFilter {
   employeeId?: string
-  startDate?: Date
-  endDate?: Date
+  startDate?: string // Format "YYYY-MM-DD"
+  endDate?: string // Format "YYYY-MM-DD"
   status?: 'active' | 'completed'
   shiftNumber?: 1 | 2
   page?: number

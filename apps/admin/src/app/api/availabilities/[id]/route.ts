@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongodb'
-import Availability from '@/models/availability'
+import { Availability } from '@/models/availability'
 import Employee from '@/models/employee'
 import { getDayOfWeekLabel } from '@/types/availability'
 

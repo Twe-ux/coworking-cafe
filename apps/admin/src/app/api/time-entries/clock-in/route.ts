@@ -80,15 +80,11 @@ export async function POST(request: NextRequest) {
 
     // Vérifier les shifts actifs pour aujourd'hui
     const today = new Date()
-    const startOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    )
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 
     const activeShifts = await TimeEntry.find({
       employeeId: body.employeeId,
-      date: startOfDay,
+      date: todayStr,
       status: 'active',
       isActive: true,
     })
@@ -108,7 +104,7 @@ export async function POST(request: NextRequest) {
     // Compter le nombre total de shifts pour aujourd'hui
     const totalShifts = await TimeEntry.countDocuments({
       employeeId: body.employeeId,
-      date: startOfDay,
+      date: todayStr,
       isActive: true,
     })
 
@@ -123,15 +119,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Créer le nouveau time entry avec timezone correct
-    const clockInTime = body.clockIn ? new Date(body.clockIn) : new Date()
-    // Utiliser directement l'heure locale du client (pas de conversion)
-    const localTime = clockInTime
+    // Créer le nouveau time entry avec format string
+    const now = new Date()
+    const clockInTimeStr = body.clockIn
+      ? body.clockIn
+      : `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
     const timeEntryData = {
       employeeId: body.employeeId,
-      date: startOfDay,
-      clockIn: localTime,
+      date: todayStr,
+      clockIn: clockInTimeStr,
       status: 'active' as const,
       shiftNumber: (totalShifts + 1) as 1 | 2,
     }

@@ -52,12 +52,8 @@ export async function GET(request: NextRequest) {
 
     const filters: TimeEntryFilter = {
       employeeId: searchParams.get('employeeId') || undefined,
-      startDate: searchParams.get('startDate')
-        ? new Date(searchParams.get('startDate')!)
-        : undefined,
-      endDate: searchParams.get('endDate')
-        ? new Date(searchParams.get('endDate')!)
-        : undefined,
+      startDate: searchParams.get('startDate') || undefined,
+      endDate: searchParams.get('endDate') || undefined,
       status:
         (searchParams.get('status') as 'active' | 'completed') || undefined,
       shiftNumber: searchParams.get('shiftNumber')
@@ -252,23 +248,18 @@ export async function POST(request: NextRequest) {
     await connectToDatabase()
 
     // Créer les données du time entry
-    const entryDate = date ? new Date(date) : new Date()
-    const startOfDay = new Date(
-      entryDate.getFullYear(),
-      entryDate.getMonth(),
-      entryDate.getDate()
-    )
-
+    // date format: "YYYY-MM-DD"
+    // clockIn/clockOut format: "HH:mm"
     const timeEntryData: any = {
       employeeId,
-      date: startOfDay,
-      clockIn: new Date(clockIn),
+      date: date || new Date().toISOString().split('T')[0], // Use string format
+      clockIn, // Already in "HH:mm" format
       shiftNumber: shiftNumber || 1,
       status: clockOut ? 'completed' : 'active',
     }
 
     if (clockOut) {
-      timeEntryData.clockOut = new Date(clockOut)
+      timeEntryData.clockOut = clockOut // Already in "HH:mm" format
     }
 
     const newTimeEntry = new TimeEntry(timeEntryData)

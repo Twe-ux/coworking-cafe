@@ -123,17 +123,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Définir l'heure de sortie avec timezone correct
-    const clockOutTime = body.clockOut ? new Date(body.clockOut) : new Date()
-    // Utiliser directement l'heure locale du client (pas de conversion)
-    const localClockOutTime = clockOutTime
+    // Définir l'heure de sortie au format string "HH:mm"
+    const now = new Date()
+    const clockOutTimeStr = body.clockOut
+      ? body.clockOut
+      : `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
-    // Valider que l'heure de sortie est après l'heure d'entrée
-    if (localClockOutTime <= timeEntry.clockIn) {
+    // Simple validation: both times should be different
+    if (clockOutTimeStr === timeEntry.clockIn) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          error: "L'heure de sortie doit être postérieure à l'heure d'entrée",
+          error: "L'heure de sortie doit être différente de l'heure d'entrée",
           details: TIME_ENTRY_ERRORS.INVALID_TIME_RANGE,
         },
         { status: 400 }
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Mettre à jour le time entry
-    timeEntry.clockOut = localClockOutTime
+    timeEntry.clockOut = clockOutTimeStr
     timeEntry.totalHours = timeEntry.calculateTotalHours()
     timeEntry.status = 'completed'
 

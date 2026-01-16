@@ -21,9 +21,9 @@ interface Employee {
 interface TimeEntry {
   id: string;
   employeeId: string;
-  date: Date;
-  clockIn: Date;
-  clockOut?: Date | null;
+  date: string; // Format "YYYY-MM-DD"
+  clockIn: string; // Format "HH:mm"
+  clockOut?: string | null; // Format "HH:mm"
   shiftNumber: 1 | 2;
   totalHours?: number;
   status: "active" | "completed";
