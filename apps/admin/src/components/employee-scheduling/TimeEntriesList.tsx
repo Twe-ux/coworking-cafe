@@ -21,30 +21,19 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { type Employee } from '@/hooks/useEmployees'
-import { type TimeEntryUpdate } from '@/types/timeEntry'
+import type { TimeEntry as SharedTimeEntry, TimeEntryUpdate } from '@/types/timeEntry'
 import { Calendar, Clock, Download, Filter, Plus } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-interface TimeEntry {
-  id: string
-  employeeId: string
-  employee?: {
-    id: string
-    firstName: string
-    lastName: string
-    role: string
-    color: string
-  }
+// Local type for component state with Date objects for easier manipulation
+type TimeEntryWithDates = Omit<SharedTimeEntry, 'date' | 'clockIn' | 'clockOut'> & {
   date: Date
   clockIn: Date
   clockOut?: Date | null
-  shiftNumber: 1 | 2
-  totalHours?: number
-  status: 'active' | 'completed'
-  hasError?: boolean
-  errorType?: 'MISSING_CLOCK_OUT' | 'INVALID_TIME_RANGE' | 'DUPLICATE_ENTRY'
-  errorMessage?: string
 }
+
+// Alias for backward compatibility in this component
+type TimeEntry = TimeEntryWithDates
 
 interface GroupedTimeEntry {
   employeeId: string
@@ -118,8 +107,8 @@ export default function TimeEntriesList({
   }, [timeEntries])
 
   // Fonction pour déterminer si un shift est avant 14h30
-  const isShiftBeforeCutoff = (clockIn: Date) => {
-    const shiftTime = new Date(clockIn)
+  const isShiftBeforeCutoff = (clockIn: Date | string) => {
+    const shiftTime = typeof clockIn === 'string' ? new Date(clockIn) : new Date(clockIn)
     const cutoffTime = new Date(shiftTime)
     cutoffTime.setHours(14, 30, 0, 0)
     return shiftTime < cutoffTime

@@ -21,29 +21,12 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { type Employee } from '@/hooks/useEmployees'
+import type { TimeEntry as SharedTimeEntry } from '@/types/timeEntry'
 import { Calendar, Clock, Download, Filter, Plus, Trash2, Edit2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-interface TimeEntry {
-  id: string
-  employeeId: string
-  employee?: {
-    id: string
-    firstName: string
-    lastName: string
-    role: string
-    color: string
-  }
-  date: Date
-  clockIn: Date
-  clockOut?: Date | null
-  shiftNumber: 1 | 2
-  totalHours?: number
-  status: 'active' | 'completed'
-  hasError?: boolean
-  errorType?: 'MISSING_CLOCK_OUT' | 'INVALID_TIME_RANGE' | 'DUPLICATE_ENTRY'
-  errorMessage?: string
-}
+// Local type for component state - API returns date/times as strings, we work with them as strings
+type TimeEntry = SharedTimeEntry
 
 interface GroupedTimeEntry {
   employeeId: string

@@ -33,15 +33,7 @@ import {
   X,
 } from 'lucide-react'
 import type { Shift, CreateShiftInput } from '@/types/shift'
-
-interface Employee {
-  id: string
-  firstName: string
-  lastName: string
-  fullName: string
-  role: string
-  color: string
-}
+import type { Employee } from '@/types/hr'
 
 interface ShiftModalProps {
   open: boolean

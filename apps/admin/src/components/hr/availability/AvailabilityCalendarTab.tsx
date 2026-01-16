@@ -3,37 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { MonthlyCalendar } from "@/components/shared/calendar";
 import { Badge } from "@/components/ui/badge";
-
-interface TimeSlot {
-  start: string;
-  end: string;
-}
-
-interface AvailabilityDay {
-  available: boolean;
-  slots: TimeSlot[];
-}
-
-interface WeeklyAvailability {
-  monday?: AvailabilityDay;
-  tuesday?: AvailabilityDay;
-  wednesday?: AvailabilityDay;
-  thursday?: AvailabilityDay;
-  friday?: AvailabilityDay;
-  saturday?: AvailabilityDay;
-  sunday?: AvailabilityDay;
-}
-
-interface Employee {
-  id: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  role: string;
-  color: string;
-  isActive: boolean;
-  availability?: WeeklyAvailability;
-}
+import type { Employee, TimeSlot, AvailabilityDay, WeeklyAvailability } from "@/types/hr";
 
 // Availability flattened for display
 interface AvailabilitySlot {

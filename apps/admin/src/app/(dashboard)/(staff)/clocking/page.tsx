@@ -3,16 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import TimeTrackingCard from '@/components/clocking/TimeTrackingCard'
 import { Clock } from 'lucide-react'
-
-interface Employee {
-  id: string
-  firstName: string
-  lastName: string
-  fullName: string
-  role: string
-  color: string
-  isActive: boolean
-}
+import type { Employee } from '@/types/hr'
 
 export default function ClockingPage() {
   const [employees, setEmployees] = useState<Employee[]>([])

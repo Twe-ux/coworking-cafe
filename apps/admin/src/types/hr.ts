@@ -163,18 +163,7 @@ export interface ShiftFormData {
 
 // ==================== TIME ENTRY (Clocking) ====================
 
-export interface TimeEntry {
-  _id: string;
-  employeeId: string;
-  date: string; // YYYY-MM-DD
-  clockIn: string; // ISO timestamp
-  clockOut?: string; // ISO timestamp
-  totalHours?: number;
-  notes?: string;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// TimeEntry types are in @/types/timeEntry.ts
 
 export interface ClockingStats {
   totalHoursWeek: number;
@@ -214,10 +203,4 @@ export interface ShiftFilters {
   startDate?: string;
   endDate?: string;
   type?: ShiftType;
-}
-
-export interface TimeEntryFilters {
-  employeeId?: string;
-  startDate?: string;
-  endDate?: string;
 }

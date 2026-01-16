@@ -9,20 +9,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { type Employee } from '@/hooks/useEmployees'
+import type { TimeEntry } from '@/types/timeEntry'
 import { AlertCircle, Clock, Play, Square, User } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import PINKeypad from './PINKeypad'
-
-interface TimeEntry {
-  id: string
-  employeeId: string
-  date: string // Format "YYYY-MM-DD"
-  clockIn: string // Format "HH:mm"
-  clockOut?: string | null // Format "HH:mm"
-  shiftNumber: 1 | 2
-  totalHours?: number
-  status: 'active' | 'completed'
-}
 
 interface TimeTrackingCardProps {
   employee: Employee

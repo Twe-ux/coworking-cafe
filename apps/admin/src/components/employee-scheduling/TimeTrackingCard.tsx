@@ -159,7 +159,7 @@ export default function TimeTrackingCard({
     setError(null)
   }
 
-  const formatElapsedTime = (clockIn: Date) => {
+  const formatElapsedTime = (clockIn: Date | string) => {
     const elapsed = Math.floor(
       (currentTime.getTime() - new Date(clockIn).getTime()) / 1000
     )

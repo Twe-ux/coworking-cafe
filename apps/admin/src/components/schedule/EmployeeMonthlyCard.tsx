@@ -4,18 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type Shift } from "@/types/shift";
 import { type TimeEntry } from "@/types/timeEntry";
+import { type Employee } from "@/types/hr";
 import { Calendar, Clock, Target } from "lucide-react";
 import { useMemo } from "react";
-
-interface Employee {
-  id: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  role: string;
-  color: string;
-  isActive: boolean;
-}
 
 interface EmployeeMonthlyCardProps {
   employees: Employee[];
