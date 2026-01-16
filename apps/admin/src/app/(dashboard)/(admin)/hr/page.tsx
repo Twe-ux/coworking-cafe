@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,17 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Users,
-  Calendar,
-  Clock,
-  UserPlus,
-  FileText,
-  CalendarCheck,
-} from "lucide-react";
-import Link from "next/link";
 import { useEmployees } from "@/hooks/useEmployees";
+import { Calendar, CalendarCheck, Clock, UserPlus, Users } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface TimeEntriesStats {
@@ -78,7 +71,7 @@ export default function HROverviewPage() {
   const draftEmployees = employees.filter((e) => e.status === "draft").length;
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 px-6 md:px-0">
       <div>
         <h1 className="text-3xl font-bold">Gestion RH</h1>
         <p className="text-muted-foreground">

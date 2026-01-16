@@ -15,7 +15,7 @@ interface DashSectionCardsProps {
  */
 export function DashSectionCards({ checked }: DashSectionCardsProps) {
   return (
-    <div className="grid gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 px-3 md:gap-4 md:px-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       <DashCard
         title="Journée précédente"
         range="yesterday"

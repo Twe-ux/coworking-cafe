@@ -18,10 +18,23 @@ interface Employee {
   isActive: boolean;
 }
 
+interface TimeEntry {
+  id: string;
+  employeeId: string;
+  date: Date;
+  clockIn: Date;
+  clockOut?: Date | null;
+  shiftNumber: 1 | 2;
+  totalHours?: number;
+  status: "active" | "completed";
+}
+
 export default function SchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
+  const [isLoadingTimeEntries, setIsLoadingTimeEntries] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
@@ -87,6 +100,39 @@ export default function SchedulePage() {
   useEffect(() => {
     fetchEmployees();
   }, [fetchEmployees]);
+
+  // Fetch time entries for current month
+  const fetchTimeEntries = useCallback(async () => {
+    try {
+      setIsLoadingTimeEntries(true);
+
+      const { startDate, endDate } = getCalendarDateRange(currentDate);
+      const params = new URLSearchParams();
+      params.append("startDate", startDate.toISOString().split("T")[0]);
+      params.append("endDate", endDate.toISOString().split("T")[0]);
+
+      const response = await fetch(`/api/time-entries?${params.toString()}`);
+      const result = await response.json();
+
+      console.log('🔍 DEBUG - Fetching time entries with params:', params.toString());
+      console.log('🔍 DEBUG - Time entries response:', result);
+
+      if (result.success) {
+        console.log('🔍 DEBUG - Setting time entries:', result.data);
+        setTimeEntries(result.data || []);
+      } else {
+        console.error("Error fetching time entries:", result.error);
+      }
+    } catch (error) {
+      console.error("Error fetching time entries:", error);
+    } finally {
+      setIsLoadingTimeEntries(false);
+    }
+  }, [currentDate]);
+
+  useEffect(() => {
+    fetchTimeEntries();
+  }, [currentDate]);
 
   // Refresh shifts when month changes
   useEffect(() => {
@@ -331,7 +377,7 @@ export default function SchedulePage() {
     );
   };
 
-  const isLoading = isLoadingShifts || isLoadingEmployees;
+  const isLoading = isLoadingShifts || isLoadingEmployees || isLoadingTimeEntries;
 
   // Helper to normalize date to YYYY-MM-DD string (avoiding timezone issues)
   const formatDateToYMD = (date: Date | string): string => {
@@ -429,7 +475,7 @@ export default function SchedulePage() {
         <EmployeeMonthlyCard
           employees={employees}
           shifts={shifts}
-          timeEntries={[]} // Will be populated in Phase 7b/7c
+          timeEntries={timeEntries}
           currentDate={currentDate}
           className="mt-8"
         />

@@ -40,25 +40,12 @@ function SidebarProvider({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
-  // Track if component is mounted to avoid SSR hydration mismatch
-  const [isMounted, setIsMounted] = React.useState(false);
-
-  // Initialize isMobile immediately to avoid flash
-  const [isMobile, setIsMobile] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return window.innerWidth < 768;
-    }
-    return false;
-  });
+  // Initialize isMobile as false for SSR, will be updated on client
+  const [isMobile, setIsMobile] = React.useState(false);
   const [openMobile, setOpenMobile] = React.useState(false);
 
   // This is the internal state of the sidebar.
   const [_open, _setOpen] = React.useState(defaultOpen);
-
-  // Set mounted flag on client
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -133,9 +120,6 @@ function SidebarProvider({
         }
         className={cn(
           "group/sidebar-wrapper has-[[data-collapsible=icon]]:group-has-[[data-state=collapsed]]/sidebar-wrapper flex w-full",
-          // Hide during SSR hydration to avoid flash
-          !isMounted && "opacity-0",
-          isMounted && "opacity-100 transition-opacity duration-75",
           className
         )}
         {...props}
@@ -303,11 +287,11 @@ function Sidebar({
           // Width and height based on state, collapsible setting, and mobile
           state === "collapsed" && collapsible === "icon"
             ? isMobile
-              ? "w-[3.5rem] h-[3.5rem] rounded-lg" // Mobile collapsed: 56px with padding around logo
+              ? "w-[3rem] h-[3rem] rounded-lg" // Mobile collapsed: 56px with padding around logo
               : "h-screen w-[var(--sidebar-width-icon)]" // Desktop collapsed: normal icon width
             : isMobile
-              ? "h-screen w-[var(--sidebar-width)]" // Mobile expanded: full screen height
-              : "h-screen w-[var(--sidebar-width)]", // Desktop: normal
+            ? "h-screen w-[var(--sidebar-width)]" // Mobile expanded: full screen height
+            : "h-screen w-[var(--sidebar-width)]", // Desktop: normal
           // Enhanced desktop variant styles
           variant === "floating" && [
             state === "collapsed" && isMobile

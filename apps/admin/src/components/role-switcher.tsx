@@ -104,7 +104,7 @@ export function RoleSwitcher() {
             className="cursor-pointer"
             onClick={handleLogoClick}
           >
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden shrink-0">
               <Image
                 src="/logo/logo-circle.webp"
                 alt="CoworKing Café"
@@ -135,7 +135,7 @@ export function RoleSwitcher() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               onClick={isMobile && state === "collapsed" ? handleLogoClick : undefined}
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden shrink-0">
                 <Image
                   src="/logo/logo-circle.webp"
                   alt="CoworKing Café"

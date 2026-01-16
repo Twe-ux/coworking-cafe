@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function AccountingPage() {
   return (
     <div className="space-y-8">
-      <div className="px-4">
+      <div className="px-4 md:px-0">
         <h1 className="text-2xl font-bold mb-6">Comptabilité</h1>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link href="/accounting/cash-control">

@@ -32,6 +32,9 @@ export default function EmployeeMonthlyCard({
   currentDate,
   className = "",
 }: EmployeeMonthlyCardProps) {
+  console.log('🔍 DEBUG EmployeeMonthlyCard - timeEntries received:', timeEntries);
+  console.log('🔍 DEBUG EmployeeMonthlyCard - shifts received:', shifts);
+
   // Helper to normalize date to YYYY-MM-DD string
   const formatDateToYMD = (date: Date | string): string => {
     if (typeof date === "string") {
