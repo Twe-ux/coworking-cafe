@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongodb'
 import Shift from '@/models/shift'
 import Employee from '@/models/employee'
-
-// TODO: Implement auth with getServerSession and authOptions
+import { requireAuth } from '@/lib/api/auth'
 
 /**
  * Utility function to create a UTC date from YYYY-MM-DD string
@@ -25,11 +24,10 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    // TODO: Add authentication check
-    // const session = await getServerSession(authOptions)
-    // if (!session?.user) {
-    //   return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 })
-    // }
+    const authResult = await requireAuth(['dev', 'admin', 'manager'])
+    if (!authResult.authorized) {
+      return authResult.response
+    }
 
     await connectMongoose()
 
@@ -88,12 +86,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    // TODO: Add authentication and permission check (admin, manager)
-    // const session = await getServerSession(authOptions)
-    // const userRole = (session?.user as any)?.role
-    // if (!['admin', 'manager'].includes(userRole)) {
-    //   return NextResponse.json({ success: false, error: 'Insufficient permissions' }, { status: 403 })
-    // }
+    const authResult = await requireAuth(['dev', 'admin'])
+    if (!authResult.authorized) {
+      return authResult.response
+    }
 
     const body = await request.json()
     const {
@@ -260,12 +256,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    // TODO: Add authentication and permission check (admin, manager)
-    // const session = await getServerSession(authOptions)
-    // const userRole = (session?.user as any)?.role
-    // if (!['admin', 'manager'].includes(userRole)) {
-    //   return NextResponse.json({ success: false, error: 'Insufficient permissions' }, { status: 403 })
-    // }
+    const authResult = await requireAuth(['dev', 'admin'])
+    if (!authResult.authorized) {
+      return authResult.response
+    }
 
     await connectMongoose()
 

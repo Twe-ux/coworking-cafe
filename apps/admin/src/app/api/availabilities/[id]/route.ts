@@ -3,8 +3,7 @@ import { connectMongoose } from '@/lib/mongodb'
 import { Availability } from '@/models/availability'
 import Employee from '@/models/employee'
 import { getDayOfWeekLabel } from '@/types/availability'
-
-// TODO: Implement auth with getServerSession and authOptions
+import { requireAuth } from '@/lib/api/auth'
 
 interface RouteParams {
   params: {
@@ -17,6 +16,11 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const authResult = await requireAuth(['dev', 'admin', 'manager'])
+    if (!authResult.authorized) {
+      return authResult.response
+    }
+
     await connectMongoose()
 
     const availability = await Availability.findById(params.id)
@@ -76,6 +80,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const authResult = await requireAuth(['dev', 'admin'])
+    if (!authResult.authorized) {
+      return authResult.response
+    }
+
     const body = await request.json()
     const {
       dayOfWeek,
@@ -230,6 +239,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const authResult = await requireAuth(['dev', 'admin'])
+    if (!authResult.authorized) {
+      return authResult.response
+    }
+
     await connectMongoose()
 
     // Verify availability exists

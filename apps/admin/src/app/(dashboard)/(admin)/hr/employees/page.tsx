@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Calendar, Clock, FileText, CalendarCheck2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useEmployeesData } from "@/hooks/hr/useEmployeesData";
 import { useDrafts } from "@/hooks/hr/useDrafts";
 import { EmployeeList } from "@/components/hr/employees";
@@ -16,10 +16,23 @@ import type { Employee } from "@/types/hr";
 import { toast } from "sonner";
 
 /**
- * Page HR Management - Admin/Dev only
- * Onglets : Employés, Disponibilités, Planning, Pointage
+ * Loading fallback component
  */
-export default function HRManagementPage() {
+function LoadingSpinner() {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="text-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="mt-2 text-sm text-muted-foreground">Chargement...</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * HR Management content component (uses useSearchParams)
+ */
+function HRManagementContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -68,14 +81,7 @@ export default function HRManagementPage() {
 
   // Loading state
   if (!session) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Chargement...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   // Handlers
@@ -273,5 +279,17 @@ export default function HRManagementPage() {
         />
       )}
     </div>
+  );
+}
+
+/**
+ * Page HR Management - Admin/Dev only
+ * Onglets : Employés, Disponibilités, Planning, Pointage
+ */
+export default function HRManagementPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <HRManagementContent />
+    </Suspense>
   );
 }

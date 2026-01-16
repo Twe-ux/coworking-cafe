@@ -3,14 +3,18 @@ import { connectMongoose } from '@/lib/mongodb'
 import { Availability } from '@/models/availability'
 import Employee from '@/models/employee'
 import { getDayOfWeekLabel } from '@/types/availability'
-
-// TODO: Implement auth with getServerSession and authOptions
+import { requireAuth } from '@/lib/api/auth'
 
 /**
  * GET /api/availabilities - Retrieve list of availabilities with optional filters
  */
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAuth(['dev', 'admin', 'manager'])
+    if (!authResult.authorized) {
+      return authResult.response
+    }
+
     await connectMongoose()
 
     const { searchParams } = new URL(request.url)
@@ -89,6 +93,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth(['dev', 'admin'])
+    if (!authResult.authorized) {
+      return authResult.response
+    }
+
     const body = await request.json()
     const {
       employeeId,
