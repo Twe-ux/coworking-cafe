@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { type Employee } from '@/hooks/useEmployees'
-import { Calendar, Clock, Download, Filter, Plus } from 'lucide-react'
+import { Calendar, Clock, Download, Filter, Plus, Trash2, Edit2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface TimeEntry {
@@ -88,7 +88,7 @@ export default function TimeEntriesList({
   const [isSaving, setIsSaving] = useState(false)
   const [filters, setFilters] = useState({
     employeeId: 'all',
-    startDate: 'all',
+    startDate: '',
     endDate: '',
     status: 'all',
   })
@@ -315,7 +315,7 @@ export default function TimeEntriesList({
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleCellSave}
           onKeyDown={handleKeyDown}
-          className="h-6 w-16 p-1 text-xs"
+          className="h-8 w-12 p-1 text-sm [&::-webkit-calendar-picker-indicator]:hidden"
           autoFocus
         />
       )
@@ -361,6 +361,29 @@ export default function TimeEntriesList({
     )
   }
 
+  const handleDeleteShift = async (shiftId: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce shift ?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/time-entries/${shiftId}`, {
+        method: 'DELETE',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        await fetchTimeEntries()
+      } else {
+        alert(result.error || 'Erreur lors de la suppression du shift')
+      }
+    } catch (error) {
+      console.error('Error deleting shift:', error)
+      alert('Erreur lors de la suppression du shift')
+    }
+  }
+
   const renderShiftCell = (shift: TimeEntry | undefined, isActive: boolean) => {
     if (!shift) {
       return <div className="text-center text-gray-400">--</div>
@@ -378,10 +401,19 @@ export default function TimeEntriesList({
               : ''
         }`}
       >
-        <div className="flex items-center justify-center gap-1">
-          {renderEditableTime(shift, 'clockIn')}
-          <span className="px-1">-</span>
-          {renderEditableTime(shift, 'clockOut')}
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-1">
+            {renderEditableTime(shift, 'clockIn')}
+            <span className="px-1">-</span>
+            {renderEditableTime(shift, 'clockOut')}
+          </div>
+          <button
+            onClick={() => handleDeleteShift(shift.id)}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded p-1 transition-colors"
+            title="Supprimer ce shift"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
         </div>
         {shift.status === 'active' && !hasError && (
           <div className="mt-1 flex justify-center">

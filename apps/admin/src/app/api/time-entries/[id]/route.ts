@@ -36,7 +36,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const userRole = (session?.user as any)?.role
     if (
-      !['admin', 'manager', 'staff'].includes(userRole) &&
+      !['dev', 'admin', 'staff'].includes(userRole) &&
       process.env.NODE_ENV !== 'development'
     ) {
       return NextResponse.json<ApiResponse<null>>(
@@ -151,17 +151,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Vérification des permissions (admin ou manager uniquement)
+    // Vérification des permissions (dev ou admin uniquement)
     const userRole = (session?.user as any)?.role
     if (
-      !['admin', 'manager'].includes(userRole) &&
+      !['dev', 'admin'].includes(userRole) &&
       process.env.NODE_ENV !== 'development'
     ) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
           error:
-            'Seuls les administrateurs et managers peuvent modifier les time entries',
+            'Seuls les développeurs et administrateurs peuvent modifier les time entries',
           details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
         },
         { status: 403 }
@@ -355,13 +355,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Seuls les admins peuvent supprimer
+    // Seuls les dev et admins peuvent supprimer
     const userRole = (session?.user as any)?.role
-    if (userRole !== 'admin' && process.env.NODE_ENV !== 'development') {
+    if (!['dev', 'admin'].includes(userRole) && process.env.NODE_ENV !== 'development') {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          error: 'Seuls les administrateurs peuvent supprimer les time entries',
+          error: 'Seuls les développeurs et administrateurs peuvent supprimer les time entries',
           details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
         },
         { status: 403 }
