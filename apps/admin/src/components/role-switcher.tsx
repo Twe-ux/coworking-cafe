@@ -46,7 +46,7 @@ export const AVAILABLE_ROLES: Role[] = [
 ];
 
 export function RoleSwitcher() {
-  const { isMobile } = useSidebar();
+  const { isMobile, state, setOpen } = useSidebar();
   const { selectedRole, setSelectedRole, canSwitchRole, availableRoles } =
     useRoleSwitcher();
 
@@ -58,8 +58,40 @@ export function RoleSwitcher() {
     [canSwitchRole, setSelectedRole]
   );
 
+  const handleLogoClick = React.useCallback(() => {
+    // Open sidebar when logo is clicked and sidebar is collapsed (mobile only)
+    if (isMobile && state === "collapsed") {
+      setOpen(true);
+    }
+  }, [isMobile, state, setOpen]);
+
   if (!selectedRole) {
     return null;
+  }
+
+  // Mobile collapsed: show only clickable logo
+  if (isMobile && state === "collapsed") {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            size="lg"
+            className="cursor-pointer flex items-center justify-center"
+            onClick={handleLogoClick}
+          >
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
+              <Image
+                src="/logo/logo-circle.webp"
+                alt="CoworKing Café"
+                width={32}
+                height={32}
+                className="object-cover"
+              />
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
   }
 
   // For non-dev users, show read-only version
@@ -67,7 +99,11 @@ export function RoleSwitcher() {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" className="cursor-default">
+          <SidebarMenuButton
+            size="lg"
+            className="cursor-pointer"
+            onClick={handleLogoClick}
+          >
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
               <Image
                 src="/logo/logo-circle.webp"
@@ -93,10 +129,11 @@ export function RoleSwitcher() {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild disabled={isMobile && state === "collapsed"}>
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              onClick={isMobile && state === "collapsed" ? handleLogoClick : undefined}
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
                 <Image

@@ -13,6 +13,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   getNavigationItems,
@@ -23,6 +24,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const permissions = usePermissions();
+  const { state, isMobile } = useSidebar();
 
   // Navigation dynamique selon les permissions
   const navMain = React.useMemo(
@@ -37,22 +39,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <RoleSwitcher />
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={navMain} />
-        <NavSecondary items={navSecondary} className="mt-auto" />
-      </SidebarContent>
-      <SidebarFooter>
-        {session?.user && (
-          <NavUser
-            user={{
-              name: session.user.name || "Utilisateur",
-              email: session.user.email || "",
-              role: session.user.role,
-            }}
-          />
-        )}
-      </SidebarFooter>
-      <SidebarRail />
+      {(isMobile ? state === "expanded" : true) && (
+        <SidebarContent>
+          <NavMain items={navMain} />
+          <NavSecondary items={navSecondary} className="mt-auto" />
+        </SidebarContent>
+      )}
+      {(isMobile ? state === "expanded" : true) && (
+        <SidebarFooter>
+          {session?.user && (
+            <NavUser
+              user={{
+                name: session.user.name || "Utilisateur",
+                email: session.user.email || "",
+                role: session.user.role,
+              }}
+            />
+          )}
+        </SidebarFooter>
+      )}
+      {!isMobile && <SidebarRail />}
     </Sidebar>
   );
 }

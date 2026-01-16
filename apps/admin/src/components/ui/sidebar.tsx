@@ -40,11 +40,25 @@ function SidebarProvider({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
-  const [isMobile, setIsMobile] = React.useState(false);
+  // Track if component is mounted to avoid SSR hydration mismatch
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  // Initialize isMobile immediately to avoid flash
+  const [isMobile, setIsMobile] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
   const [openMobile, setOpenMobile] = React.useState(false);
 
   // This is the internal state of the sidebar.
   const [_open, _setOpen] = React.useState(defaultOpen);
+
+  // Set mounted flag on client
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -119,6 +133,9 @@ function SidebarProvider({
         }
         className={cn(
           "group/sidebar-wrapper has-[[data-collapsible=icon]]:group-has-[[data-state=collapsed]]/sidebar-wrapper flex w-full",
+          // Hide during SSR hydration to avoid flash
+          !isMounted && "opacity-0",
+          isMounted && "opacity-100 transition-opacity duration-75",
           className
         )}
         {...props}
@@ -147,25 +164,24 @@ function Sidebar({
   const startXRef = React.useRef<number>(0);
   const isDraggingRef = React.useRef<boolean>(false);
 
-  // Mobile-friendly interactions - only use hover on desktop
+  // Hover interactions - only on desktop
   const handleMouseEnter = React.useCallback(() => {
-    if (!isMobile && collapsible === "icon" && state === "collapsed") {
-      // Cancel any pending close
-      if (closeTimerRef.current) {
-        clearTimeout(closeTimerRef.current);
-      }
-      setOpen(true);
+    if (isMobile || state === "expanded" || collapsible === "none") return;
+
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = undefined;
     }
-  }, [isMobile, collapsible, state, setOpen]);
+    setOpen(true);
+  }, [isMobile, state, collapsible, setOpen]);
 
   const handleMouseLeave = React.useCallback(() => {
-    if (!isMobile && collapsible === "icon") {
-      // Add small delay before closing
-      closeTimerRef.current = setTimeout(() => {
-        setOpen(false);
-      }, 300); // 300ms delay
-    }
-  }, [isMobile, collapsible, setOpen]);
+    if (isMobile || state === "collapsed" || collapsible === "none") return;
+
+    closeTimerRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 300);
+  }, [isMobile, state, collapsible, setOpen]);
 
   // Enhanced touch handling for mobile
   const handleTouchStart = React.useCallback(
@@ -272,8 +288,8 @@ function Sidebar({
   // Use same sidebar for all screen sizes
   return (
     <>
-      {/* Overlay when sidebar is expanded - click to close */}
-      {state === "expanded" && (
+      {/* Overlay when sidebar is expanded in mobile - click to close */}
+      {isMobile && state === "expanded" && (
         <div
           className="fixed inset-0 z-30 bg-black/20"
           onClick={() => setOpen(false)}
@@ -281,35 +297,41 @@ function Sidebar({
         />
       )}
       <aside
-      ref={sidebarRef}
-      className={cn(
-        "bg-sidebar text-sidebar-foreground group/sidebar flex h-full shrink-0 flex-col transition-all duration-300 ease-in-out z-40",
-        // Width based on state and collapsible setting
-        state === "collapsed" && collapsible === "icon"
-          ? "h-screen w-[var(--sidebar-width-icon)]"
-          : "h-screen w-[var(--sidebar-width)]",
-        // Enhanced desktop variant styles
-        variant === "floating" && [
-          "fixed top-4 left-4 z-40 h-[calc(100vh-2rem)] rounded-xl border  shadow-xl",
-          "bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur ",
-          // Better floating shadow and border
-          "border-green-700 border shadow-2xl",
-        ],
-        variant === "sidebar" && "border-r",
-        variant === "inset" && "border-0 shadow-md",
-        className
-      )}
-      data-state={state}
-      data-variant={variant}
-      data-collapsible={collapsible}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      role="navigation"
-      aria-label="Navigation principale"
-      {...props}
-    >
-      {children}
-    </aside>
+        ref={sidebarRef}
+        className={cn(
+          "bg-sidebar text-sidebar-foreground group/sidebar flex shrink-0 flex-col transition-all duration-300 ease-in-out z-40",
+          // Width and height based on state, collapsible setting, and mobile
+          state === "collapsed" && collapsible === "icon"
+            ? isMobile
+              ? "w-[3.5rem] h-[3.5rem] rounded-lg" // Mobile collapsed: 56px with padding around logo
+              : "h-screen w-[var(--sidebar-width-icon)]" // Desktop collapsed: normal icon width
+            : isMobile
+              ? "h-screen w-[var(--sidebar-width)]" // Mobile expanded: full screen height
+              : "h-screen w-[var(--sidebar-width)]", // Desktop: normal
+          // Enhanced desktop variant styles
+          variant === "floating" && [
+            state === "collapsed" && isMobile
+              ? "fixed top-4 left-4 z-40 rounded-lg border shadow-xl" // Mobile collapsed: same position as expanded
+              : "fixed top-4 left-4 z-40 h-[calc(100vh-2rem)] rounded-xl border shadow-xl",
+            "bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur ",
+            // Better floating shadow and border
+            "border-green-700 border shadow-2xl",
+          ],
+          variant === "sidebar" && "border-r",
+          variant === "inset" && "border-0 shadow-md",
+          className
+        )}
+        data-state={state}
+        data-variant={variant}
+        data-collapsible={collapsible}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        role="navigation"
+        aria-label="Navigation principale"
+        {...props}
+      >
+        {children}
+      </aside>
     </>
   );
 }
@@ -371,12 +393,16 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 }
 
 function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+  const { isMobile, state } = useSidebar();
+
   return (
     <main
       className={cn(
         "flex min-h-0 flex-1 flex-col",
         "group-has-[[data-variant=floating]]/sidebar-wrapper:ml-0",
         "group-has-[[data-variant=inset]]/sidebar-wrapper:ml-0",
+        // Add left margin in mobile when sidebar is collapsed (logo width + spacing)
+        isMobile && state === "collapsed" && "ml-20",
         className
       )}
       {...props}
