@@ -4,45 +4,65 @@ Instructions pour Claude Code lors du travail sur ce projet.
 
 ## 📋 Contexte du projet
 
-Monorepo Next.js 14 contenant :
+Monorepo Next.js 14 contenant deux applications principales :
+
 - **apps/site** : Site public + Dashboard client (Bootstrap + SCSS)
 - **apps/admin** : Dashboard admin (Tailwind + shadcn/ui + PWA)
 - **packages/** : Code partagé (database, email, shared)
 
-**Projet original** : `/Users/twe/Developer/Thierry/bt-coworkingcafe/` (ne pas toucher)
-**Nouveau monorepo** : `/Users/twe/Developer/Thierry/coworking-cafe/` (version propre)
+**Répertoire du projet** : `/Users/twe/Developer/Thierry/coworking-cafe/`
 
 ---
 
-## 🎯 Objectif principal
+## 🎯 Objectifs du Projet
 
-**Refactorisation complète du site** avec code propre et maintenable :
-- ✅ 44 pages à refactoriser (voir docs/REFACTO_TEMPLATE.md)
-- ✅ Nommage cohérent (BEM modifié)
-- ✅ Composants réutilisables avec children
-- ✅ Pas de duplication de code
-- ✅ SCSS harmonisé
+### apps/site - En Refactorisation 🚧
+
+**Objectif** : Refactorisation complète du code migré pour respecter les standards de qualité
+
+- 🎯 Zéro `any` types
+- 🎯 Fichiers < 200 lignes
+- 🎯 Nommage BEM cohérent pour SCSS
+- 🎯 Composants réutilisables avec children
+- 🎯 Pas de duplication de code
+- 🎯 Dates en format string (YYYY-MM-DD, HH:mm)
+
+**Voir** : `/apps/site/CLAUDE.md` pour les détails
+
+### apps/admin - Production Ready ✅
+
+**Status** : Code propre et maintenable après refactoring complet
+
+- ✅ Sécurité : 100% des routes protégées
+- ✅ Types : 0 `any` types
+- ✅ Architecture : APIs consolidées, fichiers modulaires
+- ✅ Build réussi
+
+**Voir** : `/apps/admin/CLAUDE.md` pour les détails
 
 ---
 
-## 📚 Documentation
+## 📚 Documentation par App
 
-**IMPORTANT : Lire ces documents avant de coder**
+**IMPORTANT : Consulter le CLAUDE.md spécifique à l'app sur laquelle tu travailles**
 
-### docs/CONVENTIONS.md
-- Architecture monorepo
-- Nommage BEM modifié (`.page-name__section-element`)
-- Structure des fichiers
-- Guidelines React/TypeScript/SCSS
-- Variables CSS et mixins
-- Composants réutilisables
+### Pour travailler sur le Site Public / Dashboard Client
+→ **Lire** : `/apps/site/CLAUDE.md`
+- Stack : Bootstrap + SCSS
+- Architecture site public + dashboard
+- Conventions BEM modifiées
+- Workflow de refactorisation
 
-### docs/REFACTO_TEMPLATE.md
-- Workflow en 4 phases (Analyse → Écriture → Découpage → Harmonisation)
-- Templates de code complets
-- Exemples avant/après
-- Checklist par page
-- Ordre de refacto recommandé
+### Pour travailler sur le Dashboard Admin
+→ **Lire** : `/apps/admin/CLAUDE.md`
+- Stack : Tailwind + shadcn/ui
+- Architecture HR + Comptabilité
+- Patterns de sécurité
+- Workflow de migration
+
+### Documentation Générale (si existante)
+- `docs/CONVENTIONS.md` - Conventions générales du monorepo
+- `docs/REFACTO_TEMPLATE.md` - Template de refactorisation
 
 ---
 
@@ -52,147 +72,177 @@ Monorepo Next.js 14 contenant :
 # Root
 pnpm install              # Installer toutes les dépendances
 pnpm dev                  # Lancer site + admin en parallèle
-pnpm build                # Builder tous les apps
+pnpm build                # Builder toutes les apps
 
-# Site
-pnpm --filter @coworking/site dev
-pnpm --filter @coworking/site build
+# Site (Bootstrap + SCSS)
+pnpm --filter @coworking-cafe/site dev
+pnpm --filter @coworking-cafe/site build
+pnpm --filter @coworking-cafe/site type-check
 
-# Admin
-pnpm --filter @coworking/admin dev
-pnpm --filter @coworking/admin build
+# Admin (Tailwind + shadcn/ui)
+pnpm --filter @coworking-cafe/admin dev
+pnpm --filter @coworking-cafe/admin build
+pnpm --filter @coworking-cafe/admin type-check
 ```
 
 ---
 
-## 🎨 Workflow de refacto (par page)
+## ✅ Conventions Communes au Monorepo
 
-### Phase 1 : Analyse (30min-1h)
-1. Lire page actuelle dans `bt-coworkingcafe/`
-2. Lire tous ses composants
-3. Identifier duplications et réutilisations
-4. Suivre checklist dans docs/REFACTO_TEMPLATE.md
+**Ces règles s'appliquent à TOUTES les apps du monorepo (site + admin)**
 
-### Phase 2 : Écriture monolithique (1-2h)
-1. **Tout écrire dans un seul fichier** (vision complète)
-2. Structure :
-   ```tsx
-   // TYPES
-   // DATA
-   // ANIMATION VARIANTS
-   // SOUS-COMPOSANTS LOCAUX
-   // PAGE PRINCIPALE
-   ```
-3. Nommage BEM cohérent
-4. SCSS harmonisé correspondant
+### 1. TypeScript - ZÉRO `any`
 
-### Phase 3 : Découpage (1-2h)
-1. Extraire composants **réutilisables** → `src/components/ui/`
-2. Extraire composants **layout** → `src/components/layout/`
-3. Garder composants **spécifiques** dans la page
-4. Utiliser **children** et composition
-5. Renommer avec cohérence (pas de One, Two, Three)
+```typescript
+// ❌ INTERDIT
+function handleData(data: any) { }
 
-### Phase 4 : Harmonisation (30min)
-1. Vérifier nommage cohérent entre pages
-2. Vérifier réutilisation composants
-3. Tests responsive
-4. Validation accessibilité
-
----
-
-## ✅ Règles strictes
-
-### Nommage
-```scss
-// ✅ BON - BEM modifié
-.home__hero
-.home__hero-title
-.home__hero-title--highlighted
-.home__hero-cta
-
-// ❌ MAUVAIS
-.hero-one
-.heroTitle
-.hero_title
+// ✅ CORRECT
+interface UserData {
+  id: string
+  name: string
+}
+function handleData(data: UserData) { }
 ```
 
-### Composants
+**Règles** :
+- ✅ Toujours typer paramètres et retours de fonction
+- ✅ Utiliser les types partagés des dossiers `/types/`
+- ✅ Interfaces pour objets, types pour unions
+- ❌ Jamais `as any` sans justification documentée
+- ❌ Jamais `@ts-ignore` ou `@ts-expect-error`
+
+### 2. Formats de Dates - TOUJOURS des Strings
+
+```typescript
+// ❌ INTERDIT - Timestamps ISO
+{
+  date: new Date("2026-01-16T00:00:00.000Z")  // Bugs timezone
+}
+
+// ✅ CORRECT - Strings simples
+{
+  date: "2026-01-16",    // YYYY-MM-DD
+  time: "09:00"          // HH:mm
+}
+```
+
+### 3. Taille des Fichiers
+
+| Type | Max lignes | Si dépassé |
+|------|------------|------------|
+| Composants React | 200 | Extraire sous-composants |
+| Custom Hooks | 150 | Séparer en hooks spécialisés |
+| Pages Next.js | 150 | Logique → hooks, UI → composants |
+| API Routes | 200 | Extraire validation/logique |
+
+### 4. Composants Réutilisables
+
 ```tsx
+// ❌ MAUVAIS - Duplication
+<HeroOne />
+<HeroTwo />
+
 // ✅ BON - Composant flexible avec children
 <Hero variant="full" title="Titre">
   <CustomContent />
 </Hero>
-
-// ❌ MAUVAIS - Duplication
-<HeroOne />
-<HeroTwo />
-<HeroThree />
 ```
 
-### TypeScript
-```tsx
-// ✅ BON
-interface HeroProps {
-  title: string
-  subtitle?: string
-}
+### 5. Nommage des Fichiers
 
-// ❌ MAUVAIS
-const data: any = getData()
-```
+- **Composants** : `PascalCase.tsx` (BookingCard.tsx)
+- **Hooks** : `camelCase.ts` (useBookings.ts)
+- **Utils** : `kebab-case.ts` (format-date.ts)
+- **Types** : `camelCase.ts` (booking.ts)
+- **API routes** : `route.ts` (convention Next.js)
 
 ---
 
 ## 📊 État d'avancement
 
-### ✅ Fait
+### ✅ apps/admin - Production Ready
+
+- [x] Structure complète (HR, Pointage, Comptabilité)
+- [x] Sécurité : 100% routes protégées avec `requireAuth()`
+- [x] Types : 0 `any` types
+- [x] Architecture : Fichiers < 200 lignes, models modulaires
+- [x] Build : Réussi (27/27 pages)
+- [x] Documentation : `/apps/admin/CLAUDE.md` complet
+
+### 🚧 apps/site - En Refactorisation
+
+- [x] Code migré depuis l'ancien projet
 - [x] Structure monorepo créée
-- [x] apps/site configuré
-- [x] Documentation complète (CONVENTIONS + REFACTO_TEMPLATE)
-- [x] Audit des 44 pages
+- [ ] **En cours** : Refactorisation pour respecter conventions
+  - [ ] Éliminer les `any` types
+  - [ ] Découper fichiers > 200 lignes
+  - [ ] Harmoniser nommage SCSS (BEM)
+  - [ ] Créer composants réutilisables
+  - [ ] Normaliser formats de dates (strings)
 
-### ⏳ En cours
-- [ ] Refacto page Home (prochaine étape)
-- [ ] Refacto système Booking (7 pages)
-- [ ] Refacto Dashboard Client (4 pages)
+### 📋 Packages Partagés
 
-### 📋 À faire
-- [ ] Refacto pages Auth (4 pages)
-- [ ] Refacto pages Offres (5 pages)
-- [ ] Refacto pages principales restantes
-- [ ] Setup apps/admin (Tailwind + PWA)
-- [ ] Setup packages partagés
-- [ ] Déploiement Northflank
+- [x] `@coworking-cafe/database` - Connexion MongoDB + models Mongoose
+- [x] `@coworking-cafe/email` - Templates emails
+- [x] `@coworking-cafe/shared` - Utilitaires communs
+- [ ] Documentation packages à créer
 
 ---
 
-## 🚨 Rappels importants
+## 🚨 Rappels Importants
 
-1. **NE JAMAIS toucher** à `/Users/twe/Developer/Thierry/bt-coworkingcafe/`
-2. **Toujours suivre** docs/REFACTO_TEMPLATE.md étape par étape
-3. **Valider avec l'utilisateur** avant de passer à la page suivante
+1. **Lire le CLAUDE.md de l'app** avant de coder (`/apps/site/` ou `/apps/admin/`)
+2. **Respecter les conventions strictes** :
+   - ZÉRO `any` types
+   - Fichiers < 200 lignes
+   - Dates en format string (YYYY-MM-DD, HH:mm)
+   - Composants réutilisables avec children
+3. **Valider avec l'utilisateur** avant changements majeurs
 4. **Commits fréquents** avec messages descriptifs
-5. **Tests après chaque page** (responsive, accessibilité)
+5. **Tests avant commit** :
+   ```bash
+   pnpm type-check  # Vérifier TypeScript
+   pnpm build       # Vérifier build
+   ```
 
 ---
 
-## 💡 Tips
+## 💡 Workflow Recommandé
 
-- Lire **docs/CONVENTIONS.md** en cas de doute sur le nommage
-- Utiliser **docs/REFACTO_TEMPLATE.md** comme checklist
-- Identifier les **patterns récurrents** pour les composants réutilisables
-- Toujours préférer **composition + children** à la duplication
-- Penser **mobile-first** pour le responsive
+### Travailler sur apps/site
+
+1. Lire `/apps/site/CLAUDE.md`
+2. Suivre le workflow de refactorisation (4 phases)
+3. Vérifier que le code respecte les conventions
+4. Tester responsive + build
+5. Commit
+
+### Travailler sur apps/admin
+
+1. Lire `/apps/admin/CLAUDE.md`
+2. Utiliser les helpers existants (`/lib/api/`)
+3. Utiliser les types partagés (`/types/`)
+4. Protéger toutes les routes avec `requireAuth()`
+5. Tester + build + commit
+
+### Migrer un Module de Site vers Admin
+
+1. Analyser le module dans `/apps/site/`
+2. Suivre le workflow dans `/apps/admin/CLAUDE.md` section "Migration"
+3. Créer types → models → APIs → composants
+4. Respecter l'architecture modulaire
+5. Tester + documenter
 
 ---
 
-## 🔗 Liens utiles
+## 🔗 Liens Rapides
 
-- Repo original : `/Users/twe/Developer/Thierry/bt-coworkingcafe/`
-- Nouveau monorepo : `/Users/twe/Developer/Thierry/coworking-cafe/`
-- Documentation : `./docs/`
+- **Projet** : `/Users/twe/Developer/Thierry/coworking-cafe/`
+- **Documentation site** : `/apps/site/CLAUDE.md`
+- **Documentation admin** : `/apps/admin/CLAUDE.md`
+- **Conventions générales** : Ce fichier + `/docs/` (si existe)
 
 ---
 
-*Dernière mise à jour : 2026-01-13*
+_Dernière mise à jour : 2026-01-16_
