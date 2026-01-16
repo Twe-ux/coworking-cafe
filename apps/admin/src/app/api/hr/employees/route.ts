@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
         lastName: employee.lastName,
         email: employee.email,
         phone: employee.phone,
-        role: employee.role,
+        role: employee.employeeRole,
         employeeRole: employee.employeeRole,
         color: defaultColor,
         clockingCode: employee.clockingCode,
@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
 
     // Validation des données obligatoires
-    if (!data.firstName || !data.lastName || !data.role) {
+    if (!data.firstName || !data.lastName || !data.employeeRole) {
       return NextResponse.json(
         { success: false, error: 'Prénom, nom et rôle sont obligatoires' },
         { status: 400 }
@@ -226,8 +226,7 @@ export async function POST(request: NextRequest) {
     const employeeData: any = {
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
-      role: data.role,
-      employeeRole: data.employeeRole || 'Employé',
+      employeeRole: data.employeeRole || 'Employé polyvalent',
       clockingCode: data.clockingCode,
       color: data.color,
     }
@@ -272,7 +271,6 @@ export async function POST(request: NextRequest) {
       lastName: newEmployee.lastName,
       email: newEmployee.email,
       phone: newEmployee.phone,
-      role: newEmployee.role,
       employeeRole: newEmployee.employeeRole,
       color: newEmployee.color,
       clockingCode: newEmployee.clockingCode,

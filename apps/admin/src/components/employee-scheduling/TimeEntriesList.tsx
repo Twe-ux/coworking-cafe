@@ -43,8 +43,9 @@ interface GroupedTimeEntry {
         id: string
         firstName: string
         lastName: string
-        role: string
-        color: string
+        fullName: string
+        employeeRole: string
+        color?: string
       }
   date: string
   dateObj: Date
@@ -771,7 +772,7 @@ export default function TimeEntriesList({
                             {group.employee.firstName} {group.employee.lastName}
                           </div>
                           {/* <div className="text-sm text-gray-600">
-                            {group.employee.role}
+                            {group.employee.employeeRole}
                           </div> */}
                         </div>
                       </div>

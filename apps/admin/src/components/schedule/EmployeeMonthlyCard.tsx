@@ -211,7 +211,7 @@ export default function EmployeeMonthlyCard({
                       {employee.firstName} {employee.lastName}
                     </CardTitle>
                     <Badge variant="secondary" className="mt-1 text-xs">
-                      {employee.role}
+                      {employee.employeeRole}
                     </Badge>
                   </div>
                 </div>

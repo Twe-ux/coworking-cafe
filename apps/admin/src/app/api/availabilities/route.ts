@@ -10,7 +10,7 @@ import { requireAuth } from '@/lib/api/auth'
  */
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await requireAuth(['dev', 'admin', 'manager'])
+    const authResult = await requireAuth(['dev', 'admin', 'staff'])
     if (!authResult.authorized) {
       return authResult.response
     }
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch availabilities with employee information
     const availabilities = await Availability.find(filter)
-      .populate('employeeId', 'firstName lastName fullName role color')
+      .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .sort({ employeeId: 1, dayOfWeek: 1, startTime: 1 })
       .lean()
 
@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch created availability with employee info
     const populatedAvailability = await Availability.findById(newAvailability._id)
-      .populate('employeeId', 'firstName lastName fullName role color')
+      .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .lean()
 
     if (!populatedAvailability) {

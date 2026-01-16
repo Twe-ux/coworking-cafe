@@ -18,7 +18,7 @@ function createLocalDate(dateString: string): Date {
  */
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await requireAuth(['dev', 'admin', 'manager'])
+    const authResult = await requireAuth(['dev', 'admin', 'staff'])
     if (!authResult.authorized) {
       return authResult.response
     }
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch shifts with employee information
     const shifts = await Shift.find(filter)
-      .populate('employeeId', 'firstName lastName fullName role color')
+      .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .sort({ date: 1, startTime: 1 })
       .lean()
 
@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch created shift with employee info
     const populatedShift = await Shift.findById(newShift._id)
-      .populate('employeeId', 'firstName lastName fullName role color')
+      .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .lean()
 
     if (!populatedShift) {

@@ -12,7 +12,7 @@ export interface EmployeeAddress {
 }
 
 export type ContractType = "CDI" | "CDD" | "Stage";
-export type EmployeeRole = "Manager" | "Employé";
+export type EmployeeRole = "Manager" | "Assistant manager" | "Employé polyvalent";
 export type EndContractReason = "démission" | "fin-periode-essai" | "rupture";
 
 export interface TimeSlot {
@@ -99,7 +99,6 @@ export interface Employee {
   availability?: WeeklyAvailability;
   clockingCode?: string;
   color?: string; // Couleur pour le planning/calendrier
-  role?: 'Manager' | 'Reception' | 'Security' | 'Maintenance' | 'Cleaning' | 'Staff'; // Rôle planning
   bankDetails?: {
     iban: string;
     bic: string;

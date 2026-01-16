@@ -23,7 +23,7 @@ export interface ContractInfo {
   step: number;
   hourlyRate: number;
   monthlySalary?: number;
-  employeeRole: "Manager" | "Employé";
+  employeeRole: "Manager" | "Assistant manager" | "Employé polyvalent";
 }
 
 export interface AvailabilitySlot {

@@ -168,7 +168,6 @@ export async function PUT(
 
     // Rôles et planning
     if (data.employeeRole !== undefined) updateData.employeeRole = data.employeeRole
-    if (data.role !== undefined) updateData.role = data.role
     if (data.color !== undefined) updateData.color = data.color
     if (data.clockingCode !== undefined) updateData.clockingCode = data.clockingCode
 

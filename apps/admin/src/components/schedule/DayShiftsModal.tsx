@@ -101,7 +101,7 @@ export function DayShiftsModal({
                             {shift.employee?.firstName} {shift.employee?.lastName}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {shift.employee?.role || 'Staff'}
+                            {shift.employee?.employeeRole || 'Employé polyvalent'}
                           </div>
                         </div>
                         <Badge variant="secondary" className="capitalize">

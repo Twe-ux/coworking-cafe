@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const db = await connectToDatabase();
+    const { db } = await connectToDatabase();
     const config = await db.collection("config").findOne({ key: "shiftTypes" });
 
     return NextResponse.json({
@@ -53,7 +53,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const db = await connectToDatabase();
+    const { db } = await connectToDatabase();
 
     await db.collection("config").updateOne(
       { key: "shiftTypes" },

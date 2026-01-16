@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       firstName: employee.firstName,
       lastName: employee.lastName,
       fullName: employee.getFullName(),
-      role: employee.role,
+      role: employee.employeeRole,
       color: employee.color,
       isActive: employee.isActive,
     }

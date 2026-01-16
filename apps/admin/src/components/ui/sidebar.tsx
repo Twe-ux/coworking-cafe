@@ -143,7 +143,7 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
   const { isMobile, state, openMobile, setOpenMobile, setOpen } = useSidebar();
-  const closeTimerRef = React.useRef<NodeJS.Timeout>();
+  const closeTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const sidebarRef = React.useRef<HTMLDivElement>(null);
   const startXRef = React.useRef<number>(0);
   const isDraggingRef = React.useRef<boolean>(false);

@@ -7,7 +7,7 @@ export interface ShiftEmployee {
   firstName: string
   lastName: string
   fullName: string
-  role: string
+  employeeRole: string
   color: string
 }
 

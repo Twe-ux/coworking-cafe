@@ -20,4 +20,4 @@ if (!ShiftModel) {
 }
 
 export default ShiftModel
-export { IShift }
+export type { IShift }

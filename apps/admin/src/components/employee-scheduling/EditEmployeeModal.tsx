@@ -43,29 +43,18 @@ const EMPLOYEE_ROLES = [
   {
     value: 'Manager',
     label: 'Manager',
-    description: "Gestion d'équipe et supervision",
+    description: "Responsable d'équipe",
   },
   {
-    value: 'Reception',
-    label: 'Réception',
-    description: 'Accueil et service client',
+    value: 'Assistant manager',
+    label: 'Assistant manager',
+    description: 'Responsable adjoint',
   },
   {
-    value: 'Security',
-    label: 'Sécurité',
-    description: 'Surveillance et sécurité',
+    value: 'Employé polyvalent',
+    label: 'Employé polyvalent',
+    description: 'Employé standard',
   },
-  {
-    value: 'Maintenance',
-    label: 'Maintenance',
-    description: 'Entretien et réparations',
-  },
-  {
-    value: 'Cleaning',
-    label: 'Nettoyage',
-    description: 'Nettoyage et hygiène',
-  },
-  { value: 'Staff', label: 'Personnel', description: 'Personnel polyvalent' },
 ]
 
 const EMPLOYEE_COLORS = [
@@ -108,12 +97,12 @@ export default function EditEmployeeModal({
         lastName: employee.lastName || '',
         email: employee.email || '',
         phone: employee.phone || '',
-        role: employee.role || '',
+        role: employee.employeeRole || '',
         color: employee.color || 'bg-blue-500',
-        startDate: employee.startDate
-          ? new Date(employee.startDate).toISOString().split('T')[0]
+        startDate: employee.hireDate
+          ? new Date(employee.hireDate).toISOString().split('T')[0]
           : '',
-        pin: employee.pin || '1111',
+        pin: employee.clockingCode || '1111',
       })
       setErrors({})
     }

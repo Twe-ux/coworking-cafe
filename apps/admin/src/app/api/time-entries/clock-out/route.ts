@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
         employeeId: body.employeeId,
         status: 'active',
         isActive: true,
-      }).populate('employeeId', 'firstName lastName role')
+      }).populate('employeeId', 'firstName lastName employeeRole')
     } else {
       // Sinon, trouver le shift actif le plus récent
       timeEntry = await TimeEntry.findOne({
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         isActive: true,
       })
         .sort({ clockIn: -1 })
-        .populate('employeeId', 'firstName lastName role')
+        .populate('employeeId', 'firstName lastName employeeRole')
     }
 
     if (!timeEntry) {
@@ -157,8 +157,8 @@ export async function POST(request: NextRequest) {
         id: populatedEmployee._id?.toString() || employee._id.toString(),
         firstName: populatedEmployee.firstName || employee.firstName,
         lastName: populatedEmployee.lastName || employee.lastName,
-        fullName: populatedEmployee.fullName || employee.fullName,
-        role: populatedEmployee.role || employee.role,
+        fullName: `${populatedEmployee.firstName || employee.firstName} ${populatedEmployee.lastName || employee.lastName}`,
+        employeeRole: populatedEmployee.employeeRole || employee.employeeRole,
       },
       date: timeEntry.date,
       clockIn: timeEntry.clockIn,

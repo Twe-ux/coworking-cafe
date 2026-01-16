@@ -147,7 +147,6 @@ export async function POST(request: NextRequest) {
     if (data.availability) draftData.availability = data.availability
     if (data.clockingCode) draftData.clockingCode = data.clockingCode
     if (data.color) draftData.color = data.color
-    if (data.role) draftData.role = data.role
     if (data.bankDetails) draftData.bankDetails = data.bankDetails
     if (data.onboardingStatus) draftData.onboardingStatus = data.onboardingStatus
 

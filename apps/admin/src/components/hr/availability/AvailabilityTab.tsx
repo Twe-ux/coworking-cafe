@@ -175,7 +175,7 @@ export function AvailabilityTab() {
                   <div>
                     <CardTitle className="text-lg">{employee.fullName}</CardTitle>
                     <CardDescription className="capitalize">
-                      {employee.role}
+                      {employee.employeeRole}
                     </CardDescription>
                   </div>
                 </div>

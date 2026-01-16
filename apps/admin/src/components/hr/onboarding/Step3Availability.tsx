@@ -69,7 +69,7 @@ export function Step3Availability() {
       ...prev,
       [day]: {
         ...prev[day],
-        slots: prev[day].slots.filter((slot: TimeSlotWithId) => slot.id !== slotId),
+        slots: prev[day].slots.filter((slot) => (slot as TimeSlotWithId).id !== slotId),
       },
     }))
   }
@@ -82,14 +82,14 @@ export function Step3Availability() {
   ) => {
     setAvailability((prev) => {
       // Créer une copie profonde des slots
-      const updatedSlots = prev[day].slots.map((slot: TimeSlotWithId) => ({
+      const updatedSlots = prev[day].slots.map((slot) => ({
         start: slot.start,
         end: slot.end,
-        id: slot.id,
+        id: (slot as TimeSlotWithId).id,
       }))
 
       // Trouver et mettre à jour le slot par son ID
-      const slotIndex = updatedSlots.findIndex((s: TimeSlotWithId) => s.id === slotId)
+      const slotIndex = updatedSlots.findIndex((s) => s.id === slotId)
       if (slotIndex !== -1) {
         updatedSlots[slotIndex] = {
           ...updatedSlots[slotIndex],
@@ -154,7 +154,7 @@ export function Step3Availability() {
     const cleanedAvailability = Object.keys(availability).reduce((acc, day) => {
       const dayKey = day as keyof Availability
       const sortedSlots = [...availability[dayKey].slots]
-        .map((slot: TimeSlotWithId) => ({
+        .map((slot) => ({
           start: slot.start,
           end: slot.end,
         }))
@@ -209,35 +209,38 @@ export function Step3Availability() {
               {availability[key].available && (
                 <div className="ml-8 space-y-2">
                   <div className="flex flex-wrap gap-2">
-                    {availability[key].slots.map((slot: TimeSlotWithId) => (
-                      <div key={slot.id} className="flex items-center gap-2">
-                        <Input
-                          type="time"
-                          value={slot.start}
-                          onChange={(e) =>
-                            updateSlot(key, slot.id, 'start', e.target.value)
-                          }
-                          className="w-28"
-                        />
-                        <span className="text-muted-foreground text-sm">à</span>
-                        <Input
-                          type="time"
-                          value={slot.end}
-                          onChange={(e) =>
-                            updateSlot(key, slot.id, 'end', e.target.value)
-                          }
-                          className="w-28"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeSlot(key, slot.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
+                    {availability[key].slots.map((slot) => {
+                      const slotWithId = slot as TimeSlotWithId
+                      return (
+                        <div key={slotWithId.id} className="flex items-center gap-2">
+                          <Input
+                            type="time"
+                            value={slotWithId.start}
+                            onChange={(e) =>
+                              updateSlot(key, slotWithId.id, 'start', e.target.value)
+                            }
+                            className="w-28"
+                          />
+                          <span className="text-muted-foreground text-sm">à</span>
+                          <Input
+                            type="time"
+                            value={slotWithId.end}
+                            onChange={(e) =>
+                              updateSlot(key, slotWithId.id, 'end', e.target.value)
+                            }
+                            className="w-28"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeSlot(key, slotWithId.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )
+                    })}
                   </div>
 
                   <Button

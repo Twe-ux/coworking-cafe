@@ -304,7 +304,7 @@ export function useOnboarding(options?: UseOnboardingOptions) {
 
       try {
         // Construire l'objet employee complet
-        const employeeData = {
+        const employeeData: any = {
           // Step 1 - Infos personnelles
           firstName: data.step1!.firstName,
           lastName: data.step1!.lastName,
@@ -340,7 +340,6 @@ export function useOnboarding(options?: UseOnboardingOptions) {
           // Step 4 - Infos administratives
           clockingCode: adminInfo.clockingCode,
           color: adminInfo.color,
-          role: 'Staff', // Rôle planning par défaut
 
           // Checkboxes administratives vont dans onboardingStatus
           onboardingStatus: {
@@ -359,6 +358,10 @@ export function useOnboarding(options?: UseOnboardingOptions) {
             registerCompleted: adminInfo.registerCompleted || false,
             contractSent: adminInfo.contractSent || false,
           },
+
+          // Status flags (will be set below)
+          isActive: false,
+          isDraft: false,
         }
 
         // Déterminer isActive en fonction de la date d'embauche

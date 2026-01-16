@@ -46,11 +46,36 @@ export default function EmployeeList({
     employees,
     isLoading,
     error,
-    createEmployee,
-    updateEmployee,
-    deleteEmployee,
-    statistics,
+    refreshEmployees,
   } = useEmployees({ active: true })
+
+  // Calculer les statistiques localement
+  const statistics = {
+    active: employees.filter(e => e.status === 'active').length,
+    byRole: {
+      Manager: employees.filter(e => e.employeeRole === 'Manager').length,
+      'Assistant manager': employees.filter(e => e.employeeRole === 'Assistant manager').length,
+      'Employé polyvalent': employees.filter(e => e.employeeRole === 'Employé polyvalent').length,
+    }
+  }
+
+  // Fonction de suppression locale
+  const deleteEmployee = async (id: string) => {
+    try {
+      const response = await fetch(`/api/hr/employees/${id}`, {
+        method: 'DELETE',
+      })
+      const result = await response.json()
+
+      if (result.success) {
+        await refreshEmployees()
+      }
+
+      return result
+    } catch (error) {
+      return { success: false, error: 'Erreur réseau' }
+    }
+  }
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedRole, setSelectedRole] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -71,7 +96,7 @@ export default function EmployeeList({
       (employee.email &&
         employee.email.toLowerCase().includes(searchTerm.toLowerCase()))
 
-    const matchesRole = selectedRole === 'all' || employee.role === selectedRole
+    const matchesRole = selectedRole === 'all' || employee.employeeRole === selectedRole
 
     return matchesSearch && matchesRole
   })
@@ -143,11 +168,8 @@ export default function EmployeeList({
   const ROLES = [
     'all',
     'Manager',
-    'Reception',
-    'Security',
-    'Maintenance',
-    'Cleaning',
-    'Staff',
+    'Assistant manager',
+    'Employé polyvalent',
   ]
 
   return (
@@ -243,17 +265,17 @@ export default function EmployeeList({
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-green-600">
-              {statistics.byRole.Reception || 0}
+              {statistics.byRole['Assistant manager'] || 0}
             </div>
-            <div className="text-sm text-gray-600">Réception</div>
+            <div className="text-sm text-gray-600">Assistants manager</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-purple-600">
-              {statistics.byRole.Security || 0}
+              {statistics.byRole['Employé polyvalent'] || 0}
             </div>
-            <div className="text-sm text-gray-600">Sécurité</div>
+            <div className="text-sm text-gray-600">Employés polyvalents</div>
           </CardContent>
         </Card>
       </div>
@@ -312,7 +334,7 @@ export default function EmployeeList({
                         {employee.fullName}
                       </h3>
                       <Badge variant="secondary" className="mt-1">
-                        {employee.role}
+                        {employee.employeeRole}
                       </Badge>
                     </div>
                   </div>
@@ -335,7 +357,7 @@ export default function EmployeeList({
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        variant="destructive"
+                        className="text-red-600 focus:text-red-600 focus:bg-red-50"
                         onClick={() => handleDeleteEmployee(employee)}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -364,7 +386,7 @@ export default function EmployeeList({
                     <Calendar className="h-4 w-4" />
                     <span>
                       Depuis le{' '}
-                      {new Date(employee.startDate).toLocaleDateString('fr-FR')}
+                      {new Date(employee.hireDate).toLocaleDateString('fr-FR')}
                     </span>
                   </div>
                 </div>

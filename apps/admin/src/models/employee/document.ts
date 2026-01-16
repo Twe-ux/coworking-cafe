@@ -1,11 +1,11 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema, Types } from 'mongoose';
 
 /**
  * Employee Document Interface
  * Combines HR (onboarding, contract) + Planning (color, pin)
  */
 export interface EmployeeDocument extends Document {
-  _id: string;
+  _id: Types.ObjectId;
 
   // ===== PARTIE HR (de site) =====
   // Informations personnelles
@@ -37,7 +37,7 @@ export interface EmployeeDocument extends Document {
   monthlySalary?: number;
 
   // Rôle employé (pour HR)
-  employeeRole: 'Manager' | 'Employé';
+  employeeRole: 'Manager' | 'Assistant manager' | 'Employé polyvalent';
 
   // Disponibilités horaires
   availability: {
@@ -92,9 +92,6 @@ export interface EmployeeDocument extends Document {
 
   // Couleur pour calendrier planning
   color: string;
-
-  // Rôle planning (simplifié pour calendrier)
-  role: 'Manager' | 'Reception' | 'Security' | 'Maintenance' | 'Cleaning' | 'Staff';
 
   // ===== COMMUN =====
   isActive: boolean;
@@ -204,9 +201,9 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
     // Rôle employé (HR)
     employeeRole: {
       type: String,
-      enum: ['Manager', 'Employé'],
+      enum: ['Manager', 'Assistant manager', 'Employé polyvalent'],
       required: [true, "Le rôle de l'employé est requis"],
-      default: 'Employé',
+      default: 'Employé polyvalent',
     },
 
     // Disponibilités
@@ -303,13 +300,6 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
         ];
         return colors[Math.floor(Math.random() * colors.length)];
       },
-    },
-
-    // Rôle planning
-    role: {
-      type: String,
-      enum: ['Manager', 'Reception', 'Security', 'Maintenance', 'Cleaning', 'Staff'],
-      default: 'Staff',
     },
 
     // Statut

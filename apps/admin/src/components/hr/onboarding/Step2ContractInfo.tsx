@@ -46,7 +46,7 @@ export function Step2ContractInfo() {
           level: '',
           step: 1,
           hourlyRate: 11.65,
-          employeeRole: 'Employé',
+          employeeRole: 'Employé polyvalent',
         },
   })
 
@@ -242,16 +242,17 @@ export function Step2ContractInfo() {
             </Label>
             <Select
               onValueChange={(value) =>
-                setValue('employeeRole', value as 'Manager' | 'Employé')
+                setValue('employeeRole', value as 'Manager' | 'Assistant manager' | 'Employé polyvalent')
               }
-              defaultValue={data.step2?.employeeRole || 'Employé'}
+              defaultValue={data.step2?.employeeRole || 'Employé polyvalent'}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un rôle" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Manager">Manager</SelectItem>
-                <SelectItem value="Employé">Employé</SelectItem>
+                <SelectItem value="Assistant manager">Assistant manager</SelectItem>
+                <SelectItem value="Employé polyvalent">Employé polyvalent</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -118,7 +118,7 @@ export function EmployeeCard({
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <div
-              className={`flex h-12 w-12 items-center justify-center rounded-full ${employee.employeeColor || "bg-primary"} text-lg font-semibold text-white`}
+              className={`flex h-12 w-12 items-center justify-center rounded-full ${employee.color || "bg-primary"} text-lg font-semibold text-white`}
             >
               {getEmployeeInitials(employee)}
             </div>

@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     // Exécution des requêtes en parallèle
     const [timeEntries, totalCount] = await Promise.all([
       TimeEntry.find(query)
-        .populate('employeeId', 'firstName lastName role color')
+        .populate('employeeId', 'firstName lastName employeeRole color')
         .sort({ date: -1, clockIn: -1 })
         .skip(skip)
         .limit(filters.limit || 50)
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
                   firstName: populatedEmployee.firstName,
                   lastName: populatedEmployee.lastName,
                   fullName: `${populatedEmployee.firstName} ${populatedEmployee.lastName}`,
-                  role: populatedEmployee.role,
+                  employeeRole: populatedEmployee.employeeRole,
                 }
               : undefined,
           date: entry.date,
@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
     await newTimeEntry.save()
 
     // Populer les données de l'employé
-    await newTimeEntry.populate('employeeId', 'firstName lastName role')
+    await newTimeEntry.populate('employeeId', 'firstName lastName employeeRole')
 
     // Formater la réponse
     const populatedEmployee = (newTimeEntry as any).employeeId

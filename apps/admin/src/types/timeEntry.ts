@@ -6,7 +6,7 @@ export interface TimeEntry {
     firstName: string
     lastName: string
     fullName: string
-    role: string
+    employeeRole: string
   }
   date: string // Format "YYYY-MM-DD"
   clockIn: string // Format "HH:mm"
@@ -51,7 +51,7 @@ export interface ApiResponse<T> {
   success: boolean
   data?: T
   error?: string
-  details?: string[] | Record<string, string>
+  details?: string | string[] | Record<string, string>
   message?: string
 }
 
@@ -65,6 +65,7 @@ export interface ClockOutRequest {
   employeeId: string
   pin: string
   clockOut?: string
+  timeEntryId?: string
 }
 
 export interface VerifyPinRequest {
@@ -96,6 +97,14 @@ export interface EmployeeTimeReport {
   }>
   totalHours: number
   activeShifts: number
+}
+
+export interface DailyTimeReport {
+  date: Date
+  employees: EmployeeTimeReport[]
+  totalActiveShifts: number
+  totalCompletedShifts: number
+  totalHoursWorked: number
 }
 
 export interface TimeTrackingStats {

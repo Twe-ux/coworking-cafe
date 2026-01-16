@@ -133,7 +133,11 @@ export default function ShiftAssignment({
 
   const [formData, setFormData] = useState({
     employeeId: existingShift?.employeeId || persistentEmployeeId || '',
-    date: normalizeDate(existingShift?.date || selectedDate),
+    date: normalizeDate(
+      existingShift?.date
+        ? (typeof existingShift.date === 'string' ? new Date(existingShift.date) : existingShift.date)
+        : (selectedDate || new Date())
+    ),
     startTime: existingShift?.startTime || '09:00',
     endTime: existingShift?.endTime || '17:00',
     type: existingShift?.type || 'morning',
@@ -184,7 +188,11 @@ export default function ShiftAssignment({
 
       setFormData({
         employeeId: defaultEmployeeId,
-        date: normalizeDate(existingShift?.date || selectedDate),
+        date: normalizeDate(
+          existingShift?.date
+            ? (typeof existingShift.date === 'string' ? new Date(existingShift.date) : existingShift.date)
+            : (selectedDate || new Date())
+        ),
         startTime: existingShift?.startTime || '09:00',
         endTime: existingShift?.endTime || '17:00',
         type: existingShift?.type || 'morning',
@@ -652,7 +660,7 @@ export default function ShiftAssignment({
                         {selectedEmployee.firstName} {selectedEmployee.lastName}
                       </div>
                       <Badge variant="secondary" className="text-xs">
-                        {selectedEmployee.role}
+                        {selectedEmployee.employeeRole}
                       </Badge>
                     </div>
                   </div>

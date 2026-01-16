@@ -147,7 +147,7 @@ export function AvailabilityModal({
                   <SelectContent>
                     {employees.map((emp) => (
                       <SelectItem key={emp.id} value={emp.id}>
-                        {emp.fullName} - {emp.role}
+                        {emp.fullName} - {emp.employeeRole}
                       </SelectItem>
                     ))}
                   </SelectContent>

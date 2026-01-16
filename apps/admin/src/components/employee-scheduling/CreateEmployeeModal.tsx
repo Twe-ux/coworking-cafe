@@ -30,52 +30,30 @@ import {
   Palette,
   Lock,
 } from 'lucide-react'
-
-interface EmployeeResponse {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  role: string
-  color: string
-  startDate: string
-  pin: string
-}
+import type { Employee } from '@/types/hr'
 
 interface CreateEmployeeModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (employee: EmployeeResponse) => void
+  onSuccess: (employee: Employee) => void
 }
 
 const EMPLOYEE_ROLES = [
   {
     value: 'Manager',
     label: 'Manager',
-    description: "Gestion d'équipe et supervision",
+    description: "Responsable d'équipe",
   },
   {
-    value: 'Reception',
-    label: 'Réception',
-    description: 'Accueil et service client',
+    value: 'Assistant manager',
+    label: 'Assistant manager',
+    description: 'Responsable adjoint',
   },
   {
-    value: 'Security',
-    label: 'Sécurité',
-    description: 'Surveillance et sécurité',
+    value: 'Employé polyvalent',
+    label: 'Employé polyvalent',
+    description: 'Employé standard',
   },
-  {
-    value: 'Maintenance',
-    label: 'Maintenance',
-    description: 'Entretien et réparations',
-  },
-  {
-    value: 'Cleaning',
-    label: 'Nettoyage',
-    description: 'Nettoyage et hygiène',
-  },
-  { value: 'Staff', label: 'Personnel', description: 'Personnel polyvalent' },
 ]
 
 const EMPLOYEE_COLORS = [

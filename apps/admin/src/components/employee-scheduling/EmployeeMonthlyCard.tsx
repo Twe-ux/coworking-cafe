@@ -97,16 +97,17 @@ export default function EmployeeMonthlyCard({
       
       if (Array.isArray(timeEntries)) {
         for (const entry of timeEntries) {
+          const entryDate = typeof entry.date === 'string' ? new Date(entry.date) : entry.date
           if (
             entry.employeeId === employee.id &&
             entry.status === 'completed' &&
             entry.clockOut &&
-            entry.date >= firstDayOfMonth &&
-            entry.date <= consultationDate
+            entryDate >= firstDayOfMonth &&
+            entryDate <= consultationDate
           ) {
             actualHours += entry.totalHours || 0
             // Track completed shifts to avoid double counting
-            const shiftId = `${entry.date.toDateString()}-${entry.shiftNumber || 1}`
+            const shiftId = `${entryDate.toDateString()}-${entry.shiftNumber || 1}`
             completedShiftIds.add(shiftId)
           }
         }
@@ -116,15 +117,16 @@ export default function EmployeeMonthlyCard({
       // = Actual hours + Remaining planned hours (excluding completed shifts)
       const remainingPlannedHours = monthlyShifts
         .filter((shift) => {
-          const shiftId = `${shift.date.toDateString()}-1`
+          const shiftDate = typeof shift.date === 'string' ? new Date(shift.date) : shift.date
+          const shiftId = `${shiftDate.toDateString()}-1`
           const isCompleted = completedShiftIds.has(shiftId)
-          
-          if (shift.date.toDateString() === consultationDate.toDateString()) {
+
+          if (shiftDate.toDateString() === consultationDate.toDateString()) {
             // For consultation day, only count if not completed
             return !isCompleted
           } else {
             // For future days, count all shifts
-            return shift.date > consultationDate
+            return shiftDate > consultationDate
           }
         })
         .reduce((total, shift) => {
@@ -135,7 +137,10 @@ export default function EmployeeMonthlyCard({
 
       // Count shift days
       const shiftDays = new Set(
-        monthlyShifts.map((shift) => shift.date.toDateString())
+        monthlyShifts.map((shift) => {
+          const shiftDate = typeof shift.date === 'string' ? new Date(shift.date) : shift.date
+          return shiftDate.toDateString()
+        })
       ).size
 
       return {
@@ -204,7 +209,7 @@ export default function EmployeeMonthlyCard({
                       {employee.firstName} {employee.lastName}
                     </CardTitle>
                     <Badge variant="secondary" className="mt-1 text-xs">
-                      {employee.role}
+                      {employee.employeeRole}
                     </Badge>
                   </div>
                 </div>

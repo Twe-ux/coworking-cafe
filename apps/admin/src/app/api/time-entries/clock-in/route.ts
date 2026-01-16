@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     await newTimeEntry.save()
 
     // Populer les données de l'employé pour la réponse
-    await newTimeEntry.populate('employeeId', 'firstName lastName role')
+    await newTimeEntry.populate('employeeId', 'firstName lastName employeeRole')
 
     // Formater la réponse
     const populatedEmployee = newTimeEntry.employeeId as any
@@ -148,8 +148,8 @@ export async function POST(request: NextRequest) {
         id: populatedEmployee._id?.toString() || employee._id.toString(),
         firstName: populatedEmployee.firstName || employee.firstName,
         lastName: populatedEmployee.lastName || employee.lastName,
-        fullName: populatedEmployee.fullName || employee.fullName,
-        role: populatedEmployee.role || employee.role,
+        fullName: `${populatedEmployee.firstName || employee.firstName} ${populatedEmployee.lastName || employee.lastName}`,
+        employeeRole: populatedEmployee.employeeRole || employee.employeeRole,
       },
       date: newTimeEntry.date,
       clockIn: newTimeEntry.clockIn,

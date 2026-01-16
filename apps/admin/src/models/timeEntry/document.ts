@@ -1,7 +1,15 @@
 import { Schema, Types, Document } from 'mongoose'
 
+/**
+ * Methods interface for TimeEntry
+ * Declared here to avoid circular dependency
+ */
+export interface ITimeEntryMethods {
+  calculateTotalHours(): number
+}
+
 /** Document of a {@link TimeEntry}, as stored in the database. */
-export interface ITimeEntry extends Document {
+export interface ITimeEntry extends Document, ITimeEntryMethods {
   employeeId: Types.ObjectId
   date: string // Format "YYYY-MM-DD"
   clockIn: string // Format "HH:mm"

@@ -603,7 +603,7 @@ export function ShiftModal({
                           {selectedEmployee.firstName} {selectedEmployee.lastName}
                         </div>
                         <Badge variant="secondary" className="text-xs">
-                          {selectedEmployee.role}
+                          {selectedEmployee.employeeRole}
                         </Badge>
                       </div>
                     </div>

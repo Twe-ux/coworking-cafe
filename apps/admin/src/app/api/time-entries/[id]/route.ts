@@ -55,7 +55,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       _id: params.id,
       isActive: true,
     })
-      .populate('employeeId', 'firstName lastName role color')
+      .populate('employeeId', 'firstName lastName employeeRole color')
       .lean()
 
     if (!timeEntry) {
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             firstName: employee.firstName,
             lastName: employee.lastName,
             fullName: `${employee.firstName} ${employee.lastName}`,
-            role: employee.role,
+            employeeRole: employee.employeeRole,
           }
         : undefined,
       date: (timeEntry as any).date,
@@ -269,7 +269,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     await timeEntry.save()
 
     // Populer les données de l'employé pour la réponse
-    await timeEntry.populate('employeeId', 'firstName lastName role')
+    await timeEntry.populate('employeeId', 'firstName lastName employeeRole')
 
     // Formater la réponse
     const employee = (timeEntry as any).employeeId
@@ -282,7 +282,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             firstName: employee.firstName,
             lastName: employee.lastName,
             fullName: `${employee.firstName} ${employee.lastName}`,
-            role: employee.role,
+            employeeRole: employee.employeeRole,
           }
         : undefined,
       date: (timeEntry as any).date,

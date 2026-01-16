@@ -59,7 +59,7 @@ export function useEmployees(options: UseEmployeesOptions = {}) {
 
   const getEmployeesByRole = useCallback(
     (role: string) => {
-      return employees.filter((emp) => emp.role === role && emp.status === 'active')
+      return employees.filter((emp) => emp.employeeRole === role && emp.status === 'active')
     },
     [employees]
   )

@@ -1,18 +1,24 @@
-import { Model, model, models } from 'mongoose';
+import { Model, model, models, HydratedDocument } from 'mongoose';
 import { EmployeeDocument, EmployeeSchema } from './document';
 import { attachHooks } from './hooks';
 import { EmployeeMethods } from './methods';
 import { VirtualEmployee } from './virtuals';
 
+// Type complet avec méthodes et virtuals
+export type EmployeeWithMethods = HydratedDocument<EmployeeDocument> & EmployeeMethods;
+
+// Type Model avec méthodes
+export type EmployeeModelType = Model<EmployeeDocument, {}, EmployeeMethods>;
+
 export type Employee = VirtualEmployee & EmployeeMethods;
 
-let EmployeeModel: Model<EmployeeDocument>;
+let EmployeeModel: EmployeeModelType;
 
 if (models.Employee) {
-  EmployeeModel = models.Employee as Model<EmployeeDocument>;
+  EmployeeModel = models.Employee as EmployeeModelType;
 } else {
   attachHooks();
-  EmployeeModel = model<EmployeeDocument>('Employee', EmployeeSchema);
+  EmployeeModel = model<EmployeeDocument, EmployeeModelType>('Employee', EmployeeSchema);
 }
 
 if (!EmployeeModel) {

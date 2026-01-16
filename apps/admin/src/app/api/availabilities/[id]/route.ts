@@ -16,7 +16,7 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const authResult = await requireAuth(['dev', 'admin', 'manager'])
+    const authResult = await requireAuth(['dev', 'admin', 'staff'])
     if (!authResult.authorized) {
       return authResult.response
     }
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     await connectMongoose()
 
     const availability = await Availability.findById(params.id)
-      .populate('employeeId', 'firstName lastName fullName role color')
+      .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .lean()
 
     if (!availability) {
@@ -171,7 +171,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       new: true,
       runValidators: true,
     })
-      .populate('employeeId', 'firstName lastName fullName role color')
+      .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .lean()
 
     const transformedAvailability = {

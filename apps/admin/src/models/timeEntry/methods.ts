@@ -1,9 +1,5 @@
 import { ITimeEntry, TimeEntrySchema } from './document'
 
-export interface TimeEntryMethods extends ITimeEntry {
-  calculateTotalHours(): number
-}
-
 /**
  * Calculate total hours between clockIn and clockOut
  * Handles night shifts where clockOut < clockIn (crosses midnight)

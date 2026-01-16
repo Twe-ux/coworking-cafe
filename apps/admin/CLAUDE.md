@@ -61,8 +61,7 @@ Nous allons **migrer progressivement** des modules depuis `/apps/site/src/app/da
 │   │   │   ├── (admin)/        # Routes admin/dev
 │   │   │   │   ├── hr/         # Ressources Humaines
 │   │   │   │   └── accounting/ # Comptabilité
-│   │   │   ├── (staff)/        # Routes staff
-│   │   │   └── (manager)/      # Routes manager
+│   │   │   └── (staff)/        # Routes staff
 │   │   ├── (errors)/           # Pages d'erreur (404, 403, 401, 500)
 │   │   ├── api/                # API Routes
 │   │   │   ├── hr/             # APIs HR
@@ -337,7 +336,7 @@ import { successResponse, errorResponse } from '@/lib/api/response'
 
 export async function GET(request: Request) {
   // 1. Authentification OBLIGATOIRE
-  const authResult = await requireAuth(['dev', 'admin', 'manager'])
+  const authResult = await requireAuth(['dev', 'admin', 'staff'])
   if (!authResult.authorized) {
     return authResult.response // 401 ou 403
   }
@@ -358,20 +357,49 @@ export async function GET(request: Request) {
 |------|-------|-------|
 | `dev` | Complet (admin + debug) | Développement |
 | `admin` | Gestion complète | Admin système |
-| `manager` | Lecture HR/Planning | Chef d'équipe |
-| `staff` | Mon planning uniquement | Employé |
+| `staff` | Lecture HR/Planning | Employé |
 
 **Configuration** :
 
 ```typescript
-// Lecture seule (tous les rôles de gestion)
-requireAuth(['dev', 'admin', 'manager'])
+// Lecture seule (tous les rôles)
+requireAuth(['dev', 'admin', 'staff'])
 
 // Écriture (admin seulement)
 requireAuth(['dev', 'admin'])
 
 // Debug (dev seulement)
 requireAuth(['dev'])
+```
+
+### Distinction Rôles Système vs Rôles Métier
+
+**⚠️ IMPORTANT** : Ne pas confondre les deux types de rôles :
+
+#### 1. Rôles Système (Authentication NextAuth)
+Utilisés pour **l'authentification et les permissions d'accès** à l'application :
+- `dev` - Développeur (accès complet)
+- `admin` - Administrateur (gestion complète)
+- `staff` - Employé (lecture seulement)
+
+**Usage** : `requireAuth(['dev', 'admin', 'staff'])`
+
+#### 2. Rôles Métier RH (employeeRole)
+Utilisés pour **la fonction dans l'entreprise** (type d'employé) :
+- `Manager` - Responsable d'équipe
+- `Assistant manager` - Responsable adjoint
+- `Employé polyvalent` - Employé standard
+
+**Usage** : Champ `employeeRole` dans le type `Employee`
+
+**Exemple de confusion à éviter** :
+```typescript
+// ❌ MAUVAIS - Confondre rôle système et rôle métier
+requireAuth(['Manager']) // Manager n'est pas un rôle système
+
+// ✅ BON - Utiliser le bon rôle
+requireAuth(['dev', 'admin', 'staff']) // Rôles système
+employee.employeeRole === 'Manager' // Rôle métier
 ```
 
 ### Routes Publiques (Exceptions)
@@ -463,7 +491,7 @@ import type { ApiResponse } from '@/types/timeEntry'
 // GET /api/hr/employees
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Employee[]>>> {
   // 1. Auth
-  const authResult = await requireAuth(['dev', 'admin', 'manager'])
+  const authResult = await requireAuth(['dev', 'admin', 'staff'])
   if (!authResult.authorized) {
     return authResult.response
   }
@@ -798,7 +826,7 @@ import { requireAuth } from '@/lib/api/auth'
 import { successResponse, errorResponse } from '@/lib/api/response'
 
 export async function GET(request: NextRequest) {
-  const authResult = await requireAuth(['dev', 'admin', 'manager'])
+  const authResult = await requireAuth(['dev', 'admin', 'staff'])
   if (!authResult.authorized) return authResult.response
 
   // ... logique
@@ -1087,7 +1115,7 @@ Avant de commencer une nouvelle feature :
 
 ### Modules Implémentés
 
-- ✅ **Auth** - NextAuth avec rôles (dev, admin, manager, staff)
+- ✅ **Auth** - NextAuth avec rôles (dev, admin, staff)
 - ✅ **HR** - Gestion employés complète (CRUD, onboarding, disponibilités)
 - ✅ **Pointage** - Time tracking avec créneaux manuels
 - ✅ **Planning** - Calendrier des shifts mensuels

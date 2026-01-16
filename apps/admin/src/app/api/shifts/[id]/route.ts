@@ -24,7 +24,7 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const authResult = await requireAuth(['dev', 'admin', 'manager'])
+    const authResult = await requireAuth(['dev', 'admin', 'staff'])
     if (!authResult.authorized) {
       return authResult.response
     }
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     await connectMongoose()
 
     const shift = await Shift.findById(params.id)
-      .populate('employeeId', 'firstName lastName fullName role color')
+      .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .lean()
 
     if (!shift) {
@@ -190,7 +190,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       new: true,
       runValidators: true,
     })
-      .populate('employeeId', 'firstName lastName fullName role color')
+      .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .lean()
 
     const transformedShift = {
