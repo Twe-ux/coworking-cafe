@@ -341,7 +341,7 @@ function Sidebar({
     <aside
       ref={sidebarRef}
       className={cn(
-        "bg-sidebar text-sidebar-foreground group/sidebar hidden h-full shrink-0 transition-all duration-300 ease-in-out md:flex md:flex-col ",
+        "bg-sidebar text-sidebar-foreground group/sidebar flex h-full shrink-0 flex-col transition-all duration-300 ease-in-out",
         // Width based on state and collapsible setting
         state === "collapsed" && collapsible === "icon"
           ? "h-screen w-[var(--sidebar-width-icon)]"
