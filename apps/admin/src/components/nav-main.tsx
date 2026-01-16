@@ -34,7 +34,7 @@ export function NavMain({
     }[];
   }[];
 }) {
-  const { state } = useSidebar();
+  const { state, setOpen } = useSidebar();
   const [openItems, setOpenItems] = React.useState<Record<string, boolean>>({});
 
   // Close all collapsibles when sidebar is collapsed
@@ -51,6 +51,11 @@ export function NavMain({
     }));
   };
 
+  const handleLinkClick = () => {
+    // Close sidebar when clicking on a link
+    setOpen(false);
+  };
+
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -63,7 +68,7 @@ export function NavMain({
           >
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url}>
+                <a href={item.url} onClick={handleLinkClick}>
                   <item.icon />
                   <span>{item.title}</span>
                 </a>
@@ -81,7 +86,7 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
+                            <a href={subItem.url} onClick={handleLinkClick}>
                               <span>{subItem.title}</span>
                             </a>
                           </SidebarMenuSubButton>

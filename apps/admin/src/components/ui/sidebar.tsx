@@ -271,10 +271,19 @@ function Sidebar({
 
   // Use same sidebar for all screen sizes
   return (
-    <aside
+    <>
+      {/* Overlay when sidebar is expanded - click to close */}
+      {state === "expanded" && (
+        <div
+          className="fixed inset-0 z-30 bg-black/20"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <aside
       ref={sidebarRef}
       className={cn(
-        "bg-sidebar text-sidebar-foreground group/sidebar flex h-full shrink-0 flex-col transition-all duration-300 ease-in-out",
+        "bg-sidebar text-sidebar-foreground group/sidebar flex h-full shrink-0 flex-col transition-all duration-300 ease-in-out z-40",
         // Width based on state and collapsible setting
         state === "collapsed" && collapsible === "icon"
           ? "h-screen w-[var(--sidebar-width-icon)]"
@@ -301,6 +310,7 @@ function Sidebar({
     >
       {children}
     </aside>
+    </>
   );
 }
 
