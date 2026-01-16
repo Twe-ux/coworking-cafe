@@ -269,74 +269,7 @@ function Sidebar({
     };
   }, []);
 
-  if (isMobile) {
-    return (
-      <>
-        {/* Enhanced mobile sidebar overlay with better touch handling */}
-        {openMobile && (
-          <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
-            onClick={() => setOpenMobile(false)}
-            onTouchStart={(e) => e.stopPropagation()}
-            aria-hidden="true"
-            role="presentation"
-          />
-        )}
-        {/* Mobile sidebar with swipe gestures */}
-        <aside
-          ref={sidebarRef}
-          className={cn(
-            "bg-background fixed top-0 left-0 z-50 h-full w-80 transform border-r transition-transform duration-300 ease-out md:hidden",
-            // Enhanced mobile styling
-            "shadow-2xl",
-            "overscroll-behavior-y-contain touch-pan-y overflow-y-auto",
-            // Safe area support for notched devices
-            "pr-4 pl-[env(safe-area-inset-left)]",
-            openMobile ? "translate-x-0" : "-translate-x-full"
-          )}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          aria-hidden={!openMobile}
-          role="navigation"
-          aria-label="Navigation principale"
-          {...props}
-        >
-          {/* Mobile header with close button */}
-          <div className="flex items-center justify-between border-b p-4">
-            <h2 className="text-lg font-semibold">Navigation</h2>
-            <button
-              onClick={() => setOpenMobile(false)}
-              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              aria-label="Fermer la navigation"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          {children}
-          {/* Touch hint at bottom for swipe gesture */}
-          <div className="border-t p-4 text-center">
-            <p className="text-muted-foreground text-xs">
-              Glissez vers la gauche pour fermer
-            </p>
-          </div>
-        </aside>
-      </>
-    );
-  }
-
+  // Use same sidebar for all screen sizes
   return (
     <aside
       ref={sidebarRef}
