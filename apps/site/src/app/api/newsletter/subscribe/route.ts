@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
-import { Newsletter } from "@/models/newsletter";
-import { User } from "@/models/user";
+import { Newsletter, User } from "@coworking-cafe/database";
 
 export const dynamic = "force-dynamic";
 

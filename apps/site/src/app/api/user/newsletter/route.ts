@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import dbConnect from "@/lib/mongodb";
-import { User } from "@/models/user";
-import { Newsletter } from "@/models/newsletter";
+
+import { Newsletter, User } from "@coworking-cafe/database";
 import { options } from "@/lib/auth-options";
 
 export const dynamic = "force-dynamic";
