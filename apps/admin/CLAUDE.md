@@ -707,6 +707,500 @@ export function useEmployees(options: UseEmployeesOptions = {}): UseEmployeesRet
 
 ---
 
+## 🔄 APIs Partagées entre Site et Admin - IMPORTANT
+
+### ⚠️ Comprendre la Structure de `/apps/site/`
+
+**ATTENTION** : `/apps/site/` contient **DEUX parties distinctes** :
+
+```
+/apps/site/
+├── src/app/(site)/              # 🌐 SITE PUBLIC (à refactoriser plus tard)
+│   ├── page.tsx                 # Home publique
+│   ├── booking/                 # Réservations publiques
+│   ├── spaces/                  # Pages espaces
+│   ├── blog/                    # Blog public
+│   └── contact/                 # Contact
+│
+└── src/app/dashboard/           # 👤 DASHBOARD CLIENT (à migrer puis supprimer)
+    ├── (admin)/                 # Routes admin (à migrer vers /apps/admin/)
+    ├── settings/                # Paramètres utilisateur
+    ├── messages/                # Messagerie
+    └── promo/                   # Module promo
+```
+
+**Les deux parties ont des appels API** qui peuvent être :
+- ✅ **Partagés** : Utilisés par le site public ET le dashboard
+- 🔵 **Dashboard uniquement** : Utilisés seulement par le dashboard (à migrer)
+- 🟢 **Site uniquement** : Utilisés seulement par le site public (à garder dans site)
+
+---
+
+### 🎯 Règles pour les APIs et Models
+
+#### 1. APIs Partagées (Site Public + Dashboard)
+
+**Si une API/Model est utilisée par les DEUX parties** (site public ET dashboard) :
+
+**Option A** : Déplacer dans `packages/database` (préféré)
+```typescript
+// ✅ BON - API partagée dans packages/database
+// packages/database/src/models/booking/
+├── index.ts
+├── document.ts
+├── methods.ts
+└── types.ts
+
+// Utilisable depuis les deux apps
+import { Booking } from '@coworking-cafe/database'
+```
+
+**Option B** : Maintenir la compatibilité
+```typescript
+// ✅ BON - Garder l'API dans apps/site ET créer dans apps/admin
+// Les deux apps ont leur propre implémentation mais structure identique
+
+// apps/site/src/app/api/booking/route.ts
+export async function GET() { /* ... */ }
+
+// apps/admin/src/app/api/booking/route.ts
+export async function GET() { /* ... */ }
+
+// Même structure de réponse pour compatibilité
+interface BookingResponse {
+  id: string
+  date: string // YYYY-MM-DD
+  startTime: string // HH:mm
+  // ... même structure
+}
+```
+
+#### 2. APIs Dashboard Uniquement
+
+**Si une API est utilisée UNIQUEMENT par le dashboard** :
+
+```typescript
+// ✅ BON - Migrer directement dans apps/admin
+// apps/admin/src/app/api/hr/employees/route.ts
+// Plus besoin de garder dans apps/site
+
+// ❌ À SUPPRIMER après migration
+// apps/site/src/app/dashboard/(admin)/hr/... (sera supprimé à terme)
+```
+
+#### 3. APIs Site Public Uniquement
+
+**Si une API est utilisée UNIQUEMENT par le site public** :
+
+```typescript
+// ✅ BON - Garder dans apps/site
+// apps/site/src/app/api/contact/route.ts
+// apps/site/src/app/api/blog/route.ts
+
+// Ne PAS migrer vers apps/admin
+```
+
+---
+
+### 🔧 Renommage de Models - Procédure Obligatoire
+
+**⚠️ CRITIQUE** : Quand tu renommes un model (ex: `PromoToken` → `PromoConfig`), tu DOIS mettre à jour **TOUTES** les références dans `apps/site`.
+
+#### Checklist Renommage
+
+```bash
+# Exemple : Renommer PromoToken → PromoConfig
+
+# ✅ 1. Identifier TOUS les fichiers qui utilisent le model
+grep -r "PromoToken" apps/site/src/
+
+# Résultats attendus :
+# apps/site/src/types/promo.ts
+# apps/site/src/app/api/promo/route.ts
+# apps/site/src/app/dashboard/promo/page.tsx
+# apps/site/src/components/promo/PromoCard.tsx
+
+# ✅ 2. Mettre à jour CHAQUE fichier trouvé
+
+# apps/site/src/types/promo.ts
+- export interface PromoToken {
++ export interface PromoConfig {
+    id: string
+    token: string
+    // ...
+  }
+
+# apps/site/src/app/api/promo/route.ts
+- import { PromoToken } from '@/types/promo'
++ import { PromoConfig } from '@/types/promo'
+
+- const promo: PromoToken = await getPromo()
++ const promo: PromoConfig = await getPromo()
+
+# apps/site/src/app/dashboard/promo/page.tsx
+- import type { PromoToken } from '@/types/promo'
++ import type { PromoConfig } from '@/types/promo'
+
+# apps/site/src/components/promo/PromoCard.tsx
+- interface PromoCardProps {
+-   promo: PromoToken
++ interface PromoCardProps {
++   promo: PromoConfig
+  }
+
+# ✅ 3. Vérifier que tout compile
+cd apps/site
+pnpm type-check  # Aucune erreur TypeScript
+
+# ✅ 4. Tester visuellement
+pnpm dev
+# Tester les pages qui utilisent le model renommé
+```
+
+#### Zones à Vérifier Systématiquement
+
+Quand tu renommes un model, vérifie **TOUTES** ces zones dans `apps/site` :
+
+1. **Types** (`/types/`) :
+   ```typescript
+   // types/promo.ts
+   export interface PromoConfig { /* ... */ }
+   export type PromoStatus = 'active' | 'expired'
+   ```
+
+2. **API Routes** (`/app/api/`) :
+   ```typescript
+   // app/api/promo/route.ts
+   import { PromoConfig } from '@/types/promo'
+   ```
+
+3. **Pages** (`/app/(site)/` ET `/app/dashboard/`) :
+   ```typescript
+   // app/dashboard/promo/page.tsx
+   import type { PromoConfig } from '@/types/promo'
+   ```
+
+4. **Composants** (`/components/`) :
+   ```typescript
+   // components/promo/PromoCard.tsx
+   interface PromoCardProps {
+     promo: PromoConfig
+   }
+   ```
+
+5. **Hooks** (`/hooks/`) :
+   ```typescript
+   // hooks/usePromo.ts
+   const [promo, setPromo] = useState<PromoConfig | null>(null)
+   ```
+
+6. **Utils/Helpers** (`/lib/`) :
+   ```typescript
+   // lib/promo-utils.ts
+   export function formatPromo(promo: PromoConfig) { /* ... */ }
+   ```
+
+---
+
+### 💾 Préservation de la Structure des Models
+
+**⚠️ IMPORTANT** : Préserver la structure/composition des models pour permettre l'import des données depuis la MongoDB d'origine.
+
+#### Pourquoi Préserver la Structure ?
+
+```typescript
+// ❌ MAUVAIS - Changer la structure casse l'import de données
+// MongoDB d'origine
+{
+  _id: ObjectId("..."),
+  token: "PROMO2024",
+  discountPercent: 20,
+  expiresAt: ISODate("2024-12-31")
+}
+
+// Nouveau model incompatible
+interface PromoConfig {
+  id: string
+  promoCode: string  // ❌ Renommé de "token" → casse l'import
+  discount: {        // ❌ Structure changée → casse l'import
+    type: 'percent'
+    value: number
+  }
+  validUntil: string // ❌ Renommé de "expiresAt" → casse l'import
+}
+
+// ✅ BON - Structure préservée + nouveaux champs optionnels
+interface PromoConfig {
+  id: string
+  token: string           // ✅ Même nom qu'avant
+  discountPercent: number // ✅ Même nom qu'avant
+  expiresAt: Date | string // ✅ Même nom qu'avant
+
+  // Nouveaux champs optionnels OK
+  description?: string
+  maxUses?: number
+  usedCount?: number
+}
+```
+
+#### Règles de Préservation
+
+1. **Noms de champs** : Garder les mêmes noms que dans la BD d'origine
+2. **Types de base** : Conserver les types compatibles (string, number, Date)
+3. **Champs optionnels** : OK d'ajouter des champs `?` optionnels
+4. **Validation** : Valider les données à l'import, pas changer la structure
+
+```typescript
+// ✅ BON - Préservation + extension
+interface Employee {
+  // Champs d'origine (préservés)
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+
+  // Nouveaux champs (optionnels)
+  employeeRole?: 'Manager' | 'Assistant manager' | 'Employé polyvalent'
+  contractType?: 'CDI' | 'CDD' | 'Stage' | 'Alternance'
+  onboardingCompleted?: boolean
+
+  // Transformation OK en méthodes/getters, pas dans le type de base
+  get fullName() { return `${this.firstName} ${this.lastName}` }
+}
+```
+
+#### Migration de Données avec Structure Préservée
+
+```typescript
+// Script de migration (si nécessaire)
+async function migratePromoData() {
+  // Connexion à la BD d'origine
+  const oldPromos = await OldDB.collection('promos').find().toArray()
+
+  // Import direct car structure préservée
+  for (const oldPromo of oldPromos) {
+    await PromoConfig.create({
+      id: oldPromo._id.toString(),
+      token: oldPromo.token,         // ✅ Même nom
+      discountPercent: oldPromo.discountPercent, // ✅ Même nom
+      expiresAt: oldPromo.expiresAt, // ✅ Même nom
+
+      // Nouveaux champs avec valeurs par défaut
+      description: oldPromo.description || '',
+      maxUses: oldPromo.maxUses || null,
+      usedCount: 0,
+    })
+  }
+}
+```
+
+---
+
+### 🎨 Nettoyage des Assets (SCSS, Images, Fonts)
+
+**⚠️ IMPORTANT** : Toujours vérifier et nettoyer les assets dans `apps/site/src/assets/site/` après migration d'un module.
+
+#### Workflow de Vérification des Assets
+
+```bash
+# 1. Chercher tous les assets du module
+find apps/site/src/assets/site -name "*[module-name]*"
+
+# Exemple pour module promo :
+find apps/site/src/assets/site -name "*promo*"
+# Résultat : src/assets/site/scss/_components/_promo.scss
+```
+
+#### Pour Chaque Asset Trouvé
+
+```bash
+# 2. Vérifier s'il est utilisé par le site public
+grep -r "class-name\|file-reference" apps/site/src/app/\(site\)/
+
+# Exemple pour _promo.scss :
+grep -r "card-promo\|btn-scan" apps/site/src/app/\(site\)/
+# → Si résultats : CONSERVÉ (utilisé par pages publiques)
+# → Si vide : SUPPRIMER (uniquement dashboard)
+```
+
+#### Catégories d'Assets à Vérifier
+
+1. **SCSS** (`src/assets/site/scss/`)
+   ```bash
+   # Components
+   find src/assets/site/scss/_components -name "*[module]*"
+
+   # Pages
+   find src/assets/site/scss/_pages -name "*[module]*"
+   ```
+
+2. **Images** (`public/images/` ou `src/assets/site/images/`)
+   ```bash
+   find public/images -name "*[module]*"
+   ```
+
+3. **Fonts** (`src/assets/site/font/`)
+   ```bash
+   find src/assets/site/font -name "*[module]*"
+   ```
+
+#### Décision : Conserver ou Supprimer ?
+
+| Asset | Utilisé par Site Public ? | Utilisé par Dashboard ? | Action |
+|-------|---------------------------|-------------------------|--------|
+| `_promo.scss` | ✅ Oui (`/scan`, `/promo/[token]`) | ❌ Non | ✅ **CONSERVER** |
+| `_dashboard-promo.scss` | ❌ Non | ✅ Oui | ❌ **SUPPRIMER** |
+| `promo-icon.svg` | ✅ Oui | ✅ Oui | ✅ **CONSERVER** |
+| `admin-promo-bg.jpg` | ❌ Non | ✅ Oui | ❌ **SUPPRIMER** |
+
+**Règle** : Si l'asset est utilisé par **AU MOINS UNE** page publique → CONSERVER
+
+#### Exemple Complet : Module Promo
+
+```bash
+# 1. Chercher assets promo
+find src/assets/site -name "*promo*"
+# → src/assets/site/scss/_components/_promo.scss
+
+# 2. Vérifier usage
+grep -r "card-promo\|btn-scan" src/app/\(site\)/
+# → src/app/(site)/scan/page.tsx: className="btn btn-scan"
+# → src/app/(site)/promo/[token]/page.tsx: className="card-promo"
+
+# 3. Décision : CONSERVÉ ✅
+# Raison : Classes utilisées par pages publiques /scan et /promo/[token]
+
+# 4. Documenter dans MIGRATION_STATUS.md
+echo "Assets vérifiés : _promo.scss CONSERVÉ (site public)" >> docs/MIGRATION_STATUS.md
+```
+
+---
+
+### 📋 Workflow de Migration d'un Module avec APIs Partagées
+
+#### Étape 1 : Analyser les APIs du Module
+
+```bash
+# Identifier les APIs utilisées par le module
+grep -r "fetch('/api" apps/site/src/app/dashboard/promo/
+grep -r "fetch('/api" apps/site/src/app/(site)/
+
+# Exemple de résultat :
+# apps/site/src/app/dashboard/promo/page.tsx: fetch('/api/promo/current')
+# apps/site/src/app/(site)/scan/page.tsx: fetch('/api/promo/current-token')
+```
+
+**Classification** :
+- `/api/promo/current` → Utilisé par dashboard ET site public → **API partagée**
+- `/api/promo/admin` → Utilisé par dashboard uniquement → **API à migrer**
+
+#### Étape 2 : Décider de la Stratégie
+
+**Pour APIs partagées** :
+
+```markdown
+## API: /api/promo/current-token
+
+**Utilisée par** :
+- Site public : /scan/page.tsx
+- Dashboard : /dashboard/promo/page.tsx
+
+**Décision** : Garder dans apps/site ET créer dans apps/admin avec structure identique
+
+**Structure de réponse à préserver** :
+```typescript
+interface PromoResponse {
+  success: boolean
+  data: {
+    token: string
+    discountPercent: number
+    expiresAt: string
+  }
+}
+```
+```
+
+#### Étape 3 : Migrer le Module
+
+```bash
+# 1. Créer le model dans apps/admin (structure préservée)
+mkdir -p apps/admin/src/models/promoConfig
+touch apps/admin/src/models/promoConfig/{index,document,methods}.ts
+
+# 2. Créer les types dans apps/admin (compatibles avec site)
+touch apps/admin/src/types/promo.ts
+
+# 3. Créer les APIs dans apps/admin
+mkdir -p apps/admin/src/app/api/promo
+touch apps/admin/src/app/api/promo/route.ts
+
+# 4. SI le model a été renommé → Mettre à jour apps/site
+# Voir "Checklist Renommage" ci-dessus
+
+# 5. Nettoyer les assets du module dans apps/site
+# Vérifier et supprimer assets non utilisés par site public
+find apps/site/src/assets/site -name "*[module]*"
+# Pour chaque asset trouvé :
+#   - Si utilisé par site public → CONSERVER
+#   - Si utilisé uniquement par dashboard → SUPPRIMER
+
+# 6. Vérifier que les deux apps compilent
+cd apps/site && pnpm type-check
+cd apps/admin && pnpm type-check
+```
+
+#### Étape 4 : Validation
+
+```bash
+# Test apps/admin
+cd apps/admin
+pnpm dev
+# Tester les pages du module migré
+
+# Test apps/site
+cd apps/site
+pnpm dev
+# Tester que les pages site public fonctionnent toujours
+# Tester que les pages dashboard fonctionnent toujours (si pas encore supprimées)
+```
+
+---
+
+### ✅ Checklist Migration avec APIs Partagées
+
+Avant de commencer la migration d'un module :
+
+- [ ] J'ai identifié TOUTES les APIs utilisées par le module
+- [ ] J'ai classifié chaque API (partagée / dashboard only / site only)
+- [ ] Pour APIs partagées : J'ai décidé de la stratégie (packages/database ou compatibilité)
+- [ ] J'ai vérifié si le model existe déjà dans la BD d'origine
+- [ ] J'ai documenté la structure actuelle du model
+- [ ] Si renommage : J'ai une liste complète des fichiers à modifier dans apps/site
+- [ ] J'ai un plan de migration de données (si nécessaire)
+
+Pendant la migration :
+
+- [ ] Structure du model préservée (mêmes noms de champs)
+- [ ] Types compatibles entre apps/site et apps/admin
+- [ ] APIs partagées ont la même structure de réponse
+- [ ] Tous les imports mis à jour dans apps/site
+- [ ] Assets vérifiés dans `apps/site/src/assets/site/` (SCSS, images, fonts)
+- [ ] Assets dashboard supprimés, assets site public conservés
+- [ ] `pnpm type-check` passe dans apps/site
+- [ ] `pnpm type-check` passe dans apps/admin
+- [ ] Tests visuels site public (pages qui utilisent l'API)
+- [ ] Tests visuels admin (nouvelles pages migrées)
+
+Après la migration :
+
+- [ ] Documentation mise à jour (ce CLAUDE.md)
+- [ ] Commit avec message descriptif
+- [ ] Note dans apps/site/CLAUDE.md si APIs partagées
+- [ ] Planning de suppression du code dashboard dans apps/site (optionnel)
+
+---
+
 ## 🚀 Migration depuis `/apps/site/`
 
 ### ⚠️ PHILOSOPHIE DE MIGRATION - IMPORTANT
@@ -1176,6 +1670,19 @@ Avant de commencer une nouvelle feature :
 - Tableau de bord complet
 
 **Total estimé** : 8 jours de développement
+
+---
+
+### 📊 Suivi de Migration
+
+**Consulter le fichier** : `/apps/admin/docs/MIGRATION_STATUS.md`
+
+Ce fichier contient :
+- ✅ Status de tous les modules (migrés / à faire)
+- 📋 Liste des APIs conservées dans apps/site (partagées avec site public)
+- 🗓️ Dates de migration et commits
+- 📝 Notes importantes par module
+- 🎯 Plan de suppression finale du dashboard site
 
 ---
 
