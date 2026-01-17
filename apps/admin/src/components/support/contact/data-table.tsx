@@ -20,6 +20,7 @@ interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   data: TData[];
   onView?: (message: ContactMail) => void;
+  onReply?: (message: ContactMail) => void;
   onDelete?: (id: string) => void;
 }
 
@@ -30,6 +31,7 @@ export function DataTable<TData extends ContactMail>({
   columns,
   data,
   onView,
+  onReply,
   onDelete,
 }: DataTableProps<TData>) {
   const table = useReactTable({
@@ -38,6 +40,7 @@ export function DataTable<TData extends ContactMail>({
     getCoreRowModel: getCoreRowModel(),
     meta: {
       onView,
+      onReply,
       onDelete,
     },
   });
@@ -65,7 +68,11 @@ export function DataTable<TData extends ContactMail>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => onView?.(row.original)}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

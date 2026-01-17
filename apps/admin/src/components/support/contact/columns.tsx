@@ -103,6 +103,7 @@ export const columns: ColumnDef<ContactMail>[] = [
     cell: ({ row, table }) => {
       const meta = table.options.meta as {
         onView?: (message: ContactMail) => void;
+        onReply?: (message: ContactMail) => void;
         onDelete?: (id: string) => void;
       };
 
@@ -111,14 +112,20 @@ export const columns: ColumnDef<ContactMail>[] = [
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => meta?.onView?.(row.original)}
+            onClick={(e) => {
+              e.stopPropagation();
+              meta?.onReply?.(row.original);
+            }}
           >
             <Mail className="w-4 h-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => meta?.onDelete?.(row.original.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              meta?.onDelete?.(row.original.id);
+            }}
           >
             <Trash2 className="w-4 h-4 text-destructive" />
           </Button>

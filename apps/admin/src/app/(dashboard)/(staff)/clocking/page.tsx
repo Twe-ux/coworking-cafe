@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import TimeTrackingCard from '@/components/clocking/TimeTrackingCard'
-import { LoadingSkeleton } from '@/components/ui/loading-skeleton'
+import { StaffClockingPageSkeleton } from './StaffClockingPageSkeleton'
 import { ErrorDisplay } from '@/components/ui/error-display'
 import { Clock } from 'lucide-react'
 import type { Employee } from '@/types/hr'
@@ -40,7 +40,7 @@ export default function ClockingPage() {
   }
 
   if (isLoading) {
-    return <LoadingSkeleton variant="page" count={4} />
+    return <StaffClockingPageSkeleton />
   }
 
   if (error) {

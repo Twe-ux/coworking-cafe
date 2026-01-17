@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +12,23 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import type { ContactMail } from "@/types/contactMail";
-import { Mail, Phone, Calendar, User, Archive, Trash2, Send, Reply } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  Calendar,
+  User,
+  Archive,
+  Trash2,
+  Send,
+  Reply,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ContactMessageDialogProps {
   open: boolean;
   onClose: () => void;
   message: ContactMail | null;
+  openInReplyMode?: boolean;
   onUpdate: () => void;
 }
 
@@ -29,11 +39,22 @@ export function ContactMessageDialog({
   open,
   onClose,
   message,
+  openInReplyMode = false,
   onUpdate,
 }: ContactMessageDialogProps) {
   const [reply, setReply] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
+
+  // Ouvrir automatiquement le formulaire de réponse si demandé
+  useEffect(() => {
+    if (open && openInReplyMode && message?.status !== "replied") {
+      setShowReplyForm(true);
+    } else if (!open) {
+      setShowReplyForm(false);
+      setReply("");
+    }
+  }, [open, openInReplyMode, message?.status]);
 
   if (!message) return null;
 
@@ -150,13 +171,14 @@ export function ContactMessageDialog({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>Détails du message</span>
-            <Badge variant="outline" className={cn(config.className)}>
-              {config.label}
-            </Badge>
-          </DialogTitle>
+        <DialogHeader className="relative">
+          <DialogTitle>Détails du message</DialogTitle>
+          <Badge
+            variant="outline"
+            className={cn("absolute top-0 right-10", config.className)}
+          >
+            {config.label}
+          </Badge>
         </DialogHeader>
 
         {/* Boutons d'actions */}

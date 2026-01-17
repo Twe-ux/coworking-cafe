@@ -35,6 +35,7 @@ export function ContactPageClient() {
     null
   );
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [openInReplyMode, setOpenInReplyMode] = useState(false);
 
   const { messages, loading, stats, fetchMessages } =
     useContactMessages(statusFilter);
@@ -42,6 +43,31 @@ export function ContactPageClient() {
   const handleView = async (message: ContactMail) => {
     setSelectedMessage(message);
     setDialogOpen(true);
+    setOpenInReplyMode(false);
+
+    if (message.status === "unread") {
+      try {
+        const response = await fetch(`/api/support/contact/${message.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "read" }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          fetchMessages();
+        }
+      } catch (error) {
+        console.error("Error marking as read:", error);
+      }
+    }
+  };
+
+  const handleReply = async (message: ContactMail) => {
+    setSelectedMessage(message);
+    setDialogOpen(true);
+    setOpenInReplyMode(true);
 
     if (message.status === "unread") {
       try {
@@ -180,6 +206,7 @@ export function ContactPageClient() {
             columns={columns}
             data={messages}
             onView={handleView}
+            onReply={handleReply}
             onDelete={handleDelete}
           />
         </CardContent>
@@ -188,8 +215,12 @@ export function ContactPageClient() {
       {/* Dialog */}
       <ContactMessageDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => {
+          setDialogOpen(false);
+          setOpenInReplyMode(false);
+        }}
         message={selectedMessage}
+        openInReplyMode={openInReplyMode}
         onUpdate={fetchMessages}
       />
     </div>

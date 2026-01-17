@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import TimeEntriesList from "@/components/clocking/TimeEntriesList";
-import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
+import { ClockingAdminPageSkeleton } from "./ClockingAdminPageSkeleton";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { Button } from "@/components/ui/button";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
@@ -59,7 +59,7 @@ export default function ClockingAdminPage() {
   };
 
   if (isLoading) {
-    return <LoadingSkeleton variant="table" count={8} />;
+    return <ClockingAdminPageSkeleton />;
   }
 
   if (error) {

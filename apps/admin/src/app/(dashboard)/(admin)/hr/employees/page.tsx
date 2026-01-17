@@ -5,7 +5,7 @@ import { ContractGenerationModal } from "@/components/hr/contract/ContractGenera
 import { EmployeeList } from "@/components/hr/employees";
 import { DraftCard } from "@/components/hr/employees/DraftCard";
 import { EndContractModal } from "@/components/hr/modals/EndContractModal";
-import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
+import { HREmployeesPageSkeleton } from "./HREmployeesPageSkeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDrafts } from "@/hooks/hr/useDrafts";
 import { useEmployeesData } from "@/hooks/hr/useEmployeesData";
@@ -68,7 +68,7 @@ function HRManagementContent() {
 
   // Loading state
   if (!session) {
-    return <LoadingSkeleton variant="card" count={6} />;
+    return <HREmployeesPageSkeleton />;
   }
 
   // Handlers
@@ -285,7 +285,7 @@ function HRManagementContent() {
  */
 export default function HRManagementPage() {
   return (
-    <Suspense fallback={<LoadingSkeleton variant="card" count={6} />}>
+    <Suspense fallback={<HREmployeesPageSkeleton />}>
       <HRManagementContent />
     </Suspense>
   );
