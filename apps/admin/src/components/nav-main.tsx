@@ -28,9 +28,11 @@ export function NavMain({
     url: string;
     icon: LucideIcon;
     isActive?: boolean;
+    badge?: number;
     items?: {
       title: string;
       url: string;
+      badge?: number;
     }[];
   }[];
 }) {
@@ -66,13 +68,27 @@ export function NavMain({
             open={openItems[item.title] ?? item.isActive}
             onOpenChange={(isOpen) => handleOpenChange(item.title, isOpen)}
           >
-            <SidebarMenuItem>
+            <SidebarMenuItem className="relative">
               <SidebarMenuButton asChild tooltip={item.title}>
                 <a href={item.url} onClick={handleLinkClick}>
                   <item.icon />
                   <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>
+
+              {/* Point rouge sur l'icône quand sidebar fermée */}
+              {item.badge && item.badge > 0 && state === "collapsed" && (
+                <span className="absolute top-2 left-6 h-2 w-2 rounded-full bg-red-500 border border-background z-10" />
+              )}
+
+              {/* Pastille rouge quand sidebar ouverte ET menu fermé - positionnée AVANT le chevron */}
+              {item.badge && item.badge > 0 && state === "expanded" && !openItems[item.title] && (
+                <span
+                  className="absolute top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-red-500"
+                  style={{ right: item.items?.length ? '2.5rem' : '0.5rem' }}
+                />
+              )}
+
               {item.items?.length ? (
                 <>
                   <CollapsibleTrigger asChild>
@@ -86,8 +102,12 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <a href={subItem.url} onClick={handleLinkClick}>
+                            <a href={subItem.url} onClick={handleLinkClick} className="flex items-center">
                               <span>{subItem.title}</span>
+                              {/* Badge sur le sous-item quand menu ouvert - juste après le texte */}
+                              {subItem.badge && subItem.badge > 0 && (
+                                <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
+                              )}
                             </a>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

@@ -1,10 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Mail, MessageSquare, HeadphonesIcon } from "lucide-react";
 import Link from "next/link";
+import { useUnreadContactMessages } from "@/hooks/useUnreadContactMessages";
 
 export default function SupportPage() {
+  const { unreadCount } = useUnreadContactMessages();
   return (
     <div className="space-y-8">
       <div className="px-4 md:px-0">
@@ -15,7 +18,7 @@ export default function SupportPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 px-4 md:px-0">
-        <Link href="/support/contact">
+        <Link href="/support/contact" className="relative">
           <Button
             variant="outline"
             className="h-32 w-full flex flex-col gap-2 hover:bg-accent"
@@ -26,6 +29,11 @@ export default function SupportPage() {
               Gérer les demandes de contact
             </span>
           </Button>
+          {unreadCount > 0 && (
+            <span className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 flex items-center justify-center">
+              <span className="text-xs font-bold text-white">{unreadCount}</span>
+            </span>
+          )}
         </Link>
 
         {/* Placeholder pour futures sections */}

@@ -22,6 +22,29 @@ const sourceCodePro = Source_Code_Pro({
 export const metadata: Metadata = {
   title: "CoworKing Café Admin",
   description: "Administration CoworKing Café",
+  // PWA Configuration
+  manifest: '/manifest.json',
+  themeColor: '#000000',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'CWC Admin',
+  },
+  icons: {
+    icon: [
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+  },
 }
 
 export default function RootLayout({

@@ -22,9 +22,11 @@ export interface NavigationItem {
   title: string;
   url: string;
   icon: LucideIcon;
+  badge?: number; // Nombre de notifications (pour afficher pastille rouge)
   items?: {
     title: string;
     url: string;
+    badge?: number; // Badge sur le sous-item
   }[];
 }
 
