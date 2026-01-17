@@ -709,6 +709,34 @@ export function useEmployees(options: UseEmployeesOptions = {}): UseEmployeesRet
 
 ## 🚀 Migration depuis `/apps/site/`
 
+### ⚠️ PHILOSOPHIE DE MIGRATION - IMPORTANT
+
+**Ce n'est PAS un copier-coller !**
+
+La migration d'un module de `/apps/site/` vers `/apps/admin/` est une **RÉÉCRITURE COMPLÈTE** avec les bonnes pratiques :
+
+```
+❌ MAUVAISE APPROCHE          ✅ BONNE APPROCHE
+────────────────────────      ────────────────────────
+1. Copier le code             1. ANALYSER le code source
+2. Coller dans admin          2. COMPRENDRE la logique métier
+3. Ajuster les imports        3. IDENTIFIER les problèmes
+                              4. RÉÉCRIRE proprement dans admin
+                              5. RESPECTER les conventions strictes
+```
+
+**Pourquoi réécrire ?**
+- 🎯 Éliminer les `any` types
+- 🎯 Découper les fichiers > 200 lignes
+- 🎯 Utiliser la structure modulaire (models, types, helpers)
+- 🎯 Appliquer les patterns de sécurité (`requireAuth()`)
+- 🎯 Normaliser les formats de dates (strings)
+- 🎯 Utiliser Tailwind + shadcn/ui au lieu de Bootstrap
+
+**Résultat attendu** : Code propre, maintenable, et conforme aux standards de `/apps/admin/`.
+
+---
+
 ### Workflow de Migration d'un Module
 
 Quand tu veux migrer un module de `/apps/site/src/app/dashboard/` vers `/apps/admin/` :
@@ -1076,35 +1104,90 @@ Avant de commencer une nouvelle feature :
 
 ---
 
-## 🚀 Prochaines Étapes
+## 🚀 Prochaines Étapes - Modules à Migrer
 
-**Modules à migrer depuis `/apps/site/`** (par priorité) :
+**Modules prioritaires à migrer depuis `/apps/site/`** :
 
-1. **Booking** (réservations + calendrier)
-   - Estimation : 2 jours
-   - Complexité : Moyenne
-   - Dépendances : Space (à créer)
+### 1. 📅 Booking (Réservations + Calendrier)
+- **Priorité** : Haute 🔴
+- **Estimation** : 2 jours
+- **Complexité** : Moyenne
+- **Dépendances** :
+  - Space (espaces) - à créer
+  - Client (utilisateurs) - à créer
+  - Stripe (paiements) - déjà intégré
+- **Models à créer** :
+  - `Booking` (réservation)
+  - `Space` (espace coworking)
+  - `TimeSlot` (créneaux horaires)
 
-2. **Messages** (chat interne)
-   - Estimation : 3 jours
-   - Complexité : Élevée
-   - Dépendances : WebSockets, Notifications
+### 2. 💬 Messages (Messagerie Interne)
+- **Priorité** : Moyenne 🟡
+- **Estimation** : 3 jours
+- **Complexité** : Élevée
+- **Dépendances** :
+  - WebSockets (temps réel)
+  - Notifications push
+  - Employee (déjà créé ✅)
+  - Client (à créer)
+- **Models à créer** :
+  - `Message` (message)
+  - `Conversation` (conversation)
+  - `Notification` (notification)
 
-3. **Settings** (espaces, horaires)
-   - Estimation : 1 jour
-   - Complexité : Faible
-   - Dépendances : Aucune
+### 3. ⚙️ Settings (Espaces, Horaires, Configuration)
+- **Priorité** : Moyenne 🟡
+- **Estimation** : 1 jour
+- **Complexité** : Faible
+- **Dépendances** : Aucune
+- **Models à créer** :
+  - `Space` (si pas déjà créé avec Booking)
+  - `OpeningHours` (horaires d'ouverture)
+  - `Config` (configuration générale)
 
-4. **Analytics Avancées**
-   - Estimation : 2 jours
-   - Complexité : Moyenne
-   - Dépendances : Recharts, APIs stats
+### 4. 📊 Analytics Avancées
+- **Priorité** : Basse 🟢
+- **Estimation** : 2 jours
+- **Complexité** : Moyenne
+- **Dépendances** :
+  - Recharts (graphiques)
+  - APIs stats (déjà existantes)
+  - Tous les models existants (pour agréger les données)
+- **Models à créer** : Aucun (utilise les models existants)
 
-**Pour chaque module** :
-- Suivre le workflow de migration (ci-dessus)
-- Respecter TOUTES les conventions
-- Tester avant de commit
-- Mettre à jour ce CLAUDE.md si nouveaux patterns
+---
+
+### 📋 Ordre de Migration Recommandé
+
+**Phase 1** : Booking (2 jours)
+- Crée les bases : Space, TimeSlot, Booking
+- Permet de gérer les réservations depuis admin
+
+**Phase 2** : Settings (1 jour)
+- Simplifie la configuration des espaces
+- Utilise les models créés en Phase 1
+
+**Phase 3** : Messages (3 jours)
+- Plus complexe, nécessite WebSockets
+- Peut attendre que les autres modules soient stables
+
+**Phase 4** : Analytics (2 jours)
+- En dernier, car utilise tous les autres models
+- Tableau de bord complet
+
+**Total estimé** : 8 jours de développement
+
+---
+
+### ✅ Pour Chaque Module Migré
+
+- [ ] Suivre le workflow de migration (section ci-dessus)
+- [ ] Respecter TOUTES les conventions strictes
+- [ ] RÉÉCRIRE (pas copier-coller)
+- [ ] Tester manuellement (`TESTING_CHECKLIST.md`)
+- [ ] Build réussi (`pnpm build`)
+- [ ] Commit avec message descriptif
+- [ ] Mettre à jour ce CLAUDE.md si nouveaux patterns
 
 ---
 

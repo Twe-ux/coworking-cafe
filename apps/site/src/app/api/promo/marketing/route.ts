@@ -10,7 +10,9 @@ export async function GET() {
   try {
     const marketing = await promoService.getMarketingContent();
     return NextResponse.json(marketing, { status: 200 });
-  } catch (error) {    return NextResponse.json(
+  } catch (error) {
+    console.error('GET /api/promo/marketing error:', error);
+    return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
     );

@@ -71,7 +71,7 @@ export default function HROverviewPage() {
   const draftEmployees = employees.filter((e) => e.status === "draft").length;
 
   return (
-    <div className="space-y-6 px-6 md:px-0">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Gestion RH</h1>
         <p className="text-muted-foreground">

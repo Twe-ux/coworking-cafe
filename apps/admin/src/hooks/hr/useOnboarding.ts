@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import type {
   OnboardingData,
   OnboardingStep,
@@ -426,11 +427,25 @@ export function useOnboarding(options?: UseOnboardingOptions) {
           }
         }
 
+        // Afficher un toast de succès en mode création
+        if (mode === 'create') {
+          toast.success('Employé créé avec succès', {
+            description: 'Le processus d\'onboarding est terminé'
+          })
+        }
+
         // Retourner l'employé créé au lieu de rediriger
         return result.data
       } catch (err: any) {
-        setError(err.message || 'Une erreur est survenue')
+        const errorMessage = err.message || 'Une erreur est survenue'
+        setError(errorMessage)
         setLoading(false)
+
+        // Afficher un toast d'erreur
+        toast.error('Erreur lors de la création', {
+          description: errorMessage
+        })
+
         return null
       }
     },

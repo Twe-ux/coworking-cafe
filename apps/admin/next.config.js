@@ -5,6 +5,15 @@ const nextConfig = {
   experimental: {
     instrumentationHook: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+    ],
+  },
   eslint: {
     // Disable ESLint during build (can be run separately with `pnpm lint`)
     ignoreDuringBuilds: true,

@@ -12,6 +12,7 @@ import {
   Terminal,
   UserCog,
   Users,
+  ScanQrCode,
   Warehouse,
   type LucideIcon,
 } from "lucide-react";
@@ -40,6 +41,7 @@ interface Permissions {
   canViewBlog: boolean;
   canViewOwnSchedule: boolean;
   canUseMessages: boolean;
+  canViewPromo: boolean;
   canAccessDevTools: boolean;
 }
 
@@ -55,6 +57,15 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
       title: "Accueil",
       url: "/",
       icon: Home,
+    });
+  }
+
+  // Analytics (dev + admin) - TODO: à implémenter
+  if (permissions.canViewAnalytics) {
+    items.push({
+      title: "Analytics",
+      url: "/analytics",
+      icon: BarChart,
     });
   }
 
@@ -99,15 +110,6 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
-  // Analytics (dev + admin) - TODO: à implémenter
-  if (permissions.canViewAnalytics) {
-    items.push({
-      title: "Analytics",
-      url: "/analytics",
-      icon: BarChart,
-    });
-  }
-
   // Comptabilité (dev + admin) - TODO: à implémenter
   if (permissions.canViewAccounting) {
     items.push({
@@ -127,12 +129,53 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
+  // Promo (tous)
+  if (permissions.canViewPromo) {
+    items.push({
+      title: "Promo",
+      url: "/promo",
+      icon: ScanQrCode,
+    });
+  }
+
+  // Dev Tools (dev only) - TODO: à implémenter
+  if (permissions.canAccessDevTools) {
+    items.push({
+      title: "Dev Tools",
+      url: "/dev",
+      icon: Terminal,
+      items: [
+        {
+          title: "Logs",
+          url: "/dev/logs",
+        },
+        {
+          title: "Debug",
+          url: "/dev/debug",
+        },
+        {
+          title: "Database",
+          url: "/dev/database",
+        },
+      ],
+    });
+  }
+
   // Utilisateurs (dev + admin) - TODO: à implémenter
   if (permissions.canViewUsers) {
     items.push({
       title: "Utilisateurs",
       url: "/users",
       icon: Users,
+    });
+  }
+
+  // Messages (tous) - TODO: à implémenter
+  if (permissions.canUseMessages) {
+    items.push({
+      title: "Messages",
+      url: "/messages",
+      icon: MessageSquare,
     });
   }
 
@@ -213,38 +256,6 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
         {
           title: "Commentaires",
           url: "/blog/comments",
-        },
-      ],
-    });
-  }
-
-  // Messages (tous) - TODO: à implémenter
-  if (permissions.canUseMessages) {
-    items.push({
-      title: "Messages",
-      url: "/messages",
-      icon: MessageSquare,
-    });
-  }
-
-  // Dev Tools (dev only) - TODO: à implémenter
-  if (permissions.canAccessDevTools) {
-    items.push({
-      title: "Dev Tools",
-      url: "/dev",
-      icon: Terminal,
-      items: [
-        {
-          title: "Logs",
-          url: "/dev/logs",
-        },
-        {
-          title: "Debug",
-          url: "/dev/debug",
-        },
-        {
-          title: "Database",
-          url: "/dev/database",
         },
       ],
     });

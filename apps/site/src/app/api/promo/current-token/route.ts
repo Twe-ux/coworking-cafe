@@ -8,7 +8,9 @@ export async function GET() {
     const token = await promoService.getCurrentToken();
 
     return NextResponse.json({ token }, { status: 200 });
-  } catch (error) {    return NextResponse.json(
+  } catch (error) {
+    console.error('GET /api/promo/current-token error:', error);
+    return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
     );

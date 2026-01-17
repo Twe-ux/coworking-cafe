@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import type { Employee } from "@/types/hr";
 import { filterEmployees } from "@/lib/utils/hr/employee-utils";
 import { EmployeeCard } from "./EmployeeCard";
@@ -53,13 +54,7 @@ export function EmployeeList({
   });
 
   if (loading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-32 animate-pulse rounded-lg bg-gray-200" />
-        ))}
-      </div>
-    );
+    return <LoadingSkeleton variant="card" count={6} />;
   }
 
   return (

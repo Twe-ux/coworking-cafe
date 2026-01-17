@@ -18,7 +18,9 @@ export default function DashboardLayout({
             <DynamicBreadcrumb />
           </div>
         </header>
-        <main className="flex-1 w-full pt-4 pr-0 md:pr-6 md:pl-20">{children}</main>
+        <main className="flex-1 w-full pt-4 pr-0 md:pr-8 md:pl-24 ">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

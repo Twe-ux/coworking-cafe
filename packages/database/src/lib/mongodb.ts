@@ -13,8 +13,15 @@ if (!global.mongoose) {
 }
 
 export async function connectToDatabase() {
-  if (global.mongoose.conn) {
+  // readyState: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  if (global.mongoose.conn && mongoose.connection.readyState === 1) {
     return global.mongoose.conn;
+  }
+
+  // Si déconnecté, on reset tout
+  if (mongoose.connection.readyState === 0) {
+    global.mongoose.conn = null;
+    global.mongoose.promise = null;
   }
 
   if (!process.env.MONGODB_URI) {

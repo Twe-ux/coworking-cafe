@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton'
 import { type Employee } from '@/hooks/useEmployees'
 import type { TimeEntry as SharedTimeEntry } from '@/types/timeEntry'
 import { Calendar, Clock, Download, Filter, Plus, Trash2, Edit2 } from 'lucide-react'
@@ -748,10 +749,7 @@ export default function TimeEntriesList({
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="py-8 text-center">
-              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-              <p className="text-gray-600">Chargement des pointages...</p>
-            </div>
+            <LoadingSkeleton variant="list" count={5} />
           ) : groupedEntries.length === 0 ? (
             <div className="py-8 text-center">
               <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-400" />

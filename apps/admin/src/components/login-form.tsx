@@ -34,17 +34,17 @@ export function LoginForm({
       const result = await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        callbackUrl: "/",
       });
 
+      // Si signIn retourne (pas de redirect), c'est qu'il y a une erreur
       if (result?.error) {
         setError(result.error);
-      } else if (result?.ok) {
-        window.location.href = "/";
+        setLoading(false);
       }
+      // Si pas d'erreur, NextAuth redirige automatiquement
     } catch (error) {
       setError("Une erreur s'est produite lors de la connexion");
-    } finally {
       setLoading(false);
     }
   };

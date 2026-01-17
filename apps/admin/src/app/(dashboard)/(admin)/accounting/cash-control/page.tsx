@@ -5,6 +5,7 @@ import { useCashControl } from "@/hooks/useCashControl";
 import { columns } from "@/components/accounting/cash-control/columns";
 import { DataTable } from "@/components/accounting/cash-control/data-table";
 import { Button } from "@/components/ui/button";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { FileDown } from "lucide-react";
 import { generateCashControlPDF } from "@/lib/pdf/cash-control-pdf";
 import { toast } from "sonner";
@@ -66,11 +67,7 @@ export default function CashControlPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <LoadingSkeleton variant="table" count={12} />;
   }
 
   return (

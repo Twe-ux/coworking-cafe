@@ -8,6 +8,7 @@ import { Step1PersonalInfo } from '@/components/hr/onboarding/Step1PersonalInfo'
 import { Step2ContractInfo } from '@/components/hr/onboarding/Step2ContractInfo'
 import { Step3Availability } from '@/components/hr/onboarding/Step3Availability'
 import { Step4Administrative } from '@/components/hr/onboarding/Step4Administrative'
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton'
 import type { Employee } from '@/types/hr'
 import { toast } from 'sonner'
 
@@ -70,16 +71,7 @@ export default function EditEmployeePage() {
   }, [params.id, router])
 
   if (loading) {
-    return (
-      <div className="container mx-auto py-8 max-w-4xl">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-            <p className="mt-2 text-sm text-muted-foreground">Chargement...</p>
-          </div>
-        </div>
-      </div>
-    )
+    return <LoadingSkeleton variant="page" count={4} />
   }
 
   if (!employee) {

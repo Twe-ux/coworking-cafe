@@ -1,6 +1,7 @@
 "use client";
 
 import EmployeeScheduling from "@/components/employee-scheduling/EmployeeScheduling";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useShifts } from "@/hooks/useShifts";
 
@@ -20,14 +21,7 @@ export default function StaffSchedulePage() {
 
   // Gérer les états de chargement et d'erreur
   if (employeesLoading || shiftsLoading) {
-    return (
-      <div className="space-y-6 p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-32 rounded bg-gray-200"></div>
-          <div className="h-64 rounded bg-gray-200"></div>
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton variant="card" count={4} />;
   }
 
   if (employeesError || shiftsError) {

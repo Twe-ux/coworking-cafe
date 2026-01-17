@@ -3,6 +3,7 @@
 import { DayShiftsModal } from "@/components/schedule/DayShiftsModal";
 import EmployeeMonthlyCard from "@/components/schedule/EmployeeMonthlyCard";
 import { ShiftModal } from "@/components/schedule/ShiftModal";
+import { ScheduleSkeleton } from "@/components/schedule/ScheduleSkeleton";
 import { MonthlyCalendar } from "@/components/shared/calendar";
 import { useShifts } from "@/hooks/useShifts";
 import type { Shift } from "@/types/shift";
@@ -362,6 +363,11 @@ export default function SchedulePage() {
 
   const isLoading = isLoadingShifts || isLoadingEmployees || isLoadingTimeEntries;
 
+  // Loading state
+  if (isLoading) {
+    return <ScheduleSkeleton />;
+  }
+
   // Helper to normalize date to YYYY-MM-DD string (avoiding timezone issues)
   const formatDateToYMD = (date: Date | string): string => {
     if (typeof date === "string") {
@@ -389,7 +395,7 @@ export default function SchedulePage() {
   });
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -399,11 +405,7 @@ export default function SchedulePage() {
       </div>
 
       {/* Calendar */}
-      {isLoading ? (
-        <div className="flex h-[600px] items-center justify-center">
-          <p className="text-gray-500">Chargement...</p>
-        </div>
-      ) : shiftsError ? (
+      {shiftsError ? (
         <div className="flex h-[600px] items-center justify-center">
           <p className="text-red-500">Erreur: {shiftsError}</p>
         </div>

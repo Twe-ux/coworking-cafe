@@ -960,11 +960,40 @@ Avant de commencer une nouvelle feature :
 ### Migration Future vers Admin
 
 Certains modules du dashboard seront **migrés vers `/apps/admin/`** :
-- HR (ressources humaines) - déjà en cours
-- Gestion utilisateurs admin - à migrer
-- Analytics avancées - à migrer
+- HR (ressources humaines) - déjà migré ✅
+- Booking (réservations) - à migrer 📋
+- Messages (messagerie) - à migrer 📋
+- Settings (espaces, horaires) - à migrer 📋
+- Analytics avancées - à migrer 📋
 
-**Voir `/apps/admin/CLAUDE.md`** pour le workflow de migration.
+#### Préparer un Module pour Migration
+
+**Avant de migrer un module vers `/apps/admin/`**, documente ces informations :
+
+1. **Structure actuelle**
+   ```bash
+   # Lister tous les fichiers du module
+   ls -R src/app/dashboard/[module-name]/
+   ls -R src/components/[module-name]/
+   ```
+
+2. **Dépendances**
+   - Quels autres modules sont utilisés ?
+   - Quels packages externes ?
+   - Quelles APIs externes (Stripe, MongoDB, etc.) ?
+
+3. **Points d'attention**
+   - Fichiers > 200 lignes à découper
+   - Présence de `any` types à corriger
+   - Dates en format ISO à convertir en strings
+   - Code dupliqué à factoriser
+
+4. **Logique métier critique**
+   - Règles de validation importantes
+   - Calculs complexes à ne pas casser
+   - Workflows utilisateur à préserver
+
+**Voir `/apps/admin/CLAUDE.md` section "Migration"** pour le workflow complet de réécriture.
 
 ---
 

@@ -3,13 +3,14 @@
 import { AccessDeniedMessage, RoleGuard } from "@/components/auth/RoleGuard";
 import { Chart } from "@/components/dashboard/Chart";
 import { DashSectionCards } from "@/components/dashboard/DashSectionCards";
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import SwitchWithText from "@/components/dashboard/SwitchWithText";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const permissions = usePermissions();
   const [checked, setChecked] = useState(false); // false = HT, true = TTC
   const [greeting, setGreeting] = useState("");
@@ -25,8 +26,13 @@ export default function DashboardPage() {
   const displayName =
     session?.user?.name || session?.user?.email?.split("@")[0] || "Utilisateur";
 
+  // Afficher le skeleton pendant le chargement
+  if (status === "loading") {
+    return <DashboardSkeleton />;
+  }
+
   return (
-    <div className="flex flex-1 flex-col gap-4 md:gap-6">
+    <div className="flex flex-1 flex-col gap-4 md:gap-6 animate-in fade-in duration-700">
       {/* Bienvenue personnalisée */}
       <div className="px-3 md:px-0">
         <h1 className="mb-2 text-2xl font-bold">

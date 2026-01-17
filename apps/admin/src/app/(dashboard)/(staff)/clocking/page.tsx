@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import TimeTrackingCard from '@/components/clocking/TimeTrackingCard'
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton'
+import { ErrorDisplay } from '@/components/ui/error-display'
 import { Clock } from 'lucide-react'
 import type { Employee } from '@/types/hr'
 
@@ -38,30 +40,11 @@ export default function ClockingPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex h-[600px] items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Chargement...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSkeleton variant="page" count={4} />
   }
 
   if (error) {
-    return (
-      <div className="flex h-[600px] items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-500">{error}</p>
-          <button
-            onClick={fetchEmployees}
-            className="mt-4 rounded bg-primary px-4 py-2 text-white hover:bg-primary/90"
-          >
-            Reessayer
-          </button>
-        </div>
-      </div>
-    )
+    return <ErrorDisplay error={error} onRetry={fetchEmployees} />
   }
 
   return (
