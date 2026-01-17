@@ -14,6 +14,7 @@ import {
   Terminal,
   UserCog,
   Users,
+  UtensilsCrossed,
   Warehouse,
   type LucideIcon,
 } from "lucide-react";
@@ -46,6 +47,8 @@ interface Permissions {
   canUseMessages: boolean;
   canViewPromo: boolean;
   canViewSupportContact: boolean;
+  canViewMenu: boolean;
+  canViewMenuRecipes: boolean;
   canAccessDevTools: boolean;
 }
 
@@ -140,6 +143,39 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
       url: "/promo",
       icon: ScanQrCode,
     });
+  }
+
+  // Menu (dev/admin pour gestion, staff pour recettes)
+  if (permissions.canViewMenu || permissions.canViewMenuRecipes) {
+    const menuItems: NavigationItem = {
+      title: "Menu",
+      url: "/menu",
+      icon: UtensilsCrossed,
+      items: [],
+    };
+
+    // Ajouter les sous-items selon les permissions
+    if (permissions.canViewMenu) {
+      menuItems.items?.push(
+        {
+          title: "Nourriture",
+          url: "/menu/food",
+        },
+        {
+          title: "Boissons",
+          url: "/menu/drinks",
+        }
+      );
+    }
+
+    if (permissions.canViewMenuRecipes) {
+      menuItems.items?.push({
+        title: "Recettes",
+        url: "/menu/recipes",
+      });
+    }
+
+    items.push(menuItems);
   }
 
   // Messages (dev + admin)

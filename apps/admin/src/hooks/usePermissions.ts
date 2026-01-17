@@ -62,6 +62,11 @@ export function usePermissions() {
     // Support & Contact
     canViewSupportContact: isDev || isAdmin,
 
+    // Menu Management
+    canManageMenu: isDev || isAdmin,
+    canViewMenu: isDev || isAdmin,
+    canViewMenuRecipes: isDev || isAdmin || isStaff,
+
     // Role Switcher
     canSwitchRole: isDev,
   };
