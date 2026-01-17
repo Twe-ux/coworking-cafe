@@ -33,18 +33,36 @@
 - Pointage (time tracking)
 
 **Supprimé de apps/site** : ✅ Oui
-- `apps/site/src/app/dashboard/(admin)/hr/`
-- `apps/site/src/components/dashboard/hr/`
-- Toutes les APIs HR
 
-**APIs conservées dans apps/site** : Aucune
+Dashboard :
+- `apps/site/src/app/dashboard/hr/` (clocking, employees, schedule, timesheets - 4 pages)
+
+Composants :
+- `apps/site/src/components/hr/` (17 composants : EmployeeMonthlyStats, TimeEntryRow, ContractTemplate, EmployeeScheduling, ClockingWidget, OnboardingWizard, etc.)
+
+APIs :
+- `apps/site/src/app/api/hr/employees/`
+- `apps/site/src/app/api/hr/shifts/`
+- `apps/site/src/app/api/hr/time-entries/`
+- `apps/site/src/app/api/hr/shift-types/`
+
+Models :
+- `apps/site/src/models/employee/`
+- `apps/site/src/models/shift/`
+- `apps/site/src/models/timeEntry/`
+- `apps/site/src/models/shiftType/`
+
+**APIs conservées dans apps/site** : Aucune (aucune dépendance avec site public)
 
 **Notes** :
 - Module entièrement indépendant
 - Aucune dépendance avec le site public
 - Migration complète réussie
+- Nettoyage complet effectué (dashboard, composants, APIs, models)
 
-**Commit** : `e6bbd69` (docs: add comprehensive CLAUDE.md development guide)
+**Commits** :
+- `e6bbd69` - Migration initiale
+- (en attente) - Nettoyage complet du code HR dans apps/site
 
 ---
 
@@ -97,10 +115,17 @@ apps/site/src/types/promo.ts     # Types partagés
 - ✅ Pages publiques (/scan, /promo/[token]) toujours fonctionnelles
 
 **Fichiers supprimés** :
-```bash
-apps/site/src/app/dashboard/promo/page.tsx
-apps/site/src/app/api/admin/promo/route.ts
-```
+
+Dashboard :
+- `apps/site/src/app/dashboard/promo/page.tsx`
+
+APIs :
+- `apps/site/src/app/api/admin/promo/route.ts`
+
+Models :
+- `apps/site/src/models/promo/` (model local non utilisé)
+
+**Note** : Le service `promo-service.ts` utilise le model depuis `@coworking-cafe/database`, pas le model local qui était obsolète.
 
 **Assets vérifiés** :
 ```bash
