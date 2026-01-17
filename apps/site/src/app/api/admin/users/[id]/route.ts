@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import dbConnect from "@/lib/mongodb";
 
-import { Newsletter, User } from "@coworking-cafe/database";
 import { options } from "@/lib/auth-options";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +22,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 
+    // Connect FIRST
     await dbConnect();
+
+    // Get models AFTER connection (from shared package)
+    const { User, Newsletter } = await import("@coworking-cafe/database");
 
     const { id } = params;
 
