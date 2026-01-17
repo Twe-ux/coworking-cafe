@@ -109,7 +109,7 @@ apps/site/src/app/api/admin/promo/route.ts
 # Classes utilisées : .card-promo, .btn-scan
 ```
 
-**Commit** : (en attente de commit)
+**Commit** : `64e2566` - feat(migration): migrate promo module to admin + cleanup site dashboard
 
 ---
 
