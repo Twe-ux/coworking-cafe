@@ -130,13 +130,20 @@ export function EmployeeCard({
                 {employee.email} • {employee.phone}
               </div>
               <div className="mt-1 flex gap-2">
-                <Badge variant="secondary">{employee.contractType}</Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" className="border-green-600 text-green-700 bg-green-50 font-medium">
+                  {employee.contractType}
+                </Badge>
+                <Badge variant="outline" className="font-medium">
                   {employee.contractualHours ? `${employee.contractualHours}h` : 'N/A'}
                 </Badge>
-                <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+                <Badge
+                  variant="outline"
+                  className="border-green-600 text-green-700 bg-green-50 font-medium"
+                >
+                  {statusBadge.label}
+                </Badge>
                 {employee.employmentStatus === 'waiting' && (
-                  <Badge variant="outline" className="border-orange-500 text-orange-700 bg-orange-50">
+                  <Badge variant="outline" className="border-orange-500 text-orange-700 bg-orange-50 font-medium">
                     En attente
                   </Badge>
                 )}
@@ -178,10 +185,15 @@ export function EmployeeCard({
         {/* Progression intégration */}
         <div className="mt-4">
           <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="text-gray-600">Intégration</span>
-            <span className="font-medium">{onboardingProgress}%</span>
+            <span className="text-gray-600 font-medium">Intégration</span>
+            <span className="font-semibold text-gray-900">{onboardingProgress}%</span>
           </div>
-          <Progress value={onboardingProgress} className="h-2" />
+          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+            <div
+              className="h-full bg-green-500 transition-all duration-300"
+              style={{ width: `${onboardingProgress}%` }}
+            />
+          </div>
         </div>
 
         {/* Alerte employé en attente */}

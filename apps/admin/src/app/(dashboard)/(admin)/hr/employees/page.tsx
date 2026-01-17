@@ -1,33 +1,20 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Calendar, Clock, FileText, CalendarCheck2 } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
-import { useEmployeesData } from "@/hooks/hr/useEmployeesData";
-import { useDrafts } from "@/hooks/hr/useDrafts";
+import { AvailabilityCalendarTab } from "@/components/hr/availability/AvailabilityCalendarTab";
+import { ContractGenerationModal } from "@/components/hr/contract/ContractGenerationModal";
 import { EmployeeList } from "@/components/hr/employees";
 import { DraftCard } from "@/components/hr/employees/DraftCard";
 import { EndContractModal } from "@/components/hr/modals/EndContractModal";
-import { ContractGenerationModal } from "@/components/hr/contract/ContractGenerationModal";
-import { AvailabilityCalendarTab } from "@/components/hr/availability/AvailabilityCalendarTab";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDrafts } from "@/hooks/hr/useDrafts";
+import { useEmployeesData } from "@/hooks/hr/useEmployeesData";
 import type { Employee } from "@/types/hr";
+import { CalendarCheck2, FileText, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
-
-/**
- * Loading fallback component
- */
-function LoadingSpinner() {
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="text-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <p className="mt-2 text-sm text-muted-foreground">Chargement...</p>
-      </div>
-    </div>
-  );
-}
 
 /**
  * HR Management content component (uses useSearchParams)
@@ -81,7 +68,7 @@ function HRManagementContent() {
 
   // Loading state
   if (!session) {
-    return <LoadingSpinner />;
+    return <LoadingSkeleton variant="card" count={6} />;
   }
 
   // Handlers
@@ -182,8 +169,14 @@ function HRManagementContent() {
     }
   };
 
+  const handleTabChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", value);
+    router.push(`/hr/employees?${params.toString()}`);
+  };
+
   return (
-    <div className="container mx-auto space-y-6 p-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Gestion RH</h1>
@@ -193,7 +186,11 @@ function HRManagementContent() {
         </div>
       </div>
 
-      <Tabs value={activeTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="space-y-4"
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="employees" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
@@ -288,7 +285,7 @@ function HRManagementContent() {
  */
 export default function HRManagementPage() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense fallback={<LoadingSkeleton variant="card" count={6} />}>
       <HRManagementContent />
     </Suspense>
   );
