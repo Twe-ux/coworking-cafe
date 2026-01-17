@@ -6,6 +6,7 @@ import {
   FileText,
   Home,
   LifeBuoy,
+  Mail,
   MessageSquare,
   Package,
   Send,
@@ -42,6 +43,7 @@ interface Permissions {
   canViewOwnSchedule: boolean;
   canUseMessages: boolean;
   canViewPromo: boolean;
+  canViewSupportContact: boolean;
   canAccessDevTools: boolean;
 }
 
@@ -135,6 +137,21 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
       title: "Promo",
       url: "/promo",
       icon: ScanQrCode,
+    });
+  }
+
+  // Messages (dev + admin)
+  if (permissions.canViewSupportContact) {
+    items.push({
+      title: "Messages",
+      url: "/support",
+      icon: Mail,
+      items: [
+        {
+          title: "Contact",
+          url: "/support/contact",
+        },
+      ],
     });
   }
 

@@ -1,0 +1,263 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/api/auth';
+import { successResponse, errorResponse } from '@/lib/api/response';
+import { connectMongoose } from '@/lib/mongodb';
+import { ContactMail } from '@/models/contactMail';
+import type { ContactMailResponse, ContactMail as ContactMailType } from '@/types/contactMail';
+import { Resend } from 'resend';
+
+/**
+ * GET /api/support/contact/[id]
+ * Récupère un message de contact par ID
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse<ContactMailResponse>> {
+  // 1. Authentification
+  const authResult = await requireAuth(['dev', 'admin']);
+  if (!authResult.authorized) {
+    return authResult.response as NextResponse<ContactMailResponse>;
+  }
+
+  // 2. Connexion DB
+  await connectMongoose();
+
+  try {
+    // 3. Récupérer le message
+    const messageDoc = await ContactMail.findById(params.id);
+
+    if (!messageDoc) {
+      return errorResponse('Message non trouvé', 'ID invalide', 404);
+    }
+
+    // 4. Transformer les données
+    const data: ContactMailType = {
+      id: messageDoc._id.toString(),
+      name: messageDoc.name,
+      email: messageDoc.email,
+      phone: messageDoc.phone,
+      subject: messageDoc.subject,
+      message: messageDoc.message,
+      status: messageDoc.status,
+      reply: messageDoc.reply,
+      repliedAt: messageDoc.repliedAt ? messageDoc.repliedAt.toISOString() : undefined,
+      repliedBy: messageDoc.repliedBy ? messageDoc.repliedBy.toString() : undefined,
+      userId: messageDoc.userId ? messageDoc.userId.toString() : undefined,
+      createdAt: messageDoc.createdAt.toISOString(),
+      updatedAt: messageDoc.updatedAt.toISOString(),
+    };
+
+    return successResponse(data, 'Message récupéré avec succès');
+  } catch (error) {
+    console.error('GET /api/support/contact/[id] error:', error);
+    return errorResponse(
+      'Erreur lors de la récupération du message',
+      error instanceof Error ? error.message : 'Erreur inconnue'
+    );
+  }
+}
+
+/**
+ * PUT /api/support/contact/[id]
+ * Met à jour le statut ou ajoute une réponse
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse<ContactMailResponse>> {
+  // 1. Authentification
+  const authResult = await requireAuth(['dev', 'admin']);
+  if (!authResult.authorized) {
+    return authResult.response as NextResponse<ContactMailResponse>;
+  }
+
+  // 2. Connexion DB
+  await connectMongoose();
+
+  try {
+    // 3. Parse body
+    const body = await request.json();
+    const { status, reply } = body;
+
+    // 4. Récupérer le message original
+    const message = await ContactMail.findById(params.id);
+
+    if (!message) {
+      return errorResponse('Message non trouvé', 'ID invalide', 404);
+    }
+
+    // 5. Si c'est une réponse
+    if (reply) {
+      // Mettre à jour le message
+      message.status = 'replied';
+      message.reply = reply;
+      message.repliedAt = new Date();
+      if (authResult.session?.user?.id) {
+        message.repliedBy = authResult.session.user.id as any;
+      }
+      await message.save();
+
+      // Envoyer l'email de réponse via Resend
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+        const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #417972 0%, #2d5a54 100%); padding: 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">CoworKing Café</h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Bonjour ${message.name},
+              </p>
+
+              <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Merci de nous avoir contactés. Voici notre réponse à votre message :
+              </p>
+
+              <div style="background-color: #f8f9fa; border-left: 4px solid #417972; padding: 20px; margin: 20px 0; border-radius: 4px;">
+                <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${reply}</p>
+              </div>
+
+              <p style="color: #666; font-size: 14px; line-height: 1.6; margin-top: 30px;">
+                Cordialement,<br>
+                L'équipe CoworKing Café
+              </p>
+
+              <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+
+              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px;">
+                <p style="color: #666; font-size: 12px; margin: 0; margin-bottom: 10px;"><strong>Votre message original :</strong></p>
+                <p style="color: #666; font-size: 12px; margin: 0; white-space: pre-wrap;">${message.message}</p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; font-size: 12px; margin: 0; margin-bottom: 5px;">CoworKing Café</p>
+              <p style="color: #666; font-size: 12px; margin: 0;">Strasbourg, France</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+          `;
+
+        await resend.emails.send({
+          from: fromEmail,
+          to: message.email,
+          subject: `Re: ${message.subject}`,
+          html: htmlContent,
+        });
+
+        console.log('Email envoyé avec succès à:', message.email);
+      } catch (emailError) {
+        console.error('Erreur envoi email:', emailError);
+        // Continue même si l'email échoue
+      }
+    } else if (status) {
+      // Mise à jour simple du statut
+      message.status = status;
+      await message.save();
+    }
+
+    // 6. Retourner le message mis à jour
+    const updatedData: ContactMailType = {
+      id: message._id.toString(),
+      name: message.name,
+      email: message.email,
+      phone: message.phone,
+      subject: message.subject,
+      message: message.message,
+      status: message.status,
+      reply: message.reply,
+      repliedAt: message.repliedAt ? message.repliedAt.toISOString() : undefined,
+      repliedBy: message.repliedBy ? message.repliedBy.toString() : undefined,
+      userId: message.userId ? message.userId.toString() : undefined,
+      createdAt: message.createdAt.toISOString(),
+      updatedAt: message.updatedAt.toISOString(),
+    };
+
+    return successResponse(updatedData, 'Message mis à jour avec succès');
+  } catch (error) {
+    console.error('PUT /api/support/contact/[id] error:', error);
+    return errorResponse(
+      'Erreur lors de la mise à jour du message',
+      error instanceof Error ? error.message : 'Erreur inconnue'
+    );
+  }
+}
+
+/**
+ * DELETE /api/support/contact/[id]
+ * Supprime un message de contact
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse<ContactMailResponse>> {
+  // 1. Authentification
+  const authResult = await requireAuth(['dev', 'admin']);
+  if (!authResult.authorized) {
+    return authResult.response as NextResponse<ContactMailResponse>;
+  }
+
+  // 2. Connexion DB
+  await connectMongoose();
+
+  try {
+    // 3. Supprimer le message
+    const message = await ContactMail.findByIdAndDelete(params.id);
+
+    if (!message) {
+      return errorResponse('Message non trouvé', 'ID invalide', 404);
+    }
+
+    const result: ContactMailType = {
+      id: message._id.toString(),
+      name: message.name,
+      email: message.email,
+      phone: message.phone,
+      subject: message.subject,
+      message: message.message,
+      status: message.status,
+      reply: message.reply,
+      repliedAt: message.repliedAt ? message.repliedAt.toISOString() : undefined,
+      repliedBy: message.repliedBy ? message.repliedBy.toString() : undefined,
+      userId: message.userId ? message.userId.toString() : undefined,
+      createdAt: message.createdAt.toISOString(),
+      updatedAt: message.updatedAt.toISOString(),
+    };
+
+    return successResponse(result, 'Message supprimé avec succès', 200);
+  } catch (error) {
+    console.error('DELETE /api/support/contact/[id] error:', error);
+    return errorResponse(
+      'Erreur lors de la suppression du message',
+      error instanceof Error ? error.message : 'Erreur inconnue'
+    );
+  }
+}

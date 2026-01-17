@@ -1,13 +1,16 @@
-import { Schema, Document, Types } from "mongoose";
+import { Schema, Document, Types } from 'mongoose';
+import type { ContactMailStatus } from '@/types/contactMail';
 
-/** Document of a {@link ContactMail}, as stored in the database. */
+/**
+ * Interface Mongoose pour ContactMail
+ */
 export interface ContactMailDocument extends Document {
   name: string;
   email: string;
   phone?: string;
   subject: string;
   message: string;
-  status: "unread" | "read" | "replied" | "archived";
+  status: ContactMailStatus;
   reply?: string;
   repliedAt?: Date;
   repliedBy?: Types.ObjectId;
@@ -16,20 +19,25 @@ export interface ContactMailDocument extends Document {
   updatedAt: Date;
 }
 
-/** Schema used to validate ContactMail objects for the database. */
+/**
+ * Schéma Mongoose pour ContactMail
+ */
 export const ContactMailSchema = new Schema<ContactMailDocument>(
   {
     name: {
       type: String,
-      required: [true, "Le nom est requis"],
+      required: [true, 'Le nom est requis'],
       trim: true,
     },
     email: {
       type: String,
       required: [true, "L'email est requis"],
-      lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, "Veuillez fournir une adresse email valide"],
+      lowercase: true,
+      match: [
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        'Email invalide',
+      ],
     },
     phone: {
       type: String,
@@ -37,18 +45,18 @@ export const ContactMailSchema = new Schema<ContactMailDocument>(
     },
     subject: {
       type: String,
-      required: [true, "Le sujet est requis"],
+      required: [true, 'Le sujet est requis'],
       trim: true,
     },
     message: {
       type: String,
-      required: [true, "Le message est requis"],
+      required: [true, 'Le message est requis'],
       trim: true,
     },
     status: {
       type: String,
-      enum: ["unread", "read", "replied", "archived"],
-      default: "unread",
+      enum: ['unread', 'read', 'replied', 'archived'] as ContactMailStatus[],
+      default: 'unread',
     },
     reply: {
       type: String,
@@ -58,22 +66,20 @@ export const ContactMailSchema = new Schema<ContactMailDocument>(
       type: Date,
     },
     repliedBy: {
-      type: Types.ObjectId,
-      ref: "User",
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     userId: {
-      type: Types.ObjectId,
-      ref: "User",
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
   }
 );
 
-// Indexes
+// Indexes pour optimiser les recherches
 ContactMailSchema.index({ email: 1 });
 ContactMailSchema.index({ status: 1 });
 ContactMailSchema.index({ createdAt: -1 });

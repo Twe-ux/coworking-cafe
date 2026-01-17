@@ -59,6 +59,9 @@ export function usePermissions() {
     // Promo
     canViewPromo: isDev || isAdmin || isStaff,
 
+    // Support & Contact
+    canViewSupportContact: isDev || isAdmin,
+
     // Role Switcher
     canSwitchRole: isDev,
   };

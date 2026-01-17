@@ -582,6 +582,132 @@ try {
 
 ## 🎨 Composants React
 
+### Pattern Skeleton Loading (OBLIGATOIRE)
+
+**RÈGLE** : Chaque page dashboard DOIT avoir un skeleton loader pendant le chargement.
+
+**Pourquoi ?**
+- Meilleure expérience utilisateur (UX)
+- Évite les pages vides pendant le chargement
+- Donne un feedback visuel immédiat
+
+**Structure recommandée** :
+
+```
+/app/(dashboard)/(admin)/ma-page/
+├── page.tsx                 # Server component avec auth
+├── MaPageClient.tsx         # Client component principal
+└── MaPageSkeleton.tsx       # Skeleton loader
+```
+
+**Exemple complet** :
+
+```typescript
+// MaPageSkeleton.tsx
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export function MaPageSkeleton() {
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-9 w-64" /> {/* Titre */}
+        <Skeleton className="h-10 w-[200px]" /> {/* Select/Button */}
+      </div>
+
+      {/* Stats Cards (si applicable) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-4 rounded-full" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-12" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Table/Content Card */}
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-24" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Table rows ou autre contenu */}
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex items-center gap-4 py-3">
+              <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+```
+
+```typescript
+// MaPageClient.tsx
+"use client";
+
+import { useState } from "react";
+import { MaPageSkeleton } from "./MaPageSkeleton";
+import { useMesData } from "@/hooks/useMesData";
+
+export function MaPageClient() {
+  const { data, loading, error } = useMesData();
+
+  // ✅ Afficher skeleton pendant chargement
+  if (loading) {
+    return <MaPageSkeleton />;
+  }
+
+  // ✅ Gérer les erreurs
+  if (error) {
+    return <div>Erreur: {error}</div>;
+  }
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Contenu de la page */}
+    </div>
+  );
+}
+```
+
+**Tailles de Skeleton courantes** :
+
+```typescript
+// Texte
+<Skeleton className="h-4 w-32" />   // Petit texte
+<Skeleton className="h-6 w-48" />   // Texte moyen
+<Skeleton className="h-9 w-64" />   // Titre (h1)
+
+// Boutons
+<Skeleton className="h-10 w-24" />  // Bouton standard
+
+// Cards stats
+<Skeleton className="h-8 w-12" />   // Chiffre stat
+
+// Icônes
+<Skeleton className="h-4 w-4 rounded-full" />
+```
+
+**Checklist Skeleton** :
+- [ ] Fichier `[PageName]Skeleton.tsx` créé
+- [ ] Import dans `[PageName]Client.tsx`
+- [ ] Condition `if (loading) return <Skeleton />`
+- [ ] Structure reflète la vraie page (même layout)
+- [ ] Animations fluides (shadcn Skeleton a déjà l'animation)
+
+---
+
 ### Structure d'un Composant
 
 ```typescript
@@ -1387,6 +1513,70 @@ mkdir -p src/app/(dashboard)/(admin)/booking
 touch src/app/(dashboard)/(admin)/booking/page.tsx
 touch src/app/(dashboard)/(admin)/booking/calendar/page.tsx
 ```
+
+#### 8. **Sidebar Navigation** (30min)
+
+**Ajouter un lien dans la sidebar** :
+
+```bash
+# Modifier le fichier de configuration sidebar
+# apps/admin/src/components/layout/app-sidebar.tsx
+```
+
+**Structure de la sidebar** :
+
+```typescript
+// apps/admin/src/components/layout/app-sidebar.tsx
+
+const navItems = [
+  {
+    title: "Dashboard",
+    url: "/",
+    icon: Home,
+  },
+  {
+    title: "Ressources Humaines",
+    icon: Users,
+    items: [
+      { title: "Employés", url: "/hr/employees" },
+      { title: "Planning", url: "/hr/schedule" },
+      { title: "Pointage", url: "/clocking" },
+    ],
+  },
+  {
+    title: "Comptabilité",
+    icon: DollarSign,
+    items: [
+      { title: "Caisse", url: "/accounting/cash-control" },
+    ],
+  },
+  // Nouvelle section Messages (exemple)
+  {
+    title: "Messages",
+    icon: Mail,
+    items: [
+      { title: "Contact", url: "/support/contact" },
+    ],
+  },
+]
+```
+
+**Étapes** :
+1. Ouvrir `/src/components/layout/app-sidebar.tsx`
+2. Ajouter la nouvelle section/item dans `navItems`
+3. Importer l'icône si nécessaire (depuis `lucide-react`)
+4. Vérifier que le lien fonctionne
+5. Tester la navigation
+
+**Permissions** :
+- Si la page nécessite des permissions spécifiques (dev/admin), ajouter dans la page :
+  ```typescript
+  // Vérification côté serveur dans la page
+  const session = await getServerSession(authOptions);
+  if (!session?.user || !["dev", "admin"].includes(session.user.role.name)) {
+    redirect("/403");
+  }
+  ```
 
 #### 8. **Tests** (1h)
 

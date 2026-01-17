@@ -12,6 +12,7 @@
 |--------|--------|----------|----------------|----------------|
 | HR | ✅ Migré | Haute | Aucune | 2026-01-10 |
 | Promo | ✅ Migré | Moyenne | `/api/promo/current-token`, `/api/promo/marketing` | 2026-01-17 |
+| Contact Mail | ✅ Migré | Moyenne | `/api/contact-mails` (POST) | 2026-01-17 |
 | Booking | 📋 À faire | Haute 🔴 | `/api/booking/*` | - |
 | Messages | 📋 À faire | Moyenne 🟡 | Aucune | - |
 | Settings | 📋 À faire | Moyenne 🟡 | `/api/spaces/*` | - |
@@ -138,6 +139,78 @@ Models :
 **Commits** :
 - `64e2566` - Migration complète module promo + suppression dashboard (2026-01-17)
 - `e9fc195` - Nettoyage model promo local obsolète (2026-01-17)
+
+---
+
+### 3. Contact Mail (Messages de Contact)
+
+**Date de migration** : 2026-01-17
+
+**Fonctionnalités** :
+- Affichage des messages de contact
+- Réponse par email aux demandes
+- Gestion des statuts (unread, read, replied, archived)
+- Statistiques de messages
+- DataTable avec filtres
+
+**Supprimé de apps/site** : ✅ Oui
+- `apps/site/src/app/dashboard/contact-mails/` (page dashboard admin)
+- `apps/site/src/app/api/contact-mails/[id]/` (GET, PUT, DELETE admin)
+- `apps/site/src/app/api/contact-mails/unread-count/` (GET admin)
+- APIs admin GET dans `apps/site/src/app/api/contact-mails/route.ts`
+
+**APIs conservées dans apps/site** : ✅ Oui (utilisée par site public)
+
+Fichier conservé :
+```
+apps/site/src/app/api/contact-mails/route.ts
+└── POST  # Utilisé par formulaire de contact public /contact
+```
+
+**Raison** : L'API POST est utilisée par la page publique :
+- `/contact` - Formulaire de contact public
+
+**Models** :
+- `ContactMail` - Minimal dans apps/site (structure préservée)
+- `ContactMail` - Complet dans apps/admin (avec repliedBy, userId, etc.)
+
+**Interface apps/admin** :
+- Route : `/support/contact`
+- Sidebar : Section "Messages" > Contact
+- Permissions : dev/admin uniquement
+- UI : DataTable shadcn/ui avec modal de réponse
+
+**Composants créés** :
+- `/support/contact/columns.tsx` - Colonnes DataTable
+- `/support/contact/data-table.tsx` - Wrapper DataTable
+- `/support/contact/ContactMessageDialog.tsx` - Modal visualisation/réponse
+- `/support/contact/ContactPageClient.tsx` - Client component page
+- `/support/contact/page.tsx` - Server component avec auth
+
+**Hooks créés** :
+- `useContactMessages.ts` - Gestion fetch/state messages
+
+**Notes** :
+- Template email HTML intégré (prêt pour Resend)
+- Envoi email commenté (TODO: `pnpm add resend`)
+- Types compatibles entre apps/site et apps/admin
+- Structure du model préservée pour import données MongoDB
+
+**Vérifications post-suppression** :
+- ✅ Formulaire contact public toujours fonctionnel
+- ✅ API POST préservée pour soumissions publiques
+- ✅ Model minimal présent dans apps/site
+- ✅ Assets SCSS publics conservés (_contact.scss)
+
+**Assets vérifiés** :
+```bash
+# Vérifié : src/assets/site/scss/_components/_contact.scss
+# ✅ CONSERVÉ - Utilisé par page publique /contact
+# Classes utilisées : .contact, .contact__form, .location, .map
+```
+
+**Commits** :
+- `[à venir]` - Migration complète module contact-mails + suppression dashboard (2026-01-17)
 
 ---
 

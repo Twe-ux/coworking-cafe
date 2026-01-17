@@ -38,6 +38,7 @@
     "react-modal-video": "^2.0.2",
     "react-redux": "^9.2.0",
     "react-toastify": "^11.0.5",
+    "resend": "^6.7.0",
     "sass": "^1.97.2",
     "slugify": "^1.6.6",
     "stripe": "^19.3.1",

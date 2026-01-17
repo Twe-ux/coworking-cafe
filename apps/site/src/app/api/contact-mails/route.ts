@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/mongodb";
-import { ContactMail } from "@/models/contactMail";
+import { ContactMail } from "@/models/contactMail"; // Model minimal pour API publique
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -66,46 +66,10 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error) {    return NextResponse.json(
+  } catch (error) {
+    console.error('POST /api/contact-mails error:', error);
+    return NextResponse.json(
       { error: "Erreur lors de l'envoi du message" },
-      { status: 500 }
-    );
-  }
-}
-
-// GET - List messages (admin only)
-export async function GET(request: NextRequest) {
-  try {
-    await connectDB();
-
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "20");
-
-    const query: Record<string, unknown> = {};
-    if (status && status !== "all") {
-      query.status = status;
-    }
-
-    const total = await ContactMail.countDocuments(query);
-    const messages = await ContactMail.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
-
-    return NextResponse.json({
-      messages,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {    return NextResponse.json(
-      { error: "Erreur lors de la récupération des messages", details: error?.message },
       { status: 500 }
     );
   }

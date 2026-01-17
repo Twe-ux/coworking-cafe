@@ -48,11 +48,16 @@ async function connectDB(): Promise<typeof mongoose> {
 
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 120000,
+      connectTimeoutMS: 30000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       const dbName = mongoose.connection.db?.databaseName || mongoose.connection.name;
-      const host = mongoose.connection.host;      return mongoose;
+      const host = mongoose.connection.host;
+      console.log(`✓ MongoDB connected: ${host}/${dbName}`);
+      return mongoose;
     });
   }
 
