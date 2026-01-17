@@ -1,0 +1,60 @@
+/**
+ * Types pour la gestion des utilisateurs
+ */
+
+export interface Role {
+  id: string;
+  slug: "dev" | "admin" | "staff" | "client";
+  name: string;
+  level: number;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  username?: string;
+  givenName?: string;
+  phone?: string;
+  companyName?: string;
+  role: Role;
+  newsletter: boolean;
+  emailVerifiedAt?: string; // ISO string YYYY-MM-DD
+  lastLoginAt?: string; // ISO string YYYY-MM-DD
+  createdAt: string; // ISO string YYYY-MM-DD
+  updatedAt: string; // ISO string YYYY-MM-DD
+  deletedAt?: string; // ISO string YYYY-MM-DD (soft delete)
+  isActive: boolean; // Computed: !deletedAt
+  isEmailVerified: boolean; // Computed: !!emailVerifiedAt
+}
+
+export interface UserListItem extends User {
+  hasAccount: boolean; // Computed: has role and login history
+}
+
+export interface UserFormData {
+  email: string;
+  username?: string;
+  givenName?: string;
+  phone?: string;
+  companyName?: string;
+  roleId: string;
+  newsletter: boolean;
+  password?: string; // Only for creation
+}
+
+export interface UserFilters {
+  search?: string; // Search by email, username, givenName
+  roleSlug?: "dev" | "admin" | "staff" | "client" | "all";
+  isActive?: boolean;
+  newsletter?: boolean;
+}
+
+export interface UserUpdateData {
+  email?: string;
+  username?: string;
+  givenName?: string;
+  phone?: string;
+  companyName?: string;
+  roleId?: string;
+  newsletter?: boolean;
+}
