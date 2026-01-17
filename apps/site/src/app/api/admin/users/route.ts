@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 import dbConnect from "@/lib/mongodb";
-
+import { User, Newsletter } from "@coworking-cafe/database";
 import { options } from "@/lib/auth-options";
 
 export const dynamic = "force-dynamic";
@@ -20,15 +20,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 
-    // Connect FIRST
+    // Connect to MongoDB
     await dbConnect();
-
-    // Import schemas to register them
-    await import("@coworking-cafe/database");
-
-    // Get models using mongoose.model()
-    const User = mongoose.model("User");
-    const Newsletter = mongoose.model("Newsletter");
 
     // Get all users with their roles
     const users = await User.find()

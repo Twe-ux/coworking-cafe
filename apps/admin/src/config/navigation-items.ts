@@ -9,11 +9,11 @@ import {
   Mail,
   MessageSquare,
   Package,
+  ScanQrCode,
   Send,
   Terminal,
   UserCog,
   Users,
-  ScanQrCode,
   Warehouse,
   type LucideIcon,
 } from "lucide-react";
@@ -157,6 +157,15 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
     });
   }
 
+  // Utilisateurs (dev + admin)
+  if (permissions.canViewUsers) {
+    items.push({
+      title: "Utilisateurs",
+      url: "/users",
+      icon: Users,
+    });
+  }
+
   // Dev Tools (dev only) - TODO: à implémenter
   if (permissions.canAccessDevTools) {
     items.push({
@@ -177,15 +186,6 @@ export function getNavigationItems(permissions: Permissions): NavigationItem[] {
           url: "/dev/database",
         },
       ],
-    });
-  }
-
-  // Utilisateurs (dev + admin) - TODO: à implémenter
-  if (permissions.canViewUsers) {
-    items.push({
-      title: "Utilisateurs",
-      url: "/users",
-      icon: Users,
     });
   }
 

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import mongoose from "mongoose";
 import dbConnect from "@/lib/mongodb";
-
+import { User, Newsletter } from "@coworking-cafe/database";
 import { options } from "@/lib/auth-options";
 
 export const dynamic = "force-dynamic";
@@ -28,15 +27,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Connect FIRST
+    // Connect to MongoDB
     await dbConnect();
-
-    // Import schemas to register them
-    await import("@coworking-cafe/database");
-
-    // Get models using mongoose.model()
-    const User = mongoose.model("User");
-    const Newsletter = mongoose.model("Newsletter");
 
     // Update user's newsletter preference
     const user = await User.findOneAndUpdate(

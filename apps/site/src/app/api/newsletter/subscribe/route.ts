@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
 import dbConnect from "@/lib/mongodb";
+import { User, Newsletter } from "@coworking-cafe/database";
 
 export const dynamic = "force-dynamic";
 
@@ -23,15 +23,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email invalide" }, { status: 400 });
     }
 
-    // Connect FIRST
+    // Connect to MongoDB
     await dbConnect();
-
-    // Import schemas to register them (if not already)
-    await import("@coworking-cafe/database");
-
-    // Get models using mongoose.model() - they're already registered
-    const User = mongoose.model("User");
-    const Newsletter = mongoose.model("Newsletter");
 
     // Check if user exists with this email
     const user = await User.findOne({ email: email.toLowerCase() });
