@@ -61,8 +61,9 @@ Models :
 - Nettoyage complet effectué (dashboard, composants, APIs, models)
 
 **Commits** :
-- `e6bbd69` - Migration initiale
-- (en attente) - Nettoyage complet du code HR dans apps/site
+- `e6bbd69` - Migration initiale (2026-01-10)
+- `e9fc195` - Nettoyage complet du code HR dans apps/site (2026-01-17)
+  - Supprimé 12 650 lignes de code (49 fichiers)
 
 ---
 
@@ -134,7 +135,9 @@ Models :
 # Classes utilisées : .card-promo, .btn-scan
 ```
 
-**Commit** : `64e2566` - feat(migration): migrate promo module to admin + cleanup site dashboard
+**Commits** :
+- `64e2566` - Migration complète module promo + suppression dashboard (2026-01-17)
+- `e9fc195` - Nettoyage model promo local obsolète (2026-01-17)
 
 ---
 
