@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
 import dbConnect from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
@@ -23,10 +24,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Connect FIRST
-    const mongoose = await dbConnect();
+    await dbConnect();
 
-    // Get models AFTER connection (from shared package)
-    const { User, Newsletter } = await import("@coworking-cafe/database");
+    // Import schemas to register them (if not already)
+    await import("@coworking-cafe/database");
+
+    // Get models using mongoose.model() - they're already registered
+    const User = mongoose.model("User");
+    const Newsletter = mongoose.model("Newsletter");
 
     // Check if user exists with this email
     const user = await User.findOne({ email: email.toLowerCase() });

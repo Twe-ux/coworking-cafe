@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import mongoose from "mongoose";
 import dbConnect from "@/lib/mongodb";
 
 import { options } from "@/lib/auth-options";
@@ -30,8 +31,12 @@ export async function PUT(request: NextRequest) {
     // Connect FIRST
     await dbConnect();
 
-    // Get models AFTER connection (from shared package)
-    const { User, Newsletter } = await import("@coworking-cafe/database");
+    // Import schemas to register them
+    await import("@coworking-cafe/database");
+
+    // Get models using mongoose.model()
+    const User = mongoose.model("User");
+    const Newsletter = mongoose.model("Newsletter");
 
     // Update user's newsletter preference
     const user = await User.findOneAndUpdate(
