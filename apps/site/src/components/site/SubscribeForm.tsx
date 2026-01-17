@@ -92,10 +92,7 @@ export default function SubscribeForm() {
                 <i className="fa-solid fa-spinner fa-spin ms-2"></i>
               </>
             ) : success ? (
-              <>
-                <span>Inscrit ✓</span>
-                <i className="fa-solid fa-check ms-2"></i>
-              </>
+              <span>Inscrit ✓</span>
             ) : (
               <>
                 <span>Inscris toi</span>
