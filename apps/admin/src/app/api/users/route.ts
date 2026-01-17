@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
-import { User } from "@coworking-cafe/database";
+import { User, Newsletter } from "@coworking-cafe/database";
 import type { ApiResponse } from "@/types/timeEntry";
 import type { User as UserType, UserFilters } from "@/types/user";
 
 /**
  * GET /api/users
- * Récupère la liste des utilisateurs avec filtres optionnels
+ * Récupère la liste des utilisateurs + newsletter subscribers
  */
 export async function GET(
   request: NextRequest
@@ -28,77 +28,114 @@ export async function GET(
     const isActiveParam = searchParams.get("isActive");
     const newsletterParam = searchParams.get("newsletter");
 
-    // Build filter
-    const filter: Record<string, unknown> = {};
-
-    // Search filter (email, username, givenName)
-    if (search) {
-      filter.$or = [
-        { email: { $regex: search, $options: "i" } },
-        { username: { $regex: search, $options: "i" } },
-        { givenName: { $regex: search, $options: "i" } },
-      ];
-    }
-
-    // Active filter
-    if (isActiveParam === "true") {
-      filter.deletedAt = null;
-    } else if (isActiveParam === "false") {
-      filter.deletedAt = { $ne: null };
-    }
-
-    // Newsletter filter
-    if (newsletterParam === "true") {
-      filter.newsletter = true;
-    } else if (newsletterParam === "false") {
-      filter.newsletter = false;
-    }
-
-    // Fetch users with populated role
-    const users = await User.find(filter)
+    // Fetch all users with roles
+    const users = await User.find()
       .populate("role")
       .sort({ createdAt: -1 })
       .lean();
 
-    // Transform to match UserType (convert dates to strings)
-    const transformedUsers: UserType[] = users.map((user) => ({
-      id: user._id.toString(),
-      email: user.email,
-      username: user.username,
-      givenName: user.givenName,
-      phone: user.phone,
-      companyName: user.companyName,
-      role: {
-        id: user.role._id.toString(),
-        slug: user.role.slug,
-        name: user.role.name,
-        level: user.role.level,
-      },
-      newsletter: user.newsletter,
-      emailVerifiedAt: user.emailVerifiedAt
-        ? new Date(user.emailVerifiedAt).toISOString().split("T")[0]
-        : undefined,
-      lastLoginAt: user.lastLoginAt
-        ? new Date(user.lastLoginAt).toISOString().split("T")[0]
-        : undefined,
-      createdAt: new Date(user.createdAt).toISOString().split("T")[0],
-      updatedAt: new Date(user.updatedAt).toISOString().split("T")[0],
-      deletedAt: user.deletedAt
-        ? new Date(user.deletedAt).toISOString().split("T")[0]
-        : undefined,
-      isActive: !user.deletedAt,
-      isEmailVerified: !!user.emailVerifiedAt,
-    }));
+    // Fetch all newsletter entries (for standalone emails)
+    const newsletters = await Newsletter.find({ isSubscribed: true }).lean();
 
-    // Filter by role slug if provided (after population)
-    let finalUsers = transformedUsers;
+    // Create a map to combine users + newsletters
+    const usersMap = new Map<string, UserType>();
+
+    // Add all users
+    users.forEach((user) => {
+      const emailLower = user.email.toLowerCase();
+      usersMap.set(emailLower, {
+        id: user._id.toString(),
+        email: user.email,
+        username: user.username,
+        givenName: user.givenName,
+        phone: user.phone,
+        companyName: user.companyName,
+        role: {
+          id: user.role._id.toString(),
+          slug: user.role.slug,
+          name: user.role.name,
+          level: user.role.level,
+        },
+        newsletter: user.newsletter,
+        emailVerifiedAt: user.emailVerifiedAt
+          ? new Date(user.emailVerifiedAt).toISOString().split("T")[0]
+          : undefined,
+        lastLoginAt: user.lastLoginAt
+          ? new Date(user.lastLoginAt).toISOString().split("T")[0]
+          : undefined,
+        createdAt: new Date(user.createdAt).toISOString().split("T")[0],
+        updatedAt: new Date(user.updatedAt).toISOString().split("T")[0],
+        deletedAt: user.deletedAt
+          ? new Date(user.deletedAt).toISOString().split("T")[0]
+          : undefined,
+        isActive: !user.deletedAt,
+        isEmailVerified: !!user.emailVerifiedAt,
+      });
+    });
+
+    // Add standalone newsletter entries (emails without account)
+    newsletters.forEach((newsletter) => {
+      const emailLower = newsletter.email.toLowerCase();
+
+      // Only add if not already in users (user account takes priority)
+      if (!usersMap.has(emailLower)) {
+        usersMap.set(emailLower, {
+          id: newsletter._id.toString(),
+          email: newsletter.email,
+          username: undefined,
+          givenName: undefined,
+          phone: undefined,
+          companyName: undefined,
+          role: {
+            id: "newsletter",
+            slug: "client",
+            name: "Newsletter",
+            level: 0,
+          },
+          newsletter: true,
+          emailVerifiedAt: undefined,
+          lastLoginAt: undefined,
+          createdAt: new Date(newsletter.createdAt).toISOString().split("T")[0],
+          updatedAt: new Date(newsletter.updatedAt).toISOString().split("T")[0],
+          deletedAt: undefined,
+          isActive: true,
+          isEmailVerified: false,
+        });
+      }
+    });
+
+    // Convert map to array
+    let allUsers = Array.from(usersMap.values());
+
+    // Apply filters
+    if (search) {
+      const searchLower = search.toLowerCase();
+      allUsers = allUsers.filter((u) =>
+        u.email.toLowerCase().includes(searchLower) ||
+        u.username?.toLowerCase().includes(searchLower) ||
+        u.givenName?.toLowerCase().includes(searchLower)
+      );
+    }
+
     if (roleSlug && roleSlug !== "all") {
-      finalUsers = transformedUsers.filter((u) => u.role.slug === roleSlug);
+      allUsers = allUsers.filter((u) => u.role.slug === roleSlug);
+    }
+
+    if (isActiveParam === "true") {
+      allUsers = allUsers.filter((u) => u.isActive);
+    } else if (isActiveParam === "false") {
+      allUsers = allUsers.filter((u) => !u.isActive);
+    }
+
+    if (newsletterParam === "true") {
+      allUsers = allUsers.filter((u) => u.newsletter);
+    } else if (newsletterParam === "false") {
+      allUsers = allUsers.filter((u) => !u.newsletter);
     }
 
     return successResponse(
-      finalUsers,
-      `${finalUsers.length} utilisateurs récupérés`
+      allUsers,
+      `${allUsers.length} utilisateurs récupérés`
     );
   } catch (error) {
     console.error("GET /api/users error:", error);
