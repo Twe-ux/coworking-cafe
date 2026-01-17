@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
-import { Newsletter, User } from "@coworking-cafe/database";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +22,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email invalide" }, { status: 400 });
     }
 
-    await dbConnect();
+    // Connect FIRST
+    const mongoose = await dbConnect();
+
+    // Get models AFTER connection (from shared package)
+    const { User, Newsletter } = await import("@coworking-cafe/database");
 
     // Check if user exists with this email
     const user = await User.findOne({ email: email.toLowerCase() });
@@ -108,7 +111,9 @@ export async function POST(request: NextRequest) {
         { status: 201 }
       );
     }
-  } catch (error) {    return NextResponse.json(
+  } catch (error) {
+    console.error("POST /api/newsletter/subscribe error:", error);
+    return NextResponse.json(
       {
         error:
           error instanceof Error
