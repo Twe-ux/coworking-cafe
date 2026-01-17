@@ -1,5 +1,4 @@
 import { connectDB } from "@/lib/mongodb";
-import { ContactMail } from "@/models/contactMail"; // Model minimal pour API publique
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -10,7 +9,24 @@ const getResendClient = () => {
 // POST - Create new message (public)
 export async function POST(request: NextRequest) {
   try {
-    await connectDB();
+    const mongoose = await connectDB();
+
+    // Get or create model using the CONNECTED mongoose instance
+    let ContactMail;
+    if (mongoose.models.ContactMail) {
+      ContactMail = mongoose.models.ContactMail;
+    } else {
+      const schema = new mongoose.Schema({
+        name: { type: String, required: true, trim: true },
+        email: { type: String, required: true, trim: true, lowercase: true },
+        phone: { type: String, trim: true },
+        subject: { type: String, required: true, trim: true },
+        message: { type: String, required: true, trim: true },
+        status: { type: String, enum: ['unread', 'read', 'replied', 'archived'], default: 'unread' },
+      }, { timestamps: true });
+
+      ContactMail = mongoose.model('ContactMail', schema);
+    }
 
     const body = await request.json();
     const { name, email, phone, subject, message } = body;
