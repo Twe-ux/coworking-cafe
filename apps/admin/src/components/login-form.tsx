@@ -31,10 +31,15 @@ export function LoginForm({
     setLoading(true);
 
     try {
+      // Utiliser l'origine actuelle pour supporter mobile/IP réseau
+      const callbackUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/admin`
+        : '/admin';
+
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/admin",
+        callbackUrl,
       });
 
       // Si signIn retourne (pas de redirect), c'est qu'il y a une erreur

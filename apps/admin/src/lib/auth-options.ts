@@ -119,14 +119,30 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Après connexion : rediriger selon le rôle
-      // Si l'URL de callback contient déjà une destination, l'utiliser
-      if (url.startsWith(baseUrl)) {
-        return url;
+      // Préserver l'hôte d'origine pour supporter mobile/IP réseau
+      // Extraire l'hôte de l'URL de callback
+      try {
+        const callbackUrl = new URL(url);
+        const baseUrlObj = new URL(baseUrl);
+
+        // Si l'URL commence par baseUrl, c'est une redirection interne
+        if (url.startsWith(baseUrl)) {
+          return url;
+        }
+
+        // Si l'URL a le même protocole et port que baseUrl
+        // mais un hôte différent (ex: IP réseau vs localhost)
+        // préserver l'hôte de l'URL de callback
+        if (callbackUrl.protocol === baseUrlObj.protocol &&
+            callbackUrl.port === baseUrlObj.port) {
+          return callbackUrl.origin + '/admin';
+        }
+      } catch (e) {
+        // Si parsing échoue, fallback sur baseUrl
       }
-      // Sinon, rediriger vers la racine (interface staff)
-      // Le layout admin redirigera automatiquement les non-autorisés
-      return baseUrl + '/';
+
+      // Sinon, rediriger vers la racine
+      return baseUrl + '/admin';
     },
   },
   pages: {
