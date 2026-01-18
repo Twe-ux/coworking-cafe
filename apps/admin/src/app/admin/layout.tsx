@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { DynamicBreadcrumb } from "@/components/dynamic-breadcrumb";
+import { NotificationManager } from "@/components/NotificationManager";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -34,6 +35,8 @@ export default async function AdminLayout({
           {children}
         </main>
       </SidebarInset>
+      {/* Gestionnaire de notifications PWA */}
+      <NotificationManager />
     </SidebarProvider>
   );
 }

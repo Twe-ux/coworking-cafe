@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { updateAppBadge } from "@/lib/notifications";
 import type {
   ContactMail,
   ContactMailStatus,
@@ -57,7 +58,12 @@ export function useContactMessages(
 
       const allMessages = data.data || [];
       setMessages(allMessages);
-      setStats(calculateStats(allMessages));
+
+      const newStats = calculateStats(allMessages);
+      setStats(newStats);
+
+      // Mettre à jour le badge de l'app avec le nombre de messages non lus
+      updateAppBadge(newStats.unread);
     } catch (error) {
       console.error("Error fetching messages:", error);
       toast.error("Erreur lors de la récupération des messages");
