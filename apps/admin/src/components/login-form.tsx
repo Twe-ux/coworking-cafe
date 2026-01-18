@@ -34,7 +34,7 @@ export function LoginForm({
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/",
+        callbackUrl: "/admin",
       });
 
       // Si signIn retourne (pas de redirect), c'est qu'il y a une erreur
