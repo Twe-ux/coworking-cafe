@@ -41,23 +41,21 @@ export function ContactPageClient() {
     useContactMessages(statusFilter);
 
   const handleView = async (message: ContactMail) => {
-    setSelectedMessage(message);
+    // Mettre à jour localement le message pour éviter le flash
+    const updatedMessage = { ...message, status: "read" as const };
+    setSelectedMessage(updatedMessage);
     setDialogOpen(true);
     setOpenInReplyMode(false);
 
+    // Marquer comme lu en arrière-plan si nécessaire
     if (message.status === "unread") {
       try {
-        const response = await fetch(`/api/support/contact/${message.id}`, {
+        await fetch(`/api/support/contact/${message.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "read" }),
         });
-
-        const data = await response.json();
-
-        if (data.success) {
-          fetchMessages();
-        }
+        // Recharger seulement quand le dialog se ferme
       } catch (error) {
         console.error("Error marking as read:", error);
       }
@@ -65,23 +63,21 @@ export function ContactPageClient() {
   };
 
   const handleReply = async (message: ContactMail) => {
-    setSelectedMessage(message);
+    // Mettre à jour localement le message pour éviter le flash
+    const updatedMessage = { ...message, status: "read" as const };
+    setSelectedMessage(updatedMessage);
     setDialogOpen(true);
     setOpenInReplyMode(true);
 
+    // Marquer comme lu en arrière-plan si nécessaire
     if (message.status === "unread") {
       try {
-        const response = await fetch(`/api/support/contact/${message.id}`, {
+        await fetch(`/api/support/contact/${message.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "read" }),
         });
-
-        const data = await response.json();
-
-        if (data.success) {
-          fetchMessages();
-        }
+        // Recharger seulement quand le dialog se ferme
       } catch (error) {
         console.error("Error marking as read:", error);
       }
@@ -145,7 +141,10 @@ export function ContactPageClient() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card>
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "all" ? "ring-2 ring-primary" : ""}`}
+          onClick={() => setStatusFilter("all")}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total</CardTitle>
             <Inbox className="w-4 h-4 text-muted-foreground" />
@@ -155,7 +154,10 @@ export function ContactPageClient() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "unread" ? "ring-2 ring-red-500" : ""}`}
+          onClick={() => setStatusFilter("unread")}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Non lus</CardTitle>
             <Mail className="w-4 h-4 text-red-500" />
@@ -165,7 +167,10 @@ export function ContactPageClient() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "read" ? "ring-2 ring-blue-500" : ""}`}
+          onClick={() => setStatusFilter("read")}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Lus</CardTitle>
             <MailOpen className="w-4 h-4 text-blue-500" />
@@ -175,7 +180,10 @@ export function ContactPageClient() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "replied" ? "ring-2 ring-green-500" : ""}`}
+          onClick={() => setStatusFilter("replied")}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Répondus</CardTitle>
             <MessageSquare className="w-4 h-4 text-green-500" />
@@ -185,7 +193,10 @@ export function ContactPageClient() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "archived" ? "ring-2 ring-gray-500" : ""}`}
+          onClick={() => setStatusFilter("archived")}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Archivés</CardTitle>
             <Archive className="w-4 h-4 text-gray-500" />
@@ -218,6 +229,8 @@ export function ContactPageClient() {
         onClose={() => {
           setDialogOpen(false);
           setOpenInReplyMode(false);
+          // Recharger les messages après fermeture pour avoir les stats à jour
+          fetchMessages();
         }}
         message={selectedMessage}
         openInReplyMode={openInReplyMode}

@@ -6,3 +6,4 @@ export { default as PromoConfig } from './promoConfig';
 export type { PromoConfigDocument } from './promoConfig';
 export { MenuCategory } from './menuCategory';
 export { MenuItem } from './menuItem';
+export { ContactMail, type IContactMail } from './contactMail';

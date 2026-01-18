@@ -22,19 +22,19 @@ export const columns: ColumnDef<ContactMail>[] = [
       const statusConfig = {
         unread: {
           label: "Non lu",
-          className: "bg-red-100 text-red-700 hover:bg-red-100 border-red-200",
+          className: "bg-red-100 text-red-700 hover:bg-red-100 border-red-200 font-semibold",
         },
         read: {
           label: "Lu",
-          className: "bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200",
+          className: "bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200 font-medium",
         },
         replied: {
           label: "Répondu",
-          className: "bg-green-100 text-green-700 hover:bg-green-100 border-green-200",
+          className: "bg-green-100 text-green-700 hover:bg-green-100 border-green-200 font-medium",
         },
         archived: {
           label: "Archivé",
-          className: "bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200",
+          className: "bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200 font-medium",
         },
       };
 
@@ -46,7 +46,7 @@ export const columns: ColumnDef<ContactMail>[] = [
       return (
         <Badge
           variant="outline"
-          className={cn(config.className)}
+          className={cn("px-3 py-1", config.className)}
         >
           {config.label}
         </Badge>
@@ -56,27 +56,31 @@ export const columns: ColumnDef<ContactMail>[] = [
   {
     accessorKey: "name",
     header: "Nom",
-    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+    cell: ({ row }) => (
+      <span className="font-semibold text-foreground">{row.original.name}</span>
+    ),
   },
   {
     accessorKey: "email",
     header: "Email",
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">{row.original.email}</span>
+      <span className="text-sm text-foreground/80">{row.original.email}</span>
     ),
   },
   {
     accessorKey: "subject",
     header: "Sujet",
     cell: ({ row }) => (
-      <div className="max-w-[300px] truncate">{row.original.subject}</div>
+      <div className="max-w-[300px] truncate font-medium text-foreground">
+        {row.original.subject}
+      </div>
     ),
   },
   {
     accessorKey: "message",
     header: "Message",
     cell: ({ row }) => (
-      <div className="max-w-[400px] truncate text-sm text-muted-foreground">
+      <div className="max-w-[400px] truncate text-sm text-foreground/70">
         {row.original.message}
       </div>
     ),
@@ -91,7 +95,7 @@ export const columns: ColumnDef<ContactMail>[] = [
         locale: fr,
       });
       return (
-        <span className="text-sm text-muted-foreground" title={date.toLocaleString("fr-FR")}>
+        <span className="text-sm text-foreground/70 font-medium" title={date.toLocaleString("fr-FR")}>
           {relative}
         </span>
       );

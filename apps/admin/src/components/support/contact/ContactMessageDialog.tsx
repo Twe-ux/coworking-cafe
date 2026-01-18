@@ -147,19 +147,19 @@ export function ContactMessageDialog({
   const statusConfig = {
     unread: {
       label: "Non lu",
-      className: "bg-red-100 text-red-700 border-red-200",
+      className: "bg-red-100 text-red-700 border-red-200 font-semibold",
     },
     read: {
       label: "Lu",
-      className: "bg-blue-100 text-blue-700 border-blue-200",
+      className: "bg-blue-100 text-blue-700 border-blue-200 font-medium",
     },
     replied: {
       label: "Répondu",
-      className: "bg-green-100 text-green-700 border-green-200",
+      className: "bg-green-100 text-green-700 border-green-200 font-medium",
     },
     archived: {
       label: "Archivé",
-      className: "bg-gray-100 text-gray-700 border-gray-200",
+      className: "bg-gray-100 text-gray-700 border-gray-200 font-medium",
     },
   };
 
@@ -171,11 +171,11 @@ export function ContactMessageDialog({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="relative">
+        <DialogHeader className="relative pb-4">
           <DialogTitle>Détails du message</DialogTitle>
           <Badge
             variant="outline"
-            className={cn("absolute top-0 right-10", config.className)}
+            className={cn("absolute top-0 right-10 px-3 py-1", config.className)}
           >
             {config.label}
           </Badge>
@@ -199,7 +199,7 @@ export function ContactMessageDialog({
               onClick={handleArchive}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 hover:bg-gray-100 hover:text-gray-900"
             >
               <Archive className="w-4 h-4 mr-2" />
               Archiver
