@@ -118,6 +118,16 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Après connexion : rediriger selon le rôle
+      // Si l'URL de callback contient déjà une destination, l'utiliser
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      // Sinon, rediriger vers la racine (interface staff)
+      // Le layout admin redirigera automatiquement les non-autorisés
+      return baseUrl + '/';
+    },
   },
   pages: {
     signIn: '/login',

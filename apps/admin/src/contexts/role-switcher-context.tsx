@@ -31,7 +31,10 @@ export function RoleSwitcherProvider({
   const userRole = session?.user?.role as 'dev' | 'admin' | 'staff' | undefined
 
   // Find the role matching the user's actual role
-  const initialRole = availableRoles.find(r => r.value === userRole) || availableRoles[0]
+  // Default to 'staff' if no role (user not logged in)
+  const initialRole = availableRoles.find(r => r.value === userRole)
+    || availableRoles.find(r => r.value === 'staff')
+    || availableRoles[0]
   const [selectedRole, setSelectedRole] = React.useState<Role>(initialRole)
   const [hasManuallyChanged, setHasManuallyChanged] = React.useState(false)
 

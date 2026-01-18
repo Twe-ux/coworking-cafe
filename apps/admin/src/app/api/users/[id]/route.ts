@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { User } from "@coworking-cafe/database";
 import type { ApiResponse } from "@/types/timeEntry";
-import type { User as UserType, UserUpdateData } from "@/types/user";
+import type { User as UserType, UserUpdateData, PopulatedUserDocument } from "@/types/user";
 
 interface RouteParams {
   params: {
@@ -31,7 +31,7 @@ export async function GET(
   try {
     const { id } = params;
 
-    const user = await User.findById(id).populate("role").lean();
+    const user = (await User.findById(id).populate("role").lean()) as unknown as PopulatedUserDocument | null;
 
     if (!user) {
       return errorResponse("Utilisateur non trouvé", `Aucun utilisateur avec l'ID ${id}`, 404);
@@ -47,7 +47,7 @@ export async function GET(
       companyName: user.companyName,
       role: {
         id: user.role._id.toString(),
-        slug: user.role.slug,
+        slug: user.role.slug as "dev" | "admin" | "staff" | "client",
         name: user.role.name,
         level: user.role.level,
       },
@@ -124,7 +124,7 @@ export async function PUT(
     }
 
     // Update user
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser = (await User.findByIdAndUpdate(
       id,
       {
         ...(body.email && { email: body.email }),
@@ -136,7 +136,7 @@ export async function PUT(
         ...(body.newsletter !== undefined && { newsletter: body.newsletter }),
       },
       { new: true, runValidators: true }
-    ).populate("role");
+    ).populate("role")) as unknown as PopulatedUserDocument | null;
 
     if (!updatedUser) {
       return errorResponse("Erreur de mise à jour", "Impossible de mettre à jour l'utilisateur", 500);
@@ -152,7 +152,7 @@ export async function PUT(
       companyName: updatedUser.companyName,
       role: {
         id: updatedUser.role._id.toString(),
-        slug: updatedUser.role.slug,
+        slug: updatedUser.role.slug as "dev" | "admin" | "staff" | "client",
         name: updatedUser.role.name,
         level: updatedUser.role.level,
       },

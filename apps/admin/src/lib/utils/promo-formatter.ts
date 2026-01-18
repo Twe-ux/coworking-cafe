@@ -1,4 +1,4 @@
-import type { PromoConfigDocument } from '@/models/promoConfig/document'
+import type { PromoConfigDocument } from '@coworking-cafe/database'
 import type { PromoConfig } from '@/types/promo'
 
 /**
@@ -28,7 +28,17 @@ export function formatPromoConfigResponse(doc: PromoConfigDocument): PromoConfig
       isActive: doc.current.isActive,
       createdAt: doc.current.createdAt.toISOString().split('T')[0], // YYYY-MM-DD
     },
-    history: doc.history.map((h) => ({
+    history: doc.history.map((h: {
+      code: string
+      token: string
+      description: string
+      discountType: 'percentage' | 'fixed' | 'free_item'
+      discountValue: number
+      validFrom: Date
+      validUntil: Date
+      totalUses: number
+      deactivatedAt: Date
+    }) => ({
       code: h.code,
       token: h.token,
       description: h.description,
@@ -65,7 +75,11 @@ export function formatPromoConfigResponse(doc: PromoConfigDocument): PromoConfig
       imageUrl: doc.marketing.imageUrl,
       ctaText: doc.marketing.ctaText,
     },
-    events: doc.events.map((e) => ({
+    events: doc.events.map((e: {
+      timestamp: Date
+      type: 'scan' | 'reveal' | 'copy'
+      sessionId: string
+    }) => ({
       timestamp: e.timestamp.toISOString().replace('T', ' ').split('.')[0], // YYYY-MM-DD HH:mm
       type: e.type,
       sessionId: e.sessionId,

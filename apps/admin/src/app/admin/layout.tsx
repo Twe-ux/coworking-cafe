@@ -1,20 +1,32 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { DynamicBreadcrumb } from "@/components/dynamic-breadcrumb";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Protection auth : seuls dev et admin peuvent accéder
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  if (!["dev", "admin"].includes(session.user.role ?? "")) {
+    redirect("/forbidden");
+  }
+
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
       <SidebarInset className="w-full overflow-x-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 pl-20 mt-5 md:pl-20">
-            {/* <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" /> */}
             <DynamicBreadcrumb />
           </div>
         </header>

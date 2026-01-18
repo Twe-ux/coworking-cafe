@@ -1,0 +1,35 @@
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth-options"
+import { AppSidebar } from "@/components/app-sidebar"
+import { DynamicBreadcrumb } from "@/components/dynamic-breadcrumb"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+
+/**
+ * Layout pour les routes staff
+ * Page d'accueil accessible à tous
+ * Sous-routes protégées individuellement
+ */
+export default async function StaffLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  // Récupérer la session (sans forcer l'auth)
+  const session = await getServerSession(authOptions)
+
+  return (
+    <SidebarProvider defaultOpen={false}>
+      <AppSidebar />
+      <SidebarInset className="w-full overflow-x-hidden">
+        <header className="flex h-16 shrink-0 items-center gap-2">
+          <div className="flex items-center gap-2 pl-20 mt-5 md:pl-20">
+            <DynamicBreadcrumb />
+          </div>
+        </header>
+        <main className="flex-1 w-full pt-4 pr-0 md:pr-8 md:pl-24">
+          {children}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}

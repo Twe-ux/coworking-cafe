@@ -6,27 +6,11 @@ import Employee from '@/models/employee'
 
 /**
  * GET /api/hr/employees - Récupérer tous les employés (avec données HR complètes)
+ * Public endpoint - accessible without authentication for staff pages (clocking)
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: 'Non authentifié' },
-        { status: 401 }
-      )
-    }
-
-    // Vérifier les permissions (dev, admin ou staff pour lecture)
-    const userRole = (session?.user as any)?.role
-    if (!['dev', 'admin', 'staff'].includes(userRole)) {
-      return NextResponse.json(
-        { success: false, error: 'Permissions insuffisantes' },
-        { status: 403 }
-      )
-    }
-
+    // No auth required for reading employees (staff clocking page is public)
     await connectMongoose()
 
     // Paramètres de recherche depuis l'URL

@@ -12,16 +12,22 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: 'portrait-primary',
     icons: [
       {
-        src: '/icon-192x192.png',
+        src: '/web-app-manifest-192x192.png',
         sizes: '192x192',
         type: 'image/png',
-        purpose: 'any maskable',
+        purpose: 'any',
       },
       {
-        src: '/icon-512x512.png',
+        src: '/web-app-manifest-512x512.png',
         sizes: '512x512',
         type: 'image/png',
-        purpose: 'any maskable',
+        purpose: 'any',
+      },
+      {
+        src: '/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+        purpose: 'any',
       },
     ],
     // Activer le Badge API pour les notifications PWA
@@ -32,8 +38,8 @@ export default function manifest(): MetadataRoute.Manifest {
         name: 'Messages Contact',
         short_name: 'Contact',
         description: 'Voir les messages de contact',
-        url: '/support/contact',
-        icons: [{ src: '/icon-192x192.png', sizes: '192x192' }],
+        url: '/admin/support/contact',
+        icons: [{ src: '/web-app-manifest-192x192.png', sizes: '192x192' }],
       },
     ],
   }

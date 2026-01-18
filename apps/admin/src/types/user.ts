@@ -58,3 +58,33 @@ export interface UserUpdateData {
   roleId?: string;
   newsletter?: boolean;
 }
+
+/**
+ * User document with populated role (from Mongoose)
+ * Used internally in API routes after populate()
+ */
+export interface PopulatedUserDocument {
+  _id: any; // ObjectId
+  email: string;
+  username?: string;
+  givenName?: string;
+  phone?: string;
+  companyName?: string;
+  role: PopulatedRole;
+  newsletter: boolean;
+  emailVerifiedAt?: Date;
+  lastLoginAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+}
+
+/**
+ * Populated role from Mongoose populate()
+ */
+export interface PopulatedRole {
+  _id: any; // ObjectId
+  slug: string;
+  name: string;
+  level: number;
+}

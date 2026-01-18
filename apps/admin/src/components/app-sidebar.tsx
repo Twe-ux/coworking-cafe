@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
@@ -13,47 +14,174 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  getNavigationItems,
-  getSecondaryNavigationItems,
-} from "@/config/navigation-items";
-import { usePermissions } from "@/hooks/usePermissions";
+import type { NavigationItem } from "@/config/navigation-items";
+import { getSecondaryNavigationItems } from "@/config/navigation-items";
+import { useRole } from "@/hooks/useRole";
 import { useUnreadContactMessages } from "@/hooks/useUnreadContactMessages";
+import {
+  Calendar,
+  Calculator,
+  Clock,
+  DollarSign,
+  Home,
+  Mail,
+  ScanQrCode,
+  UserCog,
+  Users,
+  UtensilsCrossed,
+  Shield,
+} from "lucide-react";
+
+/**
+ * Menu STAFF - Pour les employés (role: staff ou non connecté)
+ */
+function getStaffNavItems(): NavigationItem[] {
+  return [
+    {
+      title: "Accueil",
+      url: "/",
+      icon: Home,
+    },
+    {
+      title: "Pointage",
+      url: "/clocking",
+      icon: Clock,
+    },
+    {
+      title: "Mon Planning",
+      url: "/my-schedule",
+      icon: Calendar,
+    },
+    {
+      title: "Menu",
+      url: "/menu",
+      icon: UtensilsCrossed,
+      items: [
+        {
+          title: "Recettes Boissons",
+          url: "/menu/recipes?category=drinks",
+        },
+        {
+          title: "Recettes Food",
+          url: "/menu/recipes?category=food",
+        },
+      ],
+    },
+  ];
+}
+
+/**
+ * Menu ADMIN - Pour les administrateurs (role: dev ou admin)
+ */
+function getAdminNavItems(unreadCount: number): NavigationItem[] {
+  const items: NavigationItem[] = [
+    {
+      title: "Dashboard",
+      url: "/admin",
+      icon: Home,
+    },
+    {
+      title: "Ressources Humaines",
+      url: "/admin/hr",
+      icon: UserCog,
+      items: [
+        {
+          title: "Employés",
+          url: "/admin/hr/employees",
+        },
+        {
+          title: "Planning",
+          url: "/admin/hr/schedule",
+        },
+        {
+          title: "Pointage Admin",
+          url: "/admin/hr/clocking-admin",
+        },
+        {
+          title: "Disponibilités",
+          url: "/admin/hr/availability",
+        },
+      ],
+    },
+    {
+      title: "Comptabilité",
+      url: "/admin/accounting",
+      icon: Calculator,
+      items: [
+        {
+          title: "Caisse",
+          url: "/admin/accounting/cash-control",
+        },
+        {
+          title: "Chiffre d'affaires",
+          url: "/admin/accounting/turnover",
+        },
+      ],
+    },
+    {
+      title: "Promo",
+      url: "/admin/promo",
+      icon: ScanQrCode,
+    },
+    {
+      title: "Utilisateurs",
+      url: "/admin/users",
+      icon: Users,
+    },
+    {
+      title: "Support",
+      url: "/admin/support",
+      icon: Mail,
+      badge: unreadCount > 0 ? unreadCount : undefined,
+      items: [
+        {
+          title: "Contact",
+          url: "/admin/support/contact",
+          badge: unreadCount > 0 ? unreadCount : undefined,
+        },
+      ],
+    },
+    {
+      title: "Menu",
+      url: "/admin/menu",
+      icon: UtensilsCrossed,
+      items: [
+        {
+          title: "Boissons",
+          url: "/admin/menu/drinks",
+        },
+        {
+          title: "Food",
+          url: "/admin/menu/food",
+        },
+      ],
+    },
+  ];
+
+  return items;
+}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
-  const permissions = usePermissions();
+  const { isDev, isAdmin } = useRole();
   const { state, isMobile } = useSidebar();
   const { unreadCount } = useUnreadContactMessages();
 
-  // Navigation dynamique selon les permissions
+  // Déterminer quel menu afficher selon le rôle
   const navMain = React.useMemo(() => {
-    const items = getNavigationItems(permissions);
+    // Menu ADMIN pour dev/admin
+    if (isDev || isAdmin) {
+      return getAdminNavItems(unreadCount);
+    }
 
-    // Injecter le badge sur l'item Messages et ses sous-items
-    return items.map((item) => {
-      if (item.url === "/support" && unreadCount > 0) {
-        // Badge sur l'item parent (pour sidebar collapsed ou menu fermé)
-        const updatedItem = { ...item, badge: unreadCount };
-
-        // Si l'item a des sous-items, injecter le badge sur le bon sous-item
-        if (item.items && item.items.length > 0) {
-          updatedItem.items = item.items.map((subItem) => {
-            // Badge sur le sous-item "Contact"
-            if (subItem.url === "/support/contact") {
-              return { ...subItem, badge: unreadCount };
-            }
-            return subItem;
-          });
-        }
-
-        return updatedItem;
-      }
-      return item;
-    });
-  }, [permissions, unreadCount]);
+    // Menu STAFF pour les autres (staff ou non connecté)
+    return getStaffNavItems();
+  }, [isDev, isAdmin, unreadCount]);
 
   const navSecondary = React.useMemo(() => getSecondaryNavigationItems(), []);
 
@@ -70,6 +198,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       )}
       {(isMobile ? state === "expanded" : true) && (
         <SidebarFooter>
+          {/* Bouton Accès Admin - visible pour non-admin/dev */}
+          {!isDev && !isAdmin && (
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg" asChild>
+                  <Link href="/login">
+                    <Shield className="h-5 w-5" />
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">Accès Admin</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        Se connecter
+                      </span>
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          )}
+
+          {/* NavUser - visible uniquement si connecté */}
           {session?.user && (
             <NavUser
               user={{

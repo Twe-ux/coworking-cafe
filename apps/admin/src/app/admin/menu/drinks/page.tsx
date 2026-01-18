@@ -1,18 +1,18 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { FoodPageClient } from "./FoodPageClient";
+import { authOptions } from "@/lib/auth-options";
+import { DrinksPageClient } from "./DrinksPageClient";
 
 export const metadata = {
-  title: "Menu - Nourriture | Admin",
-  description: "Gestion du menu nourriture",
+  title: "Menu - Boissons | Admin",
+  description: "Gestion du menu boissons",
 };
 
 /**
- * Page de gestion du menu nourriture
+ * Page de gestion du menu boissons
  * Accessible uniquement aux dev et admin
  */
-export default async function FoodPage() {
+export default async function DrinksPage() {
   // Vérifier l'authentification
   const session = await getServerSession(authOptions);
 
@@ -21,9 +21,9 @@ export default async function FoodPage() {
   }
 
   // Vérifier les permissions (dev ou admin uniquement)
-  if (!["dev", "admin"].includes(session.user.role?.name)) {
+  if (!["dev", "admin"].includes(session.user.role || "")) {
     redirect("/403");
   }
 
-  return <FoodPageClient />;
+  return <DrinksPageClient />;
 }

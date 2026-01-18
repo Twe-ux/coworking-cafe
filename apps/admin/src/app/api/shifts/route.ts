@@ -15,14 +15,11 @@ function createLocalDate(dateString: string): Date {
 
 /**
  * GET /api/shifts - Retrieve list of shifts with optional filters
+ * Public endpoint - accessible without authentication for staff pages
  */
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await requireAuth(['dev', 'admin', 'staff'])
-    if (!authResult.authorized) {
-      return authResult.response
-    }
-
+    // No auth required for reading shifts (staff schedule page is public)
     await connectMongoose()
 
     const { searchParams } = new URL(request.url)

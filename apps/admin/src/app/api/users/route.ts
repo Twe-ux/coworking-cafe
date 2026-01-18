@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { User, Newsletter } from "@coworking-cafe/database";
 import type { ApiResponse } from "@/types/timeEntry";
-import type { User as UserType, UserFilters } from "@/types/user";
+import type { User as UserType, UserFilters, PopulatedUserDocument } from "@/types/user";
 
 /**
  * GET /api/users
@@ -29,10 +29,10 @@ export async function GET(
     const newsletterParam = searchParams.get("newsletter");
 
     // Fetch all users with roles
-    const users = await User.find()
+    const users = (await User.find()
       .populate("role")
       .sort({ createdAt: -1 })
-      .lean();
+      .lean()) as unknown as PopulatedUserDocument[];
 
     // Fetch all newsletter entries (for standalone emails)
     const newsletters = await Newsletter.find({ isSubscribed: true }).lean();
@@ -52,7 +52,7 @@ export async function GET(
         companyName: user.companyName,
         role: {
           id: user.role._id.toString(),
-          slug: user.role.slug,
+          slug: user.role.slug as "dev" | "admin" | "staff" | "client",
           name: user.role.name,
           level: user.role.level,
         },
@@ -207,29 +207,32 @@ export async function POST(
     // Populate role
     await newUser.populate("role");
 
+    // Cast to PopulatedUserDocument for type safety
+    const populatedUser = newUser.toObject() as unknown as PopulatedUserDocument;
+
     // Transform to UserType
     const transformedUser: UserType = {
-      id: newUser._id.toString(),
-      email: newUser.email,
-      username: newUser.username,
-      givenName: newUser.givenName,
-      phone: newUser.phone,
-      companyName: newUser.companyName,
+      id: populatedUser._id.toString(),
+      email: populatedUser.email,
+      username: populatedUser.username,
+      givenName: populatedUser.givenName,
+      phone: populatedUser.phone,
+      companyName: populatedUser.companyName,
       role: {
-        id: newUser.role._id.toString(),
-        slug: newUser.role.slug,
-        name: newUser.role.name,
-        level: newUser.role.level,
+        id: populatedUser.role._id.toString(),
+        slug: populatedUser.role.slug as "dev" | "admin" | "staff" | "client",
+        name: populatedUser.role.name,
+        level: populatedUser.role.level,
       },
-      newsletter: newUser.newsletter,
-      emailVerifiedAt: newUser.emailVerifiedAt
-        ? new Date(newUser.emailVerifiedAt).toISOString().split("T")[0]
+      newsletter: populatedUser.newsletter,
+      emailVerifiedAt: populatedUser.emailVerifiedAt
+        ? new Date(populatedUser.emailVerifiedAt).toISOString().split("T")[0]
         : undefined,
-      lastLoginAt: newUser.lastLoginAt
-        ? new Date(newUser.lastLoginAt).toISOString().split("T")[0]
+      lastLoginAt: populatedUser.lastLoginAt
+        ? new Date(populatedUser.lastLoginAt).toISOString().split("T")[0]
         : undefined,
-      createdAt: new Date(newUser.createdAt).toISOString().split("T")[0],
-      updatedAt: new Date(newUser.updatedAt).toISOString().split("T")[0],
+      createdAt: new Date(populatedUser.createdAt).toISOString().split("T")[0],
+      updatedAt: new Date(populatedUser.updatedAt).toISOString().split("T")[0],
       deletedAt: undefined,
       isActive: true,
       isEmailVerified: false,

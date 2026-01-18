@@ -8,11 +8,18 @@ import type {
   TimeEntry as TimeEntryType,
 } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
+import { checkIPWhitelist, getClientIP } from '@/lib/security/ip-whitelist'
+import { checkRateLimit, recordAttempt, resetAttempts } from '@/lib/security/rate-limiter'
+import { logPINAttempt } from '@/lib/security/pin-logger'
 
 /**
  * POST /api/time-entries/clock-out - Terminer un shift actif
+ * 🔓 ROUTE PUBLIQUE avec sécurités : IP whitelist + Rate limiting + Logging
  */
 export async function POST(request: NextRequest) {
+  const clientIP = getClientIP(request)
+  const userAgent = request.headers.get('user-agent') || undefined
+
   try {
     const body = (await request.json()) as ClockOutRequest
 
@@ -25,6 +32,51 @@ export async function POST(request: NextRequest) {
           details: TIME_ENTRY_ERRORS.VALIDATION_ERROR,
         },
         { status: 400 }
+      )
+    }
+
+    // 🔒 Sécurité 1: IP Whitelist (optionnelle)
+    const ipCheck = checkIPWhitelist(request)
+    if (!ipCheck.allowed) {
+      logPINAttempt({
+        ip: clientIP,
+        employeeId: body.employeeId,
+        success: false,
+        action: 'clock-out',
+        failureReason: 'IP non autorisée',
+        userAgent,
+      })
+      return NextResponse.json<ApiResponse<null>>(
+        {
+          success: false,
+          error: ipCheck.reason,
+        },
+        { status: 403 }
+      )
+    }
+
+    // 🔒 Sécurité 2: Rate Limiting
+    const rateLimit = checkRateLimit(clientIP, body.employeeId)
+    if (!rateLimit.allowed) {
+      logPINAttempt({
+        ip: clientIP,
+        employeeId: body.employeeId,
+        success: false,
+        action: 'clock-out',
+        failureReason: `Rate limit: ${rateLimit.reason}`,
+        userAgent,
+      })
+      return NextResponse.json<ApiResponse<null>>(
+        {
+          success: false,
+          error: rateLimit.reason,
+        },
+        {
+          status: 429,
+          headers: rateLimit.retryAfter
+            ? { 'Retry-After': rateLimit.retryAfter.toString() }
+            : {}
+        }
       )
     }
 
@@ -67,7 +119,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!employee.verifyPin(body.pin)) {
+    // Vérifier le PIN
+    const isPinValid = employee.verifyPin(body.pin)
+
+    // 🔒 Enregistrer la tentative (succès ou échec)
+    recordAttempt(clientIP, body.employeeId)
+
+    if (!isPinValid) {
+      // 📝 Logger l'échec
+      logPINAttempt({
+        ip: clientIP,
+        employeeId: body.employeeId,
+        employeeName: employee.getFullName(),
+        success: false,
+        action: 'clock-out',
+        failureReason: 'PIN incorrect',
+        userAgent,
+      })
+
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -147,6 +216,19 @@ export async function POST(request: NextRequest) {
     timeEntry.status = 'completed'
 
     await timeEntry.save()
+
+    // ✅ PIN valide : Réinitialiser le compteur de tentatives
+    resetAttempts(clientIP, body.employeeId)
+
+    // 📝 Logger le succès
+    logPINAttempt({
+      ip: clientIP,
+      employeeId: body.employeeId,
+      employeeName: employee.getFullName(),
+      success: true,
+      action: 'clock-out',
+      userAgent,
+    })
 
     // Formater la réponse
     const populatedEmployee = timeEntry.employeeId as any

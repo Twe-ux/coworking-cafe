@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
+import { checkIPWhitelist, getClientIP } from '@/lib/security/ip-whitelist'
+import { checkRateLimit, recordAttempt, resetAttempts } from '@/lib/security/rate-limiter'
+import { logPINAttempt } from '@/lib/security/pin-logger'
 
 interface VerifyPinRequest {
   employeeId: string
@@ -9,8 +12,12 @@ interface VerifyPinRequest {
 
 /**
  * POST /api/hr/employees/verify-pin - Vérifier le PIN d'un employé
+ * 🔓 ROUTE PUBLIQUE avec sécurités : IP whitelist + Rate limiting + Logging
  */
 export async function POST(request: NextRequest) {
+  const clientIP = getClientIP(request)
+  const userAgent = request.headers.get('user-agent') || undefined
+
   try {
     const body = (await request.json()) as VerifyPinRequest
 
@@ -22,6 +29,47 @@ export async function POST(request: NextRequest) {
           error: 'ID employé et PIN sont obligatoires',
         },
         { status: 400 }
+      )
+    }
+
+    // 🔒 Sécurité 1: IP Whitelist (optionnelle)
+    const ipCheck = checkIPWhitelist(request)
+    if (!ipCheck.allowed) {
+      logPINAttempt({
+        ip: clientIP,
+        employeeId: body.employeeId,
+        success: false,
+        action: 'verify',
+        failureReason: 'IP non autorisée',
+        userAgent,
+      })
+      return NextResponse.json(
+        {
+          success: false,
+          error: ipCheck.reason,
+        },
+        { status: 403 }
+      )
+    }
+
+    // 🔒 Sécurité 2: Rate Limiting
+    const rateLimit = checkRateLimit(clientIP, body.employeeId)
+    if (!rateLimit.allowed) {
+      logPINAttempt({
+        ip: clientIP,
+        employeeId: body.employeeId,
+        success: false,
+        action: 'verify',
+        failureReason: `Rate limit: ${rateLimit.reason}`,
+        userAgent,
+      })
+      return NextResponse.json(
+        {
+          success: false,
+          error: rateLimit.reason,
+          retryAfter: rateLimit.retryAfter,
+        },
+        { status: 429 }
       )
     }
 
@@ -65,7 +113,21 @@ export async function POST(request: NextRequest) {
     // Vérifier le PIN
     const isPinValid = employee.verifyPin(body.pin)
 
+    // 🔒 Enregistrer la tentative (succès ou échec)
+    recordAttempt(clientIP, body.employeeId)
+
     if (!isPinValid) {
+      // 📝 Logger l'échec
+      logPINAttempt({
+        ip: clientIP,
+        employeeId: body.employeeId,
+        employeeName: employee.getFullName(),
+        success: false,
+        action: 'verify',
+        failureReason: 'PIN incorrect',
+        userAgent,
+      })
+
       return NextResponse.json(
         {
           success: false,
@@ -74,6 +136,19 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    // ✅ PIN valide : Réinitialiser le compteur de tentatives
+    resetAttempts(clientIP, body.employeeId)
+
+    // 📝 Logger le succès
+    logPINAttempt({
+      ip: clientIP,
+      employeeId: body.employeeId,
+      employeeName: employee.getFullName(),
+      success: true,
+      action: 'verify',
+      userAgent,
+    })
 
     // Retourner les informations de l'employé (sans le PIN)
     const employeeData = {

@@ -8,16 +8,12 @@ import type { ApiResponse, MenuData } from "@/types/menu";
 /**
  * GET /api/menu
  * Récupère toutes les catégories et tous les items du menu
- * Accessible à : dev, admin, staff
+ * Public endpoint - accessible without authentication for staff pages (menu)
  */
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<MenuData>>> {
-  // 1. Auth
-  const authResult = await requireAuth(["dev", "admin", "staff"]);
-  if (!authResult.authorized) {
-    return authResult.response;
-  }
+  // 1. No auth required for reading menu (staff menu page is public)
 
   // 2. DB Connection
   await connectMongoose();

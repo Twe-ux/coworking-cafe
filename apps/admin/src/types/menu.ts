@@ -52,6 +52,7 @@ export interface MenuCategoryFormData {
   name: string;
   description?: string;
   showOnSite?: boolean;
+  isActive?: boolean;
 }
 
 // Form data pour créer/éditer un item
@@ -61,6 +62,7 @@ export interface MenuItemFormData {
   recipe?: string;
   image?: string;
   categoryId: string;
+  isActive?: boolean;
 }
 
 // Filtres pour la liste
