@@ -143,7 +143,9 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false,
+        // Autoriser les cookies non-sécurisés en développement HTTP
+        // mais exiger HTTPS en production ou si configuré
+        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? process.env.NODE_ENV === 'production',
       },
     },
   },
