@@ -7,7 +7,7 @@ import type { ContactMailResponse, ContactMail as ContactMailType } from '@/type
 import { Resend } from 'resend';
 
 /**
- * GET /api/support/contact/[id]
+ * GET /api/messages/contact/[id]
  * Récupère un message de contact par ID
  */
 export async function GET(
@@ -50,7 +50,7 @@ export async function GET(
 
     return successResponse(data, 'Message récupéré avec succès');
   } catch (error) {
-    console.error('GET /api/support/contact/[id] error:', error);
+    console.error('GET /api/messages/contact/[id] error:', error);
     return errorResponse(
       'Erreur lors de la récupération du message',
       error instanceof Error ? error.message : 'Erreur inconnue'
@@ -59,7 +59,7 @@ export async function GET(
 }
 
 /**
- * PUT /api/support/contact/[id]
+ * PUT /api/messages/contact/[id]
  * Met à jour le statut ou ajoute une réponse
  */
 export async function PUT(
@@ -203,7 +203,7 @@ export async function PUT(
 
     return successResponse(updatedData, 'Message mis à jour avec succès');
   } catch (error) {
-    console.error('PUT /api/support/contact/[id] error:', error);
+    console.error('PUT /api/messages/contact/[id] error:', error);
     return errorResponse(
       'Erreur lors de la mise à jour du message',
       error instanceof Error ? error.message : 'Erreur inconnue'
@@ -212,7 +212,7 @@ export async function PUT(
 }
 
 /**
- * DELETE /api/support/contact/[id]
+ * DELETE /api/messages/contact/[id]
  * Supprime un message de contact
  */
 export async function DELETE(
@@ -254,7 +254,7 @@ export async function DELETE(
 
     return successResponse(result, 'Message supprimé avec succès', 200);
   } catch (error) {
-    console.error('DELETE /api/support/contact/[id] error:', error);
+    console.error('DELETE /api/messages/contact/[id] error:', error);
     return errorResponse(
       'Erreur lors de la suppression du message',
       error instanceof Error ? error.message : 'Erreur inconnue'

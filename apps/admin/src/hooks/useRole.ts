@@ -1,17 +1,12 @@
 import { useSession } from "next-auth/react";
-import { useRoleSwitcher } from "@/contexts/role-switcher-context";
 
 export type UserRole = "dev" | "admin" | "staff";
 
 export function useRole() {
   const { data: session } = useSession();
-  const { selectedRole, canSwitchRole } = useRoleSwitcher();
 
-  // Si le role switcher est actif (dev uniquement), utiliser le rôle sélectionné
-  // Sinon utiliser le rôle de la session
-  const actualRole = canSwitchRole && selectedRole
-    ? (selectedRole.value as UserRole)
-    : (session?.user?.role as UserRole | undefined);
+  // Utiliser directement le rôle de la session
+  const actualRole = session?.user?.role as UserRole | undefined;
 
   return {
     role: actualRole,

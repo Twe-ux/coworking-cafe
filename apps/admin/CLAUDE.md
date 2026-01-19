@@ -708,6 +708,182 @@ export function MaPageClient() {
 
 ---
 
+### Pattern Page d'Index pour Sections avec Sous-menus (BONNE PRATIQUE)
+
+**RÈGLE** : Quand tu crées une section de menu avec des sous-menus, tu DOIS créer une page d'index qui liste les sous-menus disponibles.
+
+**Pourquoi ?**
+- Meilleure navigation pour l'utilisateur
+- Vue d'ensemble de la section
+- Accès rapide aux différentes pages
+- Cohérence dans l'application
+
+#### Choix de Présentation
+
+| Type de contenu | Présentation | Exemple |
+|-----------------|--------------|---------|
+| **Outils/Actions** | Liste verticale | Dev Tools, Settings |
+| **Modules métier** | Cards en grid | HR, Comptabilité, Menu |
+| **Données** | Table ou liste | Utilisateurs, Messages |
+
+#### Exemple 1: Page d'Index avec Liste (Dev Tools)
+
+```typescript
+// /app/admin/dev/page.tsx
+import { Terminal, Bell, Database, FileText } from "lucide-react";
+import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+export default function DevToolsPage() {
+  const tools = [
+    {
+      title: "Notifications",
+      description: "Tester et déboguer le système de notifications push",
+      icon: Bell,
+      href: "/admin/debug/notifications",
+    },
+    {
+      title: "Database",
+      description: "Explorer et gérer la base de données",
+      icon: Database,
+      href: "/dev/database",
+    },
+    {
+      title: "Logs",
+      description: "Consulter les logs de l'application",
+      icon: FileText,
+      href: "/dev/logs",
+    },
+  ];
+
+  return (
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Terminal className="w-8 h-8" />
+          Dev Tools
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Outils de développement et de débogage
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {tools.map((tool) => (
+          <Link key={tool.href} href={tool.href}>
+            <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <tool.icon className="w-5 h-5" />
+                  {tool.title}
+                </CardTitle>
+                <CardDescription>{tool.description}</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+#### Exemple 2: Page d'Index avec Cards (HR)
+
+```typescript
+// /app/admin/hr/page.tsx
+import { Users, Calendar, Clock, CalendarDays } from "lucide-react";
+import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+export default function HRPage() {
+  const modules = [
+    {
+      title: "Employés",
+      description: "Gérer les employés et leurs contrats",
+      icon: Users,
+      href: "/admin/hr/employees",
+      stats: "12 employés actifs",
+    },
+    {
+      title: "Planning",
+      description: "Planifier les shifts et horaires",
+      icon: Calendar,
+      href: "/admin/hr/schedule",
+      stats: "Semaine en cours",
+    },
+    {
+      title: "Pointage Admin",
+      description: "Consulter et modifier les pointages",
+      icon: Clock,
+      href: "/admin/hr/clocking-admin",
+      stats: "Aujourd'hui",
+    },
+    {
+      title: "Disponibilités",
+      description: "Gérer les disponibilités des employés",
+      icon: CalendarDays,
+      href: "/admin/hr/availability",
+      stats: "À jour",
+    },
+  ];
+
+  return (
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold">Ressources Humaines</h1>
+        <p className="text-muted-foreground mt-2">
+          Gestion des employés, planning et pointage
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {modules.map((module) => (
+          <Link key={module.href} href={module.href}>
+            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <module.icon className="w-8 h-8 text-primary" />
+                  <span className="text-xs text-muted-foreground">{module.stats}</span>
+                </div>
+                <CardTitle className="mt-4">{module.title}</CardTitle>
+                <CardDescription>{module.description}</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+#### Structure Recommandée
+
+```
+/app/admin/ma-section/
+├── page.tsx                 # ✅ Page d'index (liste ou cards)
+├── sous-menu-1/
+│   └── page.tsx
+├── sous-menu-2/
+│   └── page.tsx
+└── sous-menu-3/
+    └── page.tsx
+```
+
+#### Checklist Page d'Index
+
+Quand tu crées une section avec sous-menus :
+- [ ] Créer la page d'index à la racine de la section
+- [ ] Choisir le format adapté (liste ou cards)
+- [ ] Ajouter titre et description de la section
+- [ ] Lister tous les sous-menus avec liens
+- [ ] Ajouter icônes pour identification visuelle
+- [ ] Optionnel : Afficher des stats/badges si pertinent
+- [ ] Tester que tous les liens fonctionnent
+
+---
+
 ### Structure d'un Composant
 
 ```typescript

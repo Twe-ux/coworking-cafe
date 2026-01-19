@@ -5,14 +5,18 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbP
 import { Fragment } from "react"
 
 const routeLabels: Record<string, string> = {
+  admin: "Admin",
   dashboard: "Tableau de bord",
   accounting: "Comptabilité",
   "cash-control": "Contrôle de Caisse",
+  turnover: "Chiffre d'affaires",
   hr: "Ressources Humaines",
   employees: "Employés",
   onboarding: "Intégration",
   schedule: "Planning",
   clocking: "Pointage",
+  "clocking-admin": "Pointage Admin",
+  availability: "Disponibilités",
   users: "Utilisateurs",
   bookings: "Réservations",
   calendar: "Calendrier",
@@ -24,6 +28,7 @@ const routeLabels: Record<string, string> = {
   comments: "Commentaires",
   messages: "Messages",
   support: "Support",
+  contact: "Messages de contact",
   feedback: "Retours",
   settings: "Paramètres",
   analytics: "Analytiques",
@@ -31,6 +36,13 @@ const routeLabels: Record<string, string> = {
   logs: "Journaux",
   debug: "Débogage",
   database: "Base de données",
+  menu: "Menu",
+  drinks: "Boissons",
+  food: "Nourriture",
+  recipes: "Recettes",
+  promo: "Promotions",
+  "my-schedule": "Mon Planning",
+  notifications: "Notifications",
 }
 
 export function DynamicBreadcrumb() {
@@ -39,13 +51,18 @@ export function DynamicBreadcrumb() {
   // Générer les segments du chemin
   const segments = pathname.split("/").filter(Boolean)
 
-  // Si on est sur la page d'accueil
-  if (segments.length === 0 || pathname === "/") {
+  // Déterminer si on est dans le contexte admin ou staff
+  const isAdminContext = segments[0] === "admin"
+  const homeHref = isAdminContext ? "/admin" : "/"
+  const homeLabel = isAdminContext ? "Dashboard Admin" : "Tableau de bord"
+
+  // Si on est sur la page d'accueil admin ou staff
+  if (segments.length === 0 || pathname === "/" || pathname === "/admin") {
     return (
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>Tableau de bord</BreadcrumbPage>
+            <BreadcrumbPage>{homeLabel}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -56,7 +73,7 @@ export function DynamicBreadcrumb() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">Tableau de bord</BreadcrumbLink>
+          <BreadcrumbLink href={homeHref}>{homeLabel}</BreadcrumbLink>
         </BreadcrumbItem>
         {segments.map((segment, index) => {
           const isLast = index === segments.length - 1

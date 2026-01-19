@@ -39,7 +39,7 @@ export function useUnreadContactMessages(): UseUnreadContactMessagesReturn {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/support/contact/unread-count');
+      const response = await fetch('/api/messages/contact/unread-count');
       const data = await response.json();
 
       if (!data.success) {

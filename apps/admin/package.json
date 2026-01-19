@@ -11,6 +11,8 @@
     "type-check": "tsc --noEmit",
     "seed-roles": "tsx scripts/seed-roles.ts",
     "create-admin": "tsx scripts/create-admin.ts",
+    "seed-admin-users": "tsx scripts/seed-admin-users.ts",
+    "migrate-to-pin-auth": "tsx scripts/migrate-to-pin-auth.ts",
     "debug-db": "tsx scripts/debug-db.ts",
     "reset-users": "tsx scripts/reset-users.ts",
     "check-password": "tsx scripts/check-password.ts",

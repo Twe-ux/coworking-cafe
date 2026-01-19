@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
+import { connectDB } from '@/lib/db';
 import { sendNewContactNotification } from '@/lib/push-notifications';
 import { ContactMail } from '@coworking-cafe/database';
 
@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
       id: message._id.toString(),
       name: message.name,
       subject: message.subject,
+      message: message.message,
       unreadCount,
     });
 

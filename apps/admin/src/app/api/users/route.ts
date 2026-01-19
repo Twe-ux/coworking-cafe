@@ -42,6 +42,12 @@ export async function GET(
 
     // Add all users
     users.forEach((user) => {
+      // Skip users without valid role (should not happen but safety check)
+      if (!user.role || !user.role._id) {
+        console.warn(`[API /users] User ${user._id} has no valid role, skipping`);
+        return;
+      }
+
       const emailLower = user.email.toLowerCase();
       usersMap.set(emailLower, {
         id: user._id.toString(),

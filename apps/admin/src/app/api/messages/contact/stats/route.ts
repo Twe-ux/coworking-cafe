@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 /**
- * GET /api/support/contact/stats
+ * GET /api/messages/contact/stats
  * Récupère les statistiques des messages de contact
  */
 export async function GET(
@@ -55,7 +55,7 @@ export async function GET(
 
     return successResponse(result, 'Statistiques récupérées avec succès');
   } catch (error) {
-    console.error('GET /api/support/contact/stats error:', error);
+    console.error('GET /api/messages/contact/stats error:', error);
     return errorResponse(
       'Erreur lors de la récupération des statistiques',
       error instanceof Error ? error.message : 'Erreur inconnue'

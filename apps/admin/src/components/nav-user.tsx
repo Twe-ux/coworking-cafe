@@ -1,8 +1,8 @@
 "use client";
 
-import { useRoleSwitcher } from "@/contexts/role-switcher-context";
 import { ChevronsUpDown, LogOut, User } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -33,11 +33,15 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const { selectedRole } = useRoleSwitcher();
+  const router = useRouter();
+
+  const handleProfileClick = () => {
+    router.push("/profile");
+  };
 
   const handleLogout = async () => {
     await signOut({
-      callbackUrl: `${window.location.origin}/login`,
+      callbackUrl: `${window.location.origin}/`,
       redirect: true,
     });
   };
@@ -51,7 +55,8 @@ export function NavUser({
       .slice(0, 2);
   };
 
-  const RoleIcon = selectedRole?.logo || User;
+  // Utiliser l'icône User par défaut
+  const RoleIcon = User;
 
   return (
     <SidebarMenu>
@@ -108,7 +113,7 @@ export function NavUser({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleProfileClick}>
                   <User />
                   Mon profil
                 </DropdownMenuItem>

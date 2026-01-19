@@ -67,7 +67,7 @@ export function ContactMessageDialog({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`/api/support/contact/${message.id}`, {
+      const response = await fetch(`/api/messages/contact/${message.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reply: reply.trim() }),
@@ -96,7 +96,7 @@ export function ContactMessageDialog({
 
   const handleArchive = async () => {
     try {
-      const response = await fetch(`/api/support/contact/${message.id}`, {
+      const response = await fetch(`/api/messages/contact/${message.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "archived" }),
@@ -125,7 +125,7 @@ export function ContactMessageDialog({
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`/api/support/contact/${message.id}`, {
+      const response = await fetch(`/api/messages/contact/${message.id}`, {
         method: "DELETE",
       });
 

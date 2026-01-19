@@ -189,7 +189,7 @@ export async function DELETE(
 
     await MenuItem.findByIdAndDelete(params.id);
 
-    return successResponse(undefined, "Item supprimé avec succès", 204);
+    return successResponse(null, "Item supprimé avec succès");
   } catch (error) {
     console.error(`DELETE /api/menu/items/${params.id} error:`, error);
     return errorResponse(

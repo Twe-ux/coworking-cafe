@@ -4,6 +4,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDatabase } from '@/lib/mongodb';
 import bcrypt from 'bcryptjs';
 import { ObjectId } from 'mongodb';
+import { connectMongoose } from '@/lib/mongodb';
+import { UserModel } from '@/models/user';
 
 // Types pour les documents MongoDB
 interface UserDocument {
@@ -36,6 +38,30 @@ export const authOptions: NextAuthOptions = {
           if (!credentials?.email || !credentials?.password) {
             console.log('❌ Missing credentials');
             throw new Error('Email et mot de passe requis');
+          }
+
+          // Vérifier si c'est un PIN (6 chiffres uniquement)
+          const isPIN = /^\d{6}$/.test(credentials.password);
+
+          if (isPIN) {
+            console.log('🔑 PIN authentication detected');
+            await connectMongoose();
+
+            // Chercher l'utilisateur par PIN dans le nouveau model
+            const userWithPin = await UserModel.findOne({ pin: credentials.password }).lean();
+
+            if (userWithPin) {
+              console.log('✅ User found by PIN:', userWithPin.email);
+              return {
+                id: userWithPin._id.toString(),
+                email: userWithPin.email,
+                name: userWithPin.name,
+                role: userWithPin.role,
+              } as NextAuthUser;
+            }
+
+            console.log('❌ No user found with this PIN');
+            throw new Error('PIN incorrect');
           }
 
           console.log('📡 Connecting to database...');

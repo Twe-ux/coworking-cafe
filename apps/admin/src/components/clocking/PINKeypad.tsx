@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { X, Delete, Check } from 'lucide-react'
+import { X, Delete } from 'lucide-react'
 import { useState } from 'react'
 
 interface PINKeypadProps {
@@ -22,21 +22,24 @@ export default function PINKeypad({
   employeeName,
 }: PINKeypadProps) {
   const [pin, setPin] = useState('')
+  const PIN_LENGTH = 6 // 6 chiffres au lieu de 4
 
   const handleNumberPress = (number: string) => {
-    if (pin.length < 4) {
-      setPin((prev) => prev + number)
+    if (pin.length < PIN_LENGTH) {
+      const newPin = pin + number
+      setPin(newPin)
+
+      // Auto-valider dès que 6 chiffres sont saisis
+      if (newPin.length === PIN_LENGTH) {
+        setTimeout(() => {
+          onSubmit(newPin)
+        }, 100) // Petit délai pour feedback visuel
+      }
     }
   }
 
   const handleClear = () => {
     setPin('')
-  }
-
-  const handleSubmit = () => {
-    if (pin.length === 4) {
-      onSubmit(pin)
-    }
   }
 
   const handleCancel = () => {
@@ -66,7 +69,7 @@ export default function PINKeypad({
         {/* PIN Display */}
         <div className="text-center">
           <div className="mb-2 flex justify-center space-x-2">
-            {Array.from({ length: 4 }).map((_, index) => (
+            {Array.from({ length: PIN_LENGTH }).map((_, index) => (
               <div
                 key={index}
                 className={`h-4 w-4 rounded-full border-2 ${
@@ -78,7 +81,7 @@ export default function PINKeypad({
             ))}
           </div>
           <p className="text-sm text-gray-600">
-            Saisissez votre code PIN à 4 chiffres
+            Saisissez votre code PIN à 6 chiffres
           </p>
           {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         </div>
@@ -124,14 +127,6 @@ export default function PINKeypad({
           >
             <X className="h-4 w-4" />
             Annuler
-          </Button>
-          <Button
-            className="flex flex-1 items-center justify-center gap-2"
-            onClick={handleSubmit}
-            disabled={isLoading || pin.length !== 4}
-          >
-            <Check className="h-4 w-4" />
-            Valider
           </Button>
         </div>
       </CardContent>

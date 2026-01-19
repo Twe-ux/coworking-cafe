@@ -27,26 +27,42 @@ export function RoleSwitcherProvider({
   children: React.ReactNode
   availableRoles: Role[]
 }) {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const userRole = session?.user?.role as 'dev' | 'admin' | 'staff' | undefined
 
-  // Find the role matching the user's actual role
-  // Default to 'staff' if no role (user not logged in)
-  const initialRole = availableRoles.find(r => r.value === userRole)
-    || availableRoles.find(r => r.value === 'staff')
-    || availableRoles[0]
-  const [selectedRole, setSelectedRole] = React.useState<Role>(initialRole)
+  // Attendre que la session soit chargée avant d'initialiser le rôle
+  // Cela évite le "flash" staff → admin au chargement
+  const [selectedRole, setSelectedRole] = React.useState<Role | null>(null)
   const [hasManuallyChanged, setHasManuallyChanged] = React.useState(false)
 
-  // Update selected role when session changes (but not if user manually changed it)
+  // Initialiser le rôle une seule fois quand la session est chargée
   React.useEffect(() => {
-    if (userRole && !hasManuallyChanged) {
+    // Ne rien faire si :
+    // - Le rôle a déjà été initialisé
+    // - La session est encore en chargement
+    // - L'utilisateur a changé le rôle manuellement
+    if (selectedRole !== null || status === 'loading' || hasManuallyChanged) {
+      return
+    }
+
+    // Session chargée : initialiser avec le vrai rôle de l'utilisateur
+    const initialRole = availableRoles.find(r => r.value === userRole)
+      || availableRoles.find(r => r.value === 'staff')
+      || availableRoles[0]
+
+    setSelectedRole(initialRole)
+  }, [session, status, userRole, availableRoles, selectedRole, hasManuallyChanged])
+
+  // Mettre à jour le rôle si la session change (login/logout)
+  // mais seulement si l'utilisateur n'a pas changé manuellement
+  React.useEffect(() => {
+    if (userRole && !hasManuallyChanged && selectedRole !== null) {
       const matchingRole = availableRoles.find(r => r.value === userRole)
-      if (matchingRole) {
+      if (matchingRole && matchingRole.value !== selectedRole.value) {
         setSelectedRole(matchingRole)
       }
     }
-  }, [userRole, availableRoles, hasManuallyChanged])
+  }, [userRole, availableRoles, hasManuallyChanged, selectedRole])
 
   // Only dev can switch roles
   const canSwitchRole = userRole === 'dev'

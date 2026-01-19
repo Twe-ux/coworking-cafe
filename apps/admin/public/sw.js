@@ -1,10 +1,10 @@
 // Service Worker pour PWA CoworKing Café Admin
 // Gère les push notifications et la Badge API
 
-const CACHE_NAME = 'cwc-admin-v1';
+const CACHE_NAME = 'cwc-admin-v5';
 const urlsToCache = [
   '/admin',
-  '/admin/support/contact',
+  '/admin/messages/contact',
 ];
 
 // Installation du Service Worker
@@ -59,49 +59,60 @@ self.addEventListener('fetch', (event) => {
 
 // Gestion des Push Notifications
 self.addEventListener('push', (event) => {
-  console.log('[Service Worker] Push received:', event);
+  console.log('[Service Worker] Push event received');
+  console.log('[Service Worker] Push data:', event.data ? event.data.text() : 'no data');
 
   const defaultData = {
     title: 'Nouveau message',
     body: 'Vous avez reçu un nouveau message de contact',
-    icon: '/web-app-manifest-192x192.png',
-    badge: '/favicon-96x96.png',
+    icon: '/web-app-manifest-512x512.png',
+    badge: '/web-app-manifest-192x192.png',
     tag: 'contact-message',
     requireInteraction: false,
   };
 
-  const data = event.data ? event.data.json() : defaultData;
+  let data = defaultData;
 
-  const promiseChain = self.registration.showNotification(data.title, {
+  try {
+    if (event.data) {
+      data = event.data.json();
+      console.log('[Service Worker] Parsed push data:', data);
+    }
+  } catch (e) {
+    console.error('[Service Worker] Failed to parse push data:', e);
+  }
+
+  const notificationOptions = {
     body: data.body,
     icon: data.icon || defaultData.icon,
     badge: data.badge || defaultData.badge,
     tag: data.tag || defaultData.tag,
     requireInteraction: data.requireInteraction || false,
     data: {
-      url: data.url || '/admin/support/contact',
+      url: data.url || '/admin/messages/contact',
       messageId: data.messageId,
     },
-    actions: [
-      {
-        action: 'view',
-        title: 'Voir',
-      },
-      {
-        action: 'close',
-        title: 'Fermer',
-      },
-    ],
-  });
+    // Actions peuvent ne pas être supportées sur tous les navigateurs
+    ...(typeof data.actions !== 'undefined' ? { actions: data.actions } : {}),
+  };
 
-  // Mettre à jour le badge avec le nombre de messages non lus
-  if (data.unreadCount !== undefined) {
-    promiseChain.then(() => {
-      if (navigator.setAppBadge) {
-        navigator.setAppBadge(data.unreadCount);
+  console.log('[Service Worker] Showing notification with options:', notificationOptions);
+
+  const promiseChain = self.registration.showNotification(data.title, notificationOptions)
+    .then(() => {
+      console.log('[Service Worker] Notification shown successfully');
+
+      // Mettre à jour le badge avec le nombre de messages non lus
+      if (data.unreadCount !== undefined) {
+        console.log('[Service Worker] Updating badge to:', data.unreadCount);
+        if (navigator.setAppBadge) {
+          return navigator.setAppBadge(data.unreadCount);
+        }
       }
+    })
+    .catch((error) => {
+      console.error('[Service Worker] Failed to show notification:', error);
     });
-  }
 
   event.waitUntil(promiseChain);
 });
@@ -109,6 +120,7 @@ self.addEventListener('push', (event) => {
 // Gestion des clics sur les notifications
 self.addEventListener('notificationclick', (event) => {
   console.log('[Service Worker] Notification clicked:', event);
+  console.log('[Service Worker] Notification data:', event.notification.data);
 
   event.notification.close();
 
@@ -116,24 +128,51 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
 
-  // Ouvrir l'URL de la notification
-  const urlToOpen = event.notification.data?.url || '/admin/support/contact';
+  // Récupérer l'URL de destination
+  const targetPath = event.notification.data?.url || '/admin/messages/contact';
+  console.log('[Service Worker] Target path:', targetPath);
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((windowClients) => {
-        // Vérifier si une fenêtre est déjà ouverte
-        for (let i = 0; i < windowClients.length; i++) {
-          const client = windowClients[i];
-          if (client.url === urlToOpen && 'focus' in client) {
-            return client.focus();
-          }
+        console.log('[Service Worker] Found windows:', windowClients.length);
+
+        // Si une fenêtre existe, la focus et envoie un message pour naviguer
+        if (windowClients.length > 0) {
+          const client = windowClients[0];
+          console.log('[Service Worker] Focusing existing window:', client.url);
+
+          // Focus la fenêtre
+          return client.focus().then(() => {
+            console.log('[Service Worker] Window focused, waiting for app to be ready...');
+
+            // Attendre un court délai pour que l'app soit complètement hydratée
+            // Ceci résout le problème du "premier clic" après réouverture de l'app
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                console.log('[Service Worker] Sending navigation message to client:', targetPath);
+
+                // Envoyer un message à l'app pour qu'elle navigue elle-même
+                client.postMessage({
+                  type: 'NAVIGATE',
+                  url: targetPath
+                });
+
+                resolve();
+              }, 300); // 300ms suffisent pour l'hydratation React
+            });
+          });
         }
 
-        // Sinon, ouvrir une nouvelle fenêtre
+        // Sinon, ouvrir une nouvelle fenêtre avec l'URL complète
         if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
+          const fullUrl = self.registration.scope + targetPath.replace(/^\//, '');
+          console.log('[Service Worker] Opening new window:', fullUrl);
+          return clients.openWindow(fullUrl);
         }
+      })
+      .catch((error) => {
+        console.error('[Service Worker] Error handling notification click:', error);
       })
   );
 });

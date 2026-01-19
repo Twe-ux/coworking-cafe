@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardHeader,
@@ -21,6 +23,14 @@ import { useRole } from "@/hooks/useRole";
 export default function StaffHomePage() {
   const { data: session } = useSession();
   const { isAdmin, isDev } = useRole();
+  const router = useRouter();
+
+  // Rediriger admin/dev vers /admin
+  useEffect(() => {
+    if (session?.user && (isAdmin || isDev)) {
+      router.replace("/admin");
+    }
+  }, [session, isAdmin, isDev, router]);
 
   const displayName =
     session?.user?.name || session?.user?.email?.split("@")[0] || "Le Staff";

@@ -6,7 +6,7 @@ import { ContactMail } from '@/models/contactMail';
 import type { ContactMailListResponse, ContactMail as ContactMailType } from '@/types/contactMail';
 
 /**
- * GET /api/support/contact
+ * GET /api/messages/contact
  * Liste tous les messages de contact avec filtres et pagination
  */
 export async function GET(
@@ -72,7 +72,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('GET /api/support/contact error:', error);
+    console.error('GET /api/messages/contact error:', error);
     return errorResponse(
       'Erreur lors de la récupération des messages',
       error instanceof Error ? error.message : 'Erreur inconnue'

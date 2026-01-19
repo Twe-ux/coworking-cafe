@@ -49,7 +49,7 @@ export function useContactMessages(
         params.set("status", statusFilter);
       }
 
-      const response = await fetch(`/api/support/contact?${params}`);
+      const response = await fetch(`/api/messages/contact?${params}`);
       const data = await response.json();
 
       if (!data.success) {

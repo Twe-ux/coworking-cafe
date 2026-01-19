@@ -22,6 +22,7 @@ const sourceCodePro = Source_Code_Pro({
 export const metadata: Metadata = {
   title: "CoworKing Café Admin",
   description: "Administration CoworKing Café",
+  applicationName: "CoworKing Café Admin",
   // PWA Configuration
   manifest: '/manifest.webmanifest',
   themeColor: '#000000',
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'CWC Admin',
+    title: 'CoworKing Café Admin',
   },
   icons: {
     icon: [
@@ -47,6 +48,10 @@ export const metadata: Metadata = {
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
+  },
+  other: {
+    'apple-mobile-web-app-capable': 'yes',
+    'mobile-web-app-capable': 'yes',
   },
 }
 

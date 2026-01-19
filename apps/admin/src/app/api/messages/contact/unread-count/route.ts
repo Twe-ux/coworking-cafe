@@ -6,7 +6,7 @@ import { ContactMail } from "@/models/contactMail";
 import type { ApiResponse } from "@/types/timeEntry";
 
 /**
- * GET /api/support/contact/unread-count
+ * GET /api/messages/contact/unread-count
  * Récupère le nombre de messages non lus
  */
 export async function GET(
@@ -25,7 +25,7 @@ export async function GET(
 
     return successResponse({ count });
   } catch (error) {
-    console.error("GET /api/support/contact/unread-count error:", error);
+    console.error("GET /api/messages/contact/unread-count error:", error);
     return errorResponse(
       "Erreur lors de la récupération du nombre de messages non lus",
       error instanceof Error ? error.message : "Erreur inconnue"

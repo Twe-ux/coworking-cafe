@@ -175,7 +175,7 @@ export async function DELETE(
 
     await MenuCategory.findByIdAndDelete(params.id);
 
-    return successResponse(undefined, "Catégorie supprimée avec succès", 204);
+    return successResponse(null, "Catégorie supprimée avec succès");
   } catch (error) {
     console.error(`DELETE /api/menu/categories/${params.id} error:`, error);
     return errorResponse(

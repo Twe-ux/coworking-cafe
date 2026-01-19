@@ -19,6 +19,7 @@
     --accent: 122 39% 85%;
     --accent-foreground: 125 59% 24%;
     --destructive: 1 65% 47%;
+    --destructive-foreground: 0 0% 100%;
     --border: 0 0% 87.0588%;
     --input: 0 0% 87.0588%;
     --ring: 122 39% 85%;
@@ -75,6 +76,7 @@
     --accent: 122 40% 40%;
     --accent-foreground: 33 27% 92%;
     --destructive: 1 65% 47%;
+    --destructive-foreground: 0 0% 100%;
     --border: 116 11% 26%;
     --input: 116 11% 26%;
     --ring: 122 39% 49%;
@@ -128,6 +130,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

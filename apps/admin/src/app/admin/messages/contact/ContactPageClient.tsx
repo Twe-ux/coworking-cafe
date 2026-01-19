@@ -9,9 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DataTable } from "@/components/support/contact/data-table";
-import { columns } from "@/components/support/contact/columns";
-import { ContactMessageDialog } from "@/components/support/contact/ContactMessageDialog";
+import { DataTable } from "@/components/messages/contact/data-table";
+import { columns } from "@/components/messages/contact/columns";
+import { ContactMessageDialog } from "@/components/messages/contact/ContactMessageDialog";
 import { ContactPageSkeleton } from "./ContactPageSkeleton";
 import { useContactMessages } from "@/hooks/useContactMessages";
 import { toast } from "sonner";
@@ -50,7 +50,7 @@ export function ContactPageClient() {
     // Marquer comme lu en arrière-plan si nécessaire
     if (message.status === "unread") {
       try {
-        await fetch(`/api/support/contact/${message.id}`, {
+        await fetch(`/api/messages/contact/${message.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "read" }),
@@ -72,7 +72,7 @@ export function ContactPageClient() {
     // Marquer comme lu en arrière-plan si nécessaire
     if (message.status === "unread") {
       try {
-        await fetch(`/api/support/contact/${message.id}`, {
+        await fetch(`/api/messages/contact/${message.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "read" }),
@@ -92,7 +92,7 @@ export function ContactPageClient() {
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`/api/support/contact/${id}`, {
+      const response = await fetch(`/api/messages/contact/${id}`, {
         method: "DELETE",
       });
 

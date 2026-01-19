@@ -142,31 +142,77 @@ export async function unsubscribeFromPushNotifications(
 }
 
 /**
+ * Détecte si l'app est en mode standalone (installée sur l'écran d'accueil)
+ */
+function isStandalone(): boolean {
+  // iOS
+  if ('standalone' in window.navigator) {
+    return (window.navigator as any).standalone === true;
+  }
+
+  // Android et autres
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Détecte si on est sur iOS
+ */
+function isIOS(): boolean {
+  return /iPhone|iPad|iPod/.test(navigator.userAgent);
+}
+
+/**
  * Met à jour le badge de l'app avec le nombre de messages non lus
  */
 export async function updateAppBadge(count: number): Promise<void> {
+  const standalone = isStandalone();
+  const ios = isIOS();
+
+  console.log('[Notifications] Update badge requested:', {
+    count,
+    standalone,
+    ios,
+    badgeAPISupported: 'setAppBadge' in navigator,
+  });
+
+  // Badge API (supportée sur Chrome, Edge, Safari 16.4+)
   if ('setAppBadge' in navigator) {
     try {
       if (count > 0) {
         await navigator.setAppBadge(count);
+        console.log('[Notifications] ✅ Badge updated via Badge API:', count);
       } else {
         await navigator.clearAppBadge();
+        console.log('[Notifications] ✅ Badge cleared via Badge API');
       }
-
-      console.log('[Notifications] Badge updated:', count);
+      return;
     } catch (error) {
-      console.error('[Notifications] Badge update failed:', error);
+      console.error('[Notifications] ❌ Badge API failed:', error);
+
+      // Sur iOS, l'erreur est souvent "NotAllowedError" si pas en standalone
+      if (ios && !standalone) {
+        console.warn('[Notifications] 💡 iOS: L\'app doit être installée sur l\'écran d\'accueil pour que le badge fonctionne');
+      }
     }
   } else {
-    console.warn('[Notifications] Badge API not supported');
+    console.warn('[Notifications] ⚠️ Badge API not supported on this browser');
 
-    // Fallback: Envoyer un message au service worker
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'UPDATE_BADGE',
-        count,
-      });
+    if (ios) {
+      console.warn('[Notifications] 💡 iOS: Nécessite iOS 16.4+ et app installée');
     }
+  }
+
+  // Fallback: Envoyer un message au service worker
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    console.log('[Notifications] Trying fallback via Service Worker...');
+    navigator.serviceWorker.controller.postMessage({
+      type: 'UPDATE_BADGE',
+      count,
+    });
   }
 }
 

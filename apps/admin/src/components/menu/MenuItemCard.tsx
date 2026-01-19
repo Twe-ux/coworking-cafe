@@ -53,7 +53,7 @@ export function MenuItemCard({
         <div className="space-y-4">
           {/* Image si disponible */}
           {item.image && (
-            <div className="w-full h-32 rounded-md overflow-hidden bg-muted">
+            <div className="w-full h-48 rounded-md overflow-hidden bg-muted">
               <img
                 src={item.image}
                 alt={item.name}

@@ -21,6 +21,41 @@ function initializeWebPush() {
 }
 
 /**
+ * Types de notifications supportés
+ */
+export type NotificationType = 'contact' | 'messenger' | 'support' | 'system';
+
+/**
+ * Configuration des types de notifications
+ */
+export const NOTIFICATION_CONFIGS = {
+  contact: {
+    icon: '/web-app-manifest-512x512.png',
+    badge: '/web-app-manifest-192x192.png',
+    tag: 'contact-message',
+    url: '/admin/messages/contact',
+  },
+  messenger: {
+    icon: '/web-app-manifest-512x512.png',
+    badge: '/web-app-manifest-192x192.png',
+    tag: 'messenger-message',
+    url: '/admin/messages/messenger',
+  },
+  support: {
+    icon: '/web-app-manifest-512x512.png',
+    badge: '/web-app-manifest-192x192.png',
+    tag: 'support-message',
+    url: '/admin/messages/support',
+  },
+  system: {
+    icon: '/web-app-manifest-512x512.png',
+    badge: '/web-app-manifest-192x192.png',
+    tag: 'system-notification',
+    url: '/admin',
+  },
+} as const;
+
+/**
  * Interface pour les données de notification
  */
 export interface NotificationData {
@@ -33,6 +68,7 @@ export interface NotificationData {
   requireInteraction?: boolean;
   messageId?: string;
   unreadCount?: number;
+  type?: NotificationType;
 }
 
 /**
@@ -97,12 +133,13 @@ export async function sendPushNotification(data: NotificationData): Promise<{
           failed++;
 
           // Si l'erreur est 410 (Gone), supprimer la subscription invalide
-          if (error.statusCode === 410) {
+          if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 410) {
             console.log('[Push] Subscription expired, deleting:', sub.endpoint);
             await PushSubscription.deleteOne({ endpoint: sub.endpoint });
           } else {
             console.error('[Push] Error sending to:', sub.endpoint, error);
-            errors.push(`${sub.endpoint}: ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            errors.push(`${sub.endpoint}: ${errorMessage}`);
           }
         }
       })
@@ -118,13 +155,54 @@ export async function sendPushNotification(data: NotificationData): Promise<{
     };
   } catch (error) {
     console.error('[Push] sendPushNotification error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       success: false,
       sent: 0,
       failed: 0,
-      errors: [error.message],
+      errors: [errorMessage],
     };
   }
+}
+
+/**
+ * Envoie une notification générique basée sur le type
+ */
+async function sendTypedNotification(
+  type: NotificationType,
+  data: {
+    title: string;
+    body: string;
+    messageId: string;
+    unreadCount: number;
+    requireInteraction?: boolean;
+  }
+): Promise<{
+  success: boolean;
+  sent: number;
+  failed: number;
+  errors: string[];
+}> {
+  const config = NOTIFICATION_CONFIGS[type];
+
+  console.log(`[Push] Sending ${type} notification:`, {
+    messageId: data.messageId,
+    title: data.title,
+    unreadCount: data.unreadCount,
+  });
+
+  return await sendPushNotification({
+    title: data.title,
+    body: data.body,
+    icon: config.icon,
+    badge: config.badge,
+    tag: config.tag,
+    url: config.url,
+    requireInteraction: data.requireInteraction ?? true,
+    messageId: data.messageId,
+    unreadCount: data.unreadCount,
+    type,
+  });
 }
 
 /**
@@ -134,17 +212,118 @@ export async function sendNewContactNotification(contactData: {
   id: string;
   name: string;
   subject: string;
+  message: string;
   unreadCount: number;
 }): Promise<void> {
-  await sendPushNotification({
-    title: 'Nouveau message de contact',
-    body: `${contactData.name}: ${contactData.subject}`,
-    icon: '/web-app-manifest-192x192.png',
-    badge: '/favicon-96x96.png',
-    tag: 'contact-message',
-    url: '/admin/support/contact',
-    requireInteraction: true,
+  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+
+  // Construire le titre en respectant la limite iOS de 30 caractères
+  const title = `${contactData.name} - ${contactData.subject}`;
+  const truncatedTitle = title.length > 30
+    ? title.substring(0, 27) + '...'
+    : title;
+
+  // Limiter le message à 120 caractères pour iOS
+  const truncatedMessage = contactData.message.length > 120
+    ? contactData.message.substring(0, 117) + '...'
+    : contactData.message;
+
+  const result = await sendTypedNotification('contact', {
+    title: truncatedTitle,
+    body: truncatedMessage,
     messageId: contactData.id,
     unreadCount: contactData.unreadCount,
   });
+
+  console.log('[Push] Contact notification result:', result);
+}
+
+/**
+ * Envoie une notification pour un nouveau message messenger
+ */
+export async function sendNewMessengerNotification(messengerData: {
+  id: string;
+  senderName: string;
+  message: string;
+  unreadCount: number;
+}): Promise<void> {
+  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+
+  const title = `Message de ${messengerData.senderName}`;
+  const truncatedTitle = title.length > 30
+    ? title.substring(0, 27) + '...'
+    : title;
+
+  const truncatedMessage = messengerData.message.length > 120
+    ? messengerData.message.substring(0, 117) + '...'
+    : messengerData.message;
+
+  const result = await sendTypedNotification('messenger', {
+    title: truncatedTitle,
+    body: truncatedMessage,
+    messageId: messengerData.id,
+    unreadCount: messengerData.unreadCount,
+  });
+
+  console.log('[Push] Messenger notification result:', result);
+}
+
+/**
+ * Envoie une notification pour une demande de support
+ */
+export async function sendNewSupportNotification(supportData: {
+  id: string;
+  userName: string;
+  subject: string;
+  message: string;
+  unreadCount: number;
+}): Promise<void> {
+  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+
+  const title = `Support - ${supportData.userName}: ${supportData.subject}`;
+  const truncatedTitle = title.length > 30
+    ? title.substring(0, 27) + '...'
+    : title;
+
+  const truncatedMessage = supportData.message.length > 120
+    ? supportData.message.substring(0, 117) + '...'
+    : supportData.message;
+
+  const result = await sendTypedNotification('support', {
+    title: truncatedTitle,
+    body: truncatedMessage,
+    messageId: supportData.id,
+    unreadCount: supportData.unreadCount,
+  });
+
+  console.log('[Push] Support notification result:', result);
+}
+
+/**
+ * Envoie une notification système
+ */
+export async function sendSystemNotification(systemData: {
+  id: string;
+  title: string;
+  message: string;
+}): Promise<void> {
+  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+
+  const truncatedTitle = systemData.title.length > 30
+    ? systemData.title.substring(0, 27) + '...'
+    : systemData.title;
+
+  const truncatedMessage = systemData.message.length > 120
+    ? systemData.message.substring(0, 117) + '...'
+    : systemData.message;
+
+  const result = await sendTypedNotification('system', {
+    title: truncatedTitle,
+    body: truncatedMessage,
+    messageId: systemData.id,
+    unreadCount: 0,
+    requireInteraction: false,
+  });
+
+  console.log('[Push] System notification result:', result);
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useMenuManager } from "@/hooks/useMenuManager";
-import { MenuCategoryCard } from "@/components/menu/MenuCategoryCard";
+import { MenuCategoryRow } from "@/components/menu/MenuCategoryRow";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { MenuCategoryModal } from "@/components/menu/MenuCategoryModal";
 import { MenuItemModal } from "@/components/menu/MenuItemModal";
@@ -232,9 +232,9 @@ export function DrinksPageClient() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-3">
             {categories.map((category) => (
-              <MenuCategoryCard
+              <MenuCategoryRow
                 key={category.id}
                 category={category}
                 onEdit={handleEditCategory}
@@ -256,7 +256,7 @@ export function DrinksPageClient() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {items.map((item) => (
               <MenuItemCard
                 key={item.id}

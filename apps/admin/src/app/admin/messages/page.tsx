@@ -6,19 +6,19 @@ import { Mail, MessageSquare, HeadphonesIcon } from "lucide-react";
 import Link from "next/link";
 import { useUnreadContactMessages } from "@/hooks/useUnreadContactMessages";
 
-export default function SupportPage() {
+export default function MessagesPage() {
   const { unreadCount } = useUnreadContactMessages();
   return (
     <div className="space-y-8">
       <div className="px-4 md:px-0">
-        <h1 className="text-2xl font-bold mb-2">Support & Messages</h1>
+        <h1 className="text-2xl font-bold mb-2">Messages</h1>
         <p className="text-muted-foreground">
-          Gestion des messages de contact et du support client
+          Gestion des messages de contact, messagerie et support client
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 px-4 md:px-0">
-        <Link href="/support/contact" className="relative">
+        <Link href="/admin/messages/contact" className="relative">
           <Button
             variant="outline"
             className="h-32 w-full flex flex-col gap-2 hover:bg-accent"
