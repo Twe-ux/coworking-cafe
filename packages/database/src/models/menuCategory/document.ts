@@ -50,6 +50,7 @@ export const MenuCategorySchema = new Schema<MenuCategoryDocument>(
   },
   {
     timestamps: true,
+    collection: "drink_categories", // Utilise la collection existante
   }
 );
 

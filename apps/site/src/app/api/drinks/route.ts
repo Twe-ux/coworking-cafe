@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
-import { Drink, DrinkCategory } from '@/models/drink';
+import { MenuItem, MenuCategory } from '@coworking-cafe/database';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'drink';
 
-    const categories = await DrinkCategory.find({
+    const categories = await MenuCategory.find({
       isActive: true,
       showOnSite: { $ne: false },
       type
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       .sort({ order: 1 })
       .lean();
 
-    const drinks = await Drink.find({ isActive: true, type })
+    const drinks = await MenuItem.find({ isActive: true, type })
       .populate('category', 'name slug type')
       .sort({ order: 1 })
       .lean();

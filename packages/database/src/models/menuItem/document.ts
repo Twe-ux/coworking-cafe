@@ -53,6 +53,7 @@ export const MenuItemSchema = new Schema<MenuItemDocument>(
   },
   {
     timestamps: true,
+    collection: "drinks", // Utilise la collection existante (drinks contient food ET drink)
   }
 );
 
