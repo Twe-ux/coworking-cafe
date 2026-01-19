@@ -1,47 +1,47 @@
 import { useState, useEffect, useCallback } from "react";
 import type {
-  MenuCategory,
-  MenuItem,
-  MenuItemType,
-  MenuCategoryFormData,
-  MenuItemFormData,
+  ProduitsCategory,
+  ProduitsItem,
+  ProduitsItemType,
+  ProduitsCategoryFormData,
+  ProduitsItemFormData,
   ApiResponse,
-} from "@/types/menu";
+} from "@/types/produits";
 
-interface UseMenuManagerOptions {
-  type?: MenuItemType; // Filtrer par type (food | drink)
+interface UseProduitsManagerOptions {
+  type?: ProduitsItemType; // Filtrer par type (food | drink)
   categoryId?: string; // Filtrer items par catégorie
   activeOnly?: boolean; // Récupérer uniquement les actifs
 }
 
-interface UseMenuManagerReturn {
+interface UseProduitsManagerReturn {
   // Data
-  categories: MenuCategory[];
-  items: MenuItem[];
+  categories: ProduitsCategory[];
+  items: ProduitsItem[];
   loading: boolean;
   error: string | null;
 
   // Categories actions
-  createCategory: (data: MenuCategoryFormData & { type: MenuItemType }) => Promise<boolean>;
-  updateCategory: (id: string, data: Partial<MenuCategoryFormData>) => Promise<boolean>;
+  createCategory: (data: ProduitsCategoryFormData & { type: ProduitsItemType }) => Promise<boolean>;
+  updateCategory: (id: string, data: Partial<ProduitsCategoryFormData>) => Promise<boolean>;
   deleteCategory: (id: string) => Promise<boolean>;
 
   // Items actions
-  createItem: (data: MenuItemFormData) => Promise<boolean>;
-  updateItem: (id: string, data: Partial<MenuItemFormData>) => Promise<boolean>;
+  createItem: (data: ProduitsItemFormData) => Promise<boolean>;
+  updateItem: (id: string, data: Partial<ProduitsItemFormData>) => Promise<boolean>;
   deleteItem: (id: string) => Promise<boolean>;
 
   // Utility
   refetch: () => Promise<void>;
-  getCategoryById: (id: string) => MenuCategory | undefined;
-  getItemById: (id: string) => MenuItem | undefined;
+  getCategoryById: (id: string) => ProduitsCategory | undefined;
+  getItemById: (id: string) => ProduitsItem | undefined;
 }
 
 /**
- * Hook pour gérer le menu (catégories + items)
+ * Hook pour gérer les produits (catégories + items)
  *
  * @param options - Options de filtrage
- * @returns État et actions pour gérer le menu
+ * @returns État et actions pour gérer les produits
  *
  * @example
  * ```tsx
@@ -55,11 +55,11 @@ interface UseMenuManagerReturn {
  * } = useMenuManager({ type: "food" });
  * ```
  */
-export function useMenuManager(
-  options: UseMenuManagerOptions = {}
-): UseMenuManagerReturn {
-  const [categories, setCategories] = useState<MenuCategory[]>([]);
-  const [items, setItems] = useState<MenuItem[]>([]);
+export function useProduitsManager(
+  options: UseProduitsManagerOptions = {}
+): UseProduitsManagerReturn {
+  const [categories, setCategories] = useState<ProduitsCategory[]>([]);
+  const [items, setItems] = useState<ProduitsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,8 +76,8 @@ export function useMenuManager(
       if (options.type) params.set("type", options.type);
       if (options.activeOnly) params.set("activeOnly", "true");
 
-      const response = await fetch(`/api/menu?${params}`);
-      const data: ApiResponse<{ categories: MenuCategory[]; items: MenuItem[] }> =
+      const response = await fetch(`/api/produits?${params}`);
+      const data: ApiResponse<{ categories: ProduitsCategory[]; items: ProduitsItem[] }> =
         await response.json();
 
       if (!data.success) {
@@ -112,15 +112,15 @@ export function useMenuManager(
   // ========================================
 
   const createCategory = useCallback(
-    async (data: MenuCategoryFormData & { type: MenuItemType }): Promise<boolean> => {
+    async (data: ProduitsCategoryFormData & { type: ProduitsItemType }): Promise<boolean> => {
       try {
-        const response = await fetch("/api/menu/categories", {
+        const response = await fetch("/api/produits/categories", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
 
-        const result: ApiResponse<MenuCategory> = await response.json();
+        const result: ApiResponse<ProduitsCategory> = await response.json();
 
         if (!result.success) {
           throw new Error(result.error || "Erreur lors de la création");
@@ -138,15 +138,15 @@ export function useMenuManager(
   );
 
   const updateCategory = useCallback(
-    async (id: string, data: Partial<MenuCategoryFormData>): Promise<boolean> => {
+    async (id: string, data: Partial<ProduitsCategoryFormData>): Promise<boolean> => {
       try {
-        const response = await fetch(`/api/menu/categories/${id}`, {
+        const response = await fetch(`/api/produits/categories/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
 
-        const result: ApiResponse<MenuCategory> = await response.json();
+        const result: ApiResponse<ProduitsCategory> = await response.json();
 
         if (!result.success) {
           throw new Error(result.error || "Erreur lors de la mise à jour");
@@ -166,7 +166,7 @@ export function useMenuManager(
   const deleteCategory = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        const response = await fetch(`/api/menu/categories/${id}`, {
+        const response = await fetch(`/api/produits/categories/${id}`, {
           method: "DELETE",
         });
 
@@ -192,15 +192,15 @@ export function useMenuManager(
   // ========================================
 
   const createItem = useCallback(
-    async (data: MenuItemFormData): Promise<boolean> => {
+    async (data: ProduitsItemFormData): Promise<boolean> => {
       try {
-        const response = await fetch("/api/menu/items", {
+        const response = await fetch("/api/produits/items", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
 
-        const result: ApiResponse<MenuItem> = await response.json();
+        const result: ApiResponse<ProduitsItem> = await response.json();
 
         if (!result.success) {
           throw new Error(result.error || "Erreur lors de la création");
@@ -218,15 +218,15 @@ export function useMenuManager(
   );
 
   const updateItem = useCallback(
-    async (id: string, data: Partial<MenuItemFormData>): Promise<boolean> => {
+    async (id: string, data: Partial<ProduitsItemFormData>): Promise<boolean> => {
       try {
-        const response = await fetch(`/api/menu/items/${id}`, {
+        const response = await fetch(`/api/produits/items/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
 
-        const result: ApiResponse<MenuItem> = await response.json();
+        const result: ApiResponse<ProduitsItem> = await response.json();
 
         if (!result.success) {
           throw new Error(result.error || "Erreur lors de la mise à jour");
@@ -246,7 +246,7 @@ export function useMenuManager(
   const deleteItem = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        const response = await fetch(`/api/menu/items/${id}`, {
+        const response = await fetch(`/api/produits/items/${id}`, {
           method: "DELETE",
         });
 
@@ -272,14 +272,14 @@ export function useMenuManager(
   // ========================================
 
   const getCategoryById = useCallback(
-    (id: string): MenuCategory | undefined => {
+    (id: string): ProduitsCategory | undefined => {
       return categories.find((cat) => cat.id === id);
     },
     [categories]
   );
 
   const getItemById = useCallback(
-    (id: string): MenuItem | undefined => {
+    (id: string): ProduitsItem | undefined => {
       return items.find((item) => item.id === id);
     },
     [items]

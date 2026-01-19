@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMenuManager } from "@/hooks/useMenuManager";
+import { useProduitsManager } from "@/hooks/useProduitsManager";
 import { RecipesPageSkeleton } from "./RecipesPageSkeleton";
-import type { MenuItem, MenuCategory, MenuItemType } from "@/types/menu";
+import type { ProduitsItem, ProduitsCategory, ProduitsItemType } from "@/types/produits";
 
 export function RecipesPageClient() {
-  const [selectedType, setSelectedType] = useState<MenuItemType>("food");
-  const { categories, items, loading, error } = useMenuManager({
+  const [selectedType, setSelectedType] = useState<ProduitsItemType>("food");
+  const { categories, items, loading, error } = useProduitsManager({
     type: selectedType,
     activeOnly: true,
   });
@@ -36,7 +36,7 @@ export function RecipesPageClient() {
   }
 
   // Grouper les items par catégorie
-  const itemsByCategory: Record<string, MenuItem[]> = {};
+  const itemsByCategory: Record<string, ProduitsItem[]> = {};
   items.forEach((item) => {
     const categoryId = item.category.id;
     if (!itemsByCategory[categoryId]) {
@@ -86,7 +86,7 @@ export function RecipesPageClient() {
       {/* Tabs Food/Drinks */}
       <Tabs
         value={selectedType}
-        onValueChange={(value) => setSelectedType(value as MenuItemType)}
+        onValueChange={(value) => setSelectedType(value as ProduitsItemType)}
       >
         <TabsList>
           <TabsTrigger value="food">Nourriture</TabsTrigger>
@@ -137,7 +137,7 @@ export function RecipesPageClient() {
 /**
  * Carte affichant la recette d'un item
  */
-function RecipeCard({ item }: { item: MenuItem }) {
+function RecipeCard({ item }: { item: ProduitsItem }) {
   const [expanded, setExpanded] = useState(false);
 
   return (

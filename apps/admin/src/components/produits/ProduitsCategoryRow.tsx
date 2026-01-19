@@ -1,45 +1,48 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, Eye, EyeOff } from "lucide-react";
-import type { MenuCategory } from "@/types/menu";
+import type { ProduitsCategory } from "@/types/produits";
 
-interface MenuCategoryRowProps {
-  category: MenuCategory;
-  onEdit?: (category: MenuCategory) => void;
+interface ProduitsCategoryRowProps {
+  category: ProduitsCategory;
+  onEdit?: (category: ProduitsCategory) => void;
   onDelete?: (categoryId: string) => void;
   onToggleActive?: (categoryId: string, isActive: boolean) => void;
 }
 
 /**
- * Row affichant une catégorie de menu en liste
+ * Row affichant une catégorie de produits en liste
  *
  * @param category - Catégorie à afficher
  * @param onEdit - Callback pour éditer la catégorie
  * @param onDelete - Callback pour supprimer la catégorie
  * @param onToggleActive - Callback pour activer/désactiver la catégorie
  */
-export function MenuCategoryRow({
+export function ProduitsCategoryRow({
   category,
   onEdit,
   onDelete,
   onToggleActive,
-}: MenuCategoryRowProps) {
+}: ProduitsCategoryRowProps) {
   return (
     <div
       className={`flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors ${
-        !category.isActive ? "opacity-60" : ""
+        !category.isActive ? "bg-muted/30" : ""
       }`}
     >
       {/* Info catégorie */}
       <div className="flex items-center gap-4 flex-1">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold">{category.name}</h3>
-            {!category.isActive && (
-              <Badge variant="secondary" className="text-xs">
-                Inactif
-              </Badge>
-            )}
+            <h3 className={`font-semibold ${!category.isActive ? "text-muted-foreground" : ""}`}>
+              {category.name}
+            </h3>
+            <Badge
+              variant={category.isActive ? "default" : "secondary"}
+              className={`text-xs ${category.isActive ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 hover:bg-gray-500"}`}
+            >
+              {category.isActive ? "Activé" : "Désactivé"}
+            </Badge>
             {!category.showOnSite && (
               <Badge variant="outline" className="text-xs">
                 Caché du site
@@ -63,34 +66,29 @@ export function MenuCategoryRow({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         {onEdit && (
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
             onClick={() => onEdit(category)}
+            title="Modifier"
           >
-            <Pencil className="w-4 h-4 mr-2" />
-            Modifier
+            <Pencil className="w-4 h-4" />
           </Button>
         )}
 
         {onToggleActive && (
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => onToggleActive(category.id, !category.isActive)}
+            title={category.isActive ? "Désactiver" : "Activer"}
           >
             {category.isActive ? (
-              <>
-                <EyeOff className="w-4 h-4 mr-2" />
-                Désactiver
-              </>
+              <EyeOff className="w-4 h-4" />
             ) : (
-              <>
-                <Eye className="w-4 h-4 mr-2" />
-                Activer
-              </>
+              <Eye className="w-4 h-4" />
             )}
           </Button>
         )}
@@ -98,11 +96,11 @@ export function MenuCategoryRow({
         {onDelete && (
           <Button
             variant="destructive"
-            size="sm"
+            size="icon"
             onClick={() => onDelete(category.id)}
+            title="Supprimer"
           >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Supprimer
+            <Trash2 className="w-4 h-4" />
           </Button>
         )}
       </div>

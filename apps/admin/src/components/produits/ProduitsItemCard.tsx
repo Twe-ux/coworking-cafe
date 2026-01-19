@@ -2,50 +2,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Eye, EyeOff, FileText } from "lucide-react";
-import type { MenuItem } from "@/types/menu";
+import type { ProduitsItem } from "@/types/produits";
 
-interface MenuItemCardProps {
-  item: MenuItem;
-  onEdit?: (item: MenuItem) => void;
+interface ProduitsItemCardProps {
+  item: ProduitsItem;
+  onEdit?: (item: ProduitsItem) => void;
   onDelete?: (itemId: string) => void;
   onToggleActive?: (itemId: string, isActive: boolean) => void;
 }
 
 /**
- * Carte affichant un item de menu
+ * Carte affichant un item de produits
  *
  * @param item - Item à afficher
  * @param onEdit - Callback pour éditer l'item
  * @param onDelete - Callback pour supprimer l'item
  * @param onToggleActive - Callback pour activer/désactiver l'item
  */
-export function MenuItemCard({
+export function ProduitsItemCard({
   item,
   onEdit,
   onDelete,
   onToggleActive,
-}: MenuItemCardProps) {
+}: ProduitsItemCardProps) {
   return (
-    <Card className={!item.isActive ? "opacity-60" : ""}>
+    <Card className={!item.isActive ? "bg-muted/30" : ""}>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-lg">{item.name}</CardTitle>
-            {!item.isActive && (
-              <Badge variant="secondary" className="text-xs">
-                Inactif
-              </Badge>
-            )}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <CardTitle className={`text-lg truncate ${!item.isActive ? "text-muted-foreground" : ""}`}>
+              {item.name}
+            </CardTitle>
+            <Badge
+              variant={item.isActive ? "default" : "secondary"}
+              className={`text-xs whitespace-nowrap ${item.isActive ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 hover:bg-gray-500"}`}
+            >
+              {item.isActive ? "Activé" : "Désactivé"}
+            </Badge>
             {item.recipe && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs whitespace-nowrap">
                 <FileText className="w-3 h-3 mr-1" />
                 Recette
               </Badge>
             )}
           </div>
-          <Badge variant={item.type === "food" ? "default" : "secondary"}>
-            {item.type === "food" ? "Nourriture" : "Boisson"}
-          </Badge>
         </div>
       </CardHeader>
 
@@ -78,34 +78,29 @@ export function MenuItemCard({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-1 pt-2">
             {onEdit && (
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={() => onEdit(item)}
+                title="Modifier"
               >
-                <Pencil className="w-4 h-4 mr-2" />
-                Modifier
+                <Pencil className="w-4 h-4" />
               </Button>
             )}
 
             {onToggleActive && (
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => onToggleActive(item.id, !item.isActive)}
+                title={item.isActive ? "Désactiver" : "Activer"}
               >
                 {item.isActive ? (
-                  <>
-                    <EyeOff className="w-4 h-4 mr-2" />
-                    Désactiver
-                  </>
+                  <EyeOff className="w-4 h-4" />
                 ) : (
-                  <>
-                    <Eye className="w-4 h-4 mr-2" />
-                    Activer
-                  </>
+                  <Eye className="w-4 h-4" />
                 )}
               </Button>
             )}
@@ -113,11 +108,11 @@ export function MenuItemCard({
             {onDelete && (
               <Button
                 variant="destructive"
-                size="sm"
+                size="icon"
                 onClick={() => onDelete(item.id)}
+                title="Supprimer"
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Supprimer
+                <Trash2 className="w-4 h-4" />
               </Button>
             )}
           </div>

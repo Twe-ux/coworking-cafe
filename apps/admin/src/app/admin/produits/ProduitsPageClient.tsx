@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Coffee, UtensilsCrossed, ArrowRight, Layers, PackageOpen } from "lucide-react";
-import { MenuPageSkeleton } from "./MenuPageSkeleton";
-import type { MenuCategory, MenuItem } from "@/types/menu";
+import { ProduitsPageSkeleton } from "./ProduitsPageSkeleton";
+import type { ProduitsCategory, ProduitsItem } from "@/types/produits";
 
-interface MenuStats {
+interface ProduitsStats {
   totalCategories: number;
   totalItems: number;
   drinkCategories: number;
@@ -17,10 +17,10 @@ interface MenuStats {
   foodItems: number;
 }
 
-export function MenuPageClient() {
+export function ProduitsPageClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<MenuStats>({
+  const [stats, setStats] = useState<ProduitsStats>({
     totalCategories: 0,
     totalItems: 0,
     drinkCategories: 0,
@@ -39,24 +39,24 @@ export function MenuPageClient() {
       setError(null);
 
       // Fetch all categories
-      const categoriesRes = await fetch("/api/menu/categories");
+      const categoriesRes = await fetch("/api/produits/categories");
       const categoriesData = await categoriesRes.json();
 
       if (!categoriesData.success) {
         throw new Error(categoriesData.error || "Erreur lors de la récupération des catégories");
       }
 
-      const categories: MenuCategory[] = categoriesData.data || [];
+      const categories: ProduitsCategory[] = categoriesData.data || [];
 
       // Fetch all items
-      const itemsRes = await fetch("/api/menu/items");
+      const itemsRes = await fetch("/api/produits/items");
       const itemsData = await itemsRes.json();
 
       if (!itemsData.success) {
         throw new Error(itemsData.error || "Erreur lors de la récupération des items");
       }
 
-      const items: MenuItem[] = itemsData.data || [];
+      const items: ProduitsItem[] = itemsData.data || [];
 
       // Calculate stats
       setStats({
@@ -75,7 +75,7 @@ export function MenuPageClient() {
   };
 
   if (loading) {
-    return <MenuPageSkeleton />;
+    return <ProduitsPageSkeleton />;
   }
 
   if (error) {
@@ -97,9 +97,9 @@ export function MenuPageClient() {
     <div className="space-y-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Gestion du Menu</h1>
+        <h1 className="text-3xl font-bold">Gestion des Produits</h1>
         <p className="text-muted-foreground">
-          Vue d'ensemble et accès rapide aux catégories et items du menu
+          Vue d'ensemble et accès rapide aux types de produits
         </p>
       </div>
 
@@ -185,7 +185,7 @@ export function MenuPageClient() {
                 <span className="text-muted-foreground">Items</span>
                 <span className="font-semibold">{stats.drinkItems}</span>
               </div>
-              <Link href="/admin/menu/drinks">
+              <Link href="/admin/produits/drinks">
                 <Button className="w-full">
                   Gérer les boissons
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -220,7 +220,7 @@ export function MenuPageClient() {
                 <span className="text-muted-foreground">Items</span>
                 <span className="font-semibold">{stats.foodItems}</span>
               </div>
-              <Link href="/admin/menu/food">
+              <Link href="/admin/produits/food">
                 <Button className="w-full">
                   Gérer la nourriture
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -234,11 +234,11 @@ export function MenuPageClient() {
       {/* Info Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">À propos de la gestion du menu</CardTitle>
+          <CardTitle className="text-lg">À propos de la gestion des produits</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           <ul className="space-y-2">
-            <li>• Créez et organisez vos catégories de menu (boissons et nourriture)</li>
+            <li>• Créez et organisez vos catégories de produits (boissons, nourriture, épicerie, etc.)</li>
             <li>• Ajoutez des items avec descriptions, images et recettes</li>
             <li>• Contrôlez la visibilité sur le site public</li>
             <li>• Gérez l'ordre d'affichage des catégories et items</li>

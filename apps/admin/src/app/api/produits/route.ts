@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { MenuCategory, MenuItem } from "@coworking-cafe/database";
-import type { ApiResponse, MenuData } from "@/types/menu";
+import type { ApiResponse, MenuData } from "@/types/produits";
 
 /**
  * GET /api/menu

@@ -21,9 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { MenuItem, MenuCategory, MenuItemType } from "@/types/menu";
+import type { ProduitsItem, ProduitsCategory, ProduitsItemType } from "@/types/produits";
 
-interface MenuItemModalProps {
+interface ProduitsItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: {
@@ -32,17 +32,17 @@ interface MenuItemModalProps {
     recipe?: string;
     image?: string;
     categoryId: string;
-    type: MenuItemType;
+    type: ProduitsItemType;
     order?: number;
     isActive?: boolean;
   }) => Promise<boolean>;
-  item?: MenuItem; // Si fourni = mode édition
-  categories: MenuCategory[]; // Liste des catégories disponibles
-  fixedType?: MenuItemType; // Type fixe (food ou drink)
+  item?: ProduitsItem; // Si fourni = mode édition
+  categories: ProduitsCategory[]; // Liste des catégories disponibles
+  fixedType?: ProduitsItemType; // Type fixe (food ou drink)
 }
 
 /**
- * Modal pour créer ou éditer un item de menu
+ * Modal pour créer ou éditer un item de produits
  *
  * @param isOpen - État d'ouverture du modal
  * @param onClose - Callback pour fermer le modal
@@ -51,14 +51,14 @@ interface MenuItemModalProps {
  * @param categories - Liste des catégories disponibles
  * @param fixedType - Type fixe (food ou drink)
  */
-export function MenuItemModal({
+export function ProduitsItemModal({
   isOpen,
   onClose,
   onSave,
   item,
   categories,
   fixedType,
-}: MenuItemModalProps) {
+}: ProduitsItemModalProps) {
   const isEditing = !!item;
 
   // Form state
@@ -67,7 +67,7 @@ export function MenuItemModal({
   const [recipe, setRecipe] = useState("");
   const [image, setImage] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [type, setType] = useState<MenuItemType>(fixedType || "food");
+  const [type, setType] = useState<ProduitsItemType>(fixedType || "food");
   const [order, setOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);

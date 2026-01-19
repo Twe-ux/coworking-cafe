@@ -2,29 +2,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Eye, EyeOff } from "lucide-react";
-import type { MenuCategory } from "@/types/menu";
+import type { ProduitsCategory } from "@/types/produits";
 
-interface MenuCategoryCardProps {
-  category: MenuCategory;
-  onEdit?: (category: MenuCategory) => void;
+interface ProduitsCategoryCardProps {
+  category: ProduitsCategory;
+  onEdit?: (category: ProduitsCategory) => void;
   onDelete?: (categoryId: string) => void;
   onToggleActive?: (categoryId: string, isActive: boolean) => void;
 }
 
 /**
- * Carte affichant une catégorie de menu
+ * Carte affichant une catégorie de produits
  *
  * @param category - Catégorie à afficher
  * @param onEdit - Callback pour éditer la catégorie
  * @param onDelete - Callback pour supprimer la catégorie
  * @param onToggleActive - Callback pour activer/désactiver la catégorie
  */
-export function MenuCategoryCard({
+export function ProduitsCategoryCard({
   category,
   onEdit,
   onDelete,
   onToggleActive,
-}: MenuCategoryCardProps) {
+}: ProduitsCategoryCardProps) {
   return (
     <Card className={!category.isActive ? "opacity-60" : ""}>
       <CardHeader>

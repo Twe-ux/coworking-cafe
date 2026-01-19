@@ -1,5 +1,5 @@
 /**
- * Types for Menu Management (Food + Drinks)
+ * Types for Produits Management (Food + Drinks + Grocery, etc.)
  */
 
 // API Response générique
@@ -11,8 +11,11 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// Type d'élément du menu
-export type MenuItemType = "food" | "drink";
+// Type d'élément (food, drink, grocery, etc.)
+export type ProduitsItemType = "food" | "drink" | "grocery";
+
+// Legacy alias for backwards compatibility
+export type MenuItemType = ProduitsItemType;
 
 // Catégorie de menu
 export interface MenuCategory {
@@ -47,6 +50,10 @@ export interface MenuItem {
   updatedAt: string;
 }
 
+// Aliases pour la nouvelle nomenclature
+export type ProduitsCategory = MenuCategory;
+export type ProduitsItem = MenuItem;
+
 // Form data pour créer/éditer une catégorie
 export interface MenuCategoryFormData {
   name: string;
@@ -64,6 +71,10 @@ export interface MenuItemFormData {
   categoryId: string;
   isActive?: boolean;
 }
+
+// Aliases FormData
+export type ProduitsCategoryFormData = MenuCategoryFormData;
+export type ProduitsItemFormData = MenuItemFormData;
 
 // Filtres pour la liste
 export interface MenuFilters {

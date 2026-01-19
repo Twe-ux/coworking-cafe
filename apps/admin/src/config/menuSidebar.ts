@@ -146,17 +146,17 @@ export function getAdminMenu(unreadCount: number, isDev: boolean, isLoading = fa
       ],
     },
     {
-      title: "Menu",
-      url: "/admin/menu",
+      title: "Produits",
+      url: "/admin/produits",
       icon: UtensilsCrossed,
       items: [
         {
           title: "Boissons",
-          url: "/admin/menu/drinks",
+          url: "/admin/produits/drinks",
         },
         {
           title: "Food",
-          url: "/admin/menu/food",
+          url: "/admin/produits/food",
         },
       ],
     },

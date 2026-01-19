@@ -7,6 +7,10 @@ import Stripe from 'stripe';
 import type { CardBrand } from '@/models/payment/document';
 import { sendBookingConfirmation, sendCardSavedConfirmation } from '@/lib/email/emailService';
 import { getSpaceTypeName } from '@/lib/space-names';
+import { User } from '@/models/user';
+import { Newsletter } from '@coworking-cafe/database';
+import { createUser, findUserByEmail } from '@/lib/auth-helpers';
+import { Role } from '@/models/role';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -258,6 +262,112 @@ async function handleRefund(charge: Stripe.Charge) {
 }
 
 /**
+ * Helper: Create or update user from booking metadata
+ * Handles account creation and newsletter/account fusion
+ *
+ * @param metadata - Stripe metadata containing user data
+ * @returns userId to use for booking, or null if no account created
+ */
+async function createOrUpdateUser(metadata: Record<string, string>): Promise<string | null> {
+  // Check if user wants to create an account
+  if (metadata.createAccount !== 'true') {
+    return metadata.userId || null;
+  }
+
+  // Account creation requested - check if we have required data
+  if (!metadata.contactEmail || !metadata.password) {
+    console.warn('[Webhook] Account creation requested but missing email or password');
+    return metadata.userId || null;
+  }
+
+  try {
+    const email = metadata.contactEmail.toLowerCase();
+
+    // Check if user already exists
+    const existingUser = await findUserByEmail(email);
+
+    if (existingUser) {
+      // User exists - check if it's a temporary newsletter-only account
+      if (existingUser.isTemporary) {
+        console.log(`[Webhook] Upgrading temporary account to full account: ${email}`);
+
+        // Upgrade to full account with password
+        existingUser.password = metadata.password; // Will be hashed by pre-save hook
+        existingUser.isTemporary = false;
+        existingUser.givenName = metadata.contactName || existingUser.givenName;
+        existingUser.phone = metadata.contactPhone || existingUser.phone;
+        existingUser.companyName = metadata.companyName || existingUser.companyName;
+
+        // Update newsletter preference if requested
+        if (metadata.subscribeNewsletter === 'true') {
+          existingUser.newsletter = true;
+        }
+
+        await existingUser.save();
+
+        // Update newsletter entry to link userId if needed
+        await Newsletter.findOneAndUpdate(
+          { email },
+          {
+            userId: existingUser._id,
+            isSubscribed: existingUser.newsletter,
+          },
+          { upsert: false }
+        );
+
+        console.log(`[Webhook] Account upgraded successfully: ${email}`);
+        return existingUser._id.toString();
+      } else {
+        // Full account already exists - just return the userId
+        console.log(`[Webhook] User already has full account: ${email}`);
+        return existingUser._id.toString();
+      }
+    }
+
+    // User doesn't exist - create new account
+    console.log(`[Webhook] Creating new user account: ${email}`);
+
+    const newUser = await createUser({
+      email,
+      password: metadata.password,
+      givenName: metadata.contactName,
+      roleSlug: 'client',
+      newsletter: metadata.subscribeNewsletter === 'true',
+    });
+
+    // Update phone and company name after creation (not in createUser signature)
+    if (metadata.contactPhone) {
+      newUser.phone = metadata.contactPhone;
+    }
+    if (metadata.companyName) {
+      newUser.companyName = metadata.companyName;
+    }
+    await newUser.save();
+
+    // Create/update newsletter entry
+    await Newsletter.findOneAndUpdate(
+      { email },
+      {
+        email,
+        userId: newUser._id,
+        isSubscribed: metadata.subscribeNewsletter === 'true',
+        subscribedAt: metadata.subscribeNewsletter === 'true' ? new Date() : undefined,
+        source: 'registration',
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log(`[Webhook] User account created successfully: ${email}`);
+    return newUser._id.toString();
+
+  } catch (error) {
+    console.error('[Webhook] Error creating/updating user:', error);
+    // Don't fail the booking if user creation fails
+    return metadata.userId || null;
+  }
+}
+
+/**
  * NEW WORKFLOW: Handle payment authorized (manual capture)
  * Creates reservation from payment intent metadata
  */
@@ -301,6 +411,9 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
     }
     }
 
+    // Create or update user account if requested (before creating booking)
+    const userId = await createOrUpdateUser(metadata);
+
     // Create reservation
     let reservation;
     try {
@@ -311,7 +424,7 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
         endTime: metadata.endTime,
         numberOfPeople: parseInt(metadata.numberOfPeople),
         totalPrice: parseFloat(metadata.totalPrice),
-        user: metadata.userId || null,
+        user: userId,
         contactEmail: metadata.contactEmail,
         contactName: metadata.contactName,
         contactPhone: metadata.contactPhone,
@@ -407,6 +520,9 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
     }
     }
 
+    // Create or update user account if requested (before creating booking)
+    const userId = await createOrUpdateUser(metadata);
+
     // Create reservation
     const reservation = await Reservation.create({
       spaceType: metadata.spaceType,
@@ -415,7 +531,7 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
       endTime: metadata.endTime,
       numberOfPeople: parseInt(metadata.numberOfPeople),
       totalPrice: parseFloat(metadata.totalPrice),
-      user: metadata.userId || null,
+      user: userId,
       contactEmail: metadata.contactEmail,
       contactName: metadata.contactName,
       contactPhone: metadata.contactPhone,

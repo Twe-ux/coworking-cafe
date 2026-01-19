@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function MenuPageSkeleton() {
+export function ProduitsPageSkeleton() {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}

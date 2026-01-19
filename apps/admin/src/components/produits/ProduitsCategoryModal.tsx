@@ -21,26 +21,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { MenuCategory, MenuItemType } from "@/types/menu";
+import type { ProduitsCategory, ProduitsItemType } from "@/types/produits";
 
-interface MenuCategoryModalProps {
+interface ProduitsCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: {
     name: string;
     slug: string;
     description?: string;
-    type: MenuItemType;
+    type: ProduitsItemType;
     order?: number;
     isActive?: boolean;
     showOnSite?: boolean;
   }) => Promise<boolean>;
-  category?: MenuCategory; // Si fourni = mode édition
-  fixedType?: MenuItemType; // Type fixe (food ou drink)
+  category?: ProduitsCategory; // Si fourni = mode édition
+  fixedType?: ProduitsItemType; // Type fixe (food ou drink)
 }
 
 /**
- * Modal pour créer ou éditer une catégorie de menu
+ * Modal pour créer ou éditer une catégorie de produits
  *
  * @param isOpen - État d'ouverture du modal
  * @param onClose - Callback pour fermer le modal
@@ -48,20 +48,20 @@ interface MenuCategoryModalProps {
  * @param category - Catégorie à éditer (optionnel)
  * @param fixedType - Type fixe (food ou drink) pour le mode création
  */
-export function MenuCategoryModal({
+export function ProduitsCategoryModal({
   isOpen,
   onClose,
   onSave,
   category,
   fixedType,
-}: MenuCategoryModalProps) {
+}: ProduitsCategoryModalProps) {
   const isEditing = !!category;
 
   // Form state
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState<MenuItemType>(fixedType || "food");
+  const [type, setType] = useState<ProduitsItemType>(fixedType || "food");
   const [order, setOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [showOnSite, setShowOnSite] = useState(true);
@@ -183,7 +183,7 @@ export function MenuCategoryModal({
             <Label htmlFor="type">Type *</Label>
             <Select
               value={type}
-              onValueChange={(value) => setType(value as MenuItemType)}
+              onValueChange={(value) => setType(value as ProduitsItemType)}
               disabled={!!fixedType}
             >
               <SelectTrigger>

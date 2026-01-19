@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { MenuCategory } from "@coworking-cafe/database";
-import type { ApiResponse, MenuCategory as MenuCategoryType } from "@/types/menu";
+import type { ApiResponse, MenuCategory as MenuCategoryType } from "@/types/produits";
 
 /**
  * GET /api/menu/categories/[id]
@@ -175,7 +175,7 @@ export async function DELETE(
 
     await MenuCategory.findByIdAndDelete(params.id);
 
-    return successResponse(null, "Catégorie supprimée avec succès");
+    return successResponse(undefined, "Catégorie supprimée avec succès");
   } catch (error) {
     console.error(`DELETE /api/menu/categories/${params.id} error:`, error);
     return errorResponse(
