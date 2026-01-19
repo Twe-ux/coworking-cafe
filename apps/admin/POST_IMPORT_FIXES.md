@@ -391,16 +391,16 @@ pnpm build
 ### Configuration .env.local
 ```env
 # MongoDB
-MONGODB_URI=mongodb+srv://dev:***@coworking.jhxdixz.mongodb.net/coworking-admin
+MONGODB_URI=mongodb+srv://dev:***@***.***.mongodb.net/coworking-admin
 
 # Resend
 RESEND_API_KEY=re_***
 RESEND_FROM_EMAIL=onboarding@resend.dev
 
 # Cloudinary
-CLOUDINARY_CLOUD_NAME=dcxm5txfz
-CLOUDINARY_API_KEY=742511262516979
-CLOUDINARY_API_SECRET=6M8l7rQIOyLNoAZRMydkXE1OhZg
+CLOUDINARY_CLOUD_NAME=***
+CLOUDINARY_API_KEY=***
+CLOUDINARY_API_SECRET=***
 
 # 🔒 Sécurité Interface Staff (NOUVEAU)
 STAFF_ALLOWED_IPS=
