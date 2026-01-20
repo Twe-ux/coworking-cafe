@@ -1,0 +1,37 @@
+{
+  "name": "coworking-site",
+  "type": "service",
+  "runtime": {
+    "type": "nextjs",
+    "version": "14"
+  },
+  "build": {
+    "context": ".",
+    "dockerfile": null,
+    "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter @coworking-cafe/database build && pnpm --filter @coworking-cafe/email build && pnpm --filter @coworking-cafe/shared build && pnpm --filter @coworking-cafe/site build",
+    "startCommand": "pnpm --filter @coworking-cafe/site start"
+  },
+  "port": 3000,
+  "resources": {
+    "cpu": 0.5,
+    "memory": 512
+  },
+  "replicas": 1,
+  "healthCheck": {
+    "path": "/api/health",
+    "interval": 30,
+    "timeout": 10
+  },
+  "environmentVariables": {
+    "NODE_ENV": "production",
+    "NEXT_PUBLIC_API_URL": "${SITE_URL}/api",
+    "NEXT_PUBLIC_ADMIN_URL": "${ADMIN_URL}",
+    "NEXT_PUBLIC_SOCKET_URL": "${SOCKET_URL}",
+    "MONGODB_URI": "${MONGODB_URI}",
+    "NEXTAUTH_URL": "${SITE_URL}",
+    "NEXTAUTH_SECRET": "${NEXTAUTH_SECRET}",
+    "STRIPE_PUBLIC_KEY": "${STRIPE_PUBLIC_KEY}",
+    "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}",
+    "STRIPE_WEBHOOK_SECRET": "${STRIPE_WEBHOOK_SECRET}"
+  }
+}

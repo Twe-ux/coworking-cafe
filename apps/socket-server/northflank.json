@@ -1,0 +1,32 @@
+{
+  "name": "coworking-socket",
+  "type": "service",
+  "runtime": {
+    "type": "nodejs",
+    "version": "20"
+  },
+  "build": {
+    "context": ".",
+    "dockerfile": null,
+    "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter @coworking-cafe/database build && pnpm --filter @coworking-cafe/admin-shared build && pnpm --filter @coworking-cafe/socket-server build",
+    "startCommand": "node apps/socket-server/dist/index.js"
+  },
+  "port": 3002,
+  "resources": {
+    "cpu": 0.25,
+    "memory": 256
+  },
+  "replicas": 1,
+  "healthCheck": {
+    "path": "/health",
+    "interval": 30,
+    "timeout": 10
+  },
+  "environmentVariables": {
+    "NODE_ENV": "production",
+    "PORT": "3002",
+    "ALLOWED_ORIGINS": "${ADMIN_URL},${SITE_URL}",
+    "MONGODB_URI": "${MONGODB_URI}",
+    "JWT_SECRET": "${JWT_SECRET}"
+  }
+}

@@ -1,4 +1,4 @@
-import { ObjectId, Schema, Types } from "mongoose";
+import { Document, ObjectId, Schema, Types } from "mongoose";
 import type { Role } from "./index";
 
 /** Document of a {@link Role}, as stored in the database. */

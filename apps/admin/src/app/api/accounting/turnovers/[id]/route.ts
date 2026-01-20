@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth-options"
 import { connectMongoose } from "@/lib/mongodb"
+import { requireAuth } from "@/lib/api/auth"
 import Turnover from "@/models/turnover"
 
 export async function GET(
@@ -9,22 +8,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Vérification d'authentification
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Non authentifié" },
-        { status: 401 }
-      )
-    }
-
-    // Vérification des permissions (dev ou admin uniquement)
-    const userRole = (session?.user as any)?.role
-    if (!["dev", "admin"].includes(userRole)) {
-      return NextResponse.json(
-        { success: false, error: "Permissions insuffisantes" },
-        { status: 403 }
-      )
+    const authResult = await requireAuth(["dev", "admin"])
+    if (!authResult.authorized) {
+      return authResult.response
     }
 
     await connectMongoose()
@@ -63,22 +49,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Vérification d'authentification
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Non authentifié" },
-        { status: 401 }
-      )
-    }
-
-    // Vérification des permissions (dev ou admin uniquement)
-    const userRole = (session?.user as any)?.role
-    if (!["dev", "admin"].includes(userRole)) {
-      return NextResponse.json(
-        { success: false, error: "Permissions insuffisantes" },
-        { status: 403 }
-      )
+    const authResult = await requireAuth(["dev", "admin"])
+    if (!authResult.authorized) {
+      return authResult.response
     }
 
     await connectMongoose()
@@ -128,22 +101,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Vérification d'authentification
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Non authentifié" },
-        { status: 401 }
-      )
-    }
-
-    // Vérification des permissions (dev ou admin uniquement)
-    const userRole = (session?.user as any)?.role
-    if (!["dev", "admin"].includes(userRole)) {
-      return NextResponse.json(
-        { success: false, error: "Permissions insuffisantes" },
-        { status: 403 }
-      )
+    const authResult = await requireAuth(["dev", "admin"])
+    if (!authResult.authorized) {
+      return authResult.response
     }
 
     await connectMongoose()

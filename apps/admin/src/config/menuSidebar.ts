@@ -5,12 +5,15 @@
  */
 
 import {
+  BookOpen,
+  Building2,
   Calendar,
   Calculator,
   Clock,
   Home,
   Mail,
   ScanQrCode,
+  Settings,
   Terminal,
   UserCog,
   Users,
@@ -123,6 +126,44 @@ export function getAdminMenu(unreadCount: number, isDev: boolean, isLoading = fa
       ],
     },
     {
+      title: "Booking",
+      url: "/admin/booking",
+      icon: Building2,
+      items: [
+        {
+          title: "Espaces",
+          url: "/admin/booking/spaces",
+        },
+        {
+          title: "Réservations",
+          url: "/admin/booking/reservations",
+        },
+        {
+          title: "Calendrier",
+          url: "/admin/booking/calendar",
+        },
+      ],
+    },
+    {
+      title: "Blog",
+      url: "/admin/blog",
+      icon: BookOpen,
+      items: [
+        {
+          title: "Articles",
+          url: "/admin/blog/articles",
+        },
+        {
+          title: "Catégories",
+          url: "/admin/blog/categories",
+        },
+        {
+          title: "Commentaires",
+          url: "/admin/blog/comments",
+        },
+      ],
+    },
+    {
       title: "Promo",
       url: "/admin/promo",
       icon: ScanQrCode,
@@ -137,13 +178,6 @@ export function getAdminMenu(unreadCount: number, isDev: boolean, isLoading = fa
       url: "/admin/messages",
       icon: Mail,
       badge: unreadCount > 0 ? unreadCount : undefined,
-      items: [
-        {
-          title: "Contact",
-          url: "/admin/messages/contact",
-          badge: unreadCount > 0 ? unreadCount : undefined,
-        },
-      ],
     },
     {
       title: "Produits",
@@ -160,6 +194,17 @@ export function getAdminMenu(unreadCount: number, isDev: boolean, isLoading = fa
         },
       ],
     },
+    {
+      title: "Paramètres",
+      url: "/admin/settings",
+      icon: Settings,
+      items: [
+        {
+          title: "Horaires",
+          url: "/admin/settings/hours",
+        },
+      ],
+    },
   ];
 
   // Dev Tools (uniquement pour les dev, ou pendant le chargement pour éviter le flash)
@@ -172,6 +217,10 @@ export function getAdminMenu(unreadCount: number, isDev: boolean, isLoading = fa
         {
           title: "Notifications",
           url: "/admin/debug/notifications",
+        },
+        {
+          title: "Email Preview",
+          url: "/admin/dev/email-preview",
         },
       ],
     });

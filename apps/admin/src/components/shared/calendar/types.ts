@@ -46,4 +46,10 @@ export interface MonthlyCalendarProps<T = any> {
   // Style
   className?: string
   cellHeight?: number
+
+  // Legend component (optionnel)
+  legendComponent?: React.ReactNode
+
+  // Action button (optionnel, affiché à droite)
+  actionButton?: React.ReactNode
 }

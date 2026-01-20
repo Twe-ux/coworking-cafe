@@ -53,11 +53,13 @@ export function MonthlyCalendar<T = any>({
   sidebarItems = [],
   className = "",
   cellHeight = 120,
+  legendComponent,
+  actionButton,
 }: MonthlyCalendarProps<T>) {
   // Calculer les jours du calendrier
   const calendarDays = useMemo(
     () => generateCalendarDays(currentDate),
-    [currentDate]
+    [currentDate],
   );
 
   // Grouper par semaine
@@ -71,19 +73,19 @@ export function MonthlyCalendar<T = any>({
         isCurrentMonth: isCurrentMonth(date, currentDate),
         isToday: isToday(date),
       })),
-    [calendarDays, currentDate]
+    [calendarDays, currentDate],
   );
 
   // Navigation
   const goToPreviousMonth = () => {
     onDateChange(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
     );
   };
 
   const goToNextMonth = () => {
     onDateChange(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
     );
   };
 
@@ -128,11 +130,19 @@ export function MonthlyCalendar<T = any>({
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
+
+            <Button variant="outline" size="sm" onClick={goToToday}>
+              Aujourd&apos;hui
+            </Button>
           </div>
 
-          <Button variant="outline" size="sm" onClick={goToToday}>
-            Aujourd&apos;hui
-          </Button>
+          {legendComponent && (
+            <div className="flex items-center">{legendComponent}</div>
+          )}
+
+          {actionButton && (
+            <div className="flex items-center">{actionButton}</div>
+          )}
         </div>
       </CardHeader>
 
@@ -153,13 +163,15 @@ export function MonthlyCalendar<T = any>({
                 const weekEnd = getWeekEnd(weekDays[0]);
 
                 // Helper to normalize date to YYYY-MM-DD for comparison
-                const formatDateForComparison = (date: Date | string): string => {
-                  if (typeof date === 'string') {
-                    return date.split('T')[0];
+                const formatDateForComparison = (
+                  date: Date | string,
+                ): string => {
+                  if (typeof date === "string") {
+                    return date.split("T")[0];
                   }
                   const year = date.getFullYear();
-                  const month = String(date.getMonth() + 1).padStart(2, '0');
-                  const day = String(date.getDate()).padStart(2, '0');
+                  const month = String(date.getMonth() + 1).padStart(2, "0");
+                  const day = String(date.getDate()).padStart(2, "0");
                   return `${year}-${month}-${day}`;
                 };
 
@@ -170,14 +182,16 @@ export function MonthlyCalendar<T = any>({
                 const weekData: T[] = data.filter((item) => {
                   const itemDate = getDateForData(item);
                   const itemDateStr = formatDateForComparison(itemDate);
-                  return itemDateStr >= weekStartStr && itemDateStr <= weekEndStr;
+                  return (
+                    itemDateStr >= weekStartStr && itemDateStr <= weekEndStr
+                  );
                 });
 
                 const weekInfo: WeekData = {
                   weekStart,
                   weekEnd,
                   days: weekDays.map(
-                    (date, idx) => daysWithInfo[weekIndex * 7 + idx]
+                    (date, idx) => daysWithInfo[weekIndex * 7 + idx],
                   ),
                 };
 
@@ -229,7 +243,7 @@ export function MonthlyCalendar<T = any>({
                 const dayData = getDataForDate(
                   data,
                   dayInfo.date,
-                  getDateForData
+                  getDateForData,
                 );
 
                 return (

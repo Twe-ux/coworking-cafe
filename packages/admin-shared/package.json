@@ -1,0 +1,24 @@
+{
+  "name": "@coworking-cafe/admin-shared",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.2",
+    "zod": "^3.22.4"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "@tanstack/react-query": "^5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0"
+  }
+}
