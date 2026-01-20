@@ -57,7 +57,7 @@ export async function GET(
       .limit(limit)
       .lean()
 
-    return successResponse(messages as MessageType[])
+    return successResponse(messages as unknown as MessageType[])
   } catch (error) {
     console.error(`GET /api/conversations/${params.id}/messages error:`, error)
     return errorResponse(
@@ -135,7 +135,7 @@ export async function POST(
       .lean()
 
     return successResponse(
-      populatedMessage as MessageType,
+      populatedMessage as unknown as MessageType,
       "Message envoyé avec succès",
       201
     )

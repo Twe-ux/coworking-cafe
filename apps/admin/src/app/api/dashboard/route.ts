@@ -20,8 +20,8 @@ export async function GET(request: Request) {
     }
 
     // Vérification des permissions (dev ou admin uniquement)
-    const userRole = (session?.user as any)?.role;
-    if (!["dev", "admin"].includes(userRole)) {
+    const userRole = session?.user?.role;
+    if (!userRole || !["dev", "admin"].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: "Permissions insuffisantes" },
         { status: 403 }

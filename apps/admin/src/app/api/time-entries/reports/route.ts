@@ -21,10 +21,11 @@ export async function GET(request: NextRequest) {
       }, { status: 401 })
     }
 
-    const userRole = (session?.user as any)?.role
+    const userRole = session?.user?.role
     if (
-      !['admin', 'manager'].includes(userRole) &&
-      process.env.NODE_ENV !== 'development'
+      !userRole ||
+      (!['admin', 'manager'].includes(userRole) &&
+        process.env.NODE_ENV !== 'development')
     ) {
       return NextResponse.json<ApiResponse<null>>({
         success: false,

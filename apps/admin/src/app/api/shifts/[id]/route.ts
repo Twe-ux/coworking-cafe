@@ -3,6 +3,7 @@ import { connectMongoose } from '@/lib/mongodb'
 import Shift from '@/models/shift'
 import Employee from '@/models/employee'
 import { requireAuth } from '@/lib/api/auth'
+import { mapShiftToApi } from '@/lib/mappers/mongoose.mappers'
 
 /**
  * Utility function to create a UTC date from YYYY-MM-DD string
@@ -11,6 +12,18 @@ import { requireAuth } from '@/lib/api/auth'
 function createLocalDate(dateString: string): Date {
   const [year, month, day] = dateString.split('-').map(Number)
   return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0))
+}
+
+/** Shift update data interface */
+interface ShiftUpdateData {
+  employeeId?: string
+  date?: Date
+  startTime?: string
+  endTime?: string
+  type?: string
+  location?: string
+  notes?: string
+  isActive?: boolean
 }
 
 interface RouteParams {
@@ -42,28 +55,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const transformedShift = {
-      id: (shift as any)._id.toString(),
-      employeeId: (shift as any).employeeId._id.toString(),
-      employee: {
-        id: (shift as any).employeeId._id.toString(),
-        firstName: (shift as any).employeeId.firstName,
-        lastName: (shift as any).employeeId.lastName,
-        fullName: (shift as any).employeeId.fullName,
-        role: (shift as any).employeeId.role,
-        color: (shift as any).employeeId.color,
-      },
-      date: (shift as any).date,
-      startTime: (shift as any).startTime,
-      endTime: (shift as any).endTime,
-      type: (shift as any).type,
-      location: (shift as any).location,
-      notes: (shift as any).notes,
-      isActive: (shift as any).isActive,
-      timeRange: `${(shift as any).startTime} - ${(shift as any).endTime}`,
-      createdAt: (shift as any).createdAt,
-      updatedAt: (shift as any).updatedAt,
-    }
+    const transformedShift = mapShiftToApi(shift)
 
     return NextResponse.json({
       success: true,
@@ -91,21 +83,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return authResult.response
     }
 
-    const body = await request.json()
-    const {
-      employeeId,
-      date,
-      startTime,
-      endTime,
-      type,
-      location,
-      notes,
-      isActive,
-    } = body
+    const body = (await request.json()) as {
+      employeeId?: string
+      date?: string
+      startTime?: string
+      endTime?: string
+      type?: string
+      location?: string
+      notes?: string
+      isActive?: boolean
+    }
 
     await connectMongoose()
 
-    // Verify shift exists
     const existingShift = await Shift.findById(params.id)
     if (!existingShift) {
       return NextResponse.json(
@@ -115,8 +105,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // If employee changes, verify new employee exists
-    if (employeeId && employeeId !== existingShift.employeeId.toString()) {
-      const employee = await Employee.findById(employeeId)
+    if (body.employeeId && body.employeeId !== existingShift.employeeId.toString()) {
+      const employee = await Employee.findById(body.employeeId)
       if (!employee) {
         return NextResponse.json(
           { success: false, error: 'Employee not found' },
@@ -125,27 +115,26 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Prepare update data
-    const updateData: any = {}
-    if (employeeId !== undefined) updateData.employeeId = employeeId
-    if (date !== undefined) updateData.date = createLocalDate(date)
-    if (startTime !== undefined) updateData.startTime = startTime
-    if (endTime !== undefined) updateData.endTime = endTime
-    if (type !== undefined) updateData.type = type
-    if (location !== undefined)
-      updateData.location = location?.trim() || undefined
-    if (notes !== undefined) updateData.notes = notes?.trim() || undefined
-    if (isActive !== undefined) updateData.isActive = isActive
+    // Build update data
+    const updateData: ShiftUpdateData = {}
+    if (body.employeeId !== undefined) updateData.employeeId = body.employeeId
+    if (body.date !== undefined) updateData.date = createLocalDate(body.date)
+    if (body.startTime !== undefined) updateData.startTime = body.startTime
+    if (body.endTime !== undefined) updateData.endTime = body.endTime
+    if (body.type !== undefined) updateData.type = body.type
+    if (body.location !== undefined) updateData.location = body.location?.trim() || undefined
+    if (body.notes !== undefined) updateData.notes = body.notes?.trim() || undefined
+    if (body.isActive !== undefined) updateData.isActive = body.isActive
 
     // Check for conflicts if timing data changes
-    if (employeeId || date || startTime || endTime) {
-      const checkEmployeeId = employeeId || existingShift.employeeId
-      const checkDate = date ? createLocalDate(date) : existingShift.date
-      const checkStartTime = startTime || existingShift.startTime
-      const checkEndTime = endTime || existingShift.endTime
+    if (body.employeeId || body.date || body.startTime || body.endTime) {
+      const checkEmployeeId = body.employeeId || existingShift.employeeId
+      const checkDate = body.date ? createLocalDate(body.date) : existingShift.date
+      const checkStartTime = body.startTime || existingShift.startTime
+      const checkEndTime = body.endTime || existingShift.endTime
 
       const conflictingShift = await Shift.findOne({
-        _id: { $ne: params.id }, // Exclude current shift
+        _id: { $ne: params.id },
         employeeId: checkEmployeeId,
         date: checkDate,
         isActive: true,
@@ -185,7 +174,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Update shift
     const updatedShift = await Shift.findByIdAndUpdate(params.id, updateData, {
       new: true,
       runValidators: true,
@@ -193,42 +181,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .lean()
 
-    const transformedShift = {
-      id: (updatedShift as any)?._id.toString(),
-      employeeId: (updatedShift as any)?.employeeId._id.toString(),
-      employee: {
-        id: (updatedShift as any)?.employeeId._id.toString(),
-        firstName: (updatedShift as any)?.employeeId.firstName,
-        lastName: (updatedShift as any)?.employeeId.lastName,
-        fullName: (updatedShift as any)?.employeeId.fullName,
-        role: (updatedShift as any)?.employeeId.role,
-        color: (updatedShift as any)?.employeeId.color,
-      },
-      date: (updatedShift as any)?.date,
-      startTime: (updatedShift as any)?.startTime,
-      endTime: (updatedShift as any)?.endTime,
-      type: (updatedShift as any)?.type,
-      location: (updatedShift as any)?.location,
-      notes: (updatedShift as any)?.notes,
-      isActive: (updatedShift as any)?.isActive,
-      timeRange: `${(updatedShift as any)?.startTime} - ${(updatedShift as any)?.endTime}`,
-      createdAt: (updatedShift as any)?.createdAt,
-      updatedAt: (updatedShift as any)?.updatedAt,
-    }
+    const transformedShift = mapShiftToApi(updatedShift)
 
     return NextResponse.json({
       success: true,
       data: transformedShift,
       message: 'Shift updated successfully',
     })
-  } catch (error: any) {
-    console.error('Error PUT shift:', error)
+  } catch (error) {
+    const err = error as Error & { name?: string; errors?: Record<string, { message: string }> }
+    console.error('Error PUT shift:', err)
 
-    // Handle Mongoose validation errors
-    if (error.name === 'ValidationError') {
+    if (err.name === 'ValidationError' && err.errors) {
       const validationErrors: Record<string, string> = {}
-      for (const field in error.errors) {
-        validationErrors[field] = error.errors[field].message
+      for (const field in err.errors) {
+        validationErrors[field] = err.errors[field].message
       }
 
       return NextResponse.json(

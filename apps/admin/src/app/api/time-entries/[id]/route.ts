@@ -3,12 +3,16 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { connectToDatabase } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
-import type {
-  TimeEntryUpdate,
-  ApiResponse,
-  TimeEntry as TimeEntryType,
-} from '@/types/timeEntry'
+import { mapTimeEntryToApi, type MappedTimeEntry } from '@/lib/mappers/mongoose.mappers'
+import type { TimeEntryUpdate, ApiResponse } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
+
+/** Mongoose error interface */
+interface MongooseError extends Error {
+  name: string
+  path?: string
+  errors?: Record<string, { message: string }>
+}
 
 interface RouteParams {
   params: {
@@ -34,10 +38,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const userRole = (session?.user as any)?.role
+    const userRole = session?.user?.role
     if (
-      !['dev', 'admin', 'staff'].includes(userRole) &&
-      process.env.NODE_ENV !== 'development'
+      !userRole ||
+      (!['dev', 'admin', 'staff'].includes(userRole) &&
+        process.env.NODE_ENV !== 'development')
     ) {
       return NextResponse.json<ApiResponse<null>>(
         {
@@ -69,49 +74,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Formater la réponse
-    const employee = (timeEntry as any).employeeId
-    const formattedTimeEntry: TimeEntryType = {
-      id: (timeEntry as any)._id.toString(),
-      employeeId: employee._id
-        ? employee._id.toString()
-        : (timeEntry as any).employeeId.toString(),
-      employee: employee
-        ? {
-            id: employee._id.toString(),
-            firstName: employee.firstName,
-            lastName: employee.lastName,
-            fullName: `${employee.firstName} ${employee.lastName}`,
-            employeeRole: employee.employeeRole,
-          }
-        : undefined,
-      date: (timeEntry as any).date,
-      clockIn: (timeEntry as any).clockIn,
-      clockOut: (timeEntry as any).clockOut,
-      shiftNumber: (timeEntry as any).shiftNumber,
-      totalHours: (timeEntry as any).totalHours,
-      status: (timeEntry as any).status,
-      isActive: (timeEntry as any).isActive,
-      createdAt: (timeEntry as any).createdAt,
-      updatedAt: (timeEntry as any).updatedAt,
-      currentDuration:
-        !(timeEntry as any).clockOut && (timeEntry as any).status === 'active'
-          ? Math.max(
-              0,
-              (new Date().getTime() - new Date((timeEntry as any).clockIn).getTime()) /
-                (1000 * 60 * 60)
-            )
-          : (timeEntry as any).totalHours || 0,
-    }
+    const formattedTimeEntry = mapTimeEntryToApi(timeEntry)
 
-    return NextResponse.json<ApiResponse<TimeEntryType>>({
+    return NextResponse.json<ApiResponse<MappedTimeEntry>>({
       success: true,
-      data: formattedTimeEntry,
+      data: formattedTimeEntry!,
     })
-  } catch (error: any) {
-    console.error('❌ Erreur API GET time-entries/[id]:', error)
+  } catch (error) {
+    const err = error as MongooseError
+    console.error('Erreur API GET time-entries/[id]:', err)
 
-    if (error.name === 'CastError' && error.path === '_id') {
+    if (err.name === 'CastError' && err.path === '_id') {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -126,7 +99,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       {
         success: false,
         error: 'Erreur lors de la récupération du time entry',
-        details: error.message,
+        details: err.message,
       },
       { status: 500 }
     )
@@ -151,8 +124,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Vérification des permissions (dev ou admin uniquement)
-    const userRole = (session?.user as any)?.role
+    const userRole = session.user.role
     if (
       !['dev', 'admin'].includes(userRole) &&
       process.env.NODE_ENV !== 'development'
@@ -161,7 +133,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         {
           success: false,
           error:
-            'Seuls les développeurs et administrateurs peuvent modifier les time entries',
+            'Seuls les developpeurs et administrateurs peuvent modifier les time entries',
           details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
         },
         { status: 403 }
@@ -172,7 +144,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     await connectToDatabase()
 
-    // Trouver le time entry à modifier
     const timeEntry = await TimeEntry.findOne({
       _id: params.id,
       isActive: true,
@@ -189,58 +160,35 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Appliquer les modifications
-    const allowedUpdates = [
-      'clockIn',
-      'clockOut',
-      'totalHours',
-      'status',
-      'date',
-    ]
-    const actualUpdates: any = {}
+    // Build updates object
+    const actualUpdates: Partial<TimeEntryUpdate> = {}
+    if (updates.clockIn !== undefined) actualUpdates.clockIn = updates.clockIn
+    if (updates.clockOut !== undefined) actualUpdates.clockOut = updates.clockOut
+    if (updates.totalHours !== undefined) actualUpdates.totalHours = updates.totalHours
+    if (updates.status !== undefined) actualUpdates.status = updates.status
 
-    for (const key of allowedUpdates) {
-      if (
-        key in updates &&
-        updates[key as keyof TimeEntryUpdate] !== undefined
-      ) {
-        actualUpdates[key] = updates[key as keyof TimeEntryUpdate]
-      }
-    }
-
-    // Keep date and time as strings (no conversion needed)
-    // date format: "YYYY-MM-DD"
-    // clockIn/clockOut format: "HH:mm"
-
+    // Handle null clockOut (reset to active)
     if (actualUpdates.clockOut === null) {
-      // Permettre de définir clockOut à null
-      actualUpdates.clockOut = null
       actualUpdates.status = 'active'
       actualUpdates.totalHours = undefined
     }
 
-    // Validation: clockOut doit être après clockIn (for times on same day)
-    const finalClockIn = actualUpdates.clockIn || (timeEntry as any).clockIn
+    // Validate clockOut is different from clockIn
+    const finalClockIn = actualUpdates.clockIn || timeEntry.clockIn
     const finalClockOut =
       actualUpdates.clockOut !== undefined
         ? actualUpdates.clockOut
-        : (timeEntry as any).clockOut
+        : timeEntry.clockOut
 
-    // Only validate if both times exist (handle night shifts later in model)
     if (finalClockOut && finalClockIn) {
-      // Simple time comparison for same-day shifts
-      // Night shifts (clockOut < clockIn) are handled by the model
       const [inH, inM] = finalClockIn.split(':').map(Number)
       const [outH, outM] = finalClockOut.split(':').map(Number)
-      const inMinutes = inH * 60 + inM
-      const outMinutes = outH * 60 + outM
 
-      // Allow night shifts where out < in
-      if (outMinutes === inMinutes) {
+      if (inH * 60 + inM === outH * 60 + outM) {
         return NextResponse.json<ApiResponse<null>>(
           {
             success: false,
-            error: "L'heure de sortie doit être différente de l'heure d'entrée",
+            error: "L'heure de sortie doit etre differente de l'heure d'entree",
             details: TIME_ENTRY_ERRORS.INVALID_TIME_RANGE,
           },
           { status: 400 }
@@ -248,78 +196,53 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Appliquer les modifications
-    Object.assign(timeEntry, actualUpdates)
+    // Apply updates to document
+    if (actualUpdates.clockIn) timeEntry.clockIn = actualUpdates.clockIn
+    if (actualUpdates.clockOut !== undefined) timeEntry.clockOut = actualUpdates.clockOut
+    if (actualUpdates.status) timeEntry.status = actualUpdates.status
+    if (actualUpdates.totalHours !== undefined) timeEntry.totalHours = actualUpdates.totalHours
 
-    // Recalculer les heures si nécessaire
-    if (
-      (timeEntry as any).clockOut &&
-      (!actualUpdates.totalHours || actualUpdates.totalHours === undefined)
-    ) {
-      (timeEntry as any).totalHours = timeEntry.calculateTotalHours()
+    // Recalculate hours if clockOut is set and totalHours not provided
+    if (timeEntry.clockOut && actualUpdates.totalHours === undefined) {
+      timeEntry.totalHours = timeEntry.calculateTotalHours()
     }
 
-    // Mettre à jour le statut automatiquement
-    if ((timeEntry as any).clockOut && (timeEntry as any).status === 'active') {
-      (timeEntry as any).status = 'completed'
-    } else if (!(timeEntry as any).clockOut && (timeEntry as any).status === 'completed') {
-      (timeEntry as any).status = 'active'
+    // Auto-update status based on clockOut
+    if (timeEntry.clockOut && timeEntry.status === 'active') {
+      timeEntry.status = 'completed'
+    } else if (!timeEntry.clockOut && timeEntry.status === 'completed') {
+      timeEntry.status = 'active'
     }
 
     await timeEntry.save()
-
-    // Populer les données de l'employé pour la réponse
     await timeEntry.populate('employeeId', 'firstName lastName employeeRole')
 
-    // Formater la réponse
-    const employee = (timeEntry as any).employeeId
-    const formattedTimeEntry: TimeEntryType = {
-      id: (timeEntry as any)._id.toString(),
-      employeeId: (timeEntry as any).employeeId.toString(),
-      employee: employee
-        ? {
-            id: employee._id.toString(),
-            firstName: employee.firstName,
-            lastName: employee.lastName,
-            fullName: `${employee.firstName} ${employee.lastName}`,
-            employeeRole: employee.employeeRole,
-          }
-        : undefined,
-      date: (timeEntry as any).date,
-      clockIn: (timeEntry as any).clockIn,
-      clockOut: (timeEntry as any).clockOut,
-      shiftNumber: (timeEntry as any).shiftNumber,
-      totalHours: (timeEntry as any).totalHours,
-      status: (timeEntry as any).status,
-      isActive: (timeEntry as any).isActive,
-      createdAt: (timeEntry as any).createdAt,
-      updatedAt: (timeEntry as any).updatedAt,
-    }
+    // Convert to plain object for mapper
+    const timeEntryObj = timeEntry.toObject()
+    const formattedTimeEntry = mapTimeEntryToApi(timeEntryObj)
 
-    return NextResponse.json<ApiResponse<TimeEntryType>>({
+    return NextResponse.json<ApiResponse<MappedTimeEntry>>({
       success: true,
-      data: formattedTimeEntry,
-      message: 'Time entry modifié avec succès',
+      data: formattedTimeEntry!,
+      message: 'Time entry modifie avec succes',
     })
-  } catch (error: any) {
-    console.error('❌ Erreur API PUT time-entries/[id]:', error)
+  } catch (error) {
+    const err = error as MongooseError
+    console.error('Erreur API PUT time-entries/[id]:', err)
 
-    // Gestion des erreurs de validation Mongoose
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
-      )
+    if (err.name === 'ValidationError' && err.errors) {
+      const validationErrors = Object.values(err.errors).map((e) => e.message)
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          error: 'Données invalides',
+          error: 'Donnees invalides',
           details: validationErrors,
         },
         { status: 400 }
       )
     }
 
-    if (error.name === 'CastError' && error.path === '_id') {
+    if (err.name === 'CastError' && err.path === '_id') {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -334,7 +257,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       {
         success: false,
         error: 'Erreur lors de la modification du time entry',
-        details: error.message,
+        details: err.message,
       },
       { status: 500 }
     )
@@ -342,7 +265,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 }
 
 /**
- * DELETE /api/time-entries/[id] - Supprimer (désactiver) un time entry
+ * DELETE /api/time-entries/[id] - Supprimer (desactiver) un time entry
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
@@ -352,20 +275,23 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          error: 'Non authentifié',
+          error: 'Non authentifie',
           details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
         },
         { status: 401 }
       )
     }
 
-    // Seuls les dev et admins peuvent supprimer
-    const userRole = (session?.user as any)?.role
-    if (!['dev', 'admin'].includes(userRole) && process.env.NODE_ENV !== 'development') {
+    const userRole = session.user.role
+    if (
+      !['dev', 'admin'].includes(userRole) &&
+      process.env.NODE_ENV !== 'development'
+    ) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
-          error: 'Seuls les développeurs et administrateurs peuvent supprimer les time entries',
+          error:
+            'Seuls les developpeurs et administrateurs peuvent supprimer les time entries',
           details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
         },
         { status: 403 }
@@ -390,18 +316,19 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Soft delete - désactiver au lieu de supprimer
-    (timeEntry as any).isActive = false
+    // Soft delete - deactivate instead of deleting
+    timeEntry.isActive = false
     await timeEntry.save()
 
     return NextResponse.json<ApiResponse<null>>({
       success: true,
-      message: 'Time entry supprimé avec succès',
+      message: 'Time entry supprime avec succes',
     })
-  } catch (error: any) {
-    console.error('❌ Erreur API DELETE time-entries/[id]:', error)
+  } catch (error) {
+    const err = error as MongooseError
+    console.error('Erreur API DELETE time-entries/[id]:', err)
 
-    if (error.name === 'CastError' && error.path === '_id') {
+    if (err.name === 'CastError' && err.path === '_id') {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -416,7 +343,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       {
         success: false,
         error: 'Erreur lors de la suppression du time entry',
-        details: error.message,
+        details: err.message,
       },
       { status: 500 }
     )

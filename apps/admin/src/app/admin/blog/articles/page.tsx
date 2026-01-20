@@ -17,7 +17,7 @@ export default function ArticlesPage() {
   }, [status, router])
 
   useEffect(() => {
-    const userRole = session?.user?.role?.name
+    const userRole = session?.user?.role
     if (session && userRole && !["dev", "admin", "staff"].includes(userRole)) {
       router.push("/403")
     }

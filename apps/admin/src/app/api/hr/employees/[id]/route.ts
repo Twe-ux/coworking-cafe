@@ -4,9 +4,20 @@ import mongoose from 'mongoose'
 import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
+import {
+  mapEmployeeToApi,
+  mapEmployeeToApiSummary,
+} from '@/lib/mappers/mongoose.mappers'
+
+/** Mongoose error interface */
+interface MongooseError extends Error {
+  name: string
+  code?: number
+  errors?: Record<string, { message: string }>
+}
 
 /**
- * GET /api/hr/employees/[id] - Récupérer un employé par ID
+ * GET /api/hr/employees/[id] - Recuperer un employe par ID
  */
 export async function GET(
   request: NextRequest,
@@ -17,12 +28,12 @@ export async function GET(
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, error: 'Non authentifié' },
+        { success: false, error: 'Non authentifie' },
         { status: 401 }
       )
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (!['dev', 'admin'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'Permissions insuffisantes' },
@@ -32,7 +43,7 @@ export async function GET(
 
     if (!mongoose.Types.ObjectId.isValid(params.id)) {
       return NextResponse.json(
-        { success: false, error: 'ID employé invalide' },
+        { success: false, error: 'ID employe invalide' },
         { status: 400 }
       )
     }
@@ -43,66 +54,97 @@ export async function GET(
 
     if (!employee) {
       return NextResponse.json(
-        { success: false, error: 'Employé non trouvé' },
+        { success: false, error: 'Employe non trouve' },
         { status: 404 }
       )
     }
 
-    // Formater avec toutes les données HR
-    const formattedEmployee = {
-      _id: (employee as any)._id.toString(),
-      id: (employee as any)._id.toString(),
-      firstName: (employee as any).firstName,
-      lastName: (employee as any).lastName,
-      email: (employee as any).email,
-      phone: (employee as any).phone,
-      dateOfBirth: (employee as any).dateOfBirth,
-      placeOfBirth: (employee as any).placeOfBirth,
-      address: (employee as any).address,
-      socialSecurityNumber: (employee as any).socialSecurityNumber,
-      contractType: (employee as any).contractType,
-      contractualHours: (employee as any).contractualHours,
-      hireDate: (employee as any).hireDate,
-      hireTime: (employee as any).hireTime,
-      endDate: (employee as any).endDate,
-      endContractReason: (employee as any).endContractReason,
-      level: (employee as any).level,
-      step: (employee as any).step,
-      hourlyRate: (employee as any).hourlyRate,
-      monthlySalary: (employee as any).monthlySalary,
-      employeeRole: (employee as any).employeeRole,
-      availability: (employee as any).availability,
-      onboardingStatus: (employee as any).onboardingStatus,
-      workSchedule: (employee as any).workSchedule,
-      bankDetails: (employee as any).bankDetails,
-      clockingCode: (employee as any).clockingCode,
-      color: (employee as any).color,
-      role: (employee as any).role,
-      isActive: (employee as any).isActive,
-      fullName: `${(employee as any).firstName} ${(employee as any).lastName}`,
-      createdAt: (employee as any).createdAt,
-      updatedAt: (employee as any).updatedAt,
-    }
+    const formattedEmployee = mapEmployeeToApi(employee)
 
     return NextResponse.json({
       success: true,
       data: formattedEmployee,
     })
-  } catch (error: any) {
-    console.error('❌ Erreur API GET employee:', error)
+  } catch (error) {
+    const err = error as MongooseError
+    console.error('Erreur API GET employee:', err)
     return NextResponse.json(
       {
         success: false,
-        error: "Erreur lors de la récupération de l'employé",
-        details: error.message,
+        error: "Erreur lors de la recuperation de l'employe",
+        details: err.message,
       },
       { status: 500 }
     )
   }
 }
 
+/** Employee update request body type */
+interface EmployeeUpdateBody {
+  firstName?: string
+  lastName?: string
+  email?: string | null
+  phone?: string | null
+  dateOfBirth?: string
+  placeOfBirth?: string
+  address?: { street?: string; postalCode?: string; city?: string }
+  socialSecurityNumber?: string
+  contractType?: string
+  contractualHours?: number
+  hireDate?: string
+  hireTime?: string
+  endDate?: string | null
+  endContractReason?: string
+  level?: string
+  step?: number
+  hourlyRate?: number
+  monthlySalary?: number
+  employeeRole?: string
+  color?: string
+  clockingCode?: string
+  availability?: Record<string, unknown>
+  onboardingStatus?: Record<string, unknown>
+  workSchedule?: Record<string, unknown>
+  bankDetails?: { iban?: string; bic?: string; bankName?: string }
+  isActive?: boolean
+  isDraft?: boolean
+  deletedAt?: Date | null
+}
+
+/** Employee update data for Mongoose */
+interface EmployeeUpdateData {
+  firstName?: string
+  lastName?: string
+  email?: string | null
+  phone?: string | null
+  dateOfBirth?: Date
+  placeOfBirth?: string
+  address?: { street?: string; postalCode?: string; city?: string }
+  socialSecurityNumber?: string
+  contractType?: string
+  contractualHours?: number
+  hireDate?: Date
+  hireTime?: string
+  endDate?: Date | null
+  endContractReason?: string
+  level?: string
+  step?: number
+  hourlyRate?: number
+  monthlySalary?: number
+  employeeRole?: string
+  color?: string
+  clockingCode?: string
+  availability?: Record<string, unknown>
+  onboardingStatus?: Record<string, unknown>
+  workSchedule?: Record<string, unknown>
+  bankDetails?: { iban?: string; bic?: string; bankName?: string }
+  isActive?: boolean
+  isDraft?: boolean
+  deletedAt?: Date | null
+}
+
 /**
- * PUT /api/hr/employees/[id] - Mettre à jour un employé
+ * PUT /api/hr/employees/[id] - Mettre a jour un employe
  */
 export async function PUT(
   request: NextRequest,
@@ -113,12 +155,12 @@ export async function PUT(
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, error: 'Non authentifié' },
+        { success: false, error: 'Non authentifie' },
         { status: 401 }
       )
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (!['dev', 'admin'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'Permissions insuffisantes' },
@@ -128,31 +170,31 @@ export async function PUT(
 
     if (!mongoose.Types.ObjectId.isValid(params.id)) {
       return NextResponse.json(
-        { success: false, error: 'ID employé invalide' },
+        { success: false, error: 'ID employe invalide' },
         { status: 400 }
       )
     }
 
-    const data = await request.json()
+    const data = (await request.json()) as EmployeeUpdateBody
 
     await connectMongoose()
 
-    // Préparer les données à mettre à jour
-    const updateData: any = {}
+    // Build update data
+    const updateData: EmployeeUpdateData = {}
 
-    // Champs de base
+    // Basic fields
     if (data.firstName !== undefined) updateData.firstName = data.firstName.trim()
     if (data.lastName !== undefined) updateData.lastName = data.lastName.trim()
-    if (data.email !== undefined) updateData.email = data.email ? data.email.trim() : null
-    if (data.phone !== undefined) updateData.phone = data.phone ? data.phone.trim() : null
+    if (data.email !== undefined) updateData.email = data.email?.trim() || null
+    if (data.phone !== undefined) updateData.phone = data.phone?.trim() || null
 
-    // Informations personnelles
+    // Personal info
     if (data.dateOfBirth !== undefined) updateData.dateOfBirth = new Date(data.dateOfBirth)
     if (data.placeOfBirth !== undefined) updateData.placeOfBirth = data.placeOfBirth
     if (data.address !== undefined) updateData.address = data.address
     if (data.socialSecurityNumber !== undefined) updateData.socialSecurityNumber = data.socialSecurityNumber
 
-    // Informations contractuelles
+    // Contract info
     if (data.contractType !== undefined) updateData.contractType = data.contractType
     if (data.contractualHours !== undefined) updateData.contractualHours = data.contractualHours
     if (data.hireDate !== undefined) updateData.hireDate = new Date(data.hireDate)
@@ -160,18 +202,18 @@ export async function PUT(
     if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null
     if (data.endContractReason !== undefined) updateData.endContractReason = data.endContractReason
 
-    // Rémunération
+    // Compensation
     if (data.level !== undefined) updateData.level = data.level
     if (data.step !== undefined) updateData.step = data.step
     if (data.hourlyRate !== undefined) updateData.hourlyRate = data.hourlyRate
     if (data.monthlySalary !== undefined) updateData.monthlySalary = data.monthlySalary
 
-    // Rôles et planning
+    // Role and scheduling
     if (data.employeeRole !== undefined) updateData.employeeRole = data.employeeRole
     if (data.color !== undefined) updateData.color = data.color
     if (data.clockingCode !== undefined) updateData.clockingCode = data.clockingCode
 
-    // Autres données
+    // Other data
     if (data.availability !== undefined) updateData.availability = data.availability
     if (data.onboardingStatus !== undefined) updateData.onboardingStatus = data.onboardingStatus
     if (data.workSchedule !== undefined) updateData.workSchedule = data.workSchedule
@@ -191,54 +233,39 @@ export async function PUT(
 
     if (!updatedEmployee) {
       return NextResponse.json(
-        { success: false, error: 'Employé non trouvé' },
+        { success: false, error: 'Employe non trouve' },
         { status: 404 }
       )
     }
 
-    const formattedEmployee = {
-      id: (updatedEmployee as any)._id.toString(),
-      firstName: (updatedEmployee as any).firstName,
-      lastName: (updatedEmployee as any).lastName,
-      email: (updatedEmployee as any).email,
-      phone: (updatedEmployee as any).phone,
-      role: (updatedEmployee as any).role,
-      employeeRole: (updatedEmployee as any).employeeRole,
-      color: (updatedEmployee as any).color,
-      clockingCode: (updatedEmployee as any).clockingCode,
-      isActive: (updatedEmployee as any).isActive,
-      fullName: `${(updatedEmployee as any).firstName} ${(updatedEmployee as any).lastName}`,
-      createdAt: (updatedEmployee as any).createdAt,
-      updatedAt: (updatedEmployee as any).updatedAt,
-    }
+    const formattedEmployee = mapEmployeeToApiSummary(updatedEmployee)
 
     return NextResponse.json({
       success: true,
-      message: 'Employé mis à jour avec succès',
+      message: 'Employe mis a jour avec succes',
       data: formattedEmployee,
     })
-  } catch (error: any) {
-    console.error('❌ Erreur API PUT employee:', error)
+  } catch (error) {
+    const err = error as MongooseError
+    console.error('Erreur API PUT employee:', err)
 
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
-      )
+    if (err.name === 'ValidationError' && err.errors) {
+      const validationErrors = Object.values(err.errors).map((e) => e.message)
       return NextResponse.json(
         {
           success: false,
-          error: 'Données invalides',
+          error: 'Donnees invalides',
           details: validationErrors,
         },
         { status: 400 }
       )
     }
 
-    if (error.code === 11000) {
+    if (err.code === 11000) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Un employé avec ces informations existe déjà',
+          error: 'Un employe avec ces informations existe deja',
         },
         { status: 409 }
       )
@@ -247,8 +274,8 @@ export async function PUT(
     return NextResponse.json(
       {
         success: false,
-        error: "Erreur lors de la mise à jour de l'employé",
-        details: error.message,
+        error: "Erreur lors de la mise a jour de l'employe",
+        details: err.message,
       },
       { status: 500 }
     )
@@ -256,7 +283,7 @@ export async function PUT(
 }
 
 /**
- * DELETE /api/hr/employees/[id] - Supprimer un employé (soft delete)
+ * DELETE /api/hr/employees/[id] - Supprimer un employe (soft delete)
  */
 export async function DELETE(
   request: NextRequest,
@@ -267,12 +294,12 @@ export async function DELETE(
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, error: 'Non authentifié' },
+        { success: false, error: 'Non authentifie' },
         { status: 401 }
       )
     }
 
-    const userRole = (session.user as any).role
+    const userRole = session.user.role
     if (!['dev', 'admin'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'Permissions insuffisantes' },
@@ -282,39 +309,39 @@ export async function DELETE(
 
     if (!mongoose.Types.ObjectId.isValid(params.id)) {
       return NextResponse.json(
-        { success: false, error: 'ID employé invalide' },
+        { success: false, error: 'ID employe invalide' },
         { status: 400 }
       )
     }
 
     await connectMongoose()
 
-    // Vérifier si l'employé existe
     const employee = await Employee.findById(params.id)
 
     if (!employee) {
       return NextResponse.json(
-        { success: false, error: 'Employé non trouvé' },
+        { success: false, error: 'Employe non trouve' },
         { status: 404 }
       )
     }
 
-    // Soft delete : désactiver l'employé et marquer deletedAt
+    // Soft delete: deactivate employee and mark deletedAt
     employee.isActive = false
     employee.deletedAt = new Date()
     await employee.save()
 
     return NextResponse.json({
       success: true,
-      message: 'Employé désactivé avec succès',
+      message: 'Employe desactive avec succes',
     })
-  } catch (error: any) {
-    console.error('❌ Erreur API DELETE employee:', error)
+  } catch (error) {
+    const err = error as MongooseError
+    console.error('Erreur API DELETE employee:', err)
     return NextResponse.json(
       {
         success: false,
-        error: "Erreur lors de la suppression de l'employé",
-        details: error.message,
+        error: "Erreur lors de la suppression de l'employe",
+        details: err.message,
       },
       { status: 500 }
     )

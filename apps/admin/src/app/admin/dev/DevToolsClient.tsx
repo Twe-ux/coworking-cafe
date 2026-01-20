@@ -53,20 +53,30 @@ export function DevToolsClient() {
 
       <div className="space-y-3">
         {tools.map((tool) => {
-          const CardWrapper = tool.disabled ? "div" : Link;
+          if (tool.disabled) {
+            return (
+              <div key={tool.href}>
+                <Card className="transition-colors opacity-50 cursor-not-allowed">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <tool.icon className="w-5 h-5" />
+                        {tool.title}
+                      </CardTitle>
+                      <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                        {tool.status}
+                      </span>
+                    </div>
+                    <CardDescription>{tool.description}</CardDescription>
+                  </CardHeader>
+                </Card>
+              </div>
+            );
+          }
 
           return (
-            <CardWrapper
-              key={tool.href}
-              {...(!tool.disabled && { href: tool.href })}
-            >
-              <Card
-                className={`transition-colors ${
-                  tool.disabled
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-muted/50 cursor-pointer"
-                }`}
-              >
+            <Link key={tool.href} href={tool.href}>
+              <Card className="transition-colors hover:bg-muted/50 cursor-pointer">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
@@ -86,7 +96,7 @@ export function DevToolsClient() {
                   <CardDescription>{tool.description}</CardDescription>
                 </CardHeader>
               </Card>
-            </CardWrapper>
+            </Link>
           );
         })}
       </div>

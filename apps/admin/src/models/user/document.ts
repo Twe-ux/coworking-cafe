@@ -1,4 +1,4 @@
-import { Schema, Document as MongooseDocument } from 'mongoose'
+import { Schema, Document as MongooseDocument, Types } from 'mongoose'
 
 export interface User {
   id: string
@@ -10,8 +10,8 @@ export interface User {
   updatedAt: Date
 }
 
-export interface UserDocument extends MongooseDocument, Omit<User, 'id'> {
-  _id: string
+export interface UserDocument extends MongooseDocument, Omit<User, 'id' | '_id'> {
+  _id: Types.ObjectId
 }
 
 export const UserSchema = new Schema<UserDocument>(
@@ -41,7 +41,7 @@ export const UserSchema = new Schema<UserDocument>(
   {
     timestamps: true,
     toJSON: {
-      transform: (_, ret) => {
+      transform: (_doc, ret: any) => {
         ret.id = ret._id.toString()
         delete ret._id
         delete ret.__v

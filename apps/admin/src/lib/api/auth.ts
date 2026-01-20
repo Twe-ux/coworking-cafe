@@ -35,7 +35,7 @@ export async function requireAuth(requiredRoles: string[] = ['dev', 'admin']): P
     }
   }
 
-  const userRole = (session?.user as any)?.role
+  const userRole = session.user.role
   if (!requiredRoles.includes(userRole)) {
     return {
       authorized: false,

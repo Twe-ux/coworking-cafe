@@ -90,9 +90,9 @@ interface PopulatedEmployee {
 }
 
 /**
- * Mapped employee for API response
+ * Mapped employee reference for API response (used in shifts, time entries, etc.)
  */
-export interface MappedEmployee {
+export interface MappedEmployeeRef {
   id: string
   firstName: string
   lastName: string
@@ -110,7 +110,7 @@ export interface MappedEmployee {
  */
 export function mapPopulatedEmployee(
   employee: PopulatedEmployee | null | undefined
-): MappedEmployee | null {
+): MappedEmployeeRef | null {
   if (!employee) return null
 
   return {
@@ -145,7 +145,7 @@ interface ShiftDocument extends WithId {
 export interface MappedShift {
   id: string
   employeeId: string
-  employee: MappedEmployee | null
+  employee: MappedEmployeeRef | null
   date: Date | string
   startTime: string
   endTime: string
@@ -226,7 +226,7 @@ interface AvailabilityDocument extends WithId {
 export interface MappedAvailability {
   id: string
   employeeId: string
-  employee: MappedEmployee | null
+  employee: MappedEmployeeRef | null
   dayOfWeek: number
   dayOfWeekLabel: string
   startTime: string
@@ -301,4 +301,300 @@ export function mapAvailabilitiesToApi(
   availabilities: AvailabilityDocument[]
 ): MappedAvailability[] {
   return availabilities.map((a) => mapAvailabilityToApi(a)!)
+}
+
+/**
+ * Interface for time entry documents
+ */
+interface TimeEntryDocument extends WithId {
+  employeeId: PopulatedEmployee | Types.ObjectId | string
+  date: string
+  clockIn: string
+  clockOut?: string | null
+  shiftNumber: 1 | 2
+  totalHours?: number
+  status: 'active' | 'completed'
+  hasError?: boolean
+  errorType?: string
+  errorMessage?: string
+  isActive: boolean
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+/**
+ * Mapped time entry for API response
+ */
+export interface MappedTimeEntry {
+  id: string
+  employeeId: string
+  employee?: {
+    id: string
+    firstName: string
+    lastName: string
+    fullName: string
+    employeeRole: string
+  }
+  date: string
+  clockIn: string
+  clockOut?: string | null
+  shiftNumber: 1 | 2
+  totalHours?: number
+  status: 'active' | 'completed'
+  hasError?: boolean
+  errorType?: string
+  errorMessage?: string
+  isActive: boolean
+  createdAt?: Date
+  updatedAt?: Date
+  currentDuration?: number
+}
+
+/**
+ * Map a populated time entry document to API format
+ *
+ * @example
+ * const entry = await TimeEntry.findById(id)
+ *   .populate('employeeId', 'firstName lastName employeeRole')
+ *   .lean()
+ * const result = mapTimeEntryToApi(entry)
+ */
+export function mapTimeEntryToApi(
+  entry: TimeEntryDocument | null
+): MappedTimeEntry | null {
+  if (!entry) return null
+
+  const employeeData =
+    typeof entry.employeeId === 'object' && 'firstName' in entry.employeeId
+      ? (entry.employeeId as PopulatedEmployee)
+      : null
+
+  const employeeIdStr = employeeData
+    ? objectIdToString(employeeData._id)
+    : objectIdToString(entry.employeeId as Types.ObjectId | string)
+
+  // Calculate current duration for active entries
+  let currentDuration: number | undefined
+  if (!entry.clockOut && entry.status === 'active') {
+    currentDuration = Math.max(
+      0,
+      (new Date().getTime() - new Date(`${entry.date}T${entry.clockIn}`).getTime()) /
+        (1000 * 60 * 60)
+    )
+  } else {
+    currentDuration = entry.totalHours || 0
+  }
+
+  return {
+    id: objectIdToString(entry._id),
+    employeeId: employeeIdStr,
+    employee: employeeData
+      ? {
+          id: objectIdToString(employeeData._id),
+          firstName: employeeData.firstName,
+          lastName: employeeData.lastName,
+          fullName: `${employeeData.firstName} ${employeeData.lastName}`,
+          employeeRole: employeeData.employeeRole || '',
+        }
+      : undefined,
+    date: entry.date,
+    clockIn: entry.clockIn,
+    clockOut: entry.clockOut,
+    shiftNumber: entry.shiftNumber,
+    totalHours: entry.totalHours,
+    status: entry.status,
+    hasError: entry.hasError,
+    errorType: entry.errorType,
+    errorMessage: entry.errorMessage,
+    isActive: entry.isActive,
+    createdAt: entry.createdAt,
+    updatedAt: entry.updatedAt,
+    currentDuration,
+  }
+}
+
+/**
+ * Map multiple time entries to API format
+ */
+export function mapTimeEntriesToApi(
+  entries: TimeEntryDocument[]
+): MappedTimeEntry[] {
+  return entries.map((entry) => mapTimeEntryToApi(entry)!)
+}
+
+/**
+ * Interface for employee documents (from lean() query)
+ */
+interface EmployeeDocument extends WithId {
+  firstName: string
+  lastName: string
+  email?: string | null
+  phone?: string | null
+  dateOfBirth?: Date | string
+  placeOfBirth?: string
+  address?: {
+    street?: string
+    postalCode?: string
+    city?: string
+  }
+  socialSecurityNumber?: string
+  contractType?: string
+  contractualHours?: number
+  hireDate?: Date | string
+  hireTime?: string
+  endDate?: Date | string | null
+  endContractReason?: string
+  level?: string
+  step?: number
+  hourlyRate?: number
+  monthlySalary?: number
+  employeeRole?: string
+  availability?: Record<string, unknown>
+  onboardingStatus?: Record<string, unknown>
+  workSchedule?: Record<string, unknown>
+  bankDetails?: {
+    iban?: string
+    bic?: string
+    bankName?: string
+  }
+  clockingCode?: string
+  color?: string
+  role?: string
+  isActive?: boolean
+  isDraft?: boolean
+  deletedAt?: Date | null
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+/**
+ * Mapped employee for API response
+ */
+export interface MappedEmployee {
+  id: string
+  _id?: string
+  firstName: string
+  lastName: string
+  fullName: string
+  email?: string | null
+  phone?: string | null
+  dateOfBirth?: Date | string
+  placeOfBirth?: string
+  address?: {
+    street?: string
+    postalCode?: string
+    city?: string
+  }
+  socialSecurityNumber?: string
+  contractType?: string
+  contractualHours?: number
+  hireDate?: Date | string
+  hireTime?: string
+  endDate?: Date | string | null
+  endContractReason?: string
+  level?: string
+  step?: number
+  hourlyRate?: number
+  monthlySalary?: number
+  employeeRole?: string
+  availability?: Record<string, unknown>
+  onboardingStatus?: Record<string, unknown>
+  workSchedule?: Record<string, unknown>
+  bankDetails?: {
+    iban?: string
+    bic?: string
+    bankName?: string
+  }
+  clockingCode?: string
+  color?: string
+  role?: string
+  isActive?: boolean
+  isDraft?: boolean
+  deletedAt?: Date | null
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+/**
+ * Map an employee document to API format (full details)
+ *
+ * @example
+ * const employee = await Employee.findById(id).lean()
+ * const result = mapEmployeeToApi(employee)
+ */
+export function mapEmployeeToApi(
+  employee: EmployeeDocument | null
+): MappedEmployee | null {
+  if (!employee) return null
+
+  const id = objectIdToString(employee._id)
+
+  return {
+    id,
+    _id: id,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    fullName: `${employee.firstName} ${employee.lastName}`,
+    email: employee.email,
+    phone: employee.phone,
+    dateOfBirth: employee.dateOfBirth,
+    placeOfBirth: employee.placeOfBirth,
+    address: employee.address,
+    socialSecurityNumber: employee.socialSecurityNumber,
+    contractType: employee.contractType,
+    contractualHours: employee.contractualHours,
+    hireDate: employee.hireDate,
+    hireTime: employee.hireTime,
+    endDate: employee.endDate,
+    endContractReason: employee.endContractReason,
+    level: employee.level,
+    step: employee.step,
+    hourlyRate: employee.hourlyRate,
+    monthlySalary: employee.monthlySalary,
+    employeeRole: employee.employeeRole,
+    availability: employee.availability,
+    onboardingStatus: employee.onboardingStatus,
+    workSchedule: employee.workSchedule,
+    bankDetails: employee.bankDetails,
+    clockingCode: employee.clockingCode,
+    color: employee.color,
+    role: employee.role,
+    isActive: employee.isActive,
+    isDraft: employee.isDraft,
+    deletedAt: employee.deletedAt,
+    createdAt: employee.createdAt,
+    updatedAt: employee.updatedAt,
+  }
+}
+
+/**
+ * Map an employee document to API format (summary for lists)
+ */
+export function mapEmployeeToApiSummary(
+  employee: EmployeeDocument | null
+): Pick<MappedEmployee, 'id' | 'firstName' | 'lastName' | 'fullName' | 'email' | 'employeeRole' | 'color' | 'isActive' | 'clockingCode'> | null {
+  if (!employee) return null
+
+  const id = objectIdToString(employee._id)
+
+  return {
+    id,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    fullName: `${employee.firstName} ${employee.lastName}`,
+    email: employee.email,
+    employeeRole: employee.employeeRole,
+    color: employee.color,
+    isActive: employee.isActive,
+    clockingCode: employee.clockingCode,
+  }
+}
+
+/**
+ * Map multiple employees to API format
+ */
+export function mapEmployeesToApi(
+  employees: EmployeeDocument[]
+): MappedEmployee[] {
+  return employees.map((employee) => mapEmployeeToApi(employee)!)
 }

@@ -36,7 +36,7 @@ export default function CategoriesPage() {
   }, [status, router])
 
   useEffect(() => {
-    const userRole = session?.user?.role?.name
+    const userRole = session?.user?.role
     if (session && userRole && !["dev", "admin"].includes(userRole)) {
       router.push("/403")
     }

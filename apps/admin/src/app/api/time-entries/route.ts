@@ -31,10 +31,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Vérification des permissions (dev, admin ou staff pour lecture)
-    const userRole = (session?.user as any)?.role
+    const userRole = session?.user?.role
     console.log('🔍 DEBUG API time-entries - User role:', userRole, 'Session user:', session?.user)
 
-    if (!['dev', 'admin', 'staff'].includes(userRole)) {
+    if (!userRole || !['dev', 'admin', 'staff'].includes(userRole)) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -217,8 +217,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérification des permissions (dev ou admin uniquement)
-    const userRole = (session?.user as any)?.role
-    if (!['dev', 'admin'].includes(userRole)) {
+    const userRole = session?.user?.role
+    if (!userRole || !['dev', 'admin'].includes(userRole)) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,

@@ -29,7 +29,7 @@ export async function GET(
       .sort({ lastMessageAt: -1 })
       .lean()
 
-    return successResponse(conversations as ConversationType[])
+    return successResponse(conversations as unknown as ConversationType[])
   } catch (error) {
     console.error("GET /api/conversations error:", error)
     return errorResponse(
@@ -90,7 +90,7 @@ export async function POST(
 
       if (existingConversation) {
         return successResponse(
-          existingConversation as ConversationType,
+          existingConversation as unknown as ConversationType,
           "Conversation existante trouvée"
         )
       }
@@ -115,7 +115,7 @@ export async function POST(
       .lean()
 
     return successResponse(
-      populatedConversation as ConversationType,
+      populatedConversation as unknown as ConversationType,
       "Conversation créée avec succès",
       201
     )

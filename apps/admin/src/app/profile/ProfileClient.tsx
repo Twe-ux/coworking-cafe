@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 
 interface ProfileClientProps {
   user: {
-    name: string | null;
+    id: string;
+    name?: string | null;
     email: string;
-    role?: string;
+    role: string;
   };
 }
 
