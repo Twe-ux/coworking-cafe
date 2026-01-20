@@ -1,13 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { connectDB } from '@/lib/db';
 import { PushSubscription } from '@/models/pushSubscription';
 
 /**
  * POST /api/notifications/unsubscribe
  * Supprime une push subscription
+ * Sécurité: Requiert une session authentifiée (dev, admin, staff)
  */
 export async function POST(request: NextRequest) {
   try {
+    // Vérification d'authentification
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: 'Non authentifié' },
+        { status: 401 }
+      );
+    }
+
+    // Vérification des permissions
+    const userRole = (session?.user as { role?: string })?.role;
+    if (!userRole || !['dev', 'admin', 'staff'].includes(userRole)) {
+      return NextResponse.json(
+        { success: false, error: 'Permissions insuffisantes' },
+        { status: 403 }
+      );
+    }
+
     await connectDB();
 
     const body = await request.json();

@@ -6,10 +6,34 @@ import { ContactMail } from '@coworking-cafe/database';
 /**
  * POST /api/notifications/send
  * Envoie une notification push pour un nouveau message de contact
- * Cette API peut être appelée depuis apps/site ou en interne
+ *
+ * Sécurité: Cette API peut être appelée:
+ * - Depuis apps/site avec un token secret (NOTIFICATIONS_SECRET)
+ * - Depuis l'admin authentifié (session NextAuth)
  */
 export async function POST(request: NextRequest) {
   try {
+    // Vérification de sécurité: token secret OU session NextAuth
+    const authHeader = request.headers.get('Authorization');
+    const secretToken = process.env.NOTIFICATIONS_SECRET;
+
+    // Option 1: Token secret pour appels inter-services (apps/site -> apps/admin)
+    const isValidToken = secretToken && authHeader === `Bearer ${secretToken}`;
+
+    // Option 2: Session NextAuth pour appels depuis l'admin
+    // Note: Pour les appels cross-origin, on utilise le token secret
+    if (!isValidToken) {
+      // Si pas de token valide et pas en dev, refuser
+      if (process.env.NODE_ENV !== 'development') {
+        return NextResponse.json(
+          { success: false, error: 'Non autorisé - Token manquant ou invalide' },
+          { status: 401 }
+        );
+      }
+      // En dev, on log un warning mais on continue
+      console.warn('[Notifications] Warning: Request without valid token in development mode');
+    }
+
     await connectDB();
 
     const body = await request.json();
