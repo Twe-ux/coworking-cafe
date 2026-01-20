@@ -4,7 +4,6 @@ export { default as ShiftAssignment } from './ShiftAssignment'
 export { default as EmployeeMonthlyCard } from './EmployeeMonthlyCard'
 export { default as TimeTrackingCard } from './TimeTrackingCard'
 export { default as PINKeypad } from './PINKeypad'
-export { default as TimeEntriesList } from './TimeEntriesList'
 
 export type { EmployeeSchedulingProps } from './EmployeeScheduling'
 export type { Employee } from '@/hooks/useEmployees'

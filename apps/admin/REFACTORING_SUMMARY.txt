@@ -1,0 +1,115 @@
+================================================================================
+REFACTORING: Step3Availability.tsx
+Date: 2026-01-20
+Type: Modularisation
+================================================================================
+
+OBJECTIF
+--------
+Refactoriser Step3Availability.tsx (412 lignes) en composants modulaires < 200 lignes
+
+RÉSULTATS
+---------
+✅ Fichier principal réduit de 412 → 123 lignes (-70%)
+✅ 9 modules créés (tous < 200 lignes)
+✅ Max lignes/fichier: 166 (useAvailabilityForm)
+✅ Zero `any` types maintenu
+✅ 5 composants réutilisables créés
+✅ 1 hook custom créé
+✅ TypeScript compilation OK
+✅ Zero breaking changes
+✅ Documentation complète
+
+STRUCTURE CRÉÉE
+---------------
+step3-availability/
+  - index.ts (19L): Exports centralisés
+  - types.ts (67L): Types et constants
+  - utils.ts (55L): Fonctions utilitaires
+  - useAvailabilityForm.ts (166L): Hook logique métier
+  - TimeSlotInput.tsx (40L): Input créneau horaire
+  - DayAvailability.tsx (78L): Jour avec créneaux
+  - WeeklyDistributionTable.tsx (84L): Tableau répartition
+  - AvailabilityTab.tsx (42L): Onglet disponibilités
+  - DistributionTab.tsx (81L): Onglet répartition
+  - README.md: Documentation complète
+
+COMPOSANTS RÉUTILISABLES
+-------------------------
+1. TimeSlotInput - Input atomique pour créneau horaire
+2. DayAvailability - Gestion jour avec créneaux
+3. WeeklyDistributionTable - Tableau 7j × 4 semaines
+4. AvailabilityTab - Contenu onglet disponibilités
+5. DistributionTab - Contenu onglet répartition
+
+HOOK CUSTOM
+-----------
+useAvailabilityForm (166L)
+  - Gère 2 états (availability + weeklyDistribution)
+  - 9 fonctions manipulation (toggle, add, remove, update)
+  - 3 fonctions calcul (totaux, validation)
+  - Retourne 13 valeurs/fonctions
+
+CONVENTIONS RESPECTÉES
+----------------------
+✅ Fichiers < 200 lignes
+✅ Zero `any` types
+✅ Types importés de @/types/
+✅ Composants réutilisables avec children
+✅ Hooks pour logique métier
+✅ Props typées strictement
+✅ Documentation JSDoc
+
+DOCUMENTATION
+-------------
+- step3-availability/README.md: Architecture, composants, flux
+- docs/REFACTORING_STEP3_AVAILABILITY.md: Détails complets
+
+VALIDATION
+----------
+✅ npx tsc --noEmit: Aucune erreur TypeScript
+✅ Imports: Aucune dépendance circulaire
+✅ Exports: Tous accessibles via index.ts
+✅ Compatibilité: API publique identique
+
+BÉNÉFICES
+---------
+• Maintenabilité: Fichiers courts et focalisés
+• Testabilité: Hook et composants testables indépendamment
+• Réutilisabilité: 5 composants réutilisables ailleurs
+• Performance: Composants optimisables (memo/useMemo)
+• Onboarding: Structure claire pour nouveaux devs
+
+FLUX DE DONNÉES
+---------------
+Step3Availability (orchestrateur)
+    ↓
+useAvailabilityForm (logique métier)
+    ↓
+AvailabilityTab / DistributionTab
+    ↓
+DayAvailability / WeeklyDistributionTable
+    ↓
+TimeSlotInput (atomique)
+
+GUIDE MAINTENANCE
+-----------------
+• Ajouter jour: Modifier types.ts (DAYS)
+• Changer validation: Modifier useAvailabilityForm.ts
+• Modifier UI créneau: Modifier TimeSlotInput.tsx
+• Ajouter colonne tableau: Modifier WeeklyDistributionTable.tsx
+
+POINT D'ATTENTION
+-----------------
+⚠️ useAvailabilityForm.ts = 166 lignes (proche limite 200)
+
+Justification:
+- Logique métier complexe (2 états interdépendants)
+- Déjà optimisé au maximum
+- Découper = perte cohérence + duplication
+- < 200 lignes (limite respectée)
+- Testable indépendamment
+
+PRÊT POUR PRODUCTION: ✅ OUI
+
+================================================================================
