@@ -17,6 +17,13 @@ import {
 import { ReservationsSkeleton } from "./ReservationsSkeleton"
 import { ReservationDialog } from "./ReservationDialog"
 import type { Booking, BookingStatus } from "@/types/booking"
+import {
+  getStatusLabel,
+  getStatusVariant,
+  getReservationTypeLabel,
+  formatDate,
+  formatPrice,
+} from "./utils"
 
 export function ReservationsClient() {
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -51,51 +58,6 @@ export function ReservationsClient() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const getStatusLabel = (status: BookingStatus) => {
-    const labels: Record<BookingStatus, string> = {
-      pending: "En attente",
-      confirmed: "Confirmée",
-      cancelled: "Annulée",
-      completed: "Terminée",
-    }
-    return labels[status]
-  }
-
-  const getStatusVariant = (status: BookingStatus) => {
-    const variants: Record<BookingStatus, "default" | "secondary" | "destructive" | "outline"> = {
-      pending: "secondary",
-      confirmed: "default",
-      cancelled: "destructive",
-      completed: "outline",
-    }
-    return variants[status]
-  }
-
-  const getReservationTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      hourly: "Horaire",
-      daily: "Journée",
-      weekly: "Semaine",
-      monthly: "Mois",
-    }
-    return labels[type] || type
-  }
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    })
-  }
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(price)
   }
 
   const handleCreate = () => {
