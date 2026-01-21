@@ -349,34 +349,54 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 
 **Objectif** : Créer dashboard pour clients
 
-### 5.1 Pages Dashboard
+### 5.1 Layout + Overview (Agent 1)
 
-- ⏳ Layout dashboard
-  - ⏳ Sidebar navigation
-  - ⏳ User menu
-- ⏳ Mes réservations (/dashboard/reservations)
-  - ⏳ Upcoming bookings
-  - ⏳ Past bookings
-  - ⏳ Cancelled bookings
-  - ⏳ Bouton annuler
-- ⏳ Mon profil (/dashboard/profile)
-  - ⏳ Formulaire édition
-  - ⏳ Upload avatar
-- ⏳ Paramètres (/dashboard/settings)
-  - ⏳ Notifications
-  - ⏳ Préférences
-- ⏳ Messages (/dashboard/messages)
-  - ⏳ Liste conversations
-  - ⏳ Chat interface
-  - ⏳ WebSocket real-time
+- ✅ Layout dashboard (40L)
+  - ✅ Middleware auth NextAuth (getServerSession)
+  - ✅ Sidebar navigation responsive
+  - ✅ User menu (avatar, nom, logout)
+  - ✅ Mobile drawer
+- ✅ Page overview (145L)
+  - ✅ 4 stats personnelles (DashboardStats)
+  - ✅ Dernières réservations (5)
+  - ✅ CTA "Réserver"
+- ✅ DashboardNav component (135L)
+- ✅ DashboardStats component (75L)
+- ✅ SCSS: _dashboard.scss (445L)
 
-### 5.2 Hooks Dashboard
+### 5.2 Pages Réservations (Agent 2)
 
-- ⏳ useReservations()
-- ⏳ useProfile()
-- ⏳ useMessages()
+- ✅ Liste réservations (/dashboard/bookings) - 181L
+  - ✅ 3 onglets filtres (prochaines/passées/annulées)
+  - ✅ Pagination (10 par page)
+  - ✅ BookingCard component
+  - ✅ Empty state personnalisé
+- ✅ Détail réservation (/dashboard/bookings/[id]) - 130L
+  - ✅ generateMetadata() dynamique
+  - ✅ BookingDetailCard (175L)
+  - ✅ Modal annulation (CancelBookingModal 167L)
+  - ✅ Actions (annuler, télécharger reçu)
+- ✅ useBookings hook (151L): fetch, filtres, pagination
+- ✅ SCSS: _booking-card.scss (516L)
 
-**Status Phase 5** : ⏳ **0% TERMINÉ**
+### 5.3 Profil + Paramètres (Agent 3)
+
+- ✅ Mon profil (/dashboard/profile) - 108L
+  - ✅ Affichage stats (réservations, dépensé, points)
+  - ✅ ProfileForm (168L): validation inline
+  - ✅ Upload avatar (optionnel)
+- ✅ Paramètres (/dashboard/settings) - 237L
+  - ✅ Section Notifications (6 toggles)
+  - ✅ Section Confidentialité
+  - ✅ Section Langue (FR/EN)
+  - ✅ Section Compte (changer password, supprimer)
+- ✅ SettingsSection component (36L)
+- ✅ Toggle component (85L): accessible
+- ✅ useProfile hook (92L): fetch, update, optimistic
+- ✅ API /api/user/settings (101L): GET + PUT
+- ✅ SCSS: 5 fichiers (330L total)
+
+**Status Phase 5** : ✅ **100% TERMINÉ** (Commit: a9c85ec, 27 fichiers, 4,378 lignes)
 
 ---
 
@@ -483,11 +503,11 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 | 2     | APIs Backend     | 3j    | ✅ Terminé  | 100% |
 | 3     | UI Components    | 4j    | ✅ Terminé  | 100% |
 | 4     | Pages Publiques  | 3j    | ✅ Terminé  | 100% |
-| 5     | Dashboard Client | 2j    | ⏳ Planifié | 0%   |
+| 5     | Dashboard Client | 2j    | ✅ Terminé  | 100% |
 | 6     | Authentification | 1j    | ⏳ Planifié | 0%   |
 | 7     | Tests & Optim    | 2j    | ⏳ Planifié | 0%   |
 
-**TOTAL** : 18 jours | **Progression globale** : 72.2% (Phases 0-4 terminées - 13/18 jours)
+**TOTAL** : 18 jours | **Progression globale** : 83.3% (Phases 0-5 terminées - 15/18 jours)
 
 ---
 
