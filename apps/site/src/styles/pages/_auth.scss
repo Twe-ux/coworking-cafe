@@ -1,0 +1,234 @@
+// Auth Pages Styles - BEM Modifié
+// Nomenclature: .page-auth__element ou .auth-component__element
+
+.page-auth {
+  background-color: var(--body-clr);
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+
+  &__container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+}
+
+.auth-card {
+  background: var(--grayWhite-clr);
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 576px) {
+    padding: 2rem 1.5rem;
+  }
+}
+
+.auth-card__header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.auth-card__title {
+  color: var(--main-clr);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.auth-card__subtitle {
+  color: var(--gry-clr);
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.auth-form {
+  &__field {
+    margin-bottom: 1.25rem;
+  }
+
+  &__label {
+    color: var(--secondary-clr);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  &__input {
+    width: 100%;
+    border: 2px solid var(--grayWhite-clr);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #fff;
+
+    &:focus {
+      border-color: var(--main-clr);
+      box-shadow: 0 0 0 0.2rem rgba(65, 121, 114, 0.15);
+      outline: none;
+    }
+
+    &::placeholder {
+      color: var(--gry-clr);
+      opacity: 0.6;
+    }
+
+    &:disabled {
+      background-color: var(--grayWhite-clr);
+      cursor: not-allowed;
+    }
+
+    &--error {
+      border-color: #dc3545;
+    }
+  }
+
+  &__password-wrapper {
+    position: relative;
+  }
+
+  &__password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    padding: 0.25rem 0.5rem;
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--main-clr);
+    }
+  }
+
+  &__checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  &__checkbox {
+    margin-right: 0.5rem;
+    border-color: var(--main-clr);
+
+    &:checked {
+      background-color: var(--main-clr);
+      border-color: var(--main-clr);
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(65, 121, 114, 0.15);
+    }
+  }
+
+  &__checkbox-label {
+    color: var(--secondary-clr);
+    font-size: 0.9rem;
+    margin-bottom: 0;
+  }
+
+  &__submit {
+    width: 100%;
+    background-color: var(--btn-clr);
+    color: var(--secondary-clr);
+    border: none;
+    border-radius: 10px;
+    padding: 0.875rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: #e6c56f;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(242, 211, 129, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  &__error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+  }
+
+  &__helper {
+    color: var(--gry-clr);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+  }
+
+  &__link-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.auth-link {
+  color: var(--main-clr);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #2f5952;
+    text-decoration: underline;
+  }
+
+  &--bold {
+    font-weight: 700;
+  }
+}
+
+.auth-card__footer {
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(65, 121, 114, 0.2);
+  text-align: center;
+  margin-top: 1.5rem;
+
+  p {
+    color: var(--gry-clr);
+    margin-bottom: 0;
+    font-size: 0.95rem;
+  }
+}
+
+.auth-alert {
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border: none;
+
+  &--error {
+    background-color: #fee;
+    color: #c33;
+  }
+
+  &--success {
+    background-color: #efe;
+    color: #3c3;
+  }
+}
+
+.auth-spinner {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
