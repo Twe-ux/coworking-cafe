@@ -1,0 +1,185 @@
+.about {
+  @include breakpoint(sm) {
+    padding-top: 65px !important;
+  }
+
+  &__title {
+    .title {
+      // max-width: 900px;
+      font-size: 45px;
+
+      @include breakpoint(sm) {
+        font-size: 26px;
+      }
+    }
+
+    &_shap {
+      img {
+        width: 200px;
+        height: 109px;
+        transform: rotate(135deg);
+        position: absolute;
+        bottom: 0;
+      }
+    }
+  }
+
+  &__wapper {
+    margin-top: 60px;
+
+    @include breakpoint(xl) {
+      margin-top: 50px;
+    }
+
+    @include breakpoint(lg) {
+      margin-top: 40px;
+    }
+
+    &_left {
+      padding-right: 65px;
+
+      @include breakpoint(lg) {
+        padding-right: 0px;
+      }
+
+      p {
+        text-align: justify;
+      }
+
+      .circle {
+        margin: auto;
+        margin-top: 30px;
+
+        @include breakpoint(xl) {
+          margin-top: 20px;
+        }
+
+        @include breakpoint(lg) {
+          margin-top: 20px;
+        }
+      }
+    }
+
+    &_center {
+      padding-right: 32px;
+
+      @include breakpoint(lg) {
+        padding-right: 0px;
+      }
+
+      img {
+        border-radius: 10px;
+        width: 100%;
+        height: 380px;
+        object-fit: cover;
+
+        @include breakpoint(lg) {
+          margin-top: 40px;
+        }
+      }
+    }
+
+    &_right {
+      li {
+        @include flex();
+        gap: 12px;
+        margin-bottom: 25px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        @include breakpoint(xl) {
+          margin-bottom: 25px;
+        }
+
+        @include breakpoint(lg) {
+          margin-bottom: 25px;
+        }
+
+        @include breakpoint(md) {
+          margin-bottom: 20px;
+        }
+
+        i {
+          color: var(--btn-clr);
+        }
+
+        span {
+          font-size: 20px;
+          color: var(--pra-clr);
+          font-weight: 500;
+          line-height: 32px;
+        }
+      }
+    }
+  }
+}
+
+// ------------- About_2 for second home page and it's extend code from main home about style
+.about__2 {
+  &_title {
+    color: var(--secondary-clr);
+  }
+
+  &_circle {
+    transform: translateY(-100px);
+
+    @include breakpoint(lg) {
+      transform: translateY(0);
+      margin-top: 40px;
+    }
+  }
+
+  &_left {
+    p {
+      color: #6e6f75;
+    }
+
+    .one {
+      margin-bottom: 40px;
+
+      @include breakpoint(lg) {
+        margin: 30px 0;
+      }
+    }
+  }
+}
+
+// ------------- about_page for main about and it's extend code from main home about style
+.about__page {
+  .title {
+    color: var(--secondary-clr);
+  }
+
+  .about {
+    &__wapper {
+      &_left {
+        p {
+          color: #6e6f75;
+        }
+
+        .circle {
+          border: 1px solid var(--secondary-clr);
+          color: var(--secondary-clr);
+
+          &:hover {
+            border: 1px solid var(--btn-clr);
+          }
+        }
+      }
+
+      &_right {
+        li {
+          span {
+            color: var(--secondary-clr);
+          }
+
+          i {
+            color: var(--main-clr);
+          }
+        }
+      }
+    }
+  }
+}

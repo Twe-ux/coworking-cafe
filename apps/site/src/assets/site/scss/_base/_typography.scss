@@ -1,0 +1,420 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@100;200;300;400;500;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+@font-face {
+  font-family: "Brittany";
+  src: url("../../font/Brittany-Signature/BrittanySignature.otf")
+    format("OpenType Font");
+  src: url("../../font/Brittany-Signature/BrittanySignature.ttf")
+    format("truetype");
+}
+
+.brittany {
+  font-family: "Brittany", sans-serif;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--grayWhite-clr);
+  scroll-behavior: smooth;
+}
+
+.home1 {
+  background-color: var(--body-clr);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Kanit", sans-serif;
+  margin-bottom: 0;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: var(--primary-clr);
+  text-decoration: none;
+}
+
+p {
+  color: var(--pra-clr);
+  line-height: 26px;
+  margin-bottom: 0;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.t__54 {
+  font-size: 54px;
+  color: var(--secondary-clr);
+  font-weight: 500;
+  line-height: 65px;
+
+  @include breakpoint(xl) {
+    font-size: 45px;
+    line-height: 52px;
+  }
+
+  @include breakpoint(lg) {
+    font-size: 40px;
+    line-height: 42px;
+  }
+
+  @include breakpoint(md) {
+    font-size: 35px;
+    line-height: 37px;
+  }
+}
+
+.t__28 {
+  font-size: 28px;
+  line-height: 38px;
+  color: var(--secondary-clr);
+  font-weight: 500;
+  display: inline-block;
+
+  @include breakpoint(lg) {
+    font-size: 25px;
+    line-height: 30px;
+  }
+
+  @include breakpoint(md) {
+    font-size: 23px;
+  }
+}
+
+.t__22 {
+  color: var(--secondary-clr);
+  font-size: 22px;
+  font-family: Kanit;
+  font-weight: 500;
+  line-height: 38px;
+  display: inline-block;
+}
+
+.py__90 {
+  padding: 90px 0;
+
+  @include breakpoint(lg) {
+    padding: 70px 0;
+  }
+
+  @include breakpoint(md) {
+    padding: 60px 0;
+  }
+
+  @include breakpoint(sm) {
+    padding: 50px 0;
+  }
+}
+.py__130 {
+  padding: 130px 0;
+
+  @include breakpoint(lg) {
+    padding: 110px 0;
+  }
+
+  @include breakpoint(md) {
+    padding: 100px 0;
+  }
+
+  @include breakpoint(sm) {
+    padding: 90px 0;
+  }
+}
+
+.pt__120 {
+  padding: 120px 0;
+
+  @include breakpoint(lg) {
+    padding: 100px 0;
+  }
+
+  @include breakpoint(md) {
+    padding: 90px 0;
+  }
+
+  @include breakpoint(sm) {
+    padding: 80px 0;
+  }
+}
+
+.pb__130 {
+  padding-bottom: 130px;
+
+  @include breakpoint(lg) {
+    padding-bottom: 110px;
+  }
+
+  @include breakpoint(md) {
+    padding-bottom: 130px;
+  }
+
+  @include breakpoint(sm) {
+    padding-bottom: 130px;
+  }
+}
+.pb__180 {
+  padding-bottom: 180px;
+
+  @include breakpoint(lg) {
+    padding-bottom: 160px;
+  }
+
+  @include breakpoint(md) {
+    padding-bottom: 150px;
+  }
+
+  @include breakpoint(sm) {
+    padding-bottom: 140px;
+  }
+}
+
+.pt__60 {
+  padding-top: 60px;
+
+  @include breakpoint(md) {
+    padding-top: 40px;
+  }
+}
+
+.pt__50 {
+  padding-top: 50px;
+
+  @include breakpoint(md) {
+    padding-top: 30px;
+  }
+}
+
+.title {
+  color: var(--grayWhite-clr);
+  font-size: 54px;
+  font-weight: 500;
+  line-height: 62px;
+  word-wrap: break-word;
+
+  @include breakpoint(xl) {
+    font-size: 45px;
+    line-height: 52px;
+  }
+
+  @include breakpoint(lg) {
+    font-size: 40px;
+    line-height: 42px;
+  }
+
+  @include breakpoint(md) {
+    font-size: 35px;
+    line-height: 37px;
+  }
+}
+
+.title__black {
+  color: var(--secondary-clr);
+}
+
+.circle {
+  width: 182px;
+  height: 182px;
+  border-radius: 50%;
+  border: 1px solid var(--btn-clr);
+  transition: all 0.5s;
+  @include center();
+  font-weight: 600;
+  flex-direction: column;
+  color: var(--btn-clr);
+
+  @include breakpoint(lg) {
+    width: 150px;
+    height: 150px;
+  }
+  @include breakpoint(md) {
+    width: 140px;
+    height: 130px;
+  }
+
+  i {
+    transform: rotate(-45deg);
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  &:hover {
+    background-color: var(--btn-clr);
+    color: var(--secondary-clr);
+  }
+}
+
+.circle__black {
+  border: 1px solid var(--secondary-clr);
+  color: var(--secondary-clr);
+
+  &:hover {
+    border: 1px solid var(--btn-clr);
+  }
+}
+
+.video {
+  transform: translateY(500px);
+
+  @include breakpoint(lg) {
+    transform: translateY(557px);
+  }
+
+  @include breakpoint(md) {
+    transform: translateY(420px);
+  }
+
+  @include breakpoint(sm) {
+    transform: translateY(350px);
+  }
+
+  &_thumb {
+    border-radius: 10px;
+    width: 100%;
+    min-height: 300px;
+    object-fit: cover;
+  }
+
+  &_icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    @include center();
+    background-color: var(--btn-clr);
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    @include breakpoint(lg) {
+      width: 80px;
+      height: 80px;
+
+      img {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  }
+}
+
+.custom__pagination {
+  margin-top: 40px;
+
+  ul {
+    gap: 12px;
+  }
+
+  li {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    @include center();
+    border: 1px solid var(--secondary-clr);
+    transition: all 0.5s;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--btn-clr);
+      border: 1px solid var(--btn-clr);
+    }
+  }
+}
+
+.partner {
+  display: flex;
+  flex-direction: row;
+  background-color: hsl(171, 14%, 25%);
+  border-radius: 10px;
+  padding: 40px;
+  margin-top: 106px;
+  overflow-x: hidden;
+
+  .partner__logo {
+    height: 100px;
+  }
+
+  @include breakpoint(xl) {
+    padding: 40px;
+    margin-top: 90px;
+  }
+
+  @include breakpoint(md) {
+    margin-top: 70px;
+  }
+
+  &__wapper {
+    flex: 1 1 0;
+    overflow: hidden;
+    position: relative;
+
+    &::after,
+    &::before {
+      display: block;
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      z-index: 1;
+    }
+
+    &::after {
+      right: 0;
+      background-image: linear-gradient(
+        to left,
+        hsl(171, 14%, 25%) 0,
+        transparent 100%
+      );
+    }
+    &::before {
+      left: 0;
+      background-image: linear-gradient(
+        to right,
+        hsl(171, 14%, 25%) 0,
+        transparent 100%
+      );
+    }
+  }
+
+  &__content {
+    // overflow-x: hidden;
+    @include justify();
+    gap: 20px;
+    // width: calc(220px * 10);
+    animation: scroll 40s linear infinite;
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0px);
+  }
+
+  100% {
+    transform: translateX(calc(-220px * 5));
+  }
+}
+
+@media (min-width: 1200px) {
+  .banner2 .container,
+  .header .container,
+  .page__header .container {
+    max-width: 1420px;
+  }
+
+  .header__1 .container {
+    max-width: 1320px;
+  }
+}

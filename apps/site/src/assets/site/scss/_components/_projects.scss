@@ -1,0 +1,338 @@
+// .home1 {
+//   .projects {
+//     padding-top: 284px;
+//   }
+// }
+
+.projects {
+  @include breakpoint(lg) {
+    padding-top: 220px;
+  }
+
+  @include breakpoint(md) {
+    padding-top: 210px;
+  }
+
+  @include breakpoint(sm) {
+    padding-top: 0px;
+  }
+
+  &__title {
+    .title {
+      max-width: 570px;
+      @include breakpoint(md) {
+        max-width: 260px;
+      }
+    }
+  }
+
+  &__wapper {
+    columns: 2;
+    gap: 136px;
+    margin-top: 60px;
+
+    @include breakpoint(xxl) {
+      columns: 2;
+      gap: 80px;
+    }
+
+    @include breakpoint(xl) {
+      columns: 2;
+      gap: 60px;
+    }
+
+    @include breakpoint(lg) {
+      columns: 2;
+      gap: 40px;
+    }
+
+    @include breakpoint(md) {
+      columns: 1;
+      gap: 0;
+    }
+
+    &_card {
+      overflow: hidden;
+      margin-bottom: 40px;
+
+      @include breakpoint(md) {
+        margin-bottom: 40px;
+      }
+
+      &:last-child {
+        @include breakpoint(lg) {
+          margin-bottom: 30px;
+        }
+
+        @include breakpoint(sm) {
+          margin-bottom: 20px;
+        }
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+      }
+
+      .prj__title {
+        font-family: Kanit;
+        color: var(--grayWhite-clr);
+        margin-top: 20px;
+
+        @include breakpoint(md) {
+          margin-top: 20px;
+        }
+      }
+      .d-flex {
+        gap: 1rem;
+      }
+
+      .project__group {
+        color: var(--pra-clr);
+        margin-top: 7px;
+
+        @include breakpoint(md) {
+          margin-top: 5px;
+        }
+      }
+      &_circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 1px solid var(--btn-clr);
+        transition: all 0.5s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        flex-direction: column;
+        color: var(--btn-clr);
+      }
+      i {
+        transform: rotate(-45deg);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  &__usecase {
+    margin-top: 50px;
+
+    &_content {
+      max-width: 535px;
+
+      h3 {
+        color: var(--grayWhite-clr);
+      }
+
+      p {
+        color: var(--pra-clr);
+      }
+
+      .para2 {
+        margin-top: 40px;
+      }
+
+      .common__btn {
+        margin-top: 50px;
+        background-color: var(--btn-clr);
+        color: var(--secondary-clr);
+      }
+    }
+
+    &_img {
+      border-radius: 10px;
+      width: 100%;
+
+      @include breakpoint(sm) {
+        max-width: 500px;
+        margin: auto;
+      }
+    }
+  }
+}
+
+// --------------- projects__2 for home page 2 and it's extends main home page about section code
+.projects__2 {
+  .title {
+    max-width: 800px;
+    color: var(--secondary-clr);
+  }
+
+  margin-top: 368px;
+
+  @include breakpoint(xxl) {
+    margin-top: 320px;
+  }
+
+  @include breakpoint(xl) {
+    margin-top: 240px;
+  }
+
+  @include breakpoint(md) {
+    margin-top: 100px;
+  }
+
+  &_wapper {
+    margin-top: 60px;
+  }
+
+  &_card {
+    img {
+      border-radius: 10px;
+      margin-bottom: 35px;
+
+      @include breakpoint(sm) {
+        margin-bottom: 25px;
+      }
+    }
+
+    a {
+      color: var(--secondary-clr);
+      display: block;
+    }
+
+    p {
+      margin-top: 20px;
+      color: var(--main-clr);
+
+      @include breakpoint(sm) {
+        margin-top: 10px;
+      }
+    }
+  }
+
+  .two {
+    margin-top: 50px;
+
+    @include breakpoint(xl) {
+      margin-top: 0;
+    }
+  }
+
+  .three {
+    margin-top: 100px;
+
+    @include breakpoint(xl) {
+      margin-top: 0;
+    }
+  }
+}
+
+.tools {
+  background-color: var(--main-clr);
+
+  .projects__usecase {
+    margin-top: 0;
+  }
+
+  .counter {
+    padding: 70px;
+    background-color: #588983;
+    border-radius: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 130px;
+
+    @include breakpoint(lg) {
+      flex-wrap: wrap;
+      padding: 50px;
+      margin-top: 110px;
+    }
+
+    @include breakpoint(md) {
+      padding: 40px;
+      margin-top: 100px;
+    }
+
+    @include breakpoint(sm) {
+      padding: 20px;
+      margin-top: 90px;
+    }
+
+    &__box {
+      margin-bottom: 25px;
+
+      @include breakpoint(lg) {
+        width: 50%;
+      }
+
+      &:hover {
+        .counter__number {
+          color: var(--btn-clr);
+          -webkit-text-stroke-color: var(--btn-clr);
+        }
+      }
+    }
+
+    &__number {
+      -webkit-text-stroke-width: 1px;
+      -webkit-text-stroke-color: var(--grayWhite-clr);
+      color: transparent;
+      font-weight: 700;
+      font-size: 80px;
+      line-height: 90px;
+      margin-bottom: 28px;
+      transition: all 0.5s;
+
+      @include breakpoint(xl) {
+        font-size: 60px;
+      }
+
+      @include breakpoint(md) {
+        font-size: 40px;
+        margin-bottom: 0px;
+        line-height: 55px;
+      }
+    }
+
+    &__text {
+      color: var(--grayWhite-clr);
+    }
+  }
+}
+
+// ---------------  projects__3 for about page and it's extends main home page about section code
+.about__page {
+  .projects {
+    padding-top: 0px;
+    padding-bottom: 0;
+
+    .circle {
+      border: 1px solid var(--secondary-clr);
+      color: var(--secondary-clr);
+
+      &:hover {
+        border: 1px solid var(--btn-clr);
+      }
+    }
+
+    &__wapper {
+      &_card {
+        .prj__title {
+          color: var(--secondary-clr);
+        }
+
+        .project__group {
+          color: var(--main-clr);
+        }
+      }
+    }
+  }
+}
+
+.all__project {
+  margin-bottom: 181px;
+
+  .projects__2_card {
+    margin-bottom: 40px;
+  }
+
+  .custom__pagination {
+    margin-top: 0;
+  }
+}

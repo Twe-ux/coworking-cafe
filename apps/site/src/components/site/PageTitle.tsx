@@ -2,7 +2,7 @@ interface PageTitleProps {
   title: string;
 }
 
-export default function PageTitle({ title }: PageTitleProps) {
+const PageTitle = ({ title }: PageTitleProps) => {
   return (
     <section className="page__header position-relative">
       <div className="container">
@@ -14,4 +14,6 @@ export default function PageTitle({ title }: PageTitleProps) {
       </div>
     </section>
   );
-}
+};
+
+export default PageTitle;

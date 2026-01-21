@@ -1,0 +1,191 @@
+// ================================
+// shadcn/ui Design System Mixins
+// ================================
+
+// Button variants
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  white-space: nowrap;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+}
+
+@mixin btn-primary {
+  @include btn-base;
+  background-color: #588983;
+  color: hsl(var(--primary-foreground));
+
+  &:hover:not(:disabled) {
+    background-color: hsl(var(--primary) / 0.9);
+  }
+
+  &:active:not(:disabled) {
+    background-color: hsl(var(--primary) / 0.95);
+  }
+}
+
+@mixin btn-secondary {
+  @include btn-base;
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+
+  &:hover:not(:disabled) {
+    background-color: hsl(var(--secondary) / 0.8);
+  }
+}
+
+@mixin btn-outline {
+  @include btn-base;
+  border: 1px solid hsl(var(--input));
+  background-color: transparent;
+  color: hsl(var(--foreground));
+
+  &:hover:not(:disabled) {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+@mixin btn-ghost {
+  @include btn-base;
+  background-color: transparent;
+  color: hsl(var(--foreground));
+
+  &:hover:not(:disabled) {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+// Button sizes
+@mixin btn-sm {
+  height: 2.25rem;
+  padding: 0 var(--spacing-3);
+  font-size: 0.8125rem;
+}
+
+@mixin btn-md {
+  height: 2.5rem;
+  padding: 0 var(--spacing-4);
+}
+
+@mixin btn-lg {
+  height: 2.75rem;
+  padding: 0 var(--spacing-6);
+  font-size: 0.9375rem;
+}
+
+// Card styles
+@mixin card {
+  border-radius: var(--radius-lg);
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow: var(--shadow-sm);
+}
+
+@mixin card-hover {
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: hsl(var(--border) / 0.8);
+  }
+}
+
+// Input styles
+@mixin input {
+  display: flex;
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid hsl(var(--input));
+  background-color: hsl(var(--background));
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  outline: none;
+
+  &::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  &:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+// Badge styles
+@mixin badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius);
+  padding: 0.125rem var(--spacing-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+@mixin badge-primary {
+  @include badge;
+  background-color: #588983;
+  color: hsl(var(--primary-foreground));
+}
+
+@mixin badge-secondary {
+  @include badge;
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border-color: hsl(var(--border));
+}
+
+@mixin badge-outline {
+  @include badge;
+  background-color: transparent;
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+// Focus ring utility
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+// Smooth transitions
+@mixin transition-all {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Text ellipsis
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

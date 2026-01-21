@@ -354,7 +354,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ 6 APIs promo/scan (track, reveal, copy, current-token, [token], marketing)
   - ✅ promoService (427L)
   - ✅ Types promo.ts
-  - ✅ SCSS: _scan.scss, _promo.scss
+  - ✅ SCSS: \_scan.scss, \_promo.scss
 - ✅ /boissons - Liste boissons (75L)
 - ✅ /take-away - Marketing take-away (175L)
 
@@ -487,7 +487,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 
 ### 6.5 SCSS & Styles
 
-- ✅ _auth.scss (182L) - BEM modifié
+- ✅ \_auth.scss (182L) - BEM modifié
   - ✅ .page-auth, .auth-card, .auth-form
   - ✅ États: hover, focus, disabled, error
   - ✅ Responsive mobile
