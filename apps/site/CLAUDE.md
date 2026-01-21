@@ -2,8 +2,8 @@
 
 > **App** : `/apps/site/` - Site Public + Dashboard Client du CoworKing Café
 > **Date de création** : 2026-01-21
-> **Version** : 3.0 - Documentation Complète
-> **Status** : 🚧 En refactorisation complète depuis /source
+> **Version** : 4.0 - Refactorisation Progressive
+> **Status** : ✅ Code fonctionnel - En phase de tests puis refactorisation
 
 ---
 
@@ -12,23 +12,25 @@
 ```
 /Users/twe/Developer/Thierry/coworking-cafe/
 │
-├── source/                          # ✅ CODE ORIGINAL NON MODIFIÉ
-│   └── src/app/(site)/              # Reference fonctionnelle
+├── source/                          # ✅ CODE ORIGINAL (référence)
+│   └── src/app/(site)/              # Code fonctionnel de référence
 │
 └── coworking-cafe/                  # Monorepo actif
     ├── apps/
-    │   ├── admin/                   # Dashboard admin (extrait de src-old)
+    │   ├── admin/                   # Dashboard admin (Tailwind + shadcn/ui)
     │   └── site/
-    │       ├── src/                 # 🚧 Code à réécrire proprement
-    │       └── src-old/             # ⚠️ Ancien code modifié (PAS la source originale)
-    ├── packages/database/           # ✅ Models partagés créés
+    │       ├── src/                 # ✅ CODE FONCTIONNEL ACTUEL
+    │       │                        # (anciennement src-old/, copié tel quel)
+    │       └── src-old/             # 📦 Backup (identique à src/)
+    ├── packages/database/           # ✅ Models partagés Mongoose
     └── docs/                        # Documentation
 ```
 
-**RÈGLES** :
-- **Source de vérité** : `/source/` (lecture seule, jamais modifié)
-- **Ne PAS utiliser** : `src-old/` (code modifié, bugs, `any` types)
-- **À réécrire** : Tout dans `src/` en se basant sur `/source/`
+**RÈGLES ACTUELLES** :
+- **Code actif** : `src/` = Code fonctionnel, prêt à refactoriser progressivement
+- **Référence** : `/source/` (en cas de doute sur une fonctionnalité)
+- **Approche** : Tests d'abord → Refactorisation progressive → Pas de réécriture complète
+- **Stabilité** : Ne rien casser, améliorer progressivement
 
 ---
 
@@ -51,10 +53,9 @@
 9. [Intégration Stripe](#intégration-stripe)
 10. [Blog System](#blog-system)
 11. [Dashboard Client](#dashboard-client)
-12. [Phase de Réécriture](#phase-de-réécriture)
+12. [Phase de Tests et Refactorisation](#phase-de-tests-et-refactorisation)
 13. [Checklist Avant Prod](#checklist-avant-prod)
-14. [Guide Migration](#guide-migration)
-15. [FAQ](#faq)
+14. [FAQ](#faq)
 
 ---
 
@@ -3608,356 +3609,277 @@ export default async function DashboardLayout({
 
 ---
 
-## 🚀 12. PHASE DE RÉÉCRITURE
-
-### Vue d'ensemble - 7 Phases (18 jours)
-
-**Objectif** : Réécrire complètement le code depuis `/source/` vers `src/` en respectant toutes les conventions
-
-```
-Phase 1: Fondations              → 3 jours
-Phase 2: APIs Backend            → 3 jours
-Phase 3: Composants UI           → 4 jours
-Phase 4: Pages Site Public       → 3 jours
-Phase 5: Dashboard Client        → 2 jours
-Phase 6: Authentification        → 1 jour
-Phase 7: Tests & Build           → 2 jours
-──────────────────────────────────────────
-TOTAL                            → 18 jours
-```
-
-### Phase 1: Fondations (3 jours)
-
-**Objectif** : Setup structure propre + types + utils
-
-#### Jour 1: Types & Interfaces
-
-**Fichiers à créer** :
-
-```typescript
-// src/types/booking.ts
-export interface BookingFormData {
-  spaceId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  numberOfPeople: number;
-  promoCode?: string;
-}
-
-export interface ValidationErrors {
-  [key: string]: string | undefined;
-}
-
-// src/types/space.ts
-export interface SpaceData {
-  id: string;
-  name: string;
-  type: 'open-space' | 'meeting-room' | 'private-office';
-  capacity: number;
-  pricePerHour: number;
-  amenities: string[];
-  images: string[];
-}
-
-// src/types/api.ts
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
-```
-
-#### Jour 2: Utilitaires
-
-**Fichiers à créer** :
-
-```typescript
-// src/lib/utils/format-date.ts
-export function formatDate(date: Date): string {
-  return date.toISOString().split('T')[0];
-}
-
-export function formatTime(date: Date): string {
-  return date.toTimeString().slice(0, 5);
-}
-
-export function calculateHours(startTime: string, endTime: string): number {
-  const start = new Date(`2000-01-01T${startTime}`);
-  const end = new Date(`2000-01-01T${endTime}`);
-  return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-}
-
-// src/lib/utils/format-price.ts
-export function formatPrice(price: number): string {
-  return `${price.toFixed(2)}€`;
-}
-
-// src/lib/utils/validation.ts
-export function validateEmail(email: string): boolean {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email);
-}
-
-export function validatePhone(phone: string): boolean {
-  const regex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
-  return regex.test(phone);
-}
-```
-
-#### Jour 3: Configuration SCSS
-
-**Fichiers à créer** :
-
-```scss
-// src/styles/bootstrap/_variables.scss
-$primary: #007bff;
-$secondary: #6c757d;
-$success: #28a745;
-$danger: #dc3545;
-
-$font-family-base: 'Inter', sans-serif;
-
-// src/styles/base/_reset.scss
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-// src/styles/main.scss
-@import 'bootstrap/variables';
-@import 'bootstrap/bootstrap';
-@import 'base/reset';
-@import 'base/typography';
-@import 'components/button';
-@import 'layout/header';
-@import 'pages/home';
-```
-
-**Checklist Phase 1** :
-- [ ] Tous les types créés dans `/src/types/`
-- [ ] Tous les utils créés dans `/src/lib/utils/`
-- [ ] Configuration SCSS complète
-- [ ] Pas de `any` types
-- [ ] Build réussit
-
-### Phase 2: APIs Backend (3 jours)
-
-**Objectif** : Toutes les routes API fonctionnelles
-
-#### Jour 1: APIs Booking
-
-```
-/api/booking/
-├── route.ts                    # GET, POST
-├── [id]/route.ts               # GET, PUT, DELETE
-├── calculate/route.ts          # POST
-└── availability/route.ts       # GET
-```
-
-#### Jour 2: APIs Stripe + Webhook
-
-```
-/api/booking/
-└── create-payment-intent/route.ts
-
-/api/stripe/
-└── webhook/route.ts
-```
-
-#### Jour 3: APIs Blog + Contact
-
-```
-/api/blog/
-├── route.ts
-├── [slug]/route.ts
-└── categories/route.ts
-
-/api/contact/route.ts
-/api/newsletter/route.ts
-```
-
-**Checklist Phase 2** :
-- [ ] Toutes les APIs créées
-- [ ] Validation des inputs
-- [ ] Gestion d'erreurs (try/catch)
-- [ ] Types de retour (ApiResponse<T>)
-- [ ] Tests manuels avec curl/Postman
-
-### Phase 3: Composants UI (4 jours)
-
-**Objectif** : Composants réutilisables propres
-
-#### Jour 1: Composants de Base
-
-```
-/src/components/ui/
-├── Button.tsx
-├── Input.tsx
-├── Select.tsx
-├── Card.tsx
-├── Modal.tsx
-└── Spinner.tsx
-```
-
-#### Jour 2: Layout
-
-```
-/src/components/layout/
-├── Header.tsx
-├── Footer.tsx
-├── Navigation.tsx
-└── Breadcrumb.tsx
-```
-
-#### Jour 3-4: Composants Métier
-
-```
-/src/components/booking/
-├── BookingForm.tsx
-├── BookingCalendar.tsx
-├── BookingSummary.tsx
-└── PaymentForm.tsx
-
-/src/components/spaces/
-├── SpaceCard.tsx
-└── SpaceDetails.tsx
-```
-
-**Checklist Phase 3** :
-- [ ] Tous composants < 200 lignes
-- [ ] Props typées avec `interface`
-- [ ] Usage de `children` pour flexibilité
-- [ ] SCSS avec BEM modifié
-- [ ] Pas de duplication
-
-### Phase 4: Pages Site Public (3 jours)
-
-**Objectif** : Toutes les pages publiques fonctionnelles
-
-#### Jour 1: Pages Principales
-
-```
-/app/(site)/
-├── page.tsx                   # Home
-├── concept/page.tsx
-├── spaces/page.tsx
-└── pricing/page.tsx
-```
-
-#### Jour 2: Booking Flow
-
-```
-/app/(site)/booking/
-├── page.tsx                   # Form
-├── confirmation/page.tsx      # Recap
-├── checkout/page.tsx          # Payment
-└── success/page.tsx           # Confirmation
-```
-
-#### Jour 3: Blog + Pages Légales
-
-```
-/app/(site)/blog/
-├── page.tsx
-└── [slug]/page.tsx
-
-/app/(site)/
-├── contact/page.tsx
-├── mentions-legales/page.tsx
-└── politique-confidentialite/page.tsx
-```
-
-**Checklist Phase 4** :
-- [ ] Toutes pages créées
-- [ ] SEO metadata (generateMetadata)
-- [ ] Images avec next/image
-- [ ] Responsive testé
-- [ ] Navigation fonctionnelle
-
-### Phase 5: Dashboard Client (2 jours)
-
-**Objectif** : Dashboard client fonctionnel
-
-#### Jour 1: Structure + Overview
-
-```
-/app/dashboard/
-├── layout.tsx                 # Auth middleware
-├── page.tsx                   # Overview
-└── bookings/page.tsx          # Liste
-```
-
-#### Jour 2: Pages Détail
-
-```
-/app/dashboard/
-├── bookings/[id]/page.tsx     # Détail réservation
-├── profile/page.tsx           # Profil
-└── settings/page.tsx          # Paramètres
-```
-
-**Checklist Phase 5** :
-- [ ] Middleware auth fonctionnel
-- [ ] Toutes pages créées
-- [ ] APIs dashboard (mes réservations)
-- [ ] UI responsive
-
-### Phase 6: Authentification (1 jour)
-
-**Objectif** : NextAuth complet
-
-```
-/app/(site)/auth/
-├── login/page.tsx
-├── register/page.tsx
-├── forgot-password/page.tsx
-└── reset-password/page.tsx
-
-/app/api/auth/
-└── [...nextauth]/route.ts
-```
-
-**Checklist Phase 6** :
-- [ ] NextAuth configuré
-- [ ] Pages login/register
-- [ ] Redirection après login
-- [ ] Session côté serveur
-
-### Phase 7: Tests & Build (2 jours)
-
-**Objectif** : Code production-ready
-
-#### Jour 1: Tests
-
-- [ ] Test toutes les pages (manuel)
-- [ ] Test booking flow complet
-- [ ] Test webhook Stripe (CLI)
-- [ ] Test responsive (mobile, tablet, desktop)
-- [ ] Test SEO (Lighthouse)
-
-#### Jour 2: Build & Optimisation
-
+## 🧪 12. PHASE DE TESTS ET REFACTORISATION
+
+### 📊 Situation Actuelle
+
+**Code Base** : `src/` = Code fonctionnel (anciennement `src-old/`)
+- ✅ **Fonctionnel** : Site opérationnel, toutes features OK
+- ✅ **Cohérent** : Textes, mises en page, styles préservés
+- ❌ **Qualité** : Types `any`, fichiers longs, duplication
+
+**Approche Choisie** : Tests → Refactorisation Progressive (7 jours)
+- **PAS de réécriture** complète (trop risqué)
+- **Amélioration progressive** du code existant
+- **Stabilité prioritaire** : Ne rien casser
+
+---
+
+## 📅 Workflow : 2 Phases
+
+### Phase A : Tests et Validation (En cours)
+
+**Objectif** : S'assurer que tout fonctionne avant refactorisation
+
+#### 1. Tests Pages Site Public (2-3h)
+- [ ] **Homepage** - Hero, sections, navigation
+- [ ] **Concept** - Affichage correct des textes et images
+- [ ] **Spaces** - Cards des espaces, descriptions
+- [ ] **Pricing** - Tables de prix affichées
+- [ ] **Student Offers** - Tarifs étudiants
+- [ ] **Members Program** - Programme fidélité
+- [ ] **Blog** - Liste articles, détail article
+- [ ] **Contact** - Formulaire de contact
+- [ ] **Legal** - Mentions légales, CGU, confidentialité
+
+#### 2. Tests APIs et Logique Métier (2-3h)
+- [ ] **GET /api/spaces** - Récupération espaces
+- [ ] **GET /api/blog/articles** - Liste articles
+- [ ] **POST /api/contact** - Envoi formulaire contact
+- [ ] **GET /api/booking/availability** - Vérif disponibilités
+- [ ] **POST /api/auth/register** - Création compte
+- [ ] **POST /api/auth/login** - Connexion
+- [ ] **POST /api/auth/forgot-password** - Reset password
+
+#### 3. Tests Dashboard Client (1-2h)
+- [ ] **/[id]** - Dashboard overview
+- [ ] **/[id]/reservations** - Mes réservations
+- [ ] **/[id]/profile** - Mon profil (lecture/édition)
+- [ ] **/[id]/settings** - Paramètres compte
+- [ ] **Authentification** - Redirection si non connecté
+
+#### 4. Tests Système de Réservation (2-3h)
+- [ ] **Page booking** - Formulaire sélection espace
+- [ ] **Calcul prix** - API calcule correctement
+- [ ] **Confirmation** - Page récapitulatif
+- [ ] **Checkout** - Intégration Stripe
+- [ ] **Success** - Page confirmation après paiement
+- [ ] **Webhook Stripe** - Mise à jour statut booking
+
+#### 5. Tests Responsive (1h)
+- [ ] **Mobile** (375px) - Navigation, formulaires
+- [ ] **Tablet** (768px) - Layout adapté
+- [ ] **Desktop** (1200px+) - Affichage optimal
+
+**📋 Document de Test** : Créer `TESTS_RESULTS.md` avec :
+- Pages testées ✅ / ❌
+- Bugs identifiés
+- APIs testées
+- Points à améliorer
+
+---
+
+### Phase B : Refactorisation Progressive (7 jours)
+
+**Référence complète** : Voir `REFACTORISATION_PLAN.md`
+
+**Objectif** : Améliorer qualité du code SANS casser les fonctionnalités
+
+#### Jour 1-2 : Types `any` Critiques
+**Objectif** : Éliminer `any` types dans composants critiques
+
+**Actions** :
 ```bash
-# Type-check
-pnpm type-check
+# 1. Identifier tous les any types
+grep -r "any" src/components/ --include="*.tsx" | wc -l
 
-# Build
-pnpm build
-
-# Vérifier bundle size
-# Optimiser images
-# Minifier CSS/JS
+# 2. Créer types partagés
+src/types/
+├── site.ts          # HeroData, NavMenuItem
+├── booking.ts       # BookingFormData
+├── space.ts         # SpaceData
+└── api.ts           # ApiResponse<T>
 ```
 
-**Checklist Finale** :
-- [ ] Build réussit (0 errors)
-- [ ] 0 `any` types
-- [ ] Lighthouse score > 90
-- [ ] Tous fichiers < 200 lignes
-- [ ] SCSS avec BEM
-- [ ] Documentation à jour
+**Priorité P1 (Critique)** :
+- Props de Header, Footer, Booking
+- Hooks personnalisés
+- Utilitaires partagés
+
+**Résultat attendu** :
+- 0 `any` types dans composants P1
+- `pnpm type-check` réussit
+- Site fonctionne identiquement
+
+---
+
+#### Jour 3-4 : Découper Fichiers > 200 Lignes
+**Objectif** : Rendre code plus maintenable
+
+**Actions** :
+```bash
+# Identifier fichiers longs
+find src/ -name "*.tsx" | xargs wc -l | sort -rn | head -20
+```
+
+**Stratégie de découpage** :
+```
+❌ AVANT : booking/page.tsx (350 lignes)
+
+✅ APRÈS :
+booking/
+├── page.tsx (80 lignes)           # Page principale
+├── useBookingForm.ts (120 lignes) # Hook logique
+├── BookingFormUI.tsx (100 lignes) # UI component
+└── BookingSteps.tsx (50 lignes)   # Steps indicator
+```
+
+**Pages à découper** :
+- `booking/page.tsx`
+- `[id]/page.tsx` (Dashboard)
+- `blog/[slug]/page.tsx`
+- Composants Header, Footer
+
+**Résultat attendu** :
+- Tous fichiers < 200 lignes
+- Logique extraite dans hooks
+- UI séparée de la logique
+
+---
+
+#### Jour 5-6 : Composants Réutilisables
+**Objectif** : Éliminer duplication
+
+**Patterns à généraliser** :
+```typescript
+// ❌ AVANT : Duplication
+<HeroOne />
+<HeroTwo />
+<HeroThree />
+
+// ✅ APRÈS : Composant flexible
+<Hero variant="full" title="..." image="...">
+  <CustomContent />
+</Hero>
+```
+
+**Composants à créer** :
+- `Hero` (remplace HeroOne, Two, Three)
+- `Card` (remplace ProjectCard, BlogCard, SpaceCard)
+- `Section` (remplace AboutOne, AboutTwo)
+
+**Migration progressive** :
+1. Créer composant générique
+2. Tester avec 1-2 usages
+3. Si OK, migrer tous
+4. Supprimer anciens composants
+
+**Résultat attendu** :
+- 3+ composants génériques
+- Duplication réduite de 50%+
+- Code mort supprimé
+
+---
+
+#### Jour 7 : Validation Finale
+**Objectif** : Vérifier que tout fonctionne
+
+**Tests complets** :
+- [ ] Toutes pages testées manuellement
+- [ ] Responsive OK (mobile, tablet, desktop)
+- [ ] `pnpm type-check` : 0 errors
+- [ ] `pnpm build` : Build successful
+- [ ] `pnpm lint` : 0 errors
+- [ ] Lighthouse : Score > 85
+
+**Documentation** :
+- [ ] Mettre à jour CLAUDE.md
+- [ ] Documenter composants génériques
+- [ ] Mettre à jour TODO.md
+
+---
+
+## 🎯 Principes de Refactorisation
+
+### ✅ CE QU'ON FAIT
+- Améliorer la **qualité** du code
+- Typer correctement (éliminer `any`)
+- Découper les gros fichiers
+- Créer composants réutilisables
+- Respecter les conventions SEO
+- Appliquer les bonnes pratiques CLAUDE.md
+
+### ❌ CE QU'ON NE FAIT PAS
+- Changer les **textes** ou **contenus**
+- Modifier les **mises en page** visuelles
+- Supprimer des **fonctionnalités**
+- Tout réécrire depuis `/source/`
+- Forcer des changements si bloqué
+
+### 🔒 Règles de Sécurité
+
+**1. Tester après CHAQUE changement**
+```bash
+# Après chaque modif :
+curl http://localhost:3000/[page-modifiée]
+# Vérifier que ça fonctionne
+```
+
+**2. Commits fréquents (toutes les 1-2h)**
+```bash
+git add .
+git commit -m "refactor: [description précise]"
+git push origin main
+```
+
+**3. Stabilité > Pureté**
+- Si un changement casse quelque chose → ANNULER
+- Si incertain → DEMANDER avant de continuer
+- Si bloqué → Passer au suivant
+
+**4. Suivre les conventions**
+- **Types** : Zéro `any`, interfaces explicites
+- **Dates** : Toujours en string (`YYYY-MM-DD`, `HH:mm`)
+- **SCSS** : BEM modifié (`.page-name__element--modifier`)
+- **Composants** : Props typées, < 200 lignes
+- **SEO** : `generateMetadata()`, Schema.org, next/image
+
+---
+
+## 📋 Checklist Quotidienne
+
+**Avant de commencer** :
+- [ ] Pull latest changes
+- [ ] Vérifier que le site fonctionne
+- [ ] Lire la tâche du jour
+- [ ] Créer branche si risqué
+
+**Avant de finir** :
+- [ ] Tester manuellement
+- [ ] Build TypeScript OK
+- [ ] Commit descriptif
+- [ ] Push sur GitHub
+
+---
+
+## 📊 Métriques de Succès
+
+### Code Quality
+- ✅ 0 `any` types (ou < 5 justifiés)
+- ✅ Tous fichiers < 200 lignes
+- ✅ Duplication réduite de 50%+
+- ✅ Build TypeScript réussit
+
+### Fonctionnalité
+- ✅ Site fonctionne identiquement
+- ✅ Aucune régression visuelle
+- ✅ Toutes pages accessibles
+- ✅ Responsive OK
+
+### Performance
+- ✅ Lighthouse score > 85
+- ✅ Build time < 2 min
+- ✅ 0 warnings TypeScript
 
 ---
 
