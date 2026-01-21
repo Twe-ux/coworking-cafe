@@ -2,37 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { sendNewContactNotification } from '@/lib/push-notifications';
 import { ContactMail } from '@coworking-cafe/database';
+import { requireAuth } from '@/lib/api/auth';
 
 /**
  * POST /api/notifications/send
  * Envoie une notification push pour un nouveau message de contact
  *
- * Sécurité: Cette API peut être appelée:
- * - Depuis apps/site avec un token secret (NOTIFICATIONS_SECRET)
- * - Depuis l'admin authentifié (session NextAuth)
+ * 🔒 ROUTE PROTÉGÉE - Accessible uniquement aux utilisateurs authentifiés
  */
 export async function POST(request: NextRequest) {
+  // 1. Authentification OBLIGATOIRE
+  const authResult = await requireAuth(['dev', 'admin']);
+  if (!authResult.authorized) {
+    return authResult.response;
+  }
+
   try {
-    // Vérification de sécurité: token secret OU session NextAuth
-    const authHeader = request.headers.get('Authorization');
-    const secretToken = process.env.NOTIFICATIONS_SECRET;
-
-    // Option 1: Token secret pour appels inter-services (apps/site -> apps/admin)
-    const isValidToken = secretToken && authHeader === `Bearer ${secretToken}`;
-
-    // Option 2: Session NextAuth pour appels depuis l'admin
-    // Note: Pour les appels cross-origin, on utilise le token secret
-    if (!isValidToken) {
-      // Si pas de token valide et pas en dev, refuser
-      if (process.env.NODE_ENV !== 'development') {
-        return NextResponse.json(
-          { success: false, error: 'Non autorisé - Token manquant ou invalide' },
-          { status: 401 }
-        );
-      }
-      // En dev, on log un warning mais on continue
-      console.warn('[Notifications] Warning: Request without valid token in development mode');
-    }
 
     await connectDB();
 

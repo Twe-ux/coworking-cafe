@@ -4,6 +4,7 @@ import Employee from '@/models/employee'
 import { checkIPWhitelist, getClientIP } from '@/lib/security/ip-whitelist'
 import { checkRateLimit, recordAttempt, resetAttempts } from '@/lib/security/rate-limiter'
 import { logPINAttempt } from '@/lib/security/pin-logger'
+import logger from '@/lib/logger'
 
 interface VerifyPinRequest {
   employeeId: string
@@ -167,7 +168,11 @@ export async function POST(request: NextRequest) {
       message: 'PIN vérifié avec succès',
     })
   } catch (error: any) {
-    console.error('❌ Erreur API POST employees/verify-pin:', error)
+    logger.error('Verify PIN API error', {
+      employeeId: (error as any).employeeId,
+      errorName: error.name,
+      errorMessage: error.message,
+    })
 
     // Gestion des erreurs spécifiques
     if (error.name === 'CastError' && error.path === '_id') {

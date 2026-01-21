@@ -1,6 +1,6 @@
 "use client";
 
-import EmployeeMonthlyCard from "@/components/schedule/EmployeeMonthlyCard";
+import EmployeeMonthlyCard from "@/components/shared/EmployeeMonthlyCard";
 import { ScheduleDayCell } from "@/components/schedule/ScheduleDayCell";
 import { ScheduleHeader } from "@/components/schedule/ScheduleHeader";
 import { ScheduleModals } from "@/components/schedule/ScheduleModals";

@@ -12,8 +12,16 @@ interface EmployeeMonthlyCardProps {
   employees: Employee[];
   shifts: Shift[];
   timeEntries?: TimeEntry[];
-  currentDate: Date; // The month being displayed
+  currentDate: Date;
   className?: string;
+  showStats?: boolean;
+}
+
+interface EmployeeStats {
+  employee: Employee;
+  plannedHours: number;
+  actualHours: number;
+  projectedHours: number;
 }
 
 export default function EmployeeMonthlyCard({
@@ -22,11 +30,8 @@ export default function EmployeeMonthlyCard({
   timeEntries = [],
   currentDate,
   className = "",
+  showStats = false,
 }: EmployeeMonthlyCardProps) {
-  console.log('🔍 DEBUG EmployeeMonthlyCard - timeEntries received:', timeEntries);
-  console.log('🔍 DEBUG EmployeeMonthlyCard - shifts received:', shifts);
-
-  // Helper to normalize date to YYYY-MM-DD string
   const formatDateToYMD = (date: Date | string): string => {
     if (typeof date === "string") {
       return date.split("T")[0];
@@ -37,7 +42,6 @@ export default function EmployeeMonthlyCard({
     return `${year}-${month}-${day}`;
   };
 
-  // Calculate first and last day of the current month (STRICT)
   const { firstDayStr, lastDayStr } = useMemo(() => {
     const firstDay = new Date(
       currentDate.getFullYear(),
@@ -55,14 +59,12 @@ export default function EmployeeMonthlyCard({
     };
   }, [currentDate]);
 
-  // Format hours from decimal to HH:MM
   const formatHoursToHHMM = (decimalHours: number): string => {
     if (decimalHours <= 0) return "0:00";
 
     const hours = Math.floor(decimalHours);
     const minutes = Math.round((decimalHours - hours) * 60);
 
-    // Handle case where rounded minutes reach 60
     if (minutes === 60) {
       return `${String(hours + 1).padStart(2, "0")}:00`;
     }
@@ -73,12 +75,10 @@ export default function EmployeeMonthlyCard({
     )}`;
   };
 
-  // Calculate shift hours
   const calculateShiftHours = (shift: Shift): number => {
     const start = new Date(`2000-01-01 ${shift.startTime}`);
     let end = new Date(`2000-01-01 ${shift.endTime}`);
 
-    // Handle night shifts that end the next day
     if (end <= start) {
       end.setDate(end.getDate() + 1);
     }
@@ -87,29 +87,24 @@ export default function EmployeeMonthlyCard({
     return Math.max(0, hours);
   };
 
-  // Calculate monthly statistics for each employee
   const employeeMonthlyStats = useMemo(() => {
     const today = new Date();
     const todayStr = formatDateToYMD(today);
 
-    return employees.map((employee) => {
-      // Filter shifts for this employee within the current month (STRICT FILTERING)
+    return employees.map((employee): EmployeeStats => {
       const monthlyShifts = shifts.filter((shift) => {
         if (shift.employeeId !== employee.id || !shift.isActive) {
           return false;
         }
 
         const shiftDateStr = formatDateToYMD(shift.date);
-        // STRICT: Only include shifts between first and last day of month (inclusive)
         return shiftDateStr >= firstDayStr && shiftDateStr <= lastDayStr;
       });
 
-      // Calculate planned hours (sum of all scheduled shift hours)
       const plannedHours = monthlyShifts.reduce((total, shift) => {
         return total + calculateShiftHours(shift);
       }, 0);
 
-      // Calculate actual hours (realized hours from 1st day to today)
       let actualHours = 0;
       const completedShiftIds = new Set<string>();
 
@@ -122,14 +117,12 @@ export default function EmployeeMonthlyCard({
           ) {
             const entryDateStr = formatDateToYMD(entry.date);
 
-            // STRICT: Only include time entries within month and up to today
             if (
               entryDateStr >= firstDayStr &&
               entryDateStr <= todayStr &&
               entryDateStr <= lastDayStr
             ) {
               actualHours += entry.totalHours || 0;
-              // Track completed shifts to avoid double counting
               const shiftId = `${entryDateStr}-${entry.shiftNumber || 1}`;
               completedShiftIds.add(shiftId);
             }
@@ -137,8 +130,6 @@ export default function EmployeeMonthlyCard({
         }
       }
 
-      // Calculate projected hours for the month
-      // = Actual hours + Remaining planned hours (excluding completed shifts)
       const remainingPlannedHours = monthlyShifts
         .filter((shift) => {
           const shiftDateStr = formatDateToYMD(shift.date);
@@ -146,10 +137,8 @@ export default function EmployeeMonthlyCard({
           const isCompleted = completedShiftIds.has(shiftId);
 
           if (shiftDateStr === todayStr) {
-            // For today, only count if not completed
             return !isCompleted;
           } else {
-            // For future days, count all shifts
             return shiftDateStr > todayStr;
           }
         })
@@ -168,8 +157,7 @@ export default function EmployeeMonthlyCard({
     });
   }, [employees, shifts, timeEntries, firstDayStr, lastDayStr]);
 
-  // Get color classes for different statistics
-  const getHoursColorClass = (hours: number) => {
+  const getHoursColorClass = (hours: number): string => {
     if (hours >= 140) return "text-red-600 bg-red-50 border-red-200";
     if (hours >= 100) return "text-orange-600 bg-orange-50 border-orange-200";
     if (hours >= 60) return "text-green-600 bg-green-50 border-green-200";
@@ -184,7 +172,6 @@ export default function EmployeeMonthlyCard({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Header */}
       <div className="mb-6 flex items-center gap-2">
         <Calendar className="h-5 w-5 text-gray-600" />
         <h2 className="text-lg font-semibold text-gray-900">
@@ -192,7 +179,6 @@ export default function EmployeeMonthlyCard({
         </h2>
       </div>
 
-      {/* Employee Cards Grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {employeeMonthlyStats.map(
           ({ employee, plannedHours, actualHours, projectedHours }) => (
@@ -218,7 +204,6 @@ export default function EmployeeMonthlyCard({
               </CardHeader>
 
               <CardContent className="space-y-4">
-                {/* Planned Hours */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-blue-500" />
@@ -236,7 +221,6 @@ export default function EmployeeMonthlyCard({
                   </Badge>
                 </div>
 
-                {/* Actual Hours */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-green-500" />
@@ -254,7 +238,6 @@ export default function EmployeeMonthlyCard({
                   </Badge>
                 </div>
 
-                {/* Projected Hours */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-purple-500" />
@@ -277,7 +260,6 @@ export default function EmployeeMonthlyCard({
         )}
       </div>
 
-      {/* Empty State */}
       {employeeMonthlyStats.length === 0 && (
         <div className="py-8 text-center">
           <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-400" />
@@ -288,6 +270,57 @@ export default function EmployeeMonthlyCard({
             Ajoutez des employés pour voir leurs statistiques mensuelles.
           </p>
         </div>
+      )}
+
+      {showStats && employeeMonthlyStats.length > 0 && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-base">Vue d'ensemble mensuelle</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-4">
+              <div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {employeeMonthlyStats.length}
+                </div>
+                <div className="text-sm text-gray-600">Employés actifs</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {formatHoursToHHMM(
+                    employeeMonthlyStats.reduce(
+                      (sum, stat) => sum + stat.plannedHours,
+                      0
+                    )
+                  )}
+                </div>
+                <div className="text-sm text-gray-600">Total planifié</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-600">
+                  {formatHoursToHHMM(
+                    employeeMonthlyStats.reduce(
+                      (sum, stat) => sum + stat.actualHours,
+                      0
+                    )
+                  )}
+                </div>
+                <div className="text-sm text-gray-600">Total réalisé</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {formatHoursToHHMM(
+                    employeeMonthlyStats.reduce(
+                      (sum, stat) => sum + stat.projectedHours,
+                      0
+                    )
+                  )}
+                </div>
+                <div className="text-sm text-gray-600">Total projeté</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

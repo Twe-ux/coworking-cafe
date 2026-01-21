@@ -2,11 +2,20 @@
 
 > Index de la documentation pour l'application admin du Coworking Cafe.
 > **Version** : 1.0
-> **Derniere mise a jour** : 2026-01-20
+> **Derniere mise a jour** : 2026-01-21
 
 ---
 
 ## Structure de la Documentation
+
+### Opérations (Runbooks)
+
+Documentation pour les opérations de déploiement et monitoring en production.
+
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Guide de déploiement Vercel (checklist, variables env, rollback)
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Problèmes courants et solutions (MongoDB, NextAuth, Performance, APIs)
+- **[ONBOARDING.md](./ONBOARDING.md)** - Guide d'intégration développeur (setup, architecture, premier commit)
+- **[MONITORING.md](./MONITORING.md)** - Surveillance production (logs, métriques, alertes, dashboard)
 
 ### Guides
 

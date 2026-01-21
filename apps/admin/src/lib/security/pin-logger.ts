@@ -5,6 +5,8 @@
  * les comportements suspects et auditer les accès.
  */
 
+import logger from '@/lib/logger'
+
 export interface PINAttemptLog {
   timestamp: Date
   ip: string
@@ -38,19 +40,23 @@ export function logPINAttempt(log: Omit<PINAttemptLog, 'timestamp'>): void {
     pinLogs.pop()
   }
 
-  // Log console pour monitoring
-  const emoji = log.success ? '✅' : '❌'
+  // Log securisé pour monitoring (PINs jamais loggés)
   const actionText = log.action.toUpperCase()
   const employeeInfo = log.employeeName || log.employeeId
 
   if (log.success) {
-    console.log(
-      `${emoji} [PIN ${actionText}] ${employeeInfo} | IP: ${log.ip}`
-    )
+    logger.secure(`PIN ${actionText} SUCCESS`, {
+      employeeInfo,
+      ip: log.ip,
+      action: log.action,
+    })
   } else {
-    console.warn(
-      `${emoji} [PIN ${actionText} FAILED] ${employeeInfo} | IP: ${log.ip} | Reason: ${log.failureReason || 'Unknown'}`
-    )
+    logger.warn(`PIN ${actionText} FAILED`, {
+      employeeInfo,
+      ip: log.ip,
+      action: log.action,
+      reason: log.failureReason || 'Unknown',
+    })
   }
 
   // Alerte si > 5 échecs consécutifs pour un employé
@@ -69,9 +75,12 @@ function checkSuspiciousActivity(employeeId: string, ip: string): void {
   // Si 5+ échecs consécutifs
   const consecutiveFailures = recentAttempts.filter((log) => !log.success)
   if (consecutiveFailures.length >= 5) {
-    console.error(
-      `🚨 [ALERTE SÉCURITÉ] 5+ tentatives PIN échouées pour employé ${employeeId} depuis IP ${ip}`
-    )
+    logger.error('SECURITY ALERT: Multiple failed PIN attempts', {
+      employeeId,
+      ip,
+      failedAttempts: consecutiveFailures.length,
+      alert: 'Possible brute force attack',
+    })
     // TODO: Envoyer notification (email, Slack, etc.)
   }
 
@@ -80,9 +89,11 @@ function checkSuspiciousActivity(employeeId: string, ip: string): void {
   const uniqueEmployees = new Set(ipAttempts.map((log) => log.employeeId))
 
   if (uniqueEmployees.size >= 5) {
-    console.error(
-      `🚨 [ALERTE SÉCURITÉ] IP ${ip} a tenté d'accéder à ${uniqueEmployees.size} employés différents`
-    )
+    logger.error('SECURITY ALERT: IP attempting multiple employees', {
+      ip,
+      uniqueEmployeesCount: uniqueEmployees.size,
+      alert: 'Possible enumeration attack',
+    })
     // TODO: Bloquer l'IP automatiquement ?
   }
 }
@@ -162,7 +173,11 @@ export function cleanupOldLogs(daysToKeep = 7): number {
   pinLogs.push(...recentLogs)
 
   const removed = initialLength - pinLogs.length
-  console.log(`🧹 Nettoyage logs PIN: ${removed} entrées supprimées`)
+  logger.info('PIN logs cleanup completed', {
+    removed,
+    remaining: pinLogs.length,
+    daysKept: daysToKeep,
+  })
 
   return removed
 }

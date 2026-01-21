@@ -1,8 +1,8 @@
 'use client'
 
 import { CardContent } from '@/components/ui/card'
-import type { Employee } from '@/hooks/useEmployees'
-import TimeTrackingCard from '../TimeTrackingCard'
+import type { Employee } from '@/types/hr'
+import TimeTrackingCard from '@/components/shared/TimeTrackingCard'
 
 interface TimeTrackingSectionProps {
   employees: Employee[]

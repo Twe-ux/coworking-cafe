@@ -7,7 +7,7 @@ import Employee from '@/models/employee'
 import {
   mapEmployeeToApi,
   mapEmployeeToApiSummary,
-} from '@/lib/mappers/mongoose.mappers'
+} from '@/lib/mappers'
 
 /** Mongoose error interface */
 interface MongooseError extends Error {

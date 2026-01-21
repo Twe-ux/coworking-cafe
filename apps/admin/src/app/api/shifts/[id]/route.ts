@@ -3,7 +3,7 @@ import { connectMongoose } from '@/lib/mongodb'
 import Shift from '@/models/shift'
 import Employee from '@/models/employee'
 import { requireAuth } from '@/lib/api/auth'
-import { mapShiftToApi } from '@/lib/mappers/mongoose.mappers'
+import { mapShiftToApi } from '@/lib/mappers'
 
 /**
  * Utility function to create a UTC date from YYYY-MM-DD string

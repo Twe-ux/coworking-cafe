@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import TimeTrackingCard from '@/components/clocking/TimeTrackingCard'
+import TimeTrackingCard from '@/components/shared/TimeTrackingCard'
 import { StaffClockingPageSkeleton } from './StaffClockingPageSkeleton'
 import { ErrorDisplay } from '@/components/ui/error-display'
 import { Clock } from 'lucide-react'

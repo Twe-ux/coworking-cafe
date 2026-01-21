@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { connectToDatabase } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
-import { mapTimeEntryToApi, type MappedTimeEntry } from '@/lib/mappers/mongoose.mappers'
+import { mapTimeEntryToApi, type MappedTimeEntry } from '@/lib/mappers'
 import type { TimeEntryUpdate, ApiResponse } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
 

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
 import { UserModel } from '@/models/user'
+import logger from '@/lib/logger'
 
 interface UpdatePINRequest {
   newPIN: string
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<UpdatePIN
       success: true,
     })
   } catch (error) {
-    console.error('[API] /api/auth/update-pin error:', error)
+    logger.error('Update PIN API error', error)
     return NextResponse.json(
       {
         success: false,

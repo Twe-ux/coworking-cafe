@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongodb'
 import { UserModel } from '@/models/user'
+import logger from '@/lib/logger'
 
 interface PINVerifyRequest {
   pin: string
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PINVerify
       },
     })
   } catch (error) {
-    console.error('[API] /api/auth/pin error:', error)
+    logger.error('PIN verification API error', error)
     return NextResponse.json(
       {
         success: false,

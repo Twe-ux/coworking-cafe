@@ -5,6 +5,7 @@ import { connectMongoose } from '@/lib/mongodb';
 import { ContactMail } from '@/models/contactMail';
 import type { ContactMailResponse, ContactMail as ContactMailType } from '@/types/contactMail';
 import { Resend } from 'resend';
+import logger from '@/lib/logger';
 
 /**
  * GET /api/messages/contact/[id]
@@ -50,7 +51,7 @@ export async function GET(
 
     return successResponse(data, 'Message récupéré avec succès');
   } catch (error) {
-    console.error('GET /api/messages/contact/[id] error:', error);
+    logger.error('GET contact message error', error);
     return errorResponse(
       'Erreur lors de la récupération du message',
       error instanceof Error ? error.message : 'Erreur inconnue'
@@ -173,9 +174,12 @@ export async function PUT(
           html: htmlContent,
         });
 
-        console.log('Email envoyé avec succès à:', message.email);
+        logger.info('Contact reply email sent successfully', {
+          recipient: message.email,
+          subject: message.subject,
+        });
       } catch (emailError) {
-        console.error('Erreur envoi email:', emailError);
+        logger.error('Failed to send contact reply email', emailError);
         // Continue même si l'email échoue
       }
     } else if (status) {
@@ -203,7 +207,7 @@ export async function PUT(
 
     return successResponse(updatedData, 'Message mis à jour avec succès');
   } catch (error) {
-    console.error('PUT /api/messages/contact/[id] error:', error);
+    logger.error('PUT contact message error', error);
     return errorResponse(
       'Erreur lors de la mise à jour du message',
       error instanceof Error ? error.message : 'Erreur inconnue'
@@ -254,7 +258,7 @@ export async function DELETE(
 
     return successResponse(result, 'Message supprimé avec succès', 200);
   } catch (error) {
-    console.error('DELETE /api/messages/contact/[id] error:', error);
+    logger.error('DELETE contact message error', error);
     return errorResponse(
       'Erreur lors de la suppression du message',
       error instanceof Error ? error.message : 'Erreur inconnue'

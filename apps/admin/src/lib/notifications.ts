@@ -1,5 +1,7 @@
 // Utilitaires pour gérer les push notifications PWA
 
+import logger from '@/lib/logger'
+
 /**
  * Enregistre le service worker et retourne l'enregistrement
  */
@@ -10,19 +12,22 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
         scope: '/',
       });
 
-      console.log('[Notifications] Service Worker registered:', registration);
+      logger.dev('Service Worker registered', {
+        scope: registration.scope,
+        updateFound: registration.installing !== null,
+      });
 
       // Attendre que le SW soit actif
       await navigator.serviceWorker.ready;
 
       return registration;
     } catch (error) {
-      console.error('[Notifications] Service Worker registration failed:', error);
+      logger.error('Service Worker registration failed', error);
       return null;
     }
   }
 
-  console.warn('[Notifications] Service Workers not supported');
+  logger.warn('Service Workers not supported in this browser');
   return null;
 }
 
@@ -31,7 +36,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
  */
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (!('Notification' in window)) {
-    console.warn('[Notifications] Notifications not supported');
+    logger.warn('Notifications not supported in this browser');
     return 'denied';
   }
 
@@ -78,7 +83,7 @@ export async function subscribeToPushNotifications(
     const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 
     if (!vapidPublicKey) {
-      console.warn('[Notifications] VAPID public key not configured');
+      logger.warn('VAPID public key not configured - push notifications will be limited');
       // Pour le développement, on continue sans VAPID (limité)
     }
 
@@ -91,7 +96,10 @@ export async function subscribeToPushNotifications(
       applicationServerKey: (applicationServerKey as BufferSource) || null,
     });
 
-    console.log('[Notifications] Push subscription:', subscription);
+    logger.dev('Push notification subscription created', {
+      endpoint: subscription.endpoint.substring(0, 50) + '...',
+      expirationTime: subscription.expirationTime,
+    });
 
     // Enregistrer la subscription sur le serveur
     await fetch('/api/notifications/subscribe', {
@@ -104,7 +112,7 @@ export async function subscribeToPushNotifications(
 
     return subscription;
   } catch (error) {
-    console.error('[Notifications] Push subscription failed:', error);
+    logger.error('Push notification subscription failed', error);
     return null;
   }
 }
@@ -130,13 +138,13 @@ export async function unsubscribeFromPushNotifications(
         body: JSON.stringify(subscription),
       });
 
-      console.log('[Notifications] Unsubscribed from push notifications');
+      logger.info('Unsubscribed from push notifications');
       return true;
     }
 
     return false;
   } catch (error) {
-    console.error('[Notifications] Unsubscribe failed:', error);
+    logger.error('Push notification unsubscribe failed', error);
     return false;
   }
 }
@@ -172,7 +180,7 @@ export async function updateAppBadge(count: number): Promise<void> {
   const standalone = isStandalone();
   const ios = isIOS();
 
-  console.log('[Notifications] Update badge requested:', {
+  logger.dev('Badge update requested', {
     count,
     standalone,
     ios,
@@ -184,31 +192,31 @@ export async function updateAppBadge(count: number): Promise<void> {
     try {
       if (count > 0) {
         await navigator.setAppBadge(count);
-        console.log('[Notifications] ✅ Badge updated via Badge API:', count);
+        logger.dev('Badge updated via Badge API', { count });
       } else {
         await navigator.clearAppBadge();
-        console.log('[Notifications] ✅ Badge cleared via Badge API');
+        logger.dev('Badge cleared via Badge API');
       }
       return;
     } catch (error) {
-      console.error('[Notifications] ❌ Badge API failed:', error);
+      logger.error('Badge API failed', error);
 
       // Sur iOS, l'erreur est souvent "NotAllowedError" si pas en standalone
       if (ios && !standalone) {
-        console.warn('[Notifications] 💡 iOS: L\'app doit être installée sur l\'écran d\'accueil pour que le badge fonctionne');
+        logger.warn('iOS badge requires app to be installed on home screen');
       }
     }
   } else {
-    console.warn('[Notifications] ⚠️ Badge API not supported on this browser');
+    logger.dev('Badge API not supported on this browser');
 
     if (ios) {
-      console.warn('[Notifications] 💡 iOS: Nécessite iOS 16.4+ et app installée');
+      logger.dev('iOS badge requires iOS 16.4+ and installed app');
     }
   }
 
   // Fallback: Envoyer un message au service worker
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    console.log('[Notifications] Trying fallback via Service Worker...');
+    logger.dev('Trying badge update via Service Worker fallback');
     navigator.serviceWorker.controller.postMessage({
       type: 'UPDATE_BADGE',
       count,
