@@ -1,0 +1,195 @@
+/**
+ * Contact Page Styles - apps/site
+ * Styles pour la page contact
+ */
+
+.page-contact {
+  &__hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 0;
+    text-align: center;
+    color: #fff;
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0;
+  }
+
+  &__info {
+    height: 100%;
+  }
+
+  &__info-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  &__info-desc {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 2rem;
+  }
+
+  &__info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__info-item {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e9ecef;
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  &__info-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+  }
+
+  &__info-content {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #212529;
+    }
+
+    p {
+      margin: 0;
+      color: #495057;
+      line-height: 1.6;
+    }
+
+    .mb-4 {
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  &__email {
+    color: #667eea;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #5568d3;
+      text-decoration: underline;
+    }
+  }
+
+  &__form {
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  &__form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Google Map Component
+.google-map {
+  width: 100%;
+  overflow: hidden;
+
+  iframe {
+    width: 100%;
+    border: 0;
+    border-radius: 10px;
+  }
+}
+
+// Form elements enhancement for contact page
+.page-contact__form {
+  .form-control,
+  .form-select {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+      outline: none;
+    }
+
+    &::placeholder {
+      color: #adb5bd;
+    }
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 150px;
+  }
+
+  .btn {
+    padding: 0.875rem 2rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .alert {
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .page-contact__info {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-contact__title {
+    font-size: 2rem;
+  }
+
+  .page-contact__info-title {
+    font-size: 1.5rem;
+  }
+
+  .page-contact__form {
+    padding: 1.5rem;
+  }
+
+  .page-contact__info-item {
+    gap: 1rem;
+  }
+
+  .page-contact__info-content {
+    .d-flex {
+      flex-direction: column !important;
+      gap: 1rem !important;
+    }
+  }
+}

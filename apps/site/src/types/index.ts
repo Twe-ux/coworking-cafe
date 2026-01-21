@@ -33,8 +33,10 @@ export type {
 export type {
   ArticlePreview,
   ArticleFull,
+  Article,
   CategoryPreview,
   CategoryWithCount,
+  Category,
   ArticleAuthor,
   ArticleSEO,
   ArticleComment,

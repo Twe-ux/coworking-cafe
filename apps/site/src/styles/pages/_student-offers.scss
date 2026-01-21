@@ -1,0 +1,425 @@
+// Page Student Offers - BEM Modifié
+// Offres étudiants Strasbourg
+
+.page-student-offers {
+  // Hero
+  &__hero {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+
+  &__hero-badge {
+    display: inline-block;
+    background: #007bff;
+    color: #fff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  &__hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+
+    @media (max-width: 768px) {
+      font-size: 2.25rem;
+    }
+  }
+
+  &__hero-subtitle {
+    font-size: 1.25rem;
+    color: #6c757d;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  &__hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 576px) {
+      flex-direction: column;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  &__hero-image {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+    @media (max-width: 991px) {
+      margin-top: 2rem;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  // Pricing Section
+  &__pricing {
+    padding: 60px 0;
+    background: #fff;
+  }
+
+  &__pricing-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #212529;
+  }
+
+  &__pricing-note {
+    max-width: 700px;
+    margin: 3rem auto 0;
+    padding: 1.5rem;
+    background: #e7f3ff;
+    border-left: 4px solid #007bff;
+    border-radius: 8px;
+    text-align: center;
+    color: #495057;
+  }
+
+  // Benefits
+  &__benefits {
+    padding: 60px 0;
+    background: #f8f9fa;
+  }
+
+  &__benefits-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #212529;
+  }
+
+  // Testimonials
+  &__testimonials {
+    padding: 60px 0;
+    background: #fff;
+  }
+
+  &__testimonials-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #212529;
+  }
+
+  // Location
+  &__location {
+    padding: 60px 0;
+    background: #f8f9fa;
+  }
+
+  &__location-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #212529;
+  }
+
+  &__location-subtitle {
+    text-align: center;
+    color: #6c757d;
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+  }
+
+  &__location-transport {
+    text-align: center;
+    font-size: 1.125rem;
+    color: #495057;
+    margin-top: 2rem;
+    font-weight: 500;
+  }
+
+  // Conditions
+  &__conditions {
+    padding: 60px 0;
+    background: #fff;
+  }
+
+  &__conditions-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #212529;
+  }
+
+  &__conditions-content {
+    max-width: 800px;
+    margin: 0 auto;
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #212529;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    p {
+      color: #495057;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    ul,
+    ol {
+      color: #495057;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  // CTA
+  &__cta {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: #fff;
+    text-align: center;
+  }
+
+  &__cta-content {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  &__cta-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  &__cta-text {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+  }
+
+  &__cta-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+// Student Pricing Card
+.student-pricing-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  &__discount-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #28a745;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  }
+
+  &__header {
+    padding: 2rem;
+    text-align: center;
+    background: #f8f9fa;
+  }
+
+  &__name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 1.5rem;
+  }
+
+  &__prices {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__price--regular {
+    text-decoration: line-through;
+    color: #adb5bd;
+  }
+
+  &__price-amount--striked {
+    font-size: 1.5rem;
+  }
+
+  &__price--student {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+  }
+
+  &__price-amount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #28a745;
+  }
+
+  &__price-unit {
+    font-size: 1.125rem;
+    color: #6c757d;
+  }
+
+  &__body {
+    padding: 2rem;
+    flex: 1;
+  }
+
+  &__features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__feature {
+    padding: 0.75rem 0;
+    color: #495057;
+    border-bottom: 1px solid #f1f3f5;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &::before {
+      content: '✓ ';
+      color: #28a745;
+      font-weight: 700;
+      margin-right: 0.5rem;
+    }
+  }
+
+  &__footer {
+    padding: 2rem;
+    border-top: 1px solid #e9ecef;
+  }
+}
+
+// Benefit Card
+.benefit-card {
+  text-align: center;
+  padding: 2rem 1rem;
+
+  &__icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.75rem;
+  }
+
+  &__description {
+    color: #6c757d;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+}
+
+// Testimonial Card
+.testimonial-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &__rating {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  &__text {
+    color: #495057;
+    line-height: 1.7;
+    font-style: italic;
+    flex: 1;
+    margin-bottom: 1rem;
+  }
+
+  &__author {
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.95rem;
+    font-style: normal;
+  }
+}
+
+// University Card
+.university-card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  }
+
+  &__name {
+    font-weight: 600;
+    color: #212529;
+    font-size: 0.95rem;
+  }
+
+  &__distance {
+    color: #6c757d;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+}

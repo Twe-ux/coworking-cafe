@@ -30,6 +30,13 @@ export interface ArticleFull extends ArticlePreview {
 }
 
 /**
+ * Article alias pour compatibilité
+ */
+export type Article = ArticleFull & {
+  updatedAt: Date;
+};
+
+/**
  * Catégorie (aperçu)
  */
 export interface CategoryPreview {
@@ -45,6 +52,11 @@ export interface CategoryWithCount extends CategoryPreview {
   articleCount: number;
   description?: string;
 }
+
+/**
+ * Category alias pour compatibilité
+ */
+export type Category = CategoryWithCount;
 
 /**
  * Auteur d'un article
