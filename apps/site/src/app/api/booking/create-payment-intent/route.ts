@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { Booking } from '@coworking-cafe/database';
-import { stripe } from '@coworking-cafe/database/lib/stripe';
+import { stripe } from '@coworking-cafe/database';
 import type { ApiResponse, CreatePaymentIntentResponse } from '@/types';
 
 /**
