@@ -10,6 +10,7 @@
 ## ⚠️ IMPORTANT - TENIR À JOUR CE FICHIER
 
 **À FAIRE APRÈS CHAQUE TÂCHE TERMINÉE** :
+
 1. ✅ Remplacer ⏳ par ✅ pour la tâche terminée
 2. 📊 Mettre à jour le % dans le résumé de la phase
 3. 📊 Mettre à jour le tableau "RÉSUMÉ GLOBAL" (fin du fichier)
@@ -17,6 +18,7 @@
 5. 📋 Mettre à jour `/PROGRESS.md` à la fin de chaque phase
 
 **Exemple de workflow** :
+
 ```bash
 # 1. Terminer une tâche
 # → Éditer TODO.md : ⏳ → ✅
@@ -44,6 +46,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 ## 📦 PHASE 0: PRÉPARATION (TERMINÉ)
 
 ### Documentation
+
 - ✅ Créer CLAUDE.md pour apps/site (4269 lignes)
 - ✅ Créer SEO_STRATEGY.md complet
 - ✅ Créer PACKAGES_ARCHITECTURE.md (33 models)
@@ -52,6 +55,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 - ✅ Corriger références source vs src-old dans CLAUDE.md
 
 ### Models Partagés (packages/database)
+
 - ✅ Créer models Auth (Permission, Session)
 - ✅ Créer models HR (TimeEntry, Shift, Availability)
 - ✅ Créer models Booking (Booking complet)
@@ -71,6 +75,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 **Objectif** : Setup structure, types, utils, SCSS base
 
 ### 1.1 Structure de Base
+
 - ✅ Créer arborescence src/ complète
   - ✅ /app (pages Next.js)
   - ✅ /components (composants réutilisables)
@@ -81,6 +86,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ /styles (SCSS)
 
 ### 1.2 Types TypeScript
+
 - ✅ Créer types/booking.ts
   - ✅ BookingFormData
   - ✅ PriceCalculation
@@ -97,6 +103,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ PaginatedResult<T>
 
 ### 1.3 Utilitaires
+
 - ✅ Créer lib/utils/format-date.ts
   - ✅ formatDate, formatTime, calculateHours (15 fonctions)
 - ✅ Créer lib/utils/validation.ts
@@ -109,14 +116,16 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 - ✅ Créer lib/utils/cn.ts
 
 ### 1.4 SCSS Base
-- ✅ Créer styles/bootstrap/_variables.scss
-- ✅ Créer styles/bootstrap/_mixins.scss
-- ✅ Créer styles/base/_reset.scss
-- ✅ Créer styles/base/_typography.scss
-- ✅ Créer styles/base/_utilities.scss
+
+- ✅ Créer styles/bootstrap/\_variables.scss
+- ✅ Créer styles/bootstrap/\_mixins.scss
+- ✅ Créer styles/base/\_reset.scss
+- ✅ Créer styles/base/\_typography.scss
+- ✅ Créer styles/base/\_utilities.scss
 - ✅ Créer styles/main.scss
 
 ### 1.5 Configuration
+
 - ✅ Configurer tsconfig.json (paths aliases vers src/)
 - ✅ Créer .env.example
 - ✅ Documenter variables d'environnement
@@ -130,6 +139,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 **Objectif** : Créer toutes les API routes
 
 ### 2.1 APIs Booking
+
 - ✅ POST /api/booking/calculate
   - ✅ Calcul prix côté serveur
   - ✅ Validation promo codes
@@ -145,6 +155,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Rembourser via Stripe
 
 ### 2.2 APIs User
+
 - ✅ GET /api/user/profile
   - ✅ Récupérer profil client
 - ✅ PUT /api/user/profile
@@ -154,6 +165,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Pagination + filtres (status)
 
 ### 2.3 APIs Blog
+
 - ✅ GET /api/blog/articles
   - ✅ Liste articles publiés
   - ✅ Filtres (catégorie, tag, recherche)
@@ -169,6 +181,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Support réponses (parentId)
 
 ### 2.4 APIs Contact & Newsletter
+
 - ✅ POST /api/contact
   - ✅ Validation formulaire
   - ✅ Sauvegarder en DB (ContactMail)
@@ -177,6 +190,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Vérification doublon
 
 ### 2.5 Webhook Stripe
+
 - ✅ POST /api/stripe/webhook
   - ✅ Vérifier signature
   - ✅ Gérer payment_intent.succeeded
@@ -193,6 +207,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 **Objectif** : Créer composants réutilisables
 
 ### 3.1 Layout Components
+
 - ✅ Header
   - ✅ Navigation principale
   - ✅ Menu mobile responsive
@@ -205,6 +220,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 - ✅ Breadcrumb (avec Schema.org JSON-LD)
 
 ### 3.2 Booking Components
+
 - ✅ BookingForm (formulaire complet avec inline validation)
 - ✅ SpaceCard
   - ✅ Image + description
@@ -221,6 +237,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Détail breakdown (base, discount, total)
 
 ### 3.3 Blog Components
+
 - ✅ ArticleCard
   - ✅ Image
   - ✅ Titre, extrait (truncate 2 lignes)
@@ -238,6 +255,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Gestion erreurs
 
 ### 3.4 Common Components
+
 - ✅ Button (5 variants: primary, secondary, outline, ghost, danger)
 - ✅ Card (3 variants: default, outlined, elevated)
   - ✅ Card.Header composition
@@ -249,6 +267,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 - ✅ Spinner (3 sizes: sm, md, lg)
 
 ### 3.5 Custom Hooks
+
 - ✅ useBookingForm
   - ✅ State management (formData, errors, loading)
   - ✅ 14 règles de validation
@@ -257,6 +276,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Error clearing on change
 
 ### 3.6 Documentation
+
 - ✅ LAYOUT_COMPONENTS.md (Header, Footer, Navigation, Breadcrumb)
 - ✅ UI_COMPONENTS.md (Button, Card, Input, Select, Modal, Spinner)
 - ✅ BOOKING_COMPONENTS.md (SpaceCard, BookingForm, BookingSummary, PriceDisplay)
@@ -271,55 +291,57 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 
 **Objectif** : Créer toutes les pages site public
 
-### 4.1 Pages Marketing
-- ⏳ Homepage (/)
-  - ⏳ Hero section
-  - ⏳ Services overview
-  - ⏳ Espaces preview
-  - ⏳ Témoignages
-  - ⏳ CTA réservation
-- ⏳ Concept (/concept)
-  - ⏳ Présentation Anticafé
-  - ⏳ Comment ça marche
-- ⏳ Espaces (/espaces)
-  - ⏳ Liste espaces avec cards
-  - ⏳ Filtres
-- ⏳ Tarifs (/tarifs)
-  - ⏳ Grilles tarifaires
-  - ⏳ Comparaison formules
-- ⏳ Offres étudiants (/offres-etudiants)
-- ⏳ Programme fidélité (/programme-fidelite)
+### 4.1 Pages Marketing (Agent 1)
 
-### 4.2 Pages Booking
-- ⏳ Booking flow (/booking)
-  - ⏳ 6 étapes complètes
-  - ⏳ Intégration Stripe Elements
-  - ⏳ Gestion erreurs
-- ⏳ Confirmation (/booking/confirmation/[id])
-  - ⏳ Récapitulatif réservation
-  - ⏳ Télécharger reçu
+- ✅ Homepage (/)
+  - ✅ Hero section + stats
+  - ✅ About section
+  - ✅ Espaces preview
+  - ✅ Témoignages
+  - ✅ Blog preview
+- ✅ Concept (/concept)
+  - ✅ Histoire Anticafé
+  - ✅ Forfaits
+- ✅ SCSS: _home.scss, _concept.scss
 
-### 4.3 Pages Blog
-- ⏳ Liste articles (/blog)
-  - ⏳ Grid responsive
-  - ⏳ Filtres catégories
-  - ⏳ Recherche
-  - ⏳ Pagination
-- ⏳ Article (/blog/[slug])
-  - ⏳ Contenu Markdown
-  - ⏳ Commentaires
-  - ⏳ Articles similaires
-- ⏳ Catégorie (/blog/category/[slug])
+### 4.2 Pages Offres (Agent 2)
 
-### 4.4 Pages Légales
-- ⏳ Contact (/contact)
-  - ⏳ Formulaire contact
-  - ⏳ Infos pratiques
-- ⏳ Mentions légales (/mentions-legales)
-- ⏳ CGU (/cgu)
-- ⏳ Confidentialité (/confidentialite)
+- ✅ Espaces (/spaces) - SpaceCard, filtres
+- ✅ Tarifs (/pricing) - Grilles, comparaison, FAQ
+- ✅ Offres étudiants (/student-offers) - Réduction -25%
+- ✅ Programme fidélité (/members-program) - 3 niveaux
+- ✅ SCSS: 4 fichiers (1,411L)
 
-**Status Phase 4** : ⏳ **0% TERMINÉ**
+### 4.3 Pages Booking (Agent 3)
+
+- ✅ Booking flow (/booking) - 4 étapes
+  - ✅ Sélection + formulaire
+  - ✅ Confirmation + récapitulatif
+  - ✅ Checkout Stripe Elements
+  - ✅ Success + confirmation
+- ✅ SCSS: _booking.scss (650L)
+
+### 4.4 Pages Blog & Contact (Agent 4)
+
+- ✅ Liste articles (/blog)
+  - ✅ Recherche + filtres
+  - ✅ Pagination
+- ✅ Article (/blog/[slug])
+  - ✅ generateMetadata + Schema.org
+  - ✅ CommentSection
+- ✅ Catégorie (/blog/category/[slug])
+- ✅ Contact (/contact) - Formulaire + Google Map
+- ✅ SCSS: _blog.scss, _article.scss, _contact.scss
+
+### 4.5 Pages Légales (Agent 5)
+
+- ✅ Mentions légales (716L) - Textes copiés mot pour mot
+- ✅ CGU (833L) - 12 articles complets
+- ✅ Politique confidentialité (888L) - RGPD détaillé
+- ✅ ProtectedEmail component
+- ✅ SCSS: _legal.scss
+
+**Status Phase 4** : ✅ **100% TERMINÉ** (Commit: 6b982c4, ~20 pages, 11,076 lignes)
 
 ---
 
@@ -328,6 +350,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 **Objectif** : Créer dashboard pour clients
 
 ### 5.1 Pages Dashboard
+
 - ⏳ Layout dashboard
   - ⏳ Sidebar navigation
   - ⏳ User menu
@@ -348,6 +371,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ⏳ WebSocket real-time
 
 ### 5.2 Hooks Dashboard
+
 - ⏳ useReservations()
 - ⏳ useProfile()
 - ⏳ useMessages()
@@ -361,6 +385,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 **Objectif** : Système auth NextAuth
 
 ### 6.1 Pages Auth
+
 - ⏳ Login (/login)
   - ⏳ Email + password
   - ⏳ Lien mot de passe oublié
@@ -373,12 +398,14 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ⏳ Formulaire nouveau password
 
 ### 6.2 Configuration NextAuth
+
 - ⏳ Configurer providers (Credentials)
 - ⏳ Configurer callbacks
 - ⏳ Configurer pages custom
 - ⏳ Middleware protection routes
 
 ### 6.3 Hooks Auth
+
 - ⏳ useAuth()
 - ⏳ useSession()
 
@@ -391,6 +418,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 **Objectif** : Validation complète avant prod
 
 ### 7.1 Tests Manuels
+
 - ⏳ Booking flow complet
   - ⏳ Sélection espace
   - ⏳ Calcul prix
@@ -412,6 +440,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ⏳ Reset password
 
 ### 7.2 SEO
+
 - ⏳ Vérifier metadata toutes pages
 - ⏳ Tester Schema.org (Google Rich Results)
 - ⏳ Vérifier sitemap.xml
@@ -419,6 +448,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 - ⏳ Lighthouse audit (score > 90)
 
 ### 7.3 Performance
+
 - ⏳ next/image partout
 - ⏳ Lazy loading composants
 - ⏳ Code splitting
@@ -429,11 +459,13 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ⏳ CLS < 0.1
 
 ### 7.4 Responsive
+
 - ⏳ Mobile (< 768px)
 - ⏳ Tablet (768px - 1024px)
 - ⏳ Desktop (> 1024px)
 
 ### 7.5 TypeScript
+
 - ⏳ pnpm type-check (0 erreurs)
 - ⏳ pnpm lint (0 warnings)
 - ⏳ pnpm build (succès)
@@ -444,24 +476,25 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 
 ## 📊 RÉSUMÉ GLOBAL
 
-| Phase | Nom | Durée | Status | % |
-|-------|-----|-------|--------|---|
-| 0 | Préparation | - | ✅ Terminé | 100% |
-| 1 | Fondations | 3j | ✅ Terminé | 100% |
-| 2 | APIs Backend | 3j | ✅ Terminé | 100% |
-| 3 | UI Components | 4j | ✅ Terminé | 100% |
-| 4 | Pages Publiques | 3j | ⏳ Planifié | 0% |
-| 5 | Dashboard Client | 2j | ⏳ Planifié | 0% |
-| 6 | Authentification | 1j | ⏳ Planifié | 0% |
-| 7 | Tests & Optim | 2j | ⏳ Planifié | 0% |
+| Phase | Nom              | Durée | Status      | %    |
+| ----- | ---------------- | ----- | ----------- | ---- |
+| 0     | Préparation      | -     | ✅ Terminé  | 100% |
+| 1     | Fondations       | 3j    | ✅ Terminé  | 100% |
+| 2     | APIs Backend     | 3j    | ✅ Terminé  | 100% |
+| 3     | UI Components    | 4j    | ✅ Terminé  | 100% |
+| 4     | Pages Publiques  | 3j    | ✅ Terminé  | 100% |
+| 5     | Dashboard Client | 2j    | ⏳ Planifié | 0%   |
+| 6     | Authentification | 1j    | ⏳ Planifié | 0%   |
+| 7     | Tests & Optim    | 2j    | ⏳ Planifié | 0%   |
 
-**TOTAL** : 18 jours | **Progression globale** : 55.6% (Phases 0, 1, 2, 3 terminées - 10/18 jours)
+**TOTAL** : 18 jours | **Progression globale** : 72.2% (Phases 0-4 terminées - 13/18 jours)
 
 ---
 
 ## 🎯 PROCHAINES ÉTAPES
 
 ### Immédiat (Phase 4 - Pages Site Public)
+
 **⚠️ ATTENTION: Ne pas copier-coller de /source/. Garder les textes originaux mot pour mot.**
 
 1. **Pages Marketing**
@@ -487,10 +520,12 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
    - Confidentialité
 
 ### Cette semaine
+
 - Terminer Phase 4 (Pages Publiques)
 - Démarrer Phase 5 (Dashboard Client)
 
 ### Ce mois
+
 - Terminer Phases 4-6 (site public + dashboard + auth)
 - Phase 7 (Tests & optimisation)
 
@@ -498,4 +533,3 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 
 **Dernière mise à jour** : 21 janvier 2026
 **Par** : Thierry + Claude Sonnet 4.5
-
