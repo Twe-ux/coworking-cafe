@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "../../../lib/db";
-import GlobalHoursConfiguration from "../../../models/globalHours";
+import GlobalHoursConfiguration from '@coworking-cafe/database';
 
 /**
  * GET /api/global-hours

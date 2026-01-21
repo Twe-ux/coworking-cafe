@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "../../../lib/api-helpers";
 import connectDB from "../../../lib/db";
-import AdditionalService from "../../../models/additionalService";
+import { AdditionalService } from '@coworking-cafe/database';
 
 // GET /api/additional-services - Liste des services supplémentaires
 export async function GET(request: NextRequest) {

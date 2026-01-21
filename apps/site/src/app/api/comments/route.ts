@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../lib/db";
-import { Comment } from "../../../models/comment";
+import { Comment } from '@coworking-cafe/database';
 import { getAuthUser } from "../../../lib/api-helpers";
 
 // GET /api/comments?article=xxx&status=xxx - Get comments

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { Reservation } from "../../../../models/reservation";
+import { Booking } from '@coworking-cafe/database';
 import { logger } from "../../../../lib/logger";
 import { sendBookingReminder } from "../../../../lib/email/emailService";
 

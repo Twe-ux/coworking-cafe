@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { Reservation } from "../../../../models/reservation";
-import Space from "../../../../models/space";
+import { Booking } from '@coworking-cafe/database';
+import { Space } from '@coworking-cafe/database';
 import {
   getAuthUser,
   requireAuth,

@@ -5,8 +5,8 @@ import { logger } from "../../../../../lib/logger";
 import { connectDB } from "../../../../../lib/mongodb";
 import { getSpaceTypeName } from "../../../../../lib/space-names";
 import BookingSettings from "../../../../../models/bookingSettings";
-import Payment from "../../../../../models/payment";
-import { Reservation } from "../../../../../models/reservation";
+import { Payment } from '@coworking-cafe/database';
+import { Booking } from '@coworking-cafe/database';
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -43,7 +43,7 @@ export async function POST(
     }
 
     // Get booking
-    const booking = await Reservation.findById(bookingId)
+    const booking = await Booking.findById(bookingId)
       .populate("user", "email givenName")
       .populate("space", "name type");
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../../../lib/mongodb";
-import Article from "../../../../../../models/article";
+import { Article } from '@coworking-cafe/database';
 import { requireAuth, handleApiError } from "../../../../../../lib/api-helpers";
 
 // Force dynamic rendering

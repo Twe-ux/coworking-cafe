@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../lib/mongodb";
-import Article from "../../../models/article";
-import { Category } from "../../../models/category";
-import { Tag } from "../../../models/tag";
+import { Article } from '@coworking-cafe/database';
+import { Category } from '@coworking-cafe/database';
 import {
   getAuthUser,
   requireAuth,
@@ -16,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 // Force model registration - prevents MissingSchemaError
 // Reference models to ensure they're registered before populate() is called
-const _ensureModelsRegistered = [Category, Tag];
+const _ensureModelsRegistered = [Category];
 
 /**
  * GET /api/articles

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/db";
-import { Comment } from "../../../../models/comment";
+import { Comment } from '@coworking-cafe/database';
 import { requireAuth, getAuthUser } from "../../../../lib/api-helpers";
 
 // GET /api/comments/[id] - Get a single comment

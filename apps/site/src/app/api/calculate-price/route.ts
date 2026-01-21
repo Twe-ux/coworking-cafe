@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../lib/db";
-import SpaceConfiguration from "../../../models/spaceConfiguration";
+import SpaceConfiguration from '@coworking-cafe/database';
 
 /**
  * POST /api/calculate-price

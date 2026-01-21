@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
 import { User } from "@coworking-cafe/database";
-import PasswordResetToken from "../../../../models/passwordResetToken/document";
+import { PasswordResetToken } from "@coworking-cafe/database";
 import crypto from "crypto";
 import { sendEmail } from "../../../../lib/email/emailService";
 import { passwordResetEmail } from "../../../../lib/email/templates";

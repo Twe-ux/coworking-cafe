@@ -4,7 +4,7 @@ import { options } from "../../../lib/auth-options";
 import Link from "next/link";
 import "./client-dashboard.scss";
 import { connectDB } from "../../../lib/mongodb";
-import { Reservation } from "../../../models/reservation";
+import { Booking } from '@coworking-cafe/database';
 import UpcomingReservationCard from "../../../components/site/dashboard/UpcomingReservationCard";
 
 // Force dynamic rendering - don't pre-render at build time
@@ -51,22 +51,22 @@ export default async function ClientDashboard({
     allReservations,
     upcomingReservations,
   ] = await Promise.all([
-    Reservation.countDocuments({
+    Booking.countDocuments({
       user: userId,
       status: { $in: ["pending", "confirmed"] },
       date: { $gte: todayStart },
     }),
-    Reservation.countDocuments({
+    Booking.countDocuments({
       user: userId,
       status: "completed",
     }),
-    Reservation.find({
+    Booking.find({
       user: userId,
       status: { $nin: ["cancelled"] },
     })
       .select("startTime endTime")
       .lean(),
-    Reservation.find({
+    Booking.find({
       user: userId,
       status: { $in: ["pending", "confirmed"] },
       date: { $gte: todayStart },

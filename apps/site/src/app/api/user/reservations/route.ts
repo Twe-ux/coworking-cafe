@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectDB from "../../../../lib/db";
-import { Reservation } from "../../../../models/reservation";
+import { Booking } from '@coworking-cafe/database';
 
 /**
  * GET /api/user/reservations

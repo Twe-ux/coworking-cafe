@@ -1,7 +1,7 @@
 import { logger } from "../../../../lib/logger";
 import { connectDB } from "../../../../lib/mongodb";
 import BookingSettings from "../../../../models/bookingSettings";
-import { Reservation } from "../../../../models/reservation";
+import { Booking } from '@coworking-cafe/database';
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 

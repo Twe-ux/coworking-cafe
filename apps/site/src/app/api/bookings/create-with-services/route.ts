@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 import connectDB from "../../../../lib/db";
-import { Reservation } from "../../../../models/reservation";
-import SpaceConfiguration from "../../../../models/spaceConfiguration";
+import { Booking } from '@coworking-cafe/database';
+import SpaceConfiguration from '@coworking-cafe/database';
 import { User } from "@coworking-cafe/database";
 import { getServerSession } from "next-auth";
 import { options as authOptions } from "../../../../lib/auth-options";

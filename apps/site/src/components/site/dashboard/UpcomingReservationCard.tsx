@@ -17,7 +17,7 @@ interface Reservation {
 }
 
 interface Props {
-  reservation: Reservation;
+  reservation: Booking;
   onCancelled?: () => void;
 }
 

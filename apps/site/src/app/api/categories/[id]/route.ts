@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/db";
-import { Category } from "../../../../models/category";
+import { Category } from '@coworking-cafe/database';
 import { requireAuth, generateSlug } from "../../../../lib/api-helpers";
 
 // GET /api/categories/[id]

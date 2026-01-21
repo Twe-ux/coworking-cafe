@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { Reservation } from "../../../../models/reservation";
-import Payment from "../../../../models/payment";
+import { Booking } from '@coworking-cafe/database';
+import { Payment } from '@coworking-cafe/database';
 import { requireAuth, handleApiError } from "../../../../lib/api-helpers";
 import { cancelPaymentIntent } from "../../../../lib/stripe";
 import mongoose from "mongoose";

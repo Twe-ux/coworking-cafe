@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../lib/db";
-import { Tag } from "../../../models/tag";
 import { requireAuth, generateSlug } from "../../../lib/api-helpers";
 
 // GET /api/tags - Get all tags

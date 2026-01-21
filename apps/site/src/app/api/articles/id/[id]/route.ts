@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../../lib/mongodb";
-import Article from "../../../../../models/article";
-import { Category } from "../../../../../models/category";
-import { Tag } from "../../../../../models/tag";
+import { Article } from '@coworking-cafe/database';
+import { Category } from '@coworking-cafe/database';
 import {
   requireAuth,
   getAuthUser,
@@ -16,7 +15,7 @@ import { createArticleRevision } from "../../../../../lib/article-revision-helpe
 export const dynamic = "force-dynamic";
 
 // Force model registration - prevents MissingSchemaError
-const _ensureModelsRegistered = [Category, Tag];
+const _ensureModelsRegistered = [Category];
 
 /**
  * GET /api/articles/id/[id]

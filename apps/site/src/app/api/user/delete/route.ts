@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { options } from "../../../../lib/auth-options";
 import dbConnect from "../../../../lib/mongodb";
 import { User } from "@coworking-cafe/database";
-import { Reservation } from "../../../../models/reservation";
+import { Booking } from '@coworking-cafe/database';
 
 export async function DELETE() {
   try {

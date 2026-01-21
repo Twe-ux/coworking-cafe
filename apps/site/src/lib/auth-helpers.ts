@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
 import connectDB from "./mongodb";
 import { User } from "@coworking-cafe/database";
-import { Role } from "../models/role";
-import { Permission } from "../models/permission";
-import type { UserDocument } from "../models/user/document";
-import type { RoleDocument } from "../models/role/document";
+import { Role } from '@coworking-cafe/database';
+import { Permission } from '@coworking-cafe/database';
+import type { UserDocument } from "@coworking-cafe/database";
+import type { RoleDocument } from "@coworking-cafe/database";
 
 /**
  * Hash a password using bcrypt

@@ -1,5 +1,5 @@
 import ArticleRevision from "../models/articleRevision";
-import type { ArticleDocument } from "../models/article/document";
+import type { ArticleDocument } from "@coworking-cafe/database";
 import mongoose, { ObjectId } from "mongoose";
 
 /**

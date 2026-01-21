@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { Reservation } from "../../../../models/reservation";
+import { Booking } from '@coworking-cafe/database';
 
 /**
  * GET /api/bookings/by-intent

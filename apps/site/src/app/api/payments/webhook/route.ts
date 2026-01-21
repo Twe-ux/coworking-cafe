@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import Payment from "../../../../models/payment";
-import { Reservation } from "../../../../models/reservation";
+import { Payment } from '@coworking-cafe/database';
+import { Booking } from '@coworking-cafe/database';
 import { verifyWebhookSignature, stripe } from "../../../../lib/stripe";
 import Stripe from "stripe";
-import type { CardBrand } from "../../../../models/payment/document";
+import type { CardBrand } from '@coworking-cafe/database';
 import {
   sendBookingConfirmation,
   sendCardSavedConfirmation,
@@ -13,7 +13,7 @@ import { getSpaceTypeName } from "../../../../lib/space-names";
 import { User } from "@coworking-cafe/database";
 import { Newsletter } from "@coworking-cafe/database";
 import { createUser, findUserByEmail } from "../../../../lib/auth-helpers";
-import { Role } from "../../../../models/role";
+import { Role } from '@coworking-cafe/database';
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -485,7 +485,7 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
     // Send confirmation email to customer
     try {
       const SpaceConfiguration = (
-        await import("../../../../models/spaceConfiguration")
+        await import("@coworking-cafe/database")
       ).default;
       const spaceConfig = await SpaceConfiguration.findOne({
         spaceType: metadata.spaceType,
@@ -595,7 +595,7 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
     // Send card saved email to customer
     try {
       const SpaceConfiguration = (
-        await import("../../../../models/spaceConfiguration")
+        await import("@coworking-cafe/database")
       ).default;
       const spaceConfig = await SpaceConfiguration.findOne({
         spaceType: metadata.spaceType,

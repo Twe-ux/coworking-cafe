@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { Reservation } from "../../../../models/reservation";
+import { Booking } from '@coworking-cafe/database';
 import BookingSettings from "../../../../models/bookingSettings";
 import { logger } from "../../../../lib/logger";
 import { sendDepositCaptured } from "../../../../lib/email/emailService";
-import SpaceConfiguration from "../../../../models/spaceConfiguration";
+import SpaceConfiguration from '@coworking-cafe/database';
 
 /**
  * GET /api/cron/check-attendance

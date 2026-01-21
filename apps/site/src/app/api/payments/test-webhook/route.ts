@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { Reservation } from "../../../../models/reservation";
+import { Booking } from '@coworking-cafe/database';
 import {
   sendBookingConfirmation,
   sendCardSavedConfirmation,
 } from "../../../../lib/email/emailService";
 import { urlToDbSpaceType } from "../../../../lib/space-types";
-import SpaceConfiguration from "../../../../models/spaceConfiguration";
+import SpaceConfiguration from '@coworking-cafe/database';
 
 /**
  * POST /api/payments/test-webhook

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { Reservation } from "../../../../models/reservation";
-import Payment from "../../../../models/payment";
-import SpaceConfiguration from "../../../../models/spaceConfiguration";
+import { Booking } from '@coworking-cafe/database';
+import { Payment } from '@coworking-cafe/database';
+import SpaceConfiguration from '@coworking-cafe/database';
 import {
   createPaymentIntent,
   formatAmountForStripe,

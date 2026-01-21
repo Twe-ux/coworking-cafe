@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { Reservation } from "../../../../models/reservation";
-import Payment from "../../../../models/payment";
+import { Booking } from '@coworking-cafe/database';
+import { Payment } from '@coworking-cafe/database';
 import { getAuthUser, handleApiError } from "../../../../lib/api-helpers";
 import {
   createPaymentIntent,
@@ -11,7 +11,7 @@ import {
 } from "../../../../lib/stripe";
 import { urlToDbSpaceType } from "../../../../lib/space-types";
 import mongoose from "mongoose";
-import SpaceConfiguration from "../../../../models/spaceConfiguration";
+import SpaceConfiguration from '@coworking-cafe/database';
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";

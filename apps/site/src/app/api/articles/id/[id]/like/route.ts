@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../../../lib/mongodb";
-import Article from "../../../../../../models/article";
+import { Article } from '@coworking-cafe/database';
 import ArticleLike from "../../../../../../models/articleLike";
 import { getAuthUser, handleApiError } from "../../../../../../lib/api-helpers";
 
