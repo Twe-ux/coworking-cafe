@@ -9,6 +9,7 @@ export interface UserDocument extends Document {
   phone?: string;
   companyName?: string;
   role: ObjectId;
+  pin?: string;
   emailVerifiedAt?: Date;
   lastLoginAt?: Date;
   passwordChangedAt?: Date;
@@ -44,6 +45,13 @@ export const UserSchema = new Schema<UserDocument>(
       ref: "Role",
       required: [true, "User role is required"],
     },
+    pin: {
+      type: String,
+      minlength: [4, "PIN must be at least 4 characters"],
+      maxlength: [6, "PIN must be at most 6 characters"],
+      select: false,
+      trim: true,
+    },
     emailVerifiedAt: {
       type: Date,
     },
@@ -76,4 +84,5 @@ export const UserSchema = new Schema<UserDocument>(
 UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ username: 1 }, { unique: true, sparse: true });
 UserSchema.index({ role: 1 });
+UserSchema.index({ pin: 1 }, { sparse: true });
 UserSchema.index({ deletedAt: 1 });
