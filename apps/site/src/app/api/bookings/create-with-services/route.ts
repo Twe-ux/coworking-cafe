@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import connectDB from "../../../../lib/db";
 import { Reservation } from "../../../../models/reservation";
 import SpaceConfiguration from "../../../../models/spaceConfiguration";
-import { User } from "../../../../models/user";
+import { User } from "@coworking-cafe/database";
 import { getServerSession } from "next-auth";
 import { options as authOptions } from "../../../../lib/auth-options";
 import { sendBookingConfirmation } from "../../../../lib/email/emailService";

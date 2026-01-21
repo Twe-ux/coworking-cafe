@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import connectDB from "./mongodb";
-import { User } from "../models/user";
+import { User } from "@coworking-cafe/database";
 import { Role } from "../models/role";
 import { Permission } from "../models/permission";
 import type { UserDocument } from "../models/user/document";

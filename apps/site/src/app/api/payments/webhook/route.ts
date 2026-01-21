@@ -10,7 +10,7 @@ import {
   sendCardSavedConfirmation,
 } from "../../../../lib/email/emailService";
 import { getSpaceTypeName } from "../../../../lib/space-names";
-import { User } from "../../../../models/user";
+import { User } from "@coworking-cafe/database";
 import { Newsletter } from "@coworking-cafe/database";
 import { createUser, findUserByEmail } from "../../../../lib/auth-helpers";
 import { Role } from "../../../../models/role";

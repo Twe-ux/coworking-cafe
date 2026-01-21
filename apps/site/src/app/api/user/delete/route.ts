@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { options } from "../../../../lib/auth-options";
 import dbConnect from "../../../../lib/mongodb";
-import { User } from "../../../../models/user";
+import { User } from "@coworking-cafe/database";
 import { Reservation } from "../../../../models/reservation";
 
 export async function DELETE() {

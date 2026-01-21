@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../../lib/db";
-import { User } from "../../../../models/user";
+import { User } from "@coworking-cafe/database";
 import { getAuthUser } from "../../../../lib/api-helpers";
 
 /**

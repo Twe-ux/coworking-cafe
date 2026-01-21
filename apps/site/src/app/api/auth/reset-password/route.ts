@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
-import { User } from "../../../../models/user";
+import { User } from "@coworking-cafe/database";
 import PasswordResetToken from "../../../../models/passwordResetToken/document";
 
 export const dynamic = "force-dynamic";

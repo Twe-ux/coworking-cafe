@@ -10,7 +10,7 @@ import path from "path";
 dotenv.config({ path: path.join(__dirname, "../../.env.local") });
 
 import connectDB from "./mongodb";
-import { User } from "../models/user";
+import { User } from "@coworking-cafe/database";
 
 async function resetPassword() {
   const email = "client@coworkingcafe.fr";

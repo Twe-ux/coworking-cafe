@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { options } from "../../../../lib/auth-options";
 import Link from "next/link";
 import dbConnect from "../../../../lib/mongodb";
-import { User } from "../../../../models/user";
+import { User } from "@coworking-cafe/database";
 import SettingsClient from "./SettingsClient";
 import "../profile/profile.scss";
 

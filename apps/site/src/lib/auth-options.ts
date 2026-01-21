@@ -7,7 +7,7 @@ import {
   getRedirectPathByRole,
   initializeRoles,
 } from "./auth-helpers";
-import { User } from "../models/user";
+import { User } from "@coworking-cafe/database";
 import dbConnect from "./mongodb";
 
 interface PopulatedRole {
