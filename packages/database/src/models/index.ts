@@ -49,3 +49,11 @@ export { MenuItem } from './menuItem';
 export { ContactMail, type IContactMail } from './contactMail';
 export { default as GlobalHoursConfiguration } from './globalHours';
 export type { GlobalHoursConfigurationDocument, DayHours, WeeklyHours, ExceptionalClosure } from './globalHours';
+
+// ===== Payment =====
+export { Payment } from './payment';
+export type { PaymentDocument, CardBrand } from './payment';
+
+// ===== Additional Services =====
+export { AdditionalService } from './additionalService';
+export type { AdditionalServiceDocument } from './additionalService';
