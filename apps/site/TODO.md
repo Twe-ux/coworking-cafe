@@ -302,7 +302,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 - ✅ Concept (/concept)
   - ✅ Histoire Anticafé
   - ✅ Forfaits
-- ✅ SCSS: _home.scss, _concept.scss
+- ✅ SCSS: \_home.scss, \_concept.scss
 
 ### 4.2 Pages Offres (Agent 2)
 
@@ -319,7 +319,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Confirmation + récapitulatif
   - ✅ Checkout Stripe Elements
   - ✅ Success + confirmation
-- ✅ SCSS: _booking.scss (650L)
+- ✅ SCSS: \_booking.scss (650L)
 
 ### 4.4 Pages Blog & Contact (Agent 4)
 
@@ -331,7 +331,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ CommentSection
 - ✅ Catégorie (/blog/category/[slug])
 - ✅ Contact (/contact) - Formulaire + Google Map
-- ✅ SCSS: _blog.scss, _article.scss, _contact.scss
+- ✅ SCSS: \_blog.scss, \_article.scss, \_contact.scss
 
 ### 4.5 Pages Légales (Agent 5)
 
@@ -339,9 +339,26 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 - ✅ CGU (833L) - 12 articles complets
 - ✅ Politique confidentialité (888L) - RGPD détaillé
 - ✅ ProtectedEmail component
-- ✅ SCSS: _legal.scss
+- ✅ SCSS: \_legal.scss
 
-**Status Phase 4** : ✅ **100% TERMINÉ** (Commit: 6b982c4, ~20 pages, 11,076 lignes)
+### 4.6 Routes Manquantes Phase 4
+
+- ✅ Manifest PWA (/manifest.ts) - PWA metadata
+- ✅ Page Manifeste (/manifest) - Notre Manifeste (135L)
+- ✅ Confidentialité (/confidentiality) - Redirect
+- ✅ Horaires (/horaires) - Opening hours avec API (241L)
+- ✅ Historique (/history) - Chronologie 2012-2023 (197L)
+- ✅ Système Promo/Scan complet
+  - ✅ /scan - Page scan QR avec animations (290L)
+  - ✅ /promo/[token] - Affichage code promo (215L)
+  - ✅ 6 APIs promo/scan (track, reveal, copy, current-token, [token], marketing)
+  - ✅ promoService (427L)
+  - ✅ Types promo.ts
+  - ✅ SCSS: _scan.scss, _promo.scss
+- ✅ /boissons - Liste boissons (75L)
+- ✅ /take-away - Marketing take-away (175L)
+
+**Status Phase 4** : ✅ **100% TERMINÉ** (Commits: 6b982c4, a79da47, be10812, 66c4911 - Toutes routes créées)
 
 ---
 
@@ -362,7 +379,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ CTA "Réserver"
 - ✅ DashboardNav component (135L)
 - ✅ DashboardStats component (75L)
-- ✅ SCSS: _dashboard.scss (445L)
+- ✅ SCSS: \_dashboard.scss (445L)
 
 ### 5.2 Pages Réservations (Agent 2)
 
@@ -377,7 +394,7 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
   - ✅ Modal annulation (CancelBookingModal 167L)
   - ✅ Actions (annuler, télécharger reçu)
 - ✅ useBookings hook (151L): fetch, filtres, pagination
-- ✅ SCSS: _booking-card.scss (516L)
+- ✅ SCSS: \_booking-card.scss (516L)
 
 ### 5.3 Profil + Paramètres (Agent 3)
 
@@ -402,34 +419,93 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 
 ## 🔐 PHASE 6: AUTHENTIFICATION (1 jour)
 
-**Objectif** : Système auth NextAuth
+**Objectif** : Système auth NextAuth complet
 
-### 6.1 Pages Auth
+### 6.1 Model PasswordResetToken (packages/database)
 
-- ⏳ Login (/login)
-  - ⏳ Email + password
-  - ⏳ Lien mot de passe oublié
-- ⏳ Register (/register)
-  - ⏳ Formulaire inscription
-  - ⏳ Validation email
-- ⏳ Forgot password (/forgot-password)
-  - ⏳ Envoi email reset
-- ⏳ Reset password (/reset-password/[token])
-  - ⏳ Formulaire nouveau password
+- ✅ Schema Mongoose (userId, token, expiresAt, used)
+- ✅ Indexes pour performance
+- ✅ Export dans models/index.ts
 
-### 6.2 Configuration NextAuth
+### 6.2 Helpers & Config
 
-- ⏳ Configurer providers (Credentials)
-- ⏳ Configurer callbacks
-- ⏳ Configurer pages custom
-- ⏳ Middleware protection routes
+- ✅ auth-helpers.ts (200L)
+  - ✅ hashPassword, verifyPassword
+  - ✅ findUserByEmail, findUserById
+  - ✅ createUser, hasPermission, hasRoleLevel
+  - ✅ getUserRoleSlug, getRedirectPathByRole
+  - ✅ initializeRoles (4 rôles par défaut)
+- ✅ auth-options.ts (193L)
+  - ✅ CredentialsProvider email/password
+  - ✅ Callbacks: jwt, session, redirect
+  - ✅ Session JWT 30 jours
+  - ✅ Pages custom: /auth/login, /auth/error
+  - ✅ Auto-init roles
+- ✅ Email templates
+  - ✅ password-reset.ts (HTML template)
+  - ✅ send-email.ts (Helper, console.log en dev)
 
-### 6.3 Hooks Auth
+### 6.3 APIs Auth (4 routes)
 
-- ⏳ useAuth()
-- ⏳ useSession()
+- ✅ /api/auth/[...nextauth] - Handler NextAuth
+- ✅ /api/auth/register (108L)
+  - ✅ Validation complète
+  - ✅ Création user avec role "client"
+  - ✅ Gestion duplicate email
+- ✅ /api/auth/forgot-password (94L)
+  - ✅ Token crypto sécurisé (32 bytes)
+  - ✅ Expiry 1 heure
+  - ✅ Envoi email reset
+- ✅ /api/auth/reset-password (88L)
+  - ✅ Validation token (non utilisé + non expiré)
+  - ✅ Update password (hash auto)
+  - ✅ Marque token utilisé
 
-**Status Phase 6** : ⏳ **0% TERMINÉ**
+### 6.4 Pages Auth (4 pages)
+
+- ✅ Login (/auth/login)
+  - ✅ page.tsx - Wrapper avec metadata
+  - ✅ LoginForm.tsx (164L) - Form client-side
+  - ✅ Toggle password visibility
+  - ✅ Redirect /dashboard après succès
+  - ✅ Liens: register, forgot-password
+- ✅ Register (/auth/register)
+  - ✅ page.tsx (260L) - Form complet
+  - ✅ Champs: email, password, confirmPassword, givenName, username, newsletter
+  - ✅ Validation inline
+  - ✅ Auto-login après inscription
+  - ✅ Toggle password (2 champs)
+- ✅ Forgot password (/auth/forgot-password)
+  - ✅ page.tsx (109L) - Form simple
+  - ✅ Message succès
+  - ✅ Lien retour login
+- ✅ Reset password (/auth/reset-password)
+  - ✅ page.tsx (216L) - Form avec token
+  - ✅ Récupère token depuis query params
+  - ✅ Validation passwords match
+  - ✅ Redirect login après succès
+
+### 6.5 SCSS & Styles
+
+- ✅ _auth.scss (182L) - BEM modifié
+  - ✅ .page-auth, .auth-card, .auth-form
+  - ✅ États: hover, focus, disabled, error
+  - ✅ Responsive mobile
+  - ✅ Accessibilité (aria-labels)
+  - ✅ Toggle password positionné
+
+### 6.6 Features
+
+- ✅ Validation client + serveur
+- ✅ Toggle password visibility (icône œil)
+- ✅ Auto-login après register
+- ✅ Token crypto sécurisé (32 bytes, expiry 1h)
+- ✅ Messages erreur français
+- ✅ Loading states
+- ✅ Redirect selon rôle
+- ✅ Sécurité: bcrypt, crypto token, cookies httpOnly
+
+**Status Phase 6** : ✅ **100% TERMINÉ** (Commits: deb8891, f752f17 - 17 fichiers, ~2000 lignes)
 
 ---
 
@@ -504,52 +580,58 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 | 3     | UI Components    | 4j    | ✅ Terminé  | 100% |
 | 4     | Pages Publiques  | 3j    | ✅ Terminé  | 100% |
 | 5     | Dashboard Client | 2j    | ✅ Terminé  | 100% |
-| 6     | Authentification | 1j    | ⏳ Planifié | 0%   |
+| 6     | Authentification | 1j    | ✅ Terminé  | 100% |
 | 7     | Tests & Optim    | 2j    | ⏳ Planifié | 0%   |
 
-**TOTAL** : 18 jours | **Progression globale** : 83.3% (Phases 0-5 terminées - 15/18 jours)
+**TOTAL** : 18 jours | **Progression globale** : 94.4% (Phases 0-6 terminées - 17/18 jours)
 
 ---
 
 ## 🎯 PROCHAINES ÉTAPES
 
-### Immédiat (Phase 4 - Pages Site Public)
+### Immédiat (Phase 7 - Tests & Optimisation)
 
-**⚠️ ATTENTION: Ne pas copier-coller de /source/. Garder les textes originaux mot pour mot.**
+1. **Tests Manuels**
+   - Booking flow complet (sélection → paiement → confirmation)
+   - Annulation + remboursement Stripe
+   - Blog (articles, commentaires, recherche)
+   - Dashboard client (réservations, profil)
+   - Auth flow (login, register, reset password)
 
-1. **Pages Marketing**
-   - Homepage (Hero, Services, Espaces, Témoignages, CTA)
-   - Concept (Présentation Anticafé, Comment ça marche)
-   - Espaces (Liste avec cards, filtres)
-   - Tarifs (Grilles tarifaires, comparaison)
+2. **SEO**
+   - Vérifier metadata toutes pages
+   - Tester Schema.org (Google Rich Results)
+   - Lighthouse audit (score > 90)
+   - Sitemap.xml, robots.txt
 
-2. **Pages Booking Flow**
-   - Booking form (6 étapes)
-   - Confirmation
-   - Success
+3. **Performance**
+   - Core Web Vitals (LCP < 2.5s, FID < 100ms, CLS < 0.1)
+   - Next/image partout
+   - Code splitting
+   - Compression images
 
-3. **Pages Blog**
-   - Liste articles (grid, filtres, recherche, pagination)
-   - Détail article (Markdown, commentaires, similaires)
-   - Catégorie
+4. **Responsive**
+   - Mobile (< 768px)
+   - Tablet (768px - 1024px)
+   - Desktop (> 1024px)
 
-4. **Pages Légales**
-   - Contact (formulaire)
-   - Mentions légales
-   - CGU
-   - Confidentialité
+5. **TypeScript & Build**
+   - pnpm type-check (0 erreurs)
+   - pnpm lint (0 warnings)
+   - pnpm build (succès)
 
 ### Cette semaine
 
-- Terminer Phase 4 (Pages Publiques)
-- Démarrer Phase 5 (Dashboard Client)
+- ✅ Phases 0-6 terminées (17/18 jours)
+- ⏳ Phase 7 (Tests & Optimisation)
 
-### Ce mois
+### Prêt pour production
 
-- Terminer Phases 4-6 (site public + dashboard + auth)
-- Phase 7 (Tests & optimisation)
+- Tests complets + optimisation
+- Déploiement Northflank
+- Configuration email service production
 
 ---
 
-**Dernière mise à jour** : 21 janvier 2026
+**Dernière mise à jour** : 21 janvier 2026 (Phase 6 terminée)
 **Par** : Thierry + Claude Sonnet 4.5
