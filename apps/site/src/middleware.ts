@@ -117,7 +117,8 @@ export async function middleware(req: NextRequest) {
         userRole === "admin" ||
         userRole === "staff"
       ) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
+        // Redirect to admin app (external)
+        return NextResponse.redirect(new URL("http://localhost:3001", req.url));
       }
     }
     // Not authenticated, allow access to auth pages
