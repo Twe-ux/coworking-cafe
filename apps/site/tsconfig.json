@@ -19,15 +19,17 @@
       }
     ],
     "paths": {
-      "@/*": ["src-old/*"],
-      "@/components/*": ["src-old/components/*"],
-      "@/styles/*": ["src-old/styles/*"],
-      "@/lib/*": ["src-old/lib/*"],
-      "@/utils/*": ["src-old/utils/*"],
-      "@/types/*": ["src-old/types/*"],
-      "@coworking/database": ["../../packages/database/src"],
-      "@coworking/email": ["../../packages/email/src"],
-      "@coworking/shared": ["../../packages/shared/src"]
+      "@/*": ["src/*"],
+      "@/components/*": ["src/components/*"],
+      "@/styles/*": ["src/styles/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/utils/*": ["src/lib/utils/*"],
+      "@/types/*": ["src/types/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/store/*": ["src/store/*"],
+      "@coworking-cafe/database": ["../../packages/database/src"],
+      "@coworking-cafe/email": ["../../packages/email/src"],
+      "@coworking-cafe/shared": ["../../packages/shared/src"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

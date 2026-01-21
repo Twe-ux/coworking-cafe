@@ -1,0 +1,40 @@
+/**
+ * Main SCSS Entry Point - apps/site
+ * Import tous les styles de l'application
+ */
+
+// ===== 1. BOOTSTRAP CONFIGURATION =====
+// Variables et mixins AVANT d'importer Bootstrap
+@import 'bootstrap/variables';
+@import 'bootstrap/mixins';
+
+// Import Bootstrap (optionnel - si vous utilisez Bootstrap)
+// @import '~bootstrap/scss/bootstrap';
+
+// ===== 2. BASE STYLES =====
+@import 'base/reset';
+@import 'base/typography';
+@import 'base/utilities';
+
+// ===== 3. LAYOUT COMPONENTS =====
+// @import 'layout/header';
+// @import 'layout/footer';
+// @import 'layout/navigation';
+
+// ===== 4. UI COMPONENTS =====
+// @import 'components/button';
+// @import 'components/card';
+// @import 'components/modal';
+// @import 'components/form';
+
+// ===== 5. PAGE-SPECIFIC STYLES =====
+// @import 'pages/home';
+// @import 'pages/booking';
+// @import 'pages/spaces';
+// @import 'pages/blog';
+// @import 'pages/dashboard';
+
+// ===== 6. VENDOR OVERRIDES =====
+// Surcharges des styles de librairies tierces
+// @import 'vendor/datepicker';
+// @import 'vendor/calendar';
