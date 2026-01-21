@@ -17,15 +17,18 @@
 @import 'base/utilities';
 
 // ===== 3. LAYOUT COMPONENTS =====
-// @import 'layout/header';
-// @import 'layout/footer';
-// @import 'layout/navigation';
+@import 'layout/header';
+@import 'layout/footer';
+@import 'layout/navigation';
+@import 'layout/breadcrumb';
 
 // ===== 4. UI COMPONENTS =====
-// @import 'components/button';
-// @import 'components/card';
-// @import 'components/modal';
-// @import 'components/form';
+@import 'components/button';
+@import 'components/card';
+@import 'components/input';
+@import 'components/select';
+@import 'components/modal';
+@import 'components/spinner';
 
 // ===== 5. PAGE-SPECIFIC STYLES =====
 // @import 'pages/home';

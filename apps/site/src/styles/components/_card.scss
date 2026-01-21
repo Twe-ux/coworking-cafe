@@ -1,0 +1,48 @@
+/**
+ * Card Component Styles
+ */
+
+.ui-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+
+  // Variants
+  &--default {
+    border: 1px solid #e0e0e0;
+  }
+
+  &--outlined {
+    border: 2px solid var(--bs-primary);
+  }
+
+  &--elevated {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+  }
+
+  // Elements
+  &__header {
+    padding: 1.25rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  &__body {
+    padding: 1.25rem;
+    flex: 1;
+  }
+
+  &__footer {
+    padding: 1.25rem;
+    border-top: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+  }
+}

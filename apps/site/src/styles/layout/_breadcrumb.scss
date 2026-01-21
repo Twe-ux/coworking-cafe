@@ -1,0 +1,56 @@
+/**
+ * Breadcrumb Styles - apps/site
+ * Styles du composant Breadcrumb
+ */
+
+.layout-breadcrumb {
+  padding: 1rem 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &--current {
+      .layout-breadcrumb__text {
+        color: #111827;
+        font-weight: 500;
+      }
+    }
+  }
+
+  &__link {
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #3b82f6;
+      text-decoration: underline;
+    }
+  }
+
+  &__text {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+
+  &__separator {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    user-select: none;
+  }
+}
