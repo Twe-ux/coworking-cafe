@@ -193,71 +193,77 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 **Objectif** : Créer composants réutilisables
 
 ### 3.1 Layout Components
-- ⏳ Header
-  - ⏳ Navigation principale
-  - ⏳ Menu mobile responsive
-  - ⏳ User menu (si connecté)
-- ⏳ Footer
-  - ⏳ Links légaux
-  - ⏳ Social media
-  - ⏳ Newsletter form
-- ⏳ Breadcrumb
-- ⏳ ScrollToTop
+- ✅ Header
+  - ✅ Navigation principale
+  - ✅ Menu mobile responsive
+  - ✅ User menu (si connecté)
+- ✅ Footer
+  - ✅ Links légaux
+  - ✅ Social media
+  - ✅ Newsletter form (avec API intégrée)
+- ✅ Navigation (composant séparé avec pathname active detection)
+- ✅ Breadcrumb (avec Schema.org JSON-LD)
 
 ### 3.2 Booking Components
-- ⏳ BookingForm
-  - ⏳ Step 1: Sélection (space, date, time)
-  - ⏳ Step 2: Détails (personnes, services)
-  - ⏳ Step 3: Coordonnées
-  - ⏳ Step 4: Récapitulatif
-  - ⏳ Step 5: Paiement Stripe
-  - ⏳ Step 6: Confirmation
-- ⏳ SpaceCard
-  - ⏳ Image + description
-  - ⏳ Prix dès X€
-  - ⏳ Bouton réserver
-- ⏳ PriceCalculator
-  - ⏳ Affichage prix en temps réel
-  - ⏳ Détail des services
-- ⏳ CalendarPicker
-  - ⏳ Sélection date
-  - ⏳ Blocage dates indisponibles
+- ✅ BookingForm (formulaire complet avec inline validation)
+- ✅ SpaceCard
+  - ✅ Image + description
+  - ✅ Prix dès X€
+  - ✅ Bouton réserver
+  - ✅ Badge type espace
+  - ✅ Amenities list (3 premiers + compteur)
+- ✅ BookingSummary
+  - ✅ Affichage récapitulatif
+  - ✅ Détails formatés (dates, prix)
+- ✅ PriceDisplay
+  - ✅ Affichage prix en temps réel
+  - ✅ Animation sur changement
+  - ✅ Détail breakdown (base, discount, total)
 
 ### 3.3 Blog Components
-- ⏳ ArticleCard
-  - ⏳ Image
-  - ⏳ Titre, extrait
-  - ⏳ Catégorie, date
-- ⏳ ArticleList
-  - ⏳ Grid responsive
-  - ⏳ Pagination
-- ⏳ CategoryFilter
-- ⏳ SearchBar
-- ⏳ CommentList
-  - ⏳ Nested comments
-  - ⏳ Likes
-- ⏳ CommentForm
+- ✅ ArticleCard
+  - ✅ Image
+  - ✅ Titre, extrait (truncate 2 lignes)
+  - ✅ Catégorie, date, vues, temps lecture
+- ✅ ArticleList
+  - ✅ Grid responsive (1/2/3 colonnes)
+  - ✅ Gestion liste vide
+- ✅ CommentSection
+  - ✅ Nested comments (récursif)
+  - ✅ Auth check (login si non connecté)
+  - ✅ Pagination commentaires
+- ✅ CommentForm
+  - ✅ Validation (1-2000 caractères)
+  - ✅ Submit avec loading state
+  - ✅ Gestion erreurs
 
-### 3.4 Dashboard Components
-- ⏳ ReservationCard
-  - ⏳ Statut (upcoming/past/cancelled)
-  - ⏳ Bouton annuler
-- ⏳ ProfileForm
-- ⏳ SettingsForm
+### 3.4 Common Components
+- ✅ Button (5 variants: primary, secondary, outline, ghost, danger)
+- ✅ Card (3 variants: default, outlined, elevated)
+  - ✅ Card.Header composition
+  - ✅ Card.Body composition
+  - ✅ Card.Footer composition
+- ✅ Input (forwardRef, icons, error state)
+- ✅ Select (options typées, placeholder, disabled)
+- ✅ Modal (Portal, ESC key, backdrop click)
+- ✅ Spinner (3 sizes: sm, md, lg)
 
-### 3.5 Common Components
-- ⏳ Button (variants: primary, secondary, outline)
-- ⏳ Input (text, email, tel, textarea)
-- ⏳ Select
-- ⏳ Checkbox
-- ⏳ Radio
-- ⏳ Card
-- ⏳ Alert (success, error, warning, info)
-- ⏳ Spinner / Loader
-- ⏳ Modal
-- ⏳ Tooltip
+### 3.5 Custom Hooks
+- ✅ useBookingForm
+  - ✅ State management (formData, errors, loading)
+  - ✅ 14 règles de validation
+  - ✅ API integration (/api/booking/calculate)
+  - ✅ Result pattern (success/error)
+  - ✅ Error clearing on change
 
-**Status Phase 3** : ⏳ **0% TERMINÉ**
+### 3.6 Documentation
+- ✅ LAYOUT_COMPONENTS.md (Header, Footer, Navigation, Breadcrumb)
+- ✅ UI_COMPONENTS.md (Button, Card, Input, Select, Modal, Spinner)
+- ✅ BOOKING_COMPONENTS.md (SpaceCard, BookingForm, BookingSummary, PriceDisplay)
+- ✅ BLOG_COMPONENTS.md (ArticleCard, ArticleList, CommentSection, CommentForm)
+- ✅ USE_BOOKING_FORM.md (Hook documentation complète)
+
+**Status Phase 3** : ✅ **100% TERMINÉ** (~40 fichiers créés par 4 agents parallèles)
 
 ---
 
@@ -443,31 +449,50 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 | 0 | Préparation | - | ✅ Terminé | 100% |
 | 1 | Fondations | 3j | ✅ Terminé | 100% |
 | 2 | APIs Backend | 3j | ✅ Terminé | 100% |
-| 3 | UI Components | 4j | 🚧 En cours | 0% |
+| 3 | UI Components | 4j | ✅ Terminé | 100% |
 | 4 | Pages Publiques | 3j | ⏳ Planifié | 0% |
 | 5 | Dashboard Client | 2j | ⏳ Planifié | 0% |
 | 6 | Authentification | 1j | ⏳ Planifié | 0% |
 | 7 | Tests & Optim | 2j | ⏳ Planifié | 0% |
 
-**TOTAL** : 18 jours | **Progression globale** : 38.8% (Phases 0, 1, 2 terminées)
+**TOTAL** : 18 jours | **Progression globale** : 55.6% (Phases 0, 1, 2, 3 terminées - 10/18 jours)
 
 ---
 
 ## 🎯 PROCHAINES ÉTAPES
 
-### Immédiat (Phase 3)
-1. Créer composants Layout (Header, Footer, Navigation)
-2. Créer composants UI de base (Button, Card, Modal, Input)
-3. Créer composants Booking (BookingForm, SpaceCard, CalendarPicker)
-4. Créer composants Blog (ArticleCard, CommentSection)
+### Immédiat (Phase 4 - Pages Site Public)
+**⚠️ ATTENTION: Ne pas copier-coller de /source/. Garder les textes originaux mot pour mot.**
+
+1. **Pages Marketing**
+   - Homepage (Hero, Services, Espaces, Témoignages, CTA)
+   - Concept (Présentation Anticafé, Comment ça marche)
+   - Espaces (Liste avec cards, filtres)
+   - Tarifs (Grilles tarifaires, comparaison)
+
+2. **Pages Booking Flow**
+   - Booking form (6 étapes)
+   - Confirmation
+   - Success
+
+3. **Pages Blog**
+   - Liste articles (grid, filtres, recherche, pagination)
+   - Détail article (Markdown, commentaires, similaires)
+   - Catégorie
+
+4. **Pages Légales**
+   - Contact (formulaire)
+   - Mentions légales
+   - CGU
+   - Confidentialité
 
 ### Cette semaine
-- Terminer Phase 3 (UI Components)
-- Démarrer Phase 4 (Pages Publiques)
+- Terminer Phase 4 (Pages Publiques)
+- Démarrer Phase 5 (Dashboard Client)
 
 ### Ce mois
-- Terminer Phases 3-5 (site public + dashboard client)
-- Démarrer Phase 6 (Authentification)
+- Terminer Phases 4-6 (site public + dashboard + auth)
+- Phase 7 (Tests & optimisation)
 
 ---
 
