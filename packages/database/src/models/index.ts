@@ -19,10 +19,16 @@ export type { AvailabilityDocument } from './availability';
 // ===== Booking =====
 export { Booking } from './booking';
 export type { BookingDocument, BookingStatus, ReservationType } from './booking';
+export { Space } from './space';
+export type { SpaceDocument, SpaceAmenity, SpaceType } from './space';
 export { default as SpaceConfiguration } from './spaceConfiguration';
 export type { SpaceConfigurationDocument, PricingTier, PricingStructure, AvailableReservationTypes, DepositPolicy } from './spaceConfiguration';
 
 // ===== Blog =====
+export { Article } from './article';
+export type { ArticleDocument } from './article';
+export { Category } from './category';
+export type { CategoryDocument } from './category';
 export { Comment } from './comment';
 export type { CommentDocument } from './comment';
 
