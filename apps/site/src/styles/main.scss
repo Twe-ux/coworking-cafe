@@ -29,6 +29,10 @@
 @import 'components/select';
 @import 'components/modal';
 @import 'components/spinner';
+@import 'components/profile-form';
+@import 'components/settings';
+@import 'components/toggle';
+@import 'components/booking-card';
 
 // ===== 5. PAGE-SPECIFIC STYLES =====
 // @import 'pages/home';
@@ -37,7 +41,9 @@
 @import 'pages/blog';
 @import 'pages/article';
 @import 'pages/contact';
-// @import 'pages/dashboard';
+@import 'pages/dashboard';
+@import 'pages/dashboard-profile';
+@import 'pages/dashboard-settings';
 
 // ===== 6. VENDOR OVERRIDES =====
 // Surcharges des styles de librairies tierces

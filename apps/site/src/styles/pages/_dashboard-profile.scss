@@ -1,0 +1,91 @@
+/**
+ * Page: Dashboard - Profile
+ * Styles pour la page Mon Profil
+ */
+
+.page-dashboard-profile {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+
+  &__error {
+    text-align: center;
+    padding: 2rem;
+
+    p {
+      margin: 0 0 1rem 0;
+      color: var(--color-danger);
+    }
+  }
+
+  &__header {
+    margin-bottom: 2rem;
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 0.5rem 0;
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    @media (min-width: 1024px) {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+
+  &__card {
+    &-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin: 0;
+    }
+  }
+
+  &__stats-card {
+    height: fit-content;
+  }
+
+  &__stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__stat-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+
+  &__stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+}
