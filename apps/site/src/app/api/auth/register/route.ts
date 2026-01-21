@@ -51,9 +51,23 @@ export async function POST(request: NextRequest) {
       newsletter: newsletter ?? false,
     });
 
-    // If user subscribed to newsletter, create/update newsletter entry
-    if (newsletter) {
-      await dbConnect();
+    // Check if a newsletter subscription already exists for this email
+    await dbConnect();
+    const existingNewsletter = await Newsletter.findOne({
+      email: email.toLowerCase(),
+    });
+
+    if (existingNewsletter && existingNewsletter.isSubscribed) {
+      // User already subscribed via SubscribeForm before creating account
+      // Update user.newsletter field and link Newsletter entry to user
+      user.newsletter = true;
+      await user.save();
+
+      // Link Newsletter entry to the new user
+      existingNewsletter.userId = user._id;
+      await existingNewsletter.save();
+    } else if (newsletter) {
+      // User checked newsletter during registration
       await Newsletter.findOneAndUpdate(
         { email: email.toLowerCase() },
         {

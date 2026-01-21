@@ -29,10 +29,25 @@ export async function GET(
     const newsletterParam = searchParams.get("newsletter");
 
     // Fetch all users with roles
-    const users = (await User.find()
-      .populate("role")
-      .sort({ createdAt: -1 })
-      .lean()) as unknown as PopulatedUserDocument[];
+    // Filter out users with invalid role field (string instead of ObjectId)
+    const rawUsers = await User.find().sort({ createdAt: -1 }).lean();
+
+    const users: PopulatedUserDocument[] = [];
+
+    for (const user of rawUsers) {
+      try {
+        // Try to populate role
+        const populatedUser = await User.findById(user._id).populate("role").lean();
+        if (populatedUser && populatedUser.role) {
+          users.push(populatedUser as unknown as PopulatedUserDocument);
+        } else {
+          console.warn(`[API /users] User ${user._id} has invalid or missing role, skipping`);
+        }
+      } catch (error) {
+        console.warn(`[API /users] Failed to populate role for user ${user._id}:`, error);
+        // Skip users with invalid role field
+      }
+    }
 
     // Fetch all newsletter entries (for standalone emails)
     const newsletters = await Newsletter.find({ isSubscribed: true }).lean();
@@ -93,9 +108,9 @@ export async function GET(
           phone: undefined,
           companyName: undefined,
           role: {
-            id: "newsletter",
-            slug: "client",
-            name: "Newsletter",
+            id: "newsletter-only",
+            slug: "newsletter-only",
+            name: "Newsletter uniquement",
             level: 0,
           },
           newsletter: true,

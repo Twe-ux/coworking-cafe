@@ -26,19 +26,31 @@ export function UsersTable({ users, onEdit, onDelete }: UsersTableProps) {
     );
   }
 
-  const getRoleBadgeVariant = (slug: string) => {
-    switch (slug) {
-      case "dev":
-        return "default";
-      case "admin":
-        return "secondary";
-      case "staff":
-        return "outline";
-      case "client":
-        return "outline";
-      default:
-        return "outline";
+  const getAccountBadge = (user: User) => {
+    // Newsletter uniquement (standalone newsletter entry)
+    if (user.role.slug === "newsletter-only") {
+      return {
+        variant: "default" as const,
+        className: "bg-violet-100 text-violet-700 border-violet-300 hover:bg-violet-100",
+        text: "Newsletter uniquement"
+      };
     }
+
+    // Compte avec newsletter (user account with newsletter subscribed)
+    if (user.newsletter) {
+      return {
+        variant: "default" as const,
+        className: "bg-green-100 text-green-700 border-green-300 hover:bg-green-100",
+        text: "Compte"
+      };
+    }
+
+    // Compte sans newsletter (user account without newsletter)
+    return {
+      variant: "default" as const,
+      className: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-100",
+      text: "Compte"
+    };
   };
 
   return (
@@ -46,49 +58,56 @@ export function UsersTable({ users, onEdit, onDelete }: UsersTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Email</TableHead>
-            <TableHead>Nom</TableHead>
-            <TableHead>Rôle</TableHead>
-            <TableHead>Newsletter</TableHead>
-            <TableHead>Vérifié</TableHead>
-            <TableHead>Statut</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="text-center">Email</TableHead>
+            <TableHead className="text-center">Nom</TableHead>
+            <TableHead className="text-center">Type de compte</TableHead>
+            <TableHead className="text-center">Newsletter</TableHead>
+            <TableHead className="text-center">Vérifié</TableHead>
+            <TableHead className="text-center">Statut</TableHead>
+            <TableHead className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users.map((user) => (
             <TableRow key={user.id}>
               {/* Email */}
-              <TableCell className="font-medium">
-                <div className="flex items-center gap-2">
+              <TableCell className="font-medium text-center">
+                <div className="flex items-center justify-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   {user.email}
                 </div>
               </TableCell>
 
               {/* Nom */}
-              <TableCell>
+              <TableCell className="text-center">
                 {user.givenName || user.username || "-"}
               </TableCell>
 
-              {/* Rôle */}
-              <TableCell>
-                <Badge variant={getRoleBadgeVariant(user.role.slug)}>
-                  {user.role.name}
-                </Badge>
+              {/* Type de compte */}
+              <TableCell className="text-center">
+                {(() => {
+                  const badge = getAccountBadge(user);
+                  return (
+                    <Badge variant={badge.variant} className={badge.className}>
+                      {badge.text}
+                    </Badge>
+                  );
+                })()}
               </TableCell>
 
               {/* Newsletter */}
-              <TableCell>
-                {user.newsletter ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-muted-foreground" />
-                )}
+              <TableCell className="text-center">
+                <div className="flex items-center justify-center">
+                  {user.newsletter ? (
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
               </TableCell>
 
               {/* Vérifié */}
-              <TableCell>
+              <TableCell className="text-center">
                 {user.isEmailVerified ? (
                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                     Vérifié
@@ -101,7 +120,7 @@ export function UsersTable({ users, onEdit, onDelete }: UsersTableProps) {
               </TableCell>
 
               {/* Statut */}
-              <TableCell>
+              <TableCell className="text-center">
                 {user.isActive ? (
                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                     Actif
@@ -114,8 +133,8 @@ export function UsersTable({ users, onEdit, onDelete }: UsersTableProps) {
               </TableCell>
 
               {/* Actions */}
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-2">
+              <TableCell className="text-center">
+                <div className="flex items-center justify-center gap-2">
                   {onEdit && (
                     <Button
                       variant="ghost"

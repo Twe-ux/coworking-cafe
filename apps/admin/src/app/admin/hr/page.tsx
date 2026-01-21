@@ -37,7 +37,7 @@ export default function HROverviewPage() {
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
         const response = await fetch(
-          `/api/time-entries?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`
+          `/api/time-entries?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`,
         );
         const result = await response.json();
 
@@ -45,10 +45,10 @@ export default function HROverviewPage() {
           const entries = result.data;
           const totalHours = entries.reduce(
             (sum: number, entry: any) => sum + (entry.totalHours || 0),
-            0
+            0,
           );
           const activeShifts = entries.filter(
-            (entry: any) => entry.status === "active"
+            (entry: any) => entry.status === "active",
           ).length;
 
           setTimeStats({
@@ -163,7 +163,7 @@ export default function HROverviewPage() {
           </CardHeader>
           <CardContent className="space-y-2">
             <Button asChild className="w-full" variant="default">
-              <Link href="/hr/employees">
+              <Link href="/admin/hr/employees">
                 <Users className="mr-2 h-4 w-4" />
                 Voir tous les employés
               </Link>
@@ -175,7 +175,7 @@ export default function HROverviewPage() {
                 size="sm"
                 className="col-span-2"
               >
-                <Link href="/hr/employees?tab=availability">
+                <Link href="/admin/hr/employees?tab=availability">
                   Disponibilités
                 </Link>
               </Button>
@@ -196,7 +196,7 @@ export default function HROverviewPage() {
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full" variant="default">
-              <Link href="/hr/schedule">
+              <Link href="/admin/hr/schedule">
                 <Calendar className="mr-2 h-4 w-4" />
                 Gérer le planning
               </Link>
@@ -220,7 +220,7 @@ export default function HROverviewPage() {
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full" variant="default">
-              <Link href="/hr/clocking-admin">
+              <Link href="/admin/hr/clocking-admin">
                 <Clock className="mr-2 h-4 w-4" />
                 Voir les pointages
               </Link>
@@ -242,19 +242,19 @@ export default function HROverviewPage() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button asChild variant="outline">
-            <Link href="/hr/employees?action=new">
+            <Link href="/admin/hr/employees?action=new">
               <UserPlus className="mr-2 h-4 w-4" />
               Nouvel employé
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/hr/schedule">
+            <Link href="/admin/hr/schedule">
               <Calendar className="mr-2 h-4 w-4" />
               Créer un créneau
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/hr/clocking-admin">
+            <Link href="/admin/hr/clocking-admin">
               <Clock className="mr-2 h-4 w-4" />
               Pointer un employé
             </Link>

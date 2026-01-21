@@ -93,7 +93,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Create new newsletter entry
+      // Create new newsletter entry (NO User created)
+      // The Newsletter entry will appear in admin dashboard
+      // When user registers later, it will be linked to their account
       await Newsletter.create({
         email: email.toLowerCase(),
         isSubscribed: true,

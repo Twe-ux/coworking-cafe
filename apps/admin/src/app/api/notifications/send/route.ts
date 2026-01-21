@@ -2,22 +2,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { sendNewContactNotification } from '@/lib/push-notifications';
 import { ContactMail } from '@coworking-cafe/database';
-import { requireAuth } from '@/lib/api/auth';
 
 /**
  * POST /api/notifications/send
  * Envoie une notification push pour un nouveau message de contact
  *
- * 🔒 ROUTE PROTÉGÉE - Accessible uniquement aux utilisateurs authentifiés
+ * Sécurité: Cette API peut être appelée:
+ * - Depuis apps/site avec un token secret (NOTIFICATIONS_SECRET)
+ * - En développement, fonctionne sans token avec warning
  */
 export async function POST(request: NextRequest) {
-  // 1. Authentification OBLIGATOIRE
-  const authResult = await requireAuth(['dev', 'admin']);
-  if (!authResult.authorized) {
-    return authResult.response;
-  }
-
   try {
+    // Vérification de sécurité: token secret pour appels inter-services
+    const authHeader = request.headers.get('Authorization');
+    const secretToken = process.env.NOTIFICATIONS_SECRET;
+
+    // Vérifier le token secret (apps/site -> apps/admin)
+    const isValidToken = secretToken && authHeader === `Bearer ${secretToken}`;
+
+    // Refuser si pas de token valide en production
+    if (!isValidToken && process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { success: false, error: 'Non autorisé - Token manquant ou invalide' },
+        { status: 401 }
+      );
+    }
+
+    // En dev, on log un warning mais on continue
+    if (!isValidToken) {
+      console.warn('[Notifications] ⚠️  Request without valid token in development mode');
+    }
 
     await connectDB();
 
@@ -53,14 +67,14 @@ export async function POST(request: NextRequest) {
       unreadCount,
     });
 
-    console.log('[Notifications] Push notification sent for message:', messageId);
+    console.log('[Notifications] ✅ Push notification sent for message:', messageId);
 
     return NextResponse.json({
       success: true,
       message: 'Notification envoyée avec succès',
     });
   } catch (error) {
-    console.error('[Notifications] Send error:', error);
+    console.error('[Notifications] ❌ Send error:', error);
     return NextResponse.json(
       {
         success: false,

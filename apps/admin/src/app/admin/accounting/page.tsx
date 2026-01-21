@@ -10,7 +10,7 @@ export default function AccountingPage() {
       <div className="px-4 md:px-0">
         <h1 className="text-2xl font-bold mb-6">Comptabilité</h1>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Link href="/accounting/cash-control">
+          <Link href="/admin/accounting/cash-control">
             <Button
               variant="outline"
               className="h-32 w-full flex flex-col gap-2 hover:bg-accent"

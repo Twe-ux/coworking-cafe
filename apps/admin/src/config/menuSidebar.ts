@@ -12,6 +12,8 @@ import {
   Clock,
   Home,
   Mail,
+  MessageCircle,
+  HelpCircle,
   ScanQrCode,
   Settings,
   Terminal,
@@ -178,6 +180,21 @@ export function getAdminMenu(unreadCount: number, isDev: boolean, isLoading = fa
       url: "/admin/messages",
       icon: Mail,
       badge: unreadCount > 0 ? unreadCount : undefined,
+      items: [
+        {
+          title: "Contact",
+          url: "/admin/messages/contact",
+          badge: unreadCount > 0 ? unreadCount : undefined,
+        },
+        {
+          title: "Support",
+          url: "/admin/messages/support",
+        },
+        {
+          title: "Messenger",
+          url: "/admin/messages/messenger",
+        },
+      ],
     },
     {
       title: "Produits",

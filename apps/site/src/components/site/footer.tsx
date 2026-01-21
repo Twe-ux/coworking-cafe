@@ -1,8 +1,8 @@
 "use client";
 
-import ProtectedEmail from "../common/ProtectedEmail";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ProtectedEmail from "../common/ProtectedEmail";
 import BookingHelper from "./booking/BookingHelper";
 import Helper from "./Helper";
 import SubscribeForm from "./SubscribeForm";
@@ -130,7 +130,7 @@ const Footer = () => {
           >
             <div className="d-flex justify-content-center">
               <Link
-                href={"#"}
+                href={"/"}
                 className="d-flex align-items-center footer__logo"
               >
                 <img
@@ -142,13 +142,19 @@ const Footer = () => {
             </div>
             <ul className="d-flex justify-content-center gap-3 footer__socal">
               <li>
-                <Link href={"#"}>
+                <Link
+                  href={
+                    "https://www.facebook.com/coworkingbyanticafeStrasbourg/"
+                  }
+                >
                   <i className="fa-brands fa-facebook-f" />
                 </Link>
               </li>
 
               <li>
-                <Link href={"#"}>
+                <Link
+                  href={"https://www.instagram.com/coworking_anticafe/?hl=fr"}
+                >
                   <i className="fa-brands fa-instagram" />
                 </Link>
               </li>
@@ -202,7 +208,7 @@ const Footer = () => {
                   <Link href={"/concept"}>Fonctionnement</Link>
                 </li>
                 <li>
-                  <Link href={"/tarifs"}>Tarifs</Link>
+                  <Link href={"/pricing"}>Tarifs</Link>
                 </li>
               </ul>
             </div>

@@ -1,6 +1,6 @@
-import Link from 'next/link'
-import { Coffee, Home, Search } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import Link from "next/link";
+import { Coffee, Home, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
  * Page 404 - Not Found
@@ -23,17 +23,16 @@ export default function NotFound() {
         </div>
 
         {/* Titre avec emoji */}
-        <h1 className="text-9xl font-black text-amber-600 mb-4">
-          404
-        </h1>
+        <h1 className="text-9xl font-black text-amber-600 mb-4">404</h1>
 
         <h2 className="text-3xl font-bold text-gray-800 mb-4">
           Oups ! Cette page n'existe pas ☕
         </h2>
 
         <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
-          On dirait que vous cherchez un espace qui n'existe pas dans notre coworking...
-          Peut-être qu'un café vous aidera à retrouver votre chemin ? 😊
+          On dirait que vous cherchez un espace qui n'existe pas dans notre
+          coworking... Peut-être qu'un café vous aidera à retrouver votre chemin
+          ? 😊
         </p>
 
         {/* Actions */}
@@ -46,7 +45,7 @@ export default function NotFound() {
           </Button>
 
           <Button asChild variant="outline" size="lg" className="gap-2">
-            <Link href="/hr/employees">
+            <Link href="/admin/hr/employees">
               <Search className="w-5 h-5" />
               Voir les employés
             </Link>
@@ -55,9 +54,10 @@ export default function NotFound() {
 
         {/* Message fun */}
         <div className="mt-12 text-sm text-gray-500 italic">
-          💡 Astuce : Pendant que vous êtes ici, pourquoi ne pas prendre une vraie pause café ?
+          💡 Astuce : Pendant que vous êtes ici, pourquoi ne pas prendre une
+          vraie pause café ?
         </div>
       </div>
     </div>
-  )
+  );
 }

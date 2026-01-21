@@ -1,19 +1,19 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth-options"
-import { redirect } from "next/navigation"
-import { MessagesClient } from "./MessagesClient"
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { redirect } from "next/navigation";
+import { MessagesIndexClient } from "./MessagesIndexClient";
 
-export default async function MessagesPage() {
-  const session = await getServerSession(authOptions)
+export default async function MessagesIndexPage() {
+  const session = await getServerSession(authOptions);
 
   if (!session?.user) {
-    redirect("/login")
+    redirect("/login");
   }
 
-  const userRole = (session.user as { role?: string }).role
+  const userRole = (session.user as { role?: string }).role;
   if (!["dev", "admin", "staff"].includes(userRole || "")) {
-    redirect("/403")
+    redirect("/403");
   }
 
-  return <MessagesClient />
+  return <MessagesIndexClient />;
 }

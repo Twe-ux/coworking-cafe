@@ -46,18 +46,29 @@ export async function POST(request: NextRequest) {
     try {
       const adminApiUrl =
         process.env.NEXT_PUBLIC_ADMIN_API_URL || "http://localhost:3001";
+      const notificationsSecret = process.env.NOTIFICATIONS_SECRET;
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      // Ajouter le token secret si disponible
+      if (notificationsSecret) {
+        headers["Authorization"] = `Bearer ${notificationsSecret}`;
+      }
+
       await fetch(`${adminApiUrl}/api/notifications/send`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ messageId: contactMail._id.toString() }),
       });
       console.log(
-        "[Contact] Push notification triggered for message:",
+        "[Contact] ✅ Push notification triggered for message:",
         contactMail._id,
       );
     } catch (notifError) {
       // Ne pas bloquer si la notification échoue
-      console.error("[Contact] Failed to send push notification:", notifError);
+      console.error("[Contact] ❌ Failed to send push notification:", notifError);
     }
 
     return NextResponse.json({
