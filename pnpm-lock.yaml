@@ -392,6 +392,9 @@ importers:
       mongoose:
         specifier: ^8.0.0
         version: 8.21.0
+      stripe:
+        specifier: ^19.3.1
+        version: 19.3.1(@types/node@24.10.7)
     devDependencies:
       '@types/bcryptjs':
         specifier: ^2.4.6

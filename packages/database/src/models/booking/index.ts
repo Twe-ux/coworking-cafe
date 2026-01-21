@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 import { BookingSchema, type BookingDocument } from "./document";
+import './methods';
+import './hooks';
+import './virtuals';
 
 export { BookingDocument };
 export type { BookingStatus, ReservationType } from "./document";

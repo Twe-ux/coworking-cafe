@@ -19,12 +19,12 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/styles/*": ["./src/styles/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/utils/*": ["./src/utils/*"],
-      "@/types/*": ["./src/types/*"],
+      "@/*": ["src-old/*"],
+      "@/components/*": ["src-old/components/*"],
+      "@/styles/*": ["src-old/styles/*"],
+      "@/lib/*": ["src-old/lib/*"],
+      "@/utils/*": ["src-old/utils/*"],
+      "@/types/*": ["src-old/types/*"],
       "@coworking/database": ["../../packages/database/src"],
       "@coworking/email": ["../../packages/email/src"],
       "@coworking/shared": ["../../packages/shared/src"]
