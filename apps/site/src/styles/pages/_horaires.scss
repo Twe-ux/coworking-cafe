@@ -1,0 +1,59 @@
+/**
+ * SCSS - Horaires Page
+ * Convention: BEM modifié avec préfixe page
+ */
+
+.page-horaires {
+  background-color: #f8f9fa;
+  min-height: 60vh;
+
+  &__section {
+    // Section container
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+
+    @media (min-width: 768px) {
+      font-size: 2.5rem;
+    }
+  }
+
+  &__list {
+    // Container for hours list
+  }
+
+  &__item {
+    // Individual day item
+    &:last-child .border-bottom {
+      border-bottom: none !important;
+    }
+  }
+}
+
+// Badge customization
+.badge {
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  &.bg-success-subtle {
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+
+  &.bg-danger-subtle {
+    background-color: rgba(220, 53, 69, 0.1);
+  }
+}
+
+// Alert customization
+.alert-warning {
+  border-left: 4px solid #ffc107;
+}
+
+// Card customization
+.card {
+  border: none;
+  border-radius: 12px;
+}
