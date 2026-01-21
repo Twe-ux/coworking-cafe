@@ -5,7 +5,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import bcrypt from 'bcryptjs';
 import { ObjectId } from 'mongodb';
 import { connectMongoose } from '@/lib/mongodb';
-import { UserModel } from '@/models/user';
+import { User } from '@coworking-cafe/database';
 
 // Types pour les documents MongoDB
 interface UserDocument {
@@ -47,16 +47,26 @@ export const authOptions: NextAuthOptions = {
             console.log('🔑 PIN authentication detected');
             await connectMongoose();
 
-            // Chercher l'utilisateur par PIN dans le nouveau model
-            const userWithPin = await UserModel.findOne({ pin: credentials.password }).lean();
+            // Chercher l'utilisateur par PIN dans le nouveau model avec populate du role
+            const userWithPin = await User.findOne({ pin: credentials.password })
+              .populate('role')
+              .lean();
 
             if (userWithPin) {
               console.log('✅ User found by PIN:', userWithPin.email);
+
+              // Vérifier que le role est bien populé
+              const role = userWithPin.role as any;
+              if (!role?.slug || !['dev', 'admin', 'staff'].includes(role.slug)) {
+                console.log('❌ Invalid role for PIN user:', role?.slug);
+                throw new Error('Accès non autorisé');
+              }
+
               return {
                 id: userWithPin._id.toString(),
                 email: userWithPin.email,
-                name: userWithPin.name,
-                role: userWithPin.role,
+                name: userWithPin.givenName || userWithPin.username || userWithPin.email.split('@')[0],
+                role: role.slug,
               } as NextAuthUser;
             }
 

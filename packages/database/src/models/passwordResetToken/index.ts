@@ -13,4 +13,4 @@ const PasswordResetToken =
   );
 
 export default PasswordResetToken;
-export { PasswordResetTokenDocument };
+export type { PasswordResetTokenDocument };

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongodb'
-import { UserModel } from '@/models/user'
+import { User } from '@coworking-cafe/database'
 import logger from '@/lib/logger'
 
 interface PINVerifyRequest {
@@ -39,8 +39,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<PINVerify
       )
     }
 
-    // Chercher l'utilisateur avec ce PIN
-    const user = await UserModel.findOne({ pin }).lean()
+    // Chercher l'utilisateur avec ce PIN et populate le role
+    const user = await User.findOne({ pin })
+      .populate('role')
+      .lean()
 
     if (!user) {
       return NextResponse.json(
@@ -52,14 +54,27 @@ export async function POST(request: NextRequest): Promise<NextResponse<PINVerify
       )
     }
 
+    // Vérifier que le role est bien populé et valide
+    const role = user.role as any
+    if (!role?.slug || !['dev', 'admin', 'staff'].includes(role.slug)) {
+      logger.error('Invalid role for PIN user', { email: user.email, role: role?.slug })
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Accès non autorisé',
+        },
+        { status: 403 }
+      )
+    }
+
     // Retourner les données utilisateur (sans le PIN)
     return NextResponse.json({
       success: true,
       user: {
         id: user._id.toString(),
-        name: user.name,
+        name: user.givenName || user.username || user.email.split('@')[0],
         email: user.email,
-        role: user.role,
+        role: role.slug as 'dev' | 'admin' | 'staff',
       },
     })
   } catch (error) {

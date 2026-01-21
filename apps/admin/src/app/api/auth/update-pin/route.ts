@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
-import { UserModel } from '@/models/user'
+import { User } from '@coworking-cafe/database'
 import logger from '@/lib/logger'
 
 interface UpdatePINRequest {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<UpdatePIN
     }
 
     // Trouver l'utilisateur par email
-    const user = await UserModel.findOne({ email: session.user.email })
+    const user = await User.findOne({ email: session.user.email })
 
     if (!user) {
       return NextResponse.json(

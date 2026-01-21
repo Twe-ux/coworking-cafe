@@ -7,7 +7,7 @@
 import dotenv from 'dotenv'
 import path from 'path'
 import mongoose from 'mongoose'
-import { UserModel } from '../src/models/user'
+import { User, Role } from '@coworking-cafe/database'
 
 // Charger les variables d'environnement depuis .env.local
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') })
@@ -16,15 +16,17 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cowork
 
 const adminUsers = [
   {
-    name: 'Dev',
+    givenName: 'Dev',
     email: 'dev@coworkingcafe.fr',
-    role: 'dev' as const,
+    password: '$2a$10$defaultHashForSeedOnly', // Hash temporaire
+    roleSlug: 'dev' as const,
     pin: '111111',
   },
   {
-    name: 'Admin',
+    givenName: 'Admin',
     email: 'admin@coworkingcafe.fr',
-    role: 'admin' as const,
+    password: '$2a$10$defaultHashForSeedOnly', // Hash temporaire
+    roleSlug: 'admin' as const,
     pin: '222222',
   },
 ]
@@ -38,19 +40,34 @@ async function seedAdminUsers() {
     console.log('\n📝 Création/Mise à jour des utilisateurs admin...')
 
     for (const userData of adminUsers) {
+      // Trouver le role par slug
+      const role = await Role.findOne({ slug: userData.roleSlug })
+      if (!role) {
+        console.error(`❌ Role '${userData.roleSlug}' not found in database. Please seed roles first.`)
+        continue
+      }
+
       // Vérifier si l'utilisateur existe déjà
-      const existingUser = await UserModel.findOne({ email: userData.email })
+      const existingUser = await User.findOne({ email: userData.email })
 
       if (existingUser) {
         // Mettre à jour le PIN
         existingUser.pin = userData.pin
-        existingUser.name = userData.name
-        existingUser.role = userData.role
+        existingUser.givenName = userData.givenName
+        existingUser.role = role._id as any
         await existingUser.save()
         console.log(`✅ Utilisateur mis à jour: ${userData.email} (PIN: ${userData.pin})`)
       } else {
         // Créer le nouvel utilisateur
-        await UserModel.create(userData)
+        await User.create({
+          email: userData.email,
+          password: userData.password,
+          givenName: userData.givenName,
+          role: role._id,
+          pin: userData.pin,
+          newsletter: false,
+          isTemporary: false,
+        })
         console.log(`✅ Utilisateur créé: ${userData.email} (PIN: ${userData.pin})`)
       }
     }
