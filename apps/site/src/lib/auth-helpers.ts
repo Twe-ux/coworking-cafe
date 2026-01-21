@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
-import { connectToDatabase } from "@coworking-cafe/database";
-import { User, Role, Permission } from "@coworking-cafe/database";
-import type { UserDocument } from "@coworking-cafe/database/src/models/user/document";
-import type { RoleDocument } from "@coworking-cafe/database/src/models/role/document";
-import type { PermissionDocument } from "@coworking-cafe/database";
-import type { Types } from "mongoose";
+import connectDB from "./mongodb";
+import { User } from "../models/user";
+import { Role } from "../models/role";
+import { Permission } from "../models/permission";
+import type { UserDocument } from "../models/user/document";
+import type { RoleDocument } from "../models/role/document";
 
 /**
  * Hash a password using bcrypt
@@ -19,7 +19,7 @@ export async function hashPassword(password: string): Promise<string> {
  */
 export async function verifyPassword(
   password: string,
-  hashedPassword: string
+  hashedPassword: string,
 ): Promise<boolean> {
   return bcrypt.compare(password, hashedPassword);
 }
@@ -27,57 +27,41 @@ export async function verifyPassword(
 /**
  * Find user by email with password field
  */
-export async function findUserByEmail(
-  email: string
-): Promise<(UserDocument & { role: RoleDocument }) | null> {
-  await connectToDatabase();
-  return User.findOne({ email })
-    .select("+password")
-    .populate<{ role: RoleDocument }>("role")
-    .lean();
+export async function findUserByEmail(email: string) {
+  await connectDB();
+  return User.findOne({ email }).select("+password").populate("role");
 }
 
 /**
  * Find user by ID with populated role and permissions
  */
-export async function findUserById(userId: string): Promise<
-  | (UserDocument & {
-      role: RoleDocument & { permissions: PermissionDocument[] };
-    })
-  | null
-> {
-  await connectToDatabase();
-  return User.findById(userId)
-    .populate<{
-      role: RoleDocument & { permissions: PermissionDocument[] };
-    }>({
-      path: "role",
-      populate: {
-        path: "permissions",
-      },
-    })
-    .lean();
-}
-
-interface CreateUserData {
-  email: string;
-  password: string;
-  username?: string;
-  givenName?: string;
-  roleSlug?: "dev" | "admin" | "staff" | "client";
-  newsletter?: boolean;
+export async function findUserById(userId: string) {
+  await connectDB();
+  return User.findById(userId).populate({
+    path: "role",
+    populate: {
+      path: "permissions",
+    },
+  });
 }
 
 /**
  * Create a new user with a specific role
  * Note: Password will be automatically hashed by the User model's pre-save hook
  */
-export async function createUser(data: CreateUserData): Promise<UserDocument> {
-  await connectToDatabase();
+export async function createUser(data: {
+  email: string;
+  password: string;
+  username?: string;
+  givenName?: string;
+  roleSlug?: "dev" | "admin" | "staff" | "client";
+  newsletter?: boolean;
+}) {
+  await connectDB();
 
   // Find role by slug (default to 'client')
   const roleSlug = data.roleSlug || "client";
-  const role = await Role.findOne({ slug: roleSlug }).lean();
+  const role = await Role.findOne({ slug: roleSlug });
 
   if (!role) {
     throw new Error(`Role "${roleSlug}" not found. Please seed roles first.`);
@@ -86,7 +70,7 @@ export async function createUser(data: CreateUserData): Promise<UserDocument> {
   // Create user with plain password - the pre-save hook will hash it
   const user = await User.create({
     email: data.email,
-    password: data.password,
+    password: data.password, // Plain password, will be hashed by pre-save hook
     username: data.username,
     givenName: data.givenName,
     role: role._id,
@@ -96,17 +80,13 @@ export async function createUser(data: CreateUserData): Promise<UserDocument> {
   return user;
 }
 
-interface PopulatedRole extends RoleDocument {
-  permissions: PermissionDocument[];
-}
-
 /**
  * Check if user has a specific permission
  */
 export async function hasPermission(
   userId: string,
   resource: string,
-  action: string
+  action: string,
 ): Promise<boolean> {
   const user = await findUserById(userId);
 
@@ -114,7 +94,7 @@ export async function hasPermission(
     return false;
   }
 
-  const role = user.role;
+  const role = user.role as any;
 
   // Dev has all permissions
   if (role.slug === "dev") {
@@ -124,8 +104,8 @@ export async function hasPermission(
   // Check if permission exists in role's permissions
   const permissions = role.permissions || [];
   return permissions.some(
-    (permission) =>
-      permission.resource === resource && permission.action === action
+    (permission: any) =>
+      permission.resource === resource && permission.action === action,
   );
 }
 
@@ -134,7 +114,7 @@ export async function hasPermission(
  */
 export async function hasRoleLevel(
   userId: string,
-  requiredLevel: number
+  requiredLevel: number,
 ): Promise<boolean> {
   const user = await findUserById(userId);
 
@@ -142,55 +122,49 @@ export async function hasRoleLevel(
     return false;
   }
 
-  return user.role.level >= requiredLevel;
+  const role = user.role as any;
+  return role.level >= requiredLevel;
 }
-
-type RoleSlug = "dev" | "admin" | "staff" | "client";
 
 /**
  * Get user's role slug
  */
 export async function getUserRoleSlug(
-  userId: string
-): Promise<RoleSlug | null> {
+  userId: string,
+): Promise<"dev" | "admin" | "staff" | "client" | null> {
   const user = await findUserById(userId);
 
   if (!user || !user.role) {
     return null;
   }
 
-  return user.role.slug as RoleSlug;
+  const role = user.role as any;
+  return role.slug;
 }
 
 /**
  * Get redirect path based on user role
  */
-export function getRedirectPathByRole(roleSlug: RoleSlug): string {
-  const redirectPaths: Record<RoleSlug, string> = {
-    dev: "/dashboard",
-    admin: "/dashboard",
-    staff: "/dashboard",
-    client: "/dashboard",
+export function getRedirectPathByRole(
+  roleSlug: "dev" | "admin" | "staff" | "client",
+): string {
+  const redirectPaths: Record<string, string> = {
+    dev: "/dashboard/dev",
+    admin: "/dashboard/admin",
+    staff: "/dashboard/staff",
+    client: "/id",
   };
 
   return redirectPaths[roleSlug] || "/";
 }
 
-interface RoleData {
-  name: string;
-  slug: RoleSlug;
-  description: string;
-  level: number;
-  isSystem: boolean;
-}
-
 /**
  * Initialize default roles if they don't exist
  */
-export async function initializeRoles(): Promise<void> {
-  await connectToDatabase();
+export async function initializeRoles() {
+  await connectDB();
 
-  const roles: RoleData[] = [
+  const roles = [
     {
       name: "Developer",
       slug: "dev",
@@ -222,7 +196,7 @@ export async function initializeRoles(): Promise<void> {
   ];
 
   for (const roleData of roles) {
-    const exists = await Role.findOne({ slug: roleData.slug }).lean();
+    const exists = await Role.findOne({ slug: roleData.slug });
     if (!exists) {
       await Role.create(roleData);
     }

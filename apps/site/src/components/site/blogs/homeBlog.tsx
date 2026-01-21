@@ -1,8 +1,8 @@
 "use client";
 
-import { useGetArticlesQuery } from "@/store/api/blogApi";
-import SlideDown from "@/utils/animations/slideDown";
-import SlideUp from "@/utils/animations/slideUp";
+import { useGetArticlesQuery } from "../../../store/api/blogApi";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 import React from "react";
 import BlogCard from "./blogCard";
 

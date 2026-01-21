@@ -356,7 +356,7 @@ export default function MentionsLegalesPage() {
                 <p className="text-dark mb-3">
                   Pour plus d&apos;informations, consultez notre{" "}
                   <a
-                    href="/politique-confidentialite"
+                    href="/confidentiality"
                     style={{ color: "#417972" }}
                     className="text-decoration-none fw-semibold"
                   >

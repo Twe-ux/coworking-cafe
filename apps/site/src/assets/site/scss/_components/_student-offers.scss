@@ -330,6 +330,14 @@
 
   .projects__usecase {
     margin-top: 0;
+
+    &_content {
+      ul,
+      li {
+        color: var(--pra-clr);
+        font-size: 18px;
+      }
+    }
   }
   h2 {
     color: var(--grayWhite-clr);

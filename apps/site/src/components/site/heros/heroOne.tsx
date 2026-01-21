@@ -1,4 +1,4 @@
-import SlideUp from "@/utils/animations/slideUp";
+import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 
 const HeroOne = () => {

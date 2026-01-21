@@ -1,5 +1,5 @@
-import { pricingDataMeetingRoom } from "@/db/pricingData";
-import SlideUp from "@/utils/animations/slideUp";
+import { pricingDataMeetingRoom } from "../../../db/pricingData";
+import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 
 const PricingMeetingRoom = () => {

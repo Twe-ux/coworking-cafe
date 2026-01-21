@@ -1,6 +1,6 @@
 "use client";
 
-import ProtectedEmail from "@/components/common/ProtectedEmail";
+import ProtectedEmail from "../common/ProtectedEmail";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import BookingHelper from "./booking/BookingHelper";
@@ -53,7 +53,7 @@ const Footer = () => {
   const isClientDashboard =
     pathname &&
     /^\/[^\/]+(?:\/(?:profile|reservations|settings))?(?:\/.*)?$/.test(
-      pathname
+      pathname,
     ) &&
     ![
       // Homme page

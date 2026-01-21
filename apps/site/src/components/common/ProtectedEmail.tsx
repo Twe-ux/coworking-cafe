@@ -8,7 +8,7 @@ interface ProtectedEmailProps {
   className?: string;
   showIcon?: boolean;
   subject?: string;
-  displayText?: string;
+  displayText?: string; // Optional custom display text instead of email
 }
 
 /**
@@ -33,14 +33,17 @@ export default function ProtectedEmail({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Only render on client-side
     setMounted(true);
 
     if (!displayText) {
+      // Split email into individual characters to make scraping harder
       const fullEmail = `${user}@${domain}`;
       setEmailChars(fullEmail.split(''));
     }
   }, [user, domain, displayText]);
 
+  // Don't render anything during SSR
   if (!mounted) {
     return (
       <span className={className}>
@@ -53,11 +56,15 @@ export default function ProtectedEmail({
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
+    // Construct email dynamically on click (never stored as complete string)
     const email = `${user}@${domain}`;
+
+    // Construct mailto link
     const mailtoLink = subject
       ? `mailto:${email}?subject=${encodeURIComponent(subject)}`
       : `mailto:${email}`;
 
+    // Open email client
     window.location.href = mailtoLink;
   };
 
@@ -87,6 +94,10 @@ export default function ProtectedEmail({
   );
 }
 
+/**
+ * Helper function to encode email for use in components
+ * Usage: encodeEmailParts('strasbourg', 'coworkingcafe.fr')
+ */
 export function encodeEmailParts(user: string, domain: string) {
   return {
     user: btoa(user),

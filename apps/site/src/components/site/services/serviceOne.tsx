@@ -1,6 +1,6 @@
-import { servicesOneData } from "@/db/servicesOneData";
-import SlideDown from "@/utils/animations/slideDown";
-import SlideUp from "@/utils/animations/slideUp";
+import { servicesOneData } from "../../../db/servicesOneData";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 import AboutCounter from "../about/aboutCounter";
 

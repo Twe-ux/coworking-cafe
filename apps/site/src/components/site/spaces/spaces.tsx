@@ -1,7 +1,7 @@
-import ProtectedEmail from "@/components/common/ProtectedEmail";
-import { spacesData, spacesDetailsData } from "@/db/spaces/spacesData";
-import SlideDown from "@/utils/animations/slideDown";
-import SlideUp from "@/utils/animations/slideUp";
+import ProtectedEmail from "../../common/ProtectedEmail";
+import { spacesData, spacesDetailsData } from "../../../db/spaces/spacesData";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 import SpaceCard from "./spaceCard";
 import SpaceDetails from "./spaceDetails";
 
@@ -82,7 +82,7 @@ const Spaces = () => {
                     url={url}
                   />
                 );
-              }
+              },
             )}
           </div>
         </div>

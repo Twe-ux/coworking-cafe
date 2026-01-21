@@ -1,5 +1,5 @@
-import { faqData } from "@/db/faqData";
-import SlideUp from "@/utils/animations/slideUp";
+import { faqData } from "../../db/faqData";
+import SlideUp from "../../utils/animations/slideUp";
 
 const FaqSection = () => {
   return (

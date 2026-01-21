@@ -1,6 +1,6 @@
-import { servicesTwoData } from "@/db/servicesTwoData";
-import SlideDown from "@/utils/animations/slideDown";
-import SlideUp from "@/utils/animations/slideUp";
+import { servicesTwoData } from "../../../db/servicesTwoData";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 import VideoTestimonial from "../testimonial/videoTestimonial";
 import ServiceCard from "./serviceCard";

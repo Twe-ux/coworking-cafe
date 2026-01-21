@@ -1,35 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectToDatabase } from "@coworking-cafe/database";
-import { User, PasswordResetToken } from "@coworking-cafe/database";
+import { connectDB } from "../../../../lib/mongodb";
+import { User } from "../../../../models/user";
+import PasswordResetToken from "../../../../models/passwordResetToken/document";
 
 export const dynamic = "force-dynamic";
 
-interface ResetPasswordRequest {
-  token: string;
-  password: string;
-}
-
-interface SuccessResponse {
-  success: true;
-  message: string;
-}
-
-interface ErrorResponse {
-  success: false;
-  message: string;
-}
-
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
+export async function POST(request: NextRequest) {
   try {
-    const body: ResetPasswordRequest = await request.json();
-    const { token, password } = body;
+    const { token, password } = await request.json();
 
     if (!token || !password) {
       return NextResponse.json(
         { success: false, message: "Token et mot de passe requis" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -40,18 +23,18 @@ export async function POST(
           success: false,
           message: "Le mot de passe doit contenir au moins 8 caractères",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    await connectToDatabase();
+    await connectDB();
 
     // Trouver le token
     const resetToken = await PasswordResetToken.findOne({
       token,
       used: false,
       expiresAt: { $gt: new Date() },
-    }).lean();
+    });
 
     if (!resetToken) {
       return NextResponse.json(
@@ -59,7 +42,7 @@ export async function POST(
           success: false,
           message: "Token invalide ou expiré",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -72,19 +55,17 @@ export async function POST(
           success: false,
           message: "Utilisateur introuvable",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Mettre à jour le mot de passe (sera hashé automatiquement par le hook pre-save)
     user.password = password;
-    user.passwordChangedAt = new Date();
     await user.save();
 
     // Marquer le token comme utilisé
-    await PasswordResetToken.findByIdAndUpdate(resetToken._id, {
-      used: true,
-    });
+    resetToken.used = true;
+    await resetToken.save();
 
     return NextResponse.json({
       success: true,
@@ -97,7 +78,7 @@ export async function POST(
         success: false,
         message: "Une erreur est survenue",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

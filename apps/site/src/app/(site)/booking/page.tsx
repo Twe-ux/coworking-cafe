@@ -1,191 +1,371 @@
-/**
- * Booking Page - apps/site
- * Step 1: Sélection espace + formulaire réservation
- */
+"use client";
 
-'use client';
+import BookingProgressBar from "../../../components/site/booking/BookingProgressBar";
+import PageTitle from "../../../components/site/pageTitle";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-import { useState, useEffect, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { useBookingForm } from '@/hooks/useBookingForm';
-import { BookingForm } from '@/components/booking/BookingForm';
-import { apiClient } from '@/lib/utils/api-client';
-import type { SpaceData } from '@/types';
-
-interface DisplaySpace {
-  id: string;
+interface SpaceConfig {
+  spaceType: string;
   name: string;
-  type: string;
-  pricePerHour: number;
-  capacity: number;
-  imageUrl?: string;
+  slug: string;
   description?: string;
+  pricing: {
+    hourly: number;
+    daily: number;
+    weekly: number;
+    monthly: number;
+    perPerson: boolean;
+  };
+  availableReservationTypes: {
+    hourly: boolean;
+    daily: boolean;
+    weekly: boolean;
+    monthly: boolean;
+  };
+  requiresQuote: boolean;
+  minCapacity: number;
+  maxCapacity: number;
+  imageUrl?: string;
+  displayOrder: number;
   features?: string[];
 }
 
+interface DisplaySpace {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  image: string;
+  capacity: string;
+  features: string[];
+  priceFrom: string;
+  hourlyPrice: string;
+  dailyPrice: string;
+  requiresQuote: boolean;
+}
+
+// Mapping DB spaceType to URL slug
+const spaceTypeToSlug: Record<string, string> = {
+  "open-space": "open-space",
+  "salle-verriere": "meeting-room-glass",
+  "salle-etage": "meeting-room-floor",
+  evenementiel: "event-space",
+};
+
+// Static display data (icons only - features come from DB)
+const spaceDisplayData: Record<string, Partial<DisplaySpace>> = {
+  "open-space": {
+    title: "Place",
+    subtitle: "Open-space",
+    icon: "bi-person-workspace",
+  },
+  "salle-verriere": {
+    title: "Salle de réunion",
+    subtitle: "Verrière",
+    icon: "bi-briefcase",
+  },
+  "salle-etage": {
+    title: "Salle de réunion",
+    subtitle: "Étage",
+    icon: "bi-building",
+  },
+  evenementiel: {
+    title: "Événementiel",
+    subtitle: "Grand espace",
+    icon: "bi-calendar-event",
+  },
+};
+
 export default function BookingPage() {
-  const router = useRouter();
-  const { formData, errors, loading, handleChange, handleSubmit } = useBookingForm();
   const [spaces, setSpaces] = useState<DisplaySpace[]>([]);
-  const [loadingSpaces, setLoadingSpaces] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [showTTC, setShowTTC] = useState(true);
+
+  // Function to convert price string from TTC to HT or vice versa
+  // Hourly = 10% VAT, Daily = 20% VAT
+  const convertPrice = (priceString: string, toTTC: boolean): string => {
+    if (priceString === "Sur devis") return priceString;
+
+    // Extract the numeric price
+    const match = priceString.match(/(\d+(?:\.\d+)?)€/);
+    if (!match) return priceString;
+
+    const price = parseFloat(match[1]);
+
+    // Determine VAT rate based on whether it's hourly or daily
+    const isHourly = priceString.includes("/h");
+    const vatRate = isHourly ? 1.1 : 1.2; // 10% for hourly, 20% for daily
+
+    const convertedPrice = toTTC ? price : (price / vatRate).toFixed(2);
+
+    // Replace the price in the original string
+    return priceString.replace(/\d+(?:\.\d+)?€/, `${convertedPrice}€`);
+  };
 
   useEffect(() => {
+    const fetchSpaces = async () => {
+      try {
+        const response = await fetch("/api/space-configurations");
+        const data = await response.json();
+
+        if (data.success) {
+          const displaySpaces = data.data.map((config: SpaceConfig) => {
+            const displayData = spaceDisplayData[config.spaceType] || {};
+            const urlSlug = spaceTypeToSlug[config.spaceType] || config.slug;
+
+            // Determine price display
+            let hourlyPrice = "Sur devis";
+            let dailyPrice = "Sur devis";
+            let capacityText = "";
+
+            if (!config.requiresQuote) {
+              // Hourly price (store TTC values)
+              if (config.pricing.hourly > 0) {
+                hourlyPrice = `${config.pricing.hourly}€/h`;
+              }
+
+              // Daily price (store TTC values)
+              if (config.pricing.daily > 0) {
+                dailyPrice = `${config.pricing.daily}€/jour`;
+              }
+            }
+
+            // Format capacity for bottom display
+            if (config.minCapacity === config.maxCapacity) {
+              capacityText = `${config.minCapacity} personne${
+                config.minCapacity > 1 ? "s" : ""
+              }`;
+            } else if (config.maxCapacity > 50) {
+              capacityText = `Jusqu'à ${config.maxCapacity} personnes`;
+            } else {
+              capacityText = `${config.minCapacity}-${config.maxCapacity} personnes`;
+            }
+
+            return {
+              id: urlSlug,
+              title: displayData.title || config.name,
+              subtitle: displayData.subtitle || "",
+              description: config.description || displayData.description || "",
+              icon: displayData.icon || "bi-building",
+              image: config.imageUrl || `/images/spaces/${config.slug}.jpg`,
+              capacity: capacityText,
+              features: config.features || [],
+              priceFrom: hourlyPrice, // Kept for compatibility, but we'll use new fields
+              hourlyPrice,
+              dailyPrice,
+              requiresQuote: config.requiresQuote,
+            };
+          });
+
+          setSpaces(displaySpaces);
+        }
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchSpaces();
   }, []);
 
-  const fetchSpaces = async () => {
-    try {
-      setLoadingSpaces(true);
-      const response = await apiClient.get<SpaceData[]>('/spaces');
-
-      if (response.success && response.data) {
-        const displaySpaces: DisplaySpace[] = response.data.map((space) => ({
-          id: space._id,
-          name: space.name,
-          type: space.type,
-          pricePerHour: space.pricePerHour,
-          capacity: space.capacity,
-          imageUrl: space.images?.[0],
-          description: space.description,
-          features: space.amenities,
-        }));
-        setSpaces(displaySpaces);
-      }
-    } catch (err) {
-      console.error('Error fetching spaces:', err);
-    } finally {
-      setLoadingSpaces(false);
-    }
-  };
-
-  const handleFormSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    const result = await handleSubmit();
-
-    if (result.success && result.data) {
-      // Rediriger vers page confirmation avec query params
-      const params = new URLSearchParams({
-        spaceId: formData.spaceId,
-        date: formData.date,
-        startTime: formData.startTime,
-        endTime: formData.endTime,
-        numberOfPeople: formData.numberOfPeople.toString(),
-        promoCode: formData.promoCode || '',
-      });
-
-      router.push(`/booking/confirmation?${params.toString()}`);
-    }
-  };
-
-  if (loadingSpaces) {
+  if (loading) {
     return (
-      <main className="page-booking">
-        <div className="page-booking__loading">
-          <div className="spinner" />
-          <p>Chargement des espaces...</p>
-        </div>
-      </main>
+      <>
+        <PageTitle title="Réserver un espace" />
+        <section className="booking-selection py-5">
+          <div className="container">
+            <div className="text-center">
+              <div className="spinner-border text-success" role="status">
+                <span className="visually-hidden">Chargement...</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </>
     );
   }
-
   return (
-    <main className="page-booking">
-      <div className="page-booking__container">
-        <div className="page-booking__header">
-          <h1 className="page-booking__title">Réserver un espace</h1>
-          <p className="page-booking__subtitle">
-            Quel espace souhaitez-vous réserver ?
-          </p>
-        </div>
+    <>
+      <PageTitle title="Réserver un espace" />
 
-        {/* Grille des espaces disponibles */}
-        <div className="page-booking__spaces">
-          {spaces.map((space) => (
-            <div
-              key={space.id}
-              className={`space-card ${
-                formData.spaceId === space.id ? 'space-card--selected' : ''
-              }`}
-              onClick={() => handleChange('spaceId', space.id)}
-            >
-              {space.imageUrl ? (
-                <div className="space-card__image">
-                  <Image
-                    src={space.imageUrl}
-                    alt={space.name}
-                    width={400}
-                    height={250}
-                    quality={85}
-                  />
-                </div>
-              ) : (
-                <div className="space-card__placeholder">
-                  <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z" />
-                  </svg>
-                </div>
-              )}
+      <section className="booking-selection py__90">
+        <div className="container">
+          {/* Progress Bar */}
+          <div className="row justify-content-center mb-4">
+            <div className="col-lg-8">
+              <BookingProgressBar currentStep={1} />
 
-              <div className="space-card__content">
-                <h3 className="space-card__name">{space.name}</h3>
-                <p className="space-card__type">{space.type}</p>
+              {/* Page Title */}
+              <div className="text-center mb-4 mt-4">
+                <h2 className="mb-2" style={{ fontSize: "1.35rem" }}>
+                  Quel espace souhaitez-vous réserver ?
+                </h2>
+                <p className="text-muted" style={{ fontSize: "0.9rem" }}>
+                  Sélectionnez le type d'espace qui correspond à vos besoins
+                </p>
 
-                <div className="space-card__info">
-                  <div className="space-card__info-item">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                      <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
-                    </svg>
-                    <span>Jusqu'à {space.capacity} pers.</span>
+                {/* TTC/HT Switch */}
+                <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
+                  <span
+                    className={`tax-toggle ${showTTC ? "active" : ""}`}
+                    onClick={() => setShowTTC(true)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Prix TTC
+                  </span>
+                  <div className="form-check form-switch mb-0">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="taxSwitch"
+                      checked={!showTTC}
+                      onChange={() => setShowTTC(!showTTC)}
+                      style={{ cursor: "pointer" }}
+                    />
                   </div>
-
-                  <div className="space-card__info-item">
-                    <span className="space-card__price">{space.pricePerHour}€/h</span>
-                  </div>
+                  <span
+                    className={`tax-toggle ${!showTTC ? "active" : ""}`}
+                    onClick={() => setShowTTC(false)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Prix HT
+                  </span>
                 </div>
-
-                {space.features && space.features.length > 0 && (
-                  <div className="space-card__features">
-                    {space.features.slice(0, 3).map((feature, idx) => (
-                      <span key={idx} className="space-card__feature">
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
-
-              {formData.spaceId === space.id && (
-                <div className="space-card__check">
-                  <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                  </svg>
-                </div>
-              )}
             </div>
-          ))}
-        </div>
-
-        {/* Formulaire de réservation */}
-        {formData.spaceId && (
-          <div className="page-booking__form-section">
-            <BookingForm
-              formData={formData}
-              errors={errors}
-              loading={loading}
-              spaces={spaces.map((s) => ({
-                id: s.id,
-                name: s.name,
-                type: s.type,
-                pricePerHour: s.pricePerHour,
-              }))}
-              onFieldChange={handleChange}
-              onSubmit={handleFormSubmit}
-            />
           </div>
-        )}
-      </div>
-    </main>
+
+          {/* Space Type Cards */}
+          <div className="row g-4 justify-content-center">
+            {spaces.map((space) => (
+              <div key={space.id} className="col-lg-3 col-md-6 px-10">
+                <Link
+                  href={
+                    space.requiresQuote
+                      ? "/contact"
+                      : `/booking/${space.id}/new`
+                  }
+                  className="text-decoration-none"
+                >
+                  <div className="space-card h-100">
+                    <div className="card-image-container">
+                      {space.image ? (
+                        <img
+                          src={space.image}
+                          alt={space.title}
+                          className="space-image"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.nextElementSibling?.classList.remove(
+                              "d-none",
+                            );
+                          }}
+                        />
+                      ) : null}
+                      <div
+                        className={`space-icon-placeholder ${
+                          space.image ? "d-none" : ""
+                        }`}
+                      >
+                        <i className={space.icon}></i>
+                      </div>
+                      <div className="card-overlay">
+                        <div className="overlay-content">
+                          <i className="bi bi-arrow-right-circle"></i>
+                          <span>
+                            {space.requiresQuote
+                              ? "Demander un devis"
+                              : "Réserver"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card-content">
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <h3 className="card-title">{space.title}</h3>
+                        <p className="card-subtitle text-muted">
+                          {space.subtitle}
+                        </p>
+                      </div>
+                      <div className="capacity-info mb-3">
+                        <i className="bi bi-people me-2 text-success"></i>
+                        <span
+                          style={{ fontSize: "0.875rem", fontWeight: "500" }}
+                        >
+                          {space.capacity}
+                        </span>
+                      </div>
+
+                      <p className="card-description">{space.description}</p>
+
+                      <div className="features-list mb-3">
+                        {space.features.map((feature, index) => (
+                          <span key={index} className="feature-badge">
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Pricing section at bottom with full width background */}
+                    <div
+                      className={`d-flex mt-auto ${
+                        space.requiresQuote
+                          ? "justify-content-center align-items-center"
+                          : "justify-content-center align-items-center"
+                      }`}
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(242, 211, 129, 0.25) 0%, rgba(65, 121, 114, 0.2) 100%)",
+                        borderBottomLeftRadius: "10px",
+                        borderBottomRightRadius: "10px",
+                        padding: "20px",
+                        marginLeft: "-20px",
+                        marginRight: "-20px",
+                        marginBottom: "-20px",
+                      }}
+                    >
+                      {!space.requiresQuote && (
+                        <>
+                          <div className="d-flex gap-3 align-items-center mb-3">
+                            <span className="text-success fw-bold">
+                              {convertPrice(space.hourlyPrice, showTTC)}{" "}
+                              {showTTC ? "TTC" : "HT"}
+                            </span>
+                            <span
+                              className="rounded-circle bg-black"
+                              style={{
+                                width: "6px",
+                                height: "6px",
+                                display: "inline-block",
+                              }}
+                            ></span>
+                            <span className="text-success fw-bold">
+                              {convertPrice(space.dailyPrice, showTTC)}{" "}
+                              {showTTC ? "TTC" : "HT"}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                      {space.requiresQuote && (
+                        <div className="d-flex gap-3 align-items-center mb-3">
+                          <span className="text-success fw-bold">
+                            Sur devis
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

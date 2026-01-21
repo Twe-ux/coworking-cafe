@@ -1,7 +1,7 @@
 "use client";
 
-import SlideDown from "@/utils/animations/slideDown";
-import SlideUp from "@/utils/animations/slideUp";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 import { useEffect, useState } from "react";
 
 interface Drink {
@@ -42,7 +42,7 @@ const Menu = ({
           setMenu(data.menu);
         }
       } catch (error) {
-    } finally {
+      } finally {
         setLoading(false);
       }
     };

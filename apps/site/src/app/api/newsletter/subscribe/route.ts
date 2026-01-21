@@ -1,102 +1,121 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { Newsletter } from '@coworking-cafe/database';
-import type { ApiResponse } from '@/types';
+import { NextRequest, NextResponse } from "next/server";
+import dbConnect from "../../../../lib/mongodb";
+import { User, Newsletter } from "@coworking-cafe/database";
 
-interface SubscribeRequest {
-  email: string;
-}
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    const body: SubscribeRequest = await request.json();
+    const body = await request.json();
     const { email } = body;
 
-    // Validation champ requis
+    // Validation
     if (!email) {
-      return NextResponse.json<ApiResponse<never>>(
-        { success: false, error: 'L\'email est requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email est requis" }, { status: 400 });
     }
 
-    // Validation format email avec regex
-    if (!EMAIL_REGEX.test(email)) {
-      return NextResponse.json<ApiResponse<never>>(
-        { success: false, error: 'Format d\'email invalide' },
-        { status: 400 }
-      );
+    // Email validation
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: "Email invalide" }, { status: 400 });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    // Connect to MongoDB
+    await dbConnect();
 
-    // Vérifier si l'email est déjà abonné
-    const existingSubscription = await Newsletter.findOne({
-      email: normalizedEmail
-    });
+    // Check if user exists with this email
+    const user = await User.findOne({ email: email.toLowerCase() });
 
-    if (existingSubscription) {
-      // Si déjà abonné et actif
-      if (existingSubscription.isSubscribed) {
-        return NextResponse.json<ApiResponse<never>>(
-          { success: false, error: 'Cet email est déjà abonné à la newsletter' },
-          { status: 409 }
+    if (user) {
+      // User exists, check if already subscribed
+      if (user.newsletter) {
+        return NextResponse.json(
+          {
+            error: "Tu es déjà inscrit(e) à la newsletter !",
+            alreadySubscribed: true,
+          },
+          { status: 400 },
         );
       }
 
-      // Si était désabonné, réactiver l'abonnement
-      existingSubscription.isSubscribed = true;
-      existingSubscription.subscribedAt = new Date();
-      existingSubscription.unsubscribedAt = undefined;
-      await existingSubscription.save();
+      // Update their newsletter preference
+      user.newsletter = true;
+      await user.save();
 
-      return NextResponse.json<ApiResponse<{ message: string }>>(
+      // Also create/update newsletter entry linked to user
+      await Newsletter.findOneAndUpdate(
+        { email: email.toLowerCase() },
         {
-          success: true,
-          message: 'Votre abonnement à la newsletter a été réactivé avec succès !'
+          email: email.toLowerCase(),
+          userId: user._id,
+          isSubscribed: true,
+          subscribedAt: new Date(),
+          source: "form",
+          $unset: { unsubscribedAt: "" },
         },
-        { status: 200 }
+        { upsert: true, new: true },
+      );
+
+      return NextResponse.json(
+        {
+          message: "Inscription à la newsletter réussie",
+          linked: true,
+        },
+        { status: 200 },
+      );
+    } else {
+      // No user account, create standalone newsletter entry
+      const existingNewsletter = await Newsletter.findOne({
+        email: email.toLowerCase(),
+      });
+
+      if (existingNewsletter && existingNewsletter.isSubscribed) {
+        // Already subscribed
+        return NextResponse.json(
+          {
+            error: "Cet email est déjà inscrit à la newsletter !",
+            alreadySubscribed: true,
+          },
+          { status: 400 },
+        );
+      }
+
+      if (existingNewsletter) {
+        // Was unsubscribed, re-subscribe
+        existingNewsletter.isSubscribed = true;
+        existingNewsletter.subscribedAt = new Date();
+        existingNewsletter.unsubscribedAt = undefined;
+        await existingNewsletter.save();
+
+        return NextResponse.json(
+          { message: "Réinscription à la newsletter réussie !" },
+          { status: 200 },
+        );
+      }
+
+      // Create new newsletter entry
+      await Newsletter.create({
+        email: email.toLowerCase(),
+        isSubscribed: true,
+        subscribedAt: new Date(),
+        source: "form",
+      });
+
+      return NextResponse.json(
+        { message: "Inscription à la newsletter réussie" },
+        { status: 201 },
       );
     }
-
-    // Créer un nouvel abonnement
-    await Newsletter.create({
-      email: normalizedEmail,
-      isSubscribed: true,
-      subscribedAt: new Date(),
-      source: 'form'
-    });
-
-    return NextResponse.json<ApiResponse<{ message: string }>>(
-      {
-        success: true,
-        message: 'Merci ! Vous êtes maintenant abonné à notre newsletter.'
-      },
-      { status: 201 }
-    );
   } catch (error) {
-    console.error('Error subscribing to newsletter:', error);
-
-    // Gérer les erreurs de validation Mongoose
-    if (error instanceof Error && error.name === 'ValidationError') {
-      return NextResponse.json<ApiResponse<never>>(
-        { success: false, error: 'Email invalide' },
-        { status: 400 }
-      );
-    }
-
-    // Gérer les erreurs de duplication (index unique)
-    if (error instanceof Error && 'code' in error && error.code === 11000) {
-      return NextResponse.json<ApiResponse<never>>(
-        { success: false, error: 'Cet email est déjà abonné à la newsletter' },
-        { status: 409 }
-      );
-    }
-
-    return NextResponse.json<ApiResponse<never>>(
-      { success: false, error: 'Erreur serveur lors de l\'abonnement' },
-      { status: 500 }
+    console.error("POST /api/newsletter/subscribe error:", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erreur lors de l'inscription",
+      },
+      { status: 500 },
     );
   }
 }

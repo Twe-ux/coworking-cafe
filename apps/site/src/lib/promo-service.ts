@@ -1,80 +1,27 @@
 import crypto from "crypto";
 import { PromoConfig, connectToDatabase } from "@coworking-cafe/database";
-import type {
-  PromoConfigData,
+import {
+  PromoConfig as PromoConfigType,
   PromoCode,
   MarketingContent,
   ScanStats,
+  DEFAULT_PROMO_CONFIG,
 } from "../types/promo";
-import { DEFAULT_PROMO_CONFIG } from "../types/promo";
-
-interface MongoPromoDocument {
-  current: {
-    code: string;
-    token: string;
-    description: string;
-    discountType: string;
-    discountValue: number;
-    validFrom: Date;
-    validUntil: Date;
-    maxUses: number;
-    currentUses: number;
-    isActive: boolean;
-    createdAt: Date;
-  };
-  history: Array<{
-    code: string;
-    token: string;
-    description: string;
-    discountType: string;
-    discountValue: number;
-    validFrom: Date;
-    validUntil: Date;
-    totalUses: number;
-    deactivatedAt: Date;
-  }>;
-  stats: {
-    totalViews: number;
-    totalCopies: number;
-    viewsToday: number;
-    copiesToday: number;
-  };
-  scanStats: {
-    totalScans: number;
-    totalReveals: number;
-    totalCopies: number;
-    conversionRateReveal: number;
-    conversionRateCopy: number;
-    scansByDay: Map<string, number>;
-    scansByHour: Map<string, number>;
-    averageTimeToReveal: number;
-  };
-  marketing: {
-    title: string;
-    message: string;
-    imageUrl?: string;
-    ctaText: string;
-  };
-  events: Array<{
-    timestamp: Date;
-    type: string;
-    sessionId: string;
-  }>;
-  save: () => Promise<unknown>;
-}
 
 class PromoService {
+  // Générer un token unique
   private generateToken(): string {
     return crypto.randomBytes(16).toString("hex");
   }
 
-  private toPromoConfig(doc: MongoPromoDocument): PromoConfigData {
-    const config: PromoConfigData = {
+  // Convertir le document MongoDB en type PromoConfig
+  private toPromoConfig(doc: any): PromoConfigType {
+    const config: PromoConfigType = {
       current: {
         code: doc.current.code,
         token: doc.current.token,
         description: doc.current.description,
-        discount_type: doc.current.discountType as "percentage" | "fixed" | "free_item",
+        discount_type: doc.current.discountType,
         discount_value: doc.current.discountValue,
         valid_from: doc.current.validFrom.toISOString(),
         valid_until: doc.current.validUntil.toISOString(),
@@ -83,11 +30,11 @@ class PromoService {
         is_active: doc.current.isActive,
         created_at: doc.current.createdAt.toISOString(),
       },
-      history: doc.history.map((h) => ({
+      history: doc.history.map((h: any) => ({
         code: h.code,
         token: h.token,
         description: h.description,
-        discount_type: h.discountType as "percentage" | "fixed" | "free_item",
+        discount_type: h.discountType,
         discount_value: h.discountValue,
         valid_from: h.validFrom.toISOString(),
         valid_until: h.validUntil.toISOString(),
@@ -122,21 +69,23 @@ class PromoService {
         image_url: doc.marketing.imageUrl,
         cta_text: doc.marketing.ctaText,
       },
-      events: doc.events.map((e) => ({
+      events: doc.events.map((e: any) => ({
         timestamp: e.timestamp.toISOString(),
         type: e.type,
-        session_id: e.sessionId,
+        session_id: e.session_id,
       })),
     };
     return config;
   }
 
-  private async getOrCreateConfig(): Promise<MongoPromoDocument> {
+  // Obtenir ou créer la configuration
+  private async getOrCreateConfig() {
     await connectToDatabase();
 
     let doc = await PromoConfig.findOne();
 
     if (!doc) {
+      // Créer la configuration par défaut (utiliser camelCase pour Mongoose)
       const defaultConfig = {
         current: {
           code: DEFAULT_PROMO_CONFIG.current.code,
@@ -180,24 +129,28 @@ class PromoService {
       doc = await PromoConfig.create(defaultConfig);
     }
 
-    return doc as unknown as MongoPromoDocument;
+    return doc;
   }
 
-  async getConfig(): Promise<PromoConfigData> {
+  // Obtenir la configuration complète
+  async getConfig(): Promise<PromoConfigType> {
     const doc = await this.getOrCreateConfig();
     return this.toPromoConfig(doc);
   }
 
+  // Obtenir le code promo actuel
   async getCurrentPromo(): Promise<PromoCode> {
     const config = await this.getConfig();
     return config.current;
   }
 
+  // Obtenir le token actuel
   async getCurrentToken(): Promise<string> {
     const config = await this.getConfig();
     return config.current.token;
   }
 
+  // Obtenir un code promo par token
   async getPromoByToken(token: string): Promise<PromoCode | null> {
     const config = await this.getConfig();
     if (config.current.token === token && config.current.is_active) {
@@ -206,12 +159,14 @@ class PromoService {
     return null;
   }
 
+  // Créer un nouveau code promo
   async createPromo(
     promo: Omit<PromoCode, "token" | "current_uses" | "created_at">,
   ): Promise<PromoCode> {
     await connectToDatabase();
     const doc = await this.getOrCreateConfig();
 
+    // Archiver l'ancien code si actif (utiliser camelCase)
     if (doc.current.isActive && doc.current.currentUses > 0) {
       doc.history.push({
         code: doc.current.code,
@@ -226,6 +181,7 @@ class PromoService {
       });
     }
 
+    // Créer le nouveau code (utiliser camelCase)
     const newToken = this.generateToken();
     doc.current = {
       code: promo.code,
@@ -241,6 +197,7 @@ class PromoService {
       createdAt: new Date(),
     };
 
+    // Réinitialiser les stats de scan (utiliser camelCase)
     doc.scanStats = {
       totalScans: 0,
       totalReveals: 0,
@@ -263,6 +220,38 @@ class PromoService {
     };
   }
 
+  // Incrémenter les vues
+  async incrementViews(): Promise<void> {
+    await connectToDatabase();
+    await PromoConfig.updateOne(
+      {},
+      {
+        $inc: {
+          "stats.totalViews": 1,
+          "stats.viewsToday": 1,
+        },
+      },
+    );
+  }
+
+  // Incrémenter les copies
+  async incrementCopies(): Promise<void> {
+    await connectToDatabase();
+    await PromoConfig.updateOne(
+      {},
+      {
+        $inc: {
+          "stats.totalCopies": 1,
+          "stats.copiesToday": 1,
+          "current.currentUses": 1,
+        },
+      },
+    );
+  }
+
+  // === MÉTHODES DE TRACKING ===
+
+  // Tracker un scan
   async trackScan(sessionId: string): Promise<void> {
     await connectToDatabase();
     const doc = await this.getOrCreateConfig();
@@ -271,12 +260,14 @@ class PromoService {
     const dateKey = now.toISOString().split("T")[0];
     const hourKey = `${now.getHours()}h`;
 
+    // Ajouter l'événement
     doc.events.push({
       timestamp: now,
       type: "scan",
       sessionId: sessionId,
     });
 
+    // Mettre à jour les stats
     doc.scanStats.totalScans++;
 
     const currentDayCount = doc.scanStats.scansByDay.get(dateKey) || 0;
@@ -285,50 +276,62 @@ class PromoService {
     const currentHourCount = doc.scanStats.scansByHour.get(hourKey) || 0;
     doc.scanStats.scansByHour.set(hourKey, currentHourCount + 1);
 
+    // Recalculer les taux de conversion
     this.recalculateConversionRates(doc);
 
     await doc.save();
   }
 
+  // Tracker une révélation
   async trackReveal(sessionId: string): Promise<void> {
     await connectToDatabase();
     const doc = await this.getOrCreateConfig();
 
+    // Ajouter l'événement
     doc.events.push({
       timestamp: new Date(),
       type: "reveal",
       sessionId: sessionId,
     });
 
+    // Mettre à jour les stats
     doc.scanStats.totalReveals++;
 
+    // Calculer le temps moyen jusqu'à la révélation
     this.calculateAverageTimeToReveal(doc);
+
+    // Recalculer les taux de conversion
     this.recalculateConversionRates(doc);
 
     await doc.save();
   }
 
+  // Tracker une copie
   async trackCopy(sessionId: string): Promise<void> {
     await connectToDatabase();
     const doc = await this.getOrCreateConfig();
 
+    // Ajouter l'événement
     doc.events.push({
       timestamp: new Date(),
       type: "copy",
       sessionId: sessionId,
     });
 
+    // Mettre à jour les stats
     doc.scanStats.totalCopies++;
     doc.stats.totalCopies++;
     doc.stats.copiesToday++;
     doc.current.currentUses++;
 
+    // Recalculer les taux de conversion
     this.recalculateConversionRates(doc);
 
     await doc.save();
   }
 
-  private recalculateConversionRates(doc: MongoPromoDocument): void {
+  // Recalculer les taux de conversion
+  private recalculateConversionRates(doc: any): void {
     const { totalScans, totalReveals, totalCopies } = doc.scanStats;
 
     doc.scanStats.conversionRateReveal =
@@ -342,7 +345,8 @@ class PromoService {
         : 0;
   }
 
-  private calculateAverageTimeToReveal(doc: MongoPromoDocument): void {
+  // Calculer le temps moyen jusqu'à la révélation
+  private calculateAverageTimeToReveal(doc: any): void {
     const sessionTimes: {
       [sessionId: string]: { scan?: number; reveal?: number };
     } = {};
@@ -376,35 +380,34 @@ class PromoService {
         : 0;
   }
 
+  // === MÉTHODES MARKETING ===
+
+  // Obtenir le contenu marketing
   async getMarketingContent(): Promise<MarketingContent> {
     const config = await this.getConfig();
     return config.marketing;
   }
 
-  async updateMarketingContent(
-    content: Partial<MarketingContent>,
-  ): Promise<boolean> {
+  // Mettre à jour le contenu marketing
+  async updateMarketingContent(content: MarketingContent): Promise<boolean> {
     try {
       await connectToDatabase();
-
-      const updateFields: Record<string, unknown> = {};
-      if (content.title !== undefined) updateFields["marketing.title"] = content.title;
-      if (content.message !== undefined) updateFields["marketing.message"] = content.message;
-      if (content.image_url !== undefined) updateFields["marketing.imageUrl"] = content.image_url;
-      if (content.cta_text !== undefined) updateFields["marketing.ctaText"] = content.cta_text;
-
-      await PromoConfig.updateOne({}, { $set: updateFields });
+      await PromoConfig.updateOne({}, { $set: { marketing: content } });
       return true;
     } catch (error) {
       return false;
     }
   }
 
+  // === MÉTHODES DE STATS ===
+
+  // Obtenir les stats de scan
   async getScanStats(): Promise<ScanStats> {
     const config = await this.getConfig();
     return config.scan_stats;
   }
 
+  // Obtenir les stats des 7 derniers jours
   async getWeeklyStats(): Promise<{ date: string; scans: number }[]> {
     const config = await this.getConfig();
     const result: { date: string; scans: number }[] = [];
@@ -421,6 +424,59 @@ class PromoService {
 
     return result;
   }
+
+  // Obtenir le top des heures de scan
+  async getTopHours(): Promise<
+    { hour: string; count: number; percentage: number }[]
+  > {
+    const config = await this.getConfig();
+    const hourData = config.scan_stats.scans_by_hour;
+    const total = Object.values(hourData).reduce((a, b) => a + b, 0);
+
+    return Object.entries(hourData)
+      .map(([hour, count]) => ({
+        hour,
+        count,
+        percentage: total > 0 ? Math.round((count / total) * 100) : 0,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }
+
+  // Nettoyer les anciens événements (> 30 jours)
+  async cleanupOldEvents(): Promise<number> {
+    await connectToDatabase();
+    const doc = await this.getOrCreateConfig();
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
+    const initialCount = doc.events.length;
+    doc.events = doc.events.filter(
+      (event: any) => new Date(event.timestamp).getTime() > thirtyDaysAgo,
+    );
+
+    const removedCount = initialCount - doc.events.length;
+
+    if (removedCount > 0) {
+      await doc.save();
+    }
+
+    return removedCount;
+  }
+
+  // Réinitialiser les stats quotidiennes
+  async resetDailyStats(): Promise<void> {
+    await connectToDatabase();
+    await PromoConfig.updateOne(
+      {},
+      {
+        $set: {
+          "stats.viewsToday": 0,
+          "stats.copiesToday": 0,
+        },
+      },
+    );
+  }
 }
 
+// Exporter une instance singleton
 export const promoService = new PromoService();

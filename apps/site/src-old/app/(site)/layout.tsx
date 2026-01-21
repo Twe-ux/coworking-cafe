@@ -3,7 +3,7 @@ import "@/assets/site/font/font-awsome/css-js/all.min.css";
 import "@/assets/site/font/font-awsome/css-js/all.min.js";
 import "@/assets/site/scss/main.scss";
 import { SiteProvidersWrapper } from "../../components/providers/SiteProvidersWrapper";
-import AhrefsAnalytics from "@/components/site/AhrefsWebAnalytics";
+// import AhrefsAnalytics from "@/components/site/AhrefsWebAnalytics";
 import ExceptionalClosureBanner from "../../components/site/banner/ExceptionalClosureBanner";
 import Bootstrap from "../../components/site/Bootstrap";
 import Footer from "../../components/site/footer";

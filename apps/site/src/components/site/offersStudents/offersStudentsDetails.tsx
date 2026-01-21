@@ -1,10 +1,10 @@
 "use client";
 
-import SlideUp from "@/utils/animations/slideUp";
+import SlideUp from "../../../utils/animations/slideUp";
 
 // Import Swiper styles
 
-import { OffersStudentsDetailsProps } from "@/db/offersStudents.tsx/offersStudentsData";
+import { OffersStudentsDetailsProps } from "../../../db/offersStudents.tsx/offersStudentsData";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";

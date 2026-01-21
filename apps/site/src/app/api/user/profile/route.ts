@@ -1,194 +1,144 @@
-/**
- * API Routes: /api/user/profile
- * GET: Récupérer le profil utilisateur
- * PUT: Mettre à jour le profil utilisateur
- */
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import dbConnect from "../../../../lib/mongodb";
+import { User } from "../../../../models/user";
+import { options } from "../../../../lib/auth-options";
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { User } from '@coworking-cafe/database';
-import type { ApiResponse, ClientProfile, UpdateProfileData } from '@/types';
+export const dynamic = "force-dynamic";
 
-/**
- * GET /api/user/profile
- * Récupérer le profil de l'utilisateur connecté
- */
-export async function GET(
-  request: NextRequest
-): Promise<NextResponse<ApiResponse<ClientProfile>>> {
+export async function GET(request: NextRequest) {
   try {
-    // 1. VÉRIFIER AUTHENTIFICATION
-    const session = await getServerSession();
+    const session = await getServerSession(options);
 
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { success: false, error: 'Vous devez être connecté pour consulter votre profil.' },
-        { status: 401 }
-      );
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    // 2. RÉCUPÉRER L'UTILISATEUR
-    const user = await User.findById(session.user.id)
-      .select('-password') // Exclure le mot de passe
-      .lean();
+    await dbConnect();
+
+    const user = await User.findOne({ email: session.user.email }).select(
+      "email username givenName phone companyName newsletter emailVerifiedAt createdAt",
+    );
 
     if (!user) {
       return NextResponse.json(
-        { success: false, error: 'Utilisateur introuvable.' },
-        { status: 404 }
+        { error: "Utilisateur non trouvé" },
+        { status: 404 },
       );
     }
 
-    // 3. CALCULER LES STATISTIQUES
-    // TODO: Implémenter les vraies stats depuis Booking
-    const stats = {
-      totalBookings: 0,
-      totalSpent: 0,
-      favoriteSpace: undefined,
-      memberSince: user.createdAt,
-      loyaltyPoints: 0,
-    };
-
-    // 4. FORMATER LA RÉPONSE
-    const profile: ClientProfile = {
-      id: user._id.toString(),
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-      avatar: user.avatar,
-      role: user.role as 'client',
-      preferences: {
-        language: 'fr',
-        notifications: {
-          email: true,
-          bookingReminders: true,
-          promotions: false,
-          newsletter: false,
-        },
-        privacy: {
-          profileVisibility: 'private',
-          showEmail: false,
-          showPhone: false,
-        },
-      },
-      stats,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
-
-    return NextResponse.json({
-      success: true,
-      data: profile,
-    });
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
     return NextResponse.json(
       {
-        success: false,
-        error: 'Une erreur est survenue lors de la récupération du profil.',
+        user: {
+          email: user.email,
+          username: user.username,
+          givenName: user.givenName,
+          phone: user.phone,
+          companyName: user.companyName,
+          newsletter: user.newsletter,
+          emailVerifiedAt: user.emailVerifiedAt,
+          createdAt: user.createdAt,
+        },
       },
-      { status: 500 }
+      { status: 200 },
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erreur lors de la récupération du profil",
+      },
+      { status: 500 },
     );
   }
 }
 
-/**
- * PUT /api/user/profile
- * Mettre à jour le profil utilisateur
- */
-export async function PUT(
-  request: NextRequest
-): Promise<NextResponse<ApiResponse<{ message: string }>>> {
+export async function PUT(request: NextRequest) {
   try {
-    // 1. VÉRIFIER AUTHENTIFICATION
-    const session = await getServerSession();
+    const session = await getServerSession(options);
 
-    if (!session || !session.user) {
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+
+    await dbConnect();
+
+    const body = await request.json();
+    const { name, email, phone, companyName } = body;
+
+    // Validate input
+    if (!name || !email) {
       return NextResponse.json(
-        { success: false, error: 'Vous devez être connecté pour modifier votre profil.' },
-        { status: 401 }
+        { error: "Le nom et l'email sont requis" },
+        { status: 400 },
       );
     }
 
-    const body: UpdateProfileData = await request.json();
-    const { firstName, lastName, phone, avatar } = body;
-
-    // 2. VALIDATION DES DONNÉES
-    const updateData: Partial<UpdateProfileData> = {};
-
-    if (firstName !== undefined) {
-      if (firstName.trim().length < 2) {
+    // Check if email is already taken by another user
+    if (email !== session.user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
         return NextResponse.json(
-          { success: false, error: 'Le prénom doit contenir au moins 2 caractères.' },
-          { status: 400 }
+          { error: "Cet email est déjà utilisé" },
+          { status: 400 },
         );
       }
-      updateData.firstName = firstName.trim();
     }
 
-    if (lastName !== undefined) {
-      if (lastName.trim().length < 2) {
-        return NextResponse.json(
-          { success: false, error: 'Le nom doit contenir au moins 2 caractères.' },
-          { status: 400 }
-        );
-      }
-      updateData.lastName = lastName.trim();
-    }
+    // Prepare update object
+    const updateData: any = {
+      givenName: name,
+      email: email,
+    };
 
+    // Add phone if provided
     if (phone !== undefined) {
-      // Validation téléphone français
-      const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
-      if (phone && !phoneRegex.test(phone)) {
-        return NextResponse.json(
-          { success: false, error: 'Numéro de téléphone invalide.' },
-          { status: 400 }
-        );
-      }
-      updateData.phone = phone || undefined;
+      updateData.phone = phone;
     }
 
-    if (avatar !== undefined) {
-      updateData.avatar = avatar || undefined;
+    // Add companyName if provided
+    if (companyName !== undefined) {
+      updateData.companyName = companyName;
     }
 
-    // 3. VÉRIFIER QU'IL Y A DES DONNÉES À METTRE À JOUR
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Aucune donnée à mettre à jour.' },
-        { status: 400 }
-      );
-    }
-
-    // 4. METTRE À JOUR L'UTILISATEUR
-    const updatedUser = await User.findByIdAndUpdate(
-      session.user.id,
+    // Update user
+    const updatedUser = await User.findOneAndUpdate(
+      { email: session.user.email },
       { $set: updateData },
-      { new: true, runValidators: true }
+      { new: true, select: "email username givenName phone companyName" },
     );
 
     if (!updatedUser) {
       return NextResponse.json(
-        { success: false, error: 'Utilisateur introuvable.' },
-        { status: 404 }
+        { error: "Utilisateur non trouvé" },
+        { status: 404 },
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        message: 'Profil mis à jour avec succès.',
-      },
-    });
-  } catch (error) {
-    console.error('Error updating user profile:', error);
     return NextResponse.json(
       {
-        success: false,
-        error: 'Une erreur est survenue lors de la mise à jour du profil.',
+        message: "Profil mis à jour avec succès",
+        user: {
+          email: updatedUser.email,
+          username: updatedUser.username,
+          name: updatedUser.givenName,
+          phone: updatedUser.phone,
+          companyName: updatedUser.companyName,
+        },
       },
-      { status: 500 }
+      { status: 200 },
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erreur lors de la mise à jour du profil",
+      },
+      { status: 500 },
     );
   }
 }

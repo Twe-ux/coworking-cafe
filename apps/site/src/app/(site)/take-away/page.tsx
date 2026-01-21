@@ -1,11 +1,19 @@
-import PageTitle from "@/components/site/PageTitle";
-import type { Metadata } from "next";
-import Image from "next/image";
+/**
+ * PROPOSITION SIMPLE: Remplacement des images selon le PDF
+ *
+ * Cette version garde EXACTEMENT la structure actuelle
+ * et remplace juste les images placeholder par les vraies
+ *
+ * Pour appliquer: Copier le contenu dans page.tsx
+ */
+
+import PageTitle from "../../../components/site/pageTitle";
+import SlideUp from "../../../utils/animations/slideUp";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Take Away | CoworKing Café by Anticafé",
-  description:
-    "Coffee shop à Strasbourg : boissons à emporter, cafés glacés et frappés, matcha latte, citronnades, smoothies, encas sucrés, pizzas faites maison et petite épicerie. Tout pour une pause gourmande à savourer où vous voulez.",
+  description: `Coffee shop à Strasbourg : boissons à emporter, cafés glacés et frappés, matcha latte, citronnades, smoothies, encas sucrés, pizzas faites maison et petite épicerie. Tout pour une pause gourmande à savourer où vous voulez.`,
   openGraph: {
     title: "Take Away - CoworKing Café by Anticafé",
     description: "Découvrez CoworKing Café by Anticafé à Strasbourg.",
@@ -13,12 +21,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TakeAwayPage() {
+const TakeAway = () => {
   return (
     <>
-      <PageTitle title="Take Away" />
+      <PageTitle title={"Take Away"} />
       <article className="concept py__130">
         <div className="container pb__130 pb-md-5 mb-md-5">
+          {/* PAGE 2 PDF: Image comptoir (boissons à emporter) */}
           <img
             src="/images/takeAway/coworking-cafe-strasbourg-take-away-boissons-a-emporter.webp"
             alt="Comptoir Take Away Anticafé Strasbourg"
@@ -26,9 +35,11 @@ export default function TakeAwayPage() {
           />
 
           <div className="first__para pt__60">
-            <h3 className="t__28">
-              Plus d'une trentaine de choix de boissons à emporter
-            </h3>
+            <SlideUp>
+              <h3 className="t__28">
+                Plus d'une trentaine de choix de boissons à emporter
+              </h3>
+            </SlideUp>
             <p>
               Que vous soyez en télétravail à la maison, en balade dans le
               centre-ville ou simplement de passage, vous pouvez aussi profiter
@@ -39,13 +50,14 @@ export default function TakeAwayPage() {
               glisser dans votre journée.
             </p>
             <p>
-              Notre offre "à emporter", c'est la solution parfaite pour celles
+              Notre offre "à emporter" , c'est la solution parfaite pour celles
               et ceux qui aiment nos boissons… mais ont besoin d'avancer
               ailleurs. Vous passez, vous commandez, vous repartez avec votre
               boisson préférée — la même qualité qu'ici, mais en version nomade.
               ✨
             </p>
 
+            {/* PAGE 3 PDF: Carrousel des 5 catégories de boissons - Images uniformes */}
             <div className="d-flex gap-4">
               <img
                 src="/images/takeAway/menu/carte-boissons-coffeeshop-strasbourg-coworking-cafe.webp"
@@ -56,7 +68,7 @@ export default function TakeAwayPage() {
               <img
                 src="/images/takeAway/menu/menu-boissons-coworking-cafe-strasbourg.webp"
                 alt="Cold Drinks"
-                className="w-52 rounded-3"
+                className=" w-52 rounded-3"
               />
             </div>
 
@@ -66,6 +78,7 @@ export default function TakeAwayPage() {
             </p>
           </div>
 
+          {/* PAGE 4 PDF: Encas/Pizzas - Image gauche, Texte droite */}
           <div className="row align-items-center g-4 pt__50">
             <div className="col-lg-6">
               <img
@@ -103,6 +116,7 @@ export default function TakeAwayPage() {
             </div>
           </div>
 
+          {/* PAGE 5 PDF: Gobelets Billie - Texte gauche, Image droite */}
           <div className="row align-items-center g-4 pt__50">
             <div className="col-lg-6">
               <h3 className="t__28">
@@ -140,17 +154,22 @@ export default function TakeAwayPage() {
               douceurs. Un prolongement naturel de notre comptoir, pour savourer
               l'expérience à la maison ou au bureau.
             </p>
-            <div className="d-flex gap-3">
-              <ul>
-                <li>des biscuits...</li>
-                <li>notre café en grains</li>
-                <li>notre matcha et autres préparations de boissons</li>
-                <li>des boissons fraîches (eau, maté pétillant...)</li>
-              </ul>
-            </div>
+            <SlideUp>
+              <div className="d-flex gap-3 ">
+                <ul className="">
+                  <li>des biscuits... </li>
+                  <li>notre café en grains </li>
+
+                  <li>notre matcha et autres préparations de boissons</li>
+                  <li>des boissons fraîches (eau, maté pétillant...)</li>
+                </ul>
+              </div>
+            </SlideUp>
           </div>
         </div>
       </article>
     </>
   );
-}
+};
+
+export default TakeAway;

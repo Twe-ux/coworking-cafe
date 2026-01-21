@@ -1,0 +1,421 @@
+// ====================================
+// Booking Calendar Styles
+// FullCalendar + Google Calendar Style
+// ====================================
+
+.fc {
+  font-family: "Google Sans", "Roboto", -apple-system, sans-serif;
+  font-size: 0.9375rem;
+}
+
+// ====================================
+// Toolbar - hide default, we made custom
+// ====================================
+
+.fc-toolbar {
+  display: none !important;
+}
+
+// ====================================
+// Google Calendar Style Headers
+// ====================================
+
+.fc-col-header {
+  background: white;
+  border-bottom: 1px solid #dadce0;
+}
+
+.fc-col-header-cell {
+  padding: 8px 4px !important;
+  border-color: transparent !important;
+  text-align: center;
+}
+
+.fc-col-header-cell-cushion {
+  display: block !important;
+  font-size: 11px;
+  font-weight: 500;
+  color: #70757a;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 8px 0 !important;
+  white-space: nowrap;
+}
+
+// ====================================
+// Day Numbers Styling
+// ====================================
+
+.fc-daygrid-day-number {
+  float: none !important;
+  text-align: center;
+  padding: 8px !important;
+  margin: 0 auto !important;
+  font-size: 26px !important;
+  font-weight: 400 !important;
+  color: #3c4043;
+  background: transparent !important;
+  width: auto !important;
+  height: auto !important;
+  display: block !important;
+}
+
+// Today styling - blue circle
+.fc-day-today .fc-daygrid-day-number {
+  background: #1a73e8 !important;
+  color: white !important;
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px !important;
+  font-weight: 500 !important;
+  margin: 4px auto !important;
+}
+
+// ====================================
+// Day Cells
+// ====================================
+
+.fc-daygrid-day {
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+}
+
+.fc-day-today {
+  background-color: #e8f0fe !important;
+}
+
+// ====================================
+// Month View Adjustments
+// ====================================
+
+.fc-dayGridMonth-view {
+  .fc-daygrid-day-number {
+    font-size: 12px !important;
+    padding: 4px !important;
+  }
+
+  .fc-day-today .fc-daygrid-day-number {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 12px !important;
+  }
+
+  .fc-daygrid-day-frame {
+    min-height: 100px !important;
+  }
+}
+
+// ====================================
+// Time Grid View
+// ====================================
+
+.fc-timegrid-view .fc-daygrid-day-number {
+  display: none;
+}
+
+.fc-timegrid-axis {
+  background: white;
+  border-right: 1px solid #dadce0;
+  width: 60px;
+}
+
+.fc-timegrid-slot {
+  height: 48px !important;
+  border-color: #f0f0f0 !important;
+
+  &:nth-child(2n) {
+    border-bottom-color: #dadce0 !important;
+  }
+}
+
+.fc-timegrid-slot-label {
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  color: #70757a !important;
+  padding-right: 8px !important;
+  text-align: right;
+  vertical-align: top;
+  padding-top: 2px !important;
+}
+
+.fc-timegrid-divider {
+  display: none;
+}
+
+// ====================================
+// Current Time Indicator
+// ====================================
+
+.fc-timegrid-now-indicator-line {
+  border-color: #ea4335 !important;
+  border-width: 2px !important;
+}
+
+.fc-timegrid-now-indicator-arrow {
+  border-color: #ea4335 !important;
+}
+
+// ====================================
+// Events - Google Calendar Style
+// ====================================
+
+.fc-event {
+  padding: 2px 6px !important;
+  cursor: grab !important;
+  border-radius: 4px !important;
+  border-right: 6px solid transparent !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  margin: 1px 2px !important;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(60, 64, 67, 0.15) !important;
+    z-index: 10 !important;
+    transform: scale(1.02);
+  }
+
+  &:active {
+    cursor: grabbing !important;
+  }
+
+  &.fc-event-dragging {
+    opacity: 0.7 !important;
+    box-shadow: 0 4px 12px rgba(60, 64, 67, 0.3) !important;
+  }
+
+  // Event status indicators - moved to right
+  &.event-confirmed {
+    border-right-color: rgba(16, 185, 129, 1) !important;
+    border-right-width: 24px !important;
+  }
+
+  &.event-pending {
+    border-right-color: #ea4335 !important;
+    border-right-width: 24px !important;
+  }
+
+  &.event-completed {
+    border-right-color: transparent !important;
+    border-right-width: 24px !important;
+  }
+
+  // Event colors - Google Calendar style (solid colors)
+  &.event-open-space {
+    background: #039be5 !important;
+  }
+
+  &.event-salle-verriere {
+    background: #0b8043 !important;
+  }
+
+  &.event-salle-etage {
+    background: #f09300 !important;
+  }
+
+  &.event-evenementiel {
+    background: #d50000 !important;
+  }
+
+  &.event-desk {
+    background: #7986cb !important;
+  }
+
+  &.event-meeting-room {
+    background: #33b679 !important;
+  }
+
+  &.event-private-office {
+    background: #8e24aa !important;
+  }
+
+  &.event-event-space {
+    background: #e67c73 !important;
+  }
+
+  // Exceptional closure styling - fill all available space under date
+  &.exceptional-closure-fullday {
+    border: 2px solid #ef4444 !important;
+    border-radius: 6px !important;
+    margin: 2px 2px 2px 2px !important;
+    padding: 42px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    cursor: not-allowed !important;
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: 0 !important;
+
+    .fc-event-main {
+      color: #991b1b !important;
+    }
+  }
+}
+
+.fc-event-main {
+  color: white !important;
+}
+
+// ====================================
+// Borders - Minimal Google Style
+// ====================================
+
+.fc-scrollgrid {
+  border-color: #dadce0 !important;
+  border-radius: 0;
+
+  td,
+  th {
+    border-color: #dadce0 !important;
+  }
+}
+
+.fc-scrollgrid-section > td {
+  border-width: 0 !important;
+}
+
+// ====================================
+// Scrollbar
+// ====================================
+
+.fc-scroller {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f3f5;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #dee2e6;
+    border-radius: 4px;
+
+    &:hover {
+      background: #adb5bd;
+    }
+  }
+}
+
+// ====================================
+// More Link Styling
+// ====================================
+
+.fc-daygrid-more-link {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: #1a73e8 !important;
+  text-decoration: none !important;
+  padding: 2px 6px !important;
+  margin: 2px 4px !important;
+  border-radius: 4px !important;
+  display: block !important;
+  transition: background 0.2s !important;
+
+  &:hover {
+    background: rgba(26, 115, 232, 0.1) !important;
+  }
+}
+
+// ====================================
+// Dark Mode - Google Calendar Dark Theme
+// ====================================
+
+[data-bs-theme="dark"] {
+  .fc-col-header {
+    background: #1f1f1f;
+    border-bottom: 1px solid #3c4043;
+  }
+
+  .fc-daygrid-more-link {
+    color: #8ab4f8 !important;
+
+    &:hover {
+      background: rgba(138, 180, 248, 0.15) !important;
+    }
+  }
+
+  .fc-col-header-cell-cushion {
+    color: #9aa0a6 !important;
+  }
+
+  .fc-daygrid-day-number {
+    color: #e8eaed !important;
+  }
+
+  .fc-day-today {
+    background-color: rgba(138, 180, 248, 0.2) !important;
+
+    .fc-daygrid-day-number {
+      background: #8ab4f8 !important;
+      color: #202124 !important;
+    }
+  }
+
+  .fc-daygrid-day:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .fc-timegrid-axis {
+    background: #1f1f1f;
+    border-right: 1px solid #3c4043;
+  }
+
+  .fc-timegrid-slot {
+    border-color: #3c4043 !important;
+
+    &:nth-child(2n) {
+      border-bottom-color: #5f6368 !important;
+    }
+  }
+
+  .fc-timegrid-slot-label {
+    color: #9aa0a6 !important;
+  }
+
+  .fc-scrollgrid {
+    border-color: #3c4043 !important;
+
+    td,
+    th {
+      border-color: #3c4043 !important;
+    }
+  }
+
+  .fc-scroller {
+    &::-webkit-scrollbar-track {
+      background: #202124;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #5f6368;
+
+      &:hover {
+        background: #80868b;
+      }
+    }
+  }
+}
+
+// ====================================
+// Ensure all day cells have same height
+// ====================================
+
+.fc-dayGridMonth-view .fc-daygrid-day-frame {
+  min-height: 120px !important;
+}

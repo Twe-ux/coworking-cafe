@@ -1,44 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectToDatabase } from "@coworking-cafe/database";
-import { User, PasswordResetToken } from "@coworking-cafe/database";
+import { connectDB } from "../../../../lib/mongodb";
+import { User } from "../../../../models/user";
+import PasswordResetToken from "../../../../models/passwordResetToken/document";
 import crypto from "crypto";
-import { sendEmail } from "@/lib/email/send-email";
-import { passwordResetEmail } from "@/lib/email/password-reset";
+import { sendEmail } from "../../../../lib/email/emailService";
+import { passwordResetEmail } from "../../../../lib/email/templates";
 
 export const dynamic = "force-dynamic";
 
-interface ForgotPasswordRequest {
-  email: string;
-}
-
-interface SuccessResponse {
-  success: true;
-  message: string;
-}
-
-interface ErrorResponse {
-  success: false;
-  message: string;
-}
-
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
+export async function POST(request: NextRequest) {
   try {
-    const body: ForgotPasswordRequest = await request.json();
-    const { email } = body;
+    const { email } = await request.json();
 
     if (!email) {
       return NextResponse.json(
         { success: false, message: "Email requis" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    await connectToDatabase();
+    await connectDB();
 
     // Trouver l'utilisateur
-    const user = await User.findOne({ email: email.toLowerCase() }).lean();
+    const user = await User.findOne({ email: email.toLowerCase() });
 
     // Pour des raisons de sécurité, on retourne toujours le même message
     // même si l'utilisateur n'existe pas
@@ -65,18 +49,22 @@ export async function POST(
 
     // Construire l'URL de réinitialisation
     const baseUrl =
-      process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+      process.env.NEXTAUTH_URL ||
+      `http://localhost:${process.env.PORT || 3000}`;
     const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`;
 
-    // Envoyer l'email
-    await sendEmail({
-      to: user.email,
-      subject: "Réinitialisation de votre mot de passe - CoworKing Café",
-      html: passwordResetEmail({
-        userName: user.givenName || user.username || user.email,
-        resetUrl,
-      }),
-    });
+    // Envoyer l'email avec le sender 'default' (noreply)
+    await sendEmail(
+      {
+        to: user.email,
+        subject: "Réinitialisation de votre mot de passe",
+        html: passwordResetEmail({
+          userName: user.givenName || user.username || user.email,
+          resetUrl,
+        }),
+      },
+      "default",
+    );
 
     return NextResponse.json({
       success: true,
@@ -90,7 +78,7 @@ export async function POST(
         success: false,
         message: "Une erreur est survenue",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

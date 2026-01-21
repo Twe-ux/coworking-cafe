@@ -37,11 +37,11 @@ export interface ScanStats {
   total_scans: number;
   total_reveals: number;
   total_copies: number;
-  conversion_rate_reveal: number;
-  conversion_rate_copy: number;
+  conversion_rate_reveal: number; // scans → reveals (%)
+  conversion_rate_copy: number; // reveals → copies (%)
   scans_by_day: { [date: string]: number };
   scans_by_hour: { [hour: string]: number };
-  average_time_to_reveal: number;
+  average_time_to_reveal: number; // en secondes
 }
 
 export interface MarketingContent {
@@ -57,7 +57,7 @@ export interface ScanEvent {
   session_id: string;
 }
 
-export interface PromoConfigData {
+export interface PromoConfig {
   current: PromoCode;
   history: PromoHistory[];
   stats: PromoStats;
@@ -66,6 +66,7 @@ export interface PromoConfigData {
   events: ScanEvent[];
 }
 
+// Contenu marketing par défaut
 export const DEFAULT_MARKETING: MarketingContent = {
   title: "🎉 Bienvenue chez CoworKing!",
   message: `
@@ -85,7 +86,8 @@ export const DEFAULT_MARKETING: MarketingContent = {
   cta_text: "🎁 Découvrir mon code promo",
 };
 
-export const DEFAULT_PROMO_CONFIG: PromoConfigData = {
+// Configuration par défaut
+export const DEFAULT_PROMO_CONFIG: PromoConfig = {
   current: {
     code: "BIENVENUE2024",
     token: "",

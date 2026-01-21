@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promoService } from "@/lib/promo-service";
+import { promoService } from "../../../../lib/promo-service";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: { token: string } },
 ) {
   try {
     const { token } = params;
 
     if (!token) {
-      return NextResponse.json(
-        { error: "Token requis" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Token requis" }, { status: 400 });
     }
 
     const promo = await promoService.getPromoByToken(token);
@@ -20,16 +19,15 @@ export async function GET(
     if (!promo) {
       return NextResponse.json(
         { error: "Code promo non trouvé ou expiré" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    return NextResponse.json(promo);
+    // Incrémenter les vues
+    await promoService.incrementViews();
+
+    return NextResponse.json(promo, { status: 200 });
   } catch (error) {
-    console.error("Error getting promo by token:", error);
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

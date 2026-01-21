@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import { promoService } from "@/lib/promo-service";
+import { promoService } from "../../../../lib/promo-service";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     const token = await promoService.getCurrentToken();
 
-    return NextResponse.json({ token });
+    return NextResponse.json({ token }, { status: 200 });
   } catch (error) {
-    console.error("Error getting current token:", error);
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+    console.error("GET /api/promo/current-token error:", error);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

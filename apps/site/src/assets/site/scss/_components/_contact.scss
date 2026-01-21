@@ -55,18 +55,77 @@
       margin-bottom: 30px;
     }
 
-    input {
+    .alert {
+      border-radius: 10px;
+      padding: 15px 20px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      &.alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+
+        &::before {
+          content: "✓";
+          font-size: 18px;
+          font-weight: bold;
+        }
+      }
+
+      &.alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+
+        &::before {
+          content: "✕";
+          font-size: 18px;
+          font-weight: bold;
+        }
+      }
+    }
+
+    input,
+    select.form-select {
       width: 100%;
       border-radius: 10px;
-      border: none;
+      border: 2px solid transparent;
       background-color: white;
       padding: 22px 20px;
       outline: none;
       margin-bottom: 20px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
       @include breakpoint(md) {
         padding: 19px 17px;
       }
+
+      &:focus {
+        border-color: var(--main-clr);
+        box-shadow: 0 0 0 3px rgba(79, 111, 82, 0.15);
+      }
+
+      &.is-invalid {
+        border-color: #dc3545;
+        background-color: #fff;
+
+        &:focus {
+          border-color: #dc3545;
+          box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+      }
+    }
+
+    select.form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 20px center;
+      background-size: 16px 12px;
+      padding-right: 45px;
     }
 
     textarea {
@@ -76,6 +135,26 @@
 
       @include breakpoint(md) {
         min-height: 180px;
+      }
+    }
+
+    .invalid-feedback {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: -15px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+
+      &::before {
+        content: "⚠";
+        font-size: 16px;
+      }
+
+      &.d-block {
+        display: flex !important;
       }
     }
 

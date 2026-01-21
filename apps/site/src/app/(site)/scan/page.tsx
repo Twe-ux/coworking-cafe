@@ -1,10 +1,11 @@
 "use client";
 
-import { MarketingContent } from "@/types/promo";
+import { MarketingContent } from "../../../types/promo";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// Générer un ID de session unique
 function generateSessionId(): string {
   return (
     "sess_" + Math.random().toString(36).substring(2) + Date.now().toString(36)
@@ -20,6 +21,7 @@ export default function ScanPage() {
   const [revealing, setRevealing] = useState(false);
 
   useEffect(() => {
+    // Générer ou récupérer le session ID
     let storedSessionId = sessionStorage.getItem("promo_session_id");
     if (!storedSessionId) {
       storedSessionId = generateSessionId();
@@ -27,27 +29,30 @@ export default function ScanPage() {
     }
     setSessionId(storedSessionId);
 
+    // Charger les données
     const fetchData = async () => {
       try {
+        // Récupérer le contenu marketing
         const marketingRes = await fetch("/api/promo/marketing");
         if (marketingRes.ok) {
           const marketingData = await marketingRes.json();
           setMarketing(marketingData);
         }
 
+        // Récupérer le token actuel
         const tokenRes = await fetch("/api/promo/current-token");
         if (tokenRes.ok) {
           const tokenData = await tokenRes.json();
           setToken(tokenData.token);
         }
 
+        // Tracker le scan
         await fetch("/api/scan/track", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ session_id: storedSessionId }),
         });
       } catch (error) {
-        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -60,15 +65,16 @@ export default function ScanPage() {
     setRevealing(true);
 
     try {
+      // Tracker la révélation
       await fetch("/api/scan/reveal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionId }),
       });
 
+      // Rediriger vers la page promo
       router.push(`/promo/${token}`);
     } catch (error) {
-      console.error("Error revealing promo:", error);
       setRevealing(false);
     }
   };
@@ -85,6 +91,7 @@ export default function ScanPage() {
             <div className="col-lg-8 col-md-10 card-scan">
               <div className="card shadow-lg border-0">
                 <div className="card-body p-4 p-md-5 text-center">
+                  {/* Animation de chargement */}
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -92,6 +99,7 @@ export default function ScanPage() {
                     className="mb-4"
                   >
                     <div className="d-inline-block position-relative">
+                      {/* Cercle externe qui tourne */}
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{
@@ -107,6 +115,7 @@ export default function ScanPage() {
                           borderRadius: "50%",
                         }}
                       />
+                      {/* Point central qui pulse */}
                       <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{
@@ -128,6 +137,7 @@ export default function ScanPage() {
                     </div>
                   </motion.div>
 
+                  {/* Texte de chargement avec animation */}
                   <motion.h3
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -146,6 +156,7 @@ export default function ScanPage() {
                     Préparation de votre code promo exclusif
                   </motion.p>
 
+                  {/* Points de chargement animés */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -180,8 +191,8 @@ export default function ScanPage() {
   }
 
   return (
-    <section className="py__110">
-      <div className="container pb__180">
+    <section className="py__110 ">
+      <div className="container pb__180 ">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,6 +202,7 @@ export default function ScanPage() {
           <div className="col-lg-8 col-md-10 card-scan">
             <div className="card shadow-lg border-0">
               <div className="card-body p-4 p-md-5 text-center">
+                {/* Titre */}
                 <motion.h1
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -200,6 +212,7 @@ export default function ScanPage() {
                   {marketing?.title || "🎉 Bienvenue !"}
                 </motion.h1>
 
+                {/* Image optionnelle */}
                 {marketing?.image_url && (
                   <motion.div
                     initial={{ scale: 0.8 }}
@@ -216,6 +229,7 @@ export default function ScanPage() {
                   </motion.div>
                 )}
 
+                {/* Message marketing */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -228,6 +242,7 @@ export default function ScanPage() {
                   }}
                 />
 
+                {/* Bouton CTA */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -256,6 +271,7 @@ export default function ScanPage() {
                   </button>
                 </motion.div>
 
+                {/* Footer optionnel */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

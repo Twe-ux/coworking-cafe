@@ -1,4 +1,4 @@
-import ProtectedEmail from "@/components/common/ProtectedEmail";
+import ProtectedEmail from "../../common/ProtectedEmail";
 import Link from "next/link";
 
 const TopHeader = () => {

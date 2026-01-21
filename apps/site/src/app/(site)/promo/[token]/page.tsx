@@ -1,6 +1,6 @@
 "use client";
 
-import { PromoCode } from "@/types/promo";
+import { PromoCode } from "../../../../types/promo";
 import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -50,6 +50,7 @@ export default function PromoPage() {
       await navigator.clipboard.writeText(promo.code);
       setCopied(true);
 
+      // Tracker la copie
       const sessionId = sessionStorage.getItem("promo_session_id");
       if (sessionId) {
         await fetch("/api/scan/copy", {
@@ -60,9 +61,7 @@ export default function PromoPage() {
       }
 
       setTimeout(() => setCopied(false), 3000);
-    } catch (error) {
-      console.error("Error copying code:", error);
-    }
+    } catch (error) {}
   };
 
   const formatDiscount = () => {
@@ -82,7 +81,7 @@ export default function PromoPage() {
   if (loading) {
     return (
       <section className="py__130">
-        <div className="container">
+        <div className="container ">
           <div className="text-center">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Chargement...</span>
@@ -136,6 +135,7 @@ export default function PromoPage() {
           <div className="col-lg-6 col-md-8 card-promo">
             <div className="card shadow-lg border-0">
               <div className="card-body p-4 p-md-5 text-center">
+                {/* Badge de réduction */}
                 <motion.div
                   initial={{ y: -20 }}
                   animate={{ y: 0 }}
@@ -147,18 +147,21 @@ export default function PromoPage() {
                   </span>
                 </motion.div>
 
+                {/* Titre */}
                 <h2 className="mb-3">🎉 Votre code promo</h2>
                 <p className="text-muted mb-4">{promo?.description}</p>
 
+                {/* Code promo */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
                   className="bg-light rounded p-4 mb-4"
                 >
-                  <code className="fs-2 fw-bold">{promo?.code}</code>
+                  <code className="fs-2 fw-bold ">{promo?.code}</code>
                 </motion.div>
 
+                {/* Bouton copier */}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -180,6 +183,7 @@ export default function PromoPage() {
                   )}
                 </motion.button>
 
+                {/* Informations supplémentaires */}
                 <div className="mt-4 pt-4 border-top">
                   <small className="text-muted d-block">
                     Valable jusqu'au{" "}
@@ -194,6 +198,7 @@ export default function PromoPage() {
                   )}
                 </div>
 
+                {/* Instructions */}
                 <div className="mt-4">
                   <p className="small text-muted">
                     Présentez ce code à l'accueil ou utilisez-le lors de votre

@@ -1,5 +1,5 @@
-import { projectsTwoData } from "@/db/projectsTwoData";
-import SlideUp from "@/utils/animations/slideUp";
+import { projectsTwoData } from "../../../db/projectsTwoData";
+import SlideUp from "../../../utils/animations/slideUp";
 import ProjectCard from "./projectCard";
 
 const ProjectsThree = () => {

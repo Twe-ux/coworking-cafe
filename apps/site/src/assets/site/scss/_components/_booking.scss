@@ -973,8 +973,8 @@
 
 .datepicker-day {
   aspect-ratio: 1;
-  height: 38px;
-  width: 87px;
+  min-height: 38px;
+  width: 100%;
   @include btn-ghost;
   @include btn-sm;
   border-radius: var(--radius);

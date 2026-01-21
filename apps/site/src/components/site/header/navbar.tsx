@@ -1,4 +1,4 @@
-import { menuData, MenuItem } from "@/db/menuData";
+import { menuData, MenuItem } from "../../../db/menuData";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -18,10 +18,7 @@ const Navbar = ({ activeNavbar, onClose }: NavbarProps) => {
     <>
       {/* Overlay pour fermer la navbar en mobile */}
       {activeNavbar && (
-        <div
-          className="navbar-overlay d-xl-none"
-          onClick={onClose}
-        />
+        <div className="navbar-overlay d-xl-none" onClick={onClose} />
       )}
       <nav
         className={`header__bottom_navbar ${
@@ -37,7 +34,9 @@ const Navbar = ({ activeNavbar, onClose }: NavbarProps) => {
                 className="d-flex justify-content-between align-items-center gap-1"
                 onClick={() => handeDropDown(index, item.submenu)}
               >
-                <Link href={item.link} onClick={onClose}>{item.title}</Link>
+                <Link href={item.link} onClick={onClose}>
+                  {item.title}
+                </Link>
                 {item?.submenu && <i className="bi bi-chevron-down" />}
               </span>
               {item?.submenu && (
@@ -50,7 +49,9 @@ const Navbar = ({ activeNavbar, onClose }: NavbarProps) => {
                 >
                   {item?.submenu?.map((subItem, subIndex) => (
                     <li key={subIndex}>
-                      <Link href={subItem.link} onClick={onClose}>{subItem.title}</Link>
+                      <Link href={subItem.link} onClick={onClose}>
+                        {subItem.title}
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -60,7 +61,11 @@ const Navbar = ({ activeNavbar, onClose }: NavbarProps) => {
 
           {/* Bouton Réserver visible uniquement en mobile */}
           <li className="d-xl-none mobile-cta-wrapper">
-            <Link href="/booking" className="common__btn mobile-reserve-btn" onClick={onClose}>
+            <Link
+              href="/booking"
+              className="common__btn mobile-reserve-btn"
+              onClick={onClose}
+            >
               <span>Réserver</span>
               <img src="/icons/arrow-up-right.svg" alt="img" />
             </Link>

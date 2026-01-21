@@ -1,6 +1,6 @@
-import { projectsOneData } from "@/db/projectsOneData";
-import SlideDown from "@/utils/animations/slideDown";
-import SlideUp from "@/utils/animations/slideUp";
+import { projectsOneData } from "../../../db/projectsOneData";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 import React from "react";
 
@@ -65,7 +65,7 @@ const ProjectsOne: React.FC<ProjectsOneProps> = ({ isProjectUseCaseShow }) => {
                   </div>
                 </SlideUp>
               );
-            }
+            },
           )}
         </div>
       </div>

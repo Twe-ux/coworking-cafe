@@ -1,5 +1,5 @@
-import { pricingData } from "@/db/pricingData";
-import SlideUp from "@/utils/animations/slideUp";
+import { pricingData } from "../../../db/pricingData";
+import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 
 const PricingTable = () => {

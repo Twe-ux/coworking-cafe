@@ -1,7 +1,7 @@
 "use client";
 
 // Import Swiper styles
-import { ManifestDetailsProps } from "@/db/manifest/manifestData";
+import { ManifestDetailsProps } from "../../../db/manifest/manifestData";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";

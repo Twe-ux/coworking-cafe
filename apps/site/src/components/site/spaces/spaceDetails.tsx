@@ -1,7 +1,7 @@
 "use client";
 
-import { SpacesDetailsProps } from "@/db/spaces/spacesData";
-import SlideUp from "@/utils/animations/slideUp";
+import { SpacesDetailsProps } from "../../../db/spaces/spacesData";
+import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -23,7 +23,7 @@ const SpaceDetails = ({
 }: SpacesDetailsProps) => {
   // Filtrer les images valides (qui ont un img défini)
   const validImages = imgSrc.filter(
-    (item): item is { id: number; img: string } => !!item.img
+    (item): item is { id: number; img: string } => !!item.img,
   );
 
   return (

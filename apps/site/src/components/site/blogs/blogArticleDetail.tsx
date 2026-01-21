@@ -1,9 +1,9 @@
 "use client";
 
-import MarkdownRenderer from "@/components/site/blogs/MarkdownRenderer";
-import type { Article } from "@/store/api/blogApi";
-import { useToggleLikeMutation } from "@/store/api/blogApi";
-import SlideUp from "@/utils/animations/slideUp";
+import MarkdownRenderer from "./MarkdownRenderer";
+import type { Article } from "../../../store/api/blogApi";
+import { useToggleLikeMutation } from "../../../store/api/blogApi";
+import SlideUp from "../../../utils/animations/slideUp";
 import { useState } from "react";
 
 interface BlogArticleDetailProps {
@@ -25,7 +25,8 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
     } catch (error) {
       // Revert on error
       setLiked(false);
-      setLikeCount((prev) => prev - 1);    }
+      setLikeCount((prev) => prev - 1);
+    }
   };
 
   return (

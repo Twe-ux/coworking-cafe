@@ -3,7 +3,7 @@
 import {
   useGetArticlesQuery,
   useGetCategoriesQuery,
-} from "@/store/api/blogApi";
+} from "../../../store/api/blogApi";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -152,7 +152,7 @@ const BlogSidebar = ({
                     <img src="/icons/clender.svg" alt="img" />
                     <span>
                       {new Date(
-                        article.publishedAt || article.createdAt
+                        article.publishedAt || article.createdAt,
                       ).toLocaleDateString("fr-FR", {
                         day: "numeric",
                         month: "long",

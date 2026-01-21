@@ -1,58 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { Types } from "mongoose";
-import { createUser } from "@/lib/auth-helpers";
-import { Newsletter } from "@coworking-cafe/database";
-import { connectToDatabase } from "@coworking-cafe/database";
+import { Types } from "mongoose";
+import { createUser } from "../../../../lib/auth-helpers";
+import { Newsletter } from "@/models/newsletter";
+import dbConnect from "../../../../lib/mongodb";
 
+// Force dynamic rendering - don't pre-render at build time
 export const dynamic = "force-dynamic";
 
 interface MongoError extends Error {
   code?: number;
 }
 
-interface RegisterRequest {
-  email: string;
-  password: string;
-  username?: string;
-  givenName?: string;
-  roleSlug?: "dev" | "admin" | "staff" | "client";
-  newsletter?: boolean;
-}
-
-interface RegisterResponse {
-  message: string;
-  user: {
-    id: string;
-    email: string;
-    username?: string;
-    givenName?: string;
-  };
-}
-
-interface ErrorResponse {
-  error: string;
-}
-
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse<RegisterResponse | ErrorResponse>> {
+export async function POST(request: NextRequest) {
   try {
-    const body: RegisterRequest = await request.json();
-    const { email, password, username, givenName, roleSlug, newsletter } =
-      body;
+    const body = await request.json();
+    const { email, password, username, givenName, roleSlug, newsletter } = body;
 
     // Validation
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email et mot de passe sont requis" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Le mot de passe doit contenir au moins 8 caractères" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -63,6 +38,7 @@ export async function POST(
     }
 
     // Only allow 'client' role for public registration
+    // Admin/Staff/Dev roles can only be created by existing admins
     const allowedRoleSlug = roleSlug === "client" ? "client" : "client";
 
     // Create user
@@ -77,7 +53,7 @@ export async function POST(
 
     // If user subscribed to newsletter, create/update newsletter entry
     if (newsletter) {
-      await connectToDatabase();
+      await dbConnect();
       await Newsletter.findOneAndUpdate(
         { email: email.toLowerCase() },
         {
@@ -88,7 +64,7 @@ export async function POST(
           source: "registration",
           $unset: { unsubscribedAt: "" },
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true },
       );
     }
 
@@ -102,14 +78,14 @@ export async function POST(
           givenName: user.givenName,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     // Handle duplicate email error
     if ((error as MongoError).code === 11000) {
       return NextResponse.json(
         { error: "Cet email est déjà utilisé" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -120,7 +96,7 @@ export async function POST(
             ? error.message
             : "Erreur lors de la création du compte",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,6 +1,6 @@
-import { partnerOneLogos } from "@/db/partnerOneLogos";
-import SlideDown from "@/utils/animations/slideDown";
-import SlideUp from "@/utils/animations/slideUp";
+import { partnerOneLogos } from "../../../db/partnerOneLogos";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 import Partner from "../partner";
 

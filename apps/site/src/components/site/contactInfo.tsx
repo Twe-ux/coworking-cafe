@@ -1,5 +1,5 @@
 "use client";
-import SlideUp from "@/utils/animations/slideUp";
+import SlideUp from "../../utils/animations/slideUp";
 import ProtectedEmail from "../common/ProtectedEmail";
 import { useState } from "react";
 
@@ -14,6 +14,7 @@ const ContactInfo = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const subjects = [
     "Renseignements généraux",
@@ -24,15 +25,99 @@ const ContactInfo = () => {
     "Autre",
   ];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const validatePhone = (phone: string): string | null => {
+    if (!phone) return null; // Champ optionnel
+    const phoneRegex = /^(?:(?:\+33|0)[1-9](?:[\s.-]?\d{2}){4})$/;
+    if (!phoneRegex.test(phone)) {
+      return "Format invalide. Ex: 06 12 34 56 78 ou 0612345678";
+    }
+    return null;
+  };
+
+  const validateEmail = (email: string): string | null => {
+    if (!email) return "L'email est requis";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return "Format d'email invalide";
+    }
+    return null;
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Effacer l'erreur du champ quand l'utilisateur tape
+    if (fieldErrors[name]) {
+      setFieldErrors({ ...fieldErrors, [name]: "" });
+    }
+  };
+
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    let errorMessage: string | null = null;
+
+    if (name === "phone" && value) {
+      errorMessage = validatePhone(value);
+    } else if (name === "email") {
+      errorMessage = validateEmail(value);
+    } else if (name === "name" && !value) {
+      errorMessage = "Le nom est requis";
+    } else if (name === "message" && !value) {
+      errorMessage = "Le message est requis";
+    }
+
+    if (errorMessage) {
+      setFieldErrors({ ...fieldErrors, [name]: errorMessage });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
     setSuccess(false);
+
+    // Validation de tous les champs
+    const errors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Le nom est requis";
+    }
+
+    const emailError = validateEmail(formData.email);
+    if (emailError) {
+      errors.email = emailError;
+    }
+
+    if (formData.phone) {
+      const phoneError = validatePhone(formData.phone);
+      if (phoneError) {
+        errors.phone = phoneError;
+      }
+    }
+
+    if (!formData.subject) {
+      errors.subject = "Le sujet est requis";
+    }
+
+    if (!formData.message.trim()) {
+      errors.message = "Le message est requis";
+    }
+
+    // Si des erreurs, arrêter la soumission
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError("Veuillez corriger les erreurs dans le formulaire");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/contact-mails", {
@@ -43,7 +128,14 @@ const ContactInfo = () => {
 
       if (res.ok) {
         setSuccess(true);
-        setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+        setFieldErrors({});
       } else {
         const data = await res.json();
         setError(data.error || "Erreur lors de l'envoi");
@@ -116,14 +208,11 @@ const ContactInfo = () => {
               <h5 className="t__28">Contactez-nous ici</h5>
               {success && (
                 <div className="alert alert-success mb-3">
-                  Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.
+                  Votre message a été envoyé avec succès. Nous vous répondrons
+                  dans les plus brefs délais.
                 </div>
               )}
-              {error && (
-                <div className="alert alert-danger mb-3">
-                  {error}
-                </div>
-              )}
+              {error && <div className="alert alert-danger mb-3">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6">
@@ -133,8 +222,15 @@ const ContactInfo = () => {
                       placeholder="Votre nom *"
                       value={formData.name}
                       onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={fieldErrors.name ? "is-invalid" : ""}
                       required
                     />
+                    {fieldErrors.name && (
+                      <div className="invalid-feedback d-block">
+                        {fieldErrors.name}
+                      </div>
+                    )}
                   </div>
                   <div className="col-md-6">
                     <input
@@ -143,25 +239,39 @@ const ContactInfo = () => {
                       placeholder="Votre Email *"
                       value={formData.email}
                       onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={fieldErrors.email ? "is-invalid" : ""}
                       required
                     />
+                    {fieldErrors.email && (
+                      <div className="invalid-feedback d-block">
+                        {fieldErrors.email}
+                      </div>
+                    )}
                   </div>
                   <div className="col-md-6">
                     <input
                       type="tel"
                       name="phone"
-                      placeholder="Votre téléphone"
+                      placeholder="06 12 34 56 78"
                       value={formData.phone}
                       onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={fieldErrors.phone ? "is-invalid" : ""}
                     />
+                    {fieldErrors.phone && (
+                      <div className="invalid-feedback d-block">
+                        {fieldErrors.phone}
+                      </div>
+                    )}
                   </div>
                   <div className="col-md-6">
                     <select
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
+                      className={`form-select ${fieldErrors.subject ? "is-invalid" : ""}`}
                       required
-                      className="form-select"
                     >
                       <option value="">Sujet *</option>
                       {subjects.map((subject) => (
@@ -170,6 +280,11 @@ const ContactInfo = () => {
                         </option>
                       ))}
                     </select>
+                    {fieldErrors.subject && (
+                      <div className="invalid-feedback d-block">
+                        {fieldErrors.subject}
+                      </div>
+                    )}
                   </div>
                   <div className="col-12">
                     <textarea
@@ -177,13 +292,26 @@ const ContactInfo = () => {
                       placeholder="Votre message *"
                       value={formData.message}
                       onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={fieldErrors.message ? "is-invalid" : ""}
                       required
                     />
+                    {fieldErrors.message && (
+                      <div className="invalid-feedback d-block">
+                        {fieldErrors.message}
+                      </div>
+                    )}
                   </div>
                   <div>
-                    <button type="submit" className="common__btn" disabled={loading}>
+                    <button
+                      type="submit"
+                      className="common__btn"
+                      disabled={loading}
+                    >
                       {loading ? "Envoi en cours..." : "Envoyez votre message"}
-                      {!loading && <img src="/icons/arrow-up-right.svg" alt="img" />}
+                      {!loading && (
+                        <img src="/icons/arrow-up-right.svg" alt="img" />
+                      )}
                     </button>
                   </div>
                 </div>

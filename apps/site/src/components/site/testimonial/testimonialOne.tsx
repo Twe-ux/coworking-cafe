@@ -1,7 +1,7 @@
 "use client";
-import { testimonialsOneData } from "@/db/testimonialsOneData";
-import SlideDown from "@/utils/animations/slideDown";
-import SlideUp from "@/utils/animations/slideUp";
+import { testimonialsOneData } from "../../../db/testimonialsOneData";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 import { useEffect, useRef } from "react";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
@@ -30,7 +30,7 @@ const TestimonialOne = () => {
       if (paginationEl) {
         paginationEl.addEventListener(
           "click",
-          handlePaginationClick as EventListener
+          handlePaginationClick as EventListener,
         );
       }
     }, 100);
@@ -41,7 +41,7 @@ const TestimonialOne = () => {
       if (paginationEl) {
         paginationEl.removeEventListener(
           "click",
-          handlePaginationClick as EventListener
+          handlePaginationClick as EventListener,
         );
       }
     };

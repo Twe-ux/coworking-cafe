@@ -1,4 +1,4 @@
-import { SpacesDetailsProps } from "@/db/spaces/spacesData";
+import { SpacesDetailsProps } from "../../../db/spaces/spacesData";
 
 interface SpaceCounterProps {
   counterBox: SpacesDetailsProps["counterBox"];

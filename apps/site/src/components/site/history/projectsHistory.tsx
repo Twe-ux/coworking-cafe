@@ -1,5 +1,5 @@
-import { historyData } from "@/db/history/historyData";
-import SlideUp from "@/utils/animations/slideUp";
+import { historyData } from "../../../db/history/historyData";
+import SlideUp from "../../../utils/animations/slideUp";
 import ProjectCard from "../projects/projectCard";
 
 const ProjectsHistory = () => {

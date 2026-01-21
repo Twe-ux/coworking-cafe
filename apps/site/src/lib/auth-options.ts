@@ -1,15 +1,14 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import type { Types } from "mongoose";
+import { Types } from "mongoose";
 import {
   findUserByEmail,
   verifyPassword,
   getRedirectPathByRole,
   initializeRoles,
 } from "./auth-helpers";
-import { User } from "@coworking-cafe/database";
-import { connectToDatabase } from "@coworking-cafe/database";
-import type { RoleDocument } from "@coworking-cafe/database/src/models/role/document";
+import { User } from "../models/user";
+import dbConnect from "./mongodb";
 
 interface PopulatedRole {
   _id: Types.ObjectId;
@@ -21,7 +20,7 @@ interface PopulatedRole {
 // Track if roles have been initialized
 let rolesInitialized = false;
 
-export const authOptions: NextAuthOptions = {
+export const options: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -39,9 +38,8 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email et mot de passe sont requis");
+          throw new Error("Email and password are required");
         }
-
         try {
           // Initialize roles on first authentication attempt
           if (!rolesInitialized) {
@@ -50,7 +48,6 @@ export const authOptions: NextAuthOptions = {
               rolesInitialized = true;
             } catch (error) {
               // Don't throw here - roles might already exist
-              console.error("Error initializing roles:", error);
             }
           }
 
@@ -58,25 +55,27 @@ export const authOptions: NextAuthOptions = {
           const user = await findUserByEmail(credentials.email);
 
           if (!user) {
-            throw new Error("Email ou mot de passe invalide");
+            throw new Error("Invalid email or password");
           }
-
           // Verify password
           const isValidPassword = await verifyPassword(
             credentials.password,
-            user.password
+            user.password,
           );
 
           if (!isValidPassword) {
-            throw new Error("Email ou mot de passe invalide");
+            throw new Error("Invalid email or password");
           }
+          // Check if email is verified (optional)
+          // if (!user.emailVerifiedAt) {
+          //   throw new Error('Please verify your email first');
+          // }
 
           // Update last login
-          await User.findByIdAndUpdate(user._id, {
-            lastLoginAt: new Date(),
-          });
+          user.lastLoginAt = new Date();
+          await user.save();
 
-          const role = user.role;
+          const role = user.role as unknown as PopulatedRole;
 
           // Return user data for session
           return {
@@ -92,26 +91,27 @@ export const authOptions: NextAuthOptions = {
             },
           };
         } catch (error) {
+          // Better error messages for debugging
           if (error instanceof Error) {
             if (
               error.message.includes("ECONNREFUSED") ||
               error.message.includes("querySrv")
             ) {
               throw new Error(
-                "Erreur de connexion à la base de données. Veuillez réessayer."
+                "Database connection failed. Please try again later.",
               );
             }
             throw new Error(error.message);
           }
 
-          throw new Error("Erreur lors de l'authentification");
+          throw new Error("Authentication failed");
         }
       },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/auth/login",
+    signIn: "/auth/login", // Updated to new site auth path
     error: "/auth/login",
   },
   callbacks: {
@@ -121,32 +121,19 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
-        token.username = (
-          user as typeof user & { username?: string }
-        ).username;
-        token.role = (
-          user as typeof user & {
-            role: {
-              id: string;
-              slug: "dev" | "admin" | "staff" | "client";
-              name: string;
-              level: number;
-            };
-          }
-        ).role;
+        token.username = (user as any).username;
+        token.role = (user as any).role;
       }
 
       // Handle session update - reload user data from database
       if (trigger === "update") {
         if (token.id) {
           try {
-            await connectToDatabase();
-            const updatedUser = await User.findById(token.id)
-              .populate<{ role: RoleDocument }>("role")
-              .lean();
-
+            await dbConnect();
+            // Use findById instead of findByEmail to handle email changes
+            const updatedUser = await User.findById(token.id).populate("role");
             if (updatedUser) {
-              const role = updatedUser.role;
+              const role = updatedUser.role as unknown as PopulatedRole;
               token.id = (updatedUser._id as Types.ObjectId).toString();
               token.email = updatedUser.email;
               token.name =
@@ -156,16 +143,15 @@ export const authOptions: NextAuthOptions = {
               token.username = updatedUser.username;
               token.role = {
                 id: role._id.toString(),
-                slug: role.slug as "dev" | "admin" | "staff" | "client",
+                slug: role.slug,
                 name: role.name,
                 level: role.level,
               };
             }
           } catch (error) {
-            console.error("Error updating user session:", error);
+            // Error updating user session
           }
         }
-
         // Also merge any session data passed
         if (session) {
           token = { ...token, ...session };
@@ -183,7 +169,7 @@ export const authOptions: NextAuthOptions = {
           id: token.id as string,
           email: token.email as string,
           name: token.name as string,
-          username: token.username as string | undefined,
+          username: token.username as string,
           role: token.role as {
             id: string;
             slug: "dev" | "admin" | "staff" | "client";
@@ -217,7 +203,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: false,
       },
     },
   },

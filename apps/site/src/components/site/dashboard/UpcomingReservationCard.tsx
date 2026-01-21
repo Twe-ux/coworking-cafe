@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import CancelBookingModal from "@/components/site/booking/CancelBookingModal";
+import CancelBookingModal from "../booking/CancelBookingModal";
 
 interface Reservation {
   _id: string;
@@ -21,7 +21,10 @@ interface Props {
   onCancelled?: () => void;
 }
 
-export default function UpcomingReservationCard({ reservation, onCancelled }: Props) {
+export default function UpcomingReservationCard({
+  reservation,
+  onCancelled,
+}: Props) {
   const [showCancelModal, setShowCancelModal] = useState(false);
 
   const getSpaceLabel = (spaceType: string) => {
@@ -66,13 +69,14 @@ export default function UpcomingReservationCard({ reservation, onCancelled }: Pr
         <div className="reservation-card">
           <Link
             href={`/booking/confirmation/${reservation._id.toString()}`}
-            style={{ textDecoration: 'none', color: 'inherit' }}
+            style={{ textDecoration: "none", color: "inherit" }}
           >
             <div className="d-flex justify-content-between align-items-start mb-3">
               <h5 className="reservation-space mb-0">
                 {getSpaceLabel(reservation.spaceType)}
               </h5>
-              {(reservation.status === "confirmed" || reservation.status === "pending") && (
+              {(reservation.status === "confirmed" ||
+                reservation.status === "pending") && (
                 <button
                   onClick={handleCancelClick}
                   className="btn-cancel-top"
@@ -99,7 +103,10 @@ export default function UpcomingReservationCard({ reservation, onCancelled }: Pr
                 </div>
                 <div className="info-item mb-0">
                   <i className="bi bi-people"></i>
-                  <span>{reservation.numberOfPeople} personne{reservation.numberOfPeople > 1 ? "s" : ""}</span>
+                  <span>
+                    {reservation.numberOfPeople} personne
+                    {reservation.numberOfPeople > 1 ? "s" : ""}
+                  </span>
                 </div>
               </div>
             </div>
@@ -107,14 +114,10 @@ export default function UpcomingReservationCard({ reservation, onCancelled }: Pr
             <div className="reservation-footer">
               <span
                 className={`status-badge ${
-                  reservation.status === "confirmed"
-                    ? "confirmed"
-                    : "pending"
+                  reservation.status === "confirmed" ? "confirmed" : "pending"
                 }`}
               >
-                {reservation.status === "confirmed"
-                  ? "Validée"
-                  : "En attente"}
+                {reservation.status === "confirmed" ? "Validée" : "En attente"}
               </span>
               <span className="price">
                 {reservation.totalPrice?.toFixed(2) || "0.00"}€
