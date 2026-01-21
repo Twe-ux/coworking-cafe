@@ -3,6 +3,8 @@ import { connectMongoose } from "@/lib/mongodb"
 import { requireAuth } from "@/lib/api/auth"
 import CashEntry from "@/models/cashEntry"
 import type { PrestaB2BItem, DepenseItem } from "@/types/accounting"
+import { parseAndValidate } from "@/lib/api/validation"
+import { createCashEntrySchema } from "@/lib/validations/cashEntry"
 
 export async function GET(request: NextRequest) {
   try {
@@ -62,18 +64,13 @@ export async function POST(request: NextRequest) {
 
     await connectMongoose()
 
-    const body = await request.json()
-
-    // Validate required fields
-    if (!body.date) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Date is required",
-        },
-        { status: 400 }
-      )
+    // Validate request body with Zod
+    const validation = await parseAndValidate(request, createCashEntrySchema)
+    if (!validation.success) {
+      return validation.response
     }
+
+    const body = validation.data
 
     // Format date as YYYY/MM/DD for _id
     const dateObj = new Date(body.date)

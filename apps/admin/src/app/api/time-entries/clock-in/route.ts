@@ -11,6 +11,8 @@ import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
 import { checkIPWhitelist, getClientIP } from '@/lib/security/ip-whitelist'
 import { checkRateLimit, recordAttempt, resetAttempts } from '@/lib/security/rate-limiter'
 import { logPINAttempt } from '@/lib/security/pin-logger'
+import { validateRequest } from '@/lib/api/validation'
+import { clockInSchema } from '@/lib/validations/timeEntry'
 
 /**
  * POST /api/time-entries/clock-in - Débuter un nouveau shift
@@ -21,31 +23,15 @@ export async function POST(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || undefined
 
   try {
-    const body = (await request.json()) as ClockInRequest
+    const rawBody = await request.json()
 
-    // Validation des données d'entrée
-    if (!body.employeeId || !body.pin) {
-      return NextResponse.json<ApiResponse<null>>(
-        {
-          success: false,
-          error: 'ID employé et PIN sont obligatoires',
-          details: TIME_ENTRY_ERRORS.VALIDATION_ERROR,
-        },
-        { status: 400 }
-      )
+    // Validate request body with Zod
+    const validation = validateRequest(rawBody, clockInSchema)
+    if (!validation.success) {
+      return validation.response
     }
 
-    // Validation du format PIN
-    if (!/^\d{4}$/.test(body.pin)) {
-      return NextResponse.json<ApiResponse<null>>(
-        {
-          success: false,
-          error: 'Le PIN doit être composé de 4 chiffres',
-          details: TIME_ENTRY_ERRORS.INVALID_PIN,
-        },
-        { status: 400 }
-      )
-    }
+    const body = validation.data
 
     // 🔒 Sécurité 1: IP Whitelist (optionnelle)
     const ipCheck = checkIPWhitelist(request)

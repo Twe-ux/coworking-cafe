@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
+import { parseAndValidate } from '@/lib/api/validation'
+import { createEmployeeSchema } from '@/lib/validations/employee'
 
 /**
  * GET /api/hr/employees - Récupérer tous les employés (avec données HR complètes)
@@ -194,55 +196,52 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const data = await request.json()
-
-    // Validation des données obligatoires
-    if (!data.firstName || !data.lastName || !data.employeeRole) {
-      return NextResponse.json(
-        { success: false, error: 'Prénom, nom et rôle sont obligatoires' },
-        { status: 400 }
-      )
+    // Validate request body with Zod
+    const validation = await parseAndValidate(request, createEmployeeSchema)
+    if (!validation.success) {
+      return validation.response
     }
+
+    const data = validation.data
 
     await connectMongoose()
 
-    // Créer le nouvel employé avec toutes les données
-    const employeeData: any = {
-      firstName: data.firstName.trim(),
-      lastName: data.lastName.trim(),
-      employeeRole: data.employeeRole || 'Employé polyvalent',
+    // Prepare employee data with proper date conversion
+    const employeeData = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      employeeRole: data.employeeRole,
       clockingCode: data.clockingCode,
       color: data.color,
-    }
-
-    // Champs optionnels
-    if (data.email) employeeData.email = data.email.trim()
-    if (data.phone) employeeData.phone = data.phone.trim()
-    if (data.dateOfBirth) employeeData.dateOfBirth = new Date(data.dateOfBirth)
-    if (data.placeOfBirth) employeeData.placeOfBirth = data.placeOfBirth
-    if (data.address) employeeData.address = data.address
-    if (data.socialSecurityNumber)
-      employeeData.socialSecurityNumber = data.socialSecurityNumber
-    if (data.contractType) employeeData.contractType = data.contractType
-    if (data.contractualHours)
-      employeeData.contractualHours = data.contractualHours
-    if (data.hireDate) employeeData.hireDate = new Date(data.hireDate)
-    if (data.hireTime) employeeData.hireTime = data.hireTime
-    if (data.level) employeeData.level = data.level
-    if (data.step) employeeData.step = data.step
-    if (data.hourlyRate) employeeData.hourlyRate = data.hourlyRate
-    if (data.monthlySalary) employeeData.monthlySalary = data.monthlySalary
-    if (data.availability) employeeData.availability = data.availability
-    if (data.bankDetails) employeeData.bankDetails = data.bankDetails
-
-    // Définir onboardingStatus avec tous les steps complétés
-    employeeData.onboardingStatus = {
-      step1Completed: true,
-      step2Completed: true,
-      step3Completed: true,
-      step4Completed: true,
-      contractGenerated: false,
-      dpaeCompleted: false,
+      email: data.email,
+      phone: data.phone,
+      dateOfBirth: new Date(data.dateOfBirth),
+      placeOfBirth: data.placeOfBirth,
+      address: data.address,
+      socialSecurityNumber: data.socialSecurityNumber,
+      contractType: data.contractType,
+      contractualHours: data.contractualHours,
+      hireDate: new Date(data.hireDate),
+      hireTime: data.hireTime,
+      endDate: data.endDate ? new Date(data.endDate) : undefined,
+      endContractReason: data.endContractReason,
+      level: data.level,
+      step: data.step,
+      hourlyRate: data.hourlyRate,
+      monthlySalary: data.monthlySalary,
+      availability: data.availability,
+      bankDetails: data.bankDetails,
+      // Définir onboardingStatus avec tous les steps complétés
+      onboardingStatus: {
+        step1Completed: true,
+        step2Completed: true,
+        step3Completed: true,
+        step4Completed: true,
+        contractGenerated: false,
+        dpaeCompleted: false,
+        bankDetailsProvided: false,
+        contractSent: false,
+      },
     }
 
     const newEmployee = new Employee(employeeData)
