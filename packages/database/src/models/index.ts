@@ -7,6 +7,8 @@ export { Permission } from './permission';
 export type { PermissionDocument } from './permission';
 export { Session } from './session';
 export type { SessionDocument } from './session';
+export { default as PasswordResetToken } from './passwordResetToken';
+export type { PasswordResetTokenDocument } from './passwordResetToken';
 
 // ===== HR & Staff =====
 export { TimeEntry } from './timeEntry';
