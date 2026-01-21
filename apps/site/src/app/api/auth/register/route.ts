@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Types } from "mongoose";
 import { createUser } from "../../../../lib/auth-helpers";
-import { Newsletter } from "@/models/newsletter";
+import { Newsletter } from "@coworking-cafe/database";
 import dbConnect from "../../../../lib/mongodb";
 
 // Force dynamic rendering - don't pre-render at build time
