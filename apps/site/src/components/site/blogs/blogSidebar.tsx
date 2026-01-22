@@ -11,12 +11,14 @@ interface BlogSidebarProps {
   onSearch?: (query: string) => void;
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
+  hideSearch?: boolean;
 }
 
 const BlogSidebar = ({
   onSearch,
   onCategorySelect,
   selectedCategory,
+  hideSearch = false,
 }: BlogSidebarProps) => {
   const [searchValue, setSearchValue] = useState("");
 
@@ -52,41 +54,42 @@ const BlogSidebar = ({
 
   return (
     <aside className="sidebar">
-      <div className="search__box">
-        {/* <label htmlFor="search" className="t__22">
-          Recherche
-        </label> */}
-        <form onSubmit={handleSearch} className="position-relative">
-          <input
-            id="search"
-            type="text"
-            placeholder="Recherche"
-            value={searchValue}
-            onChange={(e) => handleSearchChange(e.target.value)}
-          />
-          <span
-            style={{
-              position: "absolute",
-              right: "15px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              pointerEvents: "none",
-            }}
-          >
-            <i className="fa-solid fa-magnifying-glass" />
-          </span>
-        </form>
-      </div>
+      {!hideSearch && (
+        <div className="search__box pb__60">
+          {/* <label htmlFor="search" className="t__22">
+            Recherche
+          </label> */}
+          <form onSubmit={handleSearch} className="position-relative">
+            <input
+              id="search"
+              type="text"
+              placeholder="Recherche"
+              value={searchValue}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <span
+              style={{
+                position: "absolute",
+                right: "15px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+              }}
+            >
+              <i className="fa-solid fa-magnifying-glass" />
+            </span>
+          </form>
+        </div>
+      )}
 
       {/* -- Categories */}
-      <div className="categories pt__60">
+      <div className={`categories ${!hideSearch ? "pt__60" : ""}`}>
         <h5 className="t__22">Thèmes</h5>
         <ul>
           {/* "All" option */}
           <li>
             <Link
-              href="#"
-              onClick={(e) => handleCategoryClick(e, "")}
+              href="/blog"
               style={{
                 fontWeight: !selectedCategory ? "bold" : "normal",
                 color: !selectedCategory ? "#000" : "inherit",
@@ -103,8 +106,7 @@ const BlogSidebar = ({
               .map((category) => (
                 <li key={category._id}>
                   <Link
-                    href="#"
-                    onClick={(e) => handleCategoryClick(e, category._id)}
+                    href={`/blog/category/${category.slug}`}
                     style={{
                       fontWeight:
                         selectedCategory === category._id ? "bold" : "normal",

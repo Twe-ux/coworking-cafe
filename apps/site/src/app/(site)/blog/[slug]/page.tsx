@@ -72,7 +72,7 @@ const BlogDetails = () => {
               <BlogArticleDetail article={article} />
             </div>
             <div className="col-lg-4 mt-5 mt-lg-0">
-              <BlogSidebar />
+              <BlogSidebar hideSearch={true} />
             </div>
           </div>
         </div>
