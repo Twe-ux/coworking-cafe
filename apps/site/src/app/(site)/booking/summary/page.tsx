@@ -4,24 +4,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  PaymentElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
-import BookingProgressBar from "../../../../components/site/booking/BookingProgressBar";
-import InfoEmpreinte from "../../../../components/site/booking/InfoEmpreinte";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
+import InfoEmpreinte from "@/components/site/booking/InfoEmpreinte";
 import "../../[id]/client-dashboard.scss";
 
 // Validate Stripe publishable key
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 if (!stripePublishableKey) {
-  console.error("⚠️ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not configured");
+  console.error('⚠️ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not configured');
 }
-const stripePromise = stripePublishableKey
-  ? loadStripe(stripePublishableKey)
-  : null;
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 interface BookingData {
   spaceType: string;
@@ -98,14 +91,7 @@ interface PaymentFormContentProps {
   acceptedTerms: boolean;
 }
 
-function PaymentFormContent({
-  bookingId,
-  intentType,
-  bookingData,
-  onSuccess,
-  onError,
-  acceptedTerms,
-}: PaymentFormContentProps) {
+function PaymentFormContent({ bookingId, intentType, bookingData, onSuccess, onError, acceptedTerms }: PaymentFormContentProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -208,9 +194,7 @@ export default function BookingSummaryPage() {
 
   // Stripe payment states
   const [clientSecret, setClientSecret] = useState<string>("");
-  const [intentType, setIntentType] = useState<
-    "manual_capture" | "setup_intent"
-  >("manual_capture");
+  const [intentType, setIntentType] = useState<"manual_capture" | "setup_intent">("manual_capture");
   const [bookingId, setBookingId] = useState<string>("");
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [paymentError, setPaymentError] = useState<string>("");
@@ -221,7 +205,7 @@ export default function BookingSummaryPage() {
   const convertPrice = (
     priceTTC: number,
     vatRate: number,
-    toTTC: boolean,
+    toTTC: boolean
   ): number => {
     if (toTTC) {
       return priceTTC; // Already TTC
@@ -244,7 +228,7 @@ export default function BookingSummaryPage() {
     const now = new Date();
     const bookingDate = new Date(data.date);
     const days = Math.ceil(
-      (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+      (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
     setDaysUntilBooking(days);
 
@@ -253,7 +237,7 @@ export default function BookingSummaryPage() {
     if (storedServices) {
       const servicesArray = JSON.parse(storedServices) as [
         string,
-        SelectedService,
+        SelectedService
       ][];
       const servicesMap = new Map<string, SelectedService>(servicesArray);
       setSelectedServices(servicesMap);
@@ -263,36 +247,32 @@ export default function BookingSummaryPage() {
     const fetchSpaceConfig = async () => {
       try {
         // Convert URL slug to DB spaceType
-        const dbSpaceType = slugToSpaceType[data.spaceType] || data.spaceType;
-        const response = await fetch(
-          `/api/space-configurations/${dbSpaceType}`,
+        const dbSpaceType = slugToSpaceType[data.spaceType] || data.spaceType;        const response = await fetch(
+          `/api/space-configurations/${dbSpaceType}`
         );
         if (response.ok) {
-          const configData = await response.json();
-          setSpaceConfig(configData.data);
-        } else {
-          const errorData = await response.text();
-        }
-      } catch (error) {}
+          const configData = await response.json();          setSpaceConfig(configData.data);
+        } else {          const errorData = await response.text();        }
+      } catch (error) {
+    }
     };
 
-    if (data.spaceType) {
-      fetchSpaceConfig();
-    } else {
-    }
+    if (data.spaceType) {      fetchSpaceConfig();
+    } else {    }
 
     // Fetch cancellation policy
     const fetchCancellationPolicy = async () => {
       try {
         const dbSpaceType = slugToSpaceType[data.spaceType] || data.spaceType;
         const response = await fetch(
-          `/api/cancellation-policy?spaceType=${dbSpaceType}`,
+          `/api/cancellation-policy?spaceType=${dbSpaceType}`
         );
         if (response.ok) {
           const policyData = await response.json();
           setCancellationPolicy(policyData.data.cancellationPolicy);
         }
-      } catch (error) {}
+      } catch (error) {
+    }
     };
 
     if (data.spaceType) {
@@ -357,8 +337,7 @@ export default function BookingSummaryPage() {
 
   const calculateDepositAmount = () => {
     const totalPrice = getTotalPrice();
-    if (!spaceConfig?.depositPolicy?.enabled) {
-      return totalPrice * 100; // Default to full amount if no policy
+    if (!spaceConfig?.depositPolicy?.enabled) {      return totalPrice * 100; // Default to full amount if no policy
     }
 
     const totalPriceInCents = totalPrice * 100;
@@ -368,18 +347,14 @@ export default function BookingSummaryPage() {
 
     // Calculate deposit based on policy
     if (policy.fixedAmount) {
-      depositInCents = policy.fixedAmount;
-    } else if (policy.percentage) {
+      depositInCents = policy.fixedAmount;    } else if (policy.percentage) {
       depositInCents = Math.round(
-        totalPriceInCents * (policy.percentage / 100),
-      );
-    }
+        totalPriceInCents * (policy.percentage / 100)
+      );    }
 
     // Apply minimum if set
     if (policy.minimumAmount && depositInCents < policy.minimumAmount) {
-      depositInCents = policy.minimumAmount;
-    }
-    return depositInCents;
+      depositInCents = policy.minimumAmount;    }    return depositInCents;
   };
 
   const handleCreateReservation = async () => {
@@ -408,7 +383,7 @@ export default function BookingSummaryPage() {
                 ? priceToUse * bookingData.numberOfPeople * selected.quantity
                 : priceToUse * selected.quantity,
           };
-        },
+        }
       );
 
       // NEW WORKFLOW: Create payment intent with reservation data
@@ -444,9 +419,7 @@ export default function BookingSummaryPage() {
       const paymentData = await paymentResponse.json();
 
       if (!paymentData.success) {
-        setPaymentError(
-          paymentData.error || "Erreur lors de la création du paiement",
-        );
+        setPaymentError(paymentData.error || "Erreur lors de la création du paiement");
         setLoading(false);
         return;
       }
@@ -457,8 +430,7 @@ export default function BookingSummaryPage() {
       setIntentType(paymentData.data.type || "manual_capture");
       setShowPaymentForm(true);
       setLoading(false);
-    } catch (error) {
-      setPaymentError("Une erreur est survenue");
+    } catch (error) {      setPaymentError("Une erreur est survenue");
       setLoading(false);
     }
   };
@@ -533,14 +505,8 @@ export default function BookingSummaryPage() {
                     className="booking-card d-flex flex-column"
                     style={{ flex: 1 }}
                   >
-                    <div
-                      className="d-flex align-items-center gap-3 mb-4 pb-3"
-                      style={{ borderBottom: "2px solid #f0f0f0" }}
-                    >
-                      <i
-                        className="bi bi-calendar-check"
-                        style={{ fontSize: "1.5rem", color: "#588983" }}
-                      ></i>
+                    <div className="d-flex align-items-center gap-3 mb-4 pb-3" style={{ borderBottom: "2px solid #f0f0f0" }}>
+                      <i className="bi bi-calendar-check" style={{ fontSize: "1.5rem", color: "#588983" }}></i>
                       <h2
                         className="h6 mb-0 fw-bold"
                         style={{ fontSize: "1.125rem", color: "#333" }}
@@ -557,49 +523,37 @@ export default function BookingSummaryPage() {
                         gap: "0",
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          padding: "12px 0",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <span style={{ fontWeight: "600", color: "#666" }}>
-                          Espace
-                        </span>
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "12px 0",
+                        borderBottom: "1px solid #f0f0f0"
+                      }}>
+                        <span style={{ fontWeight: "600", color: "#666" }}>Espace</span>
                         <span style={{ color: "#333", textAlign: "right" }}>
                           {spaceTypeLabels[bookingData.spaceType]}
                         </span>
                       </div>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          padding: "12px 0",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <span style={{ fontWeight: "600", color: "#666" }}>
-                          Type
-                        </span>
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "12px 0",
+                        borderBottom: "1px solid #f0f0f0"
+                      }}>
+                        <span style={{ fontWeight: "600", color: "#666" }}>Type</span>
                         <span style={{ color: "#333", textAlign: "right" }}>
                           {reservationTypeLabels[bookingData.reservationType]}
                         </span>
                       </div>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          padding: "12px 0",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <span style={{ fontWeight: "600", color: "#666" }}>
-                          Date
-                        </span>
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "12px 0",
+                        borderBottom: "1px solid #f0f0f0"
+                      }}>
+                        <span style={{ fontWeight: "600", color: "#666" }}>Date</span>
                         <span style={{ color: "#333", textAlign: "right" }}>
                           {new Date(bookingData.date).toLocaleDateString(
                             "fr-FR",
@@ -607,23 +561,19 @@ export default function BookingSummaryPage() {
                               weekday: "long",
                               day: "numeric",
                               month: "long",
-                              year: "numeric",
-                            },
+                              year: "numeric"
+                            }
                           )}
                         </span>
                       </div>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          padding: "12px 0",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <span style={{ fontWeight: "600", color: "#666" }}>
-                          Horaires
-                        </span>
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "12px 0",
+                        borderBottom: "1px solid #f0f0f0"
+                      }}>
+                        <span style={{ fontWeight: "600", color: "#666" }}>Horaires</span>
                         <span style={{ color: "#333", textAlign: "right" }}>
                           {bookingData.startTime} - {bookingData.endTime}{" "}
                           <small style={{ color: "#999" }}>
@@ -632,17 +582,13 @@ export default function BookingSummaryPage() {
                         </span>
                       </div>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          padding: "12px 0",
-                          borderBottom: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <span style={{ fontWeight: "600", color: "#666" }}>
-                          Personnes
-                        </span>
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "12px 0",
+                        borderBottom: "1px solid #f0f0f0"
+                      }}>
+                        <span style={{ fontWeight: "600", color: "#666" }}>Personnes</span>
                         <span style={{ color: "#333", textAlign: "right" }}>
                           {bookingData.numberOfPeople}{" "}
                           {bookingData.numberOfPeople > 1
@@ -651,19 +597,13 @@ export default function BookingSummaryPage() {
                         </span>
                       </div>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          padding: "12px 0",
-                          borderBottom: bookingData.specialRequests
-                            ? "1px solid #f0f0f0"
-                            : "none",
-                        }}
-                      >
-                        <span style={{ fontWeight: "600", color: "#666" }}>
-                          Contact
-                        </span>
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "12px 0",
+                        borderBottom: bookingData.specialRequests ? "1px solid #f0f0f0" : "none"
+                      }}>
+                        <span style={{ fontWeight: "600", color: "#666" }}>Contact</span>
                         <span style={{ color: "#333", textAlign: "right" }}>
                           <div>{bookingData.contactName}</div>
                           <small style={{ color: "#999" }}>
@@ -677,16 +617,12 @@ export default function BookingSummaryPage() {
                       </div>
 
                       {bookingData.specialRequests && (
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            padding: "12px 0",
-                          }}
-                        >
-                          <span style={{ fontWeight: "600", color: "#666" }}>
-                            Demandes
-                          </span>
+                        <div style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          padding: "12px 0"
+                        }}>
+                          <span style={{ fontWeight: "600", color: "#666" }}>Demandes</span>
                           <span style={{ color: "#333", textAlign: "right" }}>
                             {bookingData.specialRequests}
                           </span>
@@ -697,14 +633,8 @@ export default function BookingSummaryPage() {
 
                   {/* Price Breakdown Card */}
                   <div className="booking-card">
-                    <div
-                      className="d-flex align-items-center gap-3 mb-4 pb-3"
-                      style={{ borderBottom: "2px solid #f0f0f0" }}
-                    >
-                      <i
-                        className="bi bi-cash-stack"
-                        style={{ fontSize: "1.5rem", color: "#588983" }}
-                      ></i>
+                    <div className="d-flex align-items-center gap-3 mb-4 pb-3" style={{ borderBottom: "2px solid #f0f0f0" }}>
+                      <i className="bi bi-cash-stack" style={{ fontSize: "1.5rem", color: "#588983" }}></i>
                       <h2
                         className="h6 mb-0 fw-bold"
                         style={{ fontSize: "1.125rem", color: "#333" }}
@@ -851,7 +781,7 @@ export default function BookingSummaryPage() {
                                   bookingData.basePrice /
                                     bookingData.numberOfPeople,
                                   vatRate,
-                                  showTTC,
+                                  showTTC
                                 );
                                 return unitPrice.toFixed(2);
                               })()}
@@ -869,7 +799,7 @@ export default function BookingSummaryPage() {
                                 const totalPrice = convertPrice(
                                   bookingData.basePrice,
                                   vatRate,
-                                  showTTC,
+                                  showTTC
                                 );
                                 return totalPrice.toFixed(2);
                               })()}
@@ -886,7 +816,7 @@ export default function BookingSummaryPage() {
                               const totalPrice = convertPrice(
                                 bookingData.basePrice,
                                 vatRate,
-                                showTTC,
+                                showTTC
                               );
                               return totalPrice.toFixed(2);
                             })()}
@@ -909,7 +839,7 @@ export default function BookingSummaryPage() {
                             const displayPrice = convertPrice(
                               displayPriceTTC,
                               vatRate,
-                              showTTC,
+                              showTTC
                             );
                             const totalServicePrice =
                               selected.service.priceUnit === "per-person"
@@ -972,7 +902,7 @@ export default function BookingSummaryPage() {
                                 </div>
                               </div>
                             );
-                          },
+                          }
                         )}
 
                       <div className="price-row total-row">
@@ -993,7 +923,7 @@ export default function BookingSummaryPage() {
                               const baseHT = convertPrice(
                                 bookingData.basePrice,
                                 baseVatRate,
-                                false,
+                                false
                               );
 
                               let servicesHT = 0;
@@ -1009,7 +939,7 @@ export default function BookingSummaryPage() {
                                 const displayPriceHT = convertPrice(
                                   displayPriceTTC,
                                   vatRate,
-                                  false,
+                                  false
                                 );
 
                                 if (service.priceUnit === "per-person") {
@@ -1037,18 +967,9 @@ export default function BookingSummaryPage() {
                   className="col-12 col-lg-5 d-flex flex-column"
                   style={{ gap: "1rem" }}
                 >
-                  <div
-                    className="booking-card d-flex flex-column"
-                    style={{ height: "100%" }}
-                  >
-                    <div
-                      className="d-flex align-items-center gap-3 mb-4 pb-3"
-                      style={{ borderBottom: "2px solid #f0f0f0" }}
-                    >
-                      <i
-                        className="bi bi-credit-card"
-                        style={{ fontSize: "1.5rem", color: "#588983" }}
-                      ></i>
+                  <div className="booking-card d-flex flex-column" style={{ height: "100%" }}>
+                    <div className="d-flex align-items-center gap-3 mb-4 pb-3" style={{ borderBottom: "2px solid #f0f0f0" }}>
+                      <i className="bi bi-credit-card" style={{ fontSize: "1.5rem", color: "#588983" }}></i>
                       <h2
                         className="h6 mb-0 fw-bold"
                         style={{ fontSize: "1.125rem", color: "#333" }}
@@ -1080,45 +1001,41 @@ export default function BookingSummaryPage() {
                     {!stripePromise ? (
                       <div className="alert alert-danger" role="alert">
                         <i className="bi bi-exclamation-triangle me-2"></i>
-                        <strong>Configuration manquante :</strong> La clé
-                        publique Stripe n'est pas configurée. Veuillez contacter
-                        l'administrateur.
+                        <strong>Configuration manquante :</strong> La clé publique Stripe n'est pas configurée.
+                        Veuillez contacter l'administrateur.
                       </div>
                     ) : showPaymentForm && clientSecret ? (
                       <Elements
                         stripe={stripePromise}
-                        options={
-                          {
-                            clientSecret,
-                            appearance: {
-                              theme: "stripe",
-                              variables: {
-                                colorPrimary: "#588983",
-                                colorBackground: "#ffffff",
-                                colorText: "#333333",
-                                colorDanger: "#df1b41",
-                                fontFamily:
-                                  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                                spacingUnit: "4px",
-                                borderRadius: "8px",
+                        options={{
+                          clientSecret,
+                          appearance: {
+                            theme: 'stripe',
+                            variables: {
+                              colorPrimary: '#588983',
+                              colorBackground: '#ffffff',
+                              colorText: '#333333',
+                              colorDanger: '#df1b41',
+                              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                              spacingUnit: '4px',
+                              borderRadius: '8px',
+                            },
+                            rules: {
+                              '.Input': {
+                                border: '1px solid #e0e0e0',
+                                boxShadow: 'none',
                               },
-                              rules: {
-                                ".Input": {
-                                  border: "1px solid #e0e0e0",
-                                  boxShadow: "none",
-                                },
-                                ".Input:focus": {
-                                  border: "1px solid #588983",
-                                  boxShadow: "0 0 0 1px #588983",
-                                },
-                                ".Label": {
-                                  color: "#333333",
-                                  fontWeight: "600",
-                                },
+                              '.Input:focus': {
+                                border: '1px solid #588983',
+                                boxShadow: '0 0 0 1px #588983',
+                              },
+                              '.Label': {
+                                color: '#333333',
+                                fontWeight: '600',
                               },
                             },
-                          } as any
-                        }
+                          },
+                        } as any}
                       >
                         <PaymentFormContent
                           bookingId={bookingId}
@@ -1139,8 +1056,7 @@ export default function BookingSummaryPage() {
                         {/* Cancellation Policy Info */}
                         <div
                           style={{
-                            background:
-                              "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
+                            background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
                             border: "2px solid #F59E0B",
                             borderRadius: "12px",
                             padding: "1.75rem",
@@ -1148,185 +1064,92 @@ export default function BookingSummaryPage() {
                             boxShadow: "0 2px 8px rgba(245, 158, 11, 0.1)",
                           }}
                         >
-                          <h6
-                            style={{
-                              color: "#92400E",
-                              fontWeight: "700",
-                              marginBottom: "1.25rem",
-                              fontSize: "1.05rem",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.5rem",
-                            }}
-                          >
-                            <i
-                              className="bi bi-info-circle-fill"
-                              style={{ fontSize: "1.2rem" }}
-                            ></i>
+                          <h6 style={{
+                            color: "#92400E",
+                            fontWeight: "700",
+                            marginBottom: "1.25rem",
+                            fontSize: "1.05rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem"
+                          }}>
+                            <i className="bi bi-info-circle-fill" style={{ fontSize: "1.2rem" }}></i>
                             Conditions d'annulation
                           </h6>
                           {cancellationPolicy && cancellationPolicy.tiers && (
-                            <div
-                              style={{
-                                color: "#78350f",
-                                fontSize: "0.9rem",
-                                lineHeight: "1.8",
-                              }}
-                            >
+                            <div style={{ color: "#78350f", fontSize: "0.9rem", lineHeight: "1.8" }}>
                               {cancellationPolicy.spaceType === "open_space" ? (
                                 <>
-                                  <p
-                                    style={{
-                                      marginBottom: "1rem",
-                                      color: "#92400E",
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    En cas d'annulation, des frais peuvent
-                                    s'appliquer selon les délais :
+                                  <p style={{ marginBottom: "1rem", color: "#92400E", fontWeight: "500" }}>
+                                    En cas d'annulation, des frais peuvent s'appliquer selon les délais :
                                   </p>
-                                  <ul
-                                    style={{
-                                      marginBottom: "1rem",
-                                      paddingLeft: "1.75rem",
-                                      listStyleType: "disc",
-                                    }}
-                                  >
+                                  <ul style={{ marginBottom: "1rem", paddingLeft: "1.75rem", listStyleType: "disc" }}>
                                     {(() => {
-                                      const sortedTiers = [
-                                        ...cancellationPolicy.tiers,
-                                      ].sort(
-                                        (a: any, b: any) =>
-                                          b.daysBeforeBooking -
-                                          a.daysBeforeBooking,
-                                      );
-                                      return sortedTiers.map(
-                                        (tier: any, index: number) => {
-                                          let label = "";
-                                          if (
-                                            index ===
-                                            sortedTiers.length - 1
-                                          ) {
-                                            if (sortedTiers.length > 1) {
-                                              const previousTier =
-                                                sortedTiers[index - 1];
-                                              label = `Entre 0 et ${previousTier.daysBeforeBooking} jours avant`;
-                                            } else {
-                                              label = `Moins de ${tier.daysBeforeBooking} jour avant`;
-                                            }
-                                          } else if (index === 0) {
-                                            label = `Plus de ${tier.daysBeforeBooking} jours avant`;
+                                      const sortedTiers = [...cancellationPolicy.tiers].sort((a: any, b: any) => b.daysBeforeBooking - a.daysBeforeBooking);
+                                      return sortedTiers.map((tier: any, index: number) => {
+                                        let label = '';
+                                        if (index === sortedTiers.length - 1) {
+                                          if (sortedTiers.length > 1) {
+                                            const previousTier = sortedTiers[index - 1];
+                                            label = `Entre 0 et ${previousTier.daysBeforeBooking} jours avant`;
                                           } else {
-                                            const previousTier =
-                                              sortedTiers[index - 1];
-                                            label = `Entre ${tier.daysBeforeBooking} et ${previousTier.daysBeforeBooking} jours avant`;
+                                            label = `Moins de ${tier.daysBeforeBooking} jour avant`;
                                           }
-                                          return (
-                                            <li
-                                              key={index}
-                                              style={{
-                                                marginBottom: "0.65rem",
-                                                color: "#78350f",
-                                              }}
-                                            >
-                                              <strong
-                                                style={{ color: "#92400E" }}
-                                              >
-                                                {label}
-                                              </strong>{" "}
-                                              :{" "}
-                                              {tier.chargePercentage === 0
-                                                ? "Aucun frais"
-                                                : `${tier.chargePercentage}% de frais`}
-                                            </li>
-                                          );
-                                        },
-                                      );
+                                        } else if (index === 0) {
+                                          label = `Plus de ${tier.daysBeforeBooking} jours avant`;
+                                        } else {
+                                          const previousTier = sortedTiers[index - 1];
+                                          label = `Entre ${tier.daysBeforeBooking} et ${previousTier.daysBeforeBooking} jours avant`;
+                                        }
+                                        return (
+                                          <li key={index} style={{ marginBottom: "0.65rem", color: "#78350f" }}>
+                                            <strong style={{ color: "#92400E" }}>{label}</strong> : {tier.chargePercentage === 0 ? 'Aucun frais' : `${tier.chargePercentage}% de frais`}
+                                          </li>
+                                        );
+                                      });
                                     })()}
                                   </ul>
                                 </>
                               ) : (
                                 <>
-                                  <p
-                                    style={{
-                                      marginBottom: "1rem",
-                                      color: "#92400E",
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    Pour les salles de réunion, des frais
-                                    d'annulation peuvent s'appliquer :
+                                  <p style={{ marginBottom: "1rem", color: "#92400E", fontWeight: "500" }}>
+                                    Pour les salles de réunion, des frais d'annulation peuvent s'appliquer :
                                   </p>
-                                  <ul
-                                    style={{
-                                      marginBottom: "1rem",
-                                      paddingLeft: "1.75rem",
-                                      listStyleType: "disc",
-                                    }}
-                                  >
+                                  <ul style={{ marginBottom: "1rem", paddingLeft: "1.75rem", listStyleType: "disc" }}>
                                     {(() => {
-                                      const sortedTiers = [
-                                        ...cancellationPolicy.tiers,
-                                      ].sort(
-                                        (a: any, b: any) =>
-                                          b.daysBeforeBooking -
-                                          a.daysBeforeBooking,
-                                      );
-                                      return sortedTiers.map(
-                                        (tier: any, index: number) => {
-                                          let label = "";
-                                          if (
-                                            index ===
-                                            sortedTiers.length - 1
-                                          ) {
-                                            if (sortedTiers.length > 1) {
-                                              const previousTier =
-                                                sortedTiers[index - 1];
-                                              label = `Entre 0 et ${previousTier.daysBeforeBooking} jours avant`;
-                                            } else {
-                                              label = `Moins de ${tier.daysBeforeBooking} jour avant`;
-                                            }
-                                          } else if (index === 0) {
-                                            label = `Plus de ${tier.daysBeforeBooking} jours avant`;
+                                      const sortedTiers = [...cancellationPolicy.tiers].sort((a: any, b: any) => b.daysBeforeBooking - a.daysBeforeBooking);
+                                      return sortedTiers.map((tier: any, index: number) => {
+                                        let label = '';
+                                        if (index === sortedTiers.length - 1) {
+                                          if (sortedTiers.length > 1) {
+                                            const previousTier = sortedTiers[index - 1];
+                                            label = `Entre 0 et ${previousTier.daysBeforeBooking} jours avant`;
                                           } else {
-                                            const previousTier =
-                                              sortedTiers[index - 1];
-                                            label = `Entre ${tier.daysBeforeBooking} et ${previousTier.daysBeforeBooking} jours avant`;
+                                            label = `Moins de ${tier.daysBeforeBooking} jour avant`;
                                           }
-                                          return (
-                                            <li
-                                              key={index}
-                                              style={{
-                                                marginBottom: "0.65rem",
-                                                color: "#78350f",
-                                              }}
-                                            >
-                                              <strong
-                                                style={{ color: "#92400E" }}
-                                              >
-                                                {label}
-                                              </strong>{" "}
-                                              :{" "}
-                                              {tier.chargePercentage === 0
-                                                ? "Aucun frais"
-                                                : `${tier.chargePercentage}% de frais`}
-                                            </li>
-                                          );
-                                        },
-                                      );
+                                        } else if (index === 0) {
+                                          label = `Plus de ${tier.daysBeforeBooking} jours avant`;
+                                        } else {
+                                          const previousTier = sortedTiers[index - 1];
+                                          label = `Entre ${tier.daysBeforeBooking} et ${previousTier.daysBeforeBooking} jours avant`;
+                                        }
+                                        return (
+                                          <li key={index} style={{ marginBottom: "0.65rem", color: "#78350f" }}>
+                                            <strong style={{ color: "#92400E" }}>{label}</strong> : {tier.chargePercentage === 0 ? 'Aucun frais' : `${tier.chargePercentage}% de frais`}
+                                          </li>
+                                        );
+                                      });
                                     })()}
                                   </ul>
                                 </>
                               )}
-                              <div
-                                style={{
-                                  marginTop: "1rem",
-                                  paddingTop: "1rem",
-                                  borderTop: "1px solid #F59E0B",
-                                  fontSize: "0.875rem",
-                                  textAlign: "center",
-                                }}
-                              >
+                              <div style={{
+                                marginTop: "1rem",
+                                paddingTop: "1rem",
+                                borderTop: "1px solid #F59E0B",
+                                fontSize: "0.875rem",
+                                textAlign: "center"
+                              }}>
                                 <p style={{ margin: "0", color: "#92400E" }}>
                                   Pour plus de détails, consultez nos{" "}
                                   <a
@@ -1337,14 +1160,10 @@ export default function BookingSummaryPage() {
                                       color: "#F59E0B",
                                       textDecoration: "underline",
                                       fontWeight: "600",
-                                      transition: "color 0.2s",
+                                      transition: "color 0.2s"
                                     }}
-                                    onMouseEnter={(e) =>
-                                      (e.currentTarget.style.color = "#D97706")
-                                    }
-                                    onMouseLeave={(e) =>
-                                      (e.currentTarget.style.color = "#F59E0B")
-                                    }
+                                    onMouseEnter={(e) => e.currentTarget.style.color = "#D97706"}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = "#F59E0B"}
                                   >
                                     Conditions Générales de Vente (Article 6)
                                   </a>
@@ -1362,30 +1181,24 @@ export default function BookingSummaryPage() {
                               ? "linear-gradient(135deg, #e6f7f5 0%, #d1f0eb 100%)"
                               : "linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)",
                             borderRadius: "10px",
-                            border: acceptedTerms
-                              ? "2px solid #588983"
-                              : "2px solid #d1d5db",
+                            border: acceptedTerms ? "2px solid #588983" : "2px solid #d1d5db",
                             marginBottom: "1.25rem",
                             boxShadow: acceptedTerms
                               ? "0 2px 8px rgba(88, 137, 131, 0.15)"
                               : "0 1px 3px rgba(0, 0, 0, 0.05)",
-                            transition: "all 0.3s ease",
+                            transition: "all 0.3s ease"
                           }}
                         >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "flex-start",
-                              gap: "0.875rem",
-                            }}
-                          >
+                          <div style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: "0.875rem"
+                          }}>
                             <input
                               type="checkbox"
                               id="acceptTerms"
                               checked={acceptedTerms}
-                              onChange={(e) =>
-                                setAcceptedTerms(e.target.checked)
-                              }
+                              onChange={(e) => setAcceptedTerms(e.target.checked)}
                               style={{
                                 width: "1.35rem",
                                 height: "1.35rem",
@@ -1393,7 +1206,7 @@ export default function BookingSummaryPage() {
                                 marginTop: "0.15rem",
                                 cursor: "pointer",
                                 accentColor: "#588983",
-                                flexShrink: 0,
+                                flexShrink: 0
                               }}
                             />
                             <label
@@ -1404,7 +1217,7 @@ export default function BookingSummaryPage() {
                                 color: "#374151",
                                 cursor: "pointer",
                                 lineHeight: "1.6",
-                                flex: 1,
+                                flex: 1
                               }}
                             >
                               J'accepte les{" "}
@@ -1416,14 +1229,10 @@ export default function BookingSummaryPage() {
                                   color: "#588983",
                                   textDecoration: "underline",
                                   fontWeight: "600",
-                                  transition: "color 0.2s",
+                                  transition: "color 0.2s"
                                 }}
-                                onMouseEnter={(e) =>
-                                  (e.currentTarget.style.color = "#417972")
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.color = "#588983")
-                                }
+                                onMouseEnter={(e) => e.currentTarget.style.color = "#417972"}
+                                onMouseLeave={(e) => e.currentTarget.style.color = "#588983"}
                               >
                                 conditions générales de vente
                               </a>
@@ -1460,10 +1269,7 @@ export default function BookingSummaryPage() {
                       </div>
                     )}
 
-                    <p
-                      className="text-center text-muted mt-3"
-                      style={{ fontSize: "0.8125rem" }}
-                    >
+                    <p className="text-center text-muted mt-3" style={{ fontSize: "0.8125rem" }}>
                       <i className="bi bi-shield-check me-1"></i>
                       Paiement sécurisé par Stripe
                     </p>

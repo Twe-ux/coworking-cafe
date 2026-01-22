@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { options } from "../../../../lib/auth-options";
 import dbConnect from "../../../../lib/mongodb";
 import { User } from "@coworking-cafe/database";
-import { Booking } from '@coworking-cafe/database';
+import { Booking } from "@coworking-cafe/database";
 
 export async function DELETE() {
   try {
@@ -26,8 +26,8 @@ export async function DELETE() {
     }
 
     // Check for active reservations
-    const activeReservations = await Reservation.find({
-      client: user._id,
+    const activeReservations = await Booking.find({
+      user: user._id,
       status: { $in: ["confirmed", "pending"] },
     });
 
@@ -41,8 +41,8 @@ export async function DELETE() {
       );
     }
 
-    // Delete all user's reservations (only completed/cancelled ones at this point)
-    await Reservation.deleteMany({ client: user._id });
+    // Delete all user's bookings (only completed/cancelled ones at this point)
+    await Booking.deleteMany({ user: user._id });
 
     // Delete user
     await User.deleteOne({ _id: user._id });

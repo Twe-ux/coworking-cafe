@@ -1,5 +1,5 @@
-import { options } from "../../../../lib/auth-options";
-import dbConnect from "../../../../lib/mongodb";
+import { options } from "@/lib/auth-options";
+import dbConnect from "@/lib/mongodb";
 import { User } from "@coworking-cafe/database";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
@@ -24,18 +24,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     redirect(`/auth/login?callbackUrl=/${params.id}/profile`);
   }
 
-  // Check if user has a username
-  if (!session.user.username) {
-    redirect("/auth/login");
-  }
+  // Support both username and ID in URL
+  const userIdentifier = session.user.username || session.user.id;
 
-  // Security check: verify the URL username matches the logged-in user
-  if (params.id !== session.user.username) {
+  // Security check: verify the URL matches the logged-in user (username or ID)
+  if (params.id !== session.user.username && params.id !== session.user.id) {
     // Redirect to their own profile
-    redirect(`/${session.user.username}/profile`);
+    redirect(`/${userIdentifier}/profile`);
   }
 
-  const username = session.user.username;
+  const username = session.user.username || session.user.email?.split('@')[0] || 'user';
+  const userPath = session.user.id; // Use ID for navigation links
 
   // Fetch user profile including phone and companyName from database
   let userPhone = "";
@@ -43,7 +42,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   try {
     await dbConnect();
     const user = await User.findOne({ email: session.user.email }).select(
-      "phone companyName",
+      "phone companyName"
     );
     if (user?.phone) {
       userPhone = user.phone;
@@ -129,7 +128,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
             <div className="d-grid gap-3">
               <Link
-                href={`/${username}`}
+                href={`/${userPath}`}
                 className="btn d-flex align-items-center justify-content-start gap-3"
                 style={{
                   backgroundColor: "#e3ece7",
@@ -166,7 +165,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </div>
               </Link>
               <Link
-                href={`/${username}/reservations`}
+                href={`/${userPath}/reservations`}
                 className="btn d-flex align-items-center justify-content-start gap-3"
                 style={{
                   backgroundColor: "#e3ece7",

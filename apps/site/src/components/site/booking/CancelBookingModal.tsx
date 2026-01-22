@@ -1,6 +1,6 @@
 "use client";
 
-import ProtectedEmail from "../../common/ProtectedEmail";
+import ProtectedEmail from "@/components/common/ProtectedEmail";
 import { useState } from "react";
 import { Alert, Button, Modal, Spinner } from "react-bootstrap";
 
@@ -88,7 +88,7 @@ export default function CancelBookingModal({
 
       // For confirmed bookings, fetch real cancellation policy from public API
       const policyResponse = await fetch(
-        `/api/cancellation-policy?spaceType=${booking.spaceType}`,
+        `/api/cancellation-policy?spaceType=${booking.spaceType}`
       );
       const policyData = await policyResponse.json();
 
@@ -100,7 +100,7 @@ export default function CancelBookingModal({
 
       // Calculate actual deposit amount based on deposit policy
       const spaceConfigResponse = await fetch(
-        `/api/space-configurations/${booking.spaceType}`,
+        `/api/space-configurations/${booking.spaceType}`
       );
       const spaceConfigData = await spaceConfigResponse.json();
 
@@ -118,7 +118,7 @@ export default function CancelBookingModal({
           depositInCents = depositPolicy.fixedAmount;
         } else if (depositPolicy.percentage) {
           depositInCents = Math.round(
-            totalPriceInCents * (depositPolicy.percentage / 100),
+            totalPriceInCents * (depositPolicy.percentage / 100)
           );
         }
 
@@ -136,13 +136,13 @@ export default function CancelBookingModal({
       const bookingDate = new Date(booking.date);
       const now = new Date();
       const daysUntilBooking = Math.ceil(
-        (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+        (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
       );
 
       // Determine charge percentage based on real policy
       let chargePercentage = 100;
       const sortedTiers = [...policy.tiers].sort(
-        (a, b) => b.daysBeforeBooking - a.daysBeforeBooking,
+        (a, b) => b.daysBeforeBooking - a.daysBeforeBooking
       );
 
       for (const tier of sortedTiers) {
@@ -163,11 +163,11 @@ export default function CancelBookingModal({
           "<strong>Aucun frais appliqué.</strong> L'empreinte bancaire sera <strong>annulée intégralement</strong>.";
       } else if (chargePercentage === 100) {
         message = `<strong>Annulation tardive.</strong> L'empreinte bancaire de <strong>${depositAmount.toFixed(
-          2,
+          2
         )}€</strong> sera <strong>prélevée intégralement</strong>.`;
       } else {
         message = `Selon nos <a href='/CGU#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>conditions générales de vente</a>, <strong>${cancellationFee.toFixed(
-          2,
+          2
         )}€</strong> sera <strong>prélevé</strong> (${chargePercentage}% du montant total).`;
       }
 
@@ -181,7 +181,7 @@ export default function CancelBookingModal({
       });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Erreur lors du calcul des frais",
+        err instanceof Error ? err.message : "Erreur lors du calcul des frais"
       );
     } finally {
       setLoadingPreview(false);
@@ -317,8 +317,8 @@ export default function CancelBookingModal({
                       preview.chargePercentage === 0
                         ? "bg-success bg-opacity-10 border-success"
                         : preview.chargePercentage === 100
-                          ? "bg-danger bg-opacity-10 border-danger"
-                          : "bg-warning bg-opacity-10 border-warning"
+                        ? "bg-danger bg-opacity-10 border-danger"
+                        : "bg-warning bg-opacity-10 border-warning"
                     }`}
                   >
                     {booking.status === "pending" ? (
@@ -374,8 +374,8 @@ export default function CancelBookingModal({
                               preview.chargePercentage === 0
                                 ? "bi-check-circle-fill text-success"
                                 : preview.chargePercentage === 100
-                                  ? "bi-exclamation-circle-fill text-danger"
-                                  : "bi-info-circle-fill text-warning"
+                                ? "bi-exclamation-circle-fill text-danger"
+                                : "bi-info-circle-fill text-warning"
                             } me-2`}
                           ></i>
                           <span

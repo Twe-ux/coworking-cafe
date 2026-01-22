@@ -1,17 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "../../../lib/mongodb";
-import { Booking } from '@coworking-cafe/database';
-import { Space } from '@coworking-cafe/database';
-import {
-  getAuthUser,
-  requireAuth,
-  handleApiError,
-} from "../../../lib/api-helpers";
-import { getSpaceTypeName } from "../../../lib/space-names";
-import mongoose from "mongoose";
+import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '@/lib/mongodb';
+import { Booking, Space } from "@coworking-cafe/database";
+import { getAuthUser, requireAuth, handleApiError } from '@/lib/api-helpers';
+import { getSpaceTypeName } from '@/lib/space-names';
+import mongoose from 'mongoose';
 
 // Force dynamic rendering
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/bookings
@@ -23,30 +18,29 @@ export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
-    const user = await requireAuth(["admin", "staff", "dev", "client"]);
+    const user = await requireAuth(['admin', 'staff', 'dev', 'client']);
 
     const { searchParams } = new URL(request.url);
 
     // Pagination
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
     const skip = (page - 1) * limit;
 
     // Filters
-    const status = searchParams.get("status");
-    const spaceId = searchParams.get("spaceId");
-    const userId = searchParams.get("userId");
-    const startDate = searchParams.get("startDate");
-    const endDate = searchParams.get("endDate");
-    const sortBy = searchParams.get("sortBy") || "createdAt";
-    const sortOrder = searchParams.get("sortOrder") === "asc" ? 1 : -1;
+    const status = searchParams.get('status');
+    const spaceId = searchParams.get('spaceId');
+    const userId = searchParams.get('userId');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const sortOrder = searchParams.get('sortOrder') === 'asc' ? 1 : -1;
 
     // Build query
     const query: Record<string, unknown> = {};
 
     // Check if user is admin
-    const isAdminOrStaff =
-      user && ["admin", "staff", "dev"].includes(user.role?.slug || "");
+    const isAdminOrStaff = user && ['admin', 'staff', 'dev'].includes(user.role?.slug || '');
 
     // Regular users can only see their own bookings
     if (!isAdminOrStaff) {
@@ -78,14 +72,14 @@ export async function GET(request: NextRequest) {
 
     // Execute query
     const [bookings, total] = await Promise.all([
-      Reservation.find(query)
-        .populate("user", "username name email")
-        .populate("space", "name slug type featuredImage pricing")
+      Booking.find(query)
+        .populate('user', 'username name email')
+        .populate('space', 'name slug type featuredImage pricing')
         .sort({ [sortBy]: sortOrder })
         .skip(skip)
         .limit(limit)
         .lean(),
-      Reservation.countDocuments(query),
+      Booking.countDocuments(query),
     ]);
 
     // Transform bookings to ensure space.name is always set
@@ -97,7 +91,7 @@ export async function GET(request: NextRequest) {
           space: {
             name: getSpaceTypeName(booking.spaceType),
             type: booking.spaceType,
-            location: "1 Boulevard Leblois, 67000 Strasbourg",
+            location: '1 Boulevard Leblois, 67000 Strasbourg',
           },
         };
       }
@@ -140,18 +134,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Missing required fields: spaceId, date, startTime, endTime, numberOfPeople",
+          error: 'Missing required fields: spaceId, date, startTime, endTime, numberOfPeople',
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(spaceId)) {
       return NextResponse.json(
-        { success: false, error: "Invalid space ID" },
-        { status: 400 },
+        { success: false, error: 'Invalid space ID' },
+        { status: 400 }
       );
     }
 
@@ -160,19 +153,16 @@ export async function POST(request: NextRequest) {
 
     if (!space || space.isDeleted || !space.isActive) {
       return NextResponse.json(
-        { success: false, error: "Space not found or unavailable" },
-        { status: 404 },
+        { success: false, error: 'Space not found or unavailable' },
+        { status: 404 }
       );
     }
 
     // Validate capacity
     if (numberOfPeople > space.capacity) {
       return NextResponse.json(
-        {
-          success: false,
-          error: `This space has a maximum capacity of ${space.capacity} people`,
-        },
-        { status: 400 },
+        { success: false, error: `This space has a maximum capacity of ${space.capacity} people` },
+        { status: 400 }
       );
     }
 
@@ -183,8 +173,8 @@ export async function POST(request: NextRequest) {
 
     if (bookingDate < today) {
       return NextResponse.json(
-        { success: false, error: "Booking date must be in the future" },
-        { status: 400 },
+        { success: false, error: 'Booking date must be in the future' },
+        { status: 400 }
       );
     }
 
@@ -192,29 +182,29 @@ export async function POST(request: NextRequest) {
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
       return NextResponse.json(
-        { success: false, error: "Invalid time format. Use HH:mm" },
-        { status: 400 },
+        { success: false, error: 'Invalid time format. Use HH:mm' },
+        { status: 400 }
       );
     }
 
     // Check if end time is after start time
-    const [startHour, startMinute] = startTime.split(":").map(Number);
-    const [endHour, endMinute] = endTime.split(":").map(Number);
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
     const startMinutes = startHour * 60 + startMinute;
     const endMinutes = endHour * 60 + endMinute;
 
     if (endMinutes <= startMinutes) {
       return NextResponse.json(
-        { success: false, error: "End time must be after start time" },
-        { status: 400 },
+        { success: false, error: 'End time must be after start time' },
+        { status: 400 }
       );
     }
 
     // Check for overlapping bookings
-    const overlappingBooking = await Reservation.findOne({
+    const overlappingBooking = await Booking.findOne({
       space: spaceId,
       date: bookingDate,
-      status: { $nin: ["cancelled"] },
+      status: { $nin: ['cancelled'] },
       $or: [
         // New booking starts during existing booking
         {
@@ -244,10 +234,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "This time slot is already booked. Please choose another time.",
+          error: 'This time slot is already booked. Please choose another time.',
         },
-        { status: 409 },
+        { status: 409 }
       );
     }
 
@@ -264,13 +253,13 @@ export async function POST(request: NextRequest) {
       totalPrice = space.pricing.daily;
     } else {
       return NextResponse.json(
-        { success: false, error: "No pricing configured for this space" },
-        { status: 400 },
+        { success: false, error: 'No pricing configured for this space' },
+        { status: 400 }
       );
     }
 
     // Create booking
-    const booking = await Reservation.create({
+    const booking = await Booking.create({
       user: user.id,
       space: spaceId,
       date: bookingDate,
@@ -280,20 +269,20 @@ export async function POST(request: NextRequest) {
       totalPrice: Math.round(totalPrice * 100) / 100, // Round to 2 decimals
       notes: body.notes,
       specialRequests: body.specialRequests,
-      status: "pending",
-      paymentStatus: "pending",
+      status: 'pending',
+      paymentStatus: 'pending',
     });
 
     // Populate space details
-    await booking.populate("space", "name slug type featuredImage pricing");
+    await booking.populate('space', 'name slug type featuredImage pricing');
 
     return NextResponse.json(
       {
         success: true,
         data: booking,
-        message: "Booking created successfully",
+        message: 'Booking created successfully',
       },
-      { status: 201 },
+      { status: 201 }
     );
   } catch (error) {
     return handleApiError(error);

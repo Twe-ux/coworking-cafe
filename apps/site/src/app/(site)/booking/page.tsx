@@ -1,7 +1,7 @@
 "use client";
 
-import BookingProgressBar from "../../../components/site/booking/BookingProgressBar";
-import PageTitle from "../../../components/site/pageTitle";
+import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
+import PageTitle from "@/components/site/pageTitle";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -162,7 +162,7 @@ export default function BookingPage() {
           setSpaces(displaySpaces);
         }
       } catch (error) {
-      } finally {
+    } finally {
         setLoading(false);
       }
     };
@@ -260,7 +260,7 @@ export default function BookingPage() {
                           onError={(e) => {
                             e.currentTarget.style.display = "none";
                             e.currentTarget.nextElementSibling?.classList.remove(
-                              "d-none",
+                              "d-none"
                             );
                           }}
                         />

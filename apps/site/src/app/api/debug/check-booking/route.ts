@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find reservation by payment intent ID
-    const reservation = await Reservation.findOne({
+    const reservation = await Booking.findOne({
       stripePaymentIntentId: paymentIntentId,
     });
 

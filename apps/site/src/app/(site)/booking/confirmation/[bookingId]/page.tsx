@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import BookingProgressBar from "../../../../../components/site/booking/BookingProgressBar";
+import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
 
 interface AdditionalService {
   service: string;
@@ -91,7 +91,7 @@ export default function ConfirmationPage({
       // Fetch space configuration
       if (bookingDetails.spaceType) {
         const spaceResponse = await fetch(
-          `/api/space-configurations/${bookingDetails.spaceType}`,
+          `/api/space-configurations/${bookingDetails.spaceType}`
         );
         const spaceData = await spaceResponse.json();
         if (spaceData.success) {
@@ -100,8 +100,7 @@ export default function ConfirmationPage({
       }
 
       setLoading(false);
-    } catch (err) {
-      setError("Une erreur est survenue lors du chargement de la réservation");
+    } catch (err) {      setError("Une erreur est survenue lors du chargement de la réservation");
       setLoading(false);
     }
   };
@@ -148,7 +147,7 @@ export default function ConfirmationPage({
       depositInCents = policy.fixedAmount;
     } else if (policy.percentage) {
       depositInCents = Math.round(
-        totalPriceInCents * (policy.percentage / 100),
+        totalPriceInCents * (policy.percentage / 100)
       );
     }
 
@@ -250,7 +249,7 @@ export default function ConfirmationPage({
                   className="d-flex justify-content-between align-items-center mb-4 px-4 py-3 rounded"
                   style={{
                     backgroundColor: "#e8eae6",
-                    minHeight: "60px",
+                    minHeight: "60px"
                   }}
                 >
                   <button
@@ -265,7 +264,7 @@ export default function ConfirmationPage({
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.5rem",
+                      gap: "0.5rem"
                     }}
                   >
                     <i className="bi bi-arrow-left"></i>
@@ -276,7 +275,7 @@ export default function ConfirmationPage({
                     style={{
                       fontSize: "1.125rem",
                       fontWeight: "600",
-                      color: "#4a5568",
+                      color: "#4a5568"
                     }}
                   >
                     Confirmation
@@ -309,6 +308,7 @@ export default function ConfirmationPage({
                   </p>
                 </div>
               )}
+
 
               {/* Booking Details */}
               <div className="booking-card mb-4">

@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Find confirmed reservations for tomorrow
-    const upcomingBookings = await Reservation.find({
+    const upcomingBookings = await Booking.find({
       date: {
         $gte: tomorrow,
         $lte: tomorrowEnd,

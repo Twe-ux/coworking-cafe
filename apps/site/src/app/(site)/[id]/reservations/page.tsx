@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import "../client-dashboard.scss";
-import CancelBookingModal from "../../../../components/site/booking/CancelBookingModal";
+import CancelBookingModal from "@/components/site/booking/CancelBookingModal";
 
 interface Reservation {
   _id: string;
@@ -34,9 +34,7 @@ export default function ReservationsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("upcoming");
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Reservation | null>(
-    null,
-  );
+  const [selectedBooking, setSelectedBooking] = useState<Reservation | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -45,9 +43,10 @@ export default function ReservationsPage() {
     }
 
     if (status === "authenticated") {
-      // Security check
-      if (params.id !== session.user.username) {
-        router.push(`/${session.user.username}/reservations`);
+      // Security check: verify the URL matches the logged-in user (username or ID)
+      if (params.id !== session.user.username && params.id !== session.user.id) {
+        const userPath = session.user.username || session.user.id;
+        router.push(`/${userPath}/reservations`);
         return;
       }
 
@@ -58,17 +57,13 @@ export default function ReservationsPage() {
   const fetchReservations = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "/api/bookings?limit=100&sortBy=date&sortOrder=desc",
-        {
-          credentials: "include", // Include session cookies
-        },
-      );
+      const response = await fetch("/api/bookings?limit=100&sortBy=date&sortOrder=desc", {
+        credentials: "include", // Include session cookies
+      });
       const data = await response.json();
       if (data.success) {
         setReservations(data.data || []);
-      } else {
-      }
+      } else {      }
     } catch (error) {
     } finally {
       setLoading(false);
@@ -162,14 +157,15 @@ export default function ReservationsPage() {
     );
   }
 
-  const username = session?.user?.username || "";
+  const username = session?.user?.username || session?.user?.email?.split('@')[0] || "user";
+  const userPath = session?.user?.id || ""; // Use ID for navigation links
 
   return (
     <section className="client-dashboard py__90">
       <div className="container pb__130">
         {/* Breadcrumb */}
         <div className="custom-breadcrumb mb-4">
-          <Link href={`/${username}`} className="breadcrumb-link">
+          <Link href={`/${userPath}`} className="breadcrumb-link">
             <i className="bi bi-house-door"></i>
             <span>Dashboard</span>
           </Link>
@@ -251,7 +247,7 @@ export default function ReservationsPage() {
                 {filteredReservations.map((reservation) => {
                   const statusBadge = getStatusBadge(reservation.status);
                   const paymentBadge = getPaymentStatusBadge(
-                    reservation.paymentStatus,
+                    reservation.paymentStatus
                   );
 
                   return (
@@ -259,18 +255,15 @@ export default function ReservationsPage() {
                       <div className="reservation-card">
                         <Link
                           href={`/booking/confirmation/${reservation._id}`}
-                          style={{ textDecoration: "none", color: "inherit" }}
+                          style={{ textDecoration: 'none', color: 'inherit' }}
                         >
                           <div className="d-flex justify-content-between align-items-start mb-3">
                             <h5 className="reservation-space mb-0">
                               {getSpaceLabel(reservation.spaceType)}
                             </h5>
-                            {(reservation.status === "confirmed" ||
-                              reservation.status === "pending") && (
+                            {(reservation.status === "confirmed" || reservation.status === "pending") && (
                               <button
-                                onClick={(e) =>
-                                  handleCancelClick(e, reservation)
-                                }
+                                onClick={(e) => handleCancelClick(e, reservation)}
                                 className="btn-cancel-top"
                                 title="Annuler la réservation"
                               >
@@ -289,17 +282,13 @@ export default function ReservationsPage() {
                                 <div className="info-item mb-0">
                                   <i className="bi bi-clock"></i>
                                   <span>
-                                    {reservation.startTime} -{" "}
-                                    {reservation.endTime}
+                                    {reservation.startTime} - {reservation.endTime}
                                   </span>
                                 </div>
                               </div>
                               <div className="info-item mb-0">
                                 <i className="bi bi-people"></i>
-                                <span>
-                                  {reservation.numberOfPeople} personne
-                                  {reservation.numberOfPeople > 1 ? "s" : ""}
-                                </span>
+                                <span>{reservation.numberOfPeople} personne{reservation.numberOfPeople > 1 ? "s" : ""}</span>
                               </div>
                             </div>
 
@@ -310,8 +299,7 @@ export default function ReservationsPage() {
                                     className="text-muted"
                                     style={{ fontSize: "0.85rem" }}
                                   >
-                                    {reservation.additionalServices.length}{" "}
-                                    service
+                                    {reservation.additionalServices.length} service
                                     {reservation.additionalServices.length > 1
                                       ? "s"
                                       : ""}{" "}
@@ -322,9 +310,7 @@ export default function ReservationsPage() {
                           </div>
 
                           <div className="reservation-footer">
-                            <span
-                              className={`status-badge ${statusBadge.class}`}
-                            >
+                            <span className={`status-badge ${statusBadge.class}`}>
                               {statusBadge.label}
                             </span>
                             <span className="price">

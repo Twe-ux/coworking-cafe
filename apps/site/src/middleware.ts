@@ -76,6 +76,7 @@ export async function middleware(req: NextRequest) {
     | "staff"
     | "client"
     | undefined;
+  const userId = token?.id as string | undefined;
   const username = token?.username as string | undefined;
 
   // 1. Public routes - allow everyone
@@ -110,8 +111,8 @@ export async function middleware(req: NextRequest) {
   if (authRoutes.includes(pathname)) {
     if (isAuthenticated) {
       // Redirect authenticated users based on their role
-      if (userRole === "client" && username) {
-        return NextResponse.redirect(new URL(`/${username}`, req.url));
+      if (userRole === "client" && userId) {
+        return NextResponse.redirect(new URL(`/${userId}`, req.url));
       } else if (
         userRole === "dev" ||
         userRole === "admin" ||
@@ -138,8 +139,8 @@ export async function middleware(req: NextRequest) {
 
     // Check if user has admin/staff/dev role
     if (userRole === "client") {
-      if (username) {
-        return NextResponse.redirect(new URL(`/${username}`, req.url));
+      if (userId) {
+        return NextResponse.redirect(new URL(`/${userId}`, req.url));
       }
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
@@ -159,13 +160,14 @@ export async function middleware(req: NextRequest) {
     !isPublicPattern &&
     isAuthenticated // Only treat as client dashboard if authenticated
   ) {
-    // Extract username from path
-    const pathUsername = pathname.split("/")[1];
+    // Extract user identifier from path (could be username or ID)
+    const pathUserId = pathname.split("/")[1];
 
     // If it's a client, verify they can only access their own dashboard
     if (userRole === "client") {
-      if (pathUsername !== username) {
-        return NextResponse.redirect(new URL(`/${username}`, req.url));
+      // Allow access if path matches either username or userId
+      if (pathUserId !== username && pathUserId !== userId) {
+        return NextResponse.redirect(new URL(`/${userId}`, req.url));
       }
     }
 

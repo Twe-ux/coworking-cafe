@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
-export const dynamic = "force-dynamic";
-import connectDB from "../../../../lib/db";
-import { Booking } from '@coworking-cafe/database';
-import SpaceConfiguration from '@coworking-cafe/database';
+export const dynamic = 'force-dynamic';
+import connectDB from '@/lib/db';
+import { Booking } from "@coworking-cafe/database";
+import { SpaceConfiguration } from "@coworking-cafe/database";
 import { User } from "@coworking-cafe/database";
-import { getServerSession } from "next-auth";
-import { options as authOptions } from "../../../../lib/auth-options";
-import { sendBookingConfirmation } from "../../../../lib/email/emailService";
-import { urlToDbSpaceType } from "../../../../lib/space-types";
-import mongoose from "mongoose";
+import { getServerSession } from 'next-auth';
+import { options as authOptions } from '@/lib/auth-options';
+import { sendBookingConfirmation } from '@/lib/email/emailService';
+import { urlToDbSpaceType } from '@/lib/space-types';
+import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,15 +42,15 @@ export async function POST(request: NextRequest) {
     // Validation
     if (!spaceType || !date || !startTime || !endTime || !numberOfPeople) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields" },
-        { status: 400 },
+        { success: false, error: 'Missing required fields' },
+        { status: 400 }
       );
     }
 
     if (!contactName || !contactEmail || !contactPhone) {
       return NextResponse.json(
-        { success: false, error: "Contact information is required" },
-        { status: 400 },
+        { success: false, error: 'Contact information is required' },
+        { status: 400 }
       );
     }
 
@@ -58,8 +58,8 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(contactEmail)) {
       return NextResponse.json(
-        { success: false, error: "Invalid email format" },
-        { status: 400 },
+        { success: false, error: 'Invalid email format' },
+        { status: 400 }
       );
     }
 
@@ -72,10 +72,9 @@ export async function POST(request: NextRequest) {
       // Update newsletter preference if user is logged in
       if (subscribeNewsletter !== undefined) {
         try {
-          await User.findByIdAndUpdate(userId, {
-            newsletter: subscribeNewsletter,
-          });
-        } catch (error) {}
+          await User.findByIdAndUpdate(userId, { newsletter: subscribeNewsletter });
+        } catch (error) {
+    }
       }
     } else {
       // Create or find guest user by email
@@ -83,20 +82,16 @@ export async function POST(request: NextRequest) {
         let user = await User.findOne({ email: contactEmail });
 
         // Find the default "client" role
-        const Role = mongoose.model("Role");
-        const clientRole = await Role.findOne({ slug: "client" });
+        const Role = mongoose.model('Role');
+        const clientRole = await Role.findOne({ slug: 'client' });
 
-        if (!clientRole) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: "Default client role not found in database",
-            },
-            { status: 500 },
+        if (!clientRole) {          return NextResponse.json(
+            { success: false, error: 'Default client role not found in database' },
+            { status: 500 }
           );
         }
 
-        const bcrypt = require("bcryptjs");
+        const bcrypt = require('bcryptjs');
 
         if (!user) {
           // Create new user
@@ -107,7 +102,7 @@ export async function POST(request: NextRequest) {
               email: contactEmail,
               givenName: contactName,
               phone: contactPhone,
-              username: contactEmail.split("@")[0] + "_" + Date.now(),
+              username: contactEmail.split('@')[0] + '_' + Date.now(),
               password: hashedPassword,
               role: clientRole._id,
               newsletter: subscribeNewsletter || false,
@@ -115,15 +110,13 @@ export async function POST(request: NextRequest) {
             });
           } else {
             // Create temporary user with random password
-            const randomPassword =
-              Math.random().toString(36).substring(2, 15) +
-              Math.random().toString(36).substring(2, 15);
+            const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             const hashedPassword = await bcrypt.hash(randomPassword, 10);
             user = await User.create({
               email: contactEmail,
               givenName: contactName,
               phone: contactPhone,
-              username: contactEmail.split("@")[0] + "_" + Date.now(),
+              username: contactEmail.split('@')[0] + '_' + Date.now(),
               password: hashedPassword,
               role: clientRole._id,
               newsletter: subscribeNewsletter || false,
@@ -153,14 +146,9 @@ export async function POST(request: NextRequest) {
         }
 
         userId = user._id;
-      } catch (userError) {
-        return NextResponse.json(
-          {
-            success: false,
-            error:
-              "Failed to create guest user: " + (userError as Error).message,
-          },
-          { status: 500 },
+      } catch (userError) {        return NextResponse.json(
+          { success: false, error: 'Failed to create guest user: ' + (userError as Error).message },
+          { status: 500 }
         );
       }
     }
@@ -181,7 +169,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: `No active space configuration found for type: ${spaceType}`,
         },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -190,10 +178,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "This space requires a custom quote. Please contact us directly.",
+          error: 'This space requires a custom quote. Please contact us directly.',
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -205,8 +192,8 @@ export async function POST(request: NextRequest) {
 
     if (bookingDate < now) {
       return NextResponse.json(
-        { success: false, error: "Booking date must be in the future" },
-        { status: 400 },
+        { success: false, error: 'Booking date must be in the future' },
+        { status: 400 }
       );
     }
 
@@ -214,36 +201,36 @@ export async function POST(request: NextRequest) {
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
       return NextResponse.json(
-        { success: false, error: "Invalid time format" },
-        { status: 400 },
+        { success: false, error: 'Invalid time format' },
+        { status: 400 }
       );
     }
 
     // Validate end time is after start time
-    const [startHour, startMinute] = startTime.split(":").map(Number);
-    const [endHour, endMinute] = endTime.split(":").map(Number);
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
     const startMinutes = startHour * 60 + startMinute;
     const endMinutes = endHour * 60 + endMinute;
 
     if (endMinutes <= startMinutes) {
       return NextResponse.json(
-        { success: false, error: "End time must be after start time" },
-        { status: 400 },
+        { success: false, error: 'End time must be after start time' },
+        { status: 400 }
       );
     }
 
     // Note: Pas de vérification de chevauchement - plusieurs réservations simultanées sont autorisées
 
     // Create the reservation
-    const reservation = await Reservation.create({
+    const reservation = await Booking.create({
       user: userId,
       spaceType: dbSpaceType,
       date: bookingDate,
       startTime,
       endTime,
       numberOfPeople,
-      status: "pending",
-      reservationType: reservationType || "hourly",
+      status: 'pending',
+      reservationType: reservationType || 'hourly',
       basePrice: basePrice || 0,
       servicesPrice: servicesPrice || 0,
       totalPrice: totalPrice || basePrice || 0,
@@ -253,26 +240,25 @@ export async function POST(request: NextRequest) {
       specialRequests,
       additionalServices: additionalServices || [],
       requiresPayment: requiresPayment !== false, // Default to true
-      paymentStatus: "pending",
+      paymentStatus: 'pending',
     });
 
     // Populate the reservation with user details
-    const populatedReservation = await Reservation.findById(
-      reservation._id,
-    ).populate("user", "name email");
+    const populatedReservation = await Booking.findById(reservation._id)
+      .populate('user', 'name email');
 
     // Send confirmation email
     try {
       // Format additional services for email
       const emailServices = (additionalServices || []).map((service: any) => ({
-        name: service.name || service.serviceName || "Service",
+        name: service.name || service.serviceName || 'Service',
         quantity: service.quantity || 1,
         price: service.unitPrice || service.price || 0,
       }));
 
       // Calculate deposit amount if deposit policy is enabled
       let depositAmount: number | undefined;
-      let captureMethod: "manual" | "automatic" | undefined;
+      let captureMethod: 'manual' | 'automatic' | undefined;
 
       if (spaceConfig.depositPolicy?.enabled && requiresPayment !== false) {
         const totalPriceInCents = (totalPrice || basePrice || 0) * 100;
@@ -282,9 +268,7 @@ export async function POST(request: NextRequest) {
         if (policy.fixedAmount) {
           depositInCents = policy.fixedAmount;
         } else if (policy.percentage) {
-          depositInCents = Math.round(
-            totalPriceInCents * (policy.percentage / 100),
-          );
+          depositInCents = Math.round(totalPriceInCents * (policy.percentage / 100));
         }
 
         if (policy.minimumAmount && depositInCents < policy.minimumAmount) {
@@ -294,20 +278,17 @@ export async function POST(request: NextRequest) {
         depositAmount = depositInCents;
 
         // Determine capture method based on booking date
-        const daysUntilBooking = Math.ceil(
-          (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-        );
-        captureMethod = daysUntilBooking <= 7 ? "manual" : "automatic";
-      }
+        const daysUntilBooking = Math.ceil((bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        captureMethod = daysUntilBooking <= 7 ? 'manual' : 'automatic';      }
 
       await sendBookingConfirmation(contactEmail, {
         name: contactName,
         spaceName: spaceConfig.name,
-        date: bookingDate.toLocaleDateString("fr-FR", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          year: "numeric",
+        date: bookingDate.toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
         }),
         time: `${startTime} - ${endTime}`,
         price: totalPrice || basePrice || 0,
@@ -318,22 +299,20 @@ export async function POST(request: NextRequest) {
         additionalServices: emailServices,
         numberOfPeople,
       });
-    } catch (emailError) {
-      // Don't fail the whole request if email fails
+    } catch (emailError) {      // Don't fail the whole request if email fails
     }
 
     return NextResponse.json(
       {
         success: true,
         data: populatedReservation,
-        message: "Reservation created successfully",
+        message: 'Reservation created successfully',
       },
-      { status: 201 },
+      { status: 201 }
     );
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: "Failed to create reservation" },
-      { status: 500 },
+  } catch (error) {    return NextResponse.json(
+      { success: false, error: 'Failed to create reservation' },
+      { status: 500 }
     );
   }
 }

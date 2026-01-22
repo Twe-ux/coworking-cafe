@@ -1,11 +1,11 @@
 import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
-import { options } from "../../../lib/auth-options";
+import { options } from "@/lib/auth-options";
 import Link from "next/link";
 import "./client-dashboard.scss";
-import { connectDB } from "../../../lib/mongodb";
-import { Booking } from '@coworking-cafe/database';
-import UpcomingReservationCard from "../../../components/site/dashboard/UpcomingReservationCard";
+import { connectDB } from "@/lib/mongodb";
+import { Booking } from "@coworking-cafe/database";
+import UpcomingReservationCard from "@/components/site/dashboard/UpcomingReservationCard";
 
 // Force dynamic rendering - don't pre-render at build time
 export const dynamic = "force-dynamic";
@@ -19,27 +19,36 @@ export default async function ClientDashboard({
 }: ClientDashboardProps) {
   const session = await getServerSession(options);
 
+  console.log("🔍 [SERVER] params.id:", params.id);
+  console.log("🔍 [SERVER] session:", session);
+  console.log("🔍 [SERVER] session.user:", session?.user);
+  console.log("🔍 [SERVER] session.user.id:", session?.user?.id);
+  console.log("🔍 [SERVER] session.user.username:", session?.user?.username);
+
   // Check if user is authenticated
   if (!session) {
     redirect(`/auth/login?callbackUrl=/${params.id}`);
   }
 
-  // Check if user has a username
-  if (!session.user.username) {
-    redirect("/auth/login");
-  }
+  // Support both username and ID in URL
+  const userIdentifier = session.user.username || session.user.id;
+  console.log("🔍 [SERVER] userIdentifier:", userIdentifier);
 
-  // Security check: verify the URL username matches the logged-in user
-  if (params.id !== session.user.username) {
+  // Security check: verify the URL matches the logged-in user (username or ID)
+  if (params.id !== session.user.username && params.id !== session.user.id) {
+    console.log("❌ [SERVER] ID mismatch! Redirecting to:", `/${userIdentifier}`);
     // Redirect to their own dashboard
-    redirect(`/${session.user.username}`);
+    redirect(`/${userIdentifier}`);
   }
 
-  const username = session.user.username;
+  const username = session.user.username || session.user.email?.split('@')[0] || 'user';
 
   // Fetch user's reservation statistics
   await connectDB();
   const userId = session.user.id;
+
+  // Use ID for all dashboard links (username may be undefined)
+  const userPath = session.user.id;
 
   const now = new Date();
   const todayStart = new Date(now);
@@ -72,7 +81,7 @@ export default async function ClientDashboard({
       date: { $gte: todayStart },
     })
       .select(
-        "spaceType date startTime endTime numberOfPeople totalPrice status paymentStatus",
+        "spaceType date startTime endTime numberOfPeople totalPrice status paymentStatus"
       )
       .sort({ date: 1, startTime: 1 })
       .lean(),
@@ -83,26 +92,22 @@ export default async function ClientDashboard({
   const currentMinute = now.getMinutes();
   const currentTimeInMinutes = currentHour * 60 + currentMinute;
 
-  const filteredUpcomingReservations = upcomingReservations
-    .filter((reservation: any) => {
-      const reservationDate = new Date(reservation.date);
-      reservationDate.setHours(0, 0, 0, 0);
-      const isToday = reservationDate.getTime() === todayStart.getTime();
+  const filteredUpcomingReservations = upcomingReservations.filter((reservation: any) => {
+    const reservationDate = new Date(reservation.date);
+    reservationDate.setHours(0, 0, 0, 0);
+    const isToday = reservationDate.getTime() === todayStart.getTime();
 
-      if (!isToday) {
-        // If not today, include all future dates
-        return true;
-      }
+    if (!isToday) {
+      // If not today, include all future dates
+      return true;
+    }
 
-      // If today, check if the start time hasn't passed yet
-      const [startHour, startMinute] = (reservation.startTime || "0:0")
-        .split(":")
-        .map(Number);
-      const startTimeInMinutes = startHour * 60 + startMinute;
+    // If today, check if the start time hasn't passed yet
+    const [startHour, startMinute] = (reservation.startTime || "0:0").split(":").map(Number);
+    const startTimeInMinutes = startHour * 60 + startMinute;
 
-      return startTimeInMinutes > currentTimeInMinutes;
-    })
-    .slice(0, 3); // Limit to 3 after filtering
+    return startTimeInMinutes > currentTimeInMinutes;
+  }).slice(0, 3); // Limit to 3 after filtering
 
   // Calculate total hours booked
   const totalHours = allReservations.reduce((total, reservation) => {
@@ -134,7 +139,7 @@ export default async function ClientDashboard({
           </div>
 
           <div className="col-md-4 mb-4">
-            <Link href={`/${username}/reservations`} className="action-card">
+            <Link href={`/${userPath}/reservations`} className="action-card">
               <div className="action-icon">
                 <i className="bi bi-calendar-check"></i>
               </div>
@@ -158,7 +163,7 @@ export default async function ClientDashboard({
           </div>
 
           <div className="col-md-4 mb-4">
-            <Link href={`/${username}/profile`} className="action-card">
+            <Link href={`/${userPath}/profile`} className="action-card">
               <div className="action-icon">
                 <i className="bi bi-person"></i>
               </div>
@@ -174,19 +179,11 @@ export default async function ClientDashboard({
         {filteredUpcomingReservations.length > 0 && (
           <div className="row mb-5">
             <div className="col-12">
-              <div
-                className="d-flex justify-content-between align-items-center"
-                style={{ marginBottom: "2.5rem" }}
-              >
-                <h2 className="section-title mb-0">Prochaines réservations</h2>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="section-title">Prochaines réservations</h2>
                 <Link
-                  href={`/${username}/reservations`}
+                  href={`/${userPath}/reservations`}
                   className="view-all-btn"
-                  style={{
-                    width: "170px",
-                    textAlign: "center",
-                    marginBottom: "1.5rem",
-                  }}
                 >
                   Voir toutes
                 </Link>

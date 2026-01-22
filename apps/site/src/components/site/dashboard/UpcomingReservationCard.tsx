@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import CancelBookingModal from "../booking/CancelBookingModal";
 
-interface Reservation {
+interface BookingData {
   _id: string;
   spaceType: string;
   date: string;
@@ -17,7 +17,7 @@ interface Reservation {
 }
 
 interface Props {
-  reservation: Booking;
+  reservation: BookingData;
   onCancelled?: () => void;
 }
 

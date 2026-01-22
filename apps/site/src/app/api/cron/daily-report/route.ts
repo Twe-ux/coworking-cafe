@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     const yesterdayEnd = new Date(yesterday);
     yesterdayEnd.setHours(23, 59, 59, 999);
 
-    const unvalidatedYesterday = await Reservation.find({
+    const unvalidatedYesterday = await Booking.find({
       date: { $gte: yesterday, $lte: yesterdayEnd },
       status: "confirmed",
       attendanceStatus: { $exists: false },
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       .sort({ startTime: 1 });
 
     // 2. Pending reservations (waiting for admin confirmation)
-    const pendingReservations = await Reservation.find({
+    const pendingReservations = await Booking.find({
       status: "pending",
       date: { $gte: today },
     })
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
     const nextWeek = new Date(today);
     nextWeek.setDate(nextWeek.getDate() + 7);
 
-    const upcomingReservations = await Reservation.find({
+    const upcomingReservations = await Booking.find({
       date: { $gte: today, $lte: nextWeek },
       status: "confirmed",
     })
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     const sixDaysEnd = new Date(sixDaysFromNow);
     sixDaysEnd.setHours(23, 59, 59, 999);
 
-    const depositPendingReservations = await Reservation.find({
+    const depositPendingReservations = await Booking.find({
       date: { $gte: sixDaysFromNow, $lte: sixDaysEnd },
       status: "confirmed",
       captureMethod: "deferred",

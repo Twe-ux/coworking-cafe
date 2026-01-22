@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../lib/db";
-import SpaceConfiguration from '@coworking-cafe/database';
+import { SpaceConfiguration } from '@coworking-cafe/database';
 
 /**
  * GET /api/space-configurations
@@ -8,12 +8,15 @@ import SpaceConfiguration from '@coworking-cafe/database';
  */
 export async function GET(request: NextRequest) {
   try {
+    console.log("[API] Fetching space configurations...");
     await connectDB();
+    console.log("[API] Database connected");
 
     const configurations = await SpaceConfiguration.find({
       isActive: true,
       isDeleted: false,
     }).sort({ displayOrder: 1 });
+    console.log("[API] Found configurations:", configurations.length);
 
     // Return only necessary public information
     const publicData = configurations.map((config) => ({
@@ -36,6 +39,7 @@ export async function GET(request: NextRequest) {
       data: publicData,
     });
   } catch (error) {
+    console.error("[API] Error fetching configurations:", error);
     return NextResponse.json(
       { error: "Failed to fetch configurations" },
       { status: 500 },

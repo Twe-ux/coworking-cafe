@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "../../../../lib/mongodb";
-import { Booking } from '@coworking-cafe/database';
+import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '@/lib/mongodb';
+import { Booking } from "@coworking-cafe/database";
 
 /**
  * GET /api/bookings/by-intent
@@ -10,30 +10,29 @@ import { Booking } from '@coworking-cafe/database';
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const intentId = searchParams.get("intentId");
-    const intentType = searchParams.get("intentType"); // 'payment' or 'setup'
+    const intentId = searchParams.get('intentId');
+    const intentType = searchParams.get('intentType'); // 'payment' or 'setup'
 
     if (!intentId || !intentType) {
       return NextResponse.json(
-        { error: "intentId and intentType are required" },
-        { status: 400 },
+        { error: 'intentId and intentType are required' },
+        { status: 400 }
       );
     }
 
     await connectDB();
 
     // Search for booking by payment intent or setup intent
-    const query =
-      intentType === "payment"
-        ? { stripePaymentIntentId: intentId }
-        : { stripeSetupIntentId: intentId };
+    const query = intentType === 'payment'
+      ? { stripePaymentIntentId: intentId }
+      : { stripeSetupIntentId: intentId };
 
-    const booking = await Reservation.findOne(query);
+    const booking = await Booking.findOne(query);
 
     if (!booking) {
       return NextResponse.json(
-        { success: false, message: "Booking not found yet" },
-        { status: 404 },
+        { success: false, message: 'Booking not found yet' },
+        { status: 404 }
       );
     }
 
@@ -41,12 +40,11 @@ export async function GET(request: NextRequest) {
       success: true,
       data: booking,
     });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to find booking" },
-      { status: 500 },
+  } catch (error) {    return NextResponse.json(
+      { error: 'Failed to find booking' },
+      { status: 500 }
     );
   }
 }
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';

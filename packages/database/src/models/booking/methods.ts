@@ -1,19 +1,17 @@
-import { BookingSchema } from './document';
+/** Methods available on Booking documents. */
+export interface BookingMethods {
+  /**
+   * Calculate the duration of the booking in minutes
+   */
+  calculateDuration(): number;
 
-/**
- * Instance Methods for Booking Model
- */
+  /**
+   * Check if the booking can be cancelled (not in the past, not already cancelled)
+   */
+  canCancel(): boolean;
 
-/**
- * Check if booking is confirmed
- */
-BookingSchema.methods.isConfirmed = function (): boolean {
-  return this.status === 'confirmed';
-};
-
-/**
- * Check if booking is pending
- */
-BookingSchema.methods.isPending = function (): boolean {
-  return this.status === 'pending';
-};
+  /**
+   * Cancel the booking
+   */
+  cancel(): Promise<void>;
+}

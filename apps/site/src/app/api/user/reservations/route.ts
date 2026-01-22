@@ -38,13 +38,13 @@ export async function GET(request: NextRequest) {
       query.status = "cancelled";
     }
 
-    const reservations = await Reservation.find(query)
+    const reservations = await Booking.find(query)
       .populate("space", "name slug spaceType")
       .sort({ startDate: -1 })
       .limit(limit)
       .skip(skip);
 
-    const total = await Reservation.countDocuments(query);
+    const total = await Booking.countDocuments(query);
 
     return NextResponse.json({
       success: true,

@@ -1,7 +1,7 @@
 "use client";
 
-import BookingProgressBar from "../../../../../components/site/booking/BookingProgressBar";
-import CustomDatePicker from "../../../../../components/site/booking/CustomDatePicker";
+import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
+import CustomDatePicker from "@/components/site/booking/CustomDatePicker";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import "../../../[id]/client-dashboard.scss";
@@ -137,7 +137,7 @@ export default function BookingDatePage({
   const [duration, setDuration] = useState<string>("");
   const [numberOfPeople, setNumberOfPeople] = useState(1);
   const [spaceConfig, setSpaceConfig] = useState<SpaceConfiguration | null>(
-    null,
+    null
   );
   const [globalHours, setGlobalHours] = useState<GlobalHours | null>(null);
   const [loading, setLoading] = useState(true);
@@ -195,7 +195,8 @@ export default function BookingDatePage({
           if (data.basePrice) setCalculatedPrice(data.basePrice);
           if (data.duration) setDuration(data.duration);
         }
-      } catch (error) {}
+      } catch (error) {
+    }
     }
   }, [params.type]);
 
@@ -243,7 +244,7 @@ export default function BookingDatePage({
     const latestStartMinuteRemainder = latestStartMinutes % 60;
     const latestStartTime = `${String(latestStartHour).padStart(
       2,
-      "0",
+      "0"
     )}:${String(latestStartMinuteRemainder).padStart(2, "0")}`;
 
     let filteredSlots = allTimeSlots.filter((slot) => {
@@ -275,7 +276,7 @@ export default function BookingDatePage({
       const currentHour = now.getHours();
       const currentMinute = now.getMinutes();
       const minTime = `${String(currentHour + 1).padStart(2, "0")}:${String(
-        Math.ceil(currentMinute / 30) * 30,
+        Math.ceil(currentMinute / 30) * 30
       ).padStart(2, "0")}`;
 
       filteredSlots = filteredSlots.filter((slot) => slot >= minTime);
@@ -317,7 +318,7 @@ export default function BookingDatePage({
     const earliestEndMinuteRemainder = earliestEndMinutes % 60;
     const earliestEndTime = `${String(earliestEndHour).padStart(
       2,
-      "0",
+      "0"
     )}:${String(earliestEndMinuteRemainder).padStart(2, "0")}`;
 
     // For end time: from opening+1h to closing time
@@ -343,7 +344,7 @@ export default function BookingDatePage({
       const end = new Date(start);
       end.setDate(end.getDate() + 6); // 7 days total (including start day)
       const endDateStr = `${end.getFullYear()}-${String(
-        end.getMonth() + 1,
+        end.getMonth() + 1
       ).padStart(2, "0")}-${String(end.getDate()).padStart(2, "0")}`;
       setEndDate(endDateStr);
     } else if (reservationType === "monthly") {
@@ -351,7 +352,7 @@ export default function BookingDatePage({
       const end = new Date(start);
       end.setDate(end.getDate() + 29); // 30 days total
       const endDateStr = `${end.getFullYear()}-${String(
-        end.getMonth() + 1,
+        end.getMonth() + 1
       ).padStart(2, "0")}-${String(end.getDate()).padStart(2, "0")}`;
       setEndDate(endDateStr);
     }
@@ -367,7 +368,8 @@ export default function BookingDatePage({
         if (data.success) {
           setGlobalHours(data.data);
         }
-      } catch (error) {}
+      } catch (error) {
+    }
     };
 
     fetchGlobalHours();
@@ -379,7 +381,7 @@ export default function BookingDatePage({
       try {
         setLoading(true);
         const response = await fetch(
-          `/api/space-configurations/${dbSpaceType}`,
+          `/api/space-configurations/${dbSpaceType}`
         );
         const data = await response.json();
 
@@ -393,8 +395,7 @@ export default function BookingDatePage({
         } else {
           setError("Configuration de l'espace non disponible");
         }
-      } catch (err) {
-        setError("Erreur lors du chargement de la configuration");
+      } catch (err) {        setError("Erreur lors du chargement de la configuration");
       } finally {
         setLoading(false);
       }
@@ -505,13 +506,13 @@ export default function BookingDatePage({
     } else if (reservationType === "weekly") {
       const basePrice = spaceConfig.pricing.weekly;
       setCalculatedPrice(
-        spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice,
+        spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice
       );
       setDuration("7 jours");
     } else if (reservationType === "monthly") {
       const basePrice = spaceConfig.pricing.monthly;
       setCalculatedPrice(
-        spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice,
+        spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice
       );
       setDuration("30 jours");
     }
@@ -549,14 +550,14 @@ export default function BookingDatePage({
           month - 1,
           day,
           parseInt(arrivalTime.split(":")[0]),
-          parseInt(arrivalTime.split(":")[1]),
+          parseInt(arrivalTime.split(":")[1])
         ).toISOString();
         const endDateTime = new Date(
           year,
           month - 1,
           day,
           parseInt(dayHours.closeTime.split(":")[0]),
-          parseInt(dayHours.closeTime.split(":")[1]),
+          parseInt(dayHours.closeTime.split(":")[1])
         ).toISOString();
 
         const response = await fetch("/api/calculate-price", {
@@ -578,13 +579,10 @@ export default function BookingDatePage({
         if (data.success) {
           setCalculatedPrice(data.data.totalPrice);
         }
-      } catch (err) {
-        // Fallback to simple calculation
+      } catch (err) {        // Fallback to simple calculation
         const basePrice = spaceConfig.pricing.daily;
         setCalculatedPrice(
-          spaceConfig.pricing.perPerson
-            ? basePrice * numberOfPeople
-            : basePrice,
+          spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice
         );
       }
     }
@@ -616,14 +614,14 @@ export default function BookingDatePage({
         ? `${hours}H${
             minutes > 0 ? " " + minutes.toString().padStart(2, "0") : ""
           }`.trim()
-        : `${minutes}min`,
+        : `${minutes}min`
     );
 
     // RÈGLE DES 5H: Si >= 5h, appliquer tarif journée
     if (durationHours >= 5 && spaceConfig.pricing.daily > 0) {
       const basePrice = spaceConfig.pricing.daily;
       setCalculatedPrice(
-        spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice,
+        spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice
       );
       setAppliedDailyRate(true);
       return;
@@ -643,14 +641,14 @@ export default function BookingDatePage({
         month - 1,
         day,
         startHour,
-        startMinute,
+        startMinute
       ).toISOString();
       const endDateTime = new Date(
         year,
         month - 1,
         day,
         endHour,
-        endMinute,
+        endMinute
       ).toISOString();
 
       const response = await fetch("/api/calculate-price", {
@@ -672,10 +670,9 @@ export default function BookingDatePage({
       if (data.success) {
         setCalculatedPrice(data.data.totalPrice);
       }
-    } catch (err) {
-      const basePrice = durationHours * spaceConfig.pricing.hourly;
+    } catch (err) {      const basePrice = durationHours * spaceConfig.pricing.hourly;
       setCalculatedPrice(
-        spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice,
+        spaceConfig.pricing.perPerson ? basePrice * numberOfPeople : basePrice
       );
     }
   };
@@ -688,7 +685,7 @@ export default function BookingDatePage({
     const [hour, minute] = time.split(":").map(Number);
     const endHour = hour + 1;
     const endTime = `${String(endHour).padStart(2, "0")}:${String(
-      minute,
+      minute
     ).padStart(2, "0")}`;
     setEndTime(endTime);
   };
@@ -800,7 +797,7 @@ export default function BookingDatePage({
                             {
                               day: "numeric",
                               month: "short",
-                            },
+                            }
                           );
                           let timeLabel = "";
                           if (
@@ -822,8 +819,8 @@ export default function BookingDatePage({
                           return timeLabel && peopleLabel
                             ? `${dateLabel} ${timeLabel}\n${peopleLabel}`
                             : timeLabel
-                              ? `${dateLabel}\n${timeLabel}`
-                              : dateLabel;
+                            ? `${dateLabel}\n${timeLabel}`
+                            : dateLabel;
                         })()
                       : "Date",
                   }}
@@ -936,9 +933,9 @@ export default function BookingDatePage({
                           minDate={(() => {
                             const today = new Date();
                             return `${today.getFullYear()}-${String(
-                              today.getMonth() + 1,
+                              today.getMonth() + 1
                             ).padStart(2, "0")}-${String(
-                              today.getDate(),
+                              today.getDate()
                             ).padStart(2, "0")}`;
                           })()}
                           maxDate={(() => {
@@ -946,9 +943,9 @@ export default function BookingDatePage({
                             const maxDate = new Date();
                             maxDate.setDate(maxDate.getDate() + 70);
                             return `${maxDate.getFullYear()}-${String(
-                              maxDate.getMonth() + 1,
+                              maxDate.getMonth() + 1
                             ).padStart(2, "0")}-${String(
-                              maxDate.getDate(),
+                              maxDate.getDate()
                             ).padStart(2, "0")}`;
                           })()}
                           reservationType={reservationType}
@@ -1126,7 +1123,7 @@ export default function BookingDatePage({
                                   const dateObj = new Date(
                                     year,
                                     month - 1,
-                                    day,
+                                    day
                                   );
                                   const dayOfWeek = dateObj
                                     .toLocaleDateString("en-US", {
@@ -1142,13 +1139,13 @@ export default function BookingDatePage({
                                       closeHour * 60 + closeMinute;
                                     const cutoffMinutes = closeMinutes - 5 * 60;
                                     const cutoffHour = Math.floor(
-                                      cutoffMinutes / 60,
+                                      cutoffMinutes / 60
                                     );
                                     const cutoffMinute = cutoffMinutes % 60;
                                     const cutoffTime = `${String(
-                                      cutoffHour,
+                                      cutoffHour
                                     ).padStart(2, "0")}:${String(
-                                      cutoffMinute,
+                                      cutoffMinute
                                     ).padStart(2, "0")}`;
                                     return (
                                       <small
@@ -1215,8 +1212,8 @@ export default function BookingDatePage({
                                 setNumberOfPeople(
                                   Math.max(
                                     spaceConfig?.minCapacity || 1,
-                                    numberOfPeople - 1,
-                                  ),
+                                    numberOfPeople - 1
+                                  )
                                 )
                               }
                               style={{ padding: "0.75rem 1rem" }}
@@ -1238,8 +1235,8 @@ export default function BookingDatePage({
                                 setNumberOfPeople(
                                   Math.min(
                                     spaceConfig?.maxCapacity || 100,
-                                    numberOfPeople + 1,
-                                  ),
+                                    numberOfPeople + 1
+                                  )
                                 )
                               }
                               style={{ padding: "0.75rem 1rem" }}

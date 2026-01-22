@@ -2,7 +2,9 @@
 
 // ===== Auth & Users =====
 export { User } from './user';
+export type { UserDocument } from './user';
 export { Role } from './role';
+export type { RoleDocument } from './role';
 export { Permission } from './permission';
 export type { PermissionDocument } from './permission';
 export { Session } from './session';

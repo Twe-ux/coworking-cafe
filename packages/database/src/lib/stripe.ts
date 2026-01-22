@@ -11,24 +11,34 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 /**
  * Create a Payment Intent for a reservation
+ * Supports both automatic and manual capture
  */
 export async function createPaymentIntent(
   amount: number,
-  metadata: {
-    reservationId: string;
-    userId: string;
-    spaceId: string;
-    date: string;
-  }
+  currency: string = 'eur',
+  metadata?: Stripe.MetadataParam,
+  customerId?: string,
+  captureMethod?: 'automatic' | 'manual',
+  paymentMethod?: string
 ): Promise<Stripe.PaymentIntent> {
-  return stripe.paymentIntents.create({
-    amount: Math.round(amount * 100), // Convert to cents
-    currency: 'eur',
-    automatic_payment_methods: {
-      enabled: true,
-    },
-    metadata,
-  });
+  const params: Stripe.PaymentIntentCreateParams = {
+    amount: Math.round(amount), // Amount in cents
+    currency: currency.toLowerCase(),
+    metadata: metadata || {},
+    capture_method: captureMethod || 'automatic',
+    payment_method_types: ['card'],
+  };
+
+  if (customerId) {
+    params.customer = customerId;
+  }
+
+  if (paymentMethod) {
+    params.payment_method = paymentMethod;
+    params.confirm = true; // Auto-confirm when payment method is provided
+  }
+
+  return stripe.paymentIntents.create(params);
 }
 
 /**
@@ -132,4 +142,93 @@ export function formatAmount(amountInCents: number): string {
  */
 export function toCents(euros: number): number {
   return Math.round(euros * 100);
+}
+
+/**
+ * Format amount for Stripe (convert currency to cents)
+ */
+export function formatAmountForStripe(
+  amount: number,
+  currency: string = 'EUR'
+): number {
+  // Some currencies don't use decimal places (e.g., JPY, KRW)
+  const zeroDecimalCurrencies = [
+    'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG',
+    'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'
+  ];
+
+  if (zeroDecimalCurrencies.includes(currency.toUpperCase())) {
+    return Math.round(amount);
+  }
+
+  return Math.round(amount * 100);
+}
+
+/**
+ * Format amount for display (convert cents to currency)
+ */
+export function formatAmountForDisplay(
+  amount: number,
+  currency: string = 'EUR'
+): string {
+  const numberFormat = new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 2,
+  });
+
+  return numberFormat.format(amount / 100);
+}
+
+/**
+ * Get or create a Stripe customer
+ * Searches by email first, creates new if not found
+ */
+export async function getOrCreateStripeCustomer(
+  email: string,
+  name?: string,
+  metadata?: Stripe.MetadataParam
+): Promise<Stripe.Customer> {
+  try {
+    // Search for existing customer by email
+    const existingCustomers = await stripe.customers.list({
+      email: email,
+      limit: 1,
+    });
+
+    if (existingCustomers.data.length > 0) {
+      return existingCustomers.data[0];
+    }
+
+    // Create new customer if none exists
+    const customer = await stripe.customers.create({
+      email,
+      name,
+      metadata: metadata || {},
+    });
+
+    return customer;
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
+ * Create a Setup Intent for saving payment method without charging
+ */
+export async function createSetupIntent(
+  customerId: string,
+  metadata?: Stripe.MetadataParam
+): Promise<Stripe.SetupIntent> {
+  try {
+    const setupIntent = await stripe.setupIntents.create({
+      customer: customerId,
+      metadata: metadata || {},
+      payment_method_types: ['card'],
+    });
+
+    return setupIntent;
+  } catch (error) {
+    throw error;
+  }
 }

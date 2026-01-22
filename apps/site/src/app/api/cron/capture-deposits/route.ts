@@ -4,7 +4,7 @@ import { Booking } from '@coworking-cafe/database';
 import { Payment } from '@coworking-cafe/database';
 import { createPaymentIntent } from "../../../../lib/stripe";
 import { logger } from "../../../../lib/logger";
-import SpaceConfiguration from '@coworking-cafe/database';
+import { SpaceConfiguration } from '@coworking-cafe/database';
 
 /**
  * GET /api/cron/capture-deposits
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     // 2. Have deferred capture method (SetupIntent was used)
     // 3. Don't have a payment intent yet
     // 4. Are not cancelled
-    const bookings = await Reservation.find({
+    const bookings = await Booking.find({
       date: {
         $gte: targetDate,
         $lte: targetDateEnd,

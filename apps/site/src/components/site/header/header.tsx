@@ -13,12 +13,28 @@ const Header = () => {
   const pathname = usePathname();
 
   const getDashboardUrl = () => {
-    if (!session?.user?.role?.slug) return "/dashboard";
-    const roleSlug = session.user.role.slug;
+    if (!session?.user) return "/auth/login";
+
+    // DEBUG: Log session data
+    console.log("🔍 Session user:", session.user);
+    console.log("🔍 User ID:", session.user.id);
+    console.log("🔍 Username:", session.user.username);
+
+    const roleSlug = session.user.role?.slug;
     if (roleSlug === "dev" || roleSlug === "admin" || roleSlug === "staff") {
-      return "/dashboard";
+      return "http://localhost:3001"; // Admin dashboard (separate app)
     }
-    return "/dashboard/client";
+
+    // Client dashboard - use ID (username not always defined)
+    const userId = session.user.id || (session.user as any)._id;
+    console.log("🔍 Final userId:", userId);
+
+    if (!userId) {
+      console.error("❌ No user ID found in session!");
+      return "/auth/login";
+    }
+
+    return `/${userId}`;
   };
 
   return (
@@ -54,7 +70,10 @@ const Header = () => {
                   {showUserMenu && (
                     <div className="user-menu-dropdown">
                       <Link
-                        href={getDashboardUrl()}
+                        href={session.user.role?.slug === "dev" || session.user.role?.slug === "admin" || session.user.role?.slug === "staff"
+                          ? "http://localhost:3001"
+                          : `/${session.user.id}`
+                        }
                         className="user-menu-item"
                         onClick={() => setShowUserMenu(false)}
                       >

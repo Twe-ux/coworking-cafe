@@ -1,6 +1,6 @@
 "use client";
 
-import BookingProgressBar from "../../../../components/site/booking/BookingProgressBar";
+import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -72,14 +72,7 @@ export default function BookingDetailsPage() {
       };
       sessionStorage.setItem("bookingData", JSON.stringify(updatedData));
     }
-  }, [
-    contactName,
-    contactEmail,
-    contactPhone,
-    contactCompanyName,
-    specialRequests,
-    bookingData,
-  ]);
+  }, [contactName, contactEmail, contactPhone, contactCompanyName, specialRequests, bookingData]);
   const [loading, setLoading] = useState(false);
   const [availableServices, setAvailableServices] = useState<
     AdditionalService[]
@@ -97,7 +90,7 @@ export default function BookingDetailsPage() {
   const convertPrice = (
     priceTTC: number,
     vatRate: number,
-    toTTC: boolean,
+    toTTC: boolean
   ): number => {
     if (toTTC) {
       return priceTTC; // Already TTC
@@ -152,7 +145,7 @@ export default function BookingDetailsPage() {
     if (storedServices) {
       const servicesArray = JSON.parse(storedServices) as [
         string,
-        SelectedService,
+        SelectedService
       ][];
       const servicesMap = new Map<string, SelectedService>(servicesArray);
       setSelectedServices(servicesMap);
@@ -169,7 +162,8 @@ export default function BookingDetailsPage() {
       if (data.user?.phone) {
         setContactPhone(data.user.phone);
       }
-    } catch (error) {}
+    } catch (error) {
+    }
   };
 
   const fetchUserProfile = async () => {
@@ -179,7 +173,8 @@ export default function BookingDetailsPage() {
       if (data.user?.companyName) {
         setContactCompanyName(data.user.companyName);
       }
-    } catch (error) {}
+    } catch (error) {
+    }
   };
 
   const fetchAdditionalServices = async () => {
@@ -195,7 +190,7 @@ export default function BookingDetailsPage() {
           const updatedSelected = new Map(selectedServices);
           selectedServices.forEach((selectedService, serviceId) => {
             const freshService = data.data.find(
-              (s: AdditionalService) => s._id === serviceId,
+              (s: AdditionalService) => s._id === serviceId
             );
             if (freshService) {
               updatedSelected.set(serviceId, {
@@ -209,7 +204,7 @@ export default function BookingDetailsPage() {
           const servicesArray = Array.from(updatedSelected.entries());
           sessionStorage.setItem(
             "selectedServices",
-            JSON.stringify(servicesArray),
+            JSON.stringify(servicesArray)
           );
         }
       }
@@ -315,8 +310,7 @@ export default function BookingDetailsPage() {
             companyName: contactCompanyName,
           }),
         });
-      } catch (error) {
-        // Continue anyway, don't block the booking flow
+      } catch (error) {        // Continue anyway, don't block the booking flow
       }
     }
 
@@ -418,8 +412,18 @@ export default function BookingDetailsPage() {
                     )}
                     {!session && (
                       <div className="">
-                        <div className="d-flex justify-content-center gap-2 gap-md-5 align-items-center w-100">
-                          <div className="d-none d-md-flex align-items-center gap-3">
+                        <div className="d-flex justify-content-center gap-5 align-items-center w-100">
+                          <div className="d-flex align-items-center gap-3">
+                            {/* <div
+                            className="stat-icon"
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              fontSize: "1.5rem",
+                            }}
+                          >
+                            <i className="bi bi-person-circle"></i>
+                          </div> */}
                             <span
                               style={{
                                 fontSize: "1rem",
@@ -438,10 +442,9 @@ export default function BookingDetailsPage() {
                               color: "var(--secondary-clr)",
                               fontWeight: "600",
                               border: "none",
-                              padding: "0.4rem 0.8rem",
+                              padding: "0.5rem 1.25rem",
                               borderRadius: "10px",
                               transition: "all 0.3s ease",
-                              fontSize: "0.85rem",
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background =
@@ -467,11 +470,11 @@ export default function BookingDetailsPage() {
                                 };
                                 sessionStorage.setItem(
                                   "bookingData",
-                                  JSON.stringify(updatedData),
+                                  JSON.stringify(updatedData)
                                 );
                               }
                               router.push(
-                                `/auth/login?callbackUrl=/booking/details`,
+                                `/auth/login?callbackUrl=/booking/details`
                               );
                             }}
                           >
@@ -481,10 +484,7 @@ export default function BookingDetailsPage() {
                       </div>
                     )}
                   </div>
-                  <div
-                    className="d-none d-md-block"
-                    style={{ width: "80px" }}
-                  ></div>
+                  <div style={{ width: "80px" }}></div>
                 </div>
 
                 {/* Contact Information */}
@@ -494,13 +494,7 @@ export default function BookingDetailsPage() {
                   {/* Two column layout */}
                   <div className="row mb-4">
                     {/* Left column: Contact info */}
-                    <div
-                      className={
-                        session
-                          ? "col-12 mb-4 mb-md-0"
-                          : "col-md-6 mb-4 mb-md-0"
-                      }
-                    >
+                    <div className={session ? "col-12 mb-4 mb-md-0" : "col-md-6 mb-4 mb-md-0"}>
                       <div className="stat-card h-100">
                         <div className="w-100">
                           <div className="d-flex align-items-center gap-2 mb-4">
@@ -513,17 +507,14 @@ export default function BookingDetailsPage() {
                             <div className="row">
                               <div className="col-md-6 mb-3">
                                 <label className="form-label">
-                                  Nom complet{" "}
-                                  <span className="text-danger">*</span>
+                                  Nom complet <span className="text-danger">*</span>
                                 </label>
                                 <input
                                   type="text"
                                   className="form-control"
                                   placeholder="Votre nom complet"
                                   value={contactName}
-                                  onChange={(e) =>
-                                    setContactName(e.target.value)
-                                  }
+                                  onChange={(e) => setContactName(e.target.value)}
                                   required
                                 />
                               </div>
@@ -537,26 +528,21 @@ export default function BookingDetailsPage() {
                                   className="form-control"
                                   placeholder="vous@email.com"
                                   value={contactEmail}
-                                  onChange={(e) =>
-                                    setContactEmail(e.target.value)
-                                  }
+                                  onChange={(e) => setContactEmail(e.target.value)}
                                   required
                                 />
                               </div>
 
                               <div className="col-md-6 mb-0">
                                 <label className="form-label">
-                                  Téléphone{" "}
-                                  <span className="text-danger">*</span>
+                                  Téléphone <span className="text-danger">*</span>
                                 </label>
                                 <input
                                   type="tel"
                                   className="form-control"
                                   placeholder="06 XX XX XX XX"
                                   value={contactPhone}
-                                  onChange={(e) =>
-                                    setContactPhone(e.target.value)
-                                  }
+                                  onChange={(e) => setContactPhone(e.target.value)}
                                   required
                                 />
                               </div>
@@ -564,9 +550,7 @@ export default function BookingDetailsPage() {
                               <div className="col-md-6 mb-0">
                                 <label className="form-label">
                                   Raison sociale{" "}
-                                  <span className="text-muted">
-                                    (optionnel)
-                                  </span>
+                                  <span className="text-muted">(optionnel)</span>
                                 </label>
                                 <input
                                   type="text"
@@ -584,17 +568,14 @@ export default function BookingDetailsPage() {
                             <>
                               <div className="mb-3">
                                 <label className="form-label">
-                                  Nom complet{" "}
-                                  <span className="text-danger">*</span>
+                                  Nom complet <span className="text-danger">*</span>
                                 </label>
                                 <input
                                   type="text"
                                   className="form-control"
                                   placeholder="Votre nom complet"
                                   value={contactName}
-                                  onChange={(e) =>
-                                    setContactName(e.target.value)
-                                  }
+                                  onChange={(e) => setContactName(e.target.value)}
                                   required
                                 />
                               </div>
@@ -608,26 +589,21 @@ export default function BookingDetailsPage() {
                                   className="form-control"
                                   placeholder="vous@email.com"
                                   value={contactEmail}
-                                  onChange={(e) =>
-                                    setContactEmail(e.target.value)
-                                  }
+                                  onChange={(e) => setContactEmail(e.target.value)}
                                   required
                                 />
                               </div>
 
                               <div className="mb-3">
                                 <label className="form-label">
-                                  Téléphone{" "}
-                                  <span className="text-danger">*</span>
+                                  Téléphone <span className="text-danger">*</span>
                                 </label>
                                 <input
                                   type="tel"
                                   className="form-control"
                                   placeholder="06 XX XX XX XX"
                                   value={contactPhone}
-                                  onChange={(e) =>
-                                    setContactPhone(e.target.value)
-                                  }
+                                  onChange={(e) => setContactPhone(e.target.value)}
                                   required
                                 />
                               </div>
@@ -635,9 +611,7 @@ export default function BookingDetailsPage() {
                               <div className="mb-0">
                                 <label className="form-label">
                                   Raison sociale{" "}
-                                  <span className="text-muted">
-                                    (optionnel)
-                                  </span>
+                                  <span className="text-muted">(optionnel)</span>
                                 </label>
                                 <input
                                   type="text"
@@ -747,9 +721,7 @@ export default function BookingDetailsPage() {
                                     </label>
                                     <div className="position-relative">
                                       <input
-                                        type={
-                                          showPassword ? "text" : "password"
-                                        }
+                                        type={showPassword ? "text" : "password"}
                                         className="form-control"
                                         placeholder="Minimum 8 caractères"
                                         value={password}
@@ -762,9 +734,7 @@ export default function BookingDetailsPage() {
                                       <button
                                         type="button"
                                         className="btn btn-link position-absolute"
-                                        onClick={() =>
-                                          setShowPassword(!showPassword)
-                                        }
+                                        onClick={() => setShowPassword(!showPassword)}
                                         style={{
                                           top: "50%",
                                           right: "0.5rem",
@@ -773,9 +743,7 @@ export default function BookingDetailsPage() {
                                           color: "#666",
                                         }}
                                       >
-                                        <i
-                                          className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
-                                        ></i>
+                                        <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
                                       </button>
                                     </div>
                                   </div>
@@ -785,11 +753,7 @@ export default function BookingDetailsPage() {
                                     </label>
                                     <div className="position-relative">
                                       <input
-                                        type={
-                                          showConfirmPassword
-                                            ? "text"
-                                            : "password"
-                                        }
+                                        type={showConfirmPassword ? "text" : "password"}
                                         className="form-control"
                                         placeholder="Retapez votre mot de passe"
                                         value={confirmPassword}
@@ -802,11 +766,7 @@ export default function BookingDetailsPage() {
                                       <button
                                         type="button"
                                         className="btn btn-link position-absolute"
-                                        onClick={() =>
-                                          setShowConfirmPassword(
-                                            !showConfirmPassword,
-                                          )
-                                        }
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                         style={{
                                           top: "50%",
                                           right: "0.5rem",
@@ -815,9 +775,7 @@ export default function BookingDetailsPage() {
                                           color: "#666",
                                         }}
                                       >
-                                        <i
-                                          className={`bi ${showConfirmPassword ? "bi-eye-slash" : "bi-eye"}`}
-                                        ></i>
+                                        <i className={`bi ${showConfirmPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
                                       </button>
                                     </div>
                                     {createAccount &&
@@ -883,7 +841,7 @@ export default function BookingDetailsPage() {
                           .map((cat) => ({
                             category: cat,
                             count: availableServices.filter(
-                              (s) => s.category === cat,
+                              (s) => s.category === cat
                             ).length,
                           }))
                           .filter((item) => item.count > 0)
@@ -964,7 +922,7 @@ export default function BookingDetailsPage() {
                                           onClick={() =>
                                             updateServiceQuantity(
                                               service._id,
-                                              quantity - 1,
+                                              quantity - 1
                                             )
                                           }
                                           disabled={quantity <= 1}
@@ -993,7 +951,7 @@ export default function BookingDetailsPage() {
                                           onClick={() =>
                                             updateServiceQuantity(
                                               service._id,
-                                              quantity + 1,
+                                              quantity + 1
                                             )
                                           }
                                           style={{
@@ -1027,7 +985,7 @@ export default function BookingDetailsPage() {
                                   </div>
                                 </div>
                               );
-                            },
+                            }
                           )}
                         </div>
                       )}
@@ -1095,8 +1053,9 @@ export default function BookingDetailsPage() {
 
                       {/* Header Row */}
                       <div
-                        className="price-row d-none d-md-block"
+                        className="price-row"
                         style={{
+                          // borderBottom: "2px solid #e0e0e0",
                           paddingBottom: "0.75rem",
                           marginBottom: "0.5rem",
                         }}
@@ -1159,10 +1118,10 @@ export default function BookingDetailsPage() {
                         }}
                       >
                         <div className="d-flex justify-content-between align-items-center w-100">
-                          <span style={{ fontSize: "0.85rem" }}>Tarif </span>
-                          <div className="d-flex gap-2 gap-md-4 align-items-center">
+                          <span>Tarif </span>
+                          <div className="d-flex gap-4 align-items-center">
                             <span
-                              className="text-muted d-none d-md-inline"
+                              className="text-muted"
                               style={{
                                 fontSize: "0.875rem",
                                 minWidth: "80px",
@@ -1175,7 +1134,7 @@ export default function BookingDetailsPage() {
                                 : "pers."}
                             </span>
                             <span
-                              className="text-muted d-none d-md-inline"
+                              className="text-muted"
                               style={{
                                 fontSize: "0.875rem",
                                 minWidth: "100px",
@@ -1191,7 +1150,7 @@ export default function BookingDetailsPage() {
                                   bookingData.basePrice /
                                     bookingData.numberOfPeople,
                                   vatRate,
-                                  showTTC,
+                                  showTTC
                                 );
                                 return unitPrice.toFixed(2);
                               })()}
@@ -1199,11 +1158,7 @@ export default function BookingDetailsPage() {
                             </span>
                             <span
                               className="fw-semibold"
-                              style={{
-                                minWidth: "60px",
-                                textAlign: "right",
-                                fontSize: "0.875rem",
-                              }}
+                              style={{ minWidth: "80px", textAlign: "right" }}
                             >
                               {(() => {
                                 const vatRate =
@@ -1213,7 +1168,7 @@ export default function BookingDetailsPage() {
                                 const totalPrice = convertPrice(
                                   bookingData.basePrice,
                                   vatRate,
-                                  showTTC,
+                                  showTTC
                                 );
                                 return totalPrice.toFixed(2);
                               })()}
@@ -1234,7 +1189,7 @@ export default function BookingDetailsPage() {
                           const displayPrice = convertPrice(
                             displayPriceTTC,
                             vatRate,
-                            showTTC,
+                            showTTC
                           );
                           const totalServicePrice =
                             service.priceUnit === "per-person"
@@ -1253,15 +1208,15 @@ export default function BookingDetailsPage() {
                               }}
                             >
                               <div className="d-flex justify-content-between align-items-center w-100">
-                                <span style={{ fontSize: "0.85rem" }}>
+                                <span>
                                   {service.name}{" "}
                                   {service.priceUnit === "per-person"
                                     ? "(par pers.)"
                                     : ""}
                                 </span>
-                                <div className="d-flex gap-2 gap-md-4 align-items-center">
+                                <div className="d-flex gap-4 align-items-center">
                                   <span
-                                    className="text-muted d-none d-md-inline"
+                                    className="text-muted"
                                     style={{
                                       fontSize: "0.875rem",
                                       minWidth: "80px",
@@ -1271,7 +1226,7 @@ export default function BookingDetailsPage() {
                                     {quantity}
                                   </span>
                                   <span
-                                    className="text-muted d-none d-md-inline"
+                                    className="text-muted"
                                     style={{
                                       fontSize: "0.875rem",
                                       minWidth: "100px",
@@ -1283,9 +1238,8 @@ export default function BookingDetailsPage() {
                                   <span
                                     className="fw-semibold"
                                     style={{
-                                      minWidth: "60px",
+                                      minWidth: "80px",
                                       textAlign: "right",
-                                      fontSize: "0.875rem",
                                     }}
                                   >
                                     {totalServicePrice.toFixed(2)}€
@@ -1294,7 +1248,7 @@ export default function BookingDetailsPage() {
                               </div>
                             </div>
                           );
-                        },
+                        }
                       )}
 
                       <div className="price-row total-row">
@@ -1315,7 +1269,7 @@ export default function BookingDetailsPage() {
                               const baseHT = convertPrice(
                                 bookingData.basePrice,
                                 baseVatRate,
-                                false,
+                                false
                               );
 
                               let servicesHT = 0;
@@ -1331,7 +1285,7 @@ export default function BookingDetailsPage() {
                                 const displayPriceHT = convertPrice(
                                   displayPriceTTC,
                                   vatRate,
-                                  false,
+                                  false
                                 );
 
                                 if (service.priceUnit === "per-person") {
@@ -1520,7 +1474,7 @@ export default function BookingDetailsPage() {
                                   onClick={() =>
                                     updateServiceQuantity(
                                       service._id,
-                                      selected.quantity - 1,
+                                      selected.quantity - 1
                                     )
                                   }
                                   disabled={selected.quantity <= 1}
@@ -1540,7 +1494,7 @@ export default function BookingDetailsPage() {
                                   onClick={() =>
                                     updateServiceQuantity(
                                       service._id,
-                                      selected.quantity + 1,
+                                      selected.quantity + 1
                                     )
                                   }
                                 >

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../../lib/db";
-import SpaceConfiguration from '@coworking-cafe/database';
+import { SpaceConfiguration } from '@coworking-cafe/database';
 
 /**
  * GET /api/space-configurations/[spaceType]
@@ -45,6 +45,7 @@ export async function GET(
       },
     });
   } catch (error) {
+    console.error("Error fetching space configuration:", error);
     return NextResponse.json(
       { error: "Failed to fetch configuration" },
       { status: 500 },

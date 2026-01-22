@@ -4,7 +4,7 @@ import { Booking } from '@coworking-cafe/database';
 import BookingSettings from "../../../../models/bookingSettings";
 import { logger } from "../../../../lib/logger";
 import { sendDepositCaptured } from "../../../../lib/email/emailService";
-import SpaceConfiguration from '@coworking-cafe/database';
+import { SpaceConfiguration } from '@coworking-cafe/database';
 
 /**
  * GET /api/cron/check-attendance
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Find confirmed reservations from yesterday that haven't been validated
-    const unvalidatedBookings = await Reservation.find({
+    const unvalidatedBookings = await Booking.find({
       date: {
         $gte: yesterday,
         $lte: yesterdayEnd,

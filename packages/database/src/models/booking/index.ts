@@ -1,12 +1,23 @@
-import mongoose from "mongoose";
-import { BookingSchema, type BookingDocument } from "./document";
-import './methods';
-import './hooks';
-import './virtuals';
+import { Model, model, models } from "mongoose";
+import { BookingDocument, BookingSchema } from "./document";
+import { attachHooks } from "./hooks";
+import { BookingMethods } from "./methods";
+import { VirtualBooking } from "./virtuals";
 
-export { BookingDocument };
-export type { BookingStatus, ReservationType } from "./document";
+export type Booking = VirtualBooking & BookingMethods;
 
-export const Booking =
-  (mongoose.models.Booking as mongoose.Model<BookingDocument>) ||
-  mongoose.model<BookingDocument>("Booking", BookingSchema);
+let BookingModel: Model<BookingDocument>;
+
+if (models.Booking) {
+  BookingModel = models.Booking as Model<BookingDocument>;
+} else {
+  attachHooks();
+  BookingModel = model<BookingDocument>("Booking", BookingSchema);
+}
+
+if (!BookingModel) {
+  throw new Error("Booking model not initialized");
+}
+
+export { BookingModel as Booking };
+export * from "./document";

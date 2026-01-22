@@ -1,12 +1,12 @@
-import { getAuthUser } from "../../../../../lib/api-helpers";
-import { businessDaysUntil } from "../../../../../lib/business-days";
-import { sendCancellationConfirmation } from "../../../../../lib/email/emailService";
-import { logger } from "../../../../../lib/logger";
-import { connectDB } from "../../../../../lib/mongodb";
-import { getSpaceTypeName } from "../../../../../lib/space-names";
-import BookingSettings from "../../../../../models/bookingSettings";
-import { Payment } from '@coworking-cafe/database';
-import { Booking } from '@coworking-cafe/database';
+import { getAuthUser } from "@/lib/api-helpers";
+import { businessDaysUntil } from "@/lib/business-days";
+import { sendCancellationConfirmation } from "@/lib/email/emailService";
+import { logger } from "@/lib/logger";
+import { connectDB } from "@/lib/mongodb";
+import { getSpaceTypeName } from "@/lib/space-names";
+import BookingSettings from "@/models/bookingSettings";
+import { Payment } from "@coworking-cafe/database";
+import { Booking } from "@coworking-cafe/database";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
@@ -38,7 +38,7 @@ export async function POST(
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
       return NextResponse.json(
         { success: false, error: "Invalid booking ID" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -50,7 +50,7 @@ export async function POST(
     if (!booking) {
       return NextResponse.json(
         { success: false, error: "Booking not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -66,7 +66,7 @@ export async function POST(
     if (!isAdmin && !isOwner) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
@@ -74,14 +74,14 @@ export async function POST(
     if (booking.status === "cancelled") {
       return NextResponse.json(
         { success: false, error: "Booking is already cancelled" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (booking.status === "completed") {
       return NextResponse.json(
         { success: false, error: "Cannot cancel completed booking" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -130,7 +130,7 @@ export async function POST(
     } else {
       // For confirmed bookings, apply cancellation policy based on days until booking
       const sortedTiers = [...cancellationPolicy].sort(
-        (a, b) => b.daysBeforeBooking - a.daysBeforeBooking,
+        (a, b) => b.daysBeforeBooking - a.daysBeforeBooking
       );
 
       for (const tier of sortedTiers) {
@@ -157,7 +157,7 @@ export async function POST(
 
     if (booking.stripePaymentIntentId) {
       const paymentIntent = await stripe.paymentIntents.retrieve(
-        booking.stripePaymentIntentId,
+        booking.stripePaymentIntentId
       );
 
       const depositAmount = paymentIntent.amount; // Empreinte en centimes (ex: 70€ = 7000)
@@ -165,7 +165,7 @@ export async function POST(
 
       // Calculer les frais sur le PRIX TOTAL de la réservation
       cancellationFee = Math.round(
-        (bookingTotalInCents * chargePercentage) / 100,
+        (bookingTotalInCents * chargePercentage) / 100
       );
 
       // S'assurer que les frais ne dépassent jamais l'empreinte disponible
@@ -249,12 +249,12 @@ export async function POST(
             refundAmount: refundAmount / 100,
             cancellationFee: cancellationFee / 100,
           },
-        },
+        }
       );
     } else if (booking.stripeSetupIntentId) {
       // Setup intent was created but no payment intent yet - just cancel
       const setupIntent = await stripe.setupIntents.retrieve(
-        booking.stripeSetupIntentId,
+        booking.stripeSetupIntentId
       );
 
       if (setupIntent.status === "requires_payment_method") {
@@ -348,10 +348,10 @@ export async function POST(
           chargePercentage === 0
             ? "Aucun frais appliqué. L'empreinte bancaire est annulée."
             : chargePercentage === 100
-              ? "Annulation tardive. Le montant total est retenu."
-              : `Frais d'annulation de ${chargePercentage}% appliqués. ${
-                  refundAmount / 100
-                }€ sera remboursé.`,
+            ? "Annulation tardive. Le montant total est retenu."
+            : `Frais d'annulation de ${chargePercentage}% appliqués. ${
+                refundAmount / 100
+              }€ sera remboursé.`,
       },
     });
   } catch (error) {
@@ -367,7 +367,7 @@ export async function POST(
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

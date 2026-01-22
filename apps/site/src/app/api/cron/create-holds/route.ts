@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/mongodb";
 import { Booking } from '@coworking-cafe/database';
 import { Payment } from '@coworking-cafe/database';
-import SpaceConfiguration from '@coworking-cafe/database';
+import { SpaceConfiguration } from '@coworking-cafe/database';
 import {
   createPaymentIntent,
   formatAmountForStripe,
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     // 3. Don't have a paymentIntentId yet (no hold created)
     // 4. Require payment
     // 5. Are not cancelled
-    const bookings = await Reservation.find({
+    const bookings = await Booking.find({
       date: {
         $gte: targetDate,
         $lte: endOfTargetDate,
