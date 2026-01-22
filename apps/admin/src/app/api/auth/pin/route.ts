@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongodb'
-import { User } from '@coworking-cafe/database'
+import mongoose from 'mongoose'
+import '@/models/employee'
+import bcrypt from 'bcrypt'
 import logger from '@/lib/logger'
 
 interface PINVerifyRequest {
@@ -20,7 +22,8 @@ interface PINVerifyResponse {
 
 /**
  * POST /api/auth/pin
- * Vérifie le PIN et retourne les données utilisateur
+ * Vérifie le PIN dashboard (6 chiffres) et retourne les données employé
+ * Cherche dans la collection Employee avec dashboardPinHash
  */
 export async function POST(request: NextRequest): Promise<NextResponse<PINVerifyResponse>> {
   try {
@@ -29,22 +32,47 @@ export async function POST(request: NextRequest): Promise<NextResponse<PINVerify
     const body: PINVerifyRequest = await request.json()
     const { pin } = body
 
-    if (!pin || pin.length < 4 || pin.length > 6) {
+    // Vérifier que c'est bien un PIN de 6 chiffres (dashboard)
+    if (!pin || !/^\d{6}$/.test(pin)) {
       return NextResponse.json(
         {
           success: false,
-          error: 'PIN invalide',
+          error: 'PIN invalide (6 chiffres requis)',
         },
         { status: 400 }
       )
     }
 
-    // Chercher l'utilisateur avec ce PIN et populate le role
-    const user = await User.findOne({ pin })
-      .populate('role')
-      .lean()
+    const Employee = mongoose.model('Employee')
 
-    if (!user) {
+    // Chercher tous les employés actifs qui ont un dashboardPinHash
+    const employees = await Employee.find({
+      isActive: true,
+      dashboardPinHash: { $exists: true, $ne: null },
+      employeeRole: { $in: ['Manager', 'Assistant manager'] },
+    }).lean()
+
+    logger.info(`[PIN Auth] Found ${employees.length} employees with dashboard PIN`)
+
+    // Comparer le PIN avec le dashboardPinHash de chaque employé
+    let matchedEmployee = null
+    for (const emp of employees) {
+      if (emp.dashboardPinHash) {
+        try {
+          const isPinValid = await bcrypt.compare(pin, emp.dashboardPinHash)
+          if (isPinValid) {
+            matchedEmployee = emp
+            logger.info(`[PIN Auth] Match found for employee: ${emp.email}`)
+            break
+          }
+        } catch (err) {
+          logger.error('[PIN Auth] bcrypt compare error', err)
+        }
+      }
+    }
+
+    if (!matchedEmployee) {
+      logger.warn('[PIN Auth] No employee found with this PIN')
       return NextResponse.json(
         {
           success: false,
@@ -54,27 +82,24 @@ export async function POST(request: NextRequest): Promise<NextResponse<PINVerify
       )
     }
 
-    // Vérifier que le role est bien populé et valide
-    const role = user.role as any
-    if (!role?.slug || !['dev', 'admin', 'staff'].includes(role.slug)) {
-      logger.error('Invalid role for PIN user', { email: user.email, role: role?.slug })
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Accès non autorisé',
-        },
-        { status: 403 }
-      )
+    // Déterminer le rôle système selon employeeRole
+    let systemRole: 'dev' | 'admin' | 'staff' = 'staff'
+    if (matchedEmployee.employeeRole === 'Manager') {
+      systemRole = 'admin'
+    } else if (matchedEmployee.employeeRole === 'Assistant manager') {
+      systemRole = 'admin'
     }
 
-    // Retourner les données utilisateur (sans le PIN)
+    logger.info(`[PIN Auth] Employee ${matchedEmployee.email} authenticated with role: ${systemRole}`)
+
+    // Retourner les données employé
     return NextResponse.json({
       success: true,
       user: {
-        id: user._id.toString(),
-        name: user.givenName || user.username || user.email.split('@')[0],
-        email: user.email,
-        role: role.slug as 'dev' | 'admin' | 'staff',
+        id: (matchedEmployee._id as any).toString(),
+        name: `${matchedEmployee.firstName} ${matchedEmployee.lastName}`,
+        email: matchedEmployee.email,
+        role: systemRole,
       },
     })
   } catch (error) {

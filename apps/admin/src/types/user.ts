@@ -4,7 +4,7 @@
 
 export interface Role {
   id: string;
-  slug: "dev" | "admin" | "staff" | "client";
+  slug: "dev" | "admin" | "staff" | "client" | "newsletter-only";
   name: string;
   level: number;
 }
@@ -44,7 +44,7 @@ export interface UserFormData {
 
 export interface UserFilters {
   search?: string; // Search by email, username, givenName
-  roleSlug?: "dev" | "admin" | "staff" | "client" | "all";
+  roleSlug?: "dev" | "admin" | "staff" | "client" | "newsletter-only" | "all";
   isActive?: boolean;
   newsletter?: boolean;
 }

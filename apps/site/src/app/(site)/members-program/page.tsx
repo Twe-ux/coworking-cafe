@@ -1,3 +1,4 @@
+import Link from "next/link";
 import MembersProgram from "../../../components/site/membersProgram/membersProgram";
 import PageTitle from "../../../components/site/pageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
@@ -45,9 +46,11 @@ export default function MembersProgramPage() {
                     👀
                   </p>
                   <div className="w-100 d-flex justify-content-center ">
-                    <button type="submit" className="btn auth-btn mt__50">
-                      "Créer mon compte"
-                    </button>
+                    <Link href="/auth/register#register">
+                      <button className="btn auth-btn mt__50">
+                        "Créer mon compte"
+                      </button>
+                    </Link>
                   </div>
                 </div>
               </SlideUp>
@@ -88,22 +91,6 @@ export default function MembersProgramPage() {
               remercier. <br /> Rejoignez le programme membre CoworKing Café by
               Anticafé ✨
             </p>
-
-            {/* <div className="pb__130">
-              <div className="counter d-flex flex-column ">
-                <div className="counter__box d-flex justify-content-center">
-                  <div className="d-flex flex-column text-center">
-                    <h4 className="counter__number">
-                      On aime quand vous revenez. Alors on aime encore plus vous
-                      remercier.
-                    </h4>
-                    <h4 className="counter__number">
-                      Rejoignez le programme membre Anticafé ✨
-                    </h4>
-                  </div>
-                </div>
-              </div>
-            </div> */}
           </div>
         </div>
       </article>

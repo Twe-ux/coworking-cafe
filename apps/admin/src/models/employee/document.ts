@@ -90,6 +90,9 @@ export interface EmployeeDocument extends Document {
   // Code pointage (PIN 4 chiffres)
   clockingCode: string;
 
+  // PIN dashboard admin (6 chiffres, hashé) - uniquement Manager/Assistant Manager
+  dashboardPinHash?: string;
+
   // Couleur pour calendrier planning
   color: string;
 
@@ -274,11 +277,17 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
       bankName: { type: String, trim: true },
     },
 
-    // Code pointage (PIN)
+    // Code pointage (PIN 4 chiffres)
     clockingCode: {
       type: String,
       required: [true, 'Le code de pointage est requis'],
       match: [/^\d{4}$/, 'Le code de pointage doit contenir 4 chiffres'],
+    },
+
+    // PIN dashboard admin (6 chiffres, hashé) - uniquement Manager/Assistant Manager
+    dashboardPinHash: {
+      type: String,
+      required: false, // Optionnel (seulement pour Manager/Assistant Manager)
     },
 
     // Couleur pour planning

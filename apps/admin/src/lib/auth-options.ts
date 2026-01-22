@@ -2,10 +2,12 @@ import { NextAuthOptions } from 'next-auth';
 import type { User as NextAuthUser } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDatabase } from '@/lib/mongodb';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { ObjectId } from 'mongodb';
 import { connectMongoose } from '@/lib/mongodb';
 import { User } from '@coworking-cafe/database';
+import mongoose from 'mongoose';
+import '@/models/employee';
 
 // Types pour les documents MongoDB
 interface UserDocument {
@@ -33,48 +35,121 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials): Promise<NextAuthUser | null> {
         try {
-          console.log('🔐 Authorization attempt for:', credentials?.email);
+          console.log('🔐 Authorization attempt:', credentials?.email || 'PIN-only');
 
-          if (!credentials?.email || !credentials?.password) {
-            console.log('❌ Missing credentials');
-            throw new Error('Email et mot de passe requis');
+          if (!credentials?.password) {
+            console.log('❌ Missing password/PIN');
+            throw new Error('PIN ou mot de passe requis');
           }
 
           // Vérifier si c'est un PIN (6 chiffres uniquement)
           const isPIN = /^\d{6}$/.test(credentials.password);
 
-          if (isPIN) {
-            console.log('🔑 PIN authentication detected');
+          // ===== AUTHENTIFICATION EMPLOYEE PAR PIN (sans email) =====
+          if (isPIN && !credentials.email) {
+            console.log('🔑 Employee PIN authentication (6 digits, no email)');
             await connectMongoose();
 
-            // Chercher l'utilisateur par PIN dans le nouveau model avec populate du role
-            const userWithPin = await User.findOne({ pin: credentials.password })
+            const Employee = mongoose.model('Employee');
+
+            // Chercher tous les employés qui pourraient avoir ce PIN
+            const employees = await Employee.find({
+              isActive: true,
+              employeeRole: { $in: ['Manager', 'Assistant manager'] }, // Seuls ceux-ci ont dashboardPin
+            }).lean();
+
+            console.log(`🔍 Found ${employees.length} potential employees`);
+
+            // Comparer le PIN avec le dashboardPinHash de chaque employé
+            let matchedEmployee = null;
+            for (const emp of employees) {
+              if (emp.dashboardPinHash) {
+                const isPinValid = await bcrypt.compare(credentials.password, emp.dashboardPinHash);
+                if (isPinValid) {
+                  matchedEmployee = emp;
+                  break;
+                }
+              }
+            }
+
+            if (!matchedEmployee) {
+              console.log('❌ No employee found with this PIN');
+              throw new Error('PIN incorrect');
+            }
+
+            console.log('✅ Employee found:', matchedEmployee.email);
+
+            // Déterminer le rôle système selon employeeRole
+            let systemRole: 'dev' | 'admin' | 'staff' = 'staff';
+            if (matchedEmployee.employeeRole === 'Manager') {
+              systemRole = 'admin'; // Manager → admin access
+            } else if (matchedEmployee.employeeRole === 'Assistant manager') {
+              systemRole = 'admin'; // Assistant manager → admin access
+            } else {
+              systemRole = 'staff'; // Employé polyvalent → staff access
+            }
+
+            console.log('✅ Employee PIN authentication successful, role:', systemRole);
+
+            return {
+              id: (matchedEmployee._id as any).toString(),
+              email: matchedEmployee.email,
+              name: `${matchedEmployee.firstName} ${matchedEmployee.lastName}`,
+              role: systemRole,
+            } as NextAuthUser;
+          }
+
+          // ===== AUTHENTIFICATION USER CLASSIQUE (email + PIN ou password) =====
+          if (isPIN && credentials.email) {
+            console.log('🔑 User PIN authentication (6 digits with email)');
+            await connectMongoose();
+
+            // Chercher l'utilisateur par email
+            const user = await User.findOne({ email: credentials.email.toLowerCase() })
               .populate('role')
               .lean();
 
-            if (userWithPin) {
-              console.log('✅ User found by PIN:', userWithPin.email);
-
-              // Vérifier que le role est bien populé
-              const role = userWithPin.role as any;
-              if (!role?.slug || !['dev', 'admin', 'staff'].includes(role.slug)) {
-                console.log('❌ Invalid role for PIN user:', role?.slug);
-                throw new Error('Accès non autorisé');
-              }
-
-              return {
-                id: userWithPin._id.toString(),
-                email: userWithPin.email,
-                name: userWithPin.givenName || userWithPin.username || userWithPin.email.split('@')[0],
-                role: role.slug,
-              } as NextAuthUser;
+            if (!user) {
+              console.log('❌ User not found:', credentials.email);
+              throw new Error('Email ou PIN incorrect');
             }
 
-            console.log('❌ No user found with this PIN');
-            throw new Error('PIN incorrect');
+            console.log('✅ User found:', user.email);
+
+            // Vérifier le PIN en comparant avec le hash du password
+            const isPinValid = await bcrypt.compare(credentials.password, user.password);
+
+            if (!isPinValid) {
+              console.log('❌ PIN incorrect for user:', user.email);
+              throw new Error('Email ou PIN incorrect');
+            }
+
+            console.log('✅ PIN correct');
+
+            // Vérifier que le role est bien populé
+            const role = user.role as any;
+            if (!role?.slug || !['dev', 'admin', 'staff', 'client'].includes(role.slug)) {
+              console.log('❌ Invalid role for user:', role?.slug);
+              throw new Error('Accès non autorisé');
+            }
+
+            console.log('✅ Authentication successful, role:', role.slug);
+
+            return {
+              id: user._id.toString(),
+              email: user.email,
+              name: user.givenName || user.username || user.email.split('@')[0],
+              role: role.slug,
+            } as NextAuthUser;
           }
 
-          console.log('📡 Connecting to database...');
+          // ===== AUTHENTIFICATION EMAIL + PASSWORD (clients site) =====
+          if (!credentials.email) {
+            console.log('❌ Email requis pour authentification par password');
+            throw new Error('Email et mot de passe requis');
+          }
+
+          console.log('📡 Password authentication with email:', credentials.email);
           const { db } = await connectToDatabase();
 
           console.log('🔍 Looking for user:', credentials.email);
@@ -89,8 +164,6 @@ export const authOptions: NextAuthOptions = {
           }
 
           console.log('✅ User found:', user.email);
-          console.log('🔑 Password from form:', credentials.password);
-          console.log('🔑 Password hash from DB:', user.password);
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
@@ -115,8 +188,8 @@ export const authOptions: NextAuthOptions = {
 
           console.log('👤 User role found:', role.slug);
 
-          // Check if user has valid admin role
-          if (!['dev', 'admin', 'staff'].includes(role.slug)) {
+          // Check if user has valid admin role (ou client pour compatibilité)
+          if (!['dev', 'admin', 'staff', 'client'].includes(role.slug)) {
             console.log('❌ Invalid role:', role.slug);
             throw new Error('Accès non autorisé');
           }

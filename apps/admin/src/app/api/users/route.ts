@@ -55,12 +55,17 @@ export async function GET(
     // Create a map to combine users + newsletters
     const usersMap = new Map<string, UserType>();
 
-    // Add all users
+    // Add all users (ONLY CLIENTS - employees are in /hr/employees)
     users.forEach((user) => {
       // Skip users without valid role (should not happen but safety check)
       if (!user.role || !user.role._id) {
         console.warn(`[API /users] User ${user._id} has no valid role, skipping`);
         return;
+      }
+
+      // ✅ FILTER: Only include client role (exclude dev/admin/staff = employees)
+      if (user.role.slug !== 'client') {
+        return; // Skip employees
       }
 
       const emailLower = user.email.toLowerCase();

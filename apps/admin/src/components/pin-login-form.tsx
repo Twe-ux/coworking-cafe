@@ -26,32 +26,22 @@ export function PINLoginForm({
     setLoading(true);
 
     try {
-      // Vérifier le PIN via notre API
-      const response = await fetch("/api/auth/pin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ pin }),
-      });
-
-      const data = await response.json();
-
-      if (!data.success || !data.user) {
-        setError(data.error || "PIN incorrect");
+      // Vérifier que c'est bien un PIN de 6 chiffres
+      if (!/^\d{6}$/.test(pin)) {
+        setError("Le PIN doit contenir exactement 6 chiffres");
         setLoading(false);
         return;
       }
 
-      // Si le PIN est valide, connecter avec NextAuth en utilisant les credentials
+      // Connecter avec NextAuth en utilisant le PIN uniquement (pas d'email)
       const callbackUrl =
         typeof window !== "undefined"
           ? `${window.location.origin}/admin`
           : "/admin";
 
       const result = await signIn("credentials", {
-        email: data.user.email,
-        password: pin, // Utiliser le PIN comme password pour NextAuth
+        email: "", // Pas d'email pour l'authentification par PIN
+        password: pin, // PIN 6 chiffres
         callbackUrl,
         redirect: true,
       });

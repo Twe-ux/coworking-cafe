@@ -4,7 +4,7 @@ import type { Role } from "./index";
 /** Document of a {@link Role}, as stored in the database. */
 export interface RoleDocument extends Document {
   name: string;
-  slug: "dev" | "admin" | "staff";
+  slug: "dev" | "admin" | "staff" | "client";
   description?: string;
   level: number;
   permissions: ObjectId[];
@@ -27,7 +27,7 @@ export const RoleSchema = new Schema<RoleDocument>(
       required: [true, "Role slug is required"],
       lowercase: true,
       trim: true,
-      enum: ["dev", "admin", "staff"],
+      enum: ["dev", "admin", "staff", "client"],
     },
     description: {
       type: String,

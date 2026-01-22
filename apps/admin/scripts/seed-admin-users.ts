@@ -1,5 +1,5 @@
 /**
- * Script pour initialiser les utilisateurs admin et dev avec leurs PINs
+ * Script pour créer les employés admin avec PIN uniquement (pas de User)
  *
  * Usage: npx tsx scripts/seed-admin-users.ts
  */
@@ -7,77 +7,142 @@
 import dotenv from 'dotenv'
 import path from 'path'
 import mongoose from 'mongoose'
-import { User, Role } from '@coworking-cafe/database'
+import bcrypt from 'bcrypt'
 
 // Charger les variables d'environnement depuis .env.local
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') })
 
+// Import direct du model Employee
+import '../src/models/employee'
+
+const Employee = mongoose.model('Employee')
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/coworking-cafe'
 
-const adminUsers = [
+const adminEmployees = [
   {
-    givenName: 'Dev',
+    // Admin Dev
+    firstName: 'Admin',
+    lastName: 'Dev',
     email: 'dev@coworkingcafe.fr',
-    password: '$2a$10$defaultHashForSeedOnly', // Hash temporaire
-    roleSlug: 'dev' as const,
-    pin: '111111',
+    phone: '+33123456789',
+    employeeRole: 'Manager', // Pour avoir accès complet
+    clockingCode: '1111', // PIN pointage
+    dashboardPin: '111111', // PIN dashboard
+    dateOfBirth: new Date('1990-01-01'),
+    hireDate: new Date(),
+    contractType: 'CDI',
+    contractualHours: 35,
   },
   {
-    givenName: 'Admin',
-    email: 'admin@coworkingcafe.fr',
-    password: '$2a$10$defaultHashForSeedOnly', // Hash temporaire
-    roleSlug: 'admin' as const,
-    pin: '222222',
+    // Admin Manager
+    firstName: 'Admin',
+    lastName: 'Manager',
+    email: 'manager@coworkingcafe.fr',
+    phone: '+33123456790',
+    employeeRole: 'Manager',
+    clockingCode: '2222', // PIN pointage
+    dashboardPin: '222222', // PIN dashboard
+    dateOfBirth: new Date('1990-01-01'),
+    hireDate: new Date(),
+    contractType: 'CDI',
+    contractualHours: 35,
   },
 ]
 
-async function seedAdminUsers() {
+async function seedAdminEmployees() {
   try {
     console.log('🔌 Connexion à MongoDB...')
     await mongoose.connect(MONGODB_URI)
     console.log('✅ Connecté à MongoDB')
 
-    console.log('\n📝 Création/Mise à jour des utilisateurs admin...')
+    console.log('\n📝 Création des employés admin...\n')
 
-    for (const userData of adminUsers) {
-      // Trouver le role par slug
-      const role = await Role.findOne({ slug: userData.roleSlug })
-      if (!role) {
-        console.error(`❌ Role '${userData.roleSlug}' not found in database. Please seed roles first.`)
+    for (const empData of adminEmployees) {
+      const {
+        firstName,
+        lastName,
+        email,
+        phone,
+        employeeRole,
+        clockingCode,
+        dashboardPin,
+        dateOfBirth,
+        hireDate,
+        contractType,
+        contractualHours,
+      } = empData
+
+      // 1. Vérifier si l'employé existe déjà (par email)
+      const existingEmployee = await Employee.findOne({ email: email.toLowerCase() })
+
+      if (existingEmployee) {
+        console.log(`⚠️  Employé ${email} existe déjà, mise à jour des PINs...`)
+
+        // Mettre à jour les PINs
+        existingEmployee.clockingCode = clockingCode
+        existingEmployee.dashboardPinHash = await bcrypt.hash(dashboardPin, 10)
+        await existingEmployee.save()
+
+        console.log(`✅ PINs mis à jour pour ${firstName} ${lastName}`)
+        console.log(`   📧 Email: ${email}`)
+        console.log(`   🔢 PIN dashboard: ${dashboardPin}`)
+        console.log(`   🔢 PIN pointage: ${clockingCode}\n`)
         continue
       }
 
-      // Vérifier si l'utilisateur existe déjà
-      const existingUser = await User.findOne({ email: userData.email })
+      // 2. Hasher le PIN dashboard
+      const dashboardPinHash = await bcrypt.hash(dashboardPin, 10)
 
-      if (existingUser) {
-        // Mettre à jour le PIN
-        existingUser.pin = userData.pin
-        existingUser.givenName = userData.givenName
-        existingUser.role = role._id as any
-        await existingUser.save()
-        console.log(`✅ Utilisateur mis à jour: ${userData.email} (PIN: ${userData.pin})`)
-      } else {
-        // Créer le nouvel utilisateur
-        await User.create({
-          email: userData.email,
-          password: userData.password,
-          givenName: userData.givenName,
-          role: role._id,
-          pin: userData.pin,
-          newsletter: false,
-          isTemporary: false,
-        })
-        console.log(`✅ Utilisateur créé: ${userData.email} (PIN: ${userData.pin})`)
-      }
+      // 3. Créer l'Employee (SANS User)
+      const newEmployee = await Employee.create({
+        firstName,
+        lastName,
+        employeeRole,
+        clockingCode,
+        dashboardPinHash, // ✅ Stocké dans Employee
+        color: '#3B82F6', // Bleu par défaut
+        email: email.toLowerCase(),
+        phone,
+        dateOfBirth,
+        placeOfBirth: 'Paris',
+        address: {
+          street: '123 Rue de la Paix',
+          postalCode: '75001',
+          city: 'Paris'
+        },
+        socialSecurityNumber: `19901${clockingCode}111111`, // Numéro fictif (15 chiffres)
+        contractType,
+        contractualHours,
+        hireDate,
+        isActive: true,
+        onboardingStatus: {
+          step1Completed: true,
+          step2Completed: true,
+          step3Completed: true,
+          step4Completed: true,
+          contractGenerated: true,
+          dpaeCompleted: true,
+          bankDetailsProvided: true,
+          contractSent: true,
+        },
+      })
+
+      console.log(`✅ Employé créé: ${firstName} ${lastName}`)
+      console.log(`   📧 Email: ${email}`)
+      console.log(`   👔 Rôle: ${employeeRole}`)
+      console.log(`   🔢 PIN dashboard: ${dashboardPin}`)
+      console.log(`   🔢 PIN pointage: ${clockingCode}`)
+      console.log(`   👨‍💼 Employee ID: ${newEmployee._id}\n`)
     }
 
-    console.log('\n✅ Tous les utilisateurs ont été créés/mis à jour avec succès!')
-    console.log('\n📋 Résumé:')
-    console.log('  - Dev: PIN 111111')
-    console.log('  - Admin: PIN 222222')
-    console.log('\n🎉 Vous pouvez maintenant vous connecter avec ces PINs!')
-
+    console.log('✅ Tous les employés admin ont été créés/mis à jour avec succès!')
+    console.log('\n📋 Connexion au dashboard:')
+    console.log('  🌐 URL: http://localhost:3001/login')
+    console.log('\n  👤 Dev:')
+    console.log('     PIN: 111111 (PAS D\'EMAIL)')
+    console.log('\n  👤 Manager:')
+    console.log('     PIN: 222222 (PAS D\'EMAIL)')
   } catch (error) {
     console.error('❌ Erreur:', error)
     process.exit(1)
@@ -88,4 +153,4 @@ async function seedAdminUsers() {
 }
 
 // Exécuter le script
-seedAdminUsers()
+seedAdminEmployees()
