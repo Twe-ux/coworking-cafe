@@ -94,14 +94,14 @@ L'application détecte automatiquement si elle est lancée en mode PWA (standalo
 Cette adaptation se fait via :
 - `useIsPWA()` hook qui détecte `display-mode: standalone`
 - `ConditionalLayout` qui cache conditionnellement header/footer selon la route
-- **Loader vidéo** : Pendant la détection (fraction de seconde), un écran de chargement avec `/loading.mp4` s'affiche pour éviter le flash du header/footer
+- **Loader avec logo** : Pendant la détection (fraction de seconde), un écran de chargement avec le logo animé s'affiche pour éviter le flash du header/footer
 
 ### Bénéfices
 
 - **Expérience native** : Plus d'espace pour le contenu principal
 - **Navigation optimisée** : Pas de distractions avec navigation du site
 - **Focus utilisateur** : L'attention reste sur les fonctionnalités app
-- **Pas de flash** : Loader vidéo pendant la détection = transition fluide
+- **Pas de flash** : Logo animé pendant la détection = transition fluide
 
 ## 🔧 Activer le Service Worker (Important)
 
