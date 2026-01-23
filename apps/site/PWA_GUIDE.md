@@ -2,15 +2,18 @@
 
 ## ✅ Configuration PWA activée
 
-La PWA est maintenant configurée pour les sections **Booking** et **Dashboard Client**.
+La PWA est maintenant configurée avec un parcours optimisé pour les clients :
+- **Première ouverture** : Page de connexion (/auth/login)
+- **Après connexion** : Dashboard client (automatique)
+- **Navigation** : Profil, Réservations, Paramètres
 
 ### 📄 Fichiers créés
 
 1. **`public/manifest.webmanifest`** - Configuration PWA
    - Nom : "CoworKing Café - Client"
-   - Start URL : /booking
+   - Start URL : /auth/login (connexion au lancement)
    - Scope : / (toute l'app)
-   - Raccourcis : Réserver, Mes réservations
+   - Raccourcis : Mon Dashboard, Réserver
 
 2. **`public/sw.js`** - Service Worker
    - Cache basique pour offline
@@ -24,31 +27,50 @@ La PWA est maintenant configurée pour les sections **Booking** et **Dashboard C
 
 ### Sur Desktop (Chrome/Edge)
 
-1. Ouvrir http://localhost:3000/booking
+1. Ouvrir http://localhost:3000
 2. Dans la barre d'adresse, cliquer sur l'icône "Installer" ⊕
 3. Ou : Menu > Installer CoworKing Café
+4. L'app s'ouvre sur la page de connexion
 
 ### Sur Mobile (iOS Safari)
 
-1. Ouvrir http://localhost:3000/booking
+1. Ouvrir http://localhost:3000
 2. Appuyer sur "Partager" (icône carré avec flèche)
 3. Sélectionner "Sur l'écran d'accueil"
 4. L'app apparaît comme une app native
+5. Première ouverture → Page de connexion
 
 ### Sur Mobile (Android Chrome)
 
-1. Ouvrir http://localhost:3000/booking
+1. Ouvrir http://localhost:3000
 2. Bannière "Ajouter à l'écran d'accueil" apparaît
 3. Ou : Menu > Ajouter à l'écran d'accueil
+4. Première ouverture → Page de connexion
+
+## 🎯 Parcours Utilisateur PWA
+
+### 📱 Première Installation
+
+1. **Installation** : Ajouter l'app à l'écran d'accueil
+2. **Première ouverture** : Page de connexion `/auth/login`
+3. **Connexion** : Saisir identifiants
+4. **Redirection automatique** : Dashboard client `/{userId}`
+5. **Navigation** : Accès à toutes les fonctionnalités (Profil, Réservations, Paramètres)
+
+### ⚡ Raccourcis PWA (Long press sur l'icône)
+
+- **Mon Dashboard** : Accès direct à l'espace client
+- **Réserver** : Créer une nouvelle réservation
 
 ## 🎯 Fonctionnalités PWA
 
 ### ✅ Activées
 - Installation sur écran d'accueil
-- Mode standalone (plein écran)
-- Raccourcis vers Booking et Dashboard
+- Mode standalone (plein écran sans barre de navigation)
+- Raccourcis rapides (Dashboard, Réservation)
 - Cache basique pour offline
 - Icônes adaptées
+- Start URL optimisée pour l'authentification
 
 ### ⚠️ Non activées (optionnel)
 - Notifications push

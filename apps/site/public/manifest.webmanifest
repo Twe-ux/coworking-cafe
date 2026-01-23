@@ -1,8 +1,8 @@
 {
   "name": "CoworKing Café - Client",
   "short_name": "CoworKing",
-  "description": "Réservez votre espace de coworking",
-  "start_url": "/booking",
+  "description": "Gérez vos réservations de coworking",
+  "start_url": "/auth/login",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F5EFE0",
@@ -23,10 +23,10 @@
   "categories": ["business", "productivity"],
   "shortcuts": [
     {
-      "name": "Réserver",
-      "short_name": "Réserver",
-      "description": "Réserver un espace",
-      "url": "/booking",
+      "name": "Mon Dashboard",
+      "short_name": "Dashboard",
+      "description": "Accéder à mon espace client",
+      "url": "/dashboard",
       "icons": [
         {
           "src": "/favicon-96x96.png",
@@ -35,10 +35,10 @@
       ]
     },
     {
-      "name": "Mes réservations",
-      "short_name": "Réservations",
-      "description": "Voir mes réservations",
-      "url": "/dashboard",
+      "name": "Réserver",
+      "short_name": "Réserver",
+      "description": "Réserver un espace de coworking",
+      "url": "/booking",
       "icons": [
         {
           "src": "/favicon-96x96.png",
