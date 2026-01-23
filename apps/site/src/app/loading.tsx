@@ -1,11 +1,29 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { LoadingLogo } from '../components/layout/LoadingLogo';
 
 /**
  * Global loading UI shown during app-level transitions
  * Uses the same design as PWA loading screen for consistency
- * Logo adapts to light/dark theme automatically
+ * Background and logo adapt to light/dark theme automatically
  */
 export default function RootLoading() {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // Detect system theme preference
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDark(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDark(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   return (
     <>
       <style>{`
@@ -30,11 +48,12 @@ export default function RootLoading() {
           left: 0,
           width: '100vw',
           height: '100vh',
-          backgroundColor: '#F5EFE0',
+          backgroundColor: isDark ? '#000000' : '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 9999,
+          transition: 'background-color 0.3s ease',
         }}
       >
         <LoadingLogo />

@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 /**
  * Loading logo that adapts to light/dark theme
- * Uses favicon.svg which has built-in theme detection
+ * Uses high-quality 512x512 logo
  */
 export function LoadingLogo() {
   const [isDark, setIsDark] = useState(false);
@@ -24,11 +25,12 @@ export function LoadingLogo() {
   }, []);
 
   return (
-    <img
-      src="/favicon.svg"
+    <Image
+      src="/web-app-manifest-512x512.png"
       alt="CoworKing Café"
-      width={180}
-      height={180}
+      width={200}
+      height={200}
+      priority
       className="loading-logo"
       style={{
         filter: isDark ? 'invert(100%)' : 'none',
