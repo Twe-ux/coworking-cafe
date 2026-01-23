@@ -103,9 +103,10 @@ Cette adaptation se fait via :
 - **Focus utilisateur** : L'attention reste sur les fonctionnalités app
 - **Pas de flash** : Logo animé pendant la détection = transition fluide
 - **Adaptation au thème** :
-  - Logo haute qualité (512x512) s'adapte automatiquement
-  - Fond blanc en mode clair, fond noir en mode sombre
-  - Transition fluide entre les thèmes
+  - **Mode clair** : Logo noir (`logo-black.svg`) sur fond blanc
+  - **Mode sombre** : Logo blanc (`logo_white.svg`) sur fond noir
+  - Transition fluide entre les thèmes (0.3s)
+  - Logos vectoriels (SVG) pour une qualité parfaite
 
 ## 🔧 Activer le Service Worker (Important)
 
