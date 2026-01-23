@@ -196,7 +196,10 @@ export const config = {
      * - favicon.ico (favicon file)
      * - images (static images from public folder)
      * - icons (static icons from public folder)
+     * - sw.js (service worker)
+     * - manifest.webmanifest (PWA manifest)
+     * - *.png, *.svg, *.ico (static assets)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|images|icons).*)",
+    "/((?!api|_next/static|_next/image|favicon|images|icons|sw\\.js|manifest\\.webmanifest|.*\\.(?:png|svg|ico)).*)",
   ],
 };
