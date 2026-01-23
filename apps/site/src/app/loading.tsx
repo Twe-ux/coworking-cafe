@@ -1,13 +1,11 @@
-'use client';
-
-import { LoadingLogo } from './LoadingLogo';
+import { LoadingLogo } from '../components/layout/LoadingLogo';
 
 /**
- * Loading screen displayed while detecting PWA mode
- * Shows the logo to prevent header/footer flash
+ * Global loading UI shown during app-level transitions
+ * Uses the same design as PWA loading screen for consistency
  * Logo adapts to light/dark theme automatically
  */
-export function PWALoadingScreen() {
+export default function RootLoading() {
   return (
     <>
       <style>{`

@@ -102,6 +102,7 @@ Cette adaptation se fait via :
 - **Navigation optimisée** : Pas de distractions avec navigation du site
 - **Focus utilisateur** : L'attention reste sur les fonctionnalités app
 - **Pas de flash** : Logo animé pendant la détection = transition fluide
+- **Adaptation au thème** : Logo s'adapte automatiquement au thème sombre/clair du système
 
 ## 🔧 Activer le Service Worker (Important)
 
