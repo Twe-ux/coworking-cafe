@@ -19,8 +19,8 @@ export default function Helper() {
             <span>Appelez-nous</span>
           </a>
           <ProtectedEmail
-            user="contact"
-            domain="btcafe.com"
+            user="strasbourg"
+            domain="coworkingcafe.fr"
             className="common__btn d-flex align-items-center"
             showIcon={true}
             displayText="Écrivez-nous"

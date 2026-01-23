@@ -58,39 +58,6 @@ const Header = () => {
             />
 
             <div className="d-flex align-items-center gap-3">
-              {session && (
-                <div className="user-menu-wrapper position-relative">
-                  <button
-                    className="user-menu-btn d-flex align-items-center gap-2 "
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                  >
-                    <i className="bi bi-person-circle"></i>
-                    {/* <span className="d-none d-md-inline">{session.user?.name || "Mon compte"}</span> */}
-                  </button>
-                  {showUserMenu && (
-                    <div className="user-menu-dropdown">
-                      <Link
-                        href={session.user.role?.slug === "dev" || session.user.role?.slug === "admin" || session.user.role?.slug === "staff"
-                          ? "http://localhost:3001"
-                          : `/${session.user.id}`
-                        }
-                        className="user-menu-item"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <i className="bi bi-speedometer2"></i>
-                        <span>Dashboard</span>
-                      </Link>
-                      <button
-                        className="user-menu-item"
-                        onClick={() => signOut({ callbackUrl: "/" })}
-                      >
-                        <i className="bi bi-box-arrow-right"></i>
-                        <span>Déconnexion</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
               <div className="d-xl-block d-none">
                 <Link href={"/contact#contact"} className="common__btn">
                   <span>Contact</span>
@@ -101,6 +68,52 @@ const Header = () => {
                   <span>Réserver</span>
                   <img src="/icons/arrow-up-right.svg" alt="img" />
                 </Link>
+              </div>
+              <div className="user-menu-wrapper position-relative">
+                {session ? (
+                  <>
+                    <button
+                      className="user-menu-btn user-menu-btn--connected d-flex align-items-center gap-2"
+                      onClick={() => setShowUserMenu(!showUserMenu)}
+                    >
+                      <i className="bi bi-person-circle"></i>
+                      {/* <span className="d-none d-md-inline">Mon compte</span> */}
+                    </button>
+                    {showUserMenu && (
+                      <div className="user-menu-dropdown">
+                        <Link
+                          href={
+                            session.user.role?.slug === "dev" ||
+                            session.user.role?.slug === "admin" ||
+                            session.user.role?.slug === "staff"
+                              ? "http://localhost:3001"
+                              : `/${session.user.id}`
+                          }
+                          className="user-menu-item"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <i className="bi bi-speedometer2"></i>
+                          <span>Dashboard</span>
+                        </Link>
+                        <button
+                          className="user-menu-item"
+                          onClick={() => signOut({ callbackUrl: "/" })}
+                        >
+                          <i className="bi bi-box-arrow-right"></i>
+                          <span>Déconnexion</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    className="user-menu-btn d-flex align-items-center gap-2 "
+                  >
+                    <i className="bi bi-person-circle"></i>
+                    {/* <span className="d-none d-md-inline">Connexion</span> */}
+                  </Link>
+                )}
               </div>
             </div>
             <div

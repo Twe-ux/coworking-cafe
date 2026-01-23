@@ -185,9 +185,11 @@
     font-weight: 600;
     cursor: pointer;
     padding: 8px 12px;
-    border-radius: 4px;
+    border-radius: 10px;
     transition: all 0.3s ease;
     border: 1px solid var(--main-clr);
+    text-decoration: none;
+    display: inline-flex;
 
     &:hover {
       background: rgba(0, 0, 0, 0.1);
@@ -196,6 +198,20 @@
 
     i {
       font-size: 25px;
+    }
+
+    // Style when user is connected
+    &--connected {
+      background: var(--main-clr);
+      color: var(--btn-clr);
+      border: 1px solid var(--main-clr);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+      &:hover {
+        background: var(--secondary-clr);
+        border: 1px solid var(--secondary-clr);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
     }
   }
 
