@@ -2,12 +2,20 @@
 
 import { useEffect, useState } from 'react';
 
+interface PWAState {
+  isPWA: boolean;
+  isLoading: boolean;
+}
+
 /**
  * Hook to detect if the app is running in PWA standalone mode
- * @returns true if running as PWA (standalone), false otherwise
+ * @returns {isPWA, isLoading} - isPWA: true if running as PWA, isLoading: true while detecting
  */
-export function useIsPWA(): boolean {
-  const [isPWA, setIsPWA] = useState(false);
+export function useIsPWA(): PWAState {
+  const [state, setState] = useState<PWAState>({
+    isPWA: false,
+    isLoading: true, // Start with loading true to prevent flash
+  });
 
   useEffect(() => {
     // Check if window is defined (client-side only)
@@ -21,8 +29,12 @@ export function useIsPWA(): boolean {
     // iOS Safari specific check
     const isIOSStandalone = (window.navigator as any).standalone === true;
 
-    setIsPWA(isStandalone || isIOSStandalone);
+    // Update state with detection result
+    setState({
+      isPWA: isStandalone || isIOSStandalone,
+      isLoading: false,
+    });
   }, []);
 
-  return isPWA;
+  return state;
 }
