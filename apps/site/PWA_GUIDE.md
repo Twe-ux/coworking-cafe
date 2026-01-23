@@ -67,6 +67,11 @@ La PWA est maintenant configurée avec un parcours optimisé pour les clients :
 ### ✅ Activées
 - Installation sur écran d'accueil
 - Mode standalone (plein écran sans barre de navigation)
+- **Interface adaptative** : Header et Footer masqués automatiquement en mode PWA sur :
+  - `/auth/*` (login, register, etc.)
+  - `/booking` et sous-routes
+  - `/dashboard` et sous-routes
+  - `/{userId}/*` (profil, réservations, paramètres)
 - Raccourcis rapides (Dashboard, Réservation)
 - Cache basique pour offline
 - Icônes adaptées
@@ -76,6 +81,25 @@ La PWA est maintenant configurée avec un parcours optimisé pour les clients :
 - Notifications push
 - Synchronisation en arrière-plan
 - Cache avancé des pages
+
+## 🎨 Interface Adaptative PWA
+
+### Détection Automatique
+
+L'application détecte automatiquement si elle est lancée en mode PWA (standalone) et adapte l'interface :
+
+- **Mode Navigateur** : Header et Footer complets visibles partout
+- **Mode PWA** : Header et Footer masqués sur les pages applicatives (auth, booking, dashboard)
+
+Cette adaptation se fait via :
+- `useIsPWA()` hook qui détecte `display-mode: standalone`
+- `ConditionalLayout` qui cache conditionnellement header/footer selon la route
+
+### Bénéfices
+
+- **Expérience native** : Plus d'espace pour le contenu principal
+- **Navigation optimisée** : Pas de distractions avec navigation du site
+- **Focus utilisateur** : L'attention reste sur les fonctionnalités app
 
 ## 🔧 Activer le Service Worker (Important)
 
