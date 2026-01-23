@@ -1,6 +1,23 @@
 .client-dashboard {
   background-color: var(--body-clr);
   min-height: calc(100vh - 200px);
+
+  // PWA mode adjustments
+  @media (display-mode: standalone) {
+    // Keep dark background
+    background-color: #142220;
+    // Remove default padding
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+
+    .container {
+      // Minimal top padding - just safe area for iOS notch
+      padding-top: max(0.5rem, env(safe-area-inset-top)) !important;
+      // Add horizontal padding
+      padding-left: max(20px, env(safe-area-inset-left)) !important;
+      padding-right: max(20px, env(safe-area-inset-right)) !important;
+    }
+  }
 }
 
 .welcome-card {
@@ -16,6 +33,12 @@
 
   @media (max-width: 768px) {
     padding: 2rem 1.5rem;
+  }
+
+  // PWA mode: reduce top margin to be closer to status bar
+  @media (display-mode: standalone) {
+    margin-top: 0 !important; // Remove all top margin in PWA
+    margin-bottom: 1.5rem; // Keep bottom margin
   }
 }
 

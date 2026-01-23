@@ -19,12 +19,6 @@ export default async function ClientDashboard({
 }: ClientDashboardProps) {
   const session = await getServerSession(options);
 
-  console.log("🔍 [SERVER] params.id:", params.id);
-  console.log("🔍 [SERVER] session:", session);
-  console.log("🔍 [SERVER] session.user:", session?.user);
-  console.log("🔍 [SERVER] session.user.id:", session?.user?.id);
-  console.log("🔍 [SERVER] session.user.username:", session?.user?.username);
-
   // Check if user is authenticated
   if (!session) {
     redirect(`/auth/login?callbackUrl=/${params.id}`);
@@ -32,11 +26,9 @@ export default async function ClientDashboard({
 
   // Support both username and ID in URL
   const userIdentifier = session.user.username || session.user.id;
-  console.log("🔍 [SERVER] userIdentifier:", userIdentifier);
 
   // Security check: verify the URL matches the logged-in user (username or ID)
   if (params.id !== session.user.username && params.id !== session.user.id) {
-    console.log("❌ [SERVER] ID mismatch! Redirecting to:", `/${userIdentifier}`);
     // Redirect to their own dashboard
     redirect(`/${userIdentifier}`);
   }

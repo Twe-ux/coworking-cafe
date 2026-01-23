@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * Loading logo that adapts to light/dark theme
@@ -11,7 +11,7 @@ export function LoadingLogo() {
 
   useEffect(() => {
     // Detect system theme preference
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDark(mediaQuery.matches);
 
     // Listen for theme changes
@@ -19,19 +19,19 @@ export function LoadingLogo() {
       setIsDark(e.matches);
     };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   return (
     <img
-      src={isDark ? '/images/logo_white.svg' : '/images/logo-black.svg'}
+      src={isDark ? "/images/logo_white.svg" : "/images/logo-black.svg"}
       alt="CoworKing Café"
       width={200}
       height={200}
       className="loading-logo"
       style={{
-        objectFit: 'contain',
+        objectFit: "contain",
       }}
     />
   );

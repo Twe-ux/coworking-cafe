@@ -2,11 +2,12 @@
 
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,20 +27,20 @@ export default function LoginForm() {
         password,
         redirect: false,
       });
-      if (result?.error) {        setError(result.error);
+
+      if (result?.error) {
+        setError(result.error);
         setIsLoading(false);
         return;
       }
 
       if (result?.ok) {
-        // Force navigation with full page reload to ensure session is properly set
-        // Middleware will intercept and redirect to role-based dashboard
-        const targetUrl = callbackUrl || "/auth/login";
-        setTimeout(() => {
-          window.location.href = targetUrl;
-        }, 200);
+        // Force a full page reload to /auth/login
+        // This ensures the middleware sees the updated session and redirects properly
+        window.location.href = callbackUrl || "/auth/login";
       }
-    } catch (error) {      setError("Une erreur est survenue lors de la connexion");
+    } catch (error) {
+      setError("Une erreur est survenue lors de la connexion");
       setIsLoading(false);
     }
   };
