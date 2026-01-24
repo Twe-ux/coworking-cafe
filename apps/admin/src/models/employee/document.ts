@@ -250,38 +250,50 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
 
     // Onboarding
     onboardingStatus: {
-      step1Completed: { type: Boolean, default: false },
-      step2Completed: { type: Boolean, default: false },
-      step3Completed: { type: Boolean, default: false },
-      step4Completed: { type: Boolean, default: false },
-      contractGenerated: { type: Boolean, default: false },
-      contractGeneratedAt: { type: Date },
-      dpaeCompleted: { type: Boolean, default: false },
-      dpaeCompletedAt: { type: Date },
-      medicalVisitCompleted: { type: Boolean, default: false },
-      medicalVisitCompletedAt: { type: Date },
-      mutuelleCompleted: { type: Boolean, default: false },
-      mutuelleCompletedAt: { type: Date },
-      bankDetailsProvided: { type: Boolean, default: false },
-      bankDetailsProvidedAt: { type: Date },
-      registerCompleted: { type: Boolean, default: false },
-      registerCompletedAt: { type: Date },
-      contractSent: { type: Boolean, default: false },
-      contractSentAt: { type: Date },
+      type: {
+        step1Completed: { type: Boolean, default: false },
+        step2Completed: { type: Boolean, default: false },
+        step3Completed: { type: Boolean, default: false },
+        step4Completed: { type: Boolean, default: false },
+        contractGenerated: { type: Boolean, default: false },
+        contractGeneratedAt: { type: Date },
+        dpaeCompleted: { type: Boolean, default: false },
+        dpaeCompletedAt: { type: Date },
+        medicalVisitCompleted: { type: Boolean, default: false },
+        medicalVisitCompletedAt: { type: Date },
+        mutuelleCompleted: { type: Boolean, default: false },
+        mutuelleCompletedAt: { type: Date },
+        bankDetailsProvided: { type: Boolean, default: false },
+        bankDetailsProvidedAt: { type: Date },
+        registerCompleted: { type: Boolean, default: false },
+        registerCompletedAt: { type: Date },
+        contractSent: { type: Boolean, default: false },
+        contractSentAt: { type: Date },
+      },
+      required: false,
+      _id: false,
     },
 
     // Planning de travail
     workSchedule: {
-      weeklyDistribution: { type: String },
-      timeSlots: { type: String },
-      weeklyDistributionData: { type: Object },
+      type: {
+        weeklyDistribution: { type: String },
+        timeSlots: { type: String },
+        weeklyDistributionData: { type: Object },
+      },
+      required: false,
+      _id: false,
     },
 
     // Coordonnées bancaires
     bankDetails: {
-      iban: { type: String, trim: true },
-      bic: { type: String, trim: true },
-      bankName: { type: String, trim: true },
+      type: {
+        iban: { type: String, trim: true },
+        bic: { type: String, trim: true },
+        bankName: { type: String, trim: true },
+      },
+      required: false,
+      _id: false,
     },
 
     // Code pointage (PIN 4 chiffres)
