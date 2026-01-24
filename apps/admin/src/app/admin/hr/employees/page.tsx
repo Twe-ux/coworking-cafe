@@ -94,9 +94,26 @@ function HRManagementContent() {
     router.push(`/admin/hr/employees/${employee._id}/edit`);
   };
 
-  const handleViewContract = (employee: Employee) => {
-    setContractEmployee(employee);
-    setContractModalOpen(true);
+  const handleViewContract = async (employee: Employee) => {
+    try {
+      // Charger l'employé complet avec tous les détails
+      const response = await fetch(`/api/hr/employees/${employee._id}`);
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        setContractEmployee(result.data);
+        setContractModalOpen(true);
+      } else {
+        toast.error("Erreur", {
+          description: "Impossible de charger les détails de l'employé"
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching employee details:", error);
+      toast.error("Erreur", {
+        description: "Une erreur est survenue"
+      });
+    }
   };
 
   const handleEndContract = (employee: Employee) => {
