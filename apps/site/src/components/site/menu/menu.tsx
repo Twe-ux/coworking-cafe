@@ -54,7 +54,7 @@ const Menu = ({
     return (
       <section className="menu__section py__130">
         <div className="container text-center">
-          <div className="spinner-border text-primary" role="status">
+          <div className="spinner-border" role="status" style={{ color: '#142220', borderRightColor: 'transparent' }}>
             <span className="visually-hidden">Chargement...</span>
           </div>
         </div>

@@ -51,6 +51,10 @@ export function EmployeeList({
     showArchived,
     contractType: contractTypeFilter || undefined,
     role: roleFilter || undefined,
+  }).filter((emp) => {
+    // Masquer le compte Admin Dev (compte technique pour tests)
+    return emp.email !== "dev@coworkingcafe.com" &&
+           !(emp.firstName === "Admin" && emp.lastName === "Dev");
   });
 
   if (loading) {

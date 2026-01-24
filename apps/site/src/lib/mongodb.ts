@@ -1,68 +1,55 @@
 import mongoose from 'mongoose';
 
-/**
- * Get MongoDB URI from environment
- */
-function getMongoUri(): string {
-  const uri = process.env.MONGODB_URI;
-
-  if (!uri) {
-    throw new Error('MONGODB_URI manquante dans .env.local');
-  }
-
-  return uri;
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: {
+    conn: typeof import('mongoose') | null;
+    promise: Promise<typeof import('mongoose')> | null;
+  };
 }
 
-const databaseName = process.env.MONGODB_DB || "coworking-admin";
+if (!global.mongoose) {
+  global.mongoose = { conn: null, promise: null };
+}
 
 /**
- * Connect using Mongoose - SIMPLIFIED VERSION
- * Always checks connection state and reconnects if needed
+ * Connect to MongoDB using cached connection
+ * Same pattern as apps/admin and packages/database
  */
-export async function connectDB(): Promise<typeof mongoose> {
-  const currentState = mongoose.connection.readyState;
-  console.log(`[connectDB] Current mongoose state: ${currentState} (0=disconnected, 1=connected, 2=connecting, 3=disconnecting)`);
-
-  // If already connected, return immediately
-  if (currentState === 1) {
-    console.log('[connectDB] Already connected, returning existing connection');
-    return mongoose;
+export async function connectDB() {
+  // readyState: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  if (global.mongoose.conn && mongoose.connection.readyState === 1) {
+    return global.mongoose.conn;
   }
 
-  // If currently connecting, wait a bit and check again
-  if (currentState === 2) {
-    console.log('[connectDB] Connection in progress, waiting...');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (mongoose.connection.readyState === 1) {
-      console.log('[connectDB] Connection completed while waiting');
-      return mongoose;
-    }
+  // Si déconnecté, on reset tout
+  if (mongoose.connection.readyState === 0) {
+    global.mongoose.conn = null;
+    global.mongoose.promise = null;
   }
 
-  // Need to connect
-  console.log('[connectDB] Creating new connection...');
-  const uri = getMongoUri();
-  console.log(`[connectDB] URI starts with: ${uri.substring(0, 20)}...`);
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI environment variable is not defined');
+  }
+
+  if (!global.mongoose.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
+
+    global.mongoose.promise = mongoose.connect(process.env.MONGODB_URI, opts);
+  }
 
   try {
-    await mongoose.connect(uri, {
-      dbName: databaseName,
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 30000,
-      maxPoolSize: 5,
-      family: 4, // Force IPv4
-      retryWrites: true,
-      retryReads: true,
-    });
-
-    console.log(`✓ MongoDB connected: ${mongoose.connection.host}/${mongoose.connection.db?.databaseName}`);
-    return mongoose;
-  } catch (error: any) {
-    console.error(`✗ MongoDB connection error:`, error.message);
-    throw error;
+    global.mongoose.conn = await global.mongoose.promise;
+    console.log('✓ MongoDB connected successfully');
+  } catch (e) {
+    global.mongoose.promise = null;
+    console.error('✗ MongoDB connection error:', e);
+    throw e;
   }
+
+  return global.mongoose.conn;
 }
 
 // Export as default and as named export

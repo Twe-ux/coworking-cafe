@@ -6,6 +6,7 @@ interface ProtectedEmailProps {
   user: string;
   domain: string;
   className?: string;
+  style?: React.CSSProperties;
   showIcon?: boolean;
   subject?: string;
   displayText?: string; // Optional custom display text instead of email
@@ -25,6 +26,7 @@ export default function ProtectedEmail({
   user,
   domain,
   className = '',
+  style,
   showIcon = false,
   subject,
   displayText,
@@ -73,6 +75,7 @@ export default function ProtectedEmail({
       href="#"
       onClick={handleClick}
       className={className}
+      style={style}
       aria-label="Envoyer un email"
       title="Cliquez pour envoyer un email"
       data-u={btoa(user)}
