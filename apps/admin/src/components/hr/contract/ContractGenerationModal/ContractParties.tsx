@@ -3,30 +3,37 @@
  * Displays employer and employee information tables
  */
 
-import type { ContractPartiesProps } from './types'
-import { COMPANY_INFO, CONTRACT_STYLES, TABLE_STYLES } from './constants'
+import type { ContractPartiesProps } from "./types";
+import { COMPANY_INFO, CONTRACT_STYLES, TABLE_STYLES } from "./constants";
 
 // Table row component for cleaner code
 interface TableRowProps {
-  label: React.ReactNode
-  value: React.ReactNode
+  label: React.ReactNode;
+  value: React.ReactNode;
 }
 
 function TableRow({ label, value }: TableRowProps) {
   return (
     <tr>
-      <td style={{ ...TABLE_STYLES.cell, width: '40%', fontWeight: 'bold', textAlign: 'left' }}>
+      <td
+        style={{
+          ...TABLE_STYLES.cell,
+          width: "40%",
+          fontWeight: "bold",
+          textAlign: "left",
+        }}
+      >
         {label}
       </td>
-      <td style={{ ...TABLE_STYLES.cell, textAlign: 'left' }}>{value}</td>
+      <td style={{ ...TABLE_STYLES.cell, textAlign: "left" }}>{value}</td>
     </tr>
-  )
+  );
 }
 
 // Employer information table
 function EmployerTable() {
   return (
-    <table style={{ ...TABLE_STYLES.table, marginBottom: '15px' }}>
+    <table style={{ ...TABLE_STYLES.table, marginBottom: "15px" }}>
       <tbody>
         <TableRow label="Société (raison sociale)" value={COMPANY_INFO.name} />
         <TableRow
@@ -59,9 +66,9 @@ function EmployerTable() {
         <TableRow
           label={
             <>
-              Immatriculee a l&apos;URSSAF de
+              Immatriculée a l&apos;URSSAF de
               <br />
-              Numero d&apos;immatriculation
+              Numéro d&apos;immatriculation
             </>
           }
           value={
@@ -74,33 +81,54 @@ function EmployerTable() {
         />
       </tbody>
     </table>
-  )
+  );
 }
 
 // Employee information table
 interface EmployeeTableProps {
-  employee: ContractPartiesProps['employee']
+  employee: ContractPartiesProps["employee"];
 }
 
 function EmployeeTable({ employee }: EmployeeTableProps) {
-  const birthDate = new Date(employee.dateOfBirth).toLocaleDateString('fr-FR')
+  // Format date properly - handle both Date objects and string dates
+  let birthDate = "";
+  try {
+    if (employee.dateOfBirth) {
+      const date = typeof employee.dateOfBirth === 'string'
+        ? new Date(employee.dateOfBirth)
+        : employee.dateOfBirth;
+      birthDate = date.toLocaleDateString("fr-FR");
+    }
+  } catch (error) {
+    console.error("Error formatting birth date:", error);
+    birthDate = "";
+  }
+
+  // Format place of birth
+  const placeOfBirthStr = employee.placeOfBirth
+    ? [
+        employee.placeOfBirth.city,
+        employee.placeOfBirth.department ? `(${employee.placeOfBirth.department})` : "",
+        employee.placeOfBirth.country
+      ].filter(Boolean).join(" ")
+    : "";
 
   return (
-    <table style={{ ...TABLE_STYLES.table, marginBottom: '15px' }}>
+    <table style={{ ...TABLE_STYLES.table, marginBottom: "15px" }}>
       <tbody>
         <TableRow
           label={
             <>
               Nom
               <br />
-              Prenom(s)
+              Prénom(s)
             </>
           }
           value={
             <>
-              {employee.lastName}
+              {employee.lastName || ""}
               <br />
-              {employee.firstName}
+              {employee.firstName || ""}
             </>
           }
         />
@@ -110,14 +138,18 @@ function EmployeeTable({ employee }: EmployeeTableProps) {
             <>
               {birthDate}
               <br />
-              {employee.placeOfBirth
-                ? `${employee.placeOfBirth.city}${employee.placeOfBirth.department ? ` (${employee.placeOfBirth.department})` : ''}${employee.placeOfBirth.country ? `, ${employee.placeOfBirth.country}` : ''}`
-                : ''}
+              {placeOfBirthStr}
             </>
           }
         />
-        <TableRow label="Numéro de sécurité sociale" value={employee.socialSecurityNumber} />
-        <TableRow label="Adresse du domicile" value={employee.address?.street ?? ''} />
+        <TableRow
+          label="Numéro de sécurité sociale"
+          value={employee.socialSecurityNumber || ""}
+        />
+        <TableRow
+          label="Adresse du domicile"
+          value={employee.address?.street || ""}
+        />
         <TableRow
           label={
             <>
@@ -128,9 +160,9 @@ function EmployeeTable({ employee }: EmployeeTableProps) {
           }
           value={
             <>
-              {employee.address?.postalCode ?? ''}
+              {employee.address?.postalCode || ""}
               <br />
-              {employee.address?.city ?? ''}
+              {employee.address?.city || ""}
             </>
           }
         />
@@ -147,11 +179,11 @@ function EmployeeTable({ employee }: EmployeeTableProps) {
         />
       </tbody>
     </table>
-  )
+  );
 }
 
 export function ContractParties({ employee }: ContractPartiesProps) {
-  const isFullTime = employee.contractualHours >= 35
+  const isFullTime = employee.contractualHours >= 35;
 
   return (
     <div style={CONTRACT_STYLES.section}>
@@ -159,20 +191,27 @@ export function ContractParties({ employee }: ContractPartiesProps) {
 
       {/* Employer */}
       <EmployerTable />
-      <p style={{ fontStyle: 'italic', marginBottom: '20px' }}>Ci-apres l&apos;Employeur</p>
+      <p style={{ fontStyle: "italic", marginBottom: "20px" }}>
+        Ci-après l&apos;Employeur
+      </p>
 
       {/* Employee */}
       <EmployeeTable employee={employee} />
-      <p style={{ fontStyle: 'italic', marginBottom: '20px' }}>Ci-apres le Salarie</p>
+      <p style={{ fontStyle: "italic", marginBottom: "20px" }}>
+        Ci-après le Salarié
+      </p>
 
       {/* Contract introduction */}
-      <p style={{ marginTop: '20px', lineHeight: '1.6' }}>
-        Le présent contrat est conclu à durée indéterminée à temps{' '}
-        {isFullTime ? 'complet' : 'partiel'}. Il est régi par les dispositions générales de la{' '}
-        <strong>Convention Collective Nationale des Hotels, Cafes, Restaurants</strong> du 30
-        avril 1997, dont le Salarie reconnaît avoir pris connaissance et les conditions
-        particulières ci-après :
+      <p style={{ marginTop: "20px", lineHeight: "1.6" }}>
+        Le présent contrat est conclu à durée indéterminée à temps{" "}
+        {isFullTime ? "complet" : "partiel"}. Il est régi par les dispositions
+        générales de la{" "}
+        <strong>
+          Convention Collective Nationale des Hotels, Cafés, Restaurants
+        </strong>{" "}
+        du 30 avril 1997, dont le Salarie reconnaît avoir pris connaissance et
+        les conditions particulières ci-après :
       </p>
     </div>
-  )
+  );
 }

@@ -5,7 +5,6 @@
 
 import type { ContractContentProps } from './types'
 import { CONTRACT_STYLES } from './constants'
-import { useContractCalculations } from './hooks/useContractCalculations'
 import { ContractHeader } from './ContractHeader'
 import { ContractParties } from './ContractParties'
 import { ContractArticles } from './ContractArticles'
@@ -14,9 +13,11 @@ import { ContractSignature } from './ContractSignature'
 export function ContractContent({
   employee,
   isEditing,
+  monthlySalary,
+  monthlyHours,
   contractRef,
 }: ContractContentProps) {
-  const { monthlySalary, monthlyHours, isFullTime } = useContractCalculations({ employee })
+  const isFullTime = employee.contractualHours >= 35
 
   return (
     <div
