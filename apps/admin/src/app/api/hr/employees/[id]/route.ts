@@ -238,7 +238,7 @@ export async function PUT(
       )
     }
 
-    const formattedEmployee = mapEmployeeToApiSummary(updatedEmployee)
+    const formattedEmployee = mapEmployeeToApi(updatedEmployee)
 
     return NextResponse.json({
       success: true,
