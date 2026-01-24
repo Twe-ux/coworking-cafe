@@ -133,20 +133,16 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
       required: [true, 'La date de naissance est requise'],
     },
     placeOfBirth: {
-      type: {
-        city: { type: String, trim: true },
-        department: { type: String, trim: true },
-        country: { type: String, trim: true },
-      },
-      required: false,
+      city: String,
+      department: String,
+      country: String,
+      _id: false,
     },
     address: {
-      type: {
-        street: { type: String, trim: true },
-        postalCode: { type: String, trim: true },
-        city: { type: String, trim: true },
-      },
-      required: false,
+      street: String,
+      postalCode: String,
+      city: String,
+      _id: false,
     },
     phone: {
       type: String,
