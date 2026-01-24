@@ -3,7 +3,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { MonthlyCalendar } from "@/components/shared/calendar";
 import { Badge } from "@/components/ui/badge";
-import type { Employee, TimeSlot, AvailabilityDay, WeeklyAvailability } from "@/types/hr";
+import type {
+  Employee,
+  TimeSlot,
+  AvailabilityDay,
+  WeeklyAvailability,
+} from "@/types/hr";
 
 // Availability flattened for display
 interface AvailabilitySlot {
@@ -27,7 +32,16 @@ export function AvailabilityCalendarTab() {
       const result = await response.json();
 
       if (result.success) {
-        setEmployees(result.data || []);
+        // Filtrer pour masquer le compte Admin Dev (compte technique pour tests)
+        const filteredEmployees = (result.data || []).filter(
+          (emp: Employee) => {
+            return (
+              emp.email !== "dev@coworkingcafe.com" &&
+              !(emp.firstName === "Admin" && emp.lastName === "Dev")
+            );
+          },
+        );
+        setEmployees(filteredEmployees);
       } else {
         console.error("Error fetching employees:", result.error);
       }
@@ -121,7 +135,7 @@ export function AvailabilityCalendarTab() {
     return availabilityDates.filter(
       (avDate) =>
         avDate.date.toDateString() === dateStr &&
-        avDate.slot.employeeId === employeeId
+        avDate.slot.employeeId === employeeId,
     );
   };
 
@@ -148,10 +162,10 @@ export function AvailabilityCalendarTab() {
 
           // Split slots by morning/afternoon
           const morningSlots = dayAvailabilities.filter((avDate) =>
-            isSlotBeforeCutoff(avDate.slot.startTime)
+            isSlotBeforeCutoff(avDate.slot.startTime),
           );
           const afternoonSlots = dayAvailabilities.filter(
-            (avDate) => !isSlotBeforeCutoff(avDate.slot.startTime)
+            (avDate) => !isSlotBeforeCutoff(avDate.slot.startTime),
           );
 
           return (
@@ -225,12 +239,12 @@ export function AvailabilityCalendarTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      {/* <div>
         <h2 className="text-2xl font-bold">Disponibilités mensuelles</h2>
         <p className="text-sm text-muted-foreground">
           Visualisez les créneaux de disponibilité de vos employés
         </p>
-      </div>
+      </div> */}
 
       {/* Calendar */}
       {isLoading ? (
