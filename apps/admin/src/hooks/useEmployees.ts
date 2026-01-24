@@ -31,7 +31,12 @@ export function useEmployees(options: UseEmployeesOptions = {}) {
       const result = await response.json()
 
       if (result.success) {
-        setEmployees(result.data || [])
+        // Filtrer pour masquer le compte Admin Dev (compte technique pour tests)
+        const filteredEmployees = (result.data || []).filter((emp: Employee) => {
+          return emp.email !== "dev@coworkingcafe.com" &&
+                 !(emp.firstName === "Admin" && emp.lastName === "Dev");
+        });
+        setEmployees(filteredEmployees)
         setError(null)
       } else {
         setError(result.error || 'Error fetching employees')

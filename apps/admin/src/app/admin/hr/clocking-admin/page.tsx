@@ -22,7 +22,12 @@ export default function ClockingAdminPage() {
       const result = await response.json();
 
       if (result.success) {
-        setEmployees(result.data || []);
+        // Filtrer pour masquer le compte Admin Dev (compte technique pour tests)
+        const filteredEmployees = (result.data || []).filter((emp: Employee) => {
+          return emp.email !== "dev@coworkingcafe.com" &&
+                 !(emp.firstName === "Admin" && emp.lastName === "Dev");
+        });
+        setEmployees(filteredEmployees);
       } else {
         setError(result.error || "Erreur lors de la récupération des employés");
       }
