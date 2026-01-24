@@ -46,6 +46,8 @@ export function ContractGenerationModal({
   employee,
 }: ContractGenerationModalProps) {
   const [isEditing, setIsEditing] = useState(true)
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit')
+  const [zoom, setZoom] = useState(100)
   const contractRef = useRef<HTMLDivElement>(null)
 
   const { monthlySalary, monthlyHours } = useContractCalculations({ employee })
@@ -66,33 +68,77 @@ export function ContractGenerationModal({
           </DialogTitle>
         </DialogHeader>
 
-        {/* Edit mode toggle */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Switch
-              id="edit-mode"
-              checked={isEditing}
-              onCheckedChange={setIsEditing}
-            />
-            <Label htmlFor="edit-mode">
-              {isEditing ? 'Mode edition active' : 'Mode lecture seule'}
-            </Label>
+        {/* View mode toggle */}
+        <div className="flex items-center justify-between mb-4 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Switch
+                id="edit-mode"
+                checked={isEditing}
+                onCheckedChange={setIsEditing}
+              />
+              <Label htmlFor="edit-mode">
+                {isEditing ? 'Mode édition' : 'Lecture seule'}
+              </Label>
+            </div>
+
+            <div className="flex items-center gap-2 border-l pl-4">
+              <Label htmlFor="view-mode" className="text-sm">Affichage:</Label>
+              <select
+                id="view-mode"
+                value={viewMode}
+                onChange={(e) => setViewMode(e.target.value as 'edit' | 'preview')}
+                className="text-sm border rounded px-2 py-1"
+              >
+                <option value="edit">Normal</option>
+                <option value="preview">Aperçu A4</option>
+              </select>
+            </div>
+
+            {viewMode === 'preview' && (
+              <div className="flex items-center gap-2 border-l pl-4">
+                <Label htmlFor="zoom" className="text-sm">Zoom:</Label>
+                <select
+                  id="zoom"
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="text-sm border rounded px-2 py-1"
+                >
+                  <option value="75">75%</option>
+                  <option value="100">100%</option>
+                  <option value="125">125%</option>
+                  <option value="150">150%</option>
+                </select>
+              </div>
+            )}
           </div>
           <span className="text-sm text-muted-foreground">
-            {isEditing
-              ? 'Vous pouvez modifier le contrat avant de le generer'
-              : 'Previsualisation finale'}
+            {viewMode === 'preview'
+              ? 'Aperçu final avec pagination A4'
+              : isEditing
+              ? 'Vous pouvez modifier le contrat'
+              : 'Prévisualisation'}
           </span>
         </div>
 
         {/* Contract content */}
-        <ContractContent
-          employee={employee}
-          isEditing={isEditing}
-          monthlySalary={monthlySalary}
-          monthlyHours={monthlyHours}
-          contractRef={contractRef}
-        />
+        <div
+          className={viewMode === 'preview' ? 'bg-gray-100 p-4' : ''}
+          style={{
+            transform: viewMode === 'preview' ? `scale(${zoom / 100})` : undefined,
+            transformOrigin: 'top center',
+            transition: 'transform 0.2s ease'
+          }}
+        >
+          <ContractContent
+            employee={employee}
+            isEditing={isEditing}
+            monthlySalary={monthlySalary}
+            monthlyHours={monthlyHours}
+            contractRef={contractRef}
+            viewMode={viewMode}
+          />
+        </div>
 
         {/* Footer actions */}
         <DialogFooter>

@@ -80,6 +80,7 @@ export interface ContractContentProps {
   monthlySalary: string
   monthlyHours: string
   contractRef: React.RefObject<HTMLDivElement | null>
+  viewMode?: 'edit' | 'preview'
 }
 
 // Props for parties section
