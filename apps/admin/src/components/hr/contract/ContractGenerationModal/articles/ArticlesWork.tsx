@@ -87,18 +87,23 @@ export function Article6() {
 
 // Article 7 - Rémunération
 export function Article7({ employee, monthlySalary, monthlyHours }: Article7Props) {
+  const hourlyRate = employee.hourlyRate || 0;
+  const calculatedSalary = hourlyRate > 0 && monthlySalary !== '0.00'
+    ? monthlySalary
+    : (hourlyRate * parseFloat(monthlyHours)).toFixed(2);
+
   return (
     <ArticleSection title="Article 7 - Rémunération">
       <p style={{ marginBottom: '12px' }}>
-        Le Salarie percevra une rémunération mensualisée brute de <strong>{monthlySalary} EUR</strong>
+        Le Salarié percevra une rémunération mensualisée brute de <strong>{calculatedSalary} EUR</strong>
         <br />
-        correspondant a sa durée de travail mensuelle de <strong>{monthlyHours}</strong> heures
+        correspondant à sa durée de travail mensuelle de <strong>{monthlyHours} heures</strong>
         <br />
-        sur la base d&apos;un taux horaire de <strong>{employee.hourlyRate?.toFixed(2) ?? ''} EUR</strong>
+        sur la base d&apos;un taux horaire brut de <strong>{hourlyRate.toFixed(2)} EUR</strong>
       </p>
       <p>
         Sur cette rémunération seront prélevées les cotisations sociales et notamment celles afférentes au régime
-        de protection sociale en vigueur dans la societe a la date de versement.
+        de protection sociale en vigueur dans la société à la date de versement.
       </p>
     </ArticleSection>
   )

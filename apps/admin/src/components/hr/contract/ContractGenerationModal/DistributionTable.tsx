@@ -24,7 +24,7 @@ export function DistributionTable({ employee }: DistributionTableProps) {
   const weeklyDistributionData = employee.workSchedule?.weeklyDistributionData
 
   if (!weeklyDistributionData) {
-    return <div>Tableau de repartition hebdomadaire a completer selon le planning</div>
+    return <div>Tableau de répartition hebdomadaire à compléter selon le planning</div>
   }
 
   return (
