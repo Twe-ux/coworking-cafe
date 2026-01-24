@@ -47,19 +47,19 @@ export interface OnboardingStatus {
   step3Completed?: boolean;
   step4Completed?: boolean;
   contractGenerated: boolean;
-  contractGeneratedAt?: Date;
+  contractGeneratedAt?: Date | string;
   dpaeCompleted: boolean;
-  dpaeCompletedAt?: Date;
+  dpaeCompletedAt?: Date | string;
   medicalVisitCompleted?: boolean;
-  medicalVisitCompletedAt?: Date;
+  medicalVisitCompletedAt?: Date | string;
   mutuelleCompleted?: boolean;
-  mutuelleCompletedAt?: Date;
+  mutuelleCompletedAt?: Date | string;
   bankDetailsProvided: boolean;
-  bankDetailsProvidedAt?: Date;
+  bankDetailsProvidedAt?: Date | string;
   registerCompleted?: boolean;
-  registerCompletedAt?: Date;
+  registerCompletedAt?: Date | string;
   contractSent: boolean;
-  contractSentAt?: Date;
+  contractSentAt?: Date | string;
 }
 
 export interface WorkSchedule {
