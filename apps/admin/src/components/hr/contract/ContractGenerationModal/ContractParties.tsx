@@ -3,8 +3,8 @@
  * Displays employer and employee information tables
  */
 
-import type { ContractPartiesProps } from "./types";
 import { COMPANY_INFO, CONTRACT_STYLES, TABLE_STYLES } from "./constants";
+import type { ContractPartiesProps } from "./types";
 
 // Table row component for cleaner code
 interface TableRowProps {
@@ -94,9 +94,10 @@ function EmployeeTable({ employee }: EmployeeTableProps) {
   let birthDate = "";
   try {
     if (employee.dateOfBirth) {
-      const date = typeof employee.dateOfBirth === 'string'
-        ? new Date(employee.dateOfBirth)
-        : employee.dateOfBirth;
+      const date =
+        typeof employee.dateOfBirth === "string"
+          ? new Date(employee.dateOfBirth)
+          : employee.dateOfBirth;
       birthDate = date.toLocaleDateString("fr-FR");
     }
   } catch (error) {
@@ -108,9 +109,13 @@ function EmployeeTable({ employee }: EmployeeTableProps) {
   const placeOfBirthStr = employee.placeOfBirth
     ? [
         employee.placeOfBirth.city,
-        employee.placeOfBirth.department ? `(${employee.placeOfBirth.department})` : "",
-        employee.placeOfBirth.country
-      ].filter(Boolean).join(" ")
+        employee.placeOfBirth.department
+          ? `(${employee.placeOfBirth.department})`
+          : "",
+        employee.placeOfBirth.country,
+      ]
+        .filter(Boolean)
+        .join(" ")
     : "";
 
   return (
@@ -133,7 +138,11 @@ function EmployeeTable({ employee }: EmployeeTableProps) {
           }
         />
         <TableRow
-          label="Date et lieu de naissance"
+          label={
+            <>
+              Date de naissance <br /> Lieu de naissance
+            </>
+          }
           value={
             <>
               {birthDate}
