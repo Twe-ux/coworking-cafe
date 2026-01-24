@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Availability, WeeklyDistributionData } from '@/types/onboarding'
 import type { UseAvailabilityFormProps, UseAvailabilityFormReturn, TimeSlotWithId } from './types'
 import { DAYS } from './types'
@@ -16,6 +16,15 @@ export function useAvailabilityForm({
   const [weeklyDistribution, setWeeklyDistribution] = useState<WeeklyDistributionData>(
     initialWeeklyDistribution
   )
+
+  // Update state when initial data changes (for edit mode)
+  useEffect(() => {
+    setAvailability(initialAvailability)
+  }, [initialAvailability])
+
+  useEffect(() => {
+    setWeeklyDistribution(initialWeeklyDistribution)
+  }, [initialWeeklyDistribution])
 
   /**
    * Toggle day availability
