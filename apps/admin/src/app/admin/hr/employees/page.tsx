@@ -37,12 +37,12 @@ function HRManagementContent() {
 
   // États pour les modals
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null
+    null,
   );
   const [endContractModalOpen, setEndContractModalOpen] = useState(false);
   const [contractModalOpen, setContractModalOpen] = useState(false);
   const [contractEmployee, setContractEmployee] = useState<Employee | null>(
-    null
+    null,
   );
 
   // Charger les employés au montage
@@ -87,11 +87,11 @@ function HRManagementContent() {
       console.error("Erreur suppression brouillon:", err);
     }
 
-    router.push("/hr/employees/new");
+    router.push("/admin/hr/employees/new");
   };
 
   const handleEdit = (employee: Employee) => {
-    router.push(`/hr/employees/${employee._id}/edit`);
+    router.push(`/admin/hr/employees/${employee._id}/edit`);
   };
 
   const handleViewContract = (employee: Employee) => {
@@ -114,7 +114,7 @@ function HRManagementContent() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ endDate, endContractReason: reason }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -139,7 +139,7 @@ function HRManagementContent() {
   const handleDelete = async (employee: Employee) => {
     if (
       confirm(
-        `Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?`
+        `Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?`,
       )
     ) {
       const result = await archiveEmployee(employee._id);
@@ -172,7 +172,7 @@ function HRManagementContent() {
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", value);
-    router.push(`/hr/employees?${params.toString()}`);
+    router.push(`/admin/hr/employees?${params.toString()}`);
   };
 
   return (

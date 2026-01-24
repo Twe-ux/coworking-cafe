@@ -32,7 +32,7 @@ export const COMPANY_INFO: CompanyInfo = {
   },
   representative: {
     name: 'MILONE Thierry',
-    role: 'Gerant',
+    role: 'Gérant',
   },
   nafCode: '5630 Z',
   urssaf: {

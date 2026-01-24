@@ -11,6 +11,12 @@ export interface EmployeeAddress {
   city: string;
 }
 
+export interface PlaceOfBirth {
+  city: string;
+  department: string;
+  country: string;
+}
+
 export type ContractType = "CDI" | "CDD" | "Stage";
 export type EmployeeRole = "Manager" | "Assistant manager" | "Employé polyvalent";
 export type EndContractReason = "démission" | "fin-periode-essai" | "rupture";
@@ -73,7 +79,7 @@ export interface Employee {
   lastName: string;
   fullName: string; // Computed: firstName + lastName
   dateOfBirth: string;
-  placeOfBirth?: string;
+  placeOfBirth?: PlaceOfBirth;
   address: EmployeeAddress;
   email: string;
   phone: string;

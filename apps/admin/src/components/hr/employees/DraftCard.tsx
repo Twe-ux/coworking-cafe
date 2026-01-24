@@ -20,7 +20,7 @@ export function DraftCard({ draft, onDelete }: DraftCardProps) {
   const onboardingProgress = calculateOnboardingProgress(draft);
 
   const handleContinue = () => {
-    router.push("/hr/employees/new");
+    router.push("/admin/hr/employees/new");
   };
 
   return (

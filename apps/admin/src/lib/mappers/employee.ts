@@ -61,7 +61,11 @@ interface EmployeeDocument {
   email?: string | null
   phone?: string | null
   dateOfBirth?: Date | string
-  placeOfBirth?: string
+  placeOfBirth?: {
+    city: string
+    department: string
+    country: string
+  }
   address?: {
     street?: string
     postalCode?: string
@@ -109,7 +113,11 @@ export interface MappedEmployee {
   email?: string | null
   phone?: string | null
   dateOfBirth?: Date | string
-  placeOfBirth?: string
+  placeOfBirth?: {
+    city: string
+    department: string
+    country: string
+  }
   address?: {
     street?: string
     postalCode?: string

@@ -25,7 +25,20 @@ export const createEmployeeSchema = z.object({
       const age = today.getFullYear() - birthDate.getFullYear()
       return age >= 16 && age <= 100
     }, 'L\'employé doit avoir entre 16 et 100 ans'),
-  placeOfBirth: z.string().trim().optional(),
+  placeOfBirth: z
+    .object({
+      city: z.string().trim().optional(),
+      department: z.string().trim().optional(),
+      country: z.string().trim().optional(),
+    })
+    .optional()
+    .nullable()
+    .transform((val) => {
+      // Si l'objet existe mais tous les champs sont vides, retourner undefined
+      if (!val) return undefined;
+      if (!val.city && !val.department && !val.country) return undefined;
+      return val;
+    }),
   address: z
     .object({
       street: z.string().trim().optional(),
@@ -40,8 +53,12 @@ export const createEmployeeSchema = z.object({
   email: z.string().email('Veuillez fournir une adresse email valide').trim().toLowerCase(),
   socialSecurityNumber: z
     .string()
-    .regex(/^\d{15}$/, 'Le numéro de sécurité sociale doit contenir 15 chiffres')
-    .trim(),
+    .trim()
+    .transform((val) => val.replace(/\s/g, '')) // Remove spaces
+    .refine(
+      (val) => /^\d{15}$/.test(val),
+      'Le numéro de sécurité sociale doit contenir exactement 15 chiffres'
+    ),
 
   // Contract information
   contractType: z.enum(['CDI', 'CDD', 'Stage'], {

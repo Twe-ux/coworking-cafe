@@ -108,7 +108,7 @@ export function useContractGeneration({
 
       // Call success callback and redirect
       onSuccess?.()
-      router.push('/hr')
+      router.push('/admin/hr/employees')
     } catch (error) {
       console.error('PDF generation error:', error)
       alert('Erreur lors de la generation du PDF')

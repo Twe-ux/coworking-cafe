@@ -34,6 +34,7 @@ import { Switch } from '@/components/ui/switch'
 
 import type { ContractGenerationModalProps } from './types'
 import { useContractGeneration } from './hooks/useContractGeneration'
+import { useContractCalculations } from './hooks/useContractCalculations'
 import { ContractContent } from './ContractContent'
 
 // Re-export for backward compatibility
@@ -46,6 +47,8 @@ export function ContractGenerationModal({
 }: ContractGenerationModalProps) {
   const [isEditing, setIsEditing] = useState(true)
   const contractRef = useRef<HTMLDivElement>(null)
+
+  const { monthlySalary, monthlyHours } = useContractCalculations({ employee })
 
   const { generating, generatePDF } = useContractGeneration({
     employee,
@@ -86,8 +89,8 @@ export function ContractGenerationModal({
         <ContractContent
           employee={employee}
           isEditing={isEditing}
-          monthlySalary=""
-          monthlyHours=""
+          monthlySalary={monthlySalary}
+          monthlyHours={monthlyHours}
           contractRef={contractRef}
         />
 

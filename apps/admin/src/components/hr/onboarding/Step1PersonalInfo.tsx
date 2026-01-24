@@ -32,7 +32,11 @@ export function Step1PersonalInfo() {
           firstName: '',
           lastName: '',
           dateOfBirth: '',
-          placeOfBirth: '',
+          placeOfBirth: {
+            city: '',
+            department: '',
+            country: 'France',
+          },
           address: {
             street: '',
             postalCode: '',
@@ -101,28 +105,90 @@ export function Step1PersonalInfo() {
           </div>
 
           {/* Naissance */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">
-                Date de naissance <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="dateOfBirth"
-                type="date"
-                {...register('dateOfBirth', {
-                  required: 'La date de naissance est requise',
-                })}
-              />
-              {errors.dateOfBirth && (
-                <p className="text-sm text-destructive">
-                  {errors.dateOfBirth.message}
-                </p>
-              )}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Informations de naissance
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="dateOfBirth">
+                  Date de naissance <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  {...register('dateOfBirth', {
+                    required: 'La date de naissance est requise',
+                  })}
+                />
+                {errors.dateOfBirth && (
+                  <p className="text-sm text-destructive">
+                    {errors.dateOfBirth.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="placeOfBirth.city">Ville de naissance</Label>
+                <Input
+                  id="placeOfBirth.city"
+                  placeholder="Paris"
+                  {...register('placeOfBirth.city')}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="placeOfBirth.department">
+                  Département de naissance
+                </Label>
+                <Input
+                  id="placeOfBirth.department"
+                  placeholder="75 - Paris"
+                  {...register('placeOfBirth.department')}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="placeOfBirth.country">Pays de naissance</Label>
+                <Input
+                  id="placeOfBirth.country"
+                  placeholder="France"
+                  {...register('placeOfBirth.country')}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="placeOfBirth">Lieu de naissance</Label>
-              <Input id="placeOfBirth" {...register('placeOfBirth')} />
+              <Label htmlFor="socialSecurityNumber">
+                Numéro de sécurité sociale{' '}
+                <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="socialSecurityNumber"
+                placeholder="1 23 45 67 890 123 45"
+                {...register('socialSecurityNumber', {
+                  required: 'Le numéro de sécurité sociale est requis',
+                  validate: (value) => {
+                    const digitsOnly = value.replace(/\s/g, '');
+                    if (!/^\d{15}$/.test(digitsOnly)) {
+                      return 'Le numéro doit contenir exactement 15 chiffres';
+                    }
+                    return true;
+                  },
+                  setValueAs: (value) => value.replace(/\s/g, ''), // Remove spaces before saving
+                })}
+              />
+              {errors.socialSecurityNumber && (
+                <p className="text-sm text-destructive">
+                  {errors.socialSecurityNumber.message}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                15 chiffres (avec ou sans espaces)
+              </p>
             </div>
           </div>
 
@@ -226,34 +292,6 @@ export function Step1PersonalInfo() {
                 <p className="text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
-          </div>
-
-          {/* Sécurité sociale */}
-          <div className="space-y-2">
-            <Label htmlFor="socialSecurityNumber">
-              Numéro de sécurité sociale{' '}
-              <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="socialSecurityNumber"
-              placeholder="1 23 45 67 890 123 45"
-              maxLength={15}
-              {...register('socialSecurityNumber', {
-                required: 'Le numéro de sécurité sociale est requis',
-                pattern: {
-                  value: /^\d{15}$/,
-                  message: 'Le numéro doit contenir 15 chiffres',
-                },
-              })}
-            />
-            {errors.socialSecurityNumber && (
-              <p className="text-sm text-destructive">
-                {errors.socialSecurityNumber.message}
-              </p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              15 chiffres sans espaces
-            </p>
           </div>
         </CardContent>
       </Card>

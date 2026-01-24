@@ -105,7 +105,11 @@ async function seedAdminEmployees() {
         email: email.toLowerCase(),
         phone,
         dateOfBirth,
-        placeOfBirth: 'Paris',
+        placeOfBirth: {
+          city: 'Paris',
+          department: '75',
+          country: 'France',
+        },
         address: {
           street: '123 Rue de la Paix',
           postalCode: '75001',

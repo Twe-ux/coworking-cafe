@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import { useForm } from 'react-hook-form'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useOnboardingContext } from '@/contexts/OnboardingContext'
-import type { ContractInfo } from '@/types/onboarding'
+} from "@/components/ui/select";
+import { useOnboardingContext } from "@/contexts/OnboardingContext";
+import type { ContractInfo } from "@/types/onboarding";
+import { useForm } from "react-hook-form";
 
 // Formater une date ISO en YYYY-MM-DD pour les inputs
 const formatDateForInput = (dateString?: string): string => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toISOString().split('T')[0]
-}
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toISOString().split("T")[0];
+};
 
 export function Step2ContractInfo() {
-  const { data, saveStep2 } = useOnboardingContext()
+  const { data, saveStep2 } = useOnboardingContext();
 
   const {
     register,
@@ -39,22 +39,22 @@ export function Step2ContractInfo() {
           endDate: formatDateForInput(data.step2.endDate),
         }
       : {
-          contractType: 'CDI',
+          contractType: "CDI",
           contractualHours: 35,
-          hireDate: '',
-          hireTime: '',
-          level: '',
+          hireDate: "",
+          hireTime: "",
+          level: "",
           step: 1,
-          hourlyRate: 11.65,
-          employeeRole: 'Employé polyvalent',
+          hourlyRate: 12.08,
+          employeeRole: "Employé polyvalent",
         },
-  })
+  });
 
-  const contractType = watch('contractType')
+  const contractType = watch("contractType");
 
   const onSubmit = (formData: ContractInfo) => {
-    saveStep2(formData)
-  }
+    saveStep2(formData);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -70,9 +70,9 @@ export function Step2ContractInfo() {
             </Label>
             <Select
               onValueChange={(value) =>
-                setValue('contractType', value as 'CDI' | 'CDD' | 'Stage')
+                setValue("contractType", value as "CDI" | "CDD" | "Stage")
               }
-              defaultValue={data.step2?.contractType || 'CDI'}
+              defaultValue={data.step2?.contractType || "CDI"}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un type" />
@@ -94,7 +94,7 @@ export function Step2ContractInfo() {
               <Input
                 id="hireDate"
                 type="date"
-                {...register('hireDate', {
+                {...register("hireDate", {
                   required: "La date d'embauche est requise",
                 })}
               />
@@ -107,12 +107,12 @@ export function Step2ContractInfo() {
 
             <div className="space-y-2">
               <Label htmlFor="hireTime">Heure d'embauche</Label>
-              <Input id="hireTime" type="time" {...register('hireTime')} />
+              <Input id="hireTime" type="time" {...register("hireTime")} />
             </div>
           </div>
 
           {/* Date de fin pour CDD */}
-          {contractType === 'CDD' && (
+          {contractType === "CDD" && (
             <div className="space-y-2">
               <Label htmlFor="endDate">
                 Date de fin du CDD <span className="text-destructive">*</span>
@@ -120,9 +120,11 @@ export function Step2ContractInfo() {
               <Input
                 id="endDate"
                 type="date"
-                {...register('endDate', {
+                {...register("endDate", {
                   required:
-                    contractType === 'CDD' ? 'La date de fin est requise' : false,
+                    contractType === "CDD"
+                      ? "La date de fin est requise"
+                      : false,
                 })}
               />
               {errors.endDate && (
@@ -136,7 +138,7 @@ export function Step2ContractInfo() {
           {/* Heures contractuelles */}
           <div className="space-y-2">
             <Label htmlFor="contractualHours">
-              Heures contractuelles (par semaine){' '}
+              Heures contractuelles (par semaine){" "}
               <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -144,9 +146,9 @@ export function Step2ContractInfo() {
               type="number"
               min="0"
               step="0.5"
-              {...register('contractualHours', {
-                required: 'Les heures contractuelles sont requises',
-                min: { value: 0, message: 'Le nombre doit être positif' },
+              {...register("contractualHours", {
+                required: "Les heures contractuelles sont requises",
+                min: { value: 0, message: "Le nombre doit être positif" },
               })}
             />
             {errors.contractualHours && (
@@ -165,12 +167,14 @@ export function Step2ContractInfo() {
               <Input
                 id="level"
                 placeholder="Ex: A, B, C..."
-                {...register('level', {
-                  required: 'Le niveau est requis',
+                {...register("level", {
+                  required: "Le niveau est requis",
                 })}
               />
               {errors.level && (
-                <p className="text-sm text-destructive">{errors.level.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.level.message}
+                </p>
               )}
             </div>
 
@@ -182,13 +186,15 @@ export function Step2ContractInfo() {
                 id="step"
                 type="number"
                 min="1"
-                {...register('step', {
+                {...register("step", {
                   required: "L'échelon est requis",
                   min: { value: 1, message: "L'échelon doit être ≥ 1" },
                 })}
               />
               {errors.step && (
-                <p className="text-sm text-destructive">{errors.step.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.step.message}
+                </p>
               )}
             </div>
           </div>
@@ -197,7 +203,7 @@ export function Step2ContractInfo() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="hourlyRate">
-                Taux horaire brut (€/h){' '}
+                Taux horaire brut (€/h){" "}
                 <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -205,9 +211,9 @@ export function Step2ContractInfo() {
                 type="number"
                 min="0"
                 step="0.01"
-                {...register('hourlyRate', {
-                  required: 'Le taux horaire est requis',
-                  min: { value: 0, message: 'Le taux doit être positif' },
+                {...register("hourlyRate", {
+                  required: "Le taux horaire est requis",
+                  min: { value: 0, message: "Le taux doit être positif" },
                 })}
               />
               {errors.hourlyRate && (
@@ -216,7 +222,7 @@ export function Step2ContractInfo() {
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                SMIC 2025 : 11,65 €/h
+                SMIC 2026 : 12,08 €/h
               </p>
             </div>
 
@@ -227,8 +233,8 @@ export function Step2ContractInfo() {
                 type="number"
                 min="0"
                 step="0.01"
-                {...register('monthlySalary', {
-                  min: { value: 0, message: 'Le salaire doit être positif' },
+                {...register("monthlySalary", {
+                  min: { value: 0, message: "Le salaire doit être positif" },
                 })}
               />
               <p className="text-xs text-muted-foreground">Optionnel</p>
@@ -242,17 +248,27 @@ export function Step2ContractInfo() {
             </Label>
             <Select
               onValueChange={(value) =>
-                setValue('employeeRole', value as 'Manager' | 'Assistant manager' | 'Employé polyvalent')
+                setValue(
+                  "employeeRole",
+                  value as
+                    | "Manager"
+                    | "Assistant manager"
+                    | "Employé polyvalent",
+                )
               }
-              defaultValue={data.step2?.employeeRole || 'Employé polyvalent'}
+              defaultValue={data.step2?.employeeRole || "Employé polyvalent"}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un rôle" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Manager">Manager</SelectItem>
-                <SelectItem value="Assistant manager">Assistant manager</SelectItem>
-                <SelectItem value="Employé polyvalent">Employé polyvalent</SelectItem>
+                <SelectItem value="Assistant manager">
+                  Assistant manager
+                </SelectItem>
+                <SelectItem value="Employé polyvalent">
+                  Employé polyvalent
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -265,5 +281,5 @@ export function Step2ContractInfo() {
         </Button>
       </div>
     </form>
-  )
+  );
 }

@@ -67,7 +67,7 @@ export function Step4Administrative() {
       if (mode === 'edit') {
         // En mode édition, rediriger vers /hr
         toast.success('Employé modifié avec succès');
-        router.push('/hr');
+        router.push('/admin/hr/employees');
       } else {
         // En mode création, ouvrir la modal de génération du contrat
         setCreatedEmployee(employee);

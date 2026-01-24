@@ -52,7 +52,7 @@ export default function EditEmployeePage() {
           toast.error('Erreur', {
             description: 'Impossible de charger l\'employé'
           })
-          router.push('/hr')
+          router.push('/admin/hr/employees')
         }
       } catch (error) {
         console.error('Erreur chargement employé:', error)

@@ -247,18 +247,38 @@ export async function POST(request: NextRequest) {
     const newEmployee = new Employee(employeeData)
     await newEmployee.save()
 
-    // Formater la réponse
+    // Formater la réponse avec TOUTES les données nécessaires au contrat
     const formattedEmployee = {
+      _id: newEmployee._id.toString(),
       id: newEmployee._id.toString(),
       firstName: newEmployee.firstName,
       lastName: newEmployee.lastName,
+      fullName: `${newEmployee.firstName} ${newEmployee.lastName}`,
       email: newEmployee.email,
       phone: newEmployee.phone,
+      dateOfBirth: newEmployee.dateOfBirth,
+      placeOfBirth: newEmployee.placeOfBirth,
+      address: newEmployee.address,
+      socialSecurityNumber: newEmployee.socialSecurityNumber,
+      contractType: newEmployee.contractType,
+      contractualHours: newEmployee.contractualHours,
+      hireDate: newEmployee.hireDate,
+      hireTime: newEmployee.hireTime,
+      endDate: newEmployee.endDate,
+      endContractReason: newEmployee.endContractReason,
+      level: newEmployee.level,
+      step: newEmployee.step,
+      hourlyRate: newEmployee.hourlyRate,
+      monthlySalary: newEmployee.monthlySalary,
       employeeRole: newEmployee.employeeRole,
-      color: newEmployee.color,
+      availability: newEmployee.availability,
+      onboardingStatus: newEmployee.onboardingStatus,
+      workSchedule: newEmployee.workSchedule,
+      bankDetails: newEmployee.bankDetails,
       clockingCode: newEmployee.clockingCode,
+      color: newEmployee.color,
       isActive: newEmployee.isActive,
-      fullName: `${newEmployee.firstName} ${newEmployee.lastName}`,
+      isDraft: newEmployee.isDraft,
       createdAt: newEmployee.createdAt,
       updatedAt: newEmployee.updatedAt,
     }

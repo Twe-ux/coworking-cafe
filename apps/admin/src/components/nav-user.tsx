@@ -36,7 +36,7 @@ export function NavUser({
   const router = useRouter();
 
   const handleProfileClick = () => {
-    router.push("/profile");
+    router.push("/admin/profile");
   };
 
   const handleLogout = async () => {

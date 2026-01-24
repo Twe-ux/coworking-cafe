@@ -28,7 +28,7 @@ function EmployerTable() {
   return (
     <table style={{ ...TABLE_STYLES.table, marginBottom: '15px' }}>
       <tbody>
-        <TableRow label="Societe (raison sociale)" value={COMPANY_INFO.name} />
+        <TableRow label="Société (raison sociale)" value={COMPANY_INFO.name} />
         <TableRow
           label="Adresse"
           value={
@@ -42,9 +42,9 @@ function EmployerTable() {
         <TableRow
           label={
             <>
-              Representee par
+              Représentée par
               <br />
-              Agissant en qualite de
+              Agissant en qualité de
             </>
           }
           value={
@@ -110,11 +110,13 @@ function EmployeeTable({ employee }: EmployeeTableProps) {
             <>
               {birthDate}
               <br />
-              {employee.placeOfBirth ?? ''}
+              {employee.placeOfBirth
+                ? `${employee.placeOfBirth.city}${employee.placeOfBirth.department ? ` (${employee.placeOfBirth.department})` : ''}${employee.placeOfBirth.country ? `, ${employee.placeOfBirth.country}` : ''}`
+                : ''}
             </>
           }
         />
-        <TableRow label="Numero de securite sociale" value={employee.socialSecurityNumber} />
+        <TableRow label="Numéro de sécurité sociale" value={employee.socialSecurityNumber} />
         <TableRow label="Adresse du domicile" value={employee.address?.street ?? ''} />
         <TableRow
           label={
@@ -132,11 +134,11 @@ function EmployeeTable({ employee }: EmployeeTableProps) {
             </>
           }
         />
-        <TableRow label="Nationalite" value="FRANCAISE" />
+        <TableRow label="Nationalité" value="FRANCAISE" />
         <TableRow
           label={
             <>
-              N Titre de sejour - travail
+              N° Titre de séjour - travail
               <br />
               Date d&apos;expiration
             </>
@@ -153,7 +155,7 @@ export function ContractParties({ employee }: ContractPartiesProps) {
 
   return (
     <div style={CONTRACT_STYLES.section}>
-      <h3 style={CONTRACT_STYLES.sectionTitle}>Entre les soussignes</h3>
+      <h3 style={CONTRACT_STYLES.sectionTitle}>Entre les soussignés</h3>
 
       {/* Employer */}
       <EmployerTable />
@@ -165,11 +167,11 @@ export function ContractParties({ employee }: ContractPartiesProps) {
 
       {/* Contract introduction */}
       <p style={{ marginTop: '20px', lineHeight: '1.6' }}>
-        Le present contrat est conclu a duree indeterminee a temps{' '}
-        {isFullTime ? 'complet' : 'partiel'}. Il est regi par les dispositions generales de la{' '}
+        Le présent contrat est conclu à durée indéterminée à temps{' '}
+        {isFullTime ? 'complet' : 'partiel'}. Il est régi par les dispositions générales de la{' '}
         <strong>Convention Collective Nationale des Hotels, Cafes, Restaurants</strong> du 30
-        avril 1997, dont le Salarie reconnait avoir pris connaissance et les conditions
-        particulieres ci-apres :
+        avril 1997, dont le Salarie reconnaît avoir pris connaissance et les conditions
+        particulières ci-après :
       </p>
     </div>
   )

@@ -75,24 +75,27 @@ export function DynamicBreadcrumb() {
         <BreadcrumbItem>
           <BreadcrumbLink href={homeHref}>{homeLabel}</BreadcrumbLink>
         </BreadcrumbItem>
-        {segments.map((segment, index) => {
-          const isLast = index === segments.length - 1
-          const href = "/" + segments.slice(0, index + 1).join("/")
-          const label = routeLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1)
+        {segments
+          .filter((segment) => !(isAdminContext && segment === "admin"))
+          .map((segment, index, filteredSegments) => {
+            const isLast = index === filteredSegments.length - 1
+            const originalIndex = segments.indexOf(segment)
+            const href = "/" + segments.slice(0, originalIndex + 1).join("/")
+            const label = routeLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1)
 
-          return (
-            <Fragment key={segment + index}>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                {isLast ? (
-                  <BreadcrumbPage>{label}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink href={href}>{label}</BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </Fragment>
-          )
-        })}
+            return (
+              <Fragment key={segment + index}>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  {isLast ? (
+                    <BreadcrumbPage>{label}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink href={href}>{label}</BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+              </Fragment>
+            )
+          })}
       </BreadcrumbList>
     </Breadcrumb>
   )

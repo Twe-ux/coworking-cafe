@@ -12,7 +12,11 @@ export interface EmployeeDocument extends Document {
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
-  placeOfBirth?: string;
+  placeOfBirth?: {
+    city: string;
+    department: string;
+    country: string;
+  };
   address: {
     street: string;
     postalCode: string;
@@ -129,8 +133,9 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
       required: [true, 'La date de naissance est requise'],
     },
     placeOfBirth: {
-      type: String,
-      trim: true,
+      city: { type: String, trim: true },
+      department: { type: String, trim: true },
+      country: { type: String, trim: true },
     },
     address: {
       street: { type: String, trim: true },

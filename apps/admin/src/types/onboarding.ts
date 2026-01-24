@@ -1,13 +1,11 @@
+import type { PlaceOfBirth, EmployeeAddress } from './hr';
+
 export interface PersonalInfo {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
-  placeOfBirth?: string;
-  address: {
-    street: string;
-    postalCode: string;
-    city: string;
-  };
+  placeOfBirth?: PlaceOfBirth;
+  address: EmployeeAddress;
   phone: string;
   email: string;
   socialSecurityNumber: string;

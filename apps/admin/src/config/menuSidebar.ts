@@ -7,13 +7,11 @@
 import {
   BookOpen,
   Building2,
-  Calendar,
   Calculator,
+  Calendar,
   Clock,
   Home,
   Mail,
-  MessageCircle,
-  HelpCircle,
   ScanQrCode,
   Settings,
   Terminal,
@@ -82,7 +80,11 @@ export function getStaffMenu(): MenuItem[] {
  * @param isDev - Si l'utilisateur est dev (pour afficher Dev Tools)
  * @param isLoading - Si la session est en chargement (pour éviter le flash)
  */
-export function getAdminMenu(unreadCount: number, isDev: boolean, isLoading = false): MenuItem[] {
+export function getAdminMenu(
+  unreadCount: number,
+  isDev: boolean,
+  isLoading = false,
+): MenuItem[] {
   const items: MenuItem[] = [
     {
       title: "Dashboard",
@@ -108,7 +110,7 @@ export function getAdminMenu(unreadCount: number, isDev: boolean, isLoading = fa
         },
         {
           title: "Disponibilités",
-          url: "/admin/hr/availability",
+          url: "/admin/hr/employees?tab=availability",
         },
       ],
     },

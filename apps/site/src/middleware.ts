@@ -25,6 +25,7 @@ const publicRoutes = [
   "/pricing",
   "/members-program",
   "/student-offers",
+  "/horaires",
 
   "/boissons",
   // "/menu/boissons",
@@ -94,15 +95,15 @@ export async function middleware(req: NextRequest) {
   // 2. Protected routes - require authentication but accessible to all authenticated users
   if (
     protectedRoutes.some(
-      (route) => pathname === route || pathname.startsWith(route + "/")
+      (route) => pathname === route || pathname.startsWith(route + "/"),
     )
   ) {
     if (!isAuthenticated) {
       return NextResponse.redirect(
         new URL(
           `/auth/login?callbackUrl=${encodeURIComponent(pathname)}`,
-          req.url
-        )
+          req.url,
+        ),
       );
     }
     return NextResponse.next();
@@ -133,8 +134,8 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(
         new URL(
           `/auth/login?callbackUrl=${encodeURIComponent(pathname)}`,
-          req.url
-        )
+          req.url,
+        ),
       );
     }
 
@@ -152,7 +153,7 @@ export async function middleware(req: NextRequest) {
   // 5. Client dashboard routes (/{username}/...)
   // Skip if it's a public route pattern (like /promo/[token])
   const isPublicPattern = publicRoutePatterns.some((pattern) =>
-    pattern.test(pathname)
+    pattern.test(pathname),
   );
 
   if (

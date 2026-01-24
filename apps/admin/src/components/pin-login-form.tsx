@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PINLogin } from "./auth/PINLogin";
 
 export function PINLoginForm({
@@ -20,6 +21,7 @@ export function PINLoginForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handlePINSubmit = async (pin: string) => {
     setError("");
@@ -34,20 +36,24 @@ export function PINLoginForm({
       }
 
       // Connecter avec NextAuth en utilisant le PIN uniquement (pas d'email)
-      const callbackUrl =
-        typeof window !== "undefined"
-          ? `${window.location.origin}/admin`
-          : "/admin";
-
       const result = await signIn("credentials", {
         email: "", // Pas d'email pour l'authentification par PIN
         password: pin, // PIN 6 chiffres
-        callbackUrl,
-        redirect: true,
+        redirect: false, // Gérer la redirection manuellement
       });
 
       if (result?.error) {
         setError(result.error);
+        setLoading(false);
+      } else if (result?.ok) {
+        // Redirection manuelle après succès avec router
+        router.push('/admin');
+        // Fallback avec window.location après un délai
+        setTimeout(() => {
+          window.location.href = '/admin';
+        }, 500);
+      } else {
+        setError("Une erreur s'est produite lors de la connexion");
         setLoading(false);
       }
     } catch (error) {
