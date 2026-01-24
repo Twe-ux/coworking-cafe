@@ -86,7 +86,7 @@ interface EmployeeUpdateBody {
   email?: string | null
   phone?: string | null
   dateOfBirth?: string
-  placeOfBirth?: string
+  placeOfBirth?: { city?: string; department?: string; country?: string }
   address?: { street?: string; postalCode?: string; city?: string }
   socialSecurityNumber?: string
   contractType?: string
@@ -118,7 +118,7 @@ interface EmployeeUpdateData {
   email?: string | null
   phone?: string | null
   dateOfBirth?: Date
-  placeOfBirth?: string
+  placeOfBirth?: { city?: string; department?: string; country?: string }
   address?: { street?: string; postalCode?: string; city?: string }
   socialSecurityNumber?: string
   contractType?: string
