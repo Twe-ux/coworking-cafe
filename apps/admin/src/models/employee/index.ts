@@ -14,9 +14,14 @@ export type Employee = VirtualEmployee & EmployeeMethods;
 
 let EmployeeModel: EmployeeModelType;
 
-if (models.Employee) {
+// Force recreation of model to pick up schema changes in development
+if (models.Employee && process.env.NODE_ENV === 'production') {
   EmployeeModel = models.Employee as EmployeeModelType;
 } else {
+  // Delete existing model to force schema reload in development
+  if (models.Employee) {
+    delete models.Employee;
+  }
   attachHooks();
   EmployeeModel = model<EmployeeDocument, EmployeeModelType>('Employee', EmployeeSchema);
 }
