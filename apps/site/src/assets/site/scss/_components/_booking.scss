@@ -917,6 +917,10 @@
   @include card;
   padding: var(--spacing-4);
   background: hsl(var(--card));
+
+  @media (max-width: 576px) {
+    padding: var(--spacing-3);
+  }
 }
 
 .datepicker-header {
@@ -953,6 +957,11 @@
   grid-template-columns: repeat(7, 1fr);
   gap: var(--spacing-1);
   margin-bottom: var(--spacing-2);
+
+  @media (max-width: 576px) {
+    gap: 2px;
+    margin-bottom: var(--spacing-1);
+  }
 }
 
 .datepicker-day-name {
@@ -963,12 +972,26 @@
   padding: var(--spacing-2) 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+
+  @media (max-width: 576px) {
+    font-size: 0.625rem;
+    padding: 6px 0;
+    letter-spacing: 0;
+  }
 }
 
 .datepicker-days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: var(--spacing-1);
+
+  @media (max-width: 576px) {
+    gap: 2px;
+  }
 }
 
 .datepicker-day {
@@ -981,6 +1004,15 @@
   font-size: 0.8125rem;
   font-weight: 600;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 576px) {
+    min-height: 32px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+  }
 
   &:hover:not(.disabled):not(.empty) {
     background-color: hsl(var(--accent));
@@ -1005,6 +1037,10 @@
   &.today {
     border: 2px solid hsl(var(--ring));
     font-weight: 700;
+
+    @media (max-width: 576px) {
+      border-width: 1px;
+    }
   }
 
   &.disabled {
