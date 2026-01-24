@@ -6,7 +6,7 @@ import Footer from "../../components/site/footer";
 import Header from "../../components/site/header/header";
 import ScrollToTop from "../../components/site/ui/ScrollToTop";
 import PathNameLoad from "../../utils/pathNameLoad";
-import { ConditionalLayout } from "../../components/layout/ConditionalLayout";
+import { PWAStyles } from "../../components/layout/PWAStyles";
 import { ReactNode } from "react";
 
 export const metadata = {
@@ -18,19 +18,17 @@ export const metadata = {
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <SiteProvidersWrapper>
+      <PWAStyles />
       <Bootstrap />
       <PathNameLoad />
-      <ConditionalLayout
-        header={
-          <>
-            <Header />
-            <ExceptionalClosureBanner />
-          </>
-        }
-        footer={<Footer />}
-      >
-        {children}
-      </ConditionalLayout>
+      <div className="pwa-hide">
+        <Header />
+        <ExceptionalClosureBanner />
+      </div>
+      {children}
+      <div className="pwa-hide">
+        <Footer />
+      </div>
       <ScrollToTop />
     </SiteProvidersWrapper>
   );

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { LoadingLogo } from '../components/layout/LoadingLogo';
+import { LoadingLogo } from "@/components/layout/LoadingLogo";
+import { useEffect, useState } from "react";
 
 /**
  * Global loading UI shown during app-level transitions
@@ -13,15 +13,15 @@ export default function RootLoading() {
 
   useEffect(() => {
     // Detect system theme preference
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDark(mediaQuery.matches);
 
     const handleChange = (e: MediaQueryListEvent) => {
       setIsDark(e.matches);
     };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   return (
@@ -43,17 +43,17 @@ export default function RootLoading() {
       `}</style>
       <div
         style={{
-          position: 'fixed',
+          position: "fixed",
           top: 0,
           left: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: isDark ? '#000000' : '#FFFFFF',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "#142220",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           zIndex: 9999,
-          transition: 'background-color 0.3s ease',
+          transition: "background-color 0.3s ease",
         }}
       >
         <LoadingLogo />
