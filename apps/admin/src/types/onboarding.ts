@@ -96,10 +96,10 @@ export const EMPLOYEE_COLORS = [
   { name: "Vert", value: "#10B981" },
   { name: "Violet", value: "#8B5CF6" },
   { name: "Orange", value: "#F97316" },
-  { name: "Teal", value: "#14B8A6" },
-  { name: "Indigo", value: "#6366F1" },
   { name: "Rose", value: "#EC4899" },
   { name: "Jaune", value: "#EAB308" },
+  { name: "Cyan", value: "#06B6D4" },
+  { name: "Lime", value: "#84CC16" },
 ];
 
 export const DEFAULT_AVAILABILITY: Availability = {

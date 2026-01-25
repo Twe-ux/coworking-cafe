@@ -47,7 +47,7 @@ export function Step4Administrative() {
   // Update form when data.step4 becomes available (edit mode)
   // Only reset once when data arrives, not on every change
   useEffect(() => {
-    if (data.step4 && mode === 'edit') {
+    if (data.step4 && mode === "edit") {
       reset(data.step4);
     }
   }, [data.step4, reset, mode]);
@@ -73,10 +73,10 @@ export function Step4Administrative() {
   const onSubmit = async (formData: AdministrativeInfo) => {
     const employee = await saveStep4(formData);
     if (employee) {
-      if (mode === 'edit') {
+      if (mode === "edit") {
         // En mode édition, rediriger vers /hr
-        toast.success('Employé modifié avec succès');
-        router.push('/admin/hr/employees');
+        toast.success("Employé modifié avec succès");
+        router.push("/admin/hr/employees");
       } else {
         // En mode création, ouvrir la modal de génération du contrat
         setCreatedEmployee(employee);
@@ -131,7 +131,7 @@ export function Step4Administrative() {
             <Label>
               Couleur (calendrier) <span className="text-destructive">*</span>
             </Label>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {EMPLOYEE_COLORS.map((colorOption) => {
                 const isSelected = selectedColor === colorOption.value;
 
@@ -296,9 +296,12 @@ export function Step4Administrative() {
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {loading
-              ? (mode === 'edit' ? "Modification en cours..." : "Création en cours...")
-              : (mode === 'edit' ? "Modifier l'employé" : "Créer l'employé")
-            }
+              ? mode === "edit"
+                ? "Modification en cours..."
+                : "Création en cours..."
+              : mode === "edit"
+                ? "Modifier l'employé"
+                : "Créer l'employé"}
           </Button>
         </div>
       </div>
