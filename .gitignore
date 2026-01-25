@@ -55,3 +55,8 @@ temp/
 
 # PDF files
 # *.pdf
+
+# Scripts with sensitive data
+fix-*.js
+check-*.js
+*-script.js
