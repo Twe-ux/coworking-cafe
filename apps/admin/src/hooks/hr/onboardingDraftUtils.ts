@@ -9,6 +9,7 @@ export interface DraftData {
   lastName?: string
   dateOfBirth?: string
   placeOfBirth?: string
+  nationality?: string
   address?: { street: string; postalCode: string; city: string }
   phone?: string
   email?: string
@@ -61,6 +62,7 @@ export function transformDraftToOnboardingData(draft: DraftData): OnboardingData
       lastName: draft.lastName || '',
       dateOfBirth: draft.dateOfBirth || '',
       placeOfBirth: draft.placeOfBirth,
+      nationality: draft.nationality,
       address: draft.address || { street: '', postalCode: '', city: '' },
       phone: draft.phone || '',
       email: draft.email || '',

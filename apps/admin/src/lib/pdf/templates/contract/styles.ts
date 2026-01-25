@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
 
   // Section
   section: {
-    marginBottom: 15, // Reduced from 30 to minimize white space
+    marginBottom: 10, // Reduced from 30 to minimize white space
   },
 
   sectionTitle: {
@@ -110,33 +110,45 @@ export const styles = StyleSheet.create({
   },
 
   tableCell: {
-    padding: 5, // Augmenté pour plus d'espace
-    fontSize: 10, // Augmenté pour meilleure lisibilité
+    padding: "5 5 0 5", // top right bottom left - bottom à 0
+    fontSize: 10,
     borderRight: "0.75pt solid #e2e8f0",
     textAlign: "center",
+    display: "flex",
+    justifyContent: "center", // Centrage vertical
+    alignItems: "center", // Centrage horizontal dans flexbox
   },
 
   tableCellLast: {
-    padding: 5,
+    padding: "5 5 0 5", // bottom à 0
     fontSize: 10,
     textAlign: "center",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   tableCellLeft: {
-    padding: 5,
+    padding: "5 5 0 5", // bottom à 0
     fontSize: 10,
     borderRight: "0.75pt solid #e2e8f0",
-    textAlign: "center",
+    textAlign: "left",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start", // Alignement à gauche pour le contenu
   },
 
   tableCellHeader: {
-    padding: 5,
+    padding: "5 5 0 5", // bottom à 0
     fontSize: 10,
     borderRight: "0.75pt solid #e2e8f0",
     fontWeight: "bold",
     fontFamily: "Helvetica-Bold",
-    color: "#1e40af", // Bleu pour les en-têtes
+    color: "#1e40af",
     textAlign: "center",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   tableCellBold: {

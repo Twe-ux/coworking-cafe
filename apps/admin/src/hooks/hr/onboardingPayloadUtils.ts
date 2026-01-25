@@ -53,6 +53,7 @@ export function buildEmployeePayload(
     lastName: data.step1!.lastName,
     dateOfBirth: data.step1!.dateOfBirth,
     placeOfBirth: data.step1?.placeOfBirth,
+    nationality: data.step1?.nationality,
     address: data.step1!.address,
     phone: data.step1!.phone,
     email: data.step1!.email,

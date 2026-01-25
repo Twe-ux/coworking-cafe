@@ -43,10 +43,23 @@ export default function ContractDocument({
     });
   };
 
+  // Helper: Format social security number with spaces
+  const formatSocialSecurity = (ssn: string | undefined): string => {
+    if (!ssn) return "";
+    // Remove existing spaces
+    const cleaned = ssn.replace(/\s/g, "");
+    // Format: 1 23 45 67 890 123 45
+    if (cleaned.length === 15) {
+      return `${cleaned[0]} ${cleaned.slice(1, 3)} ${cleaned.slice(3, 5)} ${cleaned.slice(5, 7)} ${cleaned.slice(7, 10)} ${cleaned.slice(10, 13)} ${cleaned.slice(13, 15)}`;
+    }
+    return ssn; // Return as-is if not 15 digits
+  };
+
   // Employee data
   const birthDate = formatDate(employee.dateOfBirth);
   const hireDate = formatDate(employee.hireDate);
   const dpaeDate = formatDate(employee.onboardingStatus?.dpaeCompletedAt);
+  const formattedSSN = formatSocialSecurity(employee.socialSecurityNumber);
 
   // Place of birth formatting
   const placeOfBirth = employee.placeOfBirth
@@ -75,12 +88,26 @@ export default function ContractDocument({
     ];
 
     return (
-      <View style={styles.table}>
+      <View
+        style={[
+          styles.table,
+          {
+            border: "1pt solid #cbd5e1",
+            borderRadius: 4,
+          },
+        ]}
+      >
         {/* Header */}
-        <View style={[styles.tableRow, styles.tableHeader]}>
+        <View
+          style={[styles.tableRow, styles.tableHeader, { borderTop: "none" }]}
+        >
           <Text style={[styles.tableCellHeader, { width: "20%" }]}>Jour</Text>
-          <Text style={[styles.tableCellHeader, { width: "30%" }]}></Text>
-          <Text style={[styles.tableCellHeader, { width: "30%" }]}></Text>
+          <Text style={[styles.tableCellHeader, { width: "30%" }]}>
+            Créneau 1
+          </Text>
+          <Text style={[styles.tableCellHeader, { width: "30%" }]}>
+            Créneau 2
+          </Text>
           <Text style={[styles.tableCellHeader, { width: "20%" }]}>Total</Text>
         </View>
 
@@ -90,28 +117,65 @@ export default function ContractDocument({
           const isAvailable = schedule?.available ?? false;
           const isLast = index === days.length - 1;
 
-          // Calculate total hours
+          let slot1Text = "";
+          let slot2Text = "";
           let totalHours = "";
-          if (isAvailable && schedule?.slots) {
-            const slot1 = schedule.slots[0];
-            const slot2 = schedule.slots[1];
+          let isRepos = true;
 
-            const calc = (start: string, end: string) => {
-              const [sh, sm] = start.split(":").map(Number);
-              const [eh, em] = end.split(":").map(Number);
-              return (eh * 60 + em - (sh * 60 + sm)) / 60;
-            };
+          if (isAvailable && schedule?.slots && schedule.slots.length > 0) {
+            const allSlots = schedule.slots.filter((s) => s.start && s.end);
 
-            let hours = 0;
-            if (slot1?.start && slot1?.end)
-              hours += calc(slot1.start, slot1.end);
-            if (slot2?.start && slot2?.end)
-              hours += calc(slot2.start, slot2.end);
+            if (allSlots.length > 0) {
+              isRepos = false;
 
-            const h = Math.floor(hours);
-            const m = Math.round((hours - h) * 60);
-            totalHours =
-              m > 0 ? `${h}h${m.toString().padStart(2, "0")}` : `${h}h`;
+              // Fonction pour parser l'heure en minutes
+              const timeToMinutes = (time: string) => {
+                const [h, m] = time.split(":").map(Number);
+                return h * 60 + m;
+              };
+
+              // Seuil 14H30 = 870 minutes
+              const afternoonThreshold = 14 * 60 + 30;
+
+              // Séparer les créneaux matin/après-midi
+              const morningSlots = allSlots.filter(
+                (s) => timeToMinutes(s.start) < afternoonThreshold,
+              );
+              const afternoonSlots = allSlots.filter(
+                (s) => timeToMinutes(s.start) >= afternoonThreshold,
+              );
+
+              // Créneau 1 (matin)
+              if (morningSlots.length > 0) {
+                slot1Text = morningSlots
+                  .map((s) => `${s.start} - ${s.end}`)
+                  .join(", ");
+              }
+
+              // Créneau 2 (après-midi)
+              if (afternoonSlots.length > 0) {
+                slot2Text = afternoonSlots
+                  .map((s) => `${s.start} - ${s.end}`)
+                  .join(", ");
+              }
+
+              // Calculer le total
+              const calc = (start: string, end: string) => {
+                const [sh, sm] = start.split(":").map(Number);
+                const [eh, em] = end.split(":").map(Number);
+                return (eh * 60 + em - (sh * 60 + sm)) / 60;
+              };
+
+              let hours = 0;
+              allSlots.forEach((slot) => {
+                hours += calc(slot.start, slot.end);
+              });
+
+              const h = Math.floor(hours);
+              const m = Math.round((hours - h) * 60);
+              totalHours =
+                m > 0 ? `${h}h${m.toString().padStart(2, "0")}` : `${h}h`;
+            }
           }
 
           return (
@@ -128,23 +192,37 @@ export default function ContractDocument({
               >
                 <Text>{day.label}</Text>
               </View>
-              <View style={[styles.tableCell, { width: "30%" }]}>
-                <Text>
-                  {isAvailable && schedule?.slots?.[0]
-                    ? `${schedule.slots[0].start} - ${schedule.slots[0].end}`
-                    : ""}
-                </Text>
-              </View>
-              <View style={[styles.tableCell, { width: "30%" }]}>
-                <Text>
-                  {isAvailable && schedule?.slots?.[1]
-                    ? `${schedule.slots[1].start} - ${schedule.slots[1].end}`
-                    : ""}
-                </Text>
-              </View>
-              <View style={[styles.tableCellLast, { width: "20%" }]}>
-                <Text>{totalHours}</Text>
-              </View>
+              {isRepos ? (
+                <>
+                  <View
+                    style={[
+                      styles.tableCell,
+                      { width: "80%", backgroundColor: "#f8fafc" },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.textBold,
+                        { color: "#64748b", fontSize: 12 },
+                      ]}
+                    >
+                      REPOS
+                    </Text>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={[styles.tableCell, { width: "30%" }]}>
+                    <Text>{slot1Text}</Text>
+                  </View>
+                  <View style={[styles.tableCell, { width: "30%" }]}>
+                    <Text>{slot2Text}</Text>
+                  </View>
+                  <View style={[styles.tableCellLast, { width: "20%" }]}>
+                    <Text>{totalHours}</Text>
+                  </View>
+                </>
+              )}
             </View>
           );
         })}
@@ -170,9 +248,19 @@ export default function ContractDocument({
     const weeks = ["week1", "week2", "week3", "week4"] as const;
 
     return (
-      <View style={styles.table}>
+      <View
+        style={[
+          styles.table,
+          {
+            border: "1pt solid #cbd5e1",
+            borderRadius: 4,
+          },
+        ]}
+      >
         {/* Header */}
-        <View style={[styles.tableRow, styles.tableHeader]}>
+        <View
+          style={[styles.tableRow, styles.tableHeader, { borderTop: "none" }]}
+        >
           <Text style={[styles.tableCellHeader, { width: "20%" }]}>Jour</Text>
           <Text style={[styles.tableCellHeader, { width: "20%" }]}>
             Semaine 1
@@ -191,6 +279,16 @@ export default function ContractDocument({
         {/* Days */}
         {days.map((day, dayIndex) => {
           const isLast = dayIndex === days.length - 1;
+          const dayData = distribution[day.key];
+
+          // Vérifier si c'est un jour de repos (aucune heure sur les 4 semaines)
+          const isRepos =
+            !dayData ||
+            weeks.every((week) => {
+              const hours = dayData[week];
+              return !hours || hours === "0" || hours === "0h";
+            });
+
           return (
             <View
               key={day.key}
@@ -205,22 +303,41 @@ export default function ContractDocument({
               >
                 <Text>{day.label}</Text>
               </View>
-              {weeks.map((week) => {
-                const hours =
-                  distribution[week]?.[
-                    day.key as keyof typeof distribution.week1
-                  ];
-                const displayValue =
-                  hours === "0" || hours === "0h" || !hours ? "Repos" : hours;
-                return (
+              {isRepos ? (
+                <>
                   <View
-                    key={week}
-                    style={[styles.tableCellLast, { width: "20%" }]}
+                    style={[
+                      styles.tableCell,
+                      { width: "80%", backgroundColor: "#f8fafc" },
+                    ]}
                   >
-                    <Text>{displayValue}</Text>
+                    <Text
+                      style={[
+                        styles.textBold,
+                        { color: "#64748b", fontSize: 12 },
+                      ]}
+                    >
+                      REPOS
+                    </Text>
                   </View>
-                );
-              })}
+                </>
+              ) : (
+                <>
+                  {weeks.map((week) => {
+                    const hours = dayData?.[week];
+                    const displayValue =
+                      hours === "0" || hours === "0h" || !hours ? "0" : hours;
+                    return (
+                      <View
+                        key={week}
+                        style={[styles.tableCellLast, { width: "20%" }]}
+                      >
+                        <Text>{displayValue}</Text>
+                      </View>
+                    );
+                  })}
+                </>
+              )}
             </View>
           );
         })}
@@ -237,25 +354,30 @@ export default function ContractDocument({
             <Text>Total</Text>
           </View>
           {weeks.map((week) => {
-            const weekData = distribution[week];
             let total = 0;
-            if (weekData) {
-              Object.values(weekData).forEach((val) => {
-                if (typeof val === "number") total += val;
-                else if (typeof val === "string") {
-                  const match = val.match(/(\d+)h?(\d*)/);
-                  if (match) {
-                    total +=
-                      parseInt(match[1]) +
-                      (match[2] ? parseInt(match[2]) / 60 : 0);
-                  }
+            days.forEach((day) => {
+              const dayData = distribution[day.key];
+              const val = dayData?.[week];
+              if (typeof val === "number") {
+                total += val;
+              } else if (typeof val === "string") {
+                const match = val.match(/(\d+)h?(\d*)/);
+                if (match) {
+                  total +=
+                    parseInt(match[1]) +
+                    (match[2] ? parseInt(match[2]) / 60 : 0);
                 }
-              });
-            }
+              }
+            });
+
             const h = Math.floor(total);
             const m = Math.round((total - h) * 60);
             const displayTotal =
-              m > 0 ? `${h}h${m.toString().padStart(2, "0")}` : `${h}h`;
+              total > 0
+                ? m > 0
+                  ? `${h}h${m.toString().padStart(2, "0")}`
+                  : `${h}h`
+                : "0h";
 
             return (
               <View key={week} style={[styles.tableCellLast, { width: "20%" }]}>
@@ -317,14 +439,14 @@ export default function ContractDocument({
               {
                 label: (
                   <>
-                    <Text>Immatriculée a l'URSSAF de</Text>
+                    <Text>Immatriculée a l'URSSAF</Text>
                     <Text>Numéro d'immatriculation</Text>
                   </>
                 ),
                 value: (
                   <>
                     <Text>D'ALSACE (427)</Text>
-                    <Text>n 829 552 264 000 22</Text>
+                    <Text>829 552 264 000 22</Text>
                   </>
                 ),
               },
@@ -365,7 +487,7 @@ export default function ContractDocument({
               },
               {
                 label: "Numéro de sécurité sociale",
-                value: employee.socialSecurityNumber || "",
+                value: formattedSSN || "",
               },
               {
                 label: "Adresse du domicile",
@@ -435,57 +557,100 @@ export default function ContractDocument({
             {isFullTime ? "complet" : "partiel"} :
           </Text>
 
-          {/* Small Table */}
-          <View style={[styles.table, { width: "60%" }]}>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCellLeft, { width: "50%" }]}>
-                En qualité de
-              </Text>
-              <Text
-                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
-              >
-                Equipier polyvalent
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCellLeft, { width: "50%" }]}>
-                Niveau
-              </Text>
-              <Text
-                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
-              >
-                {employee.level ?? ""}
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCellLeft, { width: "50%" }]}>
-                Echelon
-              </Text>
-              <Text
-                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
-              >
-                {employee.step ?? ""}
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCellLeft, { width: "50%" }]}>
-                Date d'entree
-              </Text>
-              <Text
-                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
-              >
-                {hireDate}
-              </Text>
-            </View>
-            <View style={styles.tableRowLast}>
-              <Text style={[styles.tableCellLeft, { width: "50%" }]}>
-                Heure
-              </Text>
-              <Text
-                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
-              >
-                {employee.hireTime ?? "9H30"}
-              </Text>
+          {/* Table Article 1 - Style moderne et centré */}
+          <View
+            style={{ alignItems: "center", marginTop: 15, marginBottom: 15 }}
+          >
+            <View
+              style={[
+                styles.table,
+                {
+                  width: "60%",
+                  border: "1pt solid #cbd5e1",
+                  borderRadius: 4,
+                },
+              ]}
+            >
+              <View style={[styles.tableRow, { borderTop: "none" }]}>
+                <Text
+                  style={[
+                    styles.tableCellLeft,
+                    styles.tableCellBold,
+                    { width: "50%" },
+                  ]}
+                >
+                  En qualité de
+                </Text>
+                <Text
+                  style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+                >
+                  Equipier polyvalent
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    styles.tableCellLeft,
+                    styles.tableCellBold,
+                    { width: "50%" },
+                  ]}
+                >
+                  Niveau
+                </Text>
+                <Text
+                  style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+                >
+                  {employee.level ?? ""}
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    styles.tableCellLeft,
+                    styles.tableCellBold,
+                    { width: "50%" },
+                  ]}
+                >
+                  Echelon
+                </Text>
+                <Text
+                  style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+                >
+                  {employee.step ?? ""}
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    styles.tableCellLeft,
+                    styles.tableCellBold,
+                    { width: "50%" },
+                  ]}
+                >
+                  Date d'entree
+                </Text>
+                <Text
+                  style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+                >
+                  {hireDate}
+                </Text>
+              </View>
+              <View style={styles.tableRowLast}>
+                <Text
+                  style={[
+                    styles.tableCellLeft,
+                    styles.tableCellBold,
+                    { width: "50%" },
+                  ]}
+                >
+                  Heure
+                </Text>
+                <Text
+                  style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+                >
+                  {employee.hireTime ?? "9H30"}
+                </Text>
+              </View>
             </View>
           </View>
 
@@ -599,7 +764,7 @@ export default function ContractDocument({
             ci-après :
           </Text>
 
-          <Text style={[styles.text, { marginBottom: 30 }]}>
+          <Text style={[styles.text, { marginBottom: 20 }]}>
             La durée mensuelle de travail a été divisée par 4,33 semaines en
             moyenne par mois pour obtenir la référence horaire hebdomadaire
             servant à définir le volant des plages de planification possible.
@@ -618,7 +783,7 @@ export default function ContractDocument({
             Article 5 - Répartition de la durée du travail
           </Text>
 
-          <Text style={[styles.text, { marginBottom: 30 }]}>
+          <Text style={[styles.text, { marginBottom: 20 }]}>
             La répartition des heures sur les semaines du mois est indiquée
             ci-après. Cette répartition est effectuée dans le respect des plages
             de planification possible visées a l'article 4.
@@ -666,10 +831,11 @@ export default function ContractDocument({
 
           <Text style={styles.text}>
             Le Salarié percevra une rémunération mensualisée brute de{" "}
-            <Text style={styles.textBold}>{monthlySalary} EUR</Text>{" "}
+            <Text style={styles.textBold}>{monthlySalary} EUR</Text>
+            {"\n"}
             correspondant à sa durée de travail mensuelle de{" "}
-            <Text style={styles.textBold}>{monthlyHours} heures</Text> sur la
-            base d'un taux horaire brut de{" "}
+            <Text style={styles.textBold}>{monthlyHours} heures</Text> {"\n"}
+            sur la base d'un taux horaire brut de{" "}
             <Text style={styles.textBold}>
               {(employee.hourlyRate || 0).toFixed(2)} EUR
             </Text>
