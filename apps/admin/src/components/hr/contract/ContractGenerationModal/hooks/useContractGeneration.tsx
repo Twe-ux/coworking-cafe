@@ -89,13 +89,10 @@ export function useContractGeneration({
       // Call success callback
       onSuccess?.()
 
-      // Show success message
-      alert('PDF généré avec succès')
-
       // Redirect after short delay
       setTimeout(() => {
         router.push('/admin/hr/employees')
-      }, 500)
+      }, 1000)
     } catch (error) {
       console.error('PDF generation error:', error)
       alert(error instanceof Error ? error.message : 'Erreur lors de la génération du PDF')

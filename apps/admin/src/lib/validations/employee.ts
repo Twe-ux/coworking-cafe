@@ -39,6 +39,7 @@ export const createEmployeeSchema = z.object({
       if (!val.city && !val.department && !val.country) return undefined;
       return val;
     }),
+  nationality: z.string().trim().optional(),
   address: z
     .object({
       street: z.string().trim().optional(),

@@ -5,18 +5,14 @@
  * Modal for generating employment contracts as PDF
  *
  * Structure:
- * - index.tsx (this file): Main modal component (<150 lines)
+ * - index.tsx (this file): Main modal component
  * - types.ts: TypeScript interfaces
- * - constants.ts: Configuration (days, company info, styles)
  * - hooks/useContractCalculations.ts: Salary/hours calculations
  * - hooks/useContractGeneration.ts: PDF generation logic
- * - ContractContent.tsx: Assembles all sections (mode edit)
- * - ContractDocument.tsx: PDF template (mode preview + download)
  */
 
-import { useRef, useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { FileText, FileDown, Mail, Loader2 } from "lucide-react";
-import dynamic from "next/dynamic";
 import {
   Dialog,
   DialogContent,
@@ -26,13 +22,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 
 import type { ContractGenerationModalProps } from "./types";
 import { useContractGeneration } from "./hooks/useContractGeneration";
 import { useContractCalculations } from "./hooks/useContractCalculations";
-import { ContractContent } from "./ContractContent";
 import type { Employee } from "@/types/hr";
 
 // Re-export for backward compatibility
@@ -70,17 +64,19 @@ function PDFPreviewComponent({
 
   if (!isClient || !PDFViewer || !ContractDocument) {
     return (
-      <div className="flex items-center justify-center h-[600px] bg-gray-100 rounded-lg">
+      <div className="flex items-center justify-center h-full bg-gray-100 rounded-lg">
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Chargement de l'aperçu PDF...</p>
+          <p className="text-sm text-muted-foreground">
+            Chargement de l'aperçu PDF...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[600px] border rounded-lg overflow-hidden bg-gray-100">
+    <div className="w-full h-full border rounded-lg overflow-hidden bg-gray-100">
       <PDFViewer width="100%" height="100%" showToolbar={false}>
         <ContractDocument
           employee={employee}
@@ -97,21 +93,19 @@ export function ContractGenerationModal({
   onOpenChange,
   employee,
 }: ContractGenerationModalProps) {
-  const [isEditing, setIsEditing] = useState(true);
-  const [viewMode, setViewMode] = useState<"edit" | "preview">("edit");
-  const [zoom, setZoom] = useState(100);
   const [emailAddress, setEmailAddress] = useState(employee.email || "");
   const [showEmailInput, setShowEmailInput] = useState(false);
-  const contractRef = useRef<HTMLDivElement>(null);
 
   const { monthlySalary, monthlyHours } = useContractCalculations({ employee });
 
-  const { generating, sending, generatePDF, sendEmail } = useContractGeneration({
-    employee,
-    monthlySalary,
-    monthlyHours,
-    onSuccess: () => onOpenChange(false),
-  });
+  const { generating, sending, generatePDF, sendEmail } = useContractGeneration(
+    {
+      employee,
+      monthlySalary,
+      monthlyHours,
+      onSuccess: () => onOpenChange(false),
+    },
+  );
 
   const handleSendEmail = async () => {
     if (!emailAddress) {
@@ -123,7 +117,7 @@ export function ContractGenerationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
@@ -131,100 +125,22 @@ export function ContractGenerationModal({
           </DialogTitle>
         </DialogHeader>
 
-        {/* View mode toggle */}
-        <div className="flex items-center justify-between mb-4 gap-4">
-          <div className="flex items-center gap-4">
-            {viewMode === "edit" && (
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="edit-mode"
-                  checked={isEditing}
-                  onCheckedChange={setIsEditing}
-                />
-                <Label htmlFor="edit-mode">
-                  {isEditing ? "Mode édition" : "Lecture seule"}
-                </Label>
-              </div>
-            )}
-
-            <div className="flex items-center gap-2 border-l pl-4">
-              <Label htmlFor="view-mode" className="text-sm">
-                Affichage:
-              </Label>
-              <select
-                id="view-mode"
-                value={viewMode}
-                onChange={(e) =>
-                  setViewMode(e.target.value as "edit" | "preview")
-                }
-                className="text-sm border rounded px-2 py-1"
-              >
-                <option value="edit">Édition HTML</option>
-                <option value="preview">Aperçu PDF</option>
-              </select>
-            </div>
-
-            {viewMode === "preview" && (
-              <div className="flex items-center gap-2 border-l pl-4">
-                <Label htmlFor="zoom" className="text-sm">
-                  Zoom:
-                </Label>
-                <select
-                  id="zoom"
-                  value={zoom}
-                  onChange={(e) => setZoom(Number(e.target.value))}
-                  className="text-sm border rounded px-2 py-1"
-                >
-                  <option value="75">75%</option>
-                  <option value="100">100%</option>
-                  <option value="125">125%</option>
-                  <option value="150">150%</option>
-                </select>
-              </div>
-            )}
-          </div>
-          <span className="text-sm text-muted-foreground">
-            {viewMode === "preview"
-              ? "Aperçu PDF exact (identique au téléchargement)"
-              : isEditing
-                ? "Vous pouvez modifier le contrat"
-                : "Prévisualisation"}
-          </span>
-        </div>
-
-        {/* Contract content */}
-        {viewMode === "preview" ? (
-          // Preview mode: Use PDFViewer for exact preview
-          <div
-            className="bg-gray-200 py-4 rounded-xl"
-            style={{
-              transform: `scale(${zoom / 100})`,
-              transformOrigin: "top center",
-              transition: "transform 0.2s ease",
-            }}
-          >
-            <PDFPreviewComponent
-              employee={employee}
-              monthlySalary={monthlySalary}
-              monthlyHours={monthlyHours}
-            />
-          </div>
-        ) : (
-          // Edit mode: Use HTML ContractContent
-          <ContractContent
+        {/* PDF Preview */}
+        <div className="bg-gray-200 rounded-xl h-[calc(95vh-200px)]">
+          <PDFPreviewComponent
             employee={employee}
-            isEditing={isEditing}
             monthlySalary={monthlySalary}
             monthlyHours={monthlyHours}
-            contractRef={contractRef}
-            viewMode={viewMode}
           />
-        )}
+        </div>
 
         {/* Email input */}
         {showEmailInput && (
           <div className="flex items-center gap-2 border-t pt-4">
-            <Label htmlFor="email-address" className="text-sm whitespace-nowrap">
+            <Label
+              htmlFor="email-address"
+              className="text-sm whitespace-nowrap"
+            >
               Adresse email:
             </Label>
             <Input
@@ -255,7 +171,10 @@ export function ContractGenerationModal({
               >
                 Retour
               </Button>
-              <Button onClick={handleSendEmail} disabled={sending || !emailAddress}>
+              <Button
+                onClick={handleSendEmail}
+                disabled={sending || !emailAddress}
+              >
                 {sending ? (
                   <>Envoi en cours...</>
                 ) : (

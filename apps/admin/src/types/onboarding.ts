@@ -5,6 +5,7 @@ export interface PersonalInfo {
   lastName: string;
   dateOfBirth: string;
   placeOfBirth?: PlaceOfBirth;
+  nationality?: string;
   address: EmployeeAddress;
   phone: string;
   email: string;

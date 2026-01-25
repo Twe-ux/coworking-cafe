@@ -80,6 +80,7 @@ export interface Employee {
   fullName: string; // Computed: firstName + lastName
   dateOfBirth: string;
   placeOfBirth?: PlaceOfBirth;
+  nationality?: string;
   address: EmployeeAddress;
   email: string;
   phone: string;
@@ -121,6 +122,7 @@ export interface EmployeeFormData {
   lastName: string;
   dateOfBirth: string;
   placeOfBirth: string;
+  nationality?: string;
   address: EmployeeAddress;
   phone: string;
   email: string;
