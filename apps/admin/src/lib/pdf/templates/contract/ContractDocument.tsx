@@ -102,11 +102,8 @@ export default function ContractDocument({
           style={[styles.tableRow, styles.tableHeader, { borderTop: "none" }]}
         >
           <Text style={[styles.tableCellHeader, { width: "20%" }]}>Jour</Text>
-          <Text style={[styles.tableCellHeader, { width: "30%" }]}>
-            Créneau 1
-          </Text>
-          <Text style={[styles.tableCellHeader, { width: "30%" }]}>
-            Créneau 2
+          <Text style={[styles.tableCellHeader, { width: "60%" }]}>
+            Plage de disponibilité
           </Text>
           <Text style={[styles.tableCellHeader, { width: "20%" }]}>Total</Text>
         </View>
