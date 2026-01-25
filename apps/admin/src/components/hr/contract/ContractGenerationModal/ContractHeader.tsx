@@ -13,7 +13,7 @@ export function ContractHeader({ isFullTime }: ContractHeaderProps) {
   const contractType = isFullTime ? "COMPLET" : "PARTIEL";
 
   return (
-    <div style={{ textAlign: "center", marginBottom: "40px" }}>
+    <div style={{ textAlign: "center", marginBottom: "50px" }}>
       <h1 style={CONTRACT_STYLES.title}>
         CONTRAT DE TRAVAIL MENSUEL A TEMPS {contractType} A DUREE INDETERMINEE
       </h1>

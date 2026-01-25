@@ -39,24 +39,154 @@ export function ContractContent({
     : CONTRACT_STYLES.container
 
   if (viewMode === 'preview') {
-    // Mode aperçu avec pages A4 séparées
+    // Mode aperçu avec contenu continu et indicateurs de pagination dynamiques
+    // Génère autant de pages que nécessaire
+    const PAGE_HEIGHT_MM = 297
+    const TOP_MARGIN_MM = 20
+    const BOTTOM_MARGIN_MM = 20
+    const SEPARATOR_HEIGHT_MM = 20
+    const PRINTABLE_HEIGHT_MM = PAGE_HEIGHT_MM - TOP_MARGIN_MM - BOTTOM_MARGIN_MM // 257mm
+
+    // Nombre de pages à afficher (on en met 4 par défaut, le contenu déterminera le nombre réel)
+    const maxPages = 4
+    const pageIndicators = []
+
+    for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+      const endOfPagePosition = (PAGE_HEIGHT_MM * pageNum) - BOTTOM_MARGIN_MM
+      const pageNumberPosition = (PAGE_HEIGHT_MM * pageNum) - (BOTTOM_MARGIN_MM / 2)
+      const separatorPosition = PAGE_HEIGHT_MM * pageNum
+      const nextPageHeaderPosition = separatorPosition + SEPARATOR_HEIGHT_MM + TOP_MARGIN_MM
+
+      // Indicateur de fin de page
+      pageIndicators.push(
+        <div
+          key={`end-${pageNum}`}
+          style={{
+            position: 'absolute',
+            top: `${endOfPagePosition}mm`,
+            left: '25mm',
+            right: '25mm',
+            height: '2px',
+            backgroundColor: '#ef4444',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontSize: '10px',
+              color: '#ef4444',
+              backgroundColor: 'white',
+              padding: '4px 12px',
+              borderRadius: '12px',
+              border: '2px solid #ef4444',
+              whiteSpace: 'nowrap',
+              fontWeight: 'bold',
+            }}
+          >
+            ✂️ FIN PAGE {pageNum} ({endOfPagePosition}mm)
+          </div>
+        </div>
+      )
+
+      // Numéro de page
+      pageIndicators.push(
+        <div
+          key={`number-${pageNum}`}
+          style={{
+            position: 'absolute',
+            top: `${pageNumberPosition}mm`,
+            left: '0',
+            right: '0',
+            textAlign: 'center',
+            fontSize: '9pt',
+            color: '#666',
+            zIndex: 999,
+          }}
+        >
+          Page {pageNum}
+        </div>
+      )
+
+      // Séparateur de page (sauf pour la dernière page)
+      if (pageNum < maxPages) {
+        pageIndicators.push(
+          <div
+            key={`separator-${pageNum}`}
+            style={{
+              position: 'absolute',
+              top: `${separatorPosition}mm`,
+              left: '0',
+              right: '0',
+              height: `${SEPARATOR_HEIGHT_MM}mm`,
+              backgroundColor: '#f3f4f6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 999,
+              borderTop: '3px dashed #9ca3af',
+              borderBottom: '3px dashed #9ca3af',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '12px',
+                color: '#6b7280',
+                fontWeight: 'bold',
+                padding: '6px 20px',
+                borderRadius: '16px',
+                backgroundColor: 'white',
+                border: '2px solid #9ca3af',
+              }}
+            >
+              📄 SAUT DE PAGE - Début Page {pageNum + 1}
+            </div>
+          </div>
+        )
+
+        // En-tête de la page suivante (sauf page 1)
+        if (pageNum > 0) {
+          pageIndicators.push(
+            <div
+              key={`header-${pageNum + 1}`}
+              style={{
+                position: 'absolute',
+                top: `${nextPageHeaderPosition}mm`,
+                left: '25mm',
+                right: '25mm',
+                fontSize: '9pt',
+                color: '#999',
+                zIndex: 998,
+              }}
+            >
+              Contrat de Travail - {employee.firstName} {employee.lastName} (suite)
+            </div>
+          )
+        }
+      }
+    }
+
     return (
       <div style={{ position: 'relative' }}>
-        {/* Page 1 */}
+        {/* Contenu complet affiché de manière continue */}
         <div
           style={{
             ...previewStyles,
-            height: '297mm',
-            overflow: 'hidden',
+            minHeight: `${PAGE_HEIGHT_MM * maxPages}mm`,
+            position: 'relative',
           }}
         >
           <div
             style={{
               padding: '20mm 25mm',
-              height: '100%',
               position: 'relative',
+              backgroundColor: 'white',
             }}
           >
+            {/* Tout le contenu du contrat - CAPTURE ICI (sans padding) */}
             <div ref={contractRef}>
               <ContractHeader isFullTime={isFullTime} />
               <ContractParties employee={employee} />
@@ -67,92 +197,16 @@ export function ContractContent({
               />
               <ContractSignature employee={employee} />
             </div>
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '15mm',
-              left: '0',
-              right: '0',
-              textAlign: 'center',
-              fontSize: '9pt',
-              color: '#666',
-            }}
-          >
-            Page 1
+
+            {/* Indicateurs de pagination générés dynamiquement */}
+            {pageIndicators}
           </div>
         </div>
 
-        {/* Séparateur de page */}
+        {/* Helper text avec légende */}
         <div
           style={{
-            height: '20px',
-            background: 'linear-gradient(to bottom, transparent, #e5e7eb, transparent)',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              fontSize: '11px',
-              color: '#6b7280',
-              backgroundColor: '#f9fafb',
-              padding: '2px 12px',
-              borderRadius: '12px',
-              border: '1px solid #e5e7eb',
-            }}
-          >
-            ✂️ Saut de page
-          </div>
-        </div>
-
-        {/* Page 2 (suite du contenu si nécessaire) */}
-        <div
-          style={{
-            ...previewStyles,
-            height: '297mm',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              padding: '20mm 25mm',
-              height: '100%',
-              position: 'relative',
-            }}
-          >
-            <div style={{ fontSize: '9pt', color: '#999', marginBottom: '10mm' }}>
-              Contrat de Travail - {employee.firstName} {employee.lastName} (suite)
-            </div>
-            <div style={{ fontSize: '10pt', color: '#666' }}>
-              {/* Contenu débordant de la page 1 apparaîtra ici */}
-              <p style={{ fontStyle: 'italic', textAlign: 'center', marginTop: '50mm' }}>
-                Le contenu continue ici si le contrat dépasse une page...
-              </p>
-            </div>
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '15mm',
-              left: '0',
-              right: '0',
-              textAlign: 'center',
-              fontSize: '9pt',
-              color: '#666',
-            }}
-          >
-            Page 2
-          </div>
-        </div>
-
-        {/* Helper text */}
-        <div
-          style={{
-            textAlign: 'center',
+            textAlign: 'left',
             padding: '1rem',
             fontSize: '0.875rem',
             color: '#666',
@@ -161,7 +215,19 @@ export function ContractContent({
             marginTop: '1rem',
           }}
         >
-          ℹ️ Aperçu avec pagination A4. Le PDF final respectera ces sauts de page.
+          <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+            ℹ️ Aperçu de pagination A4 (210×297mm) - {maxPages} pages max
+          </p>
+          <ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', lineHeight: '1.6' }}>
+            <li><span style={{ color: '#ef4444', fontWeight: 'bold' }}>Lignes rouges</span> : Limites de chaque page</li>
+            <li><span style={{ color: '#6b7280', fontWeight: 'bold' }}>Bandes grises</span> : Sauts de page</li>
+            <li>Marges actuelles : Haut/Bas = 20mm, Gauche/Droite = 25mm</li>
+            <li>Zone imprimable par page : {PRINTABLE_HEIGHT_MM}mm hauteur × 160mm largeur</li>
+            <li>Le système génère automatiquement {maxPages} pages d'indicateurs</li>
+          </ul>
+          <p style={{ marginTop: '0.5rem', fontStyle: 'italic', fontSize: '0.8rem' }}>
+            Ajustez les marges dans constants.ts (padding: '20mm 25mm') si besoin.
+          </p>
         </div>
       </div>
     )

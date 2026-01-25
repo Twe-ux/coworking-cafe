@@ -3,7 +3,7 @@
  * Company info, days configuration, and styles
  */
 
-import type { ContractDay, CompanyInfo, TableCellStyle, DayKey } from "./types";
+import type { CompanyInfo, ContractDay, DayKey, TableCellStyle } from "./types";
 
 // Days of the week for contract tables
 export const DAYS: readonly ContractDay[] = [
@@ -55,10 +55,10 @@ export const FULL_TIME_HOURS = 35;
 // Contract content styles
 export const CONTRACT_STYLES = {
   container: {
-    padding: "60px 200px",
+    padding: "20mm 25mm", // A4 standard margins (same as PDF)
     backgroundColor: "white",
     border: "1px solid #ddd",
-    minHeight: "800px",
+    minHeight: "257mm", // A4 content height (297mm - 20mm top - 20mm bottom)
     fontFamily: "Arial, sans-serif",
     fontSize: "11pt",
     lineHeight: "1.6",

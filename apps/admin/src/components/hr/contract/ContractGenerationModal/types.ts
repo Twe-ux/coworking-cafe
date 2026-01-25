@@ -122,5 +122,7 @@ export interface UseContractCalculationsReturn {
 // Hook return type for generation
 export interface UseContractGenerationReturn {
   generating: boolean
+  sending: boolean
   generatePDF: () => Promise<void>
+  sendEmail: (recipientEmail?: string) => Promise<void>
 }

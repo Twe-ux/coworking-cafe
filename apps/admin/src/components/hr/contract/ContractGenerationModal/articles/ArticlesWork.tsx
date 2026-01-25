@@ -24,7 +24,8 @@ interface Article7Props extends ArticleEmployeeProps {
 // Article 4 - Durée mensuelle du travail
 export function Article4({ employee, monthlyHours }: Article4Props) {
   return (
-    <ArticleSection title="Article 4 - Durée mensuelle du travail">
+    <div style={{ pageBreakBefore: "always" }}>
+      <ArticleSection title="Article 4 - Durée mensuelle du travail">
       <p style={{ marginBottom: "12px" }}>
         Le présent contrat de travail est conclu pour une durée mensuelle du
         travail de <strong>{monthlyHours} heures</strong>.
@@ -44,6 +45,7 @@ export function Article4({ employee, monthlyHours }: Article4Props) {
         <AvailabilityTable employee={employee} />
       </div>
     </ArticleSection>
+    </div>
   );
 }
 
