@@ -6,16 +6,17 @@ import type { Shift } from '@/hooks/useShifts'
 interface ShiftBadgeProps {
   shift: Shift
   employee: Employee
+  colorOverride?: string
 }
 
 /**
  * Badge displaying a shift time range
  */
-export function ShiftBadge({ shift, employee }: ShiftBadgeProps) {
+export function ShiftBadge({ shift, employee, colorOverride }: ShiftBadgeProps) {
   return (
     <div
       className="rounded px-1 py-0.5 text-xs font-medium text-white"
-      style={{ backgroundColor: employee.color || '#9CA3AF' }}
+      style={{ backgroundColor: colorOverride || employee.color || '#9CA3AF' }}
       title={`${employee.firstName} - ${shift.startTime} a ${shift.endTime}`}
     >
       {shift.startTime}-{shift.endTime}

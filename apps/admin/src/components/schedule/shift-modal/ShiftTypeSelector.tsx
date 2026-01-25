@@ -5,12 +5,15 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Edit2, Plus, Settings, Trash2 } from 'lucide-react'
 import type { ShiftTypeConfig } from './types'
+import type { Employee } from '@/types/hr'
 
 interface ShiftTypeSelectorProps {
   shiftTypes: Record<string, ShiftTypeConfig>
   selectedType: string
   showSettings: boolean
+  selectedEmployee?: Employee
   onTypeChange: (type: string) => void
+  onQuickSubmit: (type: string) => Promise<void>
   onToggleSettings: () => void
   onEditType: (key: string) => void
   onDeleteType: (key: string) => void
@@ -24,12 +27,15 @@ export function ShiftTypeSelector({
   shiftTypes,
   selectedType,
   showSettings,
+  selectedEmployee,
   onTypeChange,
+  onQuickSubmit,
   onToggleSettings,
   onEditType,
   onDeleteType,
   onAddNew,
 }: ShiftTypeSelectorProps) {
+  const employeeColor = selectedEmployee?.color || '#3B82F6' // Fallback to blue
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -107,12 +113,17 @@ export function ShiftTypeSelector({
           <button
             key={key}
             type="button"
-            onClick={() => onTypeChange(key)}
-            className={`rounded-lg border-2 p-3 text-left transition-all ${
-              selectedType === key
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
+            onClick={() => onQuickSubmit(key)}
+            className="rounded-lg border-2 border-gray-200 p-3 text-left transition-all hover:border-2"
+            style={{
+              ['--hover-color' as string]: employeeColor,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = employeeColor
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#E5E7EB' // gray-200
+            }}
           >
             <div className="mb-1 flex items-center gap-2">
               <span className="font-medium">{shift.label}</span>

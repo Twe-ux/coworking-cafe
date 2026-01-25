@@ -126,26 +126,6 @@ export function ShiftTypeEditorDialog({
               />
             </div>
           </div>
-
-          {/* Color */}
-          <div className="space-y-2">
-            <Label>Theme de couleur</Label>
-            <Select
-              value={localConfig.color}
-              onValueChange={(value) => updateField('color', value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {SHIFT_COLOR_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <DialogFooter>

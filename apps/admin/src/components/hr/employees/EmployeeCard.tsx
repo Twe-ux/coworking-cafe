@@ -1,8 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import type { Employee } from "@/types/hr";
+import { isInFuture } from "@/lib/utils/format-date";
 import {
   calculateOnboardingProgress,
   formatDateFR,
@@ -11,7 +10,8 @@ import {
   getEndContractReasonLabel,
   isArchived,
 } from "@/lib/utils/hr/employee-utils";
-import { Edit, FileText, UserX } from "lucide-react";
+import type { Employee } from "@/types/hr";
+import { Edit, FileText, ShieldCheck, UserX } from "lucide-react";
 
 interface EmployeeCardProps {
   employee: Employee;
@@ -19,6 +19,7 @@ interface EmployeeCardProps {
   onViewContract: (employee: Employee) => void;
   onEndContract: (employee: Employee) => void;
   onDelete: (employee: Employee) => void;
+  onPromoteToAdmin?: (employee: Employee) => void;
   showArchived?: boolean;
 }
 
@@ -32,6 +33,7 @@ export function EmployeeCard({
   onViewContract,
   onEndContract,
   onDelete,
+  onPromoteToAdmin,
   showArchived = false,
 }: EmployeeCardProps) {
   const statusBadge = getEmployeeStatusBadge(employee);
@@ -52,14 +54,18 @@ export function EmployeeCard({
                 <div className="font-medium text-gray-900">
                   {employee.firstName} {employee.lastName}
                 </div>
-                <div className="text-sm text-gray-500">{employee.employeeRole}</div>
+                <div className="text-sm text-gray-500">
+                  {employee.employeeRole}
+                </div>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-sm font-medium text-gray-900">
-                  {employee.endDate ? formatDateFR(employee.endDate) : "Non renseignée"}
+                  {employee.endDate
+                    ? formatDateFR(employee.endDate)
+                    : "Non renseignée"}
                 </div>
                 <div className="text-xs text-gray-500">
                   {getEndContractReasonLabel(employee.endContractReason)}
@@ -95,21 +101,21 @@ export function EmployeeCard({
 
   // Déterminer la classe de bordure selon le statut
   const getBorderClass = () => {
-    if (employee.isDraft) return 'border-gray-300'
+    if (employee.isDraft) return "border-gray-300";
 
     switch (employee.employmentStatus) {
-      case 'draft':
-        return 'border-gray-300'
-      case 'waiting':
-        return 'border-l-4 border-l-orange-500'
-      case 'active':
-        return 'border-l-4 border-l-green-500'
-      case 'inactive':
-        return 'border-l-4 border-l-red-500'
+      case "draft":
+        return "border-gray-300";
+      case "waiting":
+        return "border-l-4 border-l-orange-500";
+      case "active":
+        return "border-l-4 border-l-green-500";
+      case "inactive":
+        return "border-l-4 border-l-red-500";
       default:
-        return 'border-l-4 border-l-green-500'
+        return "border-l-4 border-l-green-500";
     }
-  }
+  };
 
   // Vue active complète
   return (
@@ -117,11 +123,6 @@ export function EmployeeCard({
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div
-              className={`flex h-12 w-12 items-center justify-center rounded-full ${employee.color || "bg-primary"} text-lg font-semibold text-white`}
-            >
-              {getEmployeeInitials(employee)}
-            </div>
             <div>
               <div className="font-medium text-gray-900">
                 {employee.firstName} {employee.lastName}
@@ -130,11 +131,16 @@ export function EmployeeCard({
                 {employee.email} • {employee.phone}
               </div>
               <div className="mt-1 flex gap-2">
-                <Badge variant="outline" className="border-green-600 text-green-700 bg-green-50 font-medium">
+                <Badge
+                  variant="outline"
+                  className="border-green-600 text-green-700 bg-green-50 font-medium"
+                >
                   {employee.contractType}
                 </Badge>
                 <Badge variant="outline" className="font-medium">
-                  {employee.contractualHours ? `${employee.contractualHours}h` : 'N/A'}
+                  {employee.contractualHours
+                    ? `${employee.contractualHours}h`
+                    : "N/A"}
                 </Badge>
                 <Badge
                   variant="outline"
@@ -142,8 +148,11 @@ export function EmployeeCard({
                 >
                   {statusBadge.label}
                 </Badge>
-                {employee.employmentStatus === 'waiting' && (
-                  <Badge variant="outline" className="border-orange-500 text-orange-700 bg-orange-50 font-medium">
+                {employee.employmentStatus === "waiting" && (
+                  <Badge
+                    variant="outline"
+                    className="border-orange-500 text-orange-700 bg-orange-50 font-medium"
+                  >
                     En attente
                   </Badge>
                 )}
@@ -157,15 +166,36 @@ export function EmployeeCard({
               size="icon"
               onClick={() => onEdit(employee)}
               title="Modifier"
+              className="border-green-500 hover:bg-green-200 text-green-600 hover:text-green-700"
             >
               <Edit className="h-4 w-4" />
             </Button>
+            {employee.isActive && onPromoteToAdmin && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onPromoteToAdmin(employee)}
+                title={
+                  employee.employeeRole === "Employé polyvalent"
+                    ? "Passer Admin"
+                    : "Changer de rôle"
+                }
+                className={
+                  employee.employeeRole === "Employé polyvalent"
+                    ? "border-blue-500 hover:bg-blue-200 text-blue-600 hover:text-blue-700"
+                    : "border-blue-500 bg-blue-300 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+                }
+              >
+                <ShieldCheck className="h-4 w-4" />
+              </Button>
+            )}
             {employee.onboardingStatus?.step4Completed && (
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => onViewContract(employee)}
                 title="Voir le contrat"
+                className="hover:bg-purple-200 border-purple-500 text-purple-600 hover:text-purple-700"
               >
                 <FileText className="h-4 w-4" />
               </Button>
@@ -175,7 +205,7 @@ export function EmployeeCard({
               size="icon"
               onClick={() => onEndContract(employee)}
               title="Fin de contrat / Archiver"
-              className="text-orange-600 hover:text-orange-700"
+              className="text-orange-600 hover:text-orange-700 hover:bg-orange-200 border-orange-500"
             >
               <UserX className="h-4 w-4" />
             </Button>
@@ -186,7 +216,9 @@ export function EmployeeCard({
         <div className="mt-4">
           <div className="mb-2 flex items-center justify-between text-sm">
             <span className="text-gray-600 font-medium">Intégration</span>
-            <span className="font-semibold text-gray-900">{onboardingProgress}%</span>
+            <span className="font-semibold text-gray-900">
+              {onboardingProgress}%
+            </span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
             <div
@@ -197,7 +229,7 @@ export function EmployeeCard({
         </div>
 
         {/* Alerte employé en attente */}
-        {employee.employmentStatus === 'waiting' && employee.hireDate && (
+        {employee.employmentStatus === "waiting" && employee.hireDate && (
           <div className="mt-3 rounded-md bg-orange-50 p-3 text-sm">
             <p className="font-medium text-orange-800">
               Embauche prévue le {formatDateFR(employee.hireDate)}
@@ -209,7 +241,7 @@ export function EmployeeCard({
         )}
 
         {/* Alerte fin de contrat future */}
-        {employee.endDate && new Date(employee.endDate) > new Date() && (
+        {employee.endDate && isInFuture(employee.endDate) && (
           <div className="mt-3 rounded-md bg-orange-50 p-3 text-sm">
             <p className="font-medium text-orange-800">
               Fin de contrat prévue le {formatDateFR(employee.endDate)}

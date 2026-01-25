@@ -19,7 +19,6 @@ import { EmployeeSelector } from './EmployeeSelector'
 import { ShiftTypeSelector } from './ShiftTypeSelector'
 import { TimeSelector } from './TimeSelector'
 import { DurationDisplay } from './DurationDisplay'
-import { ShiftPreview } from './ShiftPreview'
 import { ShiftTypeEditorDialog } from './ShiftTypeEditorDialog'
 
 /**
@@ -48,6 +47,7 @@ export function ShiftModal({
     setFormData,
     handleEmployeeSelect,
     handleShiftTypeChange,
+    handleQuickSubmit,
     handleSubmit,
     handleDelete,
     calculateDuration,
@@ -101,7 +101,9 @@ export function ShiftModal({
               shiftTypes={shiftTypes}
               selectedType={formData.type}
               showSettings={showSettings}
+              selectedEmployee={selectedEmployee}
               onTypeChange={handleShiftTypeChange}
+              onQuickSubmit={handleQuickSubmit}
               onToggleSettings={() => setShowSettings(!showSettings)}
               onEditType={setEditingShiftType}
               onDeleteType={deleteShiftType}
@@ -120,18 +122,6 @@ export function ShiftModal({
 
             {/* Duration Display */}
             <DurationDisplay duration={duration} />
-
-            {/* Shift Preview */}
-            {selectedEmployee && (
-              <ShiftPreview
-                employee={selectedEmployee}
-                shiftType={shiftTypes[formData.type]}
-                typeName={formData.type}
-                startTime={formData.startTime}
-                endTime={formData.endTime}
-                duration={duration}
-              />
-            )}
 
             {/* Error Message */}
             {errors.submit && (

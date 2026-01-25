@@ -32,6 +32,7 @@ interface UseShiftFormReturn {
   setErrors: React.Dispatch<React.SetStateAction<FormErrors>>
   handleEmployeeSelect: (employeeId: string) => void
   handleShiftTypeChange: (type: string) => void
+  handleQuickSubmit: (type: string) => Promise<void>
   handleSubmit: () => Promise<void>
   handleDelete: () => Promise<void>
   calculateDuration: () => string
@@ -101,6 +102,51 @@ export function useShiftForm({
     }))
   }, [shiftTypes])
 
+  const handleQuickSubmit = useCallback(async (type: string) => {
+    const shiftType = shiftTypes[type]
+    if (!shiftType) return
+
+    // Update the type and times
+    const updatedFormData = {
+      ...formData,
+      type,
+      startTime: shiftType.defaultStart,
+      endTime: shiftType.defaultEnd,
+    }
+
+    // Validate with the updated data
+    const validationErrors = validateShiftForm(updatedFormData)
+    setErrors(validationErrors)
+    if (Object.keys(validationErrors).length > 0) return
+
+    setIsSubmitting(true)
+    try {
+      const shiftData: CreateShiftInput = {
+        employeeId: updatedFormData.employeeId,
+        date: formatDateToLocalString(updatedFormData.date),
+        startTime: updatedFormData.startTime,
+        endTime: updatedFormData.endTime,
+        type: updatedFormData.type,
+        location: updatedFormData.location?.trim() || undefined,
+      }
+
+      const result = isEditing && existingShift && onUpdate
+        ? await onUpdate(existingShift.id, shiftData)
+        : await onSave(shiftData)
+
+      if (result.success) {
+        onClose()
+      } else {
+        setErrors({ submit: result.error || 'Une erreur est survenue' })
+      }
+    } catch (error) {
+      console.error('Error saving shift:', error)
+      setErrors({ submit: 'Erreur de connexion au serveur' })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [formData, shiftTypes, isEditing, existingShift, onUpdate, onSave, onClose])
+
   const handleSubmit = useCallback(async () => {
     const validationErrors = validateShiftForm(formData)
     setErrors(validationErrors)
@@ -169,6 +215,7 @@ export function useShiftForm({
     setErrors,
     handleEmployeeSelect,
     handleShiftTypeChange,
+    handleQuickSubmit,
     handleSubmit,
     handleDelete,
     calculateDuration,

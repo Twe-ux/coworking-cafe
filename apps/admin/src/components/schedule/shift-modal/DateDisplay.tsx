@@ -4,13 +4,15 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Calendar } from 'lucide-react'
 
 interface DateDisplayProps {
-  date: Date | string
+  date: string | Date // Format "YYYY-MM-DD" or Date object
 }
 
 /**
  * Displays the selected date for the shift
+ * Uses noon (T12:00:00) to avoid timezone issues
  */
 export function DateDisplay({ date }: DateDisplayProps) {
+  // Handle both Date and string formats
   const displayDate = typeof date === 'string'
     ? new Date(date + 'T12:00:00')
     : date

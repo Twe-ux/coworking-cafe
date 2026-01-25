@@ -11,7 +11,7 @@ export interface EmployeeDocument extends Document {
   // Informations personnelles
   firstName: string;
   lastName: string;
-  dateOfBirth: Date;
+  dateOfBirth: string; // Format "YYYY-MM-DD"
   placeOfBirth?: {
     city: string;
     department: string;
@@ -30,9 +30,9 @@ export interface EmployeeDocument extends Document {
   // Informations contractuelles
   contractType: 'CDI' | 'CDD' | 'Stage';
   contractualHours: number;
-  hireDate: Date;
-  hireTime?: string;
-  endDate?: Date;
+  hireDate: string; // Format "YYYY-MM-DD"
+  hireTime?: string; // Format "HH:mm"
+  endDate?: string; // Format "YYYY-MM-DD"
   endContractReason?: 'démission' | 'fin-periode-essai' | 'rupture';
 
   // Rémunération
@@ -130,8 +130,9 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
       maxlength: [50, 'Le nom ne peut pas dépasser 50 caractères'],
     },
     dateOfBirth: {
-      type: Date,
+      type: String,
       required: [true, 'La date de naissance est requise'],
+      match: [/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'],
     },
     placeOfBirth: {
       city: String,
@@ -181,15 +182,17 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
       min: [0, "Le nombre d'heures doit être positif"],
     },
     hireDate: {
-      type: Date,
+      type: String,
       required: [true, "La date d'embauche est requise"],
+      match: [/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'],
     },
     hireTime: {
       type: String,
       trim: true,
     },
     endDate: {
-      type: Date,
+      type: String,
+      match: [/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'],
     },
     endContractReason: {
       type: String,

@@ -61,10 +61,10 @@ export async function PUT(
     }
 
     // Mettre à jour les informations de fin de contrat
-    employee.endDate = new Date(endDate)
+    employee.endDate = endDate // Format YYYY-MM-DD
     employee.endContractReason = endContractReason
     employee.isActive = false
-    employee.deletedAt = new Date()
+    employee.deletedAt = new Date() // deletedAt reste en Date (timestamp)
 
     await employee.save()
 

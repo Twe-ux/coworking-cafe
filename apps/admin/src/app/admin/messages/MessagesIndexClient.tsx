@@ -1,15 +1,25 @@
 "use client";
 
-import { MessageCircle, Mail, HelpCircle } from "lucide-react";
+import { MessageCircle, Mail, HelpCircle, CalendarOff } from "lucide-react";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useUnreadContactMessages } from "@/hooks/useUnreadContactMessages";
+import { usePendingUnavailabilities } from "@/hooks/usePendingUnavailabilities";
 
 export function MessagesIndexClient() {
   const { unreadCount } = useUnreadContactMessages();
+  const { pendingCount } = usePendingUnavailabilities();
 
   const modules = [
+    {
+      title: "Demandes d'indisponibilité",
+      description: "Approuver ou refuser les demandes de congés et absences",
+      icon: CalendarOff,
+      href: "/admin/messages/unavailability-requests",
+      stats: "En attente",
+      badge: pendingCount > 0 ? pendingCount : undefined,
+    },
     {
       title: "Contact",
       description: "Consulter les demandes de contact des clients",
