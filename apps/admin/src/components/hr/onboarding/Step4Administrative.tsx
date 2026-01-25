@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ export function Step4Administrative() {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<AdministrativeInfo>({
     defaultValues: data.step4 || {
@@ -42,6 +43,14 @@ export function Step4Administrative() {
       contractSent: false,
     },
   });
+
+  // Update form when data.step4 becomes available (edit mode)
+  // Only reset once when data arrives, not on every change
+  useEffect(() => {
+    if (data.step4 && mode === 'edit') {
+      reset(data.step4);
+    }
+  }, [data.step4, reset, mode]);
 
   const selectedColor = watch("color");
   const dpaeCompleted = watch("dpaeCompleted");

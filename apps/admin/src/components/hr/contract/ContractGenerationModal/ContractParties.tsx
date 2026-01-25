@@ -200,13 +200,13 @@ export function ContractParties({ employee }: ContractPartiesProps) {
 
       {/* Employer */}
       <EmployerTable />
-      <p style={{ fontStyle: "italic", marginBottom: "20px" }}>
+      <p style={{ fontStyle: "italic", marginBottom: "30px" }}>
         Ci-après l&apos;Employeur
       </p>
 
       {/* Employee */}
       <EmployeeTable employee={employee} />
-      <p style={{ fontStyle: "italic", marginBottom: "20px" }}>
+      <p style={{ fontStyle: "italic", marginBottom: "30px" }}>
         Ci-après le Salarié
       </p>
 
@@ -221,6 +221,9 @@ export function ContractParties({ employee }: ContractPartiesProps) {
         du 30 avril 1997, dont le Salarie reconnaît avoir pris connaissance et
         les conditions particulières ci-après :
       </p>
+
+      {/* Spacer to push Article 1 to page 2 */}
+      <div style={{ height: "20mm" }} />
     </div>
   );
 }
