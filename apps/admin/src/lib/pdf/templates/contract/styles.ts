@@ -1,161 +1,228 @@
 /**
- * PDF Styles for Contract Document
+ * PDF Styles for Contract Document - VERSION MODERNE
  * Using @react-pdf/renderer StyleSheet
+ *
+ * Palette de couleurs :
+ * - Primary: #1e40af (Bleu professionnel)
+ * - Secondary: #64748b (Gris ardoise)
+ * - Accent: #3b82f6 (Bleu clair)
+ * - Background: #f8fafc (Gris très clair)
+ * - Border: #e2e8f0 (Gris bordure)
  */
 
 import { StyleSheet, Font } from '@react-pdf/renderer'
 
-// Register fonts (optional - uses Helvetica by default)
-// Font.register({
-//   family: 'Arial',
-//   src: '/fonts/Arial.ttf',
-// })
-
 export const styles = StyleSheet.create({
-  // Page
+  // ============================================
+  // PAGE & LAYOUT
+  // ============================================
   page: {
-    paddingTop: 20, // 20mm ≈ 57pt
-    paddingBottom: 20,
-    paddingLeft: 25, // 25mm ≈ 71pt
-    paddingRight: 25,
+    paddingTop: 35,
+    paddingBottom: 35,
+    paddingLeft: 40,
+    paddingRight: 40,
     fontFamily: 'Helvetica',
-    fontSize: 11,
-    lineHeight: 1.6,
+    fontSize: 10.5,
+    lineHeight: 1.5,
+    backgroundColor: '#ffffff',
   },
 
-  // Title
+  // ============================================
+  // TYPOGRAPHY
+  // ============================================
+
+  // Titre principal
   title: {
-    fontSize: 13,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontFamily: 'Helvetica-Bold',
     textAlign: 'center',
-    marginBottom: 8,
-    textTransform: 'uppercase',
+    marginBottom: 6,
+    color: '#1e40af',
+    letterSpacing: 0.5,
   },
 
+  // Sous-titre
   subtitle: {
     fontSize: 10,
     fontStyle: 'italic',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
+    color: '#64748b',
   },
 
-  // Section
-  section: {
-    marginBottom: 30,
-  },
-
+  // Titre de section (ex: "Entre les soussignés")
   sectionTitle: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-
-  // Article
-  articleTitle: {
-    fontSize: 11,
-    fontWeight: 'bold',
+    fontSize: 12,
+    fontFamily: 'Helvetica-Bold',
     marginBottom: 12,
-    textDecoration: 'underline',
+    marginTop: 5,
+    color: '#1e293b',
   },
 
-  // Text
-  text: {
-    fontSize: 11,
-    lineHeight: 1.6,
+  // Titre d'article (ex: "Article 1 - Engagement")
+  articleTitle: {
+    fontSize: 11.5,
+    fontFamily: 'Helvetica-Bold',
     marginBottom: 10,
+    marginTop: 15,
+    paddingBottom: 6,
+    borderBottom: '1.5pt solid #e2e8f0',
+    color: '#1e40af',
   },
 
+  // ============================================
+  // TEXT STYLES
+  // ============================================
+
+  // Texte normal
+  text: {
+    fontSize: 10.5,
+    lineHeight: 1.6,
+    marginBottom: 9,
+    color: '#1e293b',
+    textAlign: 'justify',
+  },
+
+  // Texte en gras
   textBold: {
-    fontWeight: 'bold',
+    fontFamily: 'Helvetica-Bold',
+    color: '#0f172a',
   },
 
+  // Texte italique
   textItalic: {
     fontStyle: 'italic',
+    color: '#475569',
   },
 
-  // Table
+  // Texte "Ci-après..."
+  labelText: {
+    fontSize: 10,
+    fontStyle: 'italic',
+    marginTop: 8,
+    marginBottom: 15,
+    color: '#64748b',
+  },
+
+  // ============================================
+  // SECTIONS & SPACING
+  // ============================================
+
+  section: {
+    marginBottom: 22,
+  },
+
+  spacer: {
+    height: 15,
+  },
+
+  // ============================================
+  // TABLEAUX MODERNES
+  // ============================================
+
   table: {
     width: '100%',
     marginBottom: 15,
+    marginTop: 10,
+    borderRadius: 4,
   },
 
+  // Ligne de tableau
   tableRow: {
     flexDirection: 'row',
-    borderTop: '1px solid #000',
-    borderLeft: '1px solid #000',
-    borderRight: '1px solid #000',
+    borderBottom: '0.75pt solid #e2e8f0',
   },
 
+  // Dernière ligne
   tableRowLast: {
     flexDirection: 'row',
-    borderTop: '1px solid #000',
-    borderLeft: '1px solid #000',
-    borderRight: '1px solid #000',
-    borderBottom: '1px solid #000',
+    borderBottom: '1pt solid #cbd5e1',
   },
 
+  // En-tête de tableau (fond bleu clair)
   tableHeader: {
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#f1f5f9',
+    borderBottom: '1.5pt solid #cbd5e1',
   },
 
+  // Cellule normale
   tableCell: {
-    padding: 8,
-    fontSize: 9,
-    borderRight: '1px solid #000',
+    padding: 10,
+    fontSize: 10,
+    borderRight: '0.5pt solid #e2e8f0',
     textAlign: 'center',
+    color: '#334155',
   },
 
+  // Dernière cellule (pas de bordure droite)
   tableCellLast: {
-    padding: 8,
-    fontSize: 9,
+    padding: 10,
+    fontSize: 10,
     textAlign: 'center',
+    color: '#334155',
   },
 
+  // Cellule alignée à gauche
   tableCellLeft: {
-    padding: 8,
-    fontSize: 9,
-    borderRight: '1px solid #000',
+    padding: 10,
+    fontSize: 10,
+    borderRight: '0.5pt solid #e2e8f0',
     textAlign: 'left',
+    color: '#334155',
   },
 
+  // Cellule d'en-tête
   tableCellHeader: {
-    padding: 6,
-    fontSize: 9,
-    borderRight: '1px solid #000',
-    fontWeight: 'bold',
+    padding: 9,
+    fontSize: 10,
+    borderRight: '0.5pt solid #cbd5e1',
+    fontFamily: 'Helvetica-Bold',
     textAlign: 'center',
+    color: '#1e40af',
   },
 
+  // Cellule en gras
   tableCellBold: {
-    fontWeight: 'bold',
+    fontFamily: 'Helvetica-Bold',
+    color: '#0f172a',
   },
 
-  // List
+  // ============================================
+  // LISTES À PUCES
+  // ============================================
+
   list: {
-    marginLeft: 30,
+    marginLeft: 25,
     marginBottom: 10,
+    marginTop: 8,
   },
 
   listItem: {
     flexDirection: 'row',
-    marginBottom: 6,
+    marginBottom: 7,
   },
 
   bullet: {
-    width: 15,
+    width: 18,
+    fontSize: 11,
+    color: '#3b82f6',
   },
 
   listText: {
     flex: 1,
-    fontSize: 11,
+    fontSize: 10.5,
     lineHeight: 1.6,
+    color: '#334155',
   },
 
-  // Signature
+  // ============================================
+  // SIGNATURES
+  // ============================================
+
   signatureContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 40,
+    marginTop: 50,
     marginBottom: 20,
   },
 
@@ -164,37 +231,63 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  signatureLine: {
-    borderBottom: '1px solid #000',
-    marginBottom: 10,
-    height: 40,
-  },
-
   signatureLabel: {
     fontSize: 11,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontFamily: 'Helvetica-Bold',
+    marginBottom: 25,
+    color: '#1e40af',
   },
 
   signatureName: {
     fontSize: 11,
-    marginBottom: 40,
+    marginBottom: 50,
+    color: '#1e293b',
+  },
+
+  signatureLine: {
+    borderBottom: '1pt solid #cbd5e1',
+    marginBottom: 12,
+    height: 60,
   },
 
   signatureText: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontStyle: 'italic',
+    color: '#64748b',
   },
 
-  // Spacer
-  spacer: {
-    height: 20,
-  },
+  // ============================================
+  // FOOTER & MISC
+  // ============================================
 
-  // Footer text
   footer: {
-    fontSize: 10,
+    fontSize: 9,
     textAlign: 'center',
     marginTop: 30,
+    color: '#94a3b8',
+  },
+
+  // Numéro de page (optionnel)
+  pageNumber: {
+    position: 'absolute',
+    fontSize: 9,
+    bottom: 20,
+    right: 40,
+    color: '#94a3b8',
+  },
+
+  // Box avec fond (pour info importante)
+  infoBox: {
+    backgroundColor: '#f8fafc',
+    padding: 12,
+    marginVertical: 10,
+    borderLeft: '3pt solid #3b82f6',
+    borderRadius: 4,
+  },
+
+  infoBoxText: {
+    fontSize: 10,
+    color: '#475569',
+    lineHeight: 1.5,
   },
 })

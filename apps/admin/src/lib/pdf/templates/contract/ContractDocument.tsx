@@ -274,7 +274,7 @@ export default function ContractDocument({ employee, monthlySalary, monthlyHours
               },
             ]}
           />
-          <Text style={[styles.text, styles.textItalic]}>Ci-après l'Employeur</Text>
+          <Text style={styles.labelText}>Ci-après l'Employeur</Text>
 
           {/* Employee Table */}
           <PDFTable
@@ -335,7 +335,7 @@ export default function ContractDocument({ employee, monthlySalary, monthlyHours
               },
             ]}
           />
-          <Text style={[styles.text, styles.textItalic]}>Ci-après le Salarié</Text>
+          <Text style={styles.labelText}>Ci-après le Salarié</Text>
 
           {/* Introduction */}
           <Text style={styles.text}>
