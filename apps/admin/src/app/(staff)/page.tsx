@@ -1,29 +1,33 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { RequestUnavailabilityModal } from "@/components/staff/RequestUnavailabilityModal";
 import {
   Card,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
+import { useRole } from "@/hooks/useRole";
 import {
-  Clock,
   Calendar,
+  CalendarOff,
   ChefHat,
+  Clock,
   GraduationCap,
   TrendingUp,
-  BarChart3,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRole } from "@/hooks/useRole";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function StaffHomePage() {
   const { data: session } = useSession();
   const { isAdmin, isDev } = useRole();
   const router = useRouter();
+  const [isUnavailabilityModalOpen, setIsUnavailabilityModalOpen] =
+    useState(false);
+  const [employees, setEmployees] = useState([]);
 
   // Rediriger admin/dev vers /admin
   useEffect(() => {
@@ -31,6 +35,22 @@ export default function StaffHomePage() {
       router.replace("/admin");
     }
   }, [session, isAdmin, isDev, router]);
+
+  // Fetch employees for unavailability modal
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await fetch("/api/hr/employees?status=active");
+        const result = await response.json();
+        if (result.success) {
+          setEmployees(result.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+    fetchEmployees();
+  }, []);
 
   const displayName =
     session?.user?.name || session?.user?.email?.split("@")[0] || "Le Staff";
@@ -53,6 +73,16 @@ export default function StaffHomePage() {
       color: "text-green-600",
       bgColor: "bg-green-50",
       available: true,
+    },
+    {
+      title: "Demander une indisponibilité",
+      description: "Déclarer congés, maladie ou absence",
+      icon: CalendarOff,
+      href: "#",
+      color: "text-red-600",
+      bgColor: "bg-red-50",
+      available: true,
+      onClick: () => setIsUnavailabilityModalOpen(true),
     },
     {
       title: "Menu & Recettes",
@@ -134,6 +164,14 @@ export default function StaffHomePage() {
             );
           }
 
+          if (card.onClick) {
+            return (
+              <div key={card.href} onClick={card.onClick}>
+                {CardContent}
+              </div>
+            );
+          }
+
           return (
             <Link key={card.href} href={card.href}>
               {CardContent}
@@ -150,6 +188,13 @@ export default function StaffHomePage() {
           navigation.
         </p>
       </div>
+
+      {/* Request Unavailability Modal */}
+      <RequestUnavailabilityModal
+        isOpen={isUnavailabilityModalOpen}
+        employees={employees}
+        onClose={() => setIsUnavailabilityModalOpen(false)}
+      />
     </div>
   );
 }

@@ -8,11 +8,14 @@ import { Label } from '@/components/ui/label'
 import { useOnboardingContext } from '@/contexts/OnboardingContext'
 import type { PersonalInfo } from '@/types/onboarding'
 
-// Formater une date ISO en YYYY-MM-DD pour les inputs
+// Formater une date pour les inputs (YYYY-MM-DD)
+// Si déjà au bon format, retourne tel quel, sinon nettoie
 const formatDateForInput = (dateString?: string): string => {
   if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toISOString().split('T')[0]
+  // Si déjà au format YYYY-MM-DD, retourne tel quel
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString
+  // Sinon, extrait la partie date (cas ISO timestamp)
+  return dateString.split('T')[0]
 }
 
 export function Step1PersonalInfo() {

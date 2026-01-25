@@ -6,12 +6,13 @@ import { formatHoursToHHMM } from './utils'
 interface StaffColumnProps {
   employees: Employee[]
   weeklyHoursCalculator: (employeeId: string) => number
+  showHours?: boolean
 }
 
 /**
  * Staff column showing employee names and weekly hours
  */
-export function StaffColumn({ employees, weeklyHoursCalculator }: StaffColumnProps) {
+export function StaffColumn({ employees, weeklyHoursCalculator, showHours = true }: StaffColumnProps) {
   return (
     <div className="w-32 flex-shrink-0">
       {/* Header */}
@@ -29,13 +30,17 @@ export function StaffColumn({ employees, weeklyHoursCalculator }: StaffColumnPro
             return (
               <div
                 key={employee.id}
-                className="flex h-5 items-center justify-between rounded px-1 text-xs font-medium text-white"
+                className={`flex h-5 items-center rounded px-1 text-xs font-medium text-white ${
+                  showHours ? 'justify-between' : 'justify-center'
+                }`}
                 style={{ backgroundColor: employee.color || '#9CA3AF' }}
               >
-                <span className="flex-1 truncate">{employee.firstName}</span>
-                <span className="ml-1 text-xs opacity-90">
-                  {formatHoursToHHMM(weeklyHours)}
-                </span>
+                <span className={showHours ? 'flex-1 truncate' : 'truncate'}>{employee.firstName}</span>
+                {showHours && (
+                  <span className="ml-1 text-xs opacity-90">
+                    {formatHoursToHHMM(weeklyHours)}
+                  </span>
+                )}
               </div>
             )
           })}

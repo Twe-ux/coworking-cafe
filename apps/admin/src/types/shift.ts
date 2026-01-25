@@ -15,9 +15,9 @@ export interface Shift {
   id: string
   employeeId: string
   employee?: ShiftEmployee
-  date: Date | string // Can be Date object or ISO string from API
-  startTime: string
-  endTime: string
+  date: string // Format "YYYY-MM-DD"
+  startTime: string // Format "HH:mm"
+  endTime: string // Format "HH:mm"
   type: string
   location?: string
   notes?: string
@@ -29,9 +29,9 @@ export interface Shift {
 
 export interface CreateShiftInput {
   employeeId: string
-  date: string | Date
-  startTime: string
-  endTime: string
+  date: string // Format "YYYY-MM-DD"
+  startTime: string // Format "HH:mm"
+  endTime: string // Format "HH:mm"
   type: string
   location?: string
   notes?: string
@@ -39,9 +39,9 @@ export interface CreateShiftInput {
 
 export interface UpdateShiftInput {
   employeeId?: string
-  date?: string | Date
-  startTime?: string
-  endTime?: string
+  date?: string // Format "YYYY-MM-DD"
+  startTime?: string // Format "HH:mm"
+  endTime?: string // Format "HH:mm"
   type?: string
   location?: string
   notes?: string

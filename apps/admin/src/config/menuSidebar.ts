@@ -9,6 +9,7 @@ import {
   Building2,
   Calculator,
   Calendar,
+  CalendarOff,
   Clock,
   Home,
   Mail,
@@ -77,11 +78,13 @@ export function getStaffMenu(): MenuItem[] {
  * Visible pour: admin et dev
  *
  * @param unreadCount - Nombre de messages non lus (pour le badge)
+ * @param pendingUnavailabilities - Nombre de demandes d'indisponibilité en attente
  * @param isDev - Si l'utilisateur est dev (pour afficher Dev Tools)
  * @param isLoading - Si la session est en chargement (pour éviter le flash)
  */
 export function getAdminMenu(
   unreadCount: number,
+  pendingUnavailabilities: number,
   isDev: boolean,
   isLoading = false,
 ): MenuItem[] {
@@ -181,8 +184,13 @@ export function getAdminMenu(
       title: "Messages",
       url: "/admin/messages",
       icon: Mail,
-      badge: unreadCount > 0 ? unreadCount : undefined,
+      badge: (unreadCount + pendingUnavailabilities) > 0 ? (unreadCount + pendingUnavailabilities) : undefined,
       items: [
+        {
+          title: "Demandes d'indisponibilité",
+          url: "/admin/messages/unavailability-requests",
+          badge: pendingUnavailabilities > 0 ? pendingUnavailabilities : undefined,
+        },
         {
           title: "Contact",
           url: "/admin/messages/contact",

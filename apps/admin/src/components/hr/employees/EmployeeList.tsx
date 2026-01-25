@@ -13,10 +13,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
-import type { Employee } from "@/types/hr";
+import type { Employee, EmployeeRole } from "@/types/hr";
 import { filterEmployees } from "@/lib/utils/hr/employee-utils";
 import { EmployeeCard } from "./EmployeeCard";
+import { PromoteToAdminModal } from "./PromoteToAdminModal";
 import { Plus, Search } from "lucide-react";
+import { toast } from "sonner";
 
 interface EmployeeListProps {
   employees: Employee[];
@@ -26,6 +28,7 @@ interface EmployeeListProps {
   onViewContract: (employee: Employee) => void;
   onEndContract: (employee: Employee) => void;
   onDelete: (employee: Employee) => void;
+  onRefresh?: () => void;
 }
 
 /**
@@ -40,11 +43,14 @@ export function EmployeeList({
   onViewContract,
   onEndContract,
   onDelete,
+  onRefresh,
 }: EmployeeListProps) {
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [contractTypeFilter, setContractTypeFilter] = useState<string>("");
   const [roleFilter, setRoleFilter] = useState<string>("");
+  const [promoteModalOpen, setPromoteModalOpen] = useState(false);
+  const [employeeToPromote, setEmployeeToPromote] = useState<Employee | null>(null);
 
   const filteredEmployees = filterEmployees(employees, {
     search,
@@ -56,6 +62,37 @@ export function EmployeeList({
     return emp.email !== "dev@coworkingcafe.com" &&
            !(emp.firstName === "Admin" && emp.lastName === "Dev");
   });
+
+  const handlePromoteToAdmin = (employee: Employee) => {
+    setEmployeeToPromote(employee);
+    setPromoteModalOpen(true);
+  };
+
+  const handleConfirmPromotion = async (employeeId: string, newRole: EmployeeRole, pin: string) => {
+    try {
+      const response = await fetch(`/api/hr/employees/${employeeId}/promote`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newRole, pin }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Erreur lors de la promotion');
+      }
+
+      toast.success(data.message || 'Employé promu avec succès');
+
+      // Refresh employee list
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de la promotion');
+      throw error;
+    }
+  };
 
   if (loading) {
     return <LoadingSkeleton variant="card" count={6} />;
@@ -157,10 +194,24 @@ export function EmployeeList({
               onViewContract={onViewContract}
               onEndContract={onEndContract}
               onDelete={onDelete}
+              onPromoteToAdmin={handlePromoteToAdmin}
               showArchived={showArchived}
             />
           ))}
         </div>
+      )}
+
+      {/* Promotion Modal */}
+      {employeeToPromote && (
+        <PromoteToAdminModal
+          isOpen={promoteModalOpen}
+          employee={employeeToPromote}
+          onClose={() => {
+            setPromoteModalOpen(false);
+            setEmployeeToPromote(null);
+          }}
+          onConfirm={handleConfirmPromotion}
+        />
       )}
     </div>
   );

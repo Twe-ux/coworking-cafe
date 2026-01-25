@@ -13,6 +13,7 @@ interface WeekCardProps {
   employees: Employee[]
   getShiftsPositionedByEmployee: (date: Date) => PositionedShifts[]
   calculateWeeklyHours: (employeeId: string, weekStart: Date, weekEnd: Date) => number
+  showHours?: boolean
 }
 
 /**
@@ -23,6 +24,7 @@ export function WeekCard({
   employees,
   getShiftsPositionedByEmployee,
   calculateWeeklyHours,
+  showHours = true,
 }: WeekCardProps) {
   const daysInWeek = getDaysInWeek(week.weekStart)
 
@@ -52,6 +54,7 @@ export function WeekCard({
           <StaffColumn
             employees={employees}
             weeklyHoursCalculator={weeklyHoursCalculator}
+            showHours={showHours}
           />
 
           {/* Calendar Grid */}

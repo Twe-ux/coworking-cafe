@@ -3,9 +3,9 @@ import { Schema, Types, Document } from 'mongoose'
 /** Document of a {@link Shift}, as stored in the database. */
 export interface IShift extends Document {
   employeeId: Types.ObjectId
-  date: Date
-  startTime: string
-  endTime: string
+  date: string // Format "YYYY-MM-DD"
+  startTime: string // Format "HH:mm"
+  endTime: string // Format "HH:mm"
   type: string
   location?: string
   notes?: string
@@ -24,8 +24,9 @@ export const ShiftSchema = new Schema<IShift>(
       index: true,
     },
     date: {
-      type: Date,
+      type: String,
       required: [true, 'La date est requise'],
+      match: [/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'],
       index: true,
     },
     startTime: {

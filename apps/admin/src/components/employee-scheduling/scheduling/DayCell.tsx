@@ -51,6 +51,7 @@ export function DayCell({ day, employees, positionedShifts }: DayCellProps) {
                       key={shift.id}
                       shift={shift}
                       employee={employee}
+                      colorOverride={(shift as any)._unavailabilityRequested ? '#f97316' : undefined}
                     />
                   ))
                 ) : (
@@ -66,6 +67,7 @@ export function DayCell({ day, employees, positionedShifts }: DayCellProps) {
                       key={shift.id}
                       shift={shift}
                       employee={employee}
+                      colorOverride={(shift as any)._unavailabilityRequested ? '#f97316' : undefined}
                     />
                   ))
                 ) : (
