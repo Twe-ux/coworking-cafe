@@ -1,4 +1,4 @@
-import type { PlaceOfBirth, EmployeeAddress } from './hr';
+import type { PlaceOfBirth, EmployeeAddress } from "./hr";
 
 export interface PersonalInfo {
   firstName: string;
@@ -93,20 +93,13 @@ export const ONBOARDING_STEP_LABELS = {
 
 export const EMPLOYEE_COLORS = [
   { name: "Bleu", value: "#3B82F6" },
-  { name: "Rouge", value: "#EF4444" },
-  { name: "Emeraude", value: "#059669" },
+  { name: "Vert", value: "#10B981" },
   { name: "Violet", value: "#8B5CF6" },
   { name: "Orange", value: "#F97316" },
-  { name: "Pourpre", value: "#A855F7" },
-  { name: "Bleu ciel", value: "#0EA5E9" },
-  { name: "Ambre", value: "#F59E0B" },
-  { name: "Cyan", value: "#06B6D4" },
+  { name: "Teal", value: "#14B8A6" },
   { name: "Indigo", value: "#6366F1" },
-  // { name: "Rose", value: "#EC4899" },
-  // { name: "Jaune", value: "#EAB308" },
-  // { name: "Lime", value: "#84CC16" },
-  // { name: "Fuchsia", value: "#D946EF" },
-  // { name: "Vert", value: "#10B981" },
+  { name: "Rose", value: "#EC4899" },
+  { name: "Jaune", value: "#EAB308" },
 ];
 
 export const DEFAULT_AVAILABILITY: Availability = {
