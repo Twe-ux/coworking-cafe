@@ -66,6 +66,7 @@ interface EmployeeDocument {
     department: string
     country: string
   }
+  nationality?: string
   address?: {
     street?: string
     postalCode?: string
@@ -118,6 +119,7 @@ export interface MappedEmployee {
     department: string
     country: string
   }
+  nationality?: string
   address?: {
     street?: string
     postalCode?: string
@@ -177,6 +179,7 @@ export function mapEmployeeToApi(
     phone: employee.phone,
     dateOfBirth: employee.dateOfBirth,
     placeOfBirth: employee.placeOfBirth,
+    nationality: employee.nationality,
     address: employee.address,
     socialSecurityNumber: employee.socialSecurityNumber,
     contractType: employee.contractType,

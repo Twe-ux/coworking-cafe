@@ -17,6 +17,7 @@ export interface EmployeeDocument extends Document {
     department: string;
     country: string;
   };
+  nationality?: string;
   address: {
     street: string;
     postalCode: string;
@@ -137,6 +138,11 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
       department: String,
       country: String,
       _id: false,
+    },
+    nationality: {
+      type: String,
+      trim: true,
+      default: 'Française',
     },
     address: {
       street: String,

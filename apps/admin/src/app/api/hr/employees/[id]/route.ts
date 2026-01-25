@@ -87,6 +87,7 @@ interface EmployeeUpdateBody {
   phone?: string | null
   dateOfBirth?: string
   placeOfBirth?: { city?: string; department?: string; country?: string }
+  nationality?: string
   address?: { street?: string; postalCode?: string; city?: string }
   socialSecurityNumber?: string
   contractType?: string
@@ -119,6 +120,7 @@ interface EmployeeUpdateData {
   phone?: string | null
   dateOfBirth?: Date
   placeOfBirth?: { city?: string; department?: string; country?: string }
+  nationality?: string
   address?: { street?: string; postalCode?: string; city?: string }
   socialSecurityNumber?: string
   contractType?: string
@@ -191,6 +193,7 @@ export async function PUT(
     // Personal info
     if (data.dateOfBirth !== undefined) updateData.dateOfBirth = new Date(data.dateOfBirth)
     if (data.placeOfBirth !== undefined) updateData.placeOfBirth = data.placeOfBirth
+    if (data.nationality !== undefined) updateData.nationality = data.nationality
     if (data.address !== undefined) updateData.address = data.address
     if (data.socialSecurityNumber !== undefined) updateData.socialSecurityNumber = data.socialSecurityNumber
 

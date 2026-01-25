@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
         phone: (draft as any).phone,
         dateOfBirth: (draft as any).dateOfBirth,
         placeOfBirth: (draft as any).placeOfBirth,
+        nationality: (draft as any).nationality,
         address: (draft as any).address,
         socialSecurityNumber: (draft as any).socialSecurityNumber,
         contractType: (draft as any).contractType,
@@ -131,6 +132,7 @@ export async function POST(request: NextRequest) {
     if (data.phone) draftData.phone = data.phone
     if (data.dateOfBirth) draftData.dateOfBirth = new Date(data.dateOfBirth)
     if (data.placeOfBirth) draftData.placeOfBirth = data.placeOfBirth
+    if (data.nationality) draftData.nationality = data.nationality
     if (data.address) draftData.address = data.address
     if (data.socialSecurityNumber)
       draftData.socialSecurityNumber = data.socialSecurityNumber

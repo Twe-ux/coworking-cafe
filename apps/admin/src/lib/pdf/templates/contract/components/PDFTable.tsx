@@ -22,8 +22,8 @@ export function PDFTable({ rows, labelWidth = '40%' }: PDFTableProps) {
       style={[
         styles.table,
         {
-          border: '1pt solid #cbd5e1',
-          borderRadius: 4,
+          border: '1pt solid #cbd5e1', // Bordure globale grise
+          borderRadius: 4, // Coins arrondis
         },
       ]}
     >

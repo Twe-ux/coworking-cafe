@@ -1,293 +1,214 @@
 /**
- * PDF Styles for Contract Document - VERSION MODERNE
+ * PDF Styles for Contract Document
  * Using @react-pdf/renderer StyleSheet
- *
- * Palette de couleurs :
- * - Primary: #1e40af (Bleu professionnel)
- * - Secondary: #64748b (Gris ardoise)
- * - Accent: #3b82f6 (Bleu clair)
- * - Background: #f8fafc (Gris très clair)
- * - Border: #e2e8f0 (Gris bordure)
  */
 
-import { StyleSheet, Font } from '@react-pdf/renderer'
+import { StyleSheet } from "@react-pdf/renderer";
+
+// Register fonts (optional - uses Helvetica by default)
+// Font.register({
+//   family: 'Arial',
+//   src: '/fonts/Arial.ttf',
+// })
 
 export const styles = StyleSheet.create({
-  // ============================================
-  // PAGE & LAYOUT
-  // ============================================
+  // Page
   page: {
-    paddingTop: 35,
-    paddingBottom: 35,
-    paddingLeft: 40,
-    paddingRight: 40,
-    fontFamily: 'Helvetica',
-    fontSize: 10.5,
-    lineHeight: 1.5,
-    backgroundColor: '#ffffff',
+    paddingTop: 60,
+    paddingBottom: 60,
+    paddingLeft: 65, // Increased for better side margins
+    paddingRight: 65,
+    fontFamily: "Helvetica",
+    fontSize: 11,
+    lineHeight: 1.5, // Reduced from 1.6 for more compact text
   },
 
-  // ============================================
-  // TYPOGRAPHY
-  // ============================================
-
-  // Titre principal
+  // Title
   title: {
-    fontSize: 15,
-    fontFamily: 'Helvetica-Bold',
-    textAlign: 'center',
-    marginBottom: 6,
-    color: '#1e40af',
-    letterSpacing: 0.5,
+    color: "#1e40af",
+    fontSize: 13,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 8,
+    textTransform: "uppercase",
   },
 
-  // Sous-titre
   subtitle: {
     fontSize: 10,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    marginBottom: 25,
-    color: '#64748b',
+    fontStyle: "italic",
+    textAlign: "center",
+    marginBottom: 12, // Reduced from 20 to minimize white space
   },
 
-  // Titre de section (ex: "Entre les soussignés")
+  // Section
+  section: {
+    marginBottom: 15, // Reduced from 30 to minimize white space
+  },
+
   sectionTitle: {
-    fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 12,
-    marginTop: 5,
-    color: '#1e293b',
+    fontSize: 11,
+    fontWeight: "bold",
+    marginBottom: 10, // Reduced from 15 for tighter spacing
   },
 
-  // Titre d'article (ex: "Article 1 - Engagement")
+  // Article
   articleTitle: {
-    fontSize: 11.5,
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 10,
-    marginTop: 15,
-    paddingBottom: 6,
-    borderBottom: '1.5pt solid #e2e8f0',
-    color: '#1e40af',
+    fontSize: 11,
+    fontWeight: "bold",
+    marginTop: 10, // Reduced from 12 for tighter spacing
+    marginBottom: 10, // Reduced from 12 for tighter spacing
+    textDecoration: "underline",
   },
 
-  // ============================================
-  // TEXT STYLES
-  // ============================================
-
-  // Texte normal
+  // Text
   text: {
-    fontSize: 10.5,
-    lineHeight: 1.6,
-    marginBottom: 9,
-    color: '#1e293b',
-    textAlign: 'justify',
+    fontSize: 11,
+    lineHeight: 1.5, // Reduced from 1.6 for more compact text
+    marginBottom: 6, // Reduced from 10 to minimize white space
   },
 
-  // Texte en gras
   textBold: {
-    fontFamily: 'Helvetica-Bold',
-    color: '#0f172a',
+    fontWeight: "bold",
   },
 
-  // Texte italique
   textItalic: {
-    fontStyle: 'italic',
-    color: '#475569',
+    fontStyle: "italic",
   },
 
-  // Texte "Ci-après..."
+  // Label text (Ci-après l'Employeur/le Salarié)
   labelText: {
     fontSize: 10,
-    fontStyle: 'italic',
-    marginTop: 8,
-    marginBottom: 15,
-    color: '#64748b',
+    fontStyle: "italic",
+    color: "#64748b", // Gris ardoise
+    marginBottom: 8,
   },
 
-  // ============================================
-  // SECTIONS & SPACING
-  // ============================================
-
-  section: {
-    marginBottom: 22,
-  },
-
-  spacer: {
-    height: 15,
-  },
-
-  // ============================================
-  // TABLEAUX MODERNES
-  // ============================================
-
+  // Table - Style moderne
   table: {
-    width: '100%',
-    marginBottom: 15,
-    marginTop: 10,
-    borderRadius: 4,
-  },
-
-  // Ligne de tableau
-  tableRow: {
-    flexDirection: 'row',
-    borderBottom: '0.75pt solid #e2e8f0',
-  },
-
-  // Dernière ligne
-  tableRowLast: {
-    flexDirection: 'row',
-    borderBottom: '1pt solid #cbd5e1',
-  },
-
-  // En-tête de tableau (fond bleu clair)
-  tableHeader: {
-    backgroundColor: '#f1f5f9',
-    borderBottom: '1.5pt solid #cbd5e1',
-  },
-
-  // Cellule normale
-  tableCell: {
-    padding: 10,
-    fontSize: 10,
-    borderRight: '0.5pt solid #e2e8f0',
-    textAlign: 'center',
-    color: '#334155',
-  },
-
-  // Dernière cellule (pas de bordure droite)
-  tableCellLast: {
-    padding: 10,
-    fontSize: 10,
-    textAlign: 'center',
-    color: '#334155',
-  },
-
-  // Cellule alignée à gauche
-  tableCellLeft: {
-    padding: 10,
-    fontSize: 10,
-    borderRight: '0.5pt solid #e2e8f0',
-    textAlign: 'left',
-    color: '#334155',
-  },
-
-  // Cellule d'en-tête
-  tableCellHeader: {
-    padding: 9,
-    fontSize: 10,
-    borderRight: '0.5pt solid #cbd5e1',
-    fontFamily: 'Helvetica-Bold',
-    textAlign: 'center',
-    color: '#1e40af',
-  },
-
-  // Cellule en gras
-  tableCellBold: {
-    fontFamily: 'Helvetica-Bold',
-    color: '#0f172a',
-  },
-
-  // ============================================
-  // LISTES À PUCES
-  // ============================================
-
-  list: {
-    marginLeft: 25,
+    width: "100%",
     marginBottom: 10,
-    marginTop: 8,
+  },
+
+  tableRow: {
+    flexDirection: "row",
+    borderTop: "0.75pt solid #e2e8f0", // Bordure grise subtile
+    borderLeft: "0.75pt solid #e2e8f0",
+    borderRight: "0.75pt solid #e2e8f0",
+  },
+
+  tableRowLast: {
+    flexDirection: "row",
+    borderTop: "0.75pt solid #e2e8f0",
+    borderLeft: "0.75pt solid #e2e8f0",
+    borderRight: "0.75pt solid #e2e8f0",
+    borderBottom: "0.75pt solid #e2e8f0",
+  },
+
+  tableHeader: {
+    backgroundColor: "#f1f5f9", // Fond bleu très clair
+    borderBottom: "1.5pt solid #cbd5e1", // Bordure plus marquée pour l'en-tête
+  },
+
+  tableCell: {
+    padding: 5, // Augmenté pour plus d'espace
+    fontSize: 10, // Augmenté pour meilleure lisibilité
+    borderRight: "0.75pt solid #e2e8f0",
+    textAlign: "center",
+  },
+
+  tableCellLast: {
+    padding: 5,
+    fontSize: 10,
+    textAlign: "center",
+  },
+
+  tableCellLeft: {
+    padding: 5,
+    fontSize: 10,
+    borderRight: "0.75pt solid #e2e8f0",
+    textAlign: "center",
+  },
+
+  tableCellHeader: {
+    padding: 5,
+    fontSize: 10,
+    borderRight: "0.75pt solid #e2e8f0",
+    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
+    color: "#1e40af", // Bleu pour les en-têtes
+    textAlign: "center",
+  },
+
+  tableCellBold: {
+    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
+  },
+
+  // List
+  list: {
+    marginLeft: 30,
+    marginBottom: 8, // Reduced from 10
   },
 
   listItem: {
-    flexDirection: 'row',
-    marginBottom: 7,
+    flexDirection: "row",
+    marginBottom: 4, // Reduced from 6 for tighter spacing
   },
 
   bullet: {
-    width: 18,
-    fontSize: 11,
-    color: '#3b82f6',
+    width: 15,
   },
 
   listText: {
     flex: 1,
-    fontSize: 10.5,
+    fontSize: 11,
     lineHeight: 1.6,
-    color: '#334155',
   },
 
-  // ============================================
-  // SIGNATURES
-  // ============================================
-
+  // Signature
   signatureContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 50,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 100, // Reduced from 40
     marginBottom: 20,
   },
 
   signatureBlock: {
-    width: '45%',
-    textAlign: 'center',
+    width: "45%",
+    textAlign: "center",
+  },
+
+  signatureLine: {
+    borderBottom: "1px solid #000",
+    marginBottom: 10,
+    height: 40,
   },
 
   signatureLabel: {
     fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 25,
-    color: '#1e40af',
+    fontWeight: "bold",
+    marginBottom: 20,
   },
 
   signatureName: {
     fontSize: 11,
-    marginBottom: 50,
-    color: '#1e293b',
-  },
-
-  signatureLine: {
-    borderBottom: '1pt solid #cbd5e1',
-    marginBottom: 12,
-    height: 60,
+    marginBottom: 5,
   },
 
   signatureText: {
-    fontSize: 9.5,
-    fontStyle: 'italic',
-    color: '#64748b',
-  },
-
-  // ============================================
-  // FOOTER & MISC
-  // ============================================
-
-  footer: {
-    fontSize: 9,
-    textAlign: 'center',
-    marginTop: 30,
-    color: '#94a3b8',
-  },
-
-  // Numéro de page (optionnel)
-  pageNumber: {
-    position: 'absolute',
-    fontSize: 9,
-    bottom: 20,
-    right: 40,
-    color: '#94a3b8',
-  },
-
-  // Box avec fond (pour info importante)
-  infoBox: {
-    backgroundColor: '#f8fafc',
-    padding: 12,
-    marginVertical: 10,
-    borderLeft: '3pt solid #3b82f6',
-    borderRadius: 4,
-  },
-
-  infoBoxText: {
     fontSize: 10,
-    color: '#475569',
-    lineHeight: 1.5,
+    fontStyle: "italic",
   },
-})
+
+  // Spacer
+  spacer: {
+    height: 12, // Reduced from 20 for tighter spacing
+  },
+
+  // Footer text
+  footer: {
+    fontSize: 10,
+    textAlign: "center",
+    marginTop: 30,
+  },
+});

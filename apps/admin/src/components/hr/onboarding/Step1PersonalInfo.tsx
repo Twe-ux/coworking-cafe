@@ -37,6 +37,7 @@ export function Step1PersonalInfo() {
             department: '',
             country: 'France',
           },
+          nationality: 'Française',
           address: {
             street: '',
             postalCode: '',
@@ -161,34 +162,45 @@ export function Step1PersonalInfo() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="socialSecurityNumber">
-                Numéro de sécurité sociale{' '}
-                <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="socialSecurityNumber"
-                placeholder="1 23 45 67 890 123 45"
-                {...register('socialSecurityNumber', {
-                  required: 'Le numéro de sécurité sociale est requis',
-                  validate: (value) => {
-                    const digitsOnly = value.replace(/\s/g, '');
-                    if (!/^\d{15}$/.test(digitsOnly)) {
-                      return 'Le numéro doit contenir exactement 15 chiffres';
-                    }
-                    return true;
-                  },
-                  setValueAs: (value) => value.replace(/\s/g, ''), // Remove spaces before saving
-                })}
-              />
-              {errors.socialSecurityNumber && (
-                <p className="text-sm text-destructive">
-                  {errors.socialSecurityNumber.message}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="socialSecurityNumber">
+                  Numéro de sécurité sociale{' '}
+                  <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="socialSecurityNumber"
+                  placeholder="1 23 45 67 890 123 45"
+                  {...register('socialSecurityNumber', {
+                    required: 'Le numéro de sécurité sociale est requis',
+                    validate: (value) => {
+                      const digitsOnly = value.replace(/\s/g, '');
+                      if (!/^\d{15}$/.test(digitsOnly)) {
+                        return 'Le numéro doit contenir exactement 15 chiffres';
+                      }
+                      return true;
+                    },
+                    setValueAs: (value) => value.replace(/\s/g, ''), // Remove spaces before saving
+                  })}
+                />
+                {errors.socialSecurityNumber && (
+                  <p className="text-sm text-destructive">
+                    {errors.socialSecurityNumber.message}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  15 chiffres (avec ou sans espaces)
                 </p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                15 chiffres (avec ou sans espaces)
-              </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nationality">Nationalité</Label>
+                <Input
+                  id="nationality"
+                  placeholder="Française"
+                  {...register('nationality')}
+                />
+              </div>
             </div>
           </div>
 
