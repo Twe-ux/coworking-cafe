@@ -14,6 +14,7 @@ function transformEmployeeToOnboardingData(employee: Employee): OnboardingData {
       lastName: employee.lastName,
       dateOfBirth: employee.dateOfBirth,
       placeOfBirth: employee.placeOfBirth,
+      nationality: employee.nationality,
       address: employee.address,
       phone: employee.phone,
       email: employee.email,
