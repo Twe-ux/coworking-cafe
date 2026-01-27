@@ -1,4 +1,4 @@
-import { Calendar, Building2, Clock } from "lucide-react";
+import { Calendar, Building2, Clock, Settings } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -9,12 +9,6 @@ import {
 
 export default function BookingPage() {
   const bookingModules = [
-    {
-      title: "Espaces de réunion",
-      description: "Configuration des espaces réservables",
-      icon: Building2,
-      href: "/admin/booking/spaces",
-    },
     {
       title: "Réservations",
       description: "Gérer les réservations clients",
@@ -27,6 +21,18 @@ export default function BookingPage() {
       icon: Clock,
       href: "/admin/booking/calendar",
     },
+    {
+      title: "Espaces de réunion",
+      description: "Configuration des espaces réservables",
+      icon: Building2,
+      href: "/admin/booking/spaces",
+    },
+    {
+      title: "Settings",
+      description: "Paramètre des conditions de réservation",
+      icon: Settings,
+      href: "/admin/booking/settings",
+    },
   ];
 
   return (
@@ -38,7 +44,7 @@ export default function BookingPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {bookingModules.map((module) => (
           <Link key={module.href} href={module.href}>
             <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">

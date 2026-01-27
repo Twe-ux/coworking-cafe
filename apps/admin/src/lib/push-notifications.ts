@@ -23,7 +23,7 @@ function initializeWebPush() {
 /**
  * Types de notifications supportés
  */
-export type NotificationType = 'contact' | 'messenger' | 'support' | 'system';
+export type NotificationType = 'contact' | 'messenger' | 'support' | 'system' | 'booking';
 
 /**
  * Configuration des types de notifications
@@ -52,6 +52,12 @@ export const NOTIFICATION_CONFIGS = {
     badge: '/web-app-manifest-192x192.png',
     tag: 'system-notification',
     url: '/admin',
+  },
+  booking: {
+    icon: '/web-app-manifest-512x512.png',
+    badge: '/web-app-manifest-192x192.png',
+    tag: 'booking-notification',
+    url: '/admin/booking/reservations',
   },
 } as const;
 
@@ -326,4 +332,39 @@ export async function sendSystemNotification(systemData: {
   });
 
   console.log('[Push] System notification result:', result);
+}
+
+/**
+ * Envoie une notification pour une nouvelle réservation en attente
+ */
+export async function sendNewBookingNotification(bookingData: {
+  id: string;
+  clientName: string;
+  spaceName: string;
+  date: string;
+  time: string;
+  pendingCount: number;
+}): Promise<void> {
+  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+
+  const title = `🗓️ Nouvelle réservation`;
+  const body = `${bookingData.clientName} - ${bookingData.spaceName} le ${bookingData.date} à ${bookingData.time}`;
+
+  const truncatedTitle = title.length > 30
+    ? title.substring(0, 27) + '...'
+    : title;
+
+  const truncatedBody = body.length > 120
+    ? body.substring(0, 117) + '...'
+    : body;
+
+  const result = await sendTypedNotification('booking', {
+    title: truncatedTitle,
+    body: truncatedBody,
+    messageId: bookingData.id,
+    unreadCount: bookingData.pendingCount,
+    requireInteraction: true,
+  });
+
+  console.log('[Push] Booking notification result:', result);
 }

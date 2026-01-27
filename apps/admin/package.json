@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@coworking-cafe/database": "workspace:*",
+    "@coworking-cafe/email": "workspace:*",
     "@coworking-cafe/shared": "workspace:*",
     "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",

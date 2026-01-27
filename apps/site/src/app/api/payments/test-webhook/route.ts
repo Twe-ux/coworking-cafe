@@ -190,6 +190,11 @@ export async function POST(request: NextRequest) {
     // Map URL space type to database value
     const dbSpaceType = urlToDbSpaceType(metadata.spaceType);
 
+    // Calculate deposit amount from metadata
+    const depositAmountInCents = metadata.depositAmount
+      ? parseInt(metadata.depositAmount)
+      : Math.round(parseFloat(metadata.totalPrice) * 100);
+
     // Create reservation (using old Reservation format for compatibility)
     const reservation = await Booking.create({
       spaceType: dbSpaceType,
@@ -211,6 +216,7 @@ export async function POST(request: NextRequest) {
       stripePaymentIntentId: paymentIntent.id,
       stripeCustomerId: paymentIntent.customer as string,
       captureMethod: 'manual',
+      depositAmount: depositAmountInCents, // Store deposit amount in cents
       requiresPayment: true,
       confirmationNumber,
       isPartialPrivatization: metadata.isPartialPrivatization === 'true',
@@ -251,6 +257,49 @@ export async function POST(request: NextRequest) {
       console.error('❌ Email sending failed:', emailError);
       console.error('❌ Email error details:', emailError instanceof Error ? emailError.message : 'Unknown error');
       // Don't fail the booking creation if email fails
+    }
+
+    // Send push notification to admin
+    try {
+      const adminUrl = process.env.ADMIN_URL || 'http://localhost:3001';
+      const notificationsSecret = process.env.NOTIFICATIONS_SECRET;
+
+      console.log('[TestWebhook] Attempting to send admin notification...', {
+        adminUrl,
+        hasSecret: !!notificationsSecret,
+        bookingId: (reservation._id as any).toString(),
+      });
+
+      if (notificationsSecret) {
+        const notifResponse = await fetch(`${adminUrl}/api/notifications/booking`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${notificationsSecret}`,
+          },
+          body: JSON.stringify({
+            bookingId: (reservation._id as any).toString(),
+          }),
+        });
+
+        const notifResult = await notifResponse.json().catch(() => ({}));
+        console.log('[TestWebhook] Admin notification response:', {
+          status: notifResponse.status,
+          ok: notifResponse.ok,
+          result: notifResult,
+        });
+
+        if (notifResponse.ok) {
+          console.log('[TestWebhook] ✅ Admin notification sent for new booking');
+        } else {
+          console.error('[TestWebhook] ❌ Admin notification failed:', notifResult);
+        }
+      } else {
+        console.warn('[TestWebhook] NOTIFICATIONS_SECRET not configured, skipping notification');
+      }
+    } catch (notifError) {
+      console.error('[TestWebhook] Failed to send admin notification:', notifError);
+      // Don't fail the booking creation if notification fails
     }
 
     return NextResponse.json({

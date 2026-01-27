@@ -72,7 +72,6 @@ export async function PATCH(
       featuredImage,
       categoryId,
       status,
-      scheduledFor,
       metaTitle,
       metaDescription,
       metaKeywords,
@@ -135,10 +134,6 @@ export async function PATCH(
       if (status === "published" && !article.publishedAt) {
         article.publishedAt = new Date();
       }
-    }
-
-    if (scheduledFor !== undefined) {
-      article.scheduledFor = scheduledFor ? new Date(scheduledFor) : undefined;
     }
 
     // Create revision before saving changes

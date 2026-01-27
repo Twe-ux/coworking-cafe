@@ -118,7 +118,6 @@ export async function POST(request: NextRequest) {
       featuredImage,
       categoryId,
       status = "draft",
-      scheduledFor,
       metaTitle,
       metaDescription,
       metaKeywords,
@@ -155,7 +154,6 @@ export async function POST(request: NextRequest) {
       category: categoryId || undefined,
       status,
       publishedAt: status === "published" ? new Date() : undefined,
-      scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined,
       // SEO fields as separate properties
       metaTitle: metaTitle || undefined,
       metaDescription: metaDescription || undefined,

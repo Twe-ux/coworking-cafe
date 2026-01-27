@@ -71,6 +71,8 @@ export type BookingStatus =
 
 export type ReservationType = "hourly" | "daily" | "weekly" | "monthly"
 
+export type CaptureMethod = "automatic" | "manual" | "deferred"
+
 export interface Booking {
   _id?: string
   spaceId: string
@@ -78,6 +80,7 @@ export interface Booking {
   clientId: string
   clientName?: string // Denormalized pour affichage
   clientEmail?: string
+  clientPhone?: string
   reservationType: ReservationType
   startDate: string // YYYY-MM-DD
   endDate: string // YYYY-MM-DD
@@ -87,6 +90,8 @@ export interface Booking {
   status: BookingStatus
   totalPrice: number
   depositPaid?: number
+  captureMethod?: CaptureMethod // Type de capture: automatic = paiement direct, manual/deferred = empreinte CB
+  depositAmount?: number // Montant de l'empreinte CB calculé (en centimes)
   notes?: string
   createdAt?: string
   updatedAt?: string

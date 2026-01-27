@@ -13,9 +13,8 @@ export interface ArticleDocument extends Document {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords: string[];
-  status: "draft" | "published" | "archived" | "scheduled";
+  status: "draft" | "published" | "archived";
   publishedAt?: Date;
-  scheduledFor?: Date;
   viewCount: number;
   likeCount: number;
   isFeatured: boolean;
@@ -55,11 +54,10 @@ export const ArticleSchema = new Schema<ArticleDocument>(
     metaKeywords: [{ type: String, trim: true }],
     status: {
       type: String,
-      enum: ["draft", "published", "archived", "scheduled"],
+      enum: ["draft", "published", "archived"],
       default: "draft",
     },
     publishedAt: { type: Date },
-    scheduledFor: { type: Date },
     viewCount: { type: Number, default: 0, min: 0 },
     likeCount: { type: Number, default: 0, min: 0 },
     isFeatured: { type: Boolean, default: false },

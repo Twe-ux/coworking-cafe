@@ -221,7 +221,33 @@ export async function POST(request: NextRequest) {
 
     // Note: Pas de vérification de chevauchement - plusieurs réservations simultanées sont autorisées
 
-    // Create the reservation
+    // Calculate deposit amount if deposit policy is enabled
+    let depositAmount: number | undefined;
+    let captureMethod: 'manual' | 'automatic' | undefined;
+
+    if (spaceConfig.depositPolicy?.enabled && requiresPayment !== false) {
+      const totalPriceInCents = (totalPrice || basePrice || 0) * 100;
+      const policy = spaceConfig.depositPolicy;
+      let depositInCents = totalPriceInCents;
+
+      if (policy.fixedAmount) {
+        depositInCents = policy.fixedAmount;
+      } else if (policy.percentage) {
+        depositInCents = Math.round(totalPriceInCents * (policy.percentage / 100));
+      }
+
+      if (policy.minimumAmount && depositInCents < policy.minimumAmount) {
+        depositInCents = policy.minimumAmount;
+      }
+
+      depositAmount = depositInCents;
+
+      // Determine capture method based on booking date
+      const daysUntilBooking = Math.ceil((bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      captureMethod = daysUntilBooking <= 7 ? 'manual' : 'automatic';
+    }
+
+    // Create the reservation with deposit info
     const reservation = await Booking.create({
       user: userId,
       spaceType: dbSpaceType,
@@ -241,6 +267,8 @@ export async function POST(request: NextRequest) {
       additionalServices: additionalServices || [],
       requiresPayment: requiresPayment !== false, // Default to true
       paymentStatus: 'pending',
+      depositAmount,
+      captureMethod,
     });
 
     // Populate the reservation with user details
@@ -255,31 +283,6 @@ export async function POST(request: NextRequest) {
         quantity: service.quantity || 1,
         price: service.unitPrice || service.price || 0,
       }));
-
-      // Calculate deposit amount if deposit policy is enabled
-      let depositAmount: number | undefined;
-      let captureMethod: 'manual' | 'automatic' | undefined;
-
-      if (spaceConfig.depositPolicy?.enabled && requiresPayment !== false) {
-        const totalPriceInCents = (totalPrice || basePrice || 0) * 100;
-        const policy = spaceConfig.depositPolicy;
-        let depositInCents = totalPriceInCents;
-
-        if (policy.fixedAmount) {
-          depositInCents = policy.fixedAmount;
-        } else if (policy.percentage) {
-          depositInCents = Math.round(totalPriceInCents * (policy.percentage / 100));
-        }
-
-        if (policy.minimumAmount && depositInCents < policy.minimumAmount) {
-          depositInCents = policy.minimumAmount;
-        }
-
-        depositAmount = depositInCents;
-
-        // Determine capture method based on booking date
-        const daysUntilBooking = Math.ceil((bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        captureMethod = daysUntilBooking <= 7 ? 'manual' : 'automatic';      }
 
       await sendBookingConfirmation(contactEmail, {
         name: contactName,
@@ -299,7 +302,51 @@ export async function POST(request: NextRequest) {
         additionalServices: emailServices,
         numberOfPeople,
       });
-    } catch (emailError) {      // Don't fail the whole request if email fails
+    } catch (emailError) {
+      // Don't fail the whole request if email fails
+    }
+
+    // Send push notification to admin
+    try {
+      const adminUrl = process.env.ADMIN_URL || 'http://localhost:3001';
+      const notificationsSecret = process.env.NOTIFICATIONS_SECRET;
+
+      console.log('[Booking] Attempting to send admin notification...', {
+        adminUrl,
+        hasSecret: !!notificationsSecret,
+        bookingId: (reservation._id as mongoose.Types.ObjectId).toString(),
+      });
+
+      if (notificationsSecret) {
+        const notifResponse = await fetch(`${adminUrl}/api/notifications/booking`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${notificationsSecret}`,
+          },
+          body: JSON.stringify({
+            bookingId: (reservation._id as mongoose.Types.ObjectId).toString(),
+          }),
+        });
+
+        const notifResult = await notifResponse.json().catch(() => ({}));
+        console.log('[Booking] Admin notification response:', {
+          status: notifResponse.status,
+          ok: notifResponse.ok,
+          result: notifResult,
+        });
+
+        if (notifResponse.ok) {
+          console.log('[Booking] Admin notification sent for new booking');
+        } else {
+          console.error('[Booking] Admin notification failed:', notifResult);
+        }
+      } else {
+        console.warn('[Booking] NOTIFICATIONS_SECRET not configured, skipping notification');
+      }
+    } catch (notifError) {
+      // Don't fail the booking creation if notification fails
+      console.error('[Booking] Failed to send admin notification:', notifError);
     }
 
     return NextResponse.json(

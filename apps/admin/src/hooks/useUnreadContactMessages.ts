@@ -64,11 +64,14 @@ export function useUnreadContactMessages(): UseUnreadContactMessagesReturn {
     fetchUnreadCount();
   }, [fetchUnreadCount]);
 
-  // Polling toutes les 30 secondes
+  // Polling toutes les 60 secondes (réduit pour limiter les connexions DB)
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchUnreadCount();
-    }, 30000); // 30 secondes
+      // Ne pas fetcher si l'onglet n'est pas visible
+      if (document.visibilityState === 'visible') {
+        fetchUnreadCount();
+      }
+    }, 60000); // 60 secondes
 
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);

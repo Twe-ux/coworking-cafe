@@ -58,6 +58,7 @@ export interface BookingDocument extends Document {
   stripeCustomerId?: string;
   stripeSetupIntentId?: string; // Pour les réservations > 7 jours (save card for later charge)
   captureMethod?: "automatic" | "manual" | "deferred"; // Type de capture pour l'empreinte
+  depositAmount?: number; // Montant de l'empreinte CB calculé à la réservation (en centimes)
 
   // Cancellation
   cancelledAt?: Date;
@@ -297,6 +298,10 @@ export const BookingSchema = new Schema<BookingDocument>(
         values: ["automatic", "manual", "deferred"],
         message: "{VALUE} is not a valid capture method",
       },
+    },
+    depositAmount: {
+      type: Number,
+      min: [0, "Deposit amount cannot be negative"],
     },
     cancelledAt: {
       type: Date,
