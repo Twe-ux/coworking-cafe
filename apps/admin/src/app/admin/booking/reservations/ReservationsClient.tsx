@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Calendar,
-  Plus,
   AlertCircle,
   CheckCircle2,
   Check,
@@ -29,7 +28,6 @@ import {
   XCircle,
 } from "lucide-react";
 import { ReservationsSkeleton } from "./ReservationsSkeleton";
-import { ReservationDialog } from "./ReservationDialog";
 import { ReservationDetailModal } from "./ReservationDetailModal";
 import type { Booking, BookingStatus } from "@/types/booking";
 import {
@@ -72,8 +70,6 @@ export function ReservationsClient() {
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">(
     "pending",
   );
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
   // Quick cancel dialog state
@@ -106,21 +102,9 @@ export function ReservationsClient() {
     return allBookings.filter((b) => b.status === statusFilter);
   }, [allBookings, statusFilter]);
 
-  const handleCreate = () => {
-    setSelectedBooking(null);
-    setDialogOpen(true);
-  };
-
   const handleRowClick = (booking: Booking) => {
     setDetailBooking(booking);
     setDetailModalOpen(true);
-  };
-
-  const handleDialogSuccess = () => {
-    setMessage({
-      type: "success",
-      text: selectedBooking ? "Réservation mise à jour" : "Réservation créée",
-    });
   };
 
   const handleConfirm = async (bookingId: string) => {
@@ -204,28 +188,15 @@ export function ReservationsClient() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Calendar className="w-8 h-8" />
-            Réservations
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Gérer les réservations clients
-          </p>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="w-4 h-4 mr-2" />
-          Nouvelle réservation
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Calendar className="w-8 h-8" />
+          Réservations
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Gérer les réservations clients
+        </p>
       </div>
-
-      <ReservationDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        booking={selectedBooking}
-        onSuccess={handleDialogSuccess}
-      />
 
       <ReservationDetailModal
         booking={detailBooking}

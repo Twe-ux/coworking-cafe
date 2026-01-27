@@ -1,45 +1,47 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { Booking } from "@/types/booking";
 import {
   Calendar,
+  Check,
   Clock,
-  Users,
+  CreditCard,
   Mail,
   Phone,
-  CreditCard,
-  Check,
+  Users,
   X,
-} from "lucide-react"
-import type { Booking } from "@/types/booking"
+} from "lucide-react";
+import { useState } from "react";
 import {
-  getStatusLabel,
-  getStatusBadgeClass,
-  getReservationTypeLabel,
-  getReservationTypeBadgeClass,
   formatDate,
   formatPrice,
-} from "./utils"
+  formatTimeDisplay,
+  getCalculatedReservationType,
+  getReservationTypeBadgeClass,
+  getReservationTypeLabel,
+  getStatusBadgeClass,
+  getStatusLabel,
+} from "./utils";
 
 interface ReservationDetailModalProps {
-  booking: Booking | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onConfirm: (bookingId: string) => void
-  onCancel: (bookingId: string, reason: string) => void
-  isConfirming?: boolean
-  isCancelling?: boolean
+  booking: Booking | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: (bookingId: string) => void;
+  onCancel: (bookingId: string, reason: string) => void;
+  isConfirming?: boolean;
+  isCancelling?: boolean;
 }
 
 export function ReservationDetailModal({
@@ -51,37 +53,37 @@ export function ReservationDetailModal({
   isConfirming = false,
   isCancelling = false,
 }: ReservationDetailModalProps) {
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
-  const [cancelReason, setCancelReason] = useState("")
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
-  if (!booking) return null
+  if (!booking) return null;
 
   const handleCancelClick = () => {
-    setShowCancelDialog(true)
-  }
+    setShowCancelDialog(true);
+  };
 
   const handleCancelConfirm = () => {
     if (booking._id) {
-      onCancel(booking._id, cancelReason || "Annulée par l'administrateur")
-      setShowCancelDialog(false)
-      setCancelReason("")
+      onCancel(booking._id, cancelReason || "Annulée par l'administrateur");
+      setShowCancelDialog(false);
+      setCancelReason("");
     }
-  }
+  };
 
   const handleCancelDialogClose = () => {
-    setShowCancelDialog(false)
-    setCancelReason("")
-  }
+    setShowCancelDialog(false);
+    setCancelReason("");
+  };
 
   // Format deposit amount (stored in cents)
   const formatDepositAmount = (amount: number | undefined): string | null => {
-    if (amount === undefined || amount === null) return null
+    if (amount === undefined || amount === null) return null;
     // If amount > 1000, it's probably in cents
     if (amount > 1000) {
-      return formatPrice(amount / 100)
+      return formatPrice(amount / 100);
     }
-    return formatPrice(amount)
-  }
+    return formatPrice(amount);
+  };
 
   return (
     <>
@@ -91,61 +93,89 @@ export function ReservationDetailModal({
             <DialogTitle>Détails de la réservation</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             {/* Espace */}
             <div>
               <h3 className="text-lg font-bold">{booking.spaceName}</h3>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline" className={getStatusBadgeClass(booking.status)}>
+                <Badge
+                  variant="outline"
+                  className={getStatusBadgeClass(booking.status)}
+                >
                   {getStatusLabel(booking.status)}
                 </Badge>
-                <Badge variant="outline" className={getReservationTypeBadgeClass(booking.reservationType)}>
-                  {getReservationTypeLabel(booking.reservationType)}
+                <Badge
+                  variant="outline"
+                  className={getReservationTypeBadgeClass(
+                    getCalculatedReservationType(
+                      booking.startTime,
+                      booking.endTime,
+                    ),
+                  )}
+                >
+                  {getReservationTypeLabel(
+                    getCalculatedReservationType(
+                      booking.startTime,
+                      booking.endTime,
+                    ),
+                  )}
                 </Badge>
               </div>
             </div>
 
             {/* Client */}
-            <div className="space-y-1">
-              <h4 className="font-semibold text-blue-600">
-                {booking.clientName || "Client"}
-              </h4>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                {booking.clientEmail && (
-                  <span className="flex items-center gap-1">
-                    <Mail className="h-4 w-4" />
-                    {booking.clientEmail}
+
+            <div className="flex gap-20 px-4">
+              <div className="flex flex-col gap-2 text-sm space-y-4">
+                <h4 className="font-semibold text-blue-600">
+                  {booking.clientName || "Client"}
+                </h4>
+                <div className="space-y-2">
+                  {booking.clientEmail && (
+                    <a
+                      href={`mailto:${booking.clientEmail}`}
+                      className="flex items-center gap-2 text-muted-foreground hover:text-blue-600 transition-colors"
+                    >
+                      <Mail className="h-4 w-4" />
+                      <span className="underline">{booking.clientEmail}</span>
+                    </a>
+                  )}
+                  {booking.clientPhone && (
+                    <a
+                      href={`tel:${booking.clientPhone}`}
+                      className="flex items-center gap-2 text-muted-foreground hover:text-blue-600 transition-colors"
+                    >
+                      <Phone className="h-4 w-4" />
+                      <span className="underline">{booking.clientPhone}</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Date, heure, personnes */}
+              <div className="flex flex-col gap-3 text-sm justify-end">
+                <div className="flex items-center gap-2 font-medium">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    {formatDate(booking.startDate)}
+                    {booking.startDate !== booking.endDate &&
+                      ` → ${formatDate(booking.endDate)}`}
                   </span>
+                </div>
+                {booking.startTime && (
+                  <div className="flex items-center gap-2 font-medium">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span>
+                      {formatTimeDisplay(booking.startTime, booking.endTime)}
+                    </span>
+                  </div>
                 )}
-                {booking.clientPhone && (
-                  <span className="flex items-center gap-1">
-                    <Phone className="h-4 w-4" />
-                    {booking.clientPhone}
-                  </span>
-                )}
+                <div className="flex items-center gap-2 font-medium">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span>{booking.numberOfPeople} pers.</span>
+                </div>
               </div>
             </div>
-
-            {/* Date, heure, personnes sur même ligne */}
-            <div className="flex items-center gap-4 text-sm">
-              <span className="flex items-center gap-1 font-medium">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                {formatDate(booking.startDate)}
-                {booking.startDate !== booking.endDate && ` → ${formatDate(booking.endDate)}`}
-              </span>
-              {booking.startTime && (
-                <span className="flex items-center gap-1 font-medium">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  {booking.startTime}
-                  {booking.reservationType === "hourly" && booking.endTime && ` - ${booking.endTime}`}
-                </span>
-              )}
-              <span className="flex items-center gap-1 font-medium">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                {booking.numberOfPeople} pers.
-              </span>
-            </div>
-
             {/* Paiement */}
             <div className="space-y-2 border-t pt-4">
               <div className="flex items-center justify-between">
@@ -165,7 +195,8 @@ export function ReservationDetailModal({
                   </span>
                 </div>
               )}
-              {(booking.captureMethod === "manual" || booking.captureMethod === "deferred") && (
+              {(booking.captureMethod === "manual" ||
+                booking.captureMethod === "deferred") && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-2 text-blue-600">
                     <CreditCard className="h-4 w-4" />
@@ -226,7 +257,9 @@ export function ReservationDetailModal({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {booking.status === "pending" ? "Refuser la réservation" : "Annuler la réservation"}
+              {booking.status === "pending"
+                ? "Refuser la réservation"
+                : "Annuler la réservation"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -259,5 +292,5 @@ export function ReservationDetailModal({
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
