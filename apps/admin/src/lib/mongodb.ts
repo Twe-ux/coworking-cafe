@@ -20,12 +20,13 @@ function getMongoUri(): string {
 const databaseName = process.env.MONGODB_DB || "coworking-admin";
 
 const options: MongoClientOptions = {
-  maxPoolSize: 10,
-  serverSelectionTimeoutMS: 30000,
-  socketTimeoutMS: 120000,
-  connectTimeoutMS: 30000,
+  maxPoolSize: 5, // Reduced for M0 cluster limit
+  minPoolSize: 1,
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 60000,
+  connectTimeoutMS: 10000,
   family: 4,
-  maxIdleTimeMS: 300000,
+  maxIdleTimeMS: 30000, // Close idle connections faster
   compressors: ["zlib"],
   retryWrites: true,
   retryReads: true,

@@ -236,13 +236,42 @@ function handleData(data: UserData) { }
 
 ---
 
+## ⏰ Tâches Planifiées (Cron Jobs via N8N)
+
+**IMPORTANT** : Les tâches planifiées sont gérées via **N8N** (pas de cron Northflank)
+
+### Documentation
+
+→ **Lire** : `/docs/n8n/README.md`
+
+### Liste des Cron Jobs Actifs
+
+| Job | Schedule | Endpoint | Description |
+|-----|----------|----------|-------------|
+| Send Reminders | 10:00 | `/api/cron/send-reminders` | Rappels 24h avant |
+| Check Attendance | 10:00 | `/api/cron/check-attendance` | No-shows J-1 |
+| Daily Report | 19:00 | `/api/cron/daily-report` | Rapport admin |
+
+> **Note** : Jobs obsolètes : `create-holds`, `capture-deposits` (Stripe 90j), `publish-scheduled` (blog supprimé)
+
+### Ajouter un nouveau Cron Job
+
+1. **Créer l'endpoint** dans `apps/site/src/app/api/cron/[nom]/route.ts`
+2. **Sécuriser** avec `CRON_SECRET` header
+3. **Documenter** dans `/docs/n8n/README.md`
+4. **Créer le workflow N8N** (utiliser le template)
+5. **Tester** manuellement avant activation
+
+---
+
 ## 🔗 Liens Rapides
 
 - **Projet** : `/Users/twe/Developer/Thierry/coworking-cafe/`
 - **Documentation site** : `/apps/site/CLAUDE.md`
 - **Documentation admin** : `/apps/admin/CLAUDE.md`
+- **Documentation N8N** : `/docs/n8n/README.md`
 - **Conventions générales** : Ce fichier + `/docs/` (si existe)
 
 ---
 
-_Dernière mise à jour : 2026-01-16_
+_Dernière mise à jour : 2026-01-26_

@@ -68,7 +68,6 @@ export async function PUT(
       categoryId,
       tagIds,
       status,
-      scheduledFor,
       metaTitle,
       metaDescription,
       metaKeywords,
@@ -135,9 +134,6 @@ export async function PUT(
       if (status === "published" && !existingArticle.publishedAt) {
         updateData.publishedAt = new Date()
       }
-    }
-    if (scheduledFor !== undefined) {
-      updateData.scheduledFor = scheduledFor ? new Date(scheduledFor) : null
     }
     if (metaTitle !== undefined) updateData.metaTitle = metaTitle
     if (metaDescription !== undefined) updateData.metaDescription = metaDescription

@@ -79,13 +79,17 @@ export function getStaffMenu(): MenuItem[] {
  *
  * @param unreadCount - Nombre de messages non lus (pour le badge)
  * @param pendingUnavailabilities - Nombre de demandes d'indisponibilité en attente
+ * @param pendingBookings - Nombre de réservations en attente
  * @param isDev - Si l'utilisateur est dev (pour afficher Dev Tools)
+ * @param isAdmin - Si l'utilisateur est admin (pour afficher Dev Tools)
  * @param isLoading - Si la session est en chargement (pour éviter le flash)
  */
 export function getAdminMenu(
   unreadCount: number,
   pendingUnavailabilities: number,
+  pendingBookings: number,
   isDev: boolean,
+  isAdmin: boolean,
   isLoading = false,
 ): MenuItem[] {
   const items: MenuItem[] = [
@@ -136,6 +140,7 @@ export function getAdminMenu(
       title: "Booking",
       url: "/admin/booking",
       icon: Building2,
+      badge: pendingBookings > 0 ? pendingBookings : undefined,
       items: [
         {
           title: "Espaces",
@@ -144,6 +149,7 @@ export function getAdminMenu(
         {
           title: "Réservations",
           url: "/admin/booking/reservations",
+          badge: pendingBookings > 0 ? pendingBookings : undefined,
         },
         {
           title: "Calendrier",
@@ -234,8 +240,8 @@ export function getAdminMenu(
     },
   ];
 
-  // Dev Tools (uniquement pour les dev, ou pendant le chargement pour éviter le flash)
-  if (isDev || isLoading) {
+  // Dev Tools (visible pour dev et admin, ou pendant le chargement pour éviter le flash)
+  if (isDev || isAdmin || isLoading) {
     items.push({
       title: "Dev Tools",
       url: "/admin/dev",

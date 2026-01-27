@@ -2,7 +2,7 @@
  * Types pour le module Blog
  */
 
-export type ArticleStatus = "draft" | "published" | "archived" | "scheduled"
+export type ArticleStatus = "draft" | "published" | "archived"
 export type CommentStatus = "pending" | "approved" | "rejected" | "spam"
 
 // Article
@@ -39,7 +39,6 @@ export interface Article {
   tags?: ArticleTag[]
   status: ArticleStatus
   publishedAt?: string
-  scheduledFor?: string
   metaTitle?: string
   metaDescription?: string
   metaKeywords?: string[]
@@ -59,7 +58,6 @@ export interface CreateArticleData {
   categoryId?: string
   tagIds?: string[]
   status: ArticleStatus
-  scheduledFor?: string
   metaTitle?: string
   metaDescription?: string
   metaKeywords?: string[]

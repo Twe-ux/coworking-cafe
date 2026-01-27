@@ -35,6 +35,10 @@ export async function connectDB() {
   if (!global.mongoose.promise) {
     const opts = {
       bufferCommands: false,
+      maxPoolSize: 5, // Limit connections for M0 cluster
+      minPoolSize: 1,
+      maxIdleTimeMS: 30000, // Close idle connections after 30s
+      serverSelectionTimeoutMS: 10000,
     };
 
     global.mongoose.promise = mongoose.connect(process.env.MONGODB_URI, opts);

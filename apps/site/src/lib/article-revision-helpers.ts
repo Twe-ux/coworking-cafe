@@ -33,7 +33,6 @@ export async function createArticleRevision(
       category: article.category,
       status: article.status,
       publishedAt: article.publishedAt,
-      scheduledFor: article.scheduledFor,
       metaTitle: article.metaTitle,
       metaDescription: article.metaDescription,
       metaKeywords: article.metaKeywords,

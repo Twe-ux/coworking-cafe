@@ -1,0 +1,78 @@
+{
+  "name": "[CoworkingCafe] WORKFLOW_NAME",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 10,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "notes": "SCHEDULE: Modifier l'heure selon le cron job"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SITE_BASE_URL }}/api/cron/ENDPOINT_NAME",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "http-request",
+      "name": "Call Cron API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CREDENTIAL_ID",
+          "name": "CoworkingCafe Cron Auth"
+        }
+      },
+      "notes": "URL: Remplacer ENDPOINT_NAME par le nom de l'endpoint"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call Cron API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "cron"
+    },
+    {
+      "name": "coworking"
+    }
+  ],
+  "_instructions": {
+    "1": "Renommer le workflow avec le bon nom",
+    "2": "Modifier l'heure dans Schedule Trigger",
+    "3": "Remplacer ENDPOINT_NAME dans l'URL",
+    "4": "Associer le credential Header Auth",
+    "5": "Configurer la variable SITE_BASE_URL",
+    "6": "Tester manuellement avant activation"
+  }
+}

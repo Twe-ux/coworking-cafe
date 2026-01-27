@@ -9,9 +9,8 @@ export interface IArticleRevision extends Document {
   featuredImage?: string;
   featuredImageAlt?: string;
   category?: mongoose.Types.ObjectId;
-  status: 'draft' | 'published' | 'archived' | 'scheduled';
+  status: 'draft' | 'published' | 'archived';
   publishedAt?: Date;
-  scheduledFor?: Date;
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string[];
@@ -50,11 +49,10 @@ const ArticleRevisionSchema = new Schema<IArticleRevision>(
     },
     status: {
       type: String,
-      enum: ['draft', 'published', 'archived', 'scheduled'],
+      enum: ['draft', 'published', 'archived'],
       default: 'draft',
     },
     publishedAt: Date,
-    scheduledFor: Date,
     metaTitle: String,
     metaDescription: String,
     metaKeywords: [String],

@@ -259,6 +259,7 @@ export async function POST(request: NextRequest) {
     booking.stripePaymentIntentId = paymentIntent.id;
     booking.stripeCustomerId = customer.id;
     booking.captureMethod = 'manual';
+    booking.depositAmount = depositAmount; // Store deposit amount in cents
     booking.requiresPayment = true;
     await booking.save();
 

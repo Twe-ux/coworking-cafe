@@ -60,7 +60,6 @@ export function ArticlesClient() {
     draft: "secondary",
     published: "default",
     archived: "destructive",
-    scheduled: "outline",
   }
 
   const statsData = [
@@ -108,7 +107,6 @@ export function ArticlesClient() {
             <SelectItem value="draft">Brouillon</SelectItem>
             <SelectItem value="published">Publié</SelectItem>
             <SelectItem value="archived">Archivé</SelectItem>
-            <SelectItem value="scheduled">Programmé</SelectItem>
           </SelectContent>
         </Select>
 

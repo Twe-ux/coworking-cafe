@@ -300,6 +300,11 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
     }
     }
 
+    // Calculate deposit amount from metadata
+    const depositAmountInCents = metadata.depositAmount
+      ? parseInt(metadata.depositAmount)
+      : Math.round(parseFloat(metadata.totalPrice) * 100);
+
     // Create reservation
     let reservation;
     try {
@@ -323,6 +328,7 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
         stripePaymentIntentId: paymentIntent.id,
         stripeCustomerId: paymentIntent.customer as string,
         captureMethod: 'manual',
+        depositAmount: depositAmountInCents, // Store deposit amount in cents
         requiresPayment: true,
         confirmationNumber,
         isPartialPrivatization: metadata.isPartialPrivatization === 'true',
@@ -354,12 +360,58 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
         price: parseFloat(metadata.totalPrice),
         bookingId: (reservation._id as any).toString(),
         requiresPayment: true,
-        depositAmount: parseInt(metadata.depositAmount || metadata.totalPrice) || parseFloat(metadata.totalPrice) * 100, // Use stored deposit amount in cents
+        depositAmount: depositAmountInCents, // Use stored deposit amount in cents
         captureMethod: metadata.captureMethod as 'manual' | 'automatic',
         numberOfPeople: parseInt(metadata.numberOfPeople),
-      });    } catch (emailError) {      // Don't fail the booking creation if email fails
+      });
+    } catch (emailError) {
+      // Don't fail the booking creation if email fails
     }
-  } catch (error) {    throw error;
+
+    // Send push notification to admin
+    try {
+      const adminUrl = process.env.ADMIN_URL || 'http://localhost:3001';
+      const notificationsSecret = process.env.NOTIFICATIONS_SECRET;
+
+      console.log('[Webhook] Attempting to send admin notification...', {
+        adminUrl,
+        hasSecret: !!notificationsSecret,
+        bookingId: (reservation._id as any).toString(),
+      });
+
+      if (notificationsSecret) {
+        const notifResponse = await fetch(`${adminUrl}/api/notifications/booking`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${notificationsSecret}`,
+          },
+          body: JSON.stringify({
+            bookingId: (reservation._id as any).toString(),
+          }),
+        });
+
+        const notifResult = await notifResponse.json().catch(() => ({}));
+        console.log('[Webhook] Admin notification response:', {
+          status: notifResponse.status,
+          ok: notifResponse.ok,
+          result: notifResult,
+        });
+
+        if (notifResponse.ok) {
+          console.log('[Webhook] Admin notification sent for new booking');
+        } else {
+          console.error('[Webhook] Admin notification failed:', notifResult);
+        }
+      } else {
+        console.warn('[Webhook] NOTIFICATIONS_SECRET not configured, skipping notification');
+      }
+    } catch (notifError) {
+      // Don't fail the booking creation if notification fails
+      console.error('[Webhook] Failed to send admin notification:', notifError);
+    }
+  } catch (error) {
+    throw error;
   }
 }
 

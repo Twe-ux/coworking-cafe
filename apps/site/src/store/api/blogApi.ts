@@ -18,9 +18,8 @@ export interface Article {
     name: string;
     slug: string;
   };
-  status: 'draft' | 'published' | 'archived' | 'scheduled';
+  status: 'draft' | 'published' | 'archived';
   publishedAt?: string;
-  scheduledFor?: string;
   // SEO fields are stored as separate fields in the database, not grouped in an object
   metaTitle?: string;
   metaDescription?: string;
@@ -39,7 +38,6 @@ export interface CreateArticleDto {
   featuredImage?: string;
   categoryId?: string;
   status?: 'draft' | 'published';
-  scheduledFor?: string;
   // SEO fields as separate properties to match database schema
   metaTitle?: string;
   metaDescription?: string;
