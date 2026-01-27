@@ -46,12 +46,8 @@ export function PINLoginForm({
         setError(result.error);
         setLoading(false);
       } else if (result?.ok) {
-        // Redirection manuelle après succès avec router
-        router.push('/admin');
-        // Fallback avec window.location après un délai
-        setTimeout(() => {
-          window.location.href = '/admin';
-        }, 500);
+        // Force un vrai refresh pour bypass le cache du SW et du router
+        window.location.href = '/admin';
       } else {
         setError("Une erreur s'est produite lors de la connexion");
         setLoading(false);

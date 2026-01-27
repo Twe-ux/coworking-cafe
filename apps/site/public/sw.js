@@ -1,7 +1,7 @@
 // Service Worker pour CoworKing Café PWA
 // Cache les assets pour une utilisation offline
 
-const CACHE_NAME = 'coworking-cafe-v1';
+const CACHE_NAME = 'coworking-cafe-v2';
 const urlsToCache = [
   '/booking',
   '/favicon.svg',
@@ -35,6 +35,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Ne cache que les requêtes GET
   if (event.request.method !== 'GET') return;
+
+  // Ne JAMAIS mettre en cache les routes auth et APIs
+  const url = new URL(event.request.url);
+  const noCachePaths = ['/api/auth', '/api/bookings', '/api/payments', '/dashboard'];
+  if (noCachePaths.some(path => url.pathname.startsWith(path))) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request)

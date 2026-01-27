@@ -1,7 +1,7 @@
 // Service Worker pour PWA CoworKing Café Admin
 // Gère les push notifications et la Badge API
 
-const CACHE_NAME = 'cwc-admin-v6';
+const CACHE_NAME = 'cwc-admin-v7';
 const urlsToCache = [
   '/admin',
   '/admin/messages/contact',
@@ -41,6 +41,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Ne mettre en cache que les requêtes GET
   if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Ne JAMAIS mettre en cache les routes auth et session
+  const url = new URL(event.request.url);
+  const noCachePaths = ['/api/auth', '/login', '/api/hr/employees/verify-pin'];
+  if (noCachePaths.some(path => url.pathname.startsWith(path))) {
     event.respondWith(fetch(event.request));
     return;
   }
