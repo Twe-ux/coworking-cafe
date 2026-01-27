@@ -39,6 +39,7 @@ import {
   getReservationTypeBadgeClass,
   formatDate,
   formatPrice,
+  formatTimeDisplay,
 } from "./utils";
 import {
   useBookings,
@@ -395,14 +396,11 @@ export function ReservationsClient() {
                       </div>
 
                       {/* Col 6: Heures */}
-                      <div className="w-[120px]">
+                      <div className="w-[140px]">
                         {booking.startTime && (
                           <span className="flex items-center gap-1 font-medium text-foreground">
                             <Clock className="w-4 h-4 text-muted-foreground" />
-                            {booking.startTime}
-                            {(booking.reservationType === "hourly" || !booking.reservationType) &&
-                              booking.endTime &&
-                              `-${booking.endTime}`}
+                            {formatTimeDisplay(booking.startTime, booking.endTime)}
                           </span>
                         )}
                       </div>
