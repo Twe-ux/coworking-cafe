@@ -95,7 +95,7 @@ export function formatPrice(price: number): string {
 /**
  * Calcule la durée en heures entre deux horaires (format HH:mm)
  */
-function calculateDuration(startTime: string, endTime: string): number {
+export function calculateDuration(startTime: string, endTime: string): number {
   const [startHour, startMin] = startTime.split(':').map(Number);
   const [endHour, endMin] = endTime.split(':').map(Number);
 
@@ -103,6 +103,19 @@ function calculateDuration(startTime: string, endTime: string): number {
   const endMinutes = endHour * 60 + endMin;
 
   return (endMinutes - startMinutes) / 60;
+}
+
+/**
+ * Détermine le type de réservation selon la durée
+ * - 1h à 5h : "hourly"
+ * - > 5h : "daily"
+ */
+export function getCalculatedReservationType(startTime?: string, endTime?: string): string {
+  if (!startTime || !endTime) return 'hourly';
+
+  const duration = calculateDuration(startTime, endTime);
+
+  return duration > 5 ? 'daily' : 'hourly';
 }
 
 /**

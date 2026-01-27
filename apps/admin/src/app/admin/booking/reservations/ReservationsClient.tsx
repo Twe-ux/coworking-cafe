@@ -40,6 +40,7 @@ import {
   formatDate,
   formatPrice,
   formatTimeDisplay,
+  getCalculatedReservationType,
 } from "./utils";
 import {
   useBookings,
@@ -382,10 +383,12 @@ export function ReservationsClient() {
                         <Badge
                           variant="outline"
                           className={getReservationTypeBadgeClass(
-                            booking.reservationType,
+                            getCalculatedReservationType(booking.startTime, booking.endTime),
                           )}
                         >
-                          {getReservationTypeLabel(booking.reservationType)}
+                          {getReservationTypeLabel(
+                            getCalculatedReservationType(booking.startTime, booking.endTime)
+                          )}
                         </Badge>
                       </div>
 
