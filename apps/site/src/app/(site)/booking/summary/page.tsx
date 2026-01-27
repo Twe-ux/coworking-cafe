@@ -223,17 +223,37 @@ export default function BookingSummaryPage() {
   const [cancellationPolicy, setCancellationPolicy] = useState<any>(null);
 
   // Restore payment state from sessionStorage if booking data matches
-  // DISABLED: Always create fresh payment intent to avoid expired intent errors
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Clear any stale payment data on page load
-    // This ensures we always create a fresh payment intent
-    sessionStorage.removeItem("paymentClientSecret");
-    sessionStorage.removeItem("paymentIntentType");
-    sessionStorage.removeItem("showPaymentForm");
-    sessionStorage.removeItem("paymentBookingHash");
-    console.log("[Payment] Cleared stale payment data on page load");
+    const storedBookingHash = sessionStorage.getItem("paymentBookingHash");
+    const currentBookingData = sessionStorage.getItem("bookingData");
+    const currentHash = currentBookingData
+      ? btoa(currentBookingData).slice(0, 32)
+      : "";
+
+    // Only restore if the booking data hasn't changed
+    if (storedBookingHash && storedBookingHash === currentHash) {
+      const storedClientSecret = sessionStorage.getItem("paymentClientSecret");
+      const storedIntentType = sessionStorage.getItem("paymentIntentType");
+      const storedShowPayment = sessionStorage.getItem("showPaymentForm");
+
+      if (storedClientSecret && storedShowPayment === "true") {
+        console.log("[Payment] Restoring payment state from sessionStorage");
+        setClientSecret(storedClientSecret);
+        setIntentType(
+          (storedIntentType as "manual_capture" | "setup_intent") ||
+            "manual_capture",
+        );
+        setShowPaymentForm(true);
+      }
+    } else {
+      // Clear stale payment data if booking changed
+      sessionStorage.removeItem("paymentClientSecret");
+      sessionStorage.removeItem("paymentIntentType");
+      sessionStorage.removeItem("showPaymentForm");
+      sessionStorage.removeItem("paymentBookingHash");
+    }
   }, []);
 
   // Fonction pour convertir un prix entre TTC et HT
@@ -481,9 +501,14 @@ export default function BookingSummaryPage() {
       sessionStorage.setItem("showPaymentForm", "true");
       // Save booking hash for validation on restore
       const bookingDataStr = sessionStorage.getItem("bookingData");
-      const bookingHash = bookingDataStr ? btoa(bookingDataStr).slice(0, 32) : "";
+      const bookingHash = bookingDataStr
+        ? btoa(bookingDataStr).slice(0, 32)
+        : "";
       sessionStorage.setItem("paymentBookingHash", bookingHash);
-      console.log("[Payment] Saved payment state with booking hash:", bookingHash);
+      console.log(
+        "[Payment] Saved payment state with booking hash:",
+        bookingHash,
+      );
 
       setClientSecret(newClientSecret);
       setIntentType(newIntentType);
@@ -1418,7 +1443,10 @@ export default function BookingSummaryPage() {
                               checked={acceptedTerms}
                               onChange={(e) => {
                                 setAcceptedTerms(e.target.checked);
-                                sessionStorage.setItem("acceptedTerms", e.target.checked.toString());
+                                sessionStorage.setItem(
+                                  "acceptedTerms",
+                                  e.target.checked.toString(),
+                                );
                               }}
                               style={{
                                 width: "1.35rem",
