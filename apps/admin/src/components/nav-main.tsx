@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 
 import {
@@ -70,10 +71,10 @@ export function NavMain({
           >
             <SidebarMenuItem className="relative">
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url} onClick={handleLinkClick}>
+                <Link href={item.url} onClick={handleLinkClick}>
                   <item.icon />
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
 
               {/* Point rouge sur l'icône quand sidebar fermée */}
@@ -102,13 +103,13 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <a href={subItem.url} onClick={handleLinkClick} className="flex items-center">
+                            <Link href={subItem.url} onClick={handleLinkClick} className="flex items-center">
                               <span>{subItem.title}</span>
                               {/* Badge sur le sous-item quand menu ouvert - juste après le texte */}
                               {subItem.badge && subItem.badge > 0 && (
                                 <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
                               )}
-                            </a>
+                            </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}
