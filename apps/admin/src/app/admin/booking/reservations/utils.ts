@@ -91,3 +91,42 @@ export function formatPrice(price: number): string {
     currency: "EUR",
   }).format(price)
 }
+
+/**
+ * Calcule la durée en heures entre deux horaires (format HH:mm)
+ */
+function calculateDuration(startTime: string, endTime: string): number {
+  const [startHour, startMin] = startTime.split(':').map(Number);
+  const [endHour, endMin] = endTime.split(':').map(Number);
+
+  const startMinutes = startHour * 60 + startMin;
+  const endMinutes = endHour * 60 + endMin;
+
+  return (endMinutes - startMinutes) / 60;
+}
+
+/**
+ * Formate l'affichage des horaires selon la durée
+ * - 1h à 5h : affiche "10:00-13:30"
+ * - > 5h et endTime !== 20:00 : affiche "Journée (10:00-17:00)"
+ * - > 5h et endTime === 20:00 : affiche "Journée"
+ */
+export function formatTimeDisplay(startTime?: string, endTime?: string): string {
+  if (!startTime) return '';
+  if (!endTime) return startTime;
+
+  const duration = calculateDuration(startTime, endTime);
+
+  // Forfait heure (1h à 5h)
+  if (duration <= 5) {
+    return `${startTime}-${endTime}`;
+  }
+
+  // Forfait journée (> 5h)
+  // Si fermeture à 20h, pas besoin d'afficher l'heure de fin
+  if (endTime === '20:00') {
+    return 'Journée';
+  }
+
+  return `Journée (${startTime}-${endTime})`;
+}
