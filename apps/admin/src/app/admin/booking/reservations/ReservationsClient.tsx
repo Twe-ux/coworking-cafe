@@ -394,16 +394,25 @@ export function ReservationsClient() {
                         {formatDate(booking.startDate)}
                       </div>
 
-                      {/* Col 6: Heures */}
-                      <div className="w-[120px]">
+                      {/* Col 6: Heures + Type */}
+                      <div className="w-[180px]">
                         {booking.startTime && (
-                          <span className="flex items-center gap-1 font-medium text-foreground">
-                            <Clock className="w-4 h-4 text-muted-foreground" />
-                            {booking.startTime}
-                            {booking.reservationType === "hourly" &&
-                              booking.endTime &&
-                              `-${booking.endTime}`}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <span className="flex items-center gap-1 font-medium text-foreground">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              {booking.startTime}
+                              {booking.reservationType === "hourly" &&
+                                booking.endTime &&
+                                `-${booking.endTime}`}
+                            </span>
+                            <span className="text-xs text-muted-foreground ml-5">
+                              {booking.reservationType === "hourly" && "À l'heure"}
+                              {booking.reservationType === "daily" && "À la journée"}
+                              {booking.reservationType === "weekly" && "À la semaine"}
+                              {booking.reservationType === "monthly" && "Au mois"}
+                              {!booking.reservationType && "À l'heure"}
+                            </span>
+                          </div>
                         )}
                       </div>
 
