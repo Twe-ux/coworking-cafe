@@ -87,7 +87,7 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
           className="modal fade show"
           style={{
             display: "block",
-            backgroundColor: "rgba(20, 34, 32, 0.7)",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
             zIndex: 9999,
           }}
           onClick={() => setShowAuthModal(false)}
@@ -99,60 +99,29 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
             <div
               className="modal-content"
               style={{
-                border: "none",
-                borderRadius: "12px",
-                boxShadow: "0 10px 40px rgba(20, 34, 32, 0.3)",
-                overflow: "hidden",
+                borderRadius: "10px",
+                backgroundColor: "#e3ece7",
               }}
             >
-              <div className="modal-header border-0 pb-0 pt-3 pe-3">
+              <div className="modal-header border-0">
                 <button
                   type="button"
-                  className="btn-close ms-auto"
+                  className="btn-close"
                   onClick={() => setShowAuthModal(false)}
                   aria-label="Close"
-                  style={{
-                    backgroundImage: "none",
-                    opacity: 1,
-                    width: "auto",
-                    height: "auto",
-                    padding: "0",
-                    border: "none",
-                    background: "none",
-                  }}
-                >
-                  <i
-                    className="fa-solid fa-xmark"
-                    style={{ color: "#142220", fontSize: "24px" }}
-                  ></i>
-                </button>
+                ></button>
               </div>
-              <div className="modal-body text-center py-4 px-5">
-                <div
-                  className="mb-4"
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    margin: "0 auto",
-                    background: "linear-gradient(135deg, #417972 0%, #142220 100%)",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
+              <div className="modal-body text-center px-4 pb-4">
+                <div className="mb-4">
                   <i
                     className="fa-regular fa-heart"
-                    style={{ fontSize: "36px", color: "#f2d381" }}
+                    style={{ fontSize: "48px", color: "#417972" }}
                   ></i>
                 </div>
-                <h5
-                  className="mb-3"
-                  style={{ color: "#142220", fontWeight: "600" }}
-                >
+                <h5 className="mb-3" style={{ color: "#142220" }}>
                   Connectez-vous pour liker cet article
                 </h5>
-                <p style={{ color: "#6e6f75", marginBottom: "2rem" }}>
+                <p className="mb-4" style={{ color: "#6e6f75" }}>
                   Vous devez être connecté pour pouvoir liker les articles et
                   sauvegarder vos préférences.
                 </p>
@@ -161,9 +130,9 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
                     href={`/auth/login?callbackUrl=/blog/${article.slug}`}
                     className="btn"
                     style={{
-                      backgroundColor: "#417972",
-                      color: "#ffffff",
-                      border: "1px solid #417972",
+                      backgroundColor: "#f2d381",
+                      color: "#142220",
+                      border: "1px solid #f2d381",
                       borderRadius: "10px",
                       fontWeight: "600",
                       padding: "15px 32px",
@@ -183,8 +152,8 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
                     href={`/auth/register?callbackUrl=/blog/${article.slug}`}
                     className="btn"
                     style={{
-                      backgroundColor: "transparent",
-                      color: "#ffffff",
+                      backgroundColor: "#f2d381",
+                      color: "#142220",
                       border: "1px solid #f2d381",
                       borderRadius: "10px",
                       fontWeight: "600",
