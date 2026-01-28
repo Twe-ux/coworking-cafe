@@ -3,7 +3,8 @@ import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { MenuItem, MenuCategory } from "@coworking-cafe/database";
-import type { ApiResponse, MenuItem as MenuItemType } from "@/types/produits";
+import { revalidateMenuCache } from "@/lib/revalidate-site-cache";
+import type { ApiResponse, MenuItem as MenuItemType, ProduitsItemType } from "@/types/produits";
 
 /**
  * GET /api/menu/items/[id]
@@ -106,10 +107,10 @@ export async function PUT(
     }
 
     // Valider le type si fourni
-    if (body.type && !["food", "drink"].includes(body.type)) {
+    if (body.type && !["food", "drink", "grocery", "goodies"].includes(body.type)) {
       return errorResponse(
         "Type invalide",
-        "type doit être 'food' ou 'drink'",
+        "type doit être 'food', 'drink', 'grocery' ou 'goodies'",
         400
       );
     }
@@ -154,6 +155,9 @@ export async function PUT(
       updatedAt: updatedItem.updatedAt.toISOString(),
     };
 
+    // Invalider le cache du site pour ce type
+    await revalidateMenuCache(updatedItem.type as ProduitsItemType);
+
     return successResponse(formattedItem, "Item mis à jour avec succès");
   } catch (error) {
     console.error(`PUT /api/menu/items/${params.id} error:`, error);
@@ -187,7 +191,13 @@ export async function DELETE(
       return errorResponse("Item introuvable", "Aucun item avec cet ID", 404);
     }
 
+    // Sauvegarder le type pour invalider le cache après suppression
+    const itemType = item.type;
+
     await MenuItem.findByIdAndDelete(params.id);
+
+    // Invalider le cache du site pour ce type
+    await revalidateMenuCache(itemType as ProduitsItemType);
 
     return successResponse(undefined, "Item supprimé avec succès");
   } catch (error) {

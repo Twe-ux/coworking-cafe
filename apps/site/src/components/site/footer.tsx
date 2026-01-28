@@ -41,8 +41,7 @@ const Footer = () => {
         "/student-offers",
 
         "/boissons",
-        // "/menu/boissons",
-        // "/menu/food",
+        // "/menu",
 
         "/blog",
 
@@ -71,8 +70,8 @@ const Footer = () => {
       "/student-offers",
       // Menu
       "/boissons",
-      "/menu/boissons",
-      "/menu/food",
+      // "/menu",
+
       // Professionnels
       // Le Mag'
 
@@ -90,7 +89,7 @@ const Footer = () => {
 
       "/espaces",
       "/tarifs",
-      "/menu",
+
       "/professionnels",
       "/mag",
       "/booking",

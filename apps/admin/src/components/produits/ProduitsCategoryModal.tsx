@@ -31,7 +31,6 @@ interface ProduitsCategoryModalProps {
     slug: string;
     description?: string;
     type: ProduitsItemType;
-    order?: number;
     isActive?: boolean;
     showOnSite?: boolean;
   }) => Promise<boolean>;
@@ -62,7 +61,6 @@ export function ProduitsCategoryModal({
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<ProduitsItemType>(fixedType || "food");
-  const [order, setOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [showOnSite, setShowOnSite] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -74,7 +72,6 @@ export function ProduitsCategoryModal({
       setSlug(category.slug);
       setDescription(category.description || "");
       setType(category.type);
-      setOrder(category.order);
       setIsActive(category.isActive);
       setShowOnSite(category.showOnSite);
     } else {
@@ -83,7 +80,6 @@ export function ProduitsCategoryModal({
       setSlug("");
       setDescription("");
       setType(fixedType || "food");
-      setOrder(0);
       setIsActive(true);
       setShowOnSite(true);
     }
@@ -113,7 +109,6 @@ export function ProduitsCategoryModal({
         slug,
         description: description || undefined,
         type,
-        order,
         isActive,
         showOnSite,
       });
@@ -196,18 +191,6 @@ export function ProduitsCategoryModal({
                 <SelectItem value="goodies">Goodies</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Ordre */}
-          <div className="space-y-2">
-            <Label htmlFor="order">Ordre d'affichage</Label>
-            <Input
-              id="order"
-              type="number"
-              value={order}
-              onChange={(e) => setOrder(parseInt(e.target.value) || 0)}
-              min={0}
-            />
           </div>
 
           {/* Switches */}

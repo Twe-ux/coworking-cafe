@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye, EyeOff, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import type { ProduitsCategory } from "@/types/produits";
 
 interface ProduitsCategoryRowProps {
   category: ProduitsCategory;
   onEdit?: (category: ProduitsCategory) => void;
   onDelete?: (categoryId: string) => void;
-  onToggleActive?: (categoryId: string, isActive: boolean) => void;
 }
 
 /**
@@ -17,13 +21,11 @@ interface ProduitsCategoryRowProps {
  * @param category - Catégorie à afficher
  * @param onEdit - Callback pour éditer la catégorie
  * @param onDelete - Callback pour supprimer la catégorie
- * @param onToggleActive - Callback pour activer/désactiver la catégorie
  */
 export function ProduitsCategoryRow({
   category,
   onEdit,
   onDelete,
-  onToggleActive,
 }: ProduitsCategoryRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -53,7 +55,9 @@ export function ProduitsCategoryRow({
 
           {/* Nom + badges */}
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className={`font-semibold ${!category.isActive ? "text-muted-foreground" : ""}`}>
+            <h3
+              className={`font-semibold ${!category.isActive ? "text-muted-foreground" : ""}`}
+            >
               {category.name}
             </h3>
 
@@ -79,7 +83,10 @@ export function ProduitsCategoryRow({
 
             {/* Badge caché du site */}
             {!category.showOnSite && (
-              <Badge variant="outline" className="text-xs border-orange-500 text-orange-700">
+              <Badge
+                variant="outline"
+                className="text-xs border-orange-500 text-orange-700"
+              >
                 ❌ Caché du site
               </Badge>
             )}
@@ -96,21 +103,6 @@ export function ProduitsCategoryRow({
               title="Modifier"
             >
               <Pencil className="w-4 h-4" />
-            </Button>
-          )}
-
-          {onToggleActive && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onToggleActive(category.id, !category.isActive)}
-              title={category.isActive ? "Désactiver" : "Activer"}
-            >
-              {category.isActive ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
             </Button>
           )}
 
@@ -134,7 +126,9 @@ export function ProduitsCategoryRow({
             {/* Description */}
             {category.description && (
               <div>
-                <span className="text-xs font-medium text-muted-foreground">Description:</span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Description:
+                </span>
                 <p className="text-sm mt-1">{category.description}</p>
               </div>
             )}
@@ -142,13 +136,17 @@ export function ProduitsCategoryRow({
             {/* Slug et ordre */}
             <div className="flex items-center gap-4 flex-wrap">
               <div>
-                <span className="text-xs font-medium text-muted-foreground">Slug:</span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Slug:
+                </span>
                 <Badge variant="outline" className="text-xs ml-2">
                   {category.slug}
                 </Badge>
               </div>
               <div>
-                <span className="text-xs font-medium text-muted-foreground">Ordre:</span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Ordre:
+                </span>
                 <Badge variant="outline" className="text-xs ml-2">
                   {category.order}
                 </Badge>
@@ -161,7 +159,8 @@ export function ProduitsCategoryRow({
                 Créé: {new Date(category.createdAt).toLocaleDateString("fr-FR")}
               </span>
               <span>
-                Modifié: {new Date(category.updatedAt).toLocaleDateString("fr-FR")}
+                Modifié:{" "}
+                {new Date(category.updatedAt).toLocaleDateString("fr-FR")}
               </span>
             </div>
           </div>

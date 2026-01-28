@@ -28,8 +28,7 @@ const publicRoutes = [
   "/horaires",
 
   "/boissons",
-  // "/menu/boissons",
-  // "/menu/food",
+  "/menu",
 
   "/blog",
 

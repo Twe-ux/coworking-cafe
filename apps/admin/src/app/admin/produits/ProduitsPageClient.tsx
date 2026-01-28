@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Coffee, UtensilsCrossed, ShoppingBasket, Gift, Package } from "lucide-react";
+import { Plus, Coffee, UtensilsCrossed, ShoppingBasket, Gift, Package, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useProduitsManager } from "@/hooks/useProduitsManager";
-import { ProduitsCategoryRow } from "@/components/produits/ProduitsCategoryRow";
-import { ProduitsItemCard } from "@/components/produits/ProduitsItemCard";
+import { SortableCategoryList } from "@/components/produits/SortableCategoryList";
+import { ProduitsItemsByCategoryList } from "@/components/produits/ProduitsItemsByCategoryList";
 import { ProduitsCategoryModal } from "@/components/produits/ProduitsCategoryModal";
 import { ProduitsItemModal } from "@/components/produits/ProduitsItemModal";
 import { ProduitsPageSkeleton } from "./ProduitsPageSkeleton";
@@ -26,22 +28,20 @@ export function ProduitsPageClient() {
     createItem,
     updateItem,
     deleteItem,
+    refetch,
   } = useProduitsManager(); // Sans type filter, on récupère tout
 
   // Filter state
   const [selectedType, setSelectedType] = useState<ProduitsItemType | "all">("all");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
+  const [showInactiveCategories, setShowInactiveCategories] = useState(false);
+  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
+  const [showInactiveItems, setShowInactiveItems] = useState(false);
 
   // Modals state
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [itemModalOpen, setItemModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ProduitsCategory | undefined>();
   const [editingItem, setEditingItem] = useState<ProduitsItem | undefined>();
-
-  // Reset category filter when type changes
-  useEffect(() => {
-    setSelectedCategoryId("all");
-  }, [selectedType]);
 
   // Calculate stats per type - MUST be before conditional returns
   const stats = useMemo(() => {
@@ -71,9 +71,24 @@ export function ProduitsPageClient() {
 
   // Filter categories and items by selected type - MUST be before conditional returns
   const filteredCategories = useMemo(() => {
-    if (selectedType === "all") return categories;
-    return categories.filter((c) => c.type === selectedType);
-  }, [categories, selectedType]);
+    let result = categories;
+
+    // Filter by type
+    if (selectedType !== "all") {
+      result = result.filter((c) => c.type === selectedType);
+    }
+
+    // Filter by active status: show ONLY active OR ONLY inactive
+    if (showInactiveCategories) {
+      // Afficher uniquement les inactives
+      result = result.filter((c) => !c.isActive);
+    } else {
+      // Afficher uniquement les actives
+      result = result.filter((c) => c.isActive);
+    }
+
+    return result;
+  }, [categories, selectedType, showInactiveCategories]);
 
   const filteredItems = useMemo(() => {
     let result = items;
@@ -83,18 +98,18 @@ export function ProduitsPageClient() {
       result = result.filter((i) => i.type === selectedType);
     }
 
-    // Filter by category
-    if (selectedCategoryId !== "all") {
-      result = result.filter((i) => i.category.id === selectedCategoryId);
+    // Filter by active status: show ONLY active OR ONLY inactive
+    if (showInactiveItems) {
+      // Afficher uniquement les inactifs
+      result = result.filter((i) => !i.isActive);
+    } else {
+      // Afficher uniquement les actifs
+      result = result.filter((i) => i.isActive);
     }
 
-    // Sort by category name, then by order
-    return [...result].sort((a, b) => {
-      const categoryCompare = a.category.name.localeCompare(b.category.name);
-      if (categoryCompare !== 0) return categoryCompare;
-      return a.order - b.order;
-    });
-  }, [items, selectedType, selectedCategoryId]);
+    // Sort by order within category (the grouping is done in the component)
+    return [...result].sort((a, b) => a.order - b.order);
+  }, [items, selectedType, showInactiveItems]);
 
   // Conditional returns AFTER all hooks
   if (loading) {
@@ -168,10 +183,6 @@ export function ProduitsPageClient() {
     }
   };
 
-  const handleToggleCategoryActive = async (id: string, isActive: boolean) => {
-    await updateCategory(id, { isActive });
-  };
-
   // Handlers - Items
   const handleCreateItem = () => {
     setEditingItem(undefined);
@@ -222,10 +233,6 @@ export function ProduitsPageClient() {
         variant: "destructive",
       });
     }
-  };
-
-  const handleToggleItemActive = async (id: string, isActive: boolean) => {
-    await updateItem(id, { isActive });
   };
 
   return (
@@ -344,90 +351,94 @@ export function ProduitsPageClient() {
       </div>
 
       {/* Catégories */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">
-          Catégories
-          {selectedType !== "all" && (
-            <span className="text-sm text-muted-foreground ml-2">
-              ({filteredCategories.length})
-            </span>
-          )}
-        </h2>
-        {filteredCategories.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              Aucune catégorie
-              {selectedType !== "all" && " pour ce type"}. Créez-en une pour commencer.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {filteredCategories.map((category) => (
-              <ProduitsCategoryRow
-                key={category.id}
-                category={category}
+      <Card>
+        <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => setCategoriesExpanded(!categoriesExpanded)}>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+            >
+              {categoriesExpanded ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </Button>
+            <h2 className="text-xl font-semibold">
+              Catégories
+              <span className="text-sm text-muted-foreground ml-2">
+                ({filteredCategories.length})
+              </span>
+            </h2>
+          </div>
+          <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+            <Switch
+              id="show-inactive"
+              checked={showInactiveCategories}
+              onCheckedChange={setShowInactiveCategories}
+            />
+            <Label htmlFor="show-inactive" className="cursor-pointer">
+              {showInactiveCategories ? "Catégories inactives" : "Catégories actives"}
+            </Label>
+          </div>
+        </div>
+
+        {categoriesExpanded && (
+          <div className="border-t p-4">
+            {filteredCategories.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                {showInactiveCategories
+                  ? "Aucune catégorie inactive"
+                  : "Aucune catégorie"}
+                {selectedType !== "all" && " pour ce type"}.
+              </div>
+            ) : (
+              <SortableCategoryList
+                categories={filteredCategories}
                 onEdit={handleEditCategory}
                 onDelete={handleDeleteCategory}
-                onToggleActive={handleToggleCategoryActive}
+                onReorder={async () => {
+                  // Recharger les données pour afficher le nouvel ordre
+                  await refetch();
+                }}
               />
-            ))}
+            )}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Items */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">
             Items
-            {selectedType !== "all" && (
-              <span className="text-sm text-muted-foreground ml-2">
-                ({filteredItems.length})
-              </span>
-            )}
+            <span className="text-sm text-muted-foreground ml-2">
+              ({filteredItems.length})
+            </span>
           </h2>
-          {filteredCategories.length > 0 && (
-            <select
-              value={selectedCategoryId}
-              onChange={(e) => setSelectedCategoryId(e.target.value)}
-              className="px-3 py-2 border rounded-md bg-background"
-            >
-              <option value="all">Toutes les catégories</option>
-              {filteredCategories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-        {items.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              Aucun item. Créez-en un pour commencer.
-            </CardContent>
-          </Card>
-        ) : filteredItems.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground">
-              Aucun item
-              {selectedCategoryId !== "all" && " dans cette catégorie"}
-              {selectedType !== "all" && selectedCategoryId === "all" && " pour ce type"}.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {filteredItems.map((item) => (
-              <ProduitsItemCard
-                key={item.id}
-                item={item}
-                onEdit={handleEditItem}
-                onDelete={handleDeleteItem}
-                onToggleActive={handleToggleItemActive}
-              />
-            ))}
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-inactive-items"
+              checked={showInactiveItems}
+              onCheckedChange={setShowInactiveItems}
+            />
+            <Label htmlFor="show-inactive-items" className="cursor-pointer">
+              {showInactiveItems ? "Items inactifs" : "Items actifs"}
+            </Label>
           </div>
-        )}
+        </div>
+        <ProduitsItemsByCategoryList
+          items={filteredItems}
+          categories={filteredCategories}
+          onEditItem={handleEditItem}
+          onDeleteItem={handleDeleteItem}
+          onReorderItems={async () => {
+            // Recharger les données pour afficher le nouvel ordre
+            await refetch();
+          }}
+          showInactive={showInactiveItems}
+        />
       </div>
 
       {/* Modals */}

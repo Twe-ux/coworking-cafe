@@ -3,7 +3,8 @@ import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { MenuCategory } from "@coworking-cafe/database";
-import type { ApiResponse, MenuCategory as MenuCategoryType } from "@/types/produits";
+import { revalidateMenuCache } from "@/lib/revalidate-site-cache";
+import type { ApiResponse, MenuCategory as MenuCategoryType, ProduitsItemType } from "@/types/produits";
 
 /**
  * GET /api/menu/categories
@@ -86,10 +87,10 @@ export async function POST(
       );
     }
 
-    if (!["food", "drink"].includes(body.type)) {
+    if (!["food", "drink", "grocery", "goodies"].includes(body.type)) {
       return errorResponse(
         "Type invalide",
-        "type doit être 'food' ou 'drink'",
+        "type doit être 'food', 'drink', 'grocery' ou 'goodies'",
         400
       );
     }
@@ -127,6 +128,9 @@ export async function POST(
       createdAt: category.createdAt.toISOString(),
       updatedAt: category.updatedAt.toISOString(),
     };
+
+    // Invalider le cache du site pour ce type
+    await revalidateMenuCache(category.type as ProduitsItemType);
 
     return successResponse(
       formattedCategory,
