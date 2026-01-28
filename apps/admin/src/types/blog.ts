@@ -21,12 +21,6 @@ export interface ArticleCategory {
   slug: string
 }
 
-export interface ArticleTag {
-  _id: string
-  name: string
-  slug: string
-}
-
 export interface Article {
   _id?: string
   title: string
@@ -36,7 +30,6 @@ export interface Article {
   featuredImage?: string
   author: ArticleAuthor
   category?: ArticleCategory
-  tags?: ArticleTag[]
   status: ArticleStatus
   publishedAt?: string
   metaTitle?: string
@@ -56,7 +49,6 @@ export interface CreateArticleData {
   excerpt?: string
   featuredImage?: string
   categoryId?: string
-  tagIds?: string[]
   status: ArticleStatus
   metaTitle?: string
   metaDescription?: string
@@ -73,7 +65,6 @@ export interface ArticlesFilter {
   limit?: number
   status?: ArticleStatus | "all"
   category?: string
-  tag?: string
   search?: string
   sortBy?: "createdAt" | "publishedAt" | "viewCount" | "likeCount"
   sortOrder?: "asc" | "desc"
@@ -100,7 +91,7 @@ export interface Category {
   metaDescription?: string
   articleCount: number
   order: number
-  isActive: boolean
+  isVisible: boolean
   createdAt: string
   updatedAt: string
 }
@@ -127,34 +118,6 @@ export interface CategoriesFilter {
   limit?: number
   parent?: string | null
   isVisible?: boolean
-}
-
-// Tag
-
-export interface Tag {
-  _id?: string
-  name: string
-  slug: string
-  description?: string
-  color?: string
-  articleCount: number
-  createdAt: string
-  updatedAt: string
-}
-
-export interface CreateTagData {
-  name: string
-  description?: string
-  color?: string
-}
-
-export interface UpdateTagData extends Partial<CreateTagData> {
-  _id: string
-}
-
-export interface TagsFilter {
-  page?: number
-  limit?: number
 }
 
 // Comment

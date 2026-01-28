@@ -21,7 +21,7 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams
     const includeInactive = searchParams.get("includeInactive") === "true"
 
-    const filter = includeInactive ? {} : { isActive: true }
+    const filter = includeInactive ? {} : { isVisible: true }
 
     const categories = await Category.find(filter)
       .populate("parent", "name slug")
@@ -66,9 +66,28 @@ export async function POST(
       }
     }
 
+    // Générer le slug
+    let slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+
+    // Vérifier que le slug est unique
+    let slugExists = await Category.findOne({ slug })
+    let counter = 1
+    while (slugExists) {
+      slug = `${name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "")}-${counter}`
+      slugExists = await Category.findOne({ slug })
+      counter++
+    }
+
     // Créer la catégorie
     const category = await Category.create({
       name,
+      slug,
       description,
       parent: parentId || null,
       color,

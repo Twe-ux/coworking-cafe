@@ -4,7 +4,6 @@ import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"
 import { Article } from "@/models/article"
 import { Category } from "@/models/category"
-import { Tag } from "@/models/tag"
 import type { ApiResponse } from "@/types/timeEntry"
 import type { Article as ArticleType, ArticlesFilter } from "@/types/blog"
 
@@ -25,7 +24,6 @@ export async function GET(
     const limit = parseInt(searchParams.get("limit") || "10")
     const status = searchParams.get("status") || "all"
     const category = searchParams.get("category")
-    const tag = searchParams.get("tag")
     const search = searchParams.get("search")
     const sortBy = searchParams.get("sortBy") || "createdAt"
     const sortOrder = searchParams.get("sortOrder") || "desc"
@@ -43,10 +41,6 @@ export async function GET(
       filter.category = category
     }
 
-    if (tag) {
-      filter.tags = tag
-    }
-
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -59,7 +53,6 @@ export async function GET(
       Article.find(filter)
         .populate("author", "username name email avatar")
         .populate("category", "name slug")
-        .populate("tags", "name slug")
         .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
         .skip(skip)
         .limit(limit)
@@ -105,7 +98,6 @@ export async function POST(
       excerpt,
       featuredImage,
       categoryId,
-      tagIds,
       status,
       metaTitle,
       metaDescription,
@@ -130,14 +122,6 @@ export async function POST(
       }
     }
 
-    // Vérifier que les tags existent
-    if (tagIds && tagIds.length > 0) {
-      const tagsCount = await Tag.countDocuments({ _id: { $in: tagIds } })
-      if (tagsCount !== tagIds.length) {
-        return errorResponse("Tags invalides", "Un ou plusieurs tagIds sont invalides", 400)
-      }
-    }
-
     // Créer l'article
     const article = await Article.create({
       title,
@@ -146,7 +130,6 @@ export async function POST(
       featuredImage,
       author: userId,
       category: categoryId || null,
-      tags: tagIds || [],
       status: status || "draft",
       publishedAt: status === "published" ? new Date() : null,
       metaTitle,
@@ -160,19 +143,10 @@ export async function POST(
       await Category.findByIdAndUpdate(categoryId, { $inc: { articleCount: 1 } })
     }
 
-    // Incrémenter articleCount des tags
-    if (tagIds && tagIds.length > 0) {
-      await Tag.updateMany(
-        { _id: { $in: tagIds } },
-        { $inc: { articleCount: 1 } }
-      )
-    }
-
     // Populate et retourner
     const populatedArticle = await Article.findById(article._id)
       .populate("author", "username name email avatar")
       .populate("category", "name slug")
-      .populate("tags", "name slug")
       .lean()
 
     return successResponse(

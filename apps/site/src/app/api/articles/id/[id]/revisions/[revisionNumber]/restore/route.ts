@@ -62,7 +62,6 @@ export async function POST(
     await article.populate([
       { path: "author", select: "username name email" },
       { path: "category", select: "name slug" },
-      { path: "tags", select: "name slug" },
     ]);
 
     return NextResponse.json({

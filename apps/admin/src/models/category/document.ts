@@ -80,7 +80,7 @@ CategorySchema.index({ isVisible: 1, order: 1 })
 
 // Générer le slug automatiquement
 CategorySchema.pre("save", function (next) {
-  if (this.isModified("name") && !this.slug) {
+  if (!this.slug && this.name) {
     this.slug = this.name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")

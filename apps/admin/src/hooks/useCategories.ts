@@ -23,7 +23,7 @@ interface UseCategoriesReturn {
       description?: string
       parentId?: string
       color?: string
-      isActive?: boolean
+      isVisible?: boolean
     }
   ) => Promise<Category | null>
   deleteCategory: (id: string) => Promise<boolean>
@@ -103,7 +103,7 @@ export function useCategories(
         description?: string
         parentId?: string
         color?: string
-        isActive?: boolean
+        isVisible?: boolean
       }
     ): Promise<Category | null> => {
       try {

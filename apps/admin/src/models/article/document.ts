@@ -8,7 +8,6 @@ export interface ArticleDocument extends Document {
   featuredImage?: string
   author: Types.ObjectId
   category?: Types.ObjectId
-  tags: Types.ObjectId[]
   status: "draft" | "published" | "archived" | "scheduled"
   publishedAt?: Date
   scheduledFor?: Date
@@ -58,12 +57,6 @@ export const ArticleSchema = new Schema<ArticleDocument>(
       ref: "Category",
       index: true,
     },
-    tags: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Tag",
-      },
-    ],
     status: {
       type: String,
       enum: ["draft", "published", "archived", "scheduled"],
@@ -105,7 +98,6 @@ export const ArticleSchema = new Schema<ArticleDocument>(
 // Index composés
 ArticleSchema.index({ status: 1, publishedAt: -1 })
 ArticleSchema.index({ category: 1, status: 1 })
-ArticleSchema.index({ tags: 1, status: 1 })
 ArticleSchema.index({ author: 1, createdAt: -1 })
 
 // Générer le slug automatiquement avant save

@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
     // Filters
     const status = searchParams.get("status");
     const category = searchParams.get("category");
-    const tag = searchParams.get("tag");
     const search = searchParams.get("search");
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") === "asc" ? 1 : -1;
@@ -54,10 +53,6 @@ export async function GET(request: NextRequest) {
 
     if (category) {
       query.category = category;
-    }
-
-    if (tag) {
-      query.tags = tag;
     }
 
     if (search) {
