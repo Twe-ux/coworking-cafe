@@ -317,10 +317,6 @@
   transition: all 0.3s ease;
   z-index: 998;
 
-  @media (min-width: 992px) {
-    display: none;
-  }
-
   &--visible {
     opacity: 1;
     visibility: visible;
