@@ -334,19 +334,20 @@ export const blogApi = createApi({
       }),
       invalidatesTags: (result, error, id) => [
         { type: 'ArticleLikes', id },
-        { type: 'Articles', id },
+        { type: 'Article', id },
       ],
       // Optimistic update
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          blogApi.util.updateQueryData('getArticleById', id, (draft) => {
-            draft.likeCount += 1;
-          })
-        );
         try {
-          await queryFulfilled;
+          const { data } = await queryFulfilled;
+          // Update cache with actual like count from API
+          dispatch(
+            blogApi.util.updateQueryData('getArticleById', id, (draft) => {
+              draft.likeCount = data.likeCount;
+            })
+          );
         } catch {
-          patchResult.undo();
+          // Error handled by component
         }
       },
     }),
@@ -362,19 +363,20 @@ export const blogApi = createApi({
       }),
       invalidatesTags: (result, error, id) => [
         { type: 'ArticleLikes', id },
-        { type: 'Articles', id },
+        { type: 'Article', id },
       ],
       // Optimistic update
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          blogApi.util.updateQueryData('getArticleById', id, (draft) => {
-            draft.likeCount -= 1;
-          })
-        );
         try {
-          await queryFulfilled;
+          const { data } = await queryFulfilled;
+          // Update cache with actual like count from API
+          dispatch(
+            blogApi.util.updateQueryData('getArticleById', id, (draft) => {
+              draft.likeCount = data.likeCount;
+            })
+          );
         } catch {
-          patchResult.undo();
+          // Error handled by component
         }
       },
     }),
