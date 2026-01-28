@@ -65,6 +65,8 @@ export const CACHE_TAGS = {
   MENU: 'menu',
   MENU_DRINK: 'menu-drink',
   MENU_FOOD: 'menu-food',
+  MENU_GROCERY: 'menu-grocery',
+  MENU_GOODIES: 'menu-goodies',
   GLOBAL_HOURS: 'global-hours',
   SPACES: 'spaces',
   ADDITIONAL_SERVICES: 'additional-services',

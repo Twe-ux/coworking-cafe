@@ -33,7 +33,6 @@ interface ProduitsItemModalProps {
     image?: string;
     categoryId: string;
     type: ProduitsItemType;
-    order?: number;
     isActive?: boolean;
   }) => Promise<boolean>;
   item?: ProduitsItem; // Si fourni = mode édition
@@ -68,7 +67,6 @@ export function ProduitsItemModal({
   const [image, setImage] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [type, setType] = useState<ProduitsItemType>(fixedType || "food");
-  const [order, setOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -84,7 +82,6 @@ export function ProduitsItemModal({
       setImage(item.image || "");
       setCategoryId(item.category.id);
       setType(item.type);
-      setOrder(item.order);
       setIsActive(item.isActive);
     } else {
       // Réinitialiser en mode création
@@ -94,7 +91,6 @@ export function ProduitsItemModal({
       setImage("");
       setCategoryId("");
       setType(fixedType || "food");
-      setOrder(0);
       setIsActive(true);
     }
   }, [item, fixedType, isOpen]);
@@ -118,7 +114,6 @@ export function ProduitsItemModal({
         image: image || undefined,
         categoryId,
         type,
-        order,
         isActive,
       });
 
@@ -230,18 +225,6 @@ export function ProduitsItemModal({
                 />
               </div>
             )}
-          </div>
-
-          {/* Ordre */}
-          <div className="space-y-2">
-            <Label htmlFor="order">Ordre d'affichage</Label>
-            <Input
-              id="order"
-              type="number"
-              value={order}
-              onChange={(e) => setOrder(parseInt(e.target.value) || 0)}
-              min={0}
-            />
           </div>
 
           {/* Switch Actif */}

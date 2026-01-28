@@ -21,16 +21,23 @@ export async function GET(
   // 3. Query params (optionnel)
   const searchParams = request.nextUrl.searchParams;
   const type = searchParams.get("type"); // "food" | "drink" | null
+  const activeOnly = searchParams.get("activeOnly") === "true"; // Filtrer uniquement les actifs
 
   try {
     // 4. Récupérer les catégories
-    const categoryFilter = type ? { type, isActive: true } : { isActive: true };
+    const categoryFilter: any = {};
+    if (type) categoryFilter.type = type;
+    if (activeOnly) categoryFilter.isActive = true;
+
     const categories = await MenuCategory.find(categoryFilter)
       .sort({ type: 1, order: 1 })
       .lean();
 
     // 5. Récupérer les items
-    const itemFilter = type ? { type, isActive: true } : { isActive: true };
+    const itemFilter: any = {};
+    if (type) itemFilter.type = type;
+    if (activeOnly) itemFilter.isActive = true;
+
     const items = await MenuItem.find(itemFilter)
       .populate("category", "name slug")
       .sort({ type: 1, order: 1 })

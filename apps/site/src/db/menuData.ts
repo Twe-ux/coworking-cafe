@@ -38,16 +38,14 @@ export const menuData: MenuItem[] = [
   },
   // {
   //   title: "Menu",
-  //   link: "#",
-  //   submenu: [
-  //     { title: "Boissons", link: "/boissons" },
-  //     { title: "Foods", link: "/food" },
-  //   ],
+  //   link: "/menu",
   // },
+
   // {
   //   title: "Professionnels",
   //   link: "/professionnels",
   // },
+
   {
     title: "Le Mag'",
     link: "/blog",

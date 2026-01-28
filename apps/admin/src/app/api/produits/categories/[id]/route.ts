@@ -3,7 +3,8 @@ import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { MenuCategory } from "@coworking-cafe/database";
-import type { ApiResponse, MenuCategory as MenuCategoryType } from "@/types/produits";
+import { revalidateMenuCache } from "@/lib/revalidate-site-cache";
+import type { ApiResponse, MenuCategory as MenuCategoryType, ProduitsItemType } from "@/types/produits";
 
 /**
  * GET /api/menu/categories/[id]
@@ -89,10 +90,10 @@ export async function PUT(
     }
 
     // Valider le type si fourni
-    if (body.type && !["food", "drink"].includes(body.type)) {
+    if (body.type && !["food", "drink", "grocery", "goodies"].includes(body.type)) {
       return errorResponse(
         "Type invalide",
-        "type doit être 'food' ou 'drink'",
+        "type doit être 'food', 'drink', 'grocery' ou 'goodies'",
         400
       );
     }
@@ -129,6 +130,9 @@ export async function PUT(
       updatedAt: updatedCategory.updatedAt.toISOString(),
     };
 
+    // Invalider le cache du site pour ce type
+    await revalidateMenuCache(updatedCategory.type as ProduitsItemType);
+
     return successResponse(formattedCategory, "Catégorie mise à jour avec succès");
   } catch (error) {
     console.error(`PUT /api/menu/categories/${params.id} error:`, error);
@@ -162,6 +166,9 @@ export async function DELETE(
       return errorResponse("Catégorie introuvable", "Aucune catégorie avec cet ID", 404);
     }
 
+    // Sauvegarder le type pour invalider le cache après suppression
+    const categoryType = category.type;
+
     // Vérifier s'il y a des items liés (optionnel - à décommenter si besoin)
     // const MenuItem = (await import("@coworking-cafe/database")).MenuItem;
     // const itemsCount = await MenuItem.countDocuments({ category: params.id });
@@ -174,6 +181,9 @@ export async function DELETE(
     // }
 
     await MenuCategory.findByIdAndDelete(params.id);
+
+    // Invalider le cache du site pour ce type
+    await revalidateMenuCache(categoryType as ProduitsItemType);
 
     return successResponse(undefined, "Catégorie supprimée avec succès");
   } catch (error) {
