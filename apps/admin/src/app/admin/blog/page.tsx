@@ -1,4 +1,4 @@
-import { BookOpen, FolderTree, MessagesSquare, FileText } from "lucide-react"
+import { BookOpen, FolderTree, FileText } from "lucide-react"
 import Link from "next/link"
 import {
   Card,
@@ -24,13 +24,6 @@ export default function BlogPage() {
       href: "/admin/blog/categories",
       stats: "Hiérarchie",
     },
-    {
-      title: "Commentaires",
-      description: "Modérer les commentaires des articles",
-      icon: MessagesSquare,
-      href: "/admin/blog/comments",
-      stats: "Modération",
-    },
   ]
 
   return (
@@ -41,7 +34,7 @@ export default function BlogPage() {
           Blog
         </h1>
         <p className="text-muted-foreground mt-2">
-          Gestion des articles, catégories et commentaires
+          Gestion des articles et catégories du blog
         </p>
       </div>
 
