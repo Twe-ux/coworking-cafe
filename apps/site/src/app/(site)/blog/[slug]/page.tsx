@@ -1,6 +1,7 @@
 "use client";
 
 import BlogArticleDetail from "../../../../components/site/blogs/blogArticleDetail";
+import BlogBreadcrumb from "../../../../components/site/blogs/BlogBreadcrumb";
 import BlogSidebar from "../../../../components/site/blogs/blogSidebar";
 import PageTitle from "../../../../components/site/pageTitle";
 import { useGetArticleBySlugQuery } from "../../../../store/api/blogApi";
@@ -69,6 +70,11 @@ const BlogDetails = () => {
         <div className="container">
           <div className="row">
             <div className="col-lg-8">
+              <BlogBreadcrumb
+                categoryName={article.category?.name}
+                categorySlug={article.category?.slug}
+                articleTitle={article.title}
+              />
               <BlogArticleDetail article={article} />
             </div>
             <div className="col-lg-4 mt-5 mt-lg-0">
