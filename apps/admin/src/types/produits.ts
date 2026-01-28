@@ -11,8 +11,8 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// Type d'élément (food, drink, grocery, etc.)
-export type ProduitsItemType = "food" | "drink" | "grocery";
+// Type d'élément (food, drink, grocery, goodies, etc.)
+export type ProduitsItemType = "food" | "drink" | "grocery" | "goodies";
 
 // Legacy alias for backwards compatibility
 export type MenuItemType = ProduitsItemType;

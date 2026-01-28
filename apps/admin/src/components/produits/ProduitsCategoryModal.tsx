@@ -190,8 +190,10 @@ export function ProduitsCategoryModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="food">Nourriture</SelectItem>
                 <SelectItem value="drink">Boisson</SelectItem>
+                <SelectItem value="food">Nourriture</SelectItem>
+                <SelectItem value="grocery">Épicerie</SelectItem>
+                <SelectItem value="goodies">Goodies</SelectItem>
               </SelectContent>
             </Select>
           </div>
