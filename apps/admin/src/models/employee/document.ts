@@ -79,8 +79,8 @@ export interface EmployeeDocument extends Document {
 
   // Planning de travail
   workSchedule?: {
-    weeklyDistribution: string;
-    timeSlots: string;
+    weeklyDistribution: { [key: string]: { [week: string]: string } };
+    timeSlots: { [key: string]: string };
     weeklyDistributionData?: { [key: string]: { [week: string]: string } };
   };
 
@@ -286,8 +286,8 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
     // Planning de travail
     workSchedule: {
       type: {
-        weeklyDistribution: { type: String },
-        timeSlots: { type: String },
+        weeklyDistribution: { type: Object },
+        timeSlots: { type: Object },
         weeklyDistributionData: { type: Object },
       },
       required: false,

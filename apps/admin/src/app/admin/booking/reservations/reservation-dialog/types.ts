@@ -1,21 +1,48 @@
-// Types pour ReservationDialog et ses composants
+// Types pour le nouveau ReservationDialog
 
-import type { Booking, BookingStatus, ReservationType, SpaceConfiguration } from "@/types/booking"
+import type { Booking, BookingStatus } from "@/types/booking"
+
+export interface ClientData {
+  id?: string
+  name: string
+  email: string
+  phone?: string
+  company?: string
+}
 
 export interface ReservationFormData {
+  // Client
+  client: ClientData | null
+
+  // Espace
   spaceId: string
-  clientName: string
-  clientEmail: string
-  reservationType: ReservationType
+  spaceName: string
+
+  // Dates
   startDate: string
   endDate: string
+
+  // Heures
   startTime: string
   endTime: string
+
+  // Personnes
   numberOfPeople: number
-  status: BookingStatus
+
+  // Prix (calculé automatiquement)
   totalPrice: number
-  depositPaid: number
+
+  // Acompte (conditionnel)
+  depositRequired: boolean
+  depositAmount: number
+  depositFileAttached: boolean
+  depositFileUrl: string
+
+  // Notes
   notes: string
+
+  // Statut (en bas)
+  status: BookingStatus
 }
 
 export interface ReservationDialogProps {
@@ -25,28 +52,66 @@ export interface ReservationDialogProps {
   onSuccess: () => void
 }
 
-export interface ClientInfoSectionProps {
-  formData: ReservationFormData
-  onChange: (field: keyof ReservationFormData, value: string | number) => void
+export interface ClientSectionProps {
+  selectedClient: ClientData | null
+  onChange: (client: ClientData | null) => void
+  error?: string
 }
 
-export interface SpaceSelectionSectionProps {
-  formData: ReservationFormData
-  spaces: SpaceConfiguration[]
-  onChange: (field: keyof ReservationFormData, value: string) => void
+export interface SpaceSectionProps {
+  selectedSpace: string
+  onChange: (spaceId: string, spaceName: string) => void
+  error?: string
 }
 
-export interface DateTimeSectionProps {
-  formData: ReservationFormData
-  onChange: (field: keyof ReservationFormData, value: string) => void
+export interface DateSectionProps {
+  startDate: string
+  endDate: string
+  onStartDateChange: (date: string) => void
+  onEndDateChange: (date: string) => void
+  error?: string
 }
 
-export interface PricingSectionProps {
-  formData: ReservationFormData
-  onChange: (field: keyof ReservationFormData, value: number) => void
+export interface TimeSectionProps {
+  startTime: string
+  endTime: string
+  onStartTimeChange: (time: string) => void
+  onEndTimeChange: (time: string) => void
+  error?: string
 }
 
-export interface ReservationStatusSectionProps {
-  formData: ReservationFormData
-  onChange: (field: keyof ReservationFormData, value: string | BookingStatus) => void
+export interface PeopleSectionProps {
+  numberOfPeople: number
+  onChange: (count: number) => void
+  min?: number
+  max?: number
+  error?: string
+}
+
+export interface PriceSectionProps {
+  totalPrice: number
+  loading: boolean
+}
+
+export interface DepositSectionProps {
+  required: boolean
+  amount: number
+  fileAttached: boolean
+  fileUrl: string
+  onRequiredChange: (required: boolean) => void
+  onAmountChange: (amount: number) => void
+  onFileAttachedChange: (attached: boolean) => void
+  onFileUploaded: (url: string) => void
+  spaceType: string
+}
+
+export interface NotesSectionProps {
+  notes: string
+  onChange: (notes: string) => void
+}
+
+export interface StatusSectionProps {
+  status: BookingStatus
+  onChange: (status: BookingStatus) => void
+  depositRequired?: boolean
 }

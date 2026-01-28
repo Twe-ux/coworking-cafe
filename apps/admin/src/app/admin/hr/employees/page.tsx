@@ -26,8 +26,25 @@ function HRManagementContent() {
   const userRole = session?.user?.role;
   const activeTab = searchParams.get("tab") || "employees";
 
-  const { employees, loading, error, fetchEmployees, archiveEmployee } =
-    useEmployeesData();
+  const {
+    employees: allEmployees,
+    loading,
+    error,
+    fetchEmployees,
+    archiveEmployee,
+  } = useEmployeesData();
+
+  // Filtrer pour exclure l'employé dev
+  const isDevEmployee = (emp: Employee) => {
+    return (
+      emp.email.toLowerCase().includes("dev@") ||
+      emp.email === "dev@coworkingcafe.com"
+    );
+  };
+
+  // Tous les employés (exclure dev uniquement)
+  // Les employés en attente seront affichés dans la liste principale avec bordure bleue
+  const employees = allEmployees.filter((emp) => !isDevEmployee(emp));
 
   const {
     drafts,
@@ -105,13 +122,13 @@ function HRManagementContent() {
         setContractModalOpen(true);
       } else {
         toast.error("Erreur", {
-          description: "Impossible de charger les détails de l'employé"
+          description: "Impossible de charger les détails de l'employé",
         });
       }
     } catch (error) {
       console.error("Error fetching employee details:", error);
       toast.error("Erreur", {
-        description: "Une erreur est survenue"
+        description: "Une erreur est survenue",
       });
     }
   };
@@ -242,7 +259,7 @@ function HRManagementContent() {
             </div>
           )}
 
-          {/* Liste des employés */}
+          {/* Liste des employés (avec employés en attente en bleu) */}
           <EmployeeList
             employees={employees}
             loading={loading}
@@ -256,22 +273,6 @@ function HRManagementContent() {
 
         <TabsContent value="availability" className="space-y-4">
           <AvailabilityCalendarTab />
-        </TabsContent>
-
-        <TabsContent value="schedule" className="space-y-4">
-          <div className="rounded-lg border bg-card p-6">
-            <p className="text-sm text-muted-foreground">
-              Module Planning en cours de migration...
-            </p>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="clocking" className="space-y-4">
-          <div className="rounded-lg border bg-card p-6">
-            <p className="text-sm text-muted-foreground">
-              Module Pointage en cours de migration...
-            </p>
-          </div>
         </TabsContent>
       </Tabs>
 

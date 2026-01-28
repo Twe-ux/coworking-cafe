@@ -222,38 +222,17 @@ export default function BookingSummaryPage() {
   });
   const [cancellationPolicy, setCancellationPolicy] = useState<any>(null);
 
-  // Restore payment state from sessionStorage if booking data matches
+  // Always clear payment state on page load to avoid expired Payment Intent errors
+  // This ensures we always create a fresh payment intent when user clicks "Procéder au paiement"
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const storedBookingHash = sessionStorage.getItem("paymentBookingHash");
-    const currentBookingData = sessionStorage.getItem("bookingData");
-    const currentHash = currentBookingData
-      ? btoa(currentBookingData).slice(0, 32)
-      : "";
-
-    // Only restore if the booking data hasn't changed
-    if (storedBookingHash && storedBookingHash === currentHash) {
-      const storedClientSecret = sessionStorage.getItem("paymentClientSecret");
-      const storedIntentType = sessionStorage.getItem("paymentIntentType");
-      const storedShowPayment = sessionStorage.getItem("showPaymentForm");
-
-      if (storedClientSecret && storedShowPayment === "true") {
-        console.log("[Payment] Restoring payment state from sessionStorage");
-        setClientSecret(storedClientSecret);
-        setIntentType(
-          (storedIntentType as "manual_capture" | "setup_intent") ||
-            "manual_capture",
-        );
-        setShowPaymentForm(true);
-      }
-    } else {
-      // Clear stale payment data if booking changed
-      sessionStorage.removeItem("paymentClientSecret");
-      sessionStorage.removeItem("paymentIntentType");
-      sessionStorage.removeItem("showPaymentForm");
-      sessionStorage.removeItem("paymentBookingHash");
-    }
+    // Clear any stale payment data on page load
+    sessionStorage.removeItem("paymentClientSecret");
+    sessionStorage.removeItem("paymentIntentType");
+    sessionStorage.removeItem("showPaymentForm");
+    sessionStorage.removeItem("paymentBookingHash");
+    console.log("[Payment] Cleared stale payment data on page load");
   }, []);
 
   // Fonction pour convertir un prix entre TTC et HT
@@ -1173,6 +1152,12 @@ export default function BookingSummaryPage() {
                             },
                           } as any
                         }
+                        onLoadError={(error: any) => {
+                          console.error("[Payment] Elements load error:", error);
+                          setPaymentError(
+                            "Erreur lors du chargement du module de paiement. Veuillez réessayer."
+                          );
+                        }}
                       >
                         <PaymentFormContent
                           bookingId={bookingId}

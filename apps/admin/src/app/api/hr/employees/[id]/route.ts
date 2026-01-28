@@ -191,7 +191,7 @@ export async function PUT(
     if (data.phone !== undefined) updateData.phone = data.phone?.trim() || null
 
     // Personal info
-    if (data.dateOfBirth !== undefined) updateData.dateOfBirth = new Date(data.dateOfBirth)
+    if (data.dateOfBirth !== undefined) updateData.dateOfBirth = data.dateOfBirth // String YYYY-MM-DD
     if (data.placeOfBirth !== undefined) updateData.placeOfBirth = data.placeOfBirth
     if (data.nationality !== undefined) updateData.nationality = data.nationality
     if (data.address !== undefined) updateData.address = data.address
@@ -200,9 +200,9 @@ export async function PUT(
     // Contract info
     if (data.contractType !== undefined) updateData.contractType = data.contractType
     if (data.contractualHours !== undefined) updateData.contractualHours = data.contractualHours
-    if (data.hireDate !== undefined) updateData.hireDate = new Date(data.hireDate)
+    if (data.hireDate !== undefined) updateData.hireDate = data.hireDate // String YYYY-MM-DD
     if (data.hireTime !== undefined) updateData.hireTime = data.hireTime
-    if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null
+    if (data.endDate !== undefined) updateData.endDate = data.endDate || null // String YYYY-MM-DD or null
     if (data.endContractReason !== undefined) updateData.endContractReason = data.endContractReason
 
     // Compensation

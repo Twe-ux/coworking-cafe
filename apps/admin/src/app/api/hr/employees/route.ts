@@ -68,9 +68,8 @@ export async function GET(request: NextRequest) {
 
       if (employee.isDraft) {
         employmentStatus = 'draft'
-      } else if (!employee.isActive) {
-        employmentStatus = 'inactive'
       } else if (employee.hireDate) {
+        // Vérifier d'abord la date d'embauche (prioritaire sur isActive)
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         const hireDate = new Date(employee.hireDate)
@@ -78,7 +77,13 @@ export async function GET(request: NextRequest) {
 
         if (hireDate > today) {
           employmentStatus = 'waiting'
+        } else if (employee.isActive) {
+          employmentStatus = 'active'
+        } else {
+          employmentStatus = 'inactive'
         }
+      } else if (!employee.isActive) {
+        employmentStatus = 'inactive'
       }
 
       // Générer une couleur par défaut si elle n'existe pas
@@ -215,16 +220,16 @@ export async function POST(request: NextRequest) {
       color: data.color,
       email: data.email,
       phone: data.phone,
-      dateOfBirth: new Date(data.dateOfBirth),
+      dateOfBirth: data.dateOfBirth, // String YYYY-MM-DD (convention CLAUDE.md)
       placeOfBirth: data.placeOfBirth,
       nationality: data.nationality,
       address: data.address,
       socialSecurityNumber: data.socialSecurityNumber,
       contractType: data.contractType,
       contractualHours: data.contractualHours,
-      hireDate: new Date(data.hireDate),
+      hireDate: data.hireDate, // String YYYY-MM-DD (convention CLAUDE.md)
       hireTime: data.hireTime,
-      endDate: data.endDate ? new Date(data.endDate) : undefined,
+      endDate: data.endDate, // String YYYY-MM-DD ou undefined
       endContractReason: data.endContractReason,
       level: data.level,
       step: data.step,

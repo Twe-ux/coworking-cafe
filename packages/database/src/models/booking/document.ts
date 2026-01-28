@@ -1,5 +1,8 @@
 import { ObjectId, Schema, Types, Document } from "mongoose";
 
+export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
+export type ReservationType = "hourly" | "daily" | "weekly" | "monthly";
+
 export interface AdditionalServiceItem {
   service: ObjectId;
   name: string; // Nom du service au moment de la réservation
@@ -17,19 +20,20 @@ export interface BookingDocument extends Document {
   startTime?: string; // Format: "HH:mm" - Optional for full day reservations
   endTime?: string; // Format: "HH:mm" - Optional for full day reservations
   numberOfPeople: number;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  status: BookingStatus;
   attendanceStatus?: "present" | "absent"; // Pour marquer la présence/absence le jour J
 
   // Pricing
   basePrice: number; // Prix de base de l'espace
   servicesPrice: number; // Prix total des services supplémentaires
   totalPrice: number; // basePrice + servicesPrice
-  reservationType?: "hourly" | "daily" | "weekly" | "monthly"; // Type de réservation
+  reservationType?: ReservationType; // Type de réservation
 
   // Contact information
   contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
+  contactCompany?: string; // Société du client (pour admin)
   companyName?: string;
   message?: string;
 
@@ -58,7 +62,10 @@ export interface BookingDocument extends Document {
   stripeCustomerId?: string;
   stripeSetupIntentId?: string; // Pour les réservations > 7 jours (save card for later charge)
   captureMethod?: "automatic" | "manual" | "deferred"; // Type de capture pour l'empreinte
-  depositAmount?: number; // Montant de l'empreinte CB calculé à la réservation (en centimes)
+  depositAmount?: number; // Montant de l'acompte requis
+  depositRequired?: boolean; // Acompte requis (pour réservations admin)
+  depositFileUrl?: string; // URL fichier devis uploadé (Cloudinary)
+  isAdminBooking?: boolean; // true si réservation créée par admin (pas d'empreinte CB)
 
   // Cancellation
   cancelledAt?: Date;
@@ -168,6 +175,10 @@ export const BookingSchema = new Schema<BookingDocument>(
       lowercase: true,
     },
     contactPhone: {
+      type: String,
+      trim: true,
+    },
+    contactCompany: {
       type: String,
       trim: true,
     },
@@ -302,6 +313,18 @@ export const BookingSchema = new Schema<BookingDocument>(
     depositAmount: {
       type: Number,
       min: [0, "Deposit amount cannot be negative"],
+    },
+    depositRequired: {
+      type: Boolean,
+      default: false,
+    },
+    depositFileUrl: {
+      type: String,
+      trim: true,
+    },
+    isAdminBooking: {
+      type: Boolean,
+      default: false,
     },
     cancelledAt: {
       type: Date,

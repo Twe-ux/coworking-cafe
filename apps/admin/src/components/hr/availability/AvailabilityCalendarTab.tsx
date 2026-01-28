@@ -65,13 +65,11 @@ export function AvailabilityCalendarTab() {
       const result = await response.json();
 
       if (result.success) {
-        // Filtrer pour masquer le compte Admin Dev (compte technique pour tests)
+        // Filtrer pour masquer l'employé dev
         const filteredEmployees = (result.data || []).filter(
           (emp: Employee) => {
-            return (
-              emp.email !== "dev@coworkingcafe.com" &&
-              !(emp.firstName === "Admin" && emp.lastName === "Dev")
-            );
+            return !emp.email.toLowerCase().includes("dev@") &&
+                   emp.email !== "dev@coworkingcafe.com";
           },
         );
         setEmployees(filteredEmployees);

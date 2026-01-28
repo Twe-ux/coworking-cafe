@@ -81,6 +81,7 @@ export interface Booking {
   clientName?: string // Denormalized pour affichage
   clientEmail?: string
   clientPhone?: string
+  clientCompany?: string // Société du client
   reservationType: ReservationType
   startDate: string // YYYY-MM-DD
   endDate: string // YYYY-MM-DD
@@ -91,7 +92,10 @@ export interface Booking {
   totalPrice: number
   depositPaid?: number
   captureMethod?: CaptureMethod // Type de capture: automatic = paiement direct, manual/deferred = empreinte CB
-  depositAmount?: number // Montant de l'empreinte CB calculé (en centimes)
+  depositAmount?: number // Montant de l'acompte requis
+  depositRequired?: boolean // Acompte requis (pour réservations admin)
+  depositFileUrl?: string // URL fichier devis uploadé (Cloudinary)
+  isAdminBooking?: boolean // true si réservation créée par admin (pas d'empreinte CB)
   notes?: string
   createdAt?: string
   updatedAt?: string

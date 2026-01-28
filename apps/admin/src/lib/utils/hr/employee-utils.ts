@@ -89,9 +89,19 @@ export function getEmployeeStatusBadge(employee: Employee): {
 
 /**
  * Vérifier si l'employé est archivé
+ * Un employé en attente (hireDate future) n'est PAS considéré comme archivé
  */
 export function isArchived(employee: Employee): boolean {
-  return !employee.isActive || !!employee.deletedAt;
+  // Si l'employé est supprimé, il est archivé
+  if (employee.deletedAt) return true;
+
+  // Si l'employé est en attente (embauche future), il n'est PAS archivé
+  if (employee.employmentStatus === 'waiting' || employee.status === 'waiting') {
+    return false;
+  }
+
+  // Si l'employé est inactif, il est archivé
+  return !employee.isActive;
 }
 
 /**

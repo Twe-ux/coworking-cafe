@@ -143,10 +143,6 @@ export function getAdminMenu(
       badge: pendingBookings > 0 ? pendingBookings : undefined,
       items: [
         {
-          title: "Espaces",
-          url: "/admin/booking/spaces",
-        },
-        {
           title: "Réservations",
           url: "/admin/booking/reservations",
           badge: pendingBookings > 0 ? pendingBookings : undefined,
@@ -154,6 +150,14 @@ export function getAdminMenu(
         {
           title: "Calendrier",
           url: "/admin/booking/calendar",
+        },
+        {
+          title: "Espaces",
+          url: "/admin/booking/spaces",
+        },
+        {
+          title: "Paramètre des conditions",
+          url: "/admin/booking/settings",
         },
       ],
     },
@@ -190,12 +194,16 @@ export function getAdminMenu(
       title: "Messages",
       url: "/admin/messages",
       icon: Mail,
-      badge: (unreadCount + pendingUnavailabilities) > 0 ? (unreadCount + pendingUnavailabilities) : undefined,
+      badge:
+        unreadCount + pendingUnavailabilities > 0
+          ? unreadCount + pendingUnavailabilities
+          : undefined,
       items: [
         {
           title: "Demandes d'indisponibilité",
           url: "/admin/messages/unavailability-requests",
-          badge: pendingUnavailabilities > 0 ? pendingUnavailabilities : undefined,
+          badge:
+            pendingUnavailabilities > 0 ? pendingUnavailabilities : undefined,
         },
         {
           title: "Contact",

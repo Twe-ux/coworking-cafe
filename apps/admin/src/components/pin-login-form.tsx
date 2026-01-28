@@ -9,9 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { signIn } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PINLogin } from "./auth/PINLogin";
 
@@ -22,6 +22,17 @@ export function PINLoginForm({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Si on arrive sur la page login avec une session active,
+  // c'est probablement une session corrompue (après redémarrage serveur)
+  // On la nettoie pour permettre une nouvelle connexion
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      console.log("[Login] Session active détectée, nettoyage...");
+      signOut({ redirect: false });
+    }
+  }, [status, session]);
 
   const handlePINSubmit = async (pin: string) => {
     setError("");
@@ -46,8 +57,9 @@ export function PINLoginForm({
         setError(result.error);
         setLoading(false);
       } else if (result?.ok) {
-        // Force un vrai refresh pour bypass le cache du SW et du router
-        window.location.href = '/admin';
+        // Force un refresh complet pour éviter les problèmes de cache
+        // et garantir que la nouvelle session est bien prise en compte
+        window.location.replace('/admin');
       } else {
         setError("Une erreur s'est produite lors de la connexion");
         setLoading(false);

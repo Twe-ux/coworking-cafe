@@ -27,6 +27,7 @@ interface UseOnboardingReturn {
   loading: boolean
   error: string | null
   mode: 'create' | 'edit'
+  employeeId?: string
   saveStep1: (personalInfo: PersonalInfo) => Promise<void>
   saveStep2: (contractInfo: ContractInfo) => Promise<void>
   saveStep3: (availability: Availability, weeklyDistribution?: WeeklyDistributionData) => Promise<void>
@@ -122,6 +123,7 @@ export function useOnboarding(options?: UseOnboardingOptions): UseOnboardingRetu
     loading,
     error,
     mode,
+    employeeId,
     saveStep1,
     saveStep2,
     saveStep3,

@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     if (data.lastName) draftData.lastName = data.lastName
     if (data.email) draftData.email = data.email
     if (data.phone) draftData.phone = data.phone
-    if (data.dateOfBirth) draftData.dateOfBirth = new Date(data.dateOfBirth)
+    if (data.dateOfBirth) draftData.dateOfBirth = data.dateOfBirth // String YYYY-MM-DD
     if (data.placeOfBirth) draftData.placeOfBirth = data.placeOfBirth
     if (data.nationality) draftData.nationality = data.nationality
     if (data.address) draftData.address = data.address
@@ -138,9 +138,9 @@ export async function POST(request: NextRequest) {
       draftData.socialSecurityNumber = data.socialSecurityNumber
     if (data.contractType) draftData.contractType = data.contractType
     if (data.contractualHours) draftData.contractualHours = data.contractualHours
-    if (data.hireDate) draftData.hireDate = new Date(data.hireDate)
+    if (data.hireDate) draftData.hireDate = data.hireDate // String YYYY-MM-DD
     if (data.hireTime) draftData.hireTime = data.hireTime
-    if (data.endDate) draftData.endDate = new Date(data.endDate)
+    if (data.endDate) draftData.endDate = data.endDate // String YYYY-MM-DD
     if (data.level) draftData.level = data.level
     if (data.step !== undefined) draftData.step = data.step
     if (data.hourlyRate) draftData.hourlyRate = data.hourlyRate

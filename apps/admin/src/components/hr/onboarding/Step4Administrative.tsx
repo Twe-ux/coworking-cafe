@@ -1,27 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { ContractGenerationModal } from "@/components/hr/contract/ContractGenerationModal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOnboardingContext } from "@/contexts/OnboardingContext";
+import type { Employee } from "@/types/hr";
 import type { AdministrativeInfo } from "@/types/onboarding";
 import { EMPLOYEE_COLORS } from "@/types/onboarding";
 import { Check, Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { ContractGenerationModal } from "@/components/hr/contract/ContractGenerationModal";
-import type { Employee } from "@/types/hr";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export function Step4Administrative() {
-  const { data, saveStep4, loading, error, mode } = useOnboardingContext();
+  const { data, saveStep4, loading, error, mode, employeeId } = useOnboardingContext();
   const router = useRouter();
   const [createdEmployee, setCreatedEmployee] = useState<Employee | null>(null);
   const [showContractModal, setShowContractModal] = useState(false);
+  const [usedColors, setUsedColors] = useState<string[]>([]);
 
   const {
     register,
@@ -29,6 +31,7 @@ export function Step4Administrative() {
     setValue,
     watch,
     reset,
+    control,
     formState: { errors },
   } = useForm<AdministrativeInfo>({
     defaultValues: data.step4 || {
@@ -51,6 +54,37 @@ export function Step4Administrative() {
       reset(data.step4);
     }
   }, [data.step4, reset, mode]);
+
+  // Fetch used colors from existing employees
+  useEffect(() => {
+    const fetchUsedColors = async () => {
+      try {
+        const response = await fetch("/api/hr/employees?status=active");
+        const result = await response.json();
+        if (result.success && result.data) {
+          const colors = result.data
+            .filter((emp: Employee) => emp._id !== employeeId) // Exclure l'employé en cours d'édition
+            .map((emp: Employee) => emp.color)
+            .filter(Boolean); // Filtrer les valeurs nulles/undefined
+          setUsedColors(colors);
+
+          // En mode création, sélectionner automatiquement la première couleur disponible
+          if (mode === "create" && !data.step4?.color) {
+            const firstAvailableColor = EMPLOYEE_COLORS.find(
+              (colorOption) => !colors.includes(colorOption.value)
+            );
+            if (firstAvailableColor) {
+              setValue("color", firstAvailableColor.value);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching used colors:", error);
+      }
+    };
+
+    fetchUsedColors();
+  }, [employeeId, mode, data.step4?.color, setValue]);
 
   const selectedColor = watch("color");
   const dpaeCompleted = watch("dpaeCompleted");
@@ -134,22 +168,37 @@ export function Step4Administrative() {
             <div className="grid grid-cols-4 gap-2">
               {EMPLOYEE_COLORS.map((colorOption) => {
                 const isSelected = selectedColor === colorOption.value;
+                const isUsed = usedColors.includes(colorOption.value);
 
                 return (
                   <button
                     key={colorOption.value}
                     type="button"
-                    onClick={() => setValue("color", colorOption.value)}
+                    onClick={() =>
+                      !isUsed && setValue("color", colorOption.value)
+                    }
+                    disabled={isUsed}
                     className={`h-12 rounded-md border-2 transition-all relative group ${
                       isSelected
-                        ? "ring-2 ring-primary ring-offset-2 border-primary"
-                        : "border-gray-300 hover:border-gray-400"
+                        ? "ring-2 ring-primary ring-offset-2 border-primary cursor-pointer"
+                        : isUsed
+                          ? "border-gray-300 opacity-40 cursor-default"
+                          : "border-gray-300 hover:border-gray-400 cursor-pointer"
                     }`}
                     style={{ backgroundColor: colorOption.value }}
-                    title={colorOption.name}
+                    title={
+                      isUsed
+                        ? `${colorOption.name} (déjà utilisée)`
+                        : colorOption.name
+                    }
                   >
                     {isSelected && (
                       <Check className="w-5 h-5 text-white absolute inset-0 m-auto drop-shadow-lg" />
+                    )}
+                    {isUsed && !isSelected && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-8 h-0.5 bg-gray-600 rotate-45" />
+                      </div>
                     )}
                     <span className="sr-only">{colorOption.name}</span>
                   </button>
@@ -158,7 +207,7 @@ export function Step4Administrative() {
             </div>
             <p className="text-xs text-muted-foreground">
               Sélectionnez une couleur pour identifier l'employé dans le
-              planning
+              planning. Les couleurs grisées sont déjà utilisées.
             </p>
           </div>
 
@@ -193,21 +242,33 @@ export function Step4Administrative() {
                     DPAE effectuée le
                   </Label>
                 </div>
-                <Input
-                  type="date"
-                  className="w-40"
-                  disabled={!dpaeCompleted}
-                  {...register("dpaeCompletedAt", {
-                    required: dpaeCompleted
-                      ? "La date de DPAE est requise"
-                      : false,
-                  })}
-                />
-                {errors.dpaeCompletedAt && (
-                  <p className="text-sm text-destructive">
-                    {errors.dpaeCompletedAt.message}
-                  </p>
-                )}
+                <div className="w-48">
+                  <Controller
+                    name="dpaeCompletedAt"
+                    control={control}
+                    rules={{
+                      required: dpaeCompleted
+                        ? "La date de DPAE est requise"
+                        : false,
+                    }}
+                    render={({ field }) => (
+                      <DatePicker
+                        date={field.value}
+                        onDateChange={field.onChange}
+                        disabled={!dpaeCompleted}
+                        placeholder="JJ/MM/AAAA"
+                      />
+                    )}
+                  />
+                  {errors.dpaeCompletedAt && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.dpaeCompletedAt.message}
+                    </p>
+                  )}
+                </div>
+                <a href="https://www.due.urssaf.fr/declarant/index.jsf">
+                  Site Déclaration DUE
+                </a>
               </div>
 
               <div className="flex items-center space-x-2">
