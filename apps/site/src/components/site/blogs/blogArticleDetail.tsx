@@ -2,9 +2,12 @@
 
 import MarkdownRenderer from "./MarkdownRenderer";
 import type { Article } from "../../../store/api/blogApi";
-import { useToggleLikeMutation } from "../../../store/api/blogApi";
+import {
+  useIsArticleLikedQuery,
+  useLikeArticleMutation,
+  useUnlikeArticleMutation,
+} from "../../../store/api/blogApi";
 import SlideUp from "../../../utils/animations/slideUp";
-import { useState } from "react";
 import ArticleNavigation from "./ArticleNavigation";
 
 interface BlogArticleDetailProps {
@@ -12,21 +15,25 @@ interface BlogArticleDetailProps {
 }
 
 const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
-  const [toggleLike, { isLoading: isLiking }] = useToggleLikeMutation();
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(article.likeCount);
+  // Check if article is liked by current user
+  const { data: likeData } = useIsArticleLikedQuery(article._id);
+  const [likeArticle, { isLoading: isLiking }] = useLikeArticleMutation();
+  const [unlikeArticle, { isLoading: isUnliking }] = useUnlikeArticleMutation();
 
-  const handleLike = async () => {
-    if (isLiking || liked) return; // Prevent double-click and already liked
+  const isLiked = likeData?.liked || false;
+  const isLoading = isLiking || isUnliking;
+
+  const handleLikeToggle = async () => {
+    if (isLoading) return;
 
     try {
-      setLiked(true);
-      setLikeCount((prev) => prev + 1);
-      await toggleLike(article._id).unwrap();
+      if (isLiked) {
+        await unlikeArticle(article._id).unwrap();
+      } else {
+        await likeArticle(article._id).unwrap();
+      }
     } catch (error) {
-      // Revert on error
-      setLiked(false);
-      setLikeCount((prev) => prev - 1);
+      console.error("Error toggling like:", error);
     }
   };
 
@@ -64,20 +71,20 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
             <span>{article.viewCount} vues</span>
           </p>
           <button
-            onClick={handleLike}
-            disabled={isLiking || liked}
+            onClick={handleLikeToggle}
+            disabled={isLoading}
             className={`btn btn-sm d-inline-flex align-items-center gap-2 ${
-              liked ? "btn-danger" : "btn-outline-danger"
+              isLiked ? "btn-danger" : "btn-outline-danger"
             }`}
             style={{
               marginTop: 33,
-              border: liked ? "none" : "1px solid #dc3545",
+              border: isLiked ? "none" : "1px solid #dc3545",
               padding: "0.25rem 0.75rem",
             }}
           >
-            <i className={`fa-${liked ? "solid" : "regular"} fa-heart`}></i>
+            <i className={`fa-${isLiked ? "solid" : "regular"} fa-heart`}></i>
             <span>
-              {likeCount} {likeCount === 1 ? "like" : "likes"}
+              {article.likeCount} {article.likeCount === 1 ? "like" : "likes"}
             </span>
           </button>
           {/* <p className="mb-0">

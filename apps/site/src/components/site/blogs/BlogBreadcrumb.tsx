@@ -26,7 +26,9 @@ const BlogBreadcrumb = ({
           aria-current="page"
           style={{ color: "#142220" }}
         >
-          Article
+          {articleTitle.length > 50
+            ? `${articleTitle.substring(0, 50)}...`
+            : articleTitle}
         </li>
       </ol>
     </nav>
