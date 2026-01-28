@@ -3,7 +3,6 @@
  */
 
 export type ArticleStatus = "draft" | "published" | "archived"
-export type CommentStatus = "pending" | "approved" | "rejected" | "spam"
 
 // Article
 
@@ -118,52 +117,4 @@ export interface CategoriesFilter {
   limit?: number
   parent?: string | null
   isVisible?: boolean
-}
-
-// Comment
-
-export interface CommentUser {
-  _id: string
-  username: string
-  name?: string
-  email?: string
-  avatar?: string
-}
-
-export interface CommentArticle {
-  _id: string
-  title: string
-  slug: string
-}
-
-export interface CommentParent {
-  _id: string
-  content: string
-  user: CommentUser
-}
-
-export interface Comment {
-  _id?: string
-  content: string
-  article: CommentArticle
-  user: CommentUser
-  parent?: CommentParent | null
-  status: CommentStatus
-  likeCount: number
-  createdAt: string
-  updatedAt: string
-  replies?: Comment[]
-}
-
-export interface CreateCommentData {
-  content: string
-  articleId: string
-  parentId?: string
-}
-
-export interface CommentsFilter {
-  page?: number
-  limit?: number
-  article?: string
-  status?: CommentStatus | "all"
 }

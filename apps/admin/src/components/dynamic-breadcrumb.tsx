@@ -25,7 +25,6 @@ const routeLabels: Record<string, string> = {
   categories: "Catégories",
   blog: "Blog",
   articles: "Articles",
-  comments: "Commentaires",
   messages: "Messages",
   support: "Support",
   contact: "Messages de contact",

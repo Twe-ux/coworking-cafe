@@ -174,10 +174,6 @@ export function getAdminMenu(
           title: "Catégories",
           url: "/admin/blog/categories",
         },
-        {
-          title: "Commentaires",
-          url: "/admin/blog/comments",
-        },
       ],
     },
     {

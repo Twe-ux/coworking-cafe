@@ -27,13 +27,13 @@ import Image from "next/image"
 
 export function ArticlesClient() {
   const [status, setStatus] = useState<ArticleStatus | "all">("all")
-  const [categoryId, setCategoryId] = useState<string>("")
+  const [categoryId, setCategoryId] = useState<string>("all")
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
 
   const { articles, loading, error, total, pages, currentPage } = useArticles({
     status,
-    category: categoryId || undefined,
+    category: categoryId !== "all" ? categoryId : undefined,
     search: search || undefined,
     page,
     limit: 10,
@@ -115,9 +115,9 @@ export function ArticlesClient() {
             <SelectValue placeholder="Catégorie" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Toutes les catégories</SelectItem>
+            <SelectItem value="all">Toutes les catégories</SelectItem>
             {categories.map((cat) => (
-              <SelectItem key={cat._id} value={cat._id || ""}>
+              <SelectItem key={cat._id} value={cat._id || "unknown"}>
                 {cat.name}
               </SelectItem>
             ))}
