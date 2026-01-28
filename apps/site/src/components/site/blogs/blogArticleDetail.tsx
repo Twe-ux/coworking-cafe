@@ -102,22 +102,28 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
                 border: "none",
                 borderRadius: "12px",
                 boxShadow: "0 10px 40px rgba(20, 34, 32, 0.3)",
+                overflow: "hidden",
               }}
             >
-              <div className="modal-header border-0 pb-0">
+              <div className="modal-header border-0 pb-0 pt-3 pe-3">
                 <button
                   type="button"
-                  className="btn-close"
+                  className="btn-close ms-auto"
                   onClick={() => setShowAuthModal(false)}
                   aria-label="Close"
                   style={{
                     backgroundImage: "none",
                     opacity: 1,
+                    width: "auto",
+                    height: "auto",
+                    padding: "0",
+                    border: "none",
+                    background: "none",
                   }}
                 >
                   <i
                     className="fa-solid fa-xmark"
-                    style={{ color: "#142220", fontSize: "20px" }}
+                    style={{ color: "#142220", fontSize: "24px" }}
                   ></i>
                 </button>
               </div>
@@ -153,51 +159,44 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
                 <div className="d-flex gap-3 justify-content-center flex-wrap">
                   <a
                     href={`/auth/login?callbackUrl=/blog/${article.slug}`}
-                    className="btn px-4 py-2"
+                    className="btn"
                     style={{
                       backgroundColor: "#417972",
                       color: "#ffffff",
-                      border: "none",
-                      borderRadius: "8px",
+                      border: "1px solid #417972",
+                      borderRadius: "10px",
                       fontWeight: "600",
-                      transition: "all 0.3s ease",
+                      padding: "15px 32px",
+                      transition: "all 0.5s",
+                      textDecoration: "none",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#142220";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.boxShadow =
-                        "0 4px 12px rgba(65, 121, 114, 0.3)";
+                      e.currentTarget.style.opacity = "0.9";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "#417972";
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "none";
+                      e.currentTarget.style.opacity = "1";
                     }}
                   >
                     Se connecter
                   </a>
                   <a
                     href={`/auth/register?callbackUrl=/blog/${article.slug}`}
-                    className="btn px-4 py-2"
+                    className="btn"
                     style={{
                       backgroundColor: "transparent",
-                      color: "#417972",
-                      border: "2px solid #417972",
-                      borderRadius: "8px",
+                      color: "#ffffff",
+                      border: "1px solid #f2d381",
+                      borderRadius: "10px",
                       fontWeight: "600",
-                      transition: "all 0.3s ease",
+                      padding: "15px 32px",
+                      transition: "all 0.5s",
+                      textDecoration: "none",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#e3ece7";
-                      e.currentTarget.style.borderColor = "#142220";
-                      e.currentTarget.style.color = "#142220";
-                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.opacity = "0.9";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                      e.currentTarget.style.borderColor = "#417972";
-                      e.currentTarget.style.color = "#417972";
-                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.opacity = "1";
                     }}
                   >
                     Créer un compte
