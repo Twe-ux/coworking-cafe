@@ -10,14 +10,21 @@ import {
 import SlideUp from "../../../utils/animations/slideUp";
 import ArticleNavigation from "./ArticleNavigation";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface BlogArticleDetailProps {
   article: Article;
 }
 
 const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
-  // Check if article is liked by current user
-  const { data: likeData } = useIsArticleLikedQuery(article._id);
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  // Check if article is liked by current user (only if authenticated)
+  const { data: likeData } = useIsArticleLikedQuery(article._id, {
+    skip: !session,
+  });
   const [likeArticle, { isLoading: isLiking }] = useLikeArticleMutation();
   const [unlikeArticle, { isLoading: isUnliking }] = useUnlikeArticleMutation();
 
@@ -40,6 +47,12 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
   const isLoading = isLiking || isUnliking;
 
   const handleLikeToggle = async () => {
+    // Si pas connecté, rediriger vers la page de connexion
+    if (!session) {
+      router.push(`/auth/login?callbackUrl=/blog/${article.slug}`);
+      return;
+    }
+
     if (isLoading) return;
 
     // Optimistic update
@@ -109,6 +122,13 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
               border: isLiked ? "none" : "1px solid #dc3545",
               padding: "0.25rem 0.75rem",
             }}
+            title={
+              !session
+                ? "Connectez-vous pour liker cet article"
+                : isLiked
+                ? "Retirer mon like"
+                : "J'aime cet article"
+            }
           >
             <i className={`fa-${isLiked ? "solid" : "regular"} fa-heart`}></i>
             <span>
