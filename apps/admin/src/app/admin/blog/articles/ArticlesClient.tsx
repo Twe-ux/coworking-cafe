@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useArticles } from "@/hooks/useArticles"
 import { useCategories } from "@/hooks/useCategories"
 import { ArticlesSkeleton } from "./ArticlesSkeleton"
@@ -23,12 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, FileText, Eye, Edit, Trash2 } from "lucide-react"
+import { Plus, Search, FileText, Eye, Edit, Trash2, Archive } from "lucide-react"
 import type { ArticleStatus, Article } from "@/types/blog"
 import Image from "next/image"
 
 export function ArticlesClient() {
-  const [status, setStatus] = useState<ArticleStatus | "all">("all")
+  const [statusFilter, setStatusFilter] = useState<ArticleStatus | "all">("published")
   const [categoryId, setCategoryId] = useState<string>("all")
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
@@ -36,17 +36,65 @@ export function ArticlesClient() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
 
-  const { articles, loading, error, total, pages, currentPage, refetch } = useArticles({
-    status,
-    category: categoryId !== "all" ? categoryId : undefined,
-    search: search || undefined,
-    page,
-    limit: 10,
+  // Load ALL articles to calculate stats
+  const { articles: allArticles, loading, error, refetch } = useArticles({
+    status: "all",
+    page: 1,
+    limit: 1000, // Get all articles for stats
     sortBy: "createdAt",
     sortOrder: "desc",
   })
 
-  const { categories } = useCategories()
+  const { categories, loading: categoriesLoading } = useCategories()
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [statusFilter, categoryId, search])
+
+  // Calculate stats from all articles
+  const stats = useMemo(() => {
+    return {
+      total: allArticles.length,
+      published: allArticles.filter((a) => a.status === "published").length,
+      draft: allArticles.filter((a) => a.status === "draft").length,
+      archived: allArticles.filter((a) => a.status === "archived").length,
+    }
+  }, [allArticles])
+
+  // Filter articles based on statusFilter, categoryId, and search
+  const filteredArticles = useMemo(() => {
+    let result = allArticles
+
+    // Filter by status
+    if (statusFilter !== "all") {
+      result = result.filter((a) => a.status === statusFilter)
+    }
+
+    // Filter by category
+    if (categoryId !== "all") {
+      result = result.filter((a) => a.category?._id === categoryId)
+    }
+
+    // Filter by search
+    if (search) {
+      const lowerSearch = search.toLowerCase()
+      result = result.filter(
+        (a) =>
+          a.title.toLowerCase().includes(lowerSearch) ||
+          a.excerpt?.toLowerCase().includes(lowerSearch)
+      )
+    }
+
+    return result
+  }, [allArticles, statusFilter, categoryId, search])
+
+  // Pagination
+  const itemsPerPage = 10
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage)
+  const startIndex = (page - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedArticles = filteredArticles.slice(startIndex, endIndex)
 
   const handleCreate = () => {
     setSelectedArticle(null)
@@ -67,7 +115,7 @@ export function ArticlesClient() {
     refetch()
   }
 
-  if (loading) {
+  if (loading || categoriesLoading) {
     return <ArticlesSkeleton />
   }
 
@@ -86,28 +134,6 @@ export function ArticlesClient() {
     archived: "destructive",
   }
 
-  const statsData = [
-    {
-      title: "Total",
-      value: articles.length,
-      icon: FileText,
-    },
-    {
-      title: "Publiés",
-      value: articles.filter((a) => a.status === "published").length,
-      icon: Eye,
-    },
-    {
-      title: "Brouillons",
-      value: articles.filter((a) => a.status === "draft").length,
-      icon: Edit,
-    },
-    {
-      title: "Archivés",
-      value: articles.filter((a) => a.status === "archived").length,
-      icon: Trash2,
-    },
-  ]
 
   return (
     <div className="space-y-6 p-6">
@@ -122,29 +148,19 @@ export function ArticlesClient() {
 
       {/* Filters */}
       <div className="flex items-center gap-4">
-        <Select value={status} onValueChange={(v) => setStatus(v as ArticleStatus | "all")}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les statuts</SelectItem>
-            <SelectItem value="draft">Brouillon</SelectItem>
-            <SelectItem value="published">Publié</SelectItem>
-            <SelectItem value="archived">Archivé</SelectItem>
-          </SelectContent>
-        </Select>
-
         <Select value={categoryId} onValueChange={setCategoryId}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Catégorie" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Toutes les catégories</SelectItem>
-            {categories.map((cat) => (
-              <SelectItem key={cat._id} value={cat._id || "unknown"}>
-                {cat.name}
-              </SelectItem>
-            ))}
+            {categories
+              .filter(cat => cat._id && cat._id.trim().length > 0)
+              .map((cat) => (
+                <SelectItem key={cat._id} value={cat._id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
 
@@ -159,21 +175,59 @@ export function ArticlesClient() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {statsData.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardDescription className="text-sm font-medium">
-                {stat.title}
-              </CardDescription>
-              <stat.icon className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Stats Cards - Clickable */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "published" ? "ring-2 ring-green-500" : ""}`}
+          onClick={() => setStatusFilter("published")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Publiés</CardTitle>
+            <Eye className="w-4 h-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.published}</div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "draft" ? "ring-2 ring-orange-500" : ""}`}
+          onClick={() => setStatusFilter("draft")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Brouillons</CardTitle>
+            <Edit className="w-4 h-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.draft}</div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "archived" ? "ring-2 ring-red-500" : ""}`}
+          onClick={() => setStatusFilter("archived")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Archivés</CardTitle>
+            <Archive className="w-4 h-4 text-red-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.archived}</div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "all" ? "ring-2 ring-primary" : ""}`}
+          onClick={() => setStatusFilter("all")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
+            <FileText className="w-4 h-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Articles List */}
@@ -181,16 +235,16 @@ export function ArticlesClient() {
         <CardHeader>
           <CardTitle>Liste des articles</CardTitle>
           <CardDescription>
-            {total} article{total > 1 ? "s" : ""} au total
+            {filteredArticles.length} article{filteredArticles.length > 1 ? "s" : ""} trouvé{filteredArticles.length > 1 ? "s" : ""}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {articles.length === 0 ? (
+          {paginatedArticles.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
               Aucun article trouvé
             </div>
           ) : (
-            articles.map((article) => (
+            paginatedArticles.map((article) => (
               <div
                 key={article._id}
                 className="flex items-center gap-4 py-3 border-b last:border-0 hover:bg-muted/50 transition-colors cursor-pointer"
@@ -256,23 +310,23 @@ export function ArticlesClient() {
       </Card>
 
       {/* Pagination */}
-      {pages > 1 && (
+      {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Page {currentPage} sur {pages}
+            Page {page} sur {totalPages}
           </p>
           <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => setPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
             >
               Précédent
             </Button>
             <Button
               variant="outline"
-              onClick={() => setPage(Math.min(pages, currentPage + 1))}
-              disabled={currentPage === pages}
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page === totalPages}
             >
               Suivant
             </Button>

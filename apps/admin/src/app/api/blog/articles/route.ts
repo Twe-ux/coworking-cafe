@@ -122,9 +122,26 @@ export async function POST(
       }
     }
 
+    // Générer le slug depuis le titre
+    const baseSlug = title
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Enlever les accents
+      .replace(/[^a-z0-9]+/g, "-") // Remplacer caractères spéciaux par -
+      .replace(/^-+|-+$/g, "") // Enlever - au début/fin
+
+    // Vérifier l'unicité du slug
+    let slug = baseSlug
+    let counter = 1
+    while (await Article.findOne({ slug })) {
+      slug = `${baseSlug}-${counter}`
+      counter++
+    }
+
     // Créer l'article
     const article = await Article.create({
       title,
+      slug,
       content,
       excerpt,
       featuredImage,

@@ -1,11 +1,56 @@
 /**
  * Cloudinary utility functions
- * Génération d'URLs signées pour l'accès aux fichiers privés
- *
- * NOTE: Ce fichier utilise crypto natif (pas besoin du package cloudinary)
+ * Upload, delete, and generate signed URLs for Cloudinary assets
  */
 
+import { v2 as cloudinary } from 'cloudinary';
 import crypto from 'crypto';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export default cloudinary;
+
+/**
+ * Upload a file to Cloudinary
+ * @param file - Buffer or base64 string
+ * @param folder - Folder in Cloudinary (e.g., "blog", "products")
+ * @returns URL and public ID of uploaded file
+ */
+export const uploadToCloudinary = async (
+  file: Buffer | string,
+  folder: string = 'blog'
+): Promise<{ url: string; publicId: string }> => {
+  try {
+    const result = await cloudinary.uploader.upload(file.toString('base64'), {
+      folder,
+      resource_type: 'auto',
+    });
+
+    return {
+      url: result.secure_url,
+      publicId: result.public_id,
+    };
+  } catch (error) {
+    throw new Error('Failed to upload image to Cloudinary');
+  }
+};
+
+/**
+ * Delete a file from Cloudinary
+ * @param publicId - Public ID of the file
+ */
+export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
+  try {
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    throw new Error('Failed to delete image from Cloudinary');
+  }
+};
 
 /**
  * Generate a signed URL for a private Cloudinary asset
