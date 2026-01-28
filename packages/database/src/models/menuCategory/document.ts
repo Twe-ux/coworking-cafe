@@ -4,7 +4,7 @@ export interface MenuCategoryDocument extends Document {
   name: string;
   slug: string;
   description?: string;
-  type: "food" | "drink";
+  type: "food" | "drink" | "grocery" | "goodies";
   order: number;
   isActive: boolean;
   showOnSite: boolean;
@@ -32,7 +32,7 @@ export const MenuCategorySchema = new Schema<MenuCategoryDocument>(
     },
     type: {
       type: String,
-      enum: ["food", "drink"],
+      enum: ["food", "drink", "grocery", "goodies"],
       required: true,
     },
     order: {

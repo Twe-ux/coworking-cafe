@@ -20,7 +20,7 @@ interface MenuCategory {
 }
 
 interface MenuProps {
-  type?: "drink" | "food";
+  type?: "drink" | "food" | "grocery" | "goodies";
   title?: string;
   subtitle?: string;
 }

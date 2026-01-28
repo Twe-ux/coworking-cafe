@@ -6,7 +6,7 @@ export interface MenuItemDocument extends Document {
   recipe?: string;
   image?: string;
   category: Types.ObjectId;
-  type: "food" | "drink";
+  type: "food" | "drink" | "grocery" | "goodies";
   order: number;
   isActive: boolean;
   createdAt: Date;
@@ -39,7 +39,7 @@ export const MenuItemSchema = new Schema<MenuItemDocument>(
     },
     type: {
       type: String,
-      enum: ["food", "drink"],
+      enum: ["food", "drink", "grocery", "goodies"],
       required: true,
     },
     order: {
