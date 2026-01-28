@@ -138,14 +138,22 @@ export async function POST(request: NextRequest) {
     // Validation
     if (
       !body.spaceType ||
-      !body.userId ||
       !body.date ||
       !body.numberOfPeople ||
       body.totalPrice === undefined
     ) {
       return errorResponse(
         "Missing required fields",
-        "spaceType, userId, date, numberOfPeople, totalPrice are required",
+        "spaceType, date, numberOfPeople, totalPrice are required",
+        400
+      )
+    }
+
+    // Validation: userId OU infos de contact requis
+    if (!body.userId && (!body.contactName || !body.contactEmail)) {
+      return errorResponse(
+        "Missing client information",
+        "Either userId or contact information (contactName + contactEmail) is required",
         400
       )
     }
@@ -153,7 +161,7 @@ export async function POST(request: NextRequest) {
     // Créer la réservation
     const booking = await Booking.create({
       user: body.userId,
-      space: body.spaceId,
+      // Ne pas envoyer 'space' (deprecated, ObjectId attendu)
       spaceType: body.spaceType,
       date: new Date(body.date),
       startTime: body.startTime,
@@ -167,28 +175,39 @@ export async function POST(request: NextRequest) {
       contactName: body.contactName,
       contactEmail: body.contactEmail,
       contactPhone: body.contactPhone,
+      contactCompany: body.clientCompany,
       notes: body.notes,
       requiresPayment: true,
-      paymentStatus: "unpaid",
+      paymentStatus: body.depositRequired ? "unpaid" : "paid",
       amountPaid: body.depositPaid || 0,
+      depositRequired: body.depositRequired || false,
+      depositAmount: body.depositAmount || 0,
+      depositFileUrl: body.depositFileUrl || null,
+      isAdminBooking: true,
       additionalServices: [],
     })
 
-    // Populate user pour retourner les données
-    await booking.populate('user', 'firstName lastName email')
+    // Populate user pour retourner les données (si user existe)
+    if (booking.user) {
+      await booking.populate('user', 'firstName lastName email')
+    }
     const populatedBooking: any = booking.toObject()
     const user = populatedBooking.user || {}
+
+    // Utiliser les infos de contact si pas d'user
     const clientName = user.firstName && user.lastName
       ? `${user.firstName} ${user.lastName}`
-      : user.email || 'Client inconnu'
+      : booking.contactName || user.email || 'Client inconnu'
 
     const data: BookingType = {
       _id: booking._id.toString(),
       spaceId: booking.space?.toString() || booking._id.toString(),
       spaceName: booking.spaceType,
-      clientId: booking.user.toString(),
+      clientId: booking.user?.toString() || '',
       clientName,
       clientEmail: user.email || booking.contactEmail || '',
+      clientPhone: user.phone || booking.contactPhone || '',
+      clientCompany: booking.contactCompany,
       reservationType: inferReservationType(
         booking.reservationType,
         booking.spaceType,
@@ -205,9 +224,75 @@ export async function POST(request: NextRequest) {
       depositPaid: booking.amountPaid || 0,
       captureMethod: booking.captureMethod,
       depositAmount: booking.depositAmount,
+      depositRequired: booking.depositRequired,
+      depositFileUrl: booking.depositFileUrl,
+      isAdminBooking: booking.isAdminBooking,
       notes: booking.notes || '',
       createdAt: booking.createdAt.toISOString(),
       updatedAt: booking.updatedAt.toISOString(),
+    }
+
+    // Envoyer l'email selon le statut (si sendEmail est true)
+    if (body.sendEmail !== false) {
+      try {
+        const emailData = {
+          name: clientName,
+          spaceName: booking.spaceType,
+          date: booking.date.toISOString().split("T")[0],
+          startTime: booking.startTime || '',
+          endTime: booking.endTime || '',
+          numberOfPeople: booking.numberOfPeople,
+          totalPrice: booking.totalPrice,
+        }
+
+        if (booking.status === 'confirmed') {
+          const { sendEmail } = await import('@/lib/email/emailService')
+
+          // Choisir le template selon isAdminBooking
+          if (booking.isAdminBooking) {
+            // Template admin : pas de mention d'empreinte bancaire
+            const { generateAdminBookingValidationEmail } = await import('@coworking-cafe/email')
+
+            await sendEmail({
+              to: user.email || booking.contactEmail,
+              subject: '✅ Réservation confirmée - CoworKing Café',
+              html: generateAdminBookingValidationEmail({
+                ...emailData,
+                confirmationNumber: booking._id.toString(),
+              }),
+            })
+          } else {
+            // Template classique : avec mention d'empreinte bancaire
+            const { generateValidatedEmail } = await import('@coworking-cafe/email')
+
+            await sendEmail({
+              to: user.email || booking.contactEmail,
+              subject: '✅ Réservation confirmée - CoworKing Café',
+              html: generateValidatedEmail({
+                ...emailData,
+                confirmationNumber: booking._id.toString(),
+              }),
+            })
+          }
+        } else if (booking.status === 'pending' && booking.depositRequired) {
+          // Email "en attente avec acompte"
+          const { sendPendingWithDepositEmail } = await import('@/lib/email/emailService')
+
+          await sendPendingWithDepositEmail(
+            user.email || booking.contactEmail,
+            {
+              ...emailData,
+              depositAmount: booking.depositAmount || 0,
+              depositFileUrl: booking.depositFileUrl || '',
+            }
+          )
+        }
+      } catch (emailError) {
+        console.error('Error sending booking email:', emailError)
+        // Ne pas bloquer la création de réservation si l'email échoue
+      }
+    } else {
+      console.log('📧 Email non envoyé (option désactivée)')
     }
 
     return successResponse(data, "Booking created successfully", 201)
