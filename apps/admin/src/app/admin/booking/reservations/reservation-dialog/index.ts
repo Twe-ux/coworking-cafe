@@ -1,2 +1,2 @@
-export { ReservationDialog } from "./ReservationDialogContent"
-export type { ReservationDialogProps, ReservationFormData, ClientData } from "./types"
+export { ReservationDialog } from './ReservationDialogContent';
+export type { ReservationDialogProps } from './types';
