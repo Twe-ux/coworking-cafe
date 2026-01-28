@@ -87,7 +87,8 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
           className="modal fade show"
           style={{
             display: "block",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(20, 34, 32, 0.7)",
+            zIndex: 9999,
           }}
           onClick={() => setShowAuthModal(false)}
         >
@@ -95,37 +96,109 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
             className="modal-dialog modal-dialog-centered"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-content">
-              <div className="modal-header border-0">
+            <div
+              className="modal-content"
+              style={{
+                border: "none",
+                borderRadius: "12px",
+                boxShadow: "0 10px 40px rgba(20, 34, 32, 0.3)",
+              }}
+            >
+              <div className="modal-header border-0 pb-0">
                 <button
                   type="button"
                   className="btn-close"
                   onClick={() => setShowAuthModal(false)}
                   aria-label="Close"
-                ></button>
+                  style={{
+                    backgroundImage: "none",
+                    opacity: 1,
+                  }}
+                >
+                  <i
+                    className="fa-solid fa-xmark"
+                    style={{ color: "#142220", fontSize: "20px" }}
+                  ></i>
+                </button>
               </div>
-              <div className="modal-body text-center py-4">
-                <div className="mb-4">
+              <div className="modal-body text-center py-4 px-5">
+                <div
+                  className="mb-4"
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    margin: "0 auto",
+                    background: "linear-gradient(135deg, #417972 0%, #142220 100%)",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   <i
                     className="fa-regular fa-heart"
-                    style={{ fontSize: "48px", color: "#dc3545" }}
+                    style={{ fontSize: "36px", color: "#f2d381" }}
                   ></i>
                 </div>
-                <h5 className="mb-3">Connectez-vous pour liker cet article</h5>
-                <p className="text-muted mb-4">
+                <h5
+                  className="mb-3"
+                  style={{ color: "#142220", fontWeight: "600" }}
+                >
+                  Connectez-vous pour liker cet article
+                </h5>
+                <p style={{ color: "#6e6f75", marginBottom: "2rem" }}>
                   Vous devez être connecté pour pouvoir liker les articles et
                   sauvegarder vos préférences.
                 </p>
-                <div className="d-flex gap-3 justify-content-center">
+                <div className="d-flex gap-3 justify-content-center flex-wrap">
                   <a
                     href={`/auth/login?callbackUrl=/blog/${article.slug}`}
-                    className="btn btn-primary px-4"
+                    className="btn px-4 py-2"
+                    style={{
+                      backgroundColor: "#417972",
+                      color: "#ffffff",
+                      border: "none",
+                      borderRadius: "8px",
+                      fontWeight: "600",
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#142220";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 12px rgba(65, 121, 114, 0.3)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "#417972";
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
                   >
                     Se connecter
                   </a>
                   <a
                     href={`/auth/register?callbackUrl=/blog/${article.slug}`}
-                    className="btn btn-outline-primary px-4"
+                    className="btn px-4 py-2"
+                    style={{
+                      backgroundColor: "transparent",
+                      color: "#417972",
+                      border: "2px solid #417972",
+                      borderRadius: "8px",
+                      fontWeight: "600",
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#e3ece7";
+                      e.currentTarget.style.borderColor = "#142220";
+                      e.currentTarget.style.color = "#142220";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.borderColor = "#417972";
+                      e.currentTarget.style.color = "#417972";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
                   >
                     Créer un compte
                   </a>
