@@ -4,6 +4,8 @@ import { useState } from "react"
 import { useArticles } from "@/hooks/useArticles"
 import { useCategories } from "@/hooks/useCategories"
 import { ArticlesSkeleton } from "./ArticlesSkeleton"
+import { ArticleDialog } from "./ArticleDialog"
+import { DeleteArticleDialog } from "./DeleteArticleDialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -22,7 +24,7 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, FileText, Eye, Edit, Trash2 } from "lucide-react"
-import type { ArticleStatus } from "@/types/blog"
+import type { ArticleStatus, Article } from "@/types/blog"
 import Image from "next/image"
 
 export function ArticlesClient() {
@@ -30,8 +32,11 @@ export function ArticlesClient() {
   const [categoryId, setCategoryId] = useState<string>("all")
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [articleDialogOpen, setArticleDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
 
-  const { articles, loading, error, total, pages, currentPage } = useArticles({
+  const { articles, loading, error, total, pages, currentPage, refetch } = useArticles({
     status,
     category: categoryId !== "all" ? categoryId : undefined,
     search: search || undefined,
@@ -42,6 +47,25 @@ export function ArticlesClient() {
   })
 
   const { categories } = useCategories()
+
+  const handleCreate = () => {
+    setSelectedArticle(null)
+    setArticleDialogOpen(true)
+  }
+
+  const handleEdit = (article: Article) => {
+    setSelectedArticle(article)
+    setArticleDialogOpen(true)
+  }
+
+  const handleDelete = (article: Article) => {
+    setSelectedArticle(article)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleSuccess = () => {
+    refetch()
+  }
 
   if (loading) {
     return <ArticlesSkeleton />
@@ -90,7 +114,7 @@ export function ArticlesClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Articles</h1>
-        <Button>
+        <Button onClick={handleCreate}>
           <Plus className="w-4 h-4 mr-2" />
           Nouvel article
         </Button>
@@ -169,7 +193,8 @@ export function ArticlesClient() {
             articles.map((article) => (
               <div
                 key={article._id}
-                className="flex items-center gap-4 py-3 border-b last:border-0"
+                className="flex items-center gap-4 py-3 border-b last:border-0 hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => handleEdit(article)}
               >
                 {article.featuredImage && (
                   <div className="relative w-24 h-16 rounded overflow-hidden bg-muted flex-shrink-0">
@@ -203,10 +228,24 @@ export function ArticlesClient() {
                 </div>
 
                 <div className="flex gap-2 flex-shrink-0">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleEdit(article)
+                    }}
+                  >
                     <Edit className="w-4 h-4" />
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDelete(article)
+                    }}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -240,6 +279,22 @@ export function ArticlesClient() {
           </div>
         </div>
       )}
+
+      {/* Dialogs */}
+      <ArticleDialog
+        open={articleDialogOpen}
+        onOpenChange={setArticleDialogOpen}
+        article={selectedArticle}
+        categories={categories}
+        onSuccess={handleSuccess}
+      />
+
+      <DeleteArticleDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        article={selectedArticle}
+        onSuccess={handleSuccess}
+      />
     </div>
   )
 }
