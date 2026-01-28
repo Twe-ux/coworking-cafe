@@ -9,6 +9,7 @@ import {
 } from "../../../store/api/blogApi";
 import SlideUp from "../../../utils/animations/slideUp";
 import ArticleNavigation from "./ArticleNavigation";
+import { useState, useEffect } from "react";
 
 interface BlogArticleDetailProps {
   article: Article;
@@ -20,20 +21,47 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
   const [likeArticle, { isLoading: isLiking }] = useLikeArticleMutation();
   const [unlikeArticle, { isLoading: isUnliking }] = useUnlikeArticleMutation();
 
-  const isLiked = likeData?.liked || false;
+  // Local state for optimistic UI update
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(article.likeCount);
+
+  // Sync with query data
+  useEffect(() => {
+    if (likeData) {
+      setIsLiked(likeData.liked);
+    }
+  }, [likeData]);
+
+  // Sync with article prop changes
+  useEffect(() => {
+    setLikeCount(article.likeCount);
+  }, [article.likeCount]);
+
   const isLoading = isLiking || isUnliking;
 
   const handleLikeToggle = async () => {
     if (isLoading) return;
 
+    // Optimistic update
+    const wasLiked = isLiked;
+    const oldCount = likeCount;
+
+    setIsLiked(!wasLiked);
+    setLikeCount(wasLiked ? oldCount - 1 : oldCount + 1);
+
     try {
-      if (isLiked) {
-        await unlikeArticle(article._id).unwrap();
+      if (wasLiked) {
+        const result = await unlikeArticle(article._id).unwrap();
+        setLikeCount(result.likeCount);
       } else {
-        await likeArticle(article._id).unwrap();
+        const result = await likeArticle(article._id).unwrap();
+        setLikeCount(result.likeCount);
       }
     } catch (error) {
       console.error("Error toggling like:", error);
+      // Revert on error
+      setIsLiked(wasLiked);
+      setLikeCount(oldCount);
     }
   };
 
@@ -84,7 +112,7 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
           >
             <i className={`fa-${isLiked ? "solid" : "regular"} fa-heart`}></i>
             <span>
-              {article.likeCount} {article.likeCount === 1 ? "like" : "likes"}
+              {likeCount} {likeCount === 1 ? "like" : "likes"}
             </span>
           </button>
           {/* <p className="mb-0">
