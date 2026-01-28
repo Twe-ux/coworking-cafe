@@ -43,26 +43,7 @@ export function ProduitsPageClient() {
     setSelectedCategoryId("all");
   }, [selectedType]);
 
-  if (loading) {
-    return <ProduitsPageSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-destructive">Erreur</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{error}</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Calculate stats per type
+  // Calculate stats per type - MUST be before conditional returns
   const stats = useMemo(() => {
     return {
       total: {
@@ -88,7 +69,7 @@ export function ProduitsPageClient() {
     };
   }, [categories, items]);
 
-  // Filter categories and items by selected type
+  // Filter categories and items by selected type - MUST be before conditional returns
   const filteredCategories = useMemo(() => {
     if (selectedType === "all") return categories;
     return categories.filter((c) => c.type === selectedType);
@@ -114,6 +95,26 @@ export function ProduitsPageClient() {
       return a.order - b.order;
     });
   }, [items, selectedType, selectedCategoryId]);
+
+  // Conditional returns AFTER all hooks
+  if (loading) {
+    return <ProduitsPageSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-destructive">Erreur</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Handlers - Catégories
   const handleCreateCategory = () => {
