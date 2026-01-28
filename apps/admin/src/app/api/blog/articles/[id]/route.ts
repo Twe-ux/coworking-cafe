@@ -94,6 +94,22 @@ export async function PUT(
       }
     }
 
+    // Gérer les changements de statut pour le compteur d'articles
+    const oldStatus = existingArticle.status
+    const newStatus = status
+    const articleCategoryId = newCategoryId || oldCategoryId
+
+    if (newStatus && oldStatus !== newStatus && articleCategoryId) {
+      // Si on archive un article (draft/published → archived)
+      if (newStatus === "archived" && oldStatus !== "archived") {
+        await Category.findByIdAndUpdate(articleCategoryId, { $inc: { articleCount: -1 } })
+      }
+      // Si on désarchive un article (archived → draft/published)
+      if (newStatus !== "archived" && oldStatus === "archived") {
+        await Category.findByIdAndUpdate(articleCategoryId, { $inc: { articleCount: 1 } })
+      }
+    }
+
     // Mettre à jour l'article
     const updateData: Record<string, unknown> = {}
     if (title !== undefined) updateData.title = title

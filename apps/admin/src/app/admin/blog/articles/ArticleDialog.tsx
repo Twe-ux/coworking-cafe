@@ -39,12 +39,13 @@ export function ArticleDialog({
   onSuccess,
 }: ArticleDialogProps) {
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     excerpt: "",
     featuredImage: "",
-    categoryId: "",
+    categoryId: "none",
     status: "draft" as ArticleStatus,
     metaTitle: "",
     metaDescription: "",
@@ -57,7 +58,7 @@ export function ArticleDialog({
         content: article.content || "",
         excerpt: article.excerpt || "",
         featuredImage: article.featuredImage || "",
-        categoryId: article.category?._id || "",
+        categoryId: article.category?._id || "none",
         status: article.status || "draft",
         metaTitle: article.metaTitle || "",
         metaDescription: article.metaDescription || "",
@@ -68,13 +69,49 @@ export function ArticleDialog({
         content: "",
         excerpt: "",
         featuredImage: "",
-        categoryId: "",
+        categoryId: "none",
         status: "draft",
         metaTitle: "",
         metaDescription: "",
       })
     }
   }, [article, open])
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("folder", "blog") // Dossier Cloudinary
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!data.success) {
+        throw new Error(data.error || "Erreur lors de l'upload")
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        featuredImage: data.data.url,
+      }))
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      alert(
+        error instanceof Error ? error.message : "Erreur lors de l'upload"
+      )
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,12 +129,17 @@ export function ArticleDialog({
         : "/api/blog/articles"
       const method = article ? "PUT" : "POST"
 
+      const dataToSend = {
+        ...formData,
+        categoryId: formData.categoryId === "none" ? null : formData.categoryId,
+      }
+
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       })
 
       const data = await response.json()
@@ -178,12 +220,14 @@ export function ArticleDialog({
                   <SelectValue placeholder="Sélectionner une catégorie" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Aucune catégorie</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat._id} value={cat._id || ""}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="none">Aucune catégorie</SelectItem>
+                  {categories
+                    .filter(cat => cat._id && cat._id.trim().length > 0)
+                    .map((cat) => (
+                      <SelectItem key={cat._id} value={cat._id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -220,16 +264,42 @@ export function ArticleDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="featuredImage">Image à la une (URL)</Label>
-            <Input
-              id="featuredImage"
-              type="url"
-              value={formData.featuredImage}
-              onChange={(e) =>
-                setFormData({ ...formData, featuredImage: e.target.value })
-              }
-              placeholder="https://example.com/image.jpg"
-            />
+            <Label htmlFor="featuredImage">Image à la une</Label>
+            <div className="flex gap-2">
+              <Input
+                id="featuredImage"
+                type="url"
+                value={formData.featuredImage}
+                onChange={(e) =>
+                  setFormData({ ...formData, featuredImage: e.target.value })
+                }
+                placeholder="https://example.com/image.jpg ou uploadez une image"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                disabled={uploading}
+                onClick={() => document.getElementById("imageUpload")?.click()}
+              >
+                {uploading ? "Upload..." : "Uploader"}
+              </Button>
+              <input
+                id="imageUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </div>
+            {formData.featuredImage && (
+              <div className="mt-2">
+                <img
+                  src={formData.featuredImage}
+                  alt="Preview"
+                  className="w-full h-48 object-cover rounded-md border"
+                />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

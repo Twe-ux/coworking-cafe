@@ -48,3 +48,18 @@
     font-size: 18px;
   }
 }
+
+// Override Bootstrap btn-primary with site green color
+.btn-primary {
+  background-color: #588983 !important;
+  border-color: #588983 !important;
+  color: white !important;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: darken(#588983, 10%) !important;
+    border-color: darken(#588983, 10%) !important;
+    color: white !important;
+  }
+}

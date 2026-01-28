@@ -92,7 +92,7 @@ const BlogSidebar = ({
               href="/blog"
               style={{
                 fontWeight: !selectedCategory ? "bold" : "normal",
-                color: !selectedCategory ? "#000" : "inherit",
+                color: !selectedCategory ? "#588983" : "inherit",
               }}
             >
               Tous les articles
@@ -112,7 +112,7 @@ const BlogSidebar = ({
                         selectedCategory === category._id ? "bold" : "normal",
                       color:
                         selectedCategory === category._id
-                          ? category.color || "#000"
+                          ? "#588983"
                           : "inherit",
                     }}
                   >
