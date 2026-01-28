@@ -296,13 +296,25 @@ export const blogApi = createApi({
     }),
 
     // Increment view count
-    incrementViewCount: builder.mutation<void, string>({
+    incrementViewCount: builder.mutation<{ viewCount: number }, string>({
       query: (slug) => ({
         url: `/articles/${slug}/view`,
         method: 'POST',
       }),
-      // Don't invalidate to avoid refetching
-      invalidatesTags: [],
+      // Update cache locally with optimistic update
+      async onQueryStarted(slug, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          // Update the cache with the new viewCount
+          dispatch(
+            blogApi.util.updateQueryData('getArticleBySlug', slug, (draft) => {
+              draft.viewCount = data.viewCount;
+            })
+          );
+        } catch {
+          // Silently handle error - view count is not critical
+        }
+      },
     }),
 
     // Check if article is liked by current user
