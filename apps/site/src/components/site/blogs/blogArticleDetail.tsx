@@ -31,6 +31,7 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
   // Local state for optimistic UI update
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(article.likeCount);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Sync with query data
   useEffect(() => {
@@ -47,9 +48,9 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
   const isLoading = isLiking || isUnliking;
 
   const handleLikeToggle = async () => {
-    // Si pas connecté, rediriger vers la page de connexion
+    // Si pas connecté, afficher le modal
     if (!session) {
-      router.push(`/auth/login?callbackUrl=/blog/${article.slug}`);
+      setShowAuthModal(true);
       return;
     }
 
@@ -79,8 +80,64 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
   };
 
   return (
-    <article>
-      {article.featuredImage && (
+    <>
+      {/* Modal d'authentification */}
+      {showAuthModal && (
+        <div
+          className="modal fade show"
+          style={{
+            display: "block",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-header border-0">
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowAuthModal(false)}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body text-center py-4">
+                <div className="mb-4">
+                  <i
+                    className="fa-regular fa-heart"
+                    style={{ fontSize: "48px", color: "#dc3545" }}
+                  ></i>
+                </div>
+                <h5 className="mb-3">Connectez-vous pour liker cet article</h5>
+                <p className="text-muted mb-4">
+                  Vous devez être connecté pour pouvoir liker les articles et
+                  sauvegarder vos préférences.
+                </p>
+                <div className="d-flex gap-3 justify-content-center">
+                  <a
+                    href={`/auth/login?callbackUrl=/blog/${article.slug}`}
+                    className="btn btn-primary px-4"
+                  >
+                    Se connecter
+                  </a>
+                  <a
+                    href={`/auth/register?callbackUrl=/blog/${article.slug}`}
+                    className="btn btn-outline-primary px-4"
+                  >
+                    Créer un compte
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <article>
+        {article.featuredImage && (
         <img
           src={article.featuredImage}
           alt={article.title}
@@ -188,7 +245,8 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
 
       {/* Article Navigation (Previous/Next) */}
       <ArticleNavigation currentArticleId={article._id} />
-    </article>
+      </article>
+    </>
   );
 };
 
