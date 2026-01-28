@@ -5,6 +5,7 @@ import type { Article } from "../../../store/api/blogApi";
 import { useToggleLikeMutation } from "../../../store/api/blogApi";
 import SlideUp from "../../../utils/animations/slideUp";
 import { useState } from "react";
+import ArticleNavigation from "./ArticleNavigation";
 
 interface BlogArticleDetailProps {
   article: Article;
@@ -129,6 +130,9 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
           </ul>
         </div>
       </SlideUp> */}
+
+      {/* Article Navigation (Previous/Next) */}
+      <ArticleNavigation currentArticleId={article._id} />
     </article>
   );
 };
