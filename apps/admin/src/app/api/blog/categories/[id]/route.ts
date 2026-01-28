@@ -56,7 +56,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { name, description, parentId, color, isActive } = body
+    const { name, description, parentId, color, isVisible } = body
 
     // Vérifier que le parent existe si fourni
     if (parentId) {
@@ -81,7 +81,7 @@ export async function PUT(
     if (description !== undefined) updateData.description = description
     if (parentId !== undefined) updateData.parent = parentId || null
     if (color !== undefined) updateData.color = color
-    if (isActive !== undefined) updateData.isActive = isActive
+    if (isVisible !== undefined) updateData.isVisible = isVisible
 
     const updatedCategory = await Category.findByIdAndUpdate(
       params.id,

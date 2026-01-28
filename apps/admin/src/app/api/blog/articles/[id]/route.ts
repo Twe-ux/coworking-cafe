@@ -4,7 +4,6 @@ import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"
 import { Article } from "@/models/article"
 import { Category } from "@/models/category"
-import { Tag } from "@/models/tag"
 import type { ApiResponse } from "@/types/timeEntry"
 import type { Article as ArticleType } from "@/types/blog"
 
@@ -24,7 +23,6 @@ export async function GET(
     const article = await Article.findById(params.id)
       .populate("author", "username name email avatar")
       .populate("category", "name slug")
-      .populate("tags", "name slug")
       .lean()
 
     if (!article) {
@@ -66,7 +64,6 @@ export async function PUT(
       excerpt,
       featuredImage,
       categoryId,
-      tagIds,
       status,
       metaTitle,
       metaDescription,
@@ -79,14 +76,6 @@ export async function PUT(
       const categoryExists = await Category.findById(categoryId)
       if (!categoryExists) {
         return errorResponse("Catégorie non trouvée", "categoryId invalide", 404)
-      }
-    }
-
-    // Vérifier que les tags existent si fournis
-    if (tagIds && tagIds.length > 0) {
-      const tagsCount = await Tag.countDocuments({ _id: { $in: tagIds } })
-      if (tagsCount !== tagIds.length) {
-        return errorResponse("Tags invalides", "Un ou plusieurs tagIds sont invalides", 400)
       }
     }
 
@@ -105,21 +94,6 @@ export async function PUT(
       }
     }
 
-    // Gérer les changements de tags
-    const oldTagIds = existingArticle.tags?.map((t) => t.toString()) || []
-    const newTagIds = tagIds || []
-
-    const removedTags = oldTagIds.filter((id) => !newTagIds.includes(id))
-    const addedTags = newTagIds.filter((id: string) => !oldTagIds.includes(id))
-
-    if (removedTags.length > 0) {
-      await Tag.updateMany({ _id: { $in: removedTags } }, { $inc: { articleCount: -1 } })
-    }
-
-    if (addedTags.length > 0) {
-      await Tag.updateMany({ _id: { $in: addedTags } }, { $inc: { articleCount: 1 } })
-    }
-
     // Mettre à jour l'article
     const updateData: Record<string, unknown> = {}
     if (title !== undefined) updateData.title = title
@@ -127,7 +101,6 @@ export async function PUT(
     if (excerpt !== undefined) updateData.excerpt = excerpt
     if (featuredImage !== undefined) updateData.featuredImage = featuredImage
     if (categoryId !== undefined) updateData.category = categoryId || null
-    if (tagIds !== undefined) updateData.tags = tagIds
     if (status !== undefined) {
       updateData.status = status
       // Si on publie l'article et qu'il n'a pas de publishedAt, on le définit
@@ -147,7 +120,6 @@ export async function PUT(
     )
       .populate("author", "username name email avatar")
       .populate("category", "name slug")
-      .populate("tags", "name slug")
       .lean()
 
     return successResponse(updatedArticle as unknown as ArticleType, "Article mis à jour avec succès")
@@ -181,11 +153,6 @@ export async function DELETE(
     // Décrémenter articleCount de la catégorie
     if (article.category) {
       await Category.findByIdAndUpdate(article.category, { $inc: { articleCount: -1 } })
-    }
-
-    // Décrémenter articleCount des tags
-    if (article.tags && article.tags.length > 0) {
-      await Tag.updateMany({ _id: { $in: article.tags } }, { $inc: { articleCount: -1 } })
     }
 
     // Supprimer l'article
