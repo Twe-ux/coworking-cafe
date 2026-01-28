@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Calendar } from 'lucide-react'
 import { EmployeeFormData, EmployeeFormErrors } from './types'
 
@@ -24,13 +24,11 @@ export function StartDateSection({
             <Calendar className="h-4 w-4" />
             Date de début <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="startDate"
-            type="date"
-            value={formData.startDate}
-            onChange={(e) => onChange('startDate', e.target.value)}
+          <DatePicker
+            date={formData.startDate}
+            onDateChange={(date) => onChange('startDate', date)}
+            placeholder="Sélectionner la date de début"
             className={errors.startDate ? 'border-red-500' : ''}
-            max={new Date().toISOString().split('T')[0]}
           />
           {errors.startDate && (
             <p className="text-sm text-red-600">{errors.startDate}</p>

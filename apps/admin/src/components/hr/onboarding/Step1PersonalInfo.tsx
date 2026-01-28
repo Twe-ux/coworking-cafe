@@ -1,10 +1,11 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { DatePicker } from '@/components/ui/date-picker'
 import { useOnboardingContext } from '@/contexts/OnboardingContext'
 import type { PersonalInfo } from '@/types/onboarding'
 
@@ -24,6 +25,7 @@ export function Step1PersonalInfo() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<PersonalInfo>({
     defaultValues: data.step1
@@ -119,12 +121,17 @@ export function Step1PersonalInfo() {
                 <Label htmlFor="dateOfBirth">
                   Date de naissance <span className="text-destructive">*</span>
                 </Label>
-                <Input
-                  id="dateOfBirth"
-                  type="date"
-                  {...register('dateOfBirth', {
-                    required: 'La date de naissance est requise',
-                  })}
+                <Controller
+                  name="dateOfBirth"
+                  control={control}
+                  rules={{ required: 'La date de naissance est requise' }}
+                  render={({ field }) => (
+                    <DatePicker
+                      date={field.value}
+                      onDateChange={field.onChange}
+                      placeholder="Sélectionner la date de naissance"
+                    />
+                  )}
                 />
                 {errors.dateOfBirth && (
                   <p className="text-sm text-destructive">

@@ -107,7 +107,7 @@ export function EmployeeCard({
       case "draft":
         return "border-gray-300";
       case "waiting":
-        return "border-l-4 border-l-orange-500";
+        return "border-l-4 border-l-blue-500";
       case "active":
         return "border-l-4 border-l-green-500";
       case "inactive":
@@ -142,18 +142,20 @@ export function EmployeeCard({
                     ? `${employee.contractualHours}h`
                     : "N/A"}
                 </Badge>
-                <Badge
-                  variant="outline"
-                  className="border-green-600 text-green-700 bg-green-50 font-medium"
-                >
-                  {statusBadge.label}
-                </Badge>
-                {employee.employmentStatus === "waiting" && (
+                {/* Badge de statut : Actif OU Entrée le XX/XX */}
+                {employee.employmentStatus === "waiting" ? (
                   <Badge
                     variant="outline"
-                    className="border-orange-500 text-orange-700 bg-orange-50 font-medium"
+                    className="border-blue-500 text-blue-700 bg-blue-50 font-medium"
                   >
-                    En attente
+                    Entrée le {formatDateFR(employee.hireDate)}
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className="border-green-600 text-green-700 bg-green-50 font-medium"
+                  >
+                    {statusBadge.label}
                   </Badge>
                 )}
               </div>
@@ -227,18 +229,6 @@ export function EmployeeCard({
             />
           </div>
         </div>
-
-        {/* Alerte employé en attente */}
-        {employee.employmentStatus === "waiting" && employee.hireDate && (
-          <div className="mt-3 rounded-md bg-orange-50 p-3 text-sm">
-            <p className="font-medium text-orange-800">
-              Embauche prévue le {formatDateFR(employee.hireDate)}
-            </p>
-            <p className="text-orange-600">
-              L'employé sera automatiquement activé à cette date
-            </p>
-          </div>
-        )}
 
         {/* Alerte fin de contrat future */}
         {employee.endDate && isInFuture(employee.endDate) && (

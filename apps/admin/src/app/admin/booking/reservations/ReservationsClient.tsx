@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,14 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Calendar,
   AlertCircle,
@@ -26,6 +35,8 @@ import {
   ClockIcon,
   CheckCircle,
   XCircle,
+  CalendarDays,
+  Pencil,
 } from "lucide-react";
 import { ReservationsSkeleton } from "./ReservationsSkeleton";
 import { ReservationDetailModal } from "./ReservationDetailModal";
@@ -76,6 +87,16 @@ export function ReservationsClient() {
   const [quickCancelDialogOpen, setQuickCancelDialogOpen] = useState(false);
   const [quickCancelBookingId, setQuickCancelBookingId] = useState<string | null>(null);
   const [quickCancelReason, setQuickCancelReason] = useState("");
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editBooking, setEditBooking] = useState<Booking | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    spaceName: "",
+    startDate: "",
+    startTime: "",
+    endTime: "",
+  });
+  const [editLoading, setEditLoading] = useState(false);
 
   // Load all bookings to calculate stats
   const {
@@ -167,6 +188,81 @@ export function ReservationsClient() {
     setQuickCancelReason("");
   };
 
+  // Helper to get spaceType from spaceName
+  const getSpaceType = (spaceName?: string): string => {
+    if (!spaceName) return "open-space";
+    const lower = spaceName.toLowerCase();
+    if (lower.includes("verriere") || lower.includes("verrière")) return "salle-verriere";
+    if (lower.includes("etage") || lower.includes("étage")) return "salle-etage";
+    if (lower.includes("evenement") || lower.includes("événement")) return "evenementiel";
+    return "open-space";
+  };
+
+  // Edit handlers
+  const handleEditClick = (booking: Booking) => {
+    setEditBooking(booking);
+    setEditFormData({
+      spaceName: getSpaceType(booking.spaceName),
+      startDate: booking.startDate || "",
+      startTime: booking.startTime || "",
+      endTime: booking.endTime || "",
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editBooking?._id) return;
+
+    setEditLoading(true);
+    try {
+      const response = await fetch(`/api/booking/reservations/${editBooking._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          spaceType: editFormData.spaceName,
+          date: editFormData.startDate,
+          startTime: editFormData.startTime,
+          endTime: editFormData.endTime,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: "Réservation modifiée avec succès",
+        });
+        setEditDialogOpen(false);
+        // Refetch bookings to update the list
+        window.location.reload();
+      } else {
+        setMessage({
+          type: "error",
+          text: data.error || "Erreur lors de la modification",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors de la modification de la réservation",
+      });
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleEditClose = () => {
+    setEditDialogOpen(false);
+    setEditBooking(null);
+    setEditFormData({
+      spaceName: "",
+      startDate: "",
+      startTime: "",
+      endTime: "",
+    });
+  };
+
   if (loading) {
     return <ReservationsSkeleton />;
   }
@@ -188,14 +284,22 @@ export function ReservationsClient() {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Calendar className="w-8 h-8" />
-          Réservations
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Gérer les réservations clients
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Calendar className="w-8 h-8" />
+            Réservations
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Gérer les réservations clients
+          </p>
+        </div>
+        <Link href="/admin/booking/calendar">
+          <Button>
+            <CalendarDays className="w-4 h-4 mr-2" />
+            Voir le calendrier
+          </Button>
+        </Link>
       </div>
 
       <ReservationDetailModal
@@ -236,6 +340,81 @@ export function ReservationsClient() {
               disabled={cancelBooking.isPending}
             >
               {cancelBooking.isPending ? "Annulation..." : "Confirmer l'annulation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={handleEditClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier la réservation</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="editSpace">Espace</Label>
+              <Select
+                value={editFormData.spaceName}
+                onValueChange={(value) =>
+                  setEditFormData({ ...editFormData, spaceName: value })
+                }
+              >
+                <SelectTrigger id="editSpace">
+                  <SelectValue placeholder="Sélectionner un espace" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open-space">Open Space</SelectItem>
+                  <SelectItem value="salle-verriere">Salle Verrière</SelectItem>
+                  <SelectItem value="salle-etage">Salle Étage</SelectItem>
+                  <SelectItem value="evenementiel">Événementiel</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editDate">Date</Label>
+              <Input
+                id="editDate"
+                type="date"
+                value={editFormData.startDate}
+                onChange={(e) =>
+                  setEditFormData({ ...editFormData, startDate: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="editStartTime">Heure début</Label>
+                <Input
+                  id="editStartTime"
+                  type="time"
+                  value={editFormData.startTime}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, startTime: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editEndTime">Heure fin</Label>
+                <Input
+                  id="editEndTime"
+                  type="time"
+                  value={editFormData.endTime}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, endTime: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleEditClose}>
+              Annuler
+            </Button>
+            <Button onClick={handleEditSubmit} disabled={editLoading}>
+              {editLoading ? "Modification..." : "Enregistrer"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -394,7 +573,7 @@ export function ReservationsClient() {
 
                       {/* Boutons icônes - largeur fixe pour alignement */}
                       <div
-                        className="flex items-center gap-1 w-[72px] justify-end"
+                        className="flex items-center gap-1 w-[108px] justify-end"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {booking.status === "pending" && (
@@ -410,6 +589,15 @@ export function ReservationsClient() {
                               title="Valider"
                             >
                               <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8 border-blue-500 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+                              onClick={() => handleEditClick(booking)}
+                              title="Modifier"
+                            >
+                              <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="outline"

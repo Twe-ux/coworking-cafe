@@ -50,7 +50,9 @@ export function EmployeeList({
   const [contractTypeFilter, setContractTypeFilter] = useState<string>("");
   const [roleFilter, setRoleFilter] = useState<string>("");
   const [promoteModalOpen, setPromoteModalOpen] = useState(false);
-  const [employeeToPromote, setEmployeeToPromote] = useState<Employee | null>(null);
+  const [employeeToPromote, setEmployeeToPromote] = useState<Employee | null>(
+    null,
+  );
 
   const filteredEmployees = filterEmployees(employees, {
     search,
@@ -58,9 +60,9 @@ export function EmployeeList({
     contractType: contractTypeFilter || undefined,
     role: roleFilter || undefined,
   }).filter((emp) => {
-    // Masquer le compte Admin Dev (compte technique pour tests)
-    return emp.email !== "dev@coworkingcafe.com" &&
-           !(emp.firstName === "Admin" && emp.lastName === "Dev");
+    // Masquer l'employé dev
+    return !emp.email.toLowerCase().includes("dev@") &&
+           emp.email !== "dev@coworkingcafe.com";
   });
 
   const handlePromoteToAdmin = (employee: Employee) => {
@@ -68,28 +70,34 @@ export function EmployeeList({
     setPromoteModalOpen(true);
   };
 
-  const handleConfirmPromotion = async (employeeId: string, newRole: EmployeeRole, pin: string) => {
+  const handleConfirmPromotion = async (
+    employeeId: string,
+    newRole: EmployeeRole,
+    pin: string,
+  ) => {
     try {
       const response = await fetch(`/api/hr/employees/${employeeId}/promote`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newRole, pin }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || 'Erreur lors de la promotion');
+        throw new Error(data.error?.message || "Erreur lors de la promotion");
       }
 
-      toast.success(data.message || 'Employé promu avec succès');
+      toast.success(data.message || "Employé promu avec succès");
 
       // Refresh employee list
       if (onRefresh) {
         onRefresh();
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erreur lors de la promotion');
+      toast.error(
+        error instanceof Error ? error.message : "Erreur lors de la promotion",
+      );
       throw error;
     }
   };
@@ -102,20 +110,16 @@ export function EmployeeList({
     <div className="space-y-6">
       {/* Header avec actions */}
       <div className="flex items-center justify-between">
-        <div>
+        {/* <div>
           <h2 className="text-2xl font-bold tracking-tight">Employés</h2>
           <p className="text-sm text-muted-foreground">
             {filteredEmployees.length} employé{filteredEmployees.length > 1 ? "s" : ""}
           </p>
-        </div>
-        <Button onClick={onCreateNew} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Nouvel Employé
-        </Button>
+        </div> */}
       </div>
 
       {/* Filtres */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-">
         {/* Recherche */}
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -129,7 +133,10 @@ export function EmployeeList({
         </div>
 
         {/* Type de contrat */}
-        <Select value={contractTypeFilter} onValueChange={setContractTypeFilter}>
+        <Select
+          value={contractTypeFilter}
+          onValueChange={setContractTypeFilter}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Type de contrat" />
           </SelectTrigger>
@@ -164,22 +171,21 @@ export function EmployeeList({
             Afficher archivés
           </Label>
         </div>
+
+        <Button onClick={onCreateNew} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Nouvel Employé
+        </Button>
       </div>
 
       {/* Liste des employés */}
       {filteredEmployees.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-muted-foreground">
-            {showArchived
-              ? "Aucun employé archivé"
-              : "Aucun employé trouvé"}
+            {showArchived ? "Aucun employé archivé" : "Aucun employé trouvé"}
           </p>
           {!showArchived && (
-            <Button
-              onClick={onCreateNew}
-              variant="outline"
-              className="mt-4"
-            >
+            <Button onClick={onCreateNew} variant="outline" className="mt-4">
               Créer le premier employé
             </Button>
           )}

@@ -11,14 +11,24 @@ import {
   CheckCircle2,
   Plus,
 } from "lucide-react";
-import { ReservationDialog } from "../reservations/ReservationDialog";
+import { ReservationDialog } from "../reservations/reservation-dialog";
+import { EditBookingDialog } from "../reservations/EditBookingDialog";
+import { DayBookingsModal } from "./DayBookingsModal";
+import { useSession } from "next-auth/react";
 import type { Booking, BookingStatus } from "@/types/booking";
 
 const spaceTypeColors: Record<string, string> = {
   "open-space": "bg-blue-500",
   "salle-verriere": "bg-green-500",
-  "salle-etage": "bg-orange-500",
+  "salle-etage": "bg-purple-500",
   evenementiel: "bg-red-500",
+};
+
+const spaceTypeBorderColors: Record<string, string> = {
+  "open-space": "border-l-blue-500",
+  "salle-verriere": "border-l-green-500",
+  "salle-etage": "border-l-purple-500",
+  evenementiel: "border-l-red-500",
 };
 
 const spaceTypeLabels: Record<string, string> = {
@@ -36,6 +46,7 @@ const statusLabels: Record<BookingStatus, string> = {
 };
 
 export function CalendarAltClient() {
+  const { data: session } = useSession();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +57,15 @@ export function CalendarAltClient() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editBooking, setEditBooking] = useState<Booking | null>(null);
+  const [dayModalOpen, setDayModalOpen] = useState(false);
+  const [dayModalDate, setDayModalDate] = useState<Date>(new Date());
+  const [dayModalBookings, setDayModalBookings] = useState<Booking[]>([]);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [isMarkingPresent, setIsMarkingPresent] = useState(false);
+  const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -81,14 +101,13 @@ export function CalendarAltClient() {
   };
 
   const handleCellClick = (date: Date, dayBookings: Booking[]) => {
-    setSelectedDate(date);
-    if (dayBookings.length === 1) {
-      setSelectedBooking(dayBookings[0]);
-      setDialogOpen(true);
-    } else if (dayBookings.length === 0) {
-      setSelectedBooking(null);
-      setDialogOpen(true);
-    }
+    // Filter out cancelled bookings for display
+    const activeBookings = dayBookings.filter((b) => b.status !== "cancelled");
+
+    // Always open day modal (even if empty)
+    setDayModalDate(date);
+    setDayModalBookings(activeBookings);
+    setDayModalOpen(true);
   };
 
   const handleDialogSuccess = () => {
@@ -97,6 +116,179 @@ export function CalendarAltClient() {
       text: selectedBooking ? "Réservation mise à jour" : "Réservation créée",
     });
     fetchBookings();
+  };
+
+  const handleConfirm = async (bookingId: string) => {
+    try {
+      setIsConfirming(true);
+      const response = await fetch(
+        `/api/booking/reservations/${bookingId}/confirm`,
+        {
+          method: "POST",
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: "Réservation confirmée avec succès",
+        });
+        fetchBookings();
+        setDayModalOpen(false);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.error || "Erreur lors de la confirmation",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors de la confirmation de la réservation",
+      });
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  const handleCancel = async (bookingId: string, reason: string) => {
+    try {
+      setIsCancelling(true);
+      const response = await fetch(
+        `/api/booking/reservations/${bookingId}/cancel`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reason }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: "Réservation annulée avec succès",
+        });
+        fetchBookings();
+        setDayModalOpen(false);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.error || "Erreur lors de l'annulation",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors de l'annulation de la réservation",
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleEdit = (booking: Booking) => {
+    setEditBooking(booking);
+    setDayModalOpen(false);
+    setEditDialogOpen(true);
+  };
+
+  const handleCreateFromModal = () => {
+    setSelectedDate(dayModalDate);
+    setSelectedBooking(null);
+    setDayModalOpen(false);
+    setDialogOpen(true);
+  };
+
+  const handleMarkPresent = async (bookingId: string) => {
+    if (
+      !confirm(
+        "Confirmer la présence du client ? Cela libérera l'empreinte bancaire et enverra un email de confirmation."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsMarkingPresent(true);
+      const response = await fetch(
+        `/api/booking/reservations/${bookingId}/mark-present`,
+        {
+          method: "POST",
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: "Client marqué comme présent - Empreinte bancaire libérée",
+        });
+        fetchBookings();
+        setDayModalOpen(false);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.error || "Erreur lors de la confirmation de présence",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors de la confirmation de présence",
+      });
+    } finally {
+      setIsMarkingPresent(false);
+    }
+  };
+
+  const handleMarkNoShow = async (bookingId: string) => {
+    if (
+      !confirm(
+        "Marquer comme no-show ? Cela capturera l'empreinte bancaire et enverra un email au client."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsMarkingNoShow(true);
+      const response = await fetch(
+        `/api/booking/reservations/${bookingId}/mark-noshow`,
+        {
+          method: "POST",
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: "Client marqué comme no-show - Empreinte bancaire capturée",
+        });
+        fetchBookings();
+        setDayModalOpen(false);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.error || "Erreur lors du traitement du no-show",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors du traitement du no-show",
+      });
+    } finally {
+      setIsMarkingNoShow(false);
+    }
   };
 
   const getSpaceType = (spaceName?: string): string => {
@@ -109,40 +301,46 @@ export function CalendarAltClient() {
   };
 
   const renderCell = (date: Date, dayBookings: Booking[], cellInfo: any) => {
-    if (dayBookings.length === 0) {
+    // Ne pas afficher les réservations annulées
+    const activeBookings = dayBookings.filter((b) => b.status !== "cancelled");
+
+    if (activeBookings.length === 0) {
       return null;
     }
 
     return (
-      <div className="space-y-1 p-1">
-        {dayBookings.slice(0, 3).map((booking) => {
+      <div className="h-[88px] overflow-hidden px-1 space-y-1">
+        {activeBookings.slice(0, 3).map((booking) => {
           const spaceType = getSpaceType(booking.spaceName);
-          const colorClass = spaceTypeColors[spaceType];
+          const spaceColor = spaceTypeColors[spaceType];
+          const borderColor = spaceTypeBorderColors[spaceType];
+
+          // Si en attente : fond orange avec bordure de la couleur de l'espace
+          // Si confirmée : fond de la couleur de l'espace
+          const bgColor =
+            booking.status === "pending" ? "bg-orange-500" : spaceColor;
+          const border =
+            booking.status === "pending" ? `border-l-8 ${borderColor}` : "";
 
           return (
             <div
               key={booking._id}
-              className={`${colorClass} text-white rounded px-2 py-1 text-xs cursor-pointer hover:opacity-80 transition-opacity`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedBooking(booking);
-                setDialogOpen(true);
-              }}
+              className={`${bgColor} ${border} text-white rounded px-2 py-0.5 text-xs cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-between gap-2`}
             >
-              <div className="font-semibold truncate">{booking.spaceName}</div>
-              <div className="truncate opacity-90">{booking.clientName}</div>
+              <span className="truncate font-medium">{booking.clientName}</span>
               {booking.startTime && (
-                <div className="text-[10px] opacity-80">
-                  {booking.startTime} - {booking.endTime}
-                </div>
+                <span className="text-[10px] opacity-90 whitespace-nowrap">
+                  {booking.startTime}-{booking.endTime}
+                </span>
               )}
             </div>
           );
         })}
 
-        {dayBookings.length > 3 && (
-          <div className="text-xs text-center text-muted-foreground">
-            +{dayBookings.length - 3} autres
+        {activeBookings.length > 3 && (
+          <div className="text-xs text-center text-muted-foreground py-0.5">
+            +{activeBookings.length - 3} réservation
+            {activeBookings.length - 3 > 1 ? "s" : ""}
           </div>
         )}
       </div>
@@ -164,9 +362,9 @@ export function CalendarAltClient() {
           <CalendarIcon className="w-8 h-8" />
           Calendrier
         </h1>
-        <p className="text-muted-foreground mt-2">
+        {/* <p className="text-muted-foreground mt-2">
           Vue calendrier mensuel des réservations
-        </p>
+        </p> */}
       </div>
 
       <ReservationDialog
@@ -174,6 +372,31 @@ export function CalendarAltClient() {
         onOpenChange={setDialogOpen}
         booking={selectedBooking}
         onSuccess={handleDialogSuccess}
+      />
+
+      <EditBookingDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        booking={editBooking}
+        onSuccess={handleDialogSuccess}
+      />
+
+      <DayBookingsModal
+        open={dayModalOpen}
+        onClose={() => setDayModalOpen(false)}
+        date={dayModalDate}
+        bookings={dayModalBookings}
+        userRole={session?.user?.role || "staff"}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        onEdit={handleEdit}
+        onMarkPresent={handleMarkPresent}
+        onMarkNoShow={handleMarkNoShow}
+        onCreate={handleCreateFromModal}
+        isConfirming={isConfirming}
+        isCancelling={isCancelling}
+        isMarkingPresent={isMarkingPresent}
+        isMarkingNoShow={isMarkingNoShow}
       />
 
       {message && (
@@ -195,15 +418,29 @@ export function CalendarAltClient() {
         renderCell={renderCell}
         onCellClick={handleCellClick}
         showSidebar={false}
-        cellHeight={120}
+        cellHeight={129}
         legendComponent={
-          <div className="flex gap-4 flex-wrap">
-            {Object.entries(spaceTypeLabels).map(([type, label]) => (
-              <div key={type} className="flex items-center gap-2">
-                <div className={`w-4 h-4 rounded ${spaceTypeColors[type]}`} />
-                <span className="text-sm">{label}</span>
+          <div className="flex gap-6 flex-wrap items-center">
+            <div className="flex gap-4 flex-wrap">
+              <span className="text-sm font-semibold text-muted-foreground">
+                Espaces :
+              </span>
+              {Object.entries(spaceTypeLabels).map(([type, label]) => (
+                <div key={type} className="flex items-center gap-2">
+                  <div className={`w-4 h-4 rounded ${spaceTypeColors[type]}`} />
+                  <span className="text-sm">{label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-muted-foreground">
+                Statut :
+              </span>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-orange-500" />
+                <span className="text-sm">En attente</span>
               </div>
-            ))}
+            </div>
           </div>
         }
         actionButton={

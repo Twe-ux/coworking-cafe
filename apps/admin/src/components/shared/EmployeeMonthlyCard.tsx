@@ -46,12 +46,12 @@ export default function EmployeeMonthlyCard({
     const firstDay = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      1
+      1,
     );
     const lastDay = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() + 1,
-      0
+      0,
     );
     return {
       firstDayStr: formatDateToYMD(firstDay),
@@ -71,7 +71,7 @@ export default function EmployeeMonthlyCard({
 
     return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
       2,
-      "0"
+      "0",
     )}`;
   };
 
@@ -192,11 +192,11 @@ export default function EmployeeMonthlyCard({
                     className="h-3 w-3 rounded-full"
                     style={{ backgroundColor: employee.color || "#9CA3AF" }}
                   />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex gap-4">
                     <CardTitle className="truncate text-base font-medium">
                       {employee.firstName} {employee.lastName}
                     </CardTitle>
-                    <Badge variant="secondary" className="mt-1 text-xs">
+                    <Badge variant="secondary" className="text-xs">
                       {employee.employeeRole}
                     </Badge>
                   </div>
@@ -214,7 +214,7 @@ export default function EmployeeMonthlyCard({
                   <Badge
                     variant="outline"
                     className={`font-mono text-sm ${getHoursColorClass(
-                      plannedHours
+                      plannedHours,
                     )}`}
                   >
                     {formatHoursToHHMM(plannedHours)}
@@ -231,7 +231,7 @@ export default function EmployeeMonthlyCard({
                   <Badge
                     variant="outline"
                     className={`font-mono text-sm ${getHoursColorClass(
-                      actualHours
+                      actualHours,
                     )}`}
                   >
                     {formatHoursToHHMM(actualHours)}
@@ -248,7 +248,7 @@ export default function EmployeeMonthlyCard({
                   <Badge
                     variant="outline"
                     className={`font-mono text-sm ${getHoursColorClass(
-                      projectedHours
+                      projectedHours,
                     )}`}
                   >
                     {formatHoursToHHMM(projectedHours)}
@@ -256,7 +256,7 @@ export default function EmployeeMonthlyCard({
                 </div>
               </CardContent>
             </Card>
-          )
+          ),
         )}
       </div>
 
@@ -275,7 +275,9 @@ export default function EmployeeMonthlyCard({
       {showStats && employeeMonthlyStats.length > 0 && (
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-base">Vue d'ensemble mensuelle</CardTitle>
+            <CardTitle className="text-base">
+              Vue d'ensemble mensuelle
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-4">
@@ -290,8 +292,8 @@ export default function EmployeeMonthlyCard({
                   {formatHoursToHHMM(
                     employeeMonthlyStats.reduce(
                       (sum, stat) => sum + stat.plannedHours,
-                      0
-                    )
+                      0,
+                    ),
                   )}
                 </div>
                 <div className="text-sm text-gray-600">Total planifié</div>
@@ -301,8 +303,8 @@ export default function EmployeeMonthlyCard({
                   {formatHoursToHHMM(
                     employeeMonthlyStats.reduce(
                       (sum, stat) => sum + stat.actualHours,
-                      0
-                    )
+                      0,
+                    ),
                   )}
                 </div>
                 <div className="text-sm text-gray-600">Total réalisé</div>
@@ -312,8 +314,8 @@ export default function EmployeeMonthlyCard({
                   {formatHoursToHHMM(
                     employeeMonthlyStats.reduce(
                       (sum, stat) => sum + stat.projectedHours,
-                      0
-                    )
+                      0,
+                    ),
                   )}
                 </div>
                 <div className="text-sm text-gray-600">Total projeté</div>

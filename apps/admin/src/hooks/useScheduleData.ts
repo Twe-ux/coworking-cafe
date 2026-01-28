@@ -68,10 +68,10 @@ export function useScheduleData(): UseScheduleDataReturn {
       const result: ApiResponse<Employee[]> = await response.json();
 
       if (result.success && result.data) {
-        // Filtrer pour masquer le compte Admin Dev (compte technique pour tests)
+        // Filtrer pour masquer l'employé dev
         const filteredEmployees = result.data.filter((emp) => {
-          return emp.email !== "dev@coworkingcafe.com" &&
-                 !(emp.firstName === "Admin" && emp.lastName === "Dev");
+          return !emp.email.toLowerCase().includes("dev@") &&
+                 emp.email !== "dev@coworkingcafe.com";
         });
         setEmployees(filteredEmployees);
       } else {

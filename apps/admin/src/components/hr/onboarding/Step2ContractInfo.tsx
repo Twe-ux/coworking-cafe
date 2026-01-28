@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useOnboardingContext } from "@/contexts/OnboardingContext";
 import type { ContractInfo } from "@/types/onboarding";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
 // Formater une date pour les inputs (YYYY-MM-DD)
 // Si déjà au bon format, retourne tel quel, sinon nettoie
@@ -33,6 +34,7 @@ export function Step2ContractInfo() {
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<ContractInfo>({
     defaultValues: data.step2
@@ -94,12 +96,17 @@ export function Step2ContractInfo() {
               <Label htmlFor="hireDate">
                 Date d'embauche <span className="text-destructive">*</span>
               </Label>
-              <Input
-                id="hireDate"
-                type="date"
-                {...register("hireDate", {
-                  required: "La date d'embauche est requise",
-                })}
+              <Controller
+                name="hireDate"
+                control={control}
+                rules={{ required: "La date d'embauche est requise" }}
+                render={({ field }) => (
+                  <DatePicker
+                    date={field.value}
+                    onDateChange={field.onChange}
+                    placeholder="Sélectionner la date d'embauche"
+                  />
+                )}
               />
               {errors.hireDate && (
                 <p className="text-sm text-destructive">
@@ -120,15 +127,22 @@ export function Step2ContractInfo() {
               <Label htmlFor="endDate">
                 Date de fin du CDD <span className="text-destructive">*</span>
               </Label>
-              <Input
-                id="endDate"
-                type="date"
-                {...register("endDate", {
+              <Controller
+                name="endDate"
+                control={control}
+                rules={{
                   required:
                     contractType === "CDD"
                       ? "La date de fin est requise"
                       : false,
-                })}
+                }}
+                render={({ field }) => (
+                  <DatePicker
+                    date={field.value || ""}
+                    onDateChange={field.onChange}
+                    placeholder="Sélectionner la date de fin"
+                  />
+                )}
               />
               {errors.endDate && (
                 <p className="text-sm text-destructive">

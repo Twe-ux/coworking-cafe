@@ -1,6 +1,5 @@
 import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -9,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Calendar } from 'lucide-react'
+import { DatePicker } from '@/components/ui/date-picker'
 import { EMPLOYEE_ROLES } from './constants'
 import type { EmployeeFormData, FormErrors } from './types'
 
@@ -68,16 +67,11 @@ export function ProfessionalInfoSection({
 
           <div className="space-y-2">
             <Label htmlFor="startDate">Date de début</Label>
-            <div className="relative">
-              <Calendar className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => onInputChange('startDate', e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <DatePicker
+              date={formData.startDate}
+              onDateChange={(date) => onInputChange('startDate', date)}
+              placeholder="Sélectionner la date de début"
+            />
           </div>
         </div>
       </CardContent>

@@ -16,8 +16,8 @@ export function buildWorkSchedulePayload(
   if (!weeklyDistribution) return undefined
 
   return {
-    weeklyDistribution: JSON.stringify(weeklyDistribution),
-    timeSlots: '',
+    weeklyDistribution: weeklyDistribution,
+    timeSlots: {},
     weeklyDistributionData: weeklyDistribution,
   }
 }
