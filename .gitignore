@@ -61,3 +61,6 @@ fix-*.js
 check-*.js
 *-script.js
 .secrets-prod.txt
+
+# Northflank secrets documentation (contains example credentials)
+NORTHFLANK_SECRETS_GUIDE.md
