@@ -21,7 +21,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function StaffHomePage() {
+export function StaffHomeClient() {
   const { data: session } = useSession();
   const { isAdmin, isDev } = useRole();
   const router = useRouter();
