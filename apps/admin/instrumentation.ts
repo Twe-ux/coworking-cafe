@@ -10,5 +10,4 @@ export async function register() {
 
   console.log('✅ AFTER loading .env.local:');
   console.log('📂 MONGODB_URI database:', process.env.MONGODB_URI?.split('/').pop()?.split('?')[0]);
-  console.log('📂 Full MONGODB_URI:', process.env.MONGODB_URI);
 }

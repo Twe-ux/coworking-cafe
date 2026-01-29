@@ -83,13 +83,13 @@ export interface BookingDocument extends Document {
 export const BookingSchema = new Schema<BookingDocument>(
   {
     user: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: false, // Optional: allows guest bookings (non-registered users)
       index: true,
     },
     space: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Space",
       required: false, // DEPRECATED: Made optional for backward compatibility
       index: true,
@@ -195,7 +195,7 @@ export const BookingSchema = new Schema<BookingDocument>(
       type: [
         {
           service: {
-            type: Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "AdditionalService",
             required: true,
           },
@@ -345,7 +345,7 @@ export const BookingSchema = new Schema<BookingDocument>(
       default: 0,
     },
     cancelledBy: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
     },
     completedAt: {

@@ -23,7 +23,7 @@ export const NewsletterSchema = new Schema<NewsletterDocument>(
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
     userId: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
     },
     isSubscribed: {

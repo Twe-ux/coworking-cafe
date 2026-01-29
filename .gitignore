@@ -60,3 +60,4 @@ temp/
 fix-*.js
 check-*.js
 *-script.js
+.secrets-prod.txt

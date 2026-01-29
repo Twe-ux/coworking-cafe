@@ -14,7 +14,7 @@ export interface PasswordResetTokenDocument extends Document {
 export const PasswordResetTokenSchema = new Schema<PasswordResetTokenDocument>(
   {
     userId: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: [true, "User ID is required"],
     },

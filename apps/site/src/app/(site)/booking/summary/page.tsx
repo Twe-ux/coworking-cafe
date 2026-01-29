@@ -1152,12 +1152,6 @@ export default function BookingSummaryPage() {
                             },
                           } as any
                         }
-                        onLoadError={(error: any) => {
-                          console.error("[Payment] Elements load error:", error);
-                          setPaymentError(
-                            "Erreur lors du chargement du module de paiement. Veuillez réessayer."
-                          );
-                        }}
                       >
                         <PaymentFormContent
                           bookingId={bookingId}

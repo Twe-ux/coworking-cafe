@@ -41,7 +41,7 @@ export const UserSchema = new Schema<UserDocument>(
     phone: { type: String, trim: true },
     companyName: { type: String, trim: true },
     role: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Role",
       required: [true, "User role is required"],
     },

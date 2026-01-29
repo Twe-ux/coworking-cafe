@@ -92,13 +92,13 @@ export async function PATCH(
 
     allowedFields.forEach((field) => {
       if (body[field] !== undefined) {
-        (service as Record<string, unknown>)[field] = body[field];
+        (service as unknown as Record<string, unknown>)[field] = body[field];
       }
     });
 
     // Si le nom change, regénérer le slug
     if (body.name && body.name !== service.name) {
-      service.slug = ""; // Sera regénéré par le hook
+      (service as unknown as Record<string, unknown>).slug = ""; // Sera regénéré par le hook
     }
     await service.save();
     return NextResponse.json({
@@ -166,7 +166,7 @@ export async function DELETE(
       });
     } else {
       // Soft delete
-      await service.softDelete();
+      await (service as any).softDelete();
       return NextResponse.json({
         success: true,
         message: "Additional service deleted",

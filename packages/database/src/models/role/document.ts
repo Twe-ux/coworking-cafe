@@ -41,7 +41,7 @@ export const RoleSchema = new Schema<RoleDocument>(
     },
     permissions: [
       {
-        type: Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Permission",
       },
     ],

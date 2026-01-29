@@ -120,7 +120,8 @@ export async function middleware(req: NextRequest) {
         userRole === "staff"
       ) {
         // Redirect to admin app (external)
-        return NextResponse.redirect(new URL("http://localhost:3001", req.url));
+        const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001";
+        return NextResponse.redirect(new URL(adminUrl, req.url));
       }
     }
     // Not authenticated, allow access to auth pages

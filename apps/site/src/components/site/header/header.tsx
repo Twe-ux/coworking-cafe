@@ -22,7 +22,7 @@ const Header = () => {
 
     const roleSlug = session.user.role?.slug;
     if (roleSlug === "dev" || roleSlug === "admin" || roleSlug === "staff") {
-      return "http://localhost:3001"; // Admin dashboard (separate app)
+      return process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001"; // Admin dashboard (separate app)
     }
 
     // Client dashboard - use ID (username not always defined)
@@ -86,7 +86,7 @@ const Header = () => {
                             session.user.role?.slug === "dev" ||
                             session.user.role?.slug === "admin" ||
                             session.user.role?.slug === "staff"
-                              ? "http://localhost:3001"
+                              ? (process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001")
                               : `/${session.user.id}`
                           }
                           className="user-menu-item"

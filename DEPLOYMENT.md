@@ -11,7 +11,7 @@
 Créer ces secrets dans Northflank :
 
 ### Communs
-- `MONGODB_URI` : mongodb+srv://user:pass@cluster.mongodb.net/db
+- `MONGODB_URI` : mongodb+srv://<user>:<password>@cluster.mongodb.net/db
 - `NEXTAUTH_SECRET` : [génération aléatoire 32 chars]
 - `JWT_SECRET` : [génération aléatoire 32 chars]
 
