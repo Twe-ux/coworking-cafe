@@ -4,6 +4,12 @@ import BookingSettings from "../../../../models/bookingSettings";
 import { Booking } from '@coworking-cafe/database';
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import type {
+  PopulatedBooking,
+  DailyReportData,
+  DailyReportStats,
+  CronApiResponse,
+} from "../../../../types/cron";
 
 /**
  * GET /api/cron/daily-report
@@ -61,37 +67,40 @@ export async function GET(request: NextRequest) {
     const yesterdayEnd = new Date(yesterday);
     yesterdayEnd.setHours(23, 59, 59, 999);
 
-    const unvalidatedYesterday = await Booking.find({
+    const unvalidatedYesterday = (await Booking.find({
       date: { $gte: yesterday, $lte: yesterdayEnd },
       status: "confirmed",
       attendanceStatus: { $exists: false },
     })
       .populate("user", "email givenName")
       .populate("space", "name type")
-      .sort({ startTime: 1 });
+      .sort({ startTime: 1 })
+      .lean()) as unknown as PopulatedBooking[];
 
     // 2. Pending reservations (waiting for admin confirmation)
-    const pendingReservations = await Booking.find({
+    const pendingReservations = (await Booking.find({
       status: "pending",
       date: { $gte: today },
     })
       .populate("user", "email givenName")
       .populate("space", "name type")
       .sort({ date: 1, startTime: 1 })
-      .limit(20);
+      .limit(20)
+      .lean()) as unknown as PopulatedBooking[];
 
     // 3. Upcoming confirmed reservations (next 7 days)
     const nextWeek = new Date(today);
     nextWeek.setDate(nextWeek.getDate() + 7);
 
-    const upcomingReservations = await Booking.find({
+    const upcomingReservations = (await Booking.find({
       date: { $gte: today, $lte: nextWeek },
       status: "confirmed",
     })
       .populate("user", "email givenName")
       .populate("space", "name type")
       .sort({ date: 1, startTime: 1 })
-      .limit(50);
+      .limit(50)
+      .lean()) as unknown as PopulatedBooking[];
 
     // 4. Reservations requiring deposit payment setup (J-6 upcoming)
     const sixDaysFromNow = new Date(today);
@@ -99,7 +108,7 @@ export async function GET(request: NextRequest) {
     const sixDaysEnd = new Date(sixDaysFromNow);
     sixDaysEnd.setHours(23, 59, 59, 999);
 
-    const depositPendingReservations = await Booking.find({
+    const depositPendingReservations = (await Booking.find({
       date: { $gte: sixDaysFromNow, $lte: sixDaysEnd },
       status: "confirmed",
       captureMethod: "deferred",
@@ -107,7 +116,8 @@ export async function GET(request: NextRequest) {
     })
       .populate("user", "email givenName")
       .populate("space", "name type")
-      .sort({ startTime: 1 });
+      .sort({ startTime: 1 })
+      .lean()) as unknown as PopulatedBooking[];
 
     logger.info("Daily report data collected", {
       component: "Cron /daily-report",
@@ -177,13 +187,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function generateReportEmail(data: {
-  unvalidatedYesterday: any[];
-  pendingReservations: any[];
-  upcomingReservations: any[];
-  depositPendingReservations: any[];
-  reportDate: Date;
-}): string {
+function generateReportEmail(data: DailyReportData): string {
   const {
     unvalidatedYesterday,
     pendingReservations,
@@ -257,14 +261,14 @@ function generateReportEmail(data: {
         <tbody>
           ${unvalidatedYesterday
             .map(
-              (booking) => `
+              (booking: PopulatedBooking) => `
             <tr>
               <td>${
-                booking.contactName || (booking.user as any)?.givenName || "N/A"
+                booking.contactName || booking.user?.givenName || "N/A"
               }<br><small>${
-                booking.contactEmail || (booking.user as any)?.email || ""
+                booking.contactEmail || booking.user?.email || ""
               }</small></td>
-              <td>${(booking.space as any)?.name || booking.spaceType}</td>
+              <td>${booking.space?.name || booking.spaceType}</td>
               <td>${formatTime(booking.startTime)} - ${formatTime(
                 booking.endTime,
               )}</td>
@@ -303,14 +307,14 @@ function generateReportEmail(data: {
         <tbody>
           ${pendingReservations
             .map(
-              (booking) => `
+              (booking: PopulatedBooking) => `
             <tr>
               <td>${
-                booking.contactName || (booking.user as any)?.givenName || "N/A"
+                booking.contactName || booking.user?.givenName || "N/A"
               }<br><small>${
-                booking.contactEmail || (booking.user as any)?.email || ""
+                booking.contactEmail || booking.user?.email || ""
               }</small></td>
-              <td>${(booking.space as any)?.name || booking.spaceType}</td>
+              <td>${booking.space?.name || booking.spaceType}</td>
               <td>${formatDate(booking.date)}</td>
               <td>${formatTime(booking.startTime)} - ${formatTime(
                 booking.endTime,
@@ -348,14 +352,14 @@ function generateReportEmail(data: {
         <tbody>
           ${depositPendingReservations
             .map(
-              (booking) => `
+              (booking: PopulatedBooking) => `
             <tr>
               <td>${
-                booking.contactName || (booking.user as any)?.givenName || "N/A"
+                booking.contactName || booking.user?.givenName || "N/A"
               }<br><small>${
-                booking.contactEmail || (booking.user as any)?.email || ""
+                booking.contactEmail || booking.user?.email || ""
               }</small></td>
-              <td>${(booking.space as any)?.name || booking.spaceType}</td>
+              <td>${booking.space?.name || booking.spaceType}</td>
               <td>${formatDate(booking.date)}</td>
               <td>${formatTime(booking.startTime)} - ${formatTime(
                 booking.endTime,
@@ -395,13 +399,13 @@ function generateReportEmail(data: {
         <tbody>
           ${upcomingReservations
             .map(
-              (booking) => `
+              (booking: PopulatedBooking) => `
             <tr>
               <td>${formatDate(booking.date)}</td>
               <td>${
-                booking.contactName || (booking.user as any)?.givenName || "N/A"
+                booking.contactName || booking.user?.givenName || "N/A"
               }</td>
-              <td>${(booking.space as any)?.name || booking.spaceType}</td>
+              <td>${booking.space?.name || booking.spaceType}</td>
               <td>${formatTime(booking.startTime)} - ${formatTime(
                 booking.endTime,
               )}</td>

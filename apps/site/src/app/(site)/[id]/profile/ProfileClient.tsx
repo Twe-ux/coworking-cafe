@@ -1,8 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useProfileForm } from "../../../../hooks/useProfileForm";
 
 interface ProfileClientProps {
   name: string;
@@ -21,64 +19,17 @@ export default function ProfileClient({
   phone,
   companyName,
 }: ProfileClientProps) {
-  const router = useRouter();
-  const { data: session, update } = useSession();
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
-
-  // Profile form state
-  const [profileData, setProfileData] = useState({
-    name: name || "",
-    email: email || "",
-    phone: phone || "",
-    companyName: companyName || "",
-  });
-
-  // Update profile data when props change
-  useEffect(() => {
-    setProfileData({
-      name: name || "",
-      email: email || "",
-      phone: phone || "",
-      companyName: companyName || "",
-    });
-  }, [name, email, phone, companyName]);
-
-  const handleProfileSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage({ type: "", text: "" });
-
-    try {
-      const res = await fetch("/api/user/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profileData),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage({ type: "success", text: "Profil mis à jour avec succès" });
-        setIsEditingProfile(false);
-
-        // Update NextAuth session - this will reload data from database
-        if (update) {
-          await update();
-        }
-      } else {
-        setMessage({
-          type: "error",
-          text: data.error || "Erreur lors de la mise à jour",
-        });
-      }
-    } catch (error) {
-      setMessage({ type: "error", text: "Erreur de connexion au serveur" });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    profileData,
+    message,
+    loading,
+    isEditingProfile,
+    setIsEditingProfile,
+    setMessage,
+    handleProfileSubmit,
+    handleInputChange,
+    handleCancelEdit,
+  } = useProfileForm({ name, email, phone, companyName });
 
   return (
     <>
@@ -148,9 +99,7 @@ export default function ProfileClient({
                 className="form-control"
                 id="name"
                 value={profileData.name}
-                onChange={(e) =>
-                  setProfileData({ ...profileData, name: e.target.value })
-                }
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 disabled={!isEditingProfile}
                 style={{
                   borderRadius: "8px",
@@ -203,9 +152,7 @@ export default function ProfileClient({
                 className="form-control"
                 id="email"
                 value={profileData.email}
-                onChange={(e) =>
-                  setProfileData({ ...profileData, email: e.target.value })
-                }
+                onChange={(e) => handleInputChange("email", e.target.value)}
                 disabled={!isEditingProfile}
                 style={{
                   borderRadius: "8px",
@@ -225,9 +172,7 @@ export default function ProfileClient({
                 className="form-control"
                 id="phone"
                 value={profileData.phone}
-                onChange={(e) =>
-                  setProfileData({ ...profileData, phone: e.target.value })
-                }
+                onChange={(e) => handleInputChange("phone", e.target.value)}
                 disabled={!isEditingProfile}
                 placeholder="06 XX XX XX XX"
                 style={{
@@ -249,10 +194,7 @@ export default function ProfileClient({
                 id="companyName"
                 value={profileData.companyName}
                 onChange={(e) =>
-                  setProfileData({
-                    ...profileData,
-                    companyName: e.target.value,
-                  })
+                  handleInputChange("companyName", e.target.value)
                 }
                 disabled={!isEditingProfile}
                 placeholder="Nom de votre société (optionnel)"
@@ -284,16 +226,7 @@ export default function ProfileClient({
                 <button
                   type="button"
                   className="btn"
-                  onClick={() => {
-                    setIsEditingProfile(false);
-                    setProfileData({
-                      name: name || "",
-                      email: email || "",
-                      phone: phone || "",
-                      companyName: companyName || "",
-                    });
-                    setMessage({ type: "", text: "" });
-                  }}
+                  onClick={handleCancelEdit}
                   style={{
                     backgroundColor: "#e3ece7",
                     color: "#142220",

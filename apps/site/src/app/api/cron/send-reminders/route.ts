@@ -3,6 +3,8 @@ import { connectDB } from "../../../../lib/mongodb";
 import { Booking } from '@coworking-cafe/database';
 import { logger } from "../../../../lib/logger";
 import { sendBookingReminder } from "../../../../lib/email/emailService";
+import type { PopulatedBooking, SendRemindersResult, CronApiResponse } from "../../../../types/cron";
+import { ObjectId } from "mongoose";
 
 /**
  * GET /api/cron/send-reminders
@@ -49,7 +51,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Find confirmed reservations for tomorrow
-    const upcomingBookings = await Booking.find({
+    const upcomingBookings = (await Booking.find({
       date: {
         $gte: tomorrow,
         $lte: tomorrowEnd,
@@ -57,7 +59,8 @@ export async function GET(request: NextRequest) {
       status: "confirmed",
     })
       .populate("user", "email givenName")
-      .populate("space", "name");
+      .populate("space", "name")
+      .lean()) as unknown as PopulatedBooking[];
 
     logger.info(`Found ${upcomingBookings.length} reservations for tomorrow`, {
       component: "Cron /send-reminders",
@@ -66,26 +69,26 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const results = {
-      sent: [] as string[],
-      failed: [] as { bookingId: string; error: string }[],
-      skipped: [] as string[],
+    const results: SendRemindersResult = {
+      sent: [],
+      failed: [],
+      skipped: [],
     };
 
     for (const booking of upcomingBookings) {
       try {
-        const userEmail = booking.contactEmail || (booking.user as any)?.email;
-        const userName =
-          booking.contactName || (booking.user as any)?.givenName;
+        const bookingId = (booking._id as ObjectId).toString();
+        const userEmail = booking.contactEmail || booking.user?.email;
+        const userName = booking.contactName || booking.user?.givenName;
 
         if (!userEmail) {
           logger.warn("No email found for booking", {
             component: "Cron /send-reminders",
             data: {
-              bookingId: (booking._id as any).toString(),
+              bookingId,
             },
           });
-          results.skipped.push((booking._id as any).toString());
+          results.skipped.push(bookingId);
           continue;
         }
 
@@ -96,8 +99,8 @@ export async function GET(request: NextRequest) {
 
         // Send reminder email
         await sendBookingReminder(userEmail, {
-          name: userName,
-          spaceName: (booking.space as any)?.name || booking.spaceType,
+          name: userName || "Client",
+          spaceName: booking.space?.name || booking.spaceType,
           date: new Date(booking.date).toLocaleDateString("fr-FR", {
             weekday: "long",
             day: "numeric",
@@ -107,27 +110,28 @@ export async function GET(request: NextRequest) {
           time: timeRange,
         });
 
-        results.sent.push((booking._id as any).toString());
+        results.sent.push(bookingId);
 
         logger.info("Reminder email sent", {
           component: "Cron /send-reminders",
           data: {
-            bookingId: (booking._id as any).toString(),
+            bookingId,
             email: userEmail,
           },
         });
       } catch (error) {
+        const bookingId = (booking._id as ObjectId).toString();
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
         results.failed.push({
-          bookingId: (booking._id as any).toString(),
+          bookingId,
           error: errorMessage,
         });
 
         logger.error("Failed to send reminder email", {
           component: "Cron /send-reminders",
           data: {
-            bookingId: (booking._id as any).toString(),
+            bookingId,
             error: errorMessage,
           },
         });

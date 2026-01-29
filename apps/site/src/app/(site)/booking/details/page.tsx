@@ -3,251 +3,72 @@
 import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useBookingForm } from "@/hooks/useBookingForm";
+import type { SPACE_TYPE_INFO } from "@/types/booking";
 import "../../[id]/client-dashboard.scss";
-
-interface BookingData {
-  spaceType: string;
-  reservationType: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  basePrice: number;
-  duration: string;
-  numberOfPeople: number;
-  isDailyRate?: boolean;
-}
-
-interface AdditionalService {
-  _id: string;
-  name: string;
-  description?: string;
-  category: string;
-  price: number;
-  dailyPrice?: number;
-  priceUnit: "per-person" | "flat-rate";
-  vatRate: number;
-  icon?: string;
-}
-
-interface SelectedService {
-  service: AdditionalService;
-  quantity: number;
-}
-
-const spaceTypeInfo: Record<string, { title: string; subtitle: string }> = {
-  "open-space": { title: "Place", subtitle: "Open-space" },
-  "meeting-room-glass": { title: "Salle de réunion", subtitle: "Verrière" },
-  "meeting-room-floor": { title: "Salle de réunion", subtitle: "Étage" },
-  "event-space": { title: "Événementiel", subtitle: "Grand espace" },
-};
 
 export default function BookingDetailsPage() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const [bookingData, setBookingData] = useState<BookingData | null>(null);
-  const [contactName, setContactName] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-  const [contactCompanyName, setContactCompanyName] = useState("");
-  const [specialRequests, setSpecialRequests] = useState("");
-  const [createAccount, setCreateAccount] = useState(false);
-  const [subscribeNewsletter, setSubscribeNewsletter] = useState(false);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Auto-save contact data to sessionStorage when fields change
-  useEffect(() => {
-    if (bookingData) {
-      const updatedData = {
-        ...bookingData,
-        contactName,
-        contactEmail,
-        contactPhone,
-        contactCompanyName,
-        specialRequests,
-      };
-      sessionStorage.setItem("bookingData", JSON.stringify(updatedData));
-    }
-  }, [contactName, contactEmail, contactPhone, contactCompanyName, specialRequests, bookingData]);
-  const [loading, setLoading] = useState(false);
-  const [availableServices, setAvailableServices] = useState<
-    AdditionalService[]
-  >([]);
-  const [selectedServices, setSelectedServices] = useState<
-    Map<string, SelectedService>
-  >(new Map());
-  const [servicesLoading, setServicesLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [showTTC, setShowTTC] = useState(true);
+  const {
+    bookingData,
+    contactForm,
+    updateContactField,
+    showPassword,
+    toggleShowPassword,
+    showConfirmPassword,
+    toggleShowConfirmPassword,
+    availableServices,
+    selectedServices,
+    servicesLoading,
+    addService,
+    removeService,
+    updateServiceQuantity,
+    selectedCategory,
+    setSelectedCategory,
+    showTTC,
+    setShowTTC,
+    convertPrice,
+    errors,
+    validateContactForm,
+    loading,
+  } = useBookingForm({ loadFromStorage: true, autoSave: true, loadServices: true });
 
   const bookingCardRef = useRef<HTMLDivElement>(null);
 
-  // Fonction pour convertir un prix entre TTC et HT
-  const convertPrice = (
-    priceTTC: number,
-    vatRate: number,
-    toTTC: boolean
-  ): number => {
-    if (toTTC) {
-      return priceTTC; // Already TTC
-    } else {
-      return priceTTC / (1 + vatRate / 100); // Convert to HT
-    }
-  };
-
+  // Redirection si pas de données
   useEffect(() => {
-    // Load booking data from sessionStorage
-    const storedData = sessionStorage.getItem("bookingData");
-    if (!storedData) {
+    if (!bookingData) {
       router.push("/booking");
-      return;
     }
-    const data = JSON.parse(storedData);
-    setBookingData(data);
+  }, [bookingData, router]);
 
-    // Pre-fill with stored contact data if available (from previous step 3 visit)
-    if (data.contactName) {
-      setContactName(data.contactName);
-    } else if (session?.user) {
-      setContactName(session.user.name || "");
-    }
-
-    if (data.contactEmail) {
-      setContactEmail(data.contactEmail);
-    } else if (session?.user) {
-      setContactEmail(session.user.email || "");
-    }
-
-    if (data.contactPhone) {
-      setContactPhone(data.contactPhone);
-    } else if (session?.user) {
-      // Charger le téléphone depuis le profil utilisateur
-      fetchUserPhone();
-    }
-
-    if (data.contactCompanyName) {
-      setContactCompanyName(data.contactCompanyName);
-    } else if (session?.user) {
-      // Charger la raison sociale depuis le profil utilisateur
-      fetchUserProfile();
-    }
-
-    if (data.specialRequests) {
-      setSpecialRequests(data.specialRequests);
-    }
-
-    // Load selected services from sessionStorage if they exist
-    const storedServices = sessionStorage.getItem("selectedServices");
-    if (storedServices) {
-      const servicesArray = JSON.parse(storedServices) as [
-        string,
-        SelectedService
-      ][];
-      const servicesMap = new Map<string, SelectedService>(servicesArray);
-      setSelectedServices(servicesMap);
-    }
-
-    // Fetch available services
-    fetchAdditionalServices();
-  }, [session]);
-
-  const fetchUserPhone = async () => {
-    try {
-      const response = await fetch("/api/user/profile");
-      const data = await response.json();
-      if (data.user?.phone) {
-        setContactPhone(data.user.phone);
-      }
-    } catch (error) {
-    }
-  };
-
-  const fetchUserProfile = async () => {
-    try {
-      const response = await fetch("/api/user/profile");
-      const data = await response.json();
-      if (data.user?.companyName) {
-        setContactCompanyName(data.user.companyName);
-      }
-    } catch (error) {
-    }
-  };
-
-  const fetchAdditionalServices = async () => {
-    try {
-      setServicesLoading(true);
-      const response = await fetch("/api/additional-services?isActive=true");
-      const data = await response.json();
-      if (data.success) {
-        setAvailableServices(data.data);
-
-        // Update selected services with fresh data from API (to get vatRate and other new fields)
-        if (selectedServices.size > 0) {
-          const updatedSelected = new Map(selectedServices);
-          selectedServices.forEach((selectedService, serviceId) => {
-            const freshService = data.data.find(
-              (s: AdditionalService) => s._id === serviceId
-            );
-            if (freshService) {
-              updatedSelected.set(serviceId, {
-                service: freshService,
-                quantity: selectedService.quantity,
-              });
-            }
-          });
-          setSelectedServices(updatedSelected);
-          // Update sessionStorage with fresh data
-          const servicesArray = Array.from(updatedSelected.entries());
-          sessionStorage.setItem(
-            "selectedServices",
-            JSON.stringify(servicesArray)
-          );
+  // Auto-scroll to center the card when page loads
+  useEffect(() => {
+    if (bookingData && bookingCardRef.current) {
+      const scrollTimer = setTimeout(() => {
+        const yOffset = -120; // Offset for header
+        const element = bookingCardRef.current;
+        if (element) {
+          const y =
+            element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: "smooth" });
         }
-      }
-    } catch (error) {
-    } finally {
-      setServicesLoading(false);
+      }, 100);
+
+      return () => clearTimeout(scrollTimer);
     }
-  };
+  }, [bookingData]);
 
-  const toggleService = (service: AdditionalService) => {
-    const newSelected = new Map(selectedServices);
-    if (newSelected.has(service._id)) {
-      newSelected.delete(service._id);
-    } else {
-      newSelected.set(service._id, { service, quantity: 1 });
-    }
-    setSelectedServices(newSelected);
-
-    // Auto-save to sessionStorage
-    const servicesArray = Array.from(newSelected.entries());
-    sessionStorage.setItem("selectedServices", JSON.stringify(servicesArray));
-  };
-
-  const updateServiceQuantity = (serviceId: string, quantity: number) => {
-    const newSelected = new Map(selectedServices);
-    const selected = newSelected.get(serviceId);
-    if (selected && quantity >= 1) {
-      newSelected.set(serviceId, { ...selected, quantity });
-      setSelectedServices(newSelected);
-
-      // Auto-save to sessionStorage
-      const servicesArray = Array.from(newSelected.entries());
-      sessionStorage.setItem("selectedServices", JSON.stringify(servicesArray));
-    }
-  };
-
-  const isDailyRate = () => {
+  // Helper functions
+  const isDailyRate = (): boolean => {
     if (!bookingData) return false;
-    // Utiliser le champ isDailyRate sauvegardé dans les données de réservation
     return bookingData.isDailyRate === true;
   };
 
-  const calculateServicesPrice = () => {
+  const calculateServicesPrice = (): number => {
     let total = 0;
     const isDaily = isDailyRate();
 
@@ -255,7 +76,6 @@ export default function BookingDetailsPage() {
       const service = selected.service;
       const quantity = selected.quantity;
 
-      // Utiliser le prix forfait jour si disponible et si c'est une réservation à la journée
       const priceToUse =
         isDaily && service.dailyPrice !== undefined
           ? service.dailyPrice
@@ -270,93 +90,55 @@ export default function BookingDetailsPage() {
     return total;
   };
 
-  const getTotalPrice = () => {
+  const getTotalPrice = (): number => {
     if (!bookingData) return 0;
     return bookingData.basePrice + calculateServicesPrice();
   };
 
-  // Auto-scroll to center the card when page loads
-  useEffect(() => {
-    if (bookingData && bookingCardRef.current) {
-      const scrollTimer = setTimeout(() => {
-        const yOffset = -120; // Offset for header (adjusted down by 40px)
-        const element = bookingCardRef.current;
-        if (element) {
-          const y =
-            element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-          window.scrollTo({ top: y, behavior: "smooth" });
-        }
-      }, 100);
-
-      return () => clearTimeout(scrollTimer);
+  const toggleService = (service: typeof availableServices[0]): void => {
+    if (selectedServices.has(service._id)) {
+      removeService(service._id);
+    } else {
+      addService(service, 1);
     }
-  }, [bookingData]);
+  };
 
-  const handleContinue = async () => {
-    if (!isValidForm()) return;
-
-    setLoading(true);
+  const handleContinue = async (): Promise<void> => {
+    if (!validateContactForm()) return;
 
     // Si utilisateur connecté et téléphone/raison sociale renseigné, sauvegarder dans le profil
-    if (session?.user && (contactPhone || contactCompanyName)) {
+    if (session?.user && (contactForm.contactPhone || contactForm.contactCompanyName)) {
       try {
         await fetch("/api/user/profile", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: contactName,
-            email: contactEmail,
-            phone: contactPhone,
-            companyName: contactCompanyName,
+            name: contactForm.contactName,
+            email: contactForm.contactEmail,
+            phone: contactForm.contactPhone,
+            companyName: contactForm.contactCompanyName,
           }),
         });
-      } catch (error) {        // Continue anyway, don't block the booking flow
+      } catch (error) {
+        // Continue anyway, don't block the booking flow
       }
     }
-
-    // Update booking data with contact details and account preferences
-    const updatedBookingData = {
-      ...bookingData,
-      contactName,
-      contactEmail,
-      contactPhone,
-      contactCompanyName,
-      specialRequests,
-      createAccount,
-      subscribeNewsletter,
-      password: createAccount ? password : undefined,
-    };
-
-    sessionStorage.setItem("bookingData", JSON.stringify(updatedBookingData));
-
-    // Save selected services to sessionStorage
-    const servicesArray = Array.from(selectedServices.entries());
-    sessionStorage.setItem("selectedServices", JSON.stringify(servicesArray));
 
     // Navigate to summary page
     router.push("/booking/summary");
   };
 
-  const isValidForm = () => {
-    const basicValid =
-      contactName.trim() !== "" &&
-      contactEmail.trim() !== "" &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail) &&
-      contactPhone.trim() !== "";
-
-    if (!basicValid) return false;
-
-    // If creating account, validate passwords
-    if (createAccount) {
-      return password.length >= 8 && password === confirmPassword;
-    }
-
-    return true;
-  };
-
   if (!bookingData) {
     return null;
   }
+
+  // Import spaceTypeInfo constant
+  const spaceTypeInfo: typeof SPACE_TYPE_INFO = {
+    "open-space": { title: "Place", subtitle: "Open-space" },
+    "meeting-room-glass": { title: "Salle de réunion", subtitle: "Verrière" },
+    "meeting-room-floor": { title: "Salle de réunion", subtitle: "Étage" },
+    "event-space": { title: "Événementiel", subtitle: "Grand espace" },
+  };
 
   const spaceInfo = spaceTypeInfo[bookingData.spaceType] || {
     title: "Espace",
@@ -459,20 +241,7 @@ export default function BookingDetailsPage() {
                                 "var(--secondary-clr)";
                             }}
                             onClick={() => {
-                              // Save current form data before redirecting
-                              if (bookingData) {
-                                const updatedData = {
-                                  ...bookingData,
-                                  contactName,
-                                  contactEmail,
-                                  contactPhone,
-                                  specialRequests,
-                                };
-                                sessionStorage.setItem(
-                                  "bookingData",
-                                  JSON.stringify(updatedData)
-                                );
-                              }
+                              // Data is auto-saved by the hook
                               router.push(
                                 `/auth/login?callbackUrl=/booking/details`
                               );
@@ -513,8 +282,8 @@ export default function BookingDetailsPage() {
                                   type="text"
                                   className="form-control"
                                   placeholder="Votre nom complet"
-                                  value={contactName}
-                                  onChange={(e) => setContactName(e.target.value)}
+                                  value={contactForm.contactName}
+                                  onChange={(e) => updateContactField("contactName", e.target.value)}
                                   required
                                 />
                               </div>
@@ -527,8 +296,8 @@ export default function BookingDetailsPage() {
                                   type="email"
                                   className="form-control"
                                   placeholder="vous@email.com"
-                                  value={contactEmail}
-                                  onChange={(e) => setContactEmail(e.target.value)}
+                                  value={contactForm.contactEmail}
+                                  onChange={(e) => updateContactField("contactEmail", e.target.value)}
                                   required
                                 />
                               </div>
@@ -541,8 +310,8 @@ export default function BookingDetailsPage() {
                                   type="tel"
                                   className="form-control"
                                   placeholder="06 XX XX XX XX"
-                                  value={contactPhone}
-                                  onChange={(e) => setContactPhone(e.target.value)}
+                                  value={contactForm.contactPhone}
+                                  onChange={(e) => updateContactField("contactPhone", e.target.value)}
                                   required
                                 />
                               </div>
@@ -556,9 +325,9 @@ export default function BookingDetailsPage() {
                                   type="text"
                                   className="form-control"
                                   placeholder="Nom de votre société"
-                                  value={contactCompanyName}
+                                  value={contactForm.contactCompanyName}
                                   onChange={(e) =>
-                                    setContactCompanyName(e.target.value)
+                                    updateContactField("contactCompanyName", e.target.value)
                                   }
                                 />
                               </div>
@@ -574,8 +343,8 @@ export default function BookingDetailsPage() {
                                   type="text"
                                   className="form-control"
                                   placeholder="Votre nom complet"
-                                  value={contactName}
-                                  onChange={(e) => setContactName(e.target.value)}
+                                  value={contactForm.contactName}
+                                  onChange={(e) => updateContactField("contactName", e.target.value)}
                                   required
                                 />
                               </div>
@@ -588,8 +357,8 @@ export default function BookingDetailsPage() {
                                   type="email"
                                   className="form-control"
                                   placeholder="vous@email.com"
-                                  value={contactEmail}
-                                  onChange={(e) => setContactEmail(e.target.value)}
+                                  value={contactForm.contactEmail}
+                                  onChange={(e) => updateContactField("contactEmail", e.target.value)}
                                   required
                                 />
                               </div>
@@ -602,8 +371,8 @@ export default function BookingDetailsPage() {
                                   type="tel"
                                   className="form-control"
                                   placeholder="06 XX XX XX XX"
-                                  value={contactPhone}
-                                  onChange={(e) => setContactPhone(e.target.value)}
+                                  value={contactForm.contactPhone}
+                                  onChange={(e) => updateContactField("contactPhone", e.target.value)}
                                   required
                                 />
                               </div>
@@ -617,9 +386,9 @@ export default function BookingDetailsPage() {
                                   type="text"
                                   className="form-control"
                                   placeholder="Nom de votre société"
-                                  value={contactCompanyName}
+                                  value={contactForm.contactCompanyName}
                                   onChange={(e) =>
-                                    setContactCompanyName(e.target.value)
+                                    updateContactField("contactCompanyName", e.target.value)
                                   }
                                 />
                               </div>
@@ -647,9 +416,9 @@ export default function BookingDetailsPage() {
                                   type="checkbox"
                                   className="form-check-input "
                                   id="createAccount"
-                                  checked={createAccount}
+                                  checked={contactForm.createAccount}
                                   onChange={(e) =>
-                                    setCreateAccount(e.target.checked)
+                                    updateContactField("createAccount", e.target.checked)
                                   }
                                 />
                                 <label
@@ -666,7 +435,7 @@ export default function BookingDetailsPage() {
                               </div>
 
                               {/* Benefits of creating an account - shown by default */}
-                              {!createAccount && (
+                              {!contactForm.createAccount && (
                                 <div
                                   className="mt-3 mb-3 p-3 rounded"
                                   style={{
@@ -713,7 +482,7 @@ export default function BookingDetailsPage() {
                                 </div>
                               )}
 
-                              {createAccount && (
+                              {contactForm.createAccount && (
                                 <div className="ms-4 mb-4">
                                   <div className="mb-4">
                                     <label className="form-label small">
@@ -724,17 +493,17 @@ export default function BookingDetailsPage() {
                                         type={showPassword ? "text" : "password"}
                                         className="form-control"
                                         placeholder="Minimum 8 caractères"
-                                        value={password}
+                                        value={contactForm.password}
                                         onChange={(e) =>
-                                          setPassword(e.target.value)
+                                          updateContactField("password", e.target.value)
                                         }
-                                        required={createAccount}
+                                        required={contactForm.createAccount}
                                         style={{ paddingRight: "2.5rem" }}
                                       />
                                       <button
                                         type="button"
                                         className="btn btn-link position-absolute"
-                                        onClick={() => setShowPassword(!showPassword)}
+                                        onClick={toggleShowPassword}
                                         style={{
                                           top: "50%",
                                           right: "0.5rem",
@@ -756,17 +525,17 @@ export default function BookingDetailsPage() {
                                         type={showConfirmPassword ? "text" : "password"}
                                         className="form-control"
                                         placeholder="Retapez votre mot de passe"
-                                        value={confirmPassword}
+                                        value={contactForm.confirmPassword}
                                         onChange={(e) =>
-                                          setConfirmPassword(e.target.value)
+                                          updateContactField("confirmPassword", e.target.value)
                                         }
-                                        required={createAccount}
+                                        required={contactForm.createAccount}
                                         style={{ paddingRight: "2.5rem" }}
                                       />
                                       <button
                                         type="button"
                                         className="btn btn-link position-absolute"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        onClick={toggleShowConfirmPassword}
                                         style={{
                                           top: "50%",
                                           right: "0.5rem",
@@ -778,10 +547,10 @@ export default function BookingDetailsPage() {
                                         <i className={`bi ${showConfirmPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
                                       </button>
                                     </div>
-                                    {createAccount &&
-                                      password &&
-                                      confirmPassword &&
-                                      password !== confirmPassword && (
+                                    {contactForm.createAccount &&
+                                      contactForm.password &&
+                                      contactForm.confirmPassword &&
+                                      contactForm.password !== contactForm.confirmPassword && (
                                         <small className="text-danger">
                                           Les mots de passe ne correspondent pas
                                         </small>
@@ -795,9 +564,9 @@ export default function BookingDetailsPage() {
                                   type="checkbox"
                                   className="form-check-input"
                                   id="newsletter"
-                                  checked={subscribeNewsletter}
+                                  checked={contactForm.subscribeNewsletter}
                                   onChange={(e) =>
-                                    setSubscribeNewsletter(e.target.checked)
+                                    updateContactField("subscribeNewsletter", e.target.checked)
                                   }
                                 />
                                 <label
@@ -1006,8 +775,8 @@ export default function BookingDetailsPage() {
                       className="form-control"
                       rows={4}
                       placeholder="Équipements spéciaux, allergies alimentaires, préférences d'ambiance, etc."
-                      value={specialRequests}
-                      onChange={(e) => setSpecialRequests(e.target.value)}
+                      value={contactForm.specialRequests}
+                      onChange={(e) => updateContactField("specialRequests", e.target.value)}
                     />
                   </div>
 
@@ -1313,7 +1082,7 @@ export default function BookingDetailsPage() {
                   <button
                     className="btn btn-success btn-lg w-100"
                     onClick={handleContinue}
-                    disabled={!isValidForm() || loading}
+                    disabled={!validateContactForm() || loading}
                     style={{
                       padding: "0.875rem 1.5rem",
                       fontSize: "0.9375rem",
@@ -1333,7 +1102,7 @@ export default function BookingDetailsPage() {
                     )}
                   </button>
 
-                  {!isValidForm() && (
+                  {!validateContactForm() && (
                     <p className="text-danger text-center mt-3 mb-0 small">
                       Veuillez remplir tous les champs obligatoires
                     </p>

@@ -8,6 +8,15 @@ import {
   formatAmountForStripe,
 } from "../../../../lib/stripe";
 import { sendDepositHoldConfirmation } from "../../../../lib/email/emailService";
+import type {
+  PopulatedBooking,
+  CreateHoldsResult,
+  CronApiResponse,
+  SpaceConfigurationMinimal,
+  PopulatedBookingUser,
+  PopulatedBookingSpace
+} from "../../../../types/cron";
+import { ObjectId } from "mongoose";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +60,7 @@ export async function POST(request: NextRequest) {
     // 3. Don't have a paymentIntentId yet (no hold created)
     // 4. Require payment
     // 5. Are not cancelled
-    const bookings = await Booking.find({
+    const bookings = (await Booking.find({
       date: {
         $gte: targetDate,
         $lte: endOfTargetDate,
@@ -62,25 +71,24 @@ export async function POST(request: NextRequest) {
       stripePaymentIntentId: { $exists: false }, // No hold created yet
     })
       .populate("user", "email givenName username")
-      .populate("space", "name type");
-    const results = {
-      success: [] as Array<{
-        bookingId: string;
-        paymentIntentId: string;
-        depositAmount: number;
-        customerEmail: string;
-      }>,
-      failed: [] as Array<{ bookingId: string; error: string }>,
+      .populate("space", "name type")
+      .lean()) as unknown as PopulatedBooking[];
+
+    const results: CreateHoldsResult = {
+      success: [],
+      failed: [],
       total: bookings.length,
     };
 
     // Process each booking
     for (const booking of bookings) {
+      const bookingId = (booking._id as ObjectId).toString();
+
       try {
         // Get space configuration for deposit policy
-        const spaceConfig = await SpaceConfiguration.findOne({
+        const spaceConfig = (await SpaceConfiguration.findOne({
           spaceType: booking.spaceType,
-        });
+        }).lean()) as unknown as SpaceConfigurationMinimal | null;
 
         // Calculate deposit amount
         const amountInCents = formatAmountForStripe(booking.totalPrice);
@@ -103,13 +111,13 @@ export async function POST(request: NextRequest) {
         }
 
         // Get user details
-        const bookingUser = booking.user as any;
+        const bookingUser = booking.user as PopulatedBookingUser;
         const userEmail = bookingUser?.email || booking.contactEmail;
         const userName = bookingUser?.givenName || booking.contactName;
 
         if (!booking.stripeCustomerId) {
           results.failed.push({
-            bookingId: (booking._id as any).toString(),
+            bookingId,
             error: "No Stripe customer ID",
           });
           continue;
@@ -120,7 +128,7 @@ export async function POST(request: NextRequest) {
           depositAmount,
           "eur",
           {
-            bookingId: (booking._id as any).toString(),
+            bookingId,
             userId: bookingUser?._id?.toString(),
             type: "deposit_hold",
             createdBy: "cron_j-7",
@@ -128,6 +136,7 @@ export async function POST(request: NextRequest) {
           booking.stripeCustomerId,
           "manual", // Manual capture for hold
         );
+
         // Create Payment record in database
         await Payment.create({
           booking: booking._id,
@@ -141,19 +150,18 @@ export async function POST(request: NextRequest) {
           description: `Empreinte bancaire J-7 - ${booking.spaceType}`,
         });
 
-        // Update booking
-        booking.stripePaymentIntentId = paymentIntent.id;
-        booking.captureMethod = "manual";
-        await booking.save();
-        // Send email notification
-        const spaceName =
-          typeof booking.space === "object" &&
-          booking.space !== null &&
-          "name" in booking.space
-            ? (booking.space as { name: string }).name
-            : booking.spaceType;
+        // Update booking (need to fetch document to use .save())
+        const bookingDoc = await Booking.findById(booking._id);
+        if (bookingDoc) {
+          bookingDoc.stripePaymentIntentId = paymentIntent.id;
+          bookingDoc.captureMethod = "manual";
+          await bookingDoc.save();
+        }
 
-        await sendDepositHoldConfirmation(userEmail, {
+        // Send email notification
+        const spaceName = (booking.space as PopulatedBookingSpace | undefined)?.name || booking.spaceType;
+
+        await sendDepositHoldConfirmation(userEmail || "", {
           name: userName || "Client",
           spaceName,
           date: new Date(booking.date).toLocaleDateString("fr-FR", {
@@ -167,15 +175,16 @@ export async function POST(request: NextRequest) {
           depositAmount: depositAmount / 100,
           totalPrice: booking.totalPrice,
         });
+
         results.success.push({
-          bookingId: (booking._id as any).toString(),
+          bookingId,
           paymentIntentId: paymentIntent.id,
           depositAmount: depositAmount / 100,
-          customerEmail: userEmail,
+          customerEmail: userEmail || "",
         });
       } catch (error) {
         results.failed.push({
-          bookingId: (booking._id as any).toString(),
+          bookingId,
           error: error instanceof Error ? error.message : "Unknown error",
         });
       }

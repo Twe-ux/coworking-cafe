@@ -5,6 +5,15 @@ import { Payment } from '@coworking-cafe/database';
 import { createPaymentIntent } from "../../../../lib/stripe";
 import { logger } from "../../../../lib/logger";
 import { SpaceConfiguration } from '@coworking-cafe/database';
+import type {
+  PopulatedBooking,
+  CaptureDepositsResult,
+  CronApiResponse,
+  SpaceConfigurationMinimal,
+  StripeSetupIntentMinimal,
+  PopulatedBookingUser
+} from "../../../../types/cron";
+import { ObjectId } from "mongoose";
 
 /**
  * GET /api/cron/capture-deposits
@@ -57,7 +66,7 @@ export async function GET(request: NextRequest) {
     // 2. Have deferred capture method (SetupIntent was used)
     // 3. Don't have a payment intent yet
     // 4. Are not cancelled
-    const bookings = await Booking.find({
+    const bookings = (await Booking.find({
       date: {
         $gte: targetDate,
         $lte: targetDateEnd,
@@ -69,7 +78,8 @@ export async function GET(request: NextRequest) {
       stripeCustomerId: { $exists: true },
     })
       .populate("user", "email givenName")
-      .populate("space", "name type");
+      .populate("space", "name type")
+      .lean()) as unknown as PopulatedBooking[];
 
     logger.info(
       `Found ${bookings.length} bookings requiring payment intent creation`,
@@ -81,17 +91,19 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    const results = {
-      success: [] as string[],
-      failed: [] as { bookingId: string; error: string }[],
+    const results: CaptureDepositsResult = {
+      success: [],
+      failed: [],
     };
 
     for (const booking of bookings) {
+      const bookingId = (booking._id as ObjectId).toString();
+
       try {
         // Get space configuration to calculate deposit amount
-        const spaceConfig = await SpaceConfiguration.findOne({
+        const spaceConfig = (await SpaceConfiguration.findOne({
           spaceType: booking.spaceType,
-        });
+        }).lean()) as unknown as SpaceConfigurationMinimal | null;
 
         // Calculate deposit amount
         const amountInCents = Math.round(booking.totalPrice * 100);
@@ -114,32 +126,34 @@ export async function GET(request: NextRequest) {
 
         // Get payment method from SetupIntent
         const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-        const setupIntent = await stripe.setupIntents.retrieve(
+        const setupIntent = (await stripe.setupIntents.retrieve(
           booking.stripeSetupIntentId,
-        );
+        )) as StripeSetupIntentMinimal;
 
         if (!setupIntent.payment_method) {
           throw new Error("No payment method found in SetupIntent");
         }
+
+        const bookingUser = booking.user as PopulatedBookingUser;
 
         // Create Payment Intent with manual capture
         const paymentIntent = await createPaymentIntent(
           depositAmount,
           "eur",
           {
-            bookingId: (booking._id as any).toString(),
-            userId: (booking.user as any)?._id?.toString(),
+            bookingId,
+            userId: bookingUser?._id?.toString(),
             type: "deferred_deposit_hold",
           },
-          booking.stripeCustomerId,
+          booking.stripeCustomerId || "",
           "manual", // Manual capture
-          setupIntent.payment_method as string, // Use saved payment method
+          setupIntent.payment_method, // Use saved payment method
         );
 
         // Create Payment record
         await Payment.create({
-          booking: booking._id as any,
-          user: (booking.user as any)?._id,
+          booking: booking._id,
+          user: bookingUser?._id,
           amount: depositAmount,
           currency: "EUR",
           status: "pending",
@@ -149,20 +163,23 @@ export async function GET(request: NextRequest) {
           description: `Empreinte bancaire créée à J-6 pour ${booking.spaceType}`,
         });
 
-        // Update booking
-        booking.stripePaymentIntentId = paymentIntent.id;
-        booking.captureMethod = "manual";
-        booking.requiresPayment = true;
-        await booking.save();
+        // Update booking (need to fetch document to use .save())
+        const bookingDoc = await Booking.findById(booking._id);
+        if (bookingDoc) {
+          bookingDoc.stripePaymentIntentId = paymentIntent.id;
+          bookingDoc.captureMethod = "manual";
+          bookingDoc.requiresPayment = true;
+          await bookingDoc.save();
+        }
 
-        results.success.push((booking._id as any).toString());
+        results.success.push(bookingId);
 
         logger.info(
           "Payment intent created successfully for deferred booking",
           {
             component: "Cron /capture-deposits",
             data: {
-              bookingId: (booking._id as any).toString(),
+              bookingId,
               paymentIntentId: paymentIntent.id,
               amount: depositAmount,
             },
@@ -175,14 +192,14 @@ export async function GET(request: NextRequest) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
         results.failed.push({
-          bookingId: (booking._id as any).toString(),
+          bookingId,
           error: errorMessage,
         });
 
         logger.error("Failed to create payment intent for deferred booking", {
           component: "Cron /capture-deposits",
           data: {
-            bookingId: (booking._id as any).toString(),
+            bookingId,
             error: errorMessage,
           },
         });

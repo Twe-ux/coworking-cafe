@@ -5,6 +5,14 @@ import BookingSettings from "../../../../models/bookingSettings";
 import { logger } from "../../../../lib/logger";
 import { sendDepositCaptured } from "../../../../lib/email/emailService";
 import { SpaceConfiguration } from '@coworking-cafe/database';
+import type {
+  PopulatedBooking,
+  CheckAttendanceResult,
+  CronApiResponse,
+  StripePaymentIntentMinimal,
+  SpaceConfigurationMinimal
+} from "../../../../types/cron";
+import { ObjectId } from "mongoose";
 
 /**
  * GET /api/cron/check-attendance
@@ -59,7 +67,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Find confirmed reservations from yesterday that haven't been validated
-    const unvalidatedBookings = await Booking.find({
+    const unvalidatedBookings = (await Booking.find({
       date: {
         $gte: yesterday,
         $lte: yesterdayEnd,
@@ -70,7 +78,8 @@ export async function GET(request: NextRequest) {
       stripePaymentIntentId: { $exists: true }, // Must have a payment intent
     })
       .populate("user", "email givenName")
-      .populate("space", "name type");
+      .populate("space", "name type")
+      .lean()) as unknown as PopulatedBooking[];
 
     logger.info(
       `Found ${unvalidatedBookings.length} unvalidated bookings from yesterday`,
@@ -82,54 +91,59 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    const results = {
-      captured: [] as string[],
-      failed: [] as { bookingId: string; error: string }[],
-      skipped: [] as string[],
+    const results: CheckAttendanceResult = {
+      captured: [],
+      failed: [],
+      skipped: [],
     };
 
     const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
     for (const booking of unvalidatedBookings) {
+      const bookingId = (booking._id as ObjectId).toString();
+
       try {
         // Get space configuration for email details
-        const spaceConfig = await SpaceConfiguration.findOne({
+        const spaceConfig = (await SpaceConfiguration.findOne({
           spaceType: booking.spaceType,
-        });
+        }).lean()) as unknown as SpaceConfigurationMinimal | null;
 
         // Check if payment intent exists and is capturable
-        const paymentIntent = await stripe.paymentIntents.retrieve(
+        const paymentIntent = (await stripe.paymentIntents.retrieve(
           booking.stripePaymentIntentId,
-        );
+        )) as StripePaymentIntentMinimal;
 
         if (paymentIntent.status !== "requires_capture") {
           logger.warn("Payment intent not in capturable state", {
             component: "Cron /check-attendance",
             data: {
-              bookingId: (booking._id as any).toString(),
+              bookingId,
               status: paymentIntent.status,
             },
           });
-          results.skipped.push((booking._id as any).toString());
+          results.skipped.push(bookingId);
           continue;
         }
 
         // Capture the payment (charge the customer)
         await stripe.paymentIntents.capture(booking.stripePaymentIntentId);
 
-        // Update booking status
-        booking.attendanceStatus = "absent";
-        booking.status = "completed";
-        booking.completedAt = new Date();
-        booking.paymentStatus = "paid";
-        await booking.save();
+        // Update booking status (need to fetch document to use .save())
+        const bookingDoc = await Booking.findById(booking._id);
+        if (bookingDoc) {
+          bookingDoc.attendanceStatus = "absent";
+          bookingDoc.status = "completed";
+          bookingDoc.completedAt = new Date();
+          bookingDoc.paymentStatus = "paid";
+          await bookingDoc.save();
+        }
 
-        results.captured.push((booking._id as any).toString());
+        results.captured.push(bookingId);
 
         logger.info("Payment captured for no-show", {
           component: "Cron /check-attendance",
           data: {
-            bookingId: (booking._id as any).toString(),
+            bookingId,
             paymentIntentId: booking.stripePaymentIntentId,
             amount: paymentIntent.amount,
           },
@@ -137,10 +151,8 @@ export async function GET(request: NextRequest) {
 
         // Send notification email to customer
         try {
-          const userEmail =
-            booking.contactEmail || (booking.user as any)?.email;
-          const userName =
-            booking.contactName || (booking.user as any)?.givenName;
+          const userEmail = booking.contactEmail || booking.user?.email;
+          const userName = booking.contactName || booking.user?.givenName;
 
           if (userEmail) {
             // Calculate deposit amount
@@ -154,7 +166,7 @@ export async function GET(request: NextRequest) {
               : booking.totalPrice * 100;
 
             await sendDepositCaptured(userEmail, {
-              name: userName,
+              name: userName || "Client",
               spaceName: spaceConfig?.name || booking.spaceType,
               date: new Date(booking.date).toLocaleDateString("fr-FR"),
               depositAmount: depositAmount / 100,
@@ -163,7 +175,7 @@ export async function GET(request: NextRequest) {
             logger.info("No-show email sent", {
               component: "Cron /check-attendance",
               data: {
-                bookingId: (booking._id as any).toString(),
+                bookingId,
                 email: userEmail,
               },
             });
@@ -172,7 +184,7 @@ export async function GET(request: NextRequest) {
           logger.error("Failed to send no-show email", {
             component: "Cron /check-attendance",
             data: {
-              bookingId: (booking._id as any).toString(),
+              bookingId,
               error:
                 emailError instanceof Error ? emailError.message : "Unknown",
             },
@@ -183,14 +195,14 @@ export async function GET(request: NextRequest) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
         results.failed.push({
-          bookingId: (booking._id as any).toString(),
+          bookingId,
           error: errorMessage,
         });
 
         logger.error("Failed to process unvalidated booking", {
           component: "Cron /check-attendance",
           data: {
-            bookingId: (booking._id as any).toString(),
+            bookingId,
             error: errorMessage,
           },
         });

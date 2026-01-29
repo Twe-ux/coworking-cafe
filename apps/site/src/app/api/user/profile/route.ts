@@ -3,15 +3,27 @@ import { getServerSession } from "next-auth";
 import dbConnect from "../../../../lib/mongodb";
 import { User } from "@coworking-cafe/database";
 import { options } from "../../../../lib/auth-options";
+import type {
+  GetUserProfileResponse,
+  UpdateUserProfileResponse,
+  ProfileErrorResponse,
+  UserProfileUpdatePayload,
+  UserProfileUpdateData,
+} from "../../../../types/user";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+): Promise<NextResponse<GetUserProfileResponse | ProfileErrorResponse>> {
   try {
     const session = await getServerSession(options);
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+      return NextResponse.json<ProfileErrorResponse>(
+        { error: "Non authentifié" },
+        { status: 401 },
+      );
     }
 
     await dbConnect();
@@ -21,18 +33,18 @@ export async function GET(request: NextRequest) {
     );
 
     if (!user) {
-      return NextResponse.json(
+      return NextResponse.json<ProfileErrorResponse>(
         { error: "Utilisateur non trouvé" },
         { status: 404 },
       );
     }
 
-    return NextResponse.json(
+    return NextResponse.json<GetUserProfileResponse>(
       {
         user: {
-          email: user.email,
-          username: user.username,
-          givenName: user.givenName,
+          email: user.email || "",
+          username: user.username || "",
+          givenName: user.givenName || "",
           phone: user.phone,
           companyName: user.companyName,
           newsletter: user.newsletter,
@@ -43,7 +55,7 @@ export async function GET(request: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    return NextResponse.json(
+    return NextResponse.json<ProfileErrorResponse>(
       {
         error:
           error instanceof Error
@@ -55,22 +67,27 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+): Promise<NextResponse<UpdateUserProfileResponse | ProfileErrorResponse>> {
   try {
     const session = await getServerSession(options);
 
     if (!session?.user?.email) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+      return NextResponse.json<ProfileErrorResponse>(
+        { error: "Non authentifié" },
+        { status: 401 },
+      );
     }
 
     await dbConnect();
 
-    const body = await request.json();
+    const body: UserProfileUpdatePayload = await request.json();
     const { name, email, phone, companyName } = body;
 
     // Validate input
     if (!name || !email) {
-      return NextResponse.json(
+      return NextResponse.json<ProfileErrorResponse>(
         { error: "Le nom et l'email sont requis" },
         { status: 400 },
       );
@@ -80,15 +97,15 @@ export async function PUT(request: NextRequest) {
     if (email !== session.user.email) {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return NextResponse.json(
+        return NextResponse.json<ProfileErrorResponse>(
           { error: "Cet email est déjà utilisé" },
           { status: 400 },
         );
       }
     }
 
-    // Prepare update object
-    const updateData: any = {
+    // Prepare update object with explicit typing
+    const updateData: UserProfileUpdateData = {
       givenName: name,
       email: email,
     };
@@ -111,19 +128,19 @@ export async function PUT(request: NextRequest) {
     );
 
     if (!updatedUser) {
-      return NextResponse.json(
+      return NextResponse.json<ProfileErrorResponse>(
         { error: "Utilisateur non trouvé" },
         { status: 404 },
       );
     }
 
-    return NextResponse.json(
+    return NextResponse.json<UpdateUserProfileResponse>(
       {
         message: "Profil mis à jour avec succès",
         user: {
-          email: updatedUser.email,
-          username: updatedUser.username,
-          name: updatedUser.givenName,
+          email: updatedUser.email || "",
+          username: updatedUser.username || "",
+          name: updatedUser.givenName || "",
           phone: updatedUser.phone,
           companyName: updatedUser.companyName,
         },
@@ -131,7 +148,7 @@ export async function PUT(request: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    return NextResponse.json(
+    return NextResponse.json<ProfileErrorResponse>(
       {
         error:
           error instanceof Error
