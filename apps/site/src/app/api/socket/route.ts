@@ -3,6 +3,9 @@ import { Server as SocketIOServer } from "socket.io";
 import { Server as HTTPServer } from "http";
 
 // This will be called once to initialize Socket.IO
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const res = new Response("Socket.IO server initialized", {
     status: 200,

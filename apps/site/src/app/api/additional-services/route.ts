@@ -4,6 +4,9 @@ import connectDB from "../../../lib/db";
 import { AdditionalService } from '@coworking-cafe/database';
 
 // GET /api/additional-services - Liste des services supplémentaires
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     await connectDB();

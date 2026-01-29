@@ -2,6 +2,9 @@ import { generateConfirmationEmail } from "../../../lib/email/templates/confirma
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);

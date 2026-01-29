@@ -4,6 +4,9 @@ import { MenuItem, MenuCategory } from "@coworking-cafe/database";
 import { cache24h } from "../../../lib/cache-helpers";
 
 // GET - Récupérer toutes les boissons actives groupées par catégorie
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     // Get type from query params (drink or food)

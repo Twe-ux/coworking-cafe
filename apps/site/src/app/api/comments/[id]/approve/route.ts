@@ -4,6 +4,9 @@ import { Comment } from '@coworking-cafe/database';
 import { requireAuth } from "../../../../../lib/api-helpers";
 
 // POST /api/comments/[id]/approve - Approve or reject a comment (admin only)
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },

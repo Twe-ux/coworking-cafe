@@ -13,6 +13,9 @@ import { invalidateCache, CACHE_TAGS } from '../../../../lib/cache-helpers';
  *
  * Note: Cette route est publique pour permettre à l'admin (apps/admin) d'invalider le cache du site
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

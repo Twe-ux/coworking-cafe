@@ -7,6 +7,9 @@ import { cache24h } from "../../../lib/cache-helpers";
  * GET /api/global-hours
  * Get global hours configuration (public endpoint)
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     // Utiliser le cache pour les horaires (changent rarement)

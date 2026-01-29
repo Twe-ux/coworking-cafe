@@ -9,6 +9,9 @@ import { revalidateTag } from "next/cache";
  * Body: { tags: string[] }
  * Header: x-revalidate-secret (pour sécurité)
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     // Vérifier le secret (optionnel mais recommandé en prod)

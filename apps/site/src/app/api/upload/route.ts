@@ -4,6 +4,9 @@ import cloudinary from "../../../lib/cloudinary";
 import { optimizeImage, shouldOptimize } from "../../../lib/image-optimizer";
 
 // POST /api/upload - Upload image to Cloudinary (admin only)
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     await requireAuth(["admin", "staff", "dev"]);

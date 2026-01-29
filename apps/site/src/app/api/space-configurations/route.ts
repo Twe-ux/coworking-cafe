@@ -6,6 +6,9 @@ import { SpaceConfiguration } from '@coworking-cafe/database';
  * GET /api/space-configurations
  * Public endpoint to get all active space configurations
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     console.log("[API] Fetching space configurations...");

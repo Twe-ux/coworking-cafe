@@ -7,6 +7,9 @@ import { Booking } from '@coworking-cafe/database';
  * GET /api/user/reservations
  * Get current user's reservations
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();

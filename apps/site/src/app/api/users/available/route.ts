@@ -7,6 +7,9 @@ import { getAuthUser } from "../../../../lib/api-helpers";
  * GET /api/users/available
  * Get list of users available for messaging (excluding current user)
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const currentUser = await getAuthUser();

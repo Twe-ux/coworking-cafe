@@ -6,6 +6,9 @@ import { SpaceConfiguration } from '@coworking-cafe/database';
  * POST /api/calculate-price
  * Calculate price for a reservation based on space configuration
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     await connectDB();

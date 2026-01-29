@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
 // Temporary debug endpoint - REMOVE IN PRODUCTION after debugging
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     await connectDB();

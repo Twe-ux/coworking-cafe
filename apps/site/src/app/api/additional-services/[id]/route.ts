@@ -5,6 +5,9 @@ import connectDB from "../../../../lib/db";
 import { AdditionalService } from '@coworking-cafe/database';
 
 // GET /api/additional-services/[id] - Récupérer un service
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },

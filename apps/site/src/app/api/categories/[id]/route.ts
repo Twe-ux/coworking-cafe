@@ -4,6 +4,9 @@ import { Category } from '@coworking-cafe/database';
 import { requireAuth, generateSlug } from "../../../../lib/api-helpers";
 
 // GET /api/categories/[id]
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },

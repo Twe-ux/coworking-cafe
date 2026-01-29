@@ -4,6 +4,9 @@ import { Comment } from '@coworking-cafe/database';
 import { requireAuth, getAuthUser } from "../../../../lib/api-helpers";
 
 // GET /api/comments/[id] - Get a single comment
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },

@@ -8,6 +8,9 @@ import BookingSettings from "../../../models/bookingSettings";
  * Query params:
  * - spaceType: "place" (open-space) or "salle-etage" | "salle-verriere" (meeting rooms)
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     await connectDB();

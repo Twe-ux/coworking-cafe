@@ -6,6 +6,9 @@ import { SpaceConfiguration } from '@coworking-cafe/database';
  * GET /api/space-configurations/[spaceType]
  * Public endpoint to get space configuration (pricing, hours, capacity)
  */
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { spaceType: string } },

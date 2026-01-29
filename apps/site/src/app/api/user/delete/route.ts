@@ -5,6 +5,9 @@ import dbConnect from "../../../../lib/mongodb";
 import { User } from "@coworking-cafe/database";
 import { Booking } from "@coworking-cafe/database";
 
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function DELETE() {
   try {
     const session = await getServerSession(options);

@@ -5,6 +5,9 @@ import { getAuthUser } from "../../../lib/api-helpers";
 
 // GET /api/comments?article=xxx&status=xxx - Get comments
 // If no article ID provided, returns all comments (admin only)
+
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
