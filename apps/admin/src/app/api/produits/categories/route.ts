@@ -11,6 +11,8 @@ import type { ApiResponse, MenuCategory as MenuCategoryType, ProduitsItemType } 
  * Récupère la liste des catégories
  * Accessible à : dev, admin, staff
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<MenuCategoryType[]>>> {

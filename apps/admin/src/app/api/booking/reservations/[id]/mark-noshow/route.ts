@@ -11,6 +11,8 @@ import { sendClientNoShowEmail } from "@/lib/email/emailService";
  * Captures the card hold (if applicable)
  * Accessible by dev/admin/manager/staff
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }

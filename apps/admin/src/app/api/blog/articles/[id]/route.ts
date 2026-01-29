@@ -8,6 +8,8 @@ import type { ApiResponse } from "@/types/timeEntry"
 import type { Article as ArticleType } from "@/types/blog"
 
 // GET /api/blog/articles/[id] - Récupérer un article
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

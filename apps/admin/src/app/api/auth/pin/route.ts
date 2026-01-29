@@ -25,6 +25,8 @@ interface PINVerifyResponse {
  * Vérifie le PIN dashboard (6 chiffres) et retourne les données employé
  * Cherche dans la collection Employee avec dashboardPinHash
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest): Promise<NextResponse<PINVerifyResponse>> {
   try {
     await connectMongoose()

@@ -9,6 +9,8 @@ import type { ApiResponse } from "@/types/timeEntry";
  * GET /api/messages/contact/unread-count
  * Récupère le nombre de messages non lus
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<{ count: number }>>> {

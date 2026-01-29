@@ -10,6 +10,8 @@ import { createEmployeeSchema } from '@/lib/validations/employee'
  * GET /api/hr/employees - Récupérer tous les employés (avec données HR complètes)
  * Public endpoint - accessible without authentication for staff pages (clocking)
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     // No auth required for reading employees (staff clocking page is public)

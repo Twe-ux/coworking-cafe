@@ -4,6 +4,8 @@ import { requireAuth } from "@/lib/api/auth"
 import CashEntry from "@/models/cashEntry"
 import type { PrestaB2BItem, DepenseItem } from "@/types/accounting"
 
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

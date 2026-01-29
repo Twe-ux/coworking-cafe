@@ -31,6 +31,8 @@ const resend = new Resend(process.env.RESEND_API_KEY)
  *   message: "Email envoyé avec succès"
  * }
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<{ emailId: string }>>> {

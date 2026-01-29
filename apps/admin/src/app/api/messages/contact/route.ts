@@ -9,6 +9,8 @@ import type { ContactMailListResponse, ContactMail as ContactMailType } from '@/
  * GET /api/messages/contact
  * Liste tous les messages de contact avec filtres et pagination
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ContactMailListResponse>> {

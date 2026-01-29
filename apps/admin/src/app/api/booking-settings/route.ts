@@ -112,6 +112,8 @@ const DEFAULT_SETTINGS: BookingSettingsData = {
   notificationEmail: "strasbourg@coworkingcafe.fr",
 }
 
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET() {
   const authResult = await requireAuth(["dev", "admin"])
   if (!authResult.authorized) {

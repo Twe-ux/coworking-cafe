@@ -9,6 +9,8 @@ import type { SpaceConfiguration as SpaceConfigurationType } from '@/types/booki
  * GET /api/booking/spaces/[id]
  * Get a specific space configuration
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

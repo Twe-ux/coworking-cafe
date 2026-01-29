@@ -9,6 +9,8 @@ import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
 /**
  * GET /api/time-entries/reports - Générer des rapports de temps de travail
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

@@ -8,6 +8,8 @@ import { getAggregatedData } from "@/lib/services/dashboard/aggregated-data";
  * API unifiée pour récupérer toutes les données du dashboard en une seule requête
  * GET /api/dashboard?days=7 (optional: pour la comparaison jour par jour)
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   try {
     // Vérification d'authentification

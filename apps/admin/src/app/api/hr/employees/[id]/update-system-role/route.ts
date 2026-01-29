@@ -17,6 +17,8 @@ import bcrypt from 'bcrypt'
  *
  * Note: Le systemRole est automatiquement mis à jour selon employeeRole
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }

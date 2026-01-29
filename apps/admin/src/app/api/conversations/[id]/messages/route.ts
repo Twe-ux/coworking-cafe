@@ -14,6 +14,8 @@ interface RouteParams {
 }
 
 // GET /api/conversations/[id]/messages - Récupérer les messages d'une conversation
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: RouteParams

@@ -9,6 +9,8 @@ import { successResponse, errorResponse } from "@/lib/api/response";
  * Confirm a pending booking
  * Only accessible by dev/admin/manager
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }

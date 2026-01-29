@@ -17,6 +17,8 @@ function createLocalDate(dateString: string): Date {
  * GET /api/shifts - Retrieve list of shifts with optional filters
  * Public endpoint - accessible without authentication for staff pages
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     // No auth required for reading shifts (staff schedule page is public)

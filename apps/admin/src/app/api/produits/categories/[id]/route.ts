@@ -11,6 +11,8 @@ import type { ApiResponse, MenuCategory as MenuCategoryType, ProduitsItemType } 
  * Récupère une catégorie par ID
  * Accessible à : dev, admin, staff
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

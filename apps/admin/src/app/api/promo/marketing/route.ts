@@ -9,6 +9,8 @@ import type { MarketingContent, ApiResponse } from '@/types/promo'
  * POST /api/promo/marketing - Update marketing content
  * Auth: dev, admin (écriture)
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<MarketingContent>>> {

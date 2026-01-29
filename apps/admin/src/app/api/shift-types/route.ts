@@ -7,6 +7,8 @@ import { connectToDatabase } from "@/lib/mongodb";
  * GET /api/shift-types
  * Récupère les types de créneaux personnalisés
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

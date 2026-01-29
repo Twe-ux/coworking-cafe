@@ -7,6 +7,8 @@ import type { ApiResponse } from "@/types/timeEntry"
 import type { Conversation as ConversationType } from "@/types/messages"
 
 // GET /api/conversations - Récupérer toutes les conversations de l'utilisateur
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<ConversationType[]>>> {

@@ -46,6 +46,8 @@ function inferReservationType(
 }
 
 // GET /api/booking/reservations - Récupérer toutes les réservations
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const authResult = await requireAuth(["dev", "admin", "staff"])

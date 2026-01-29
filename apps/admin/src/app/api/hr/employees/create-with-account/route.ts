@@ -31,6 +31,8 @@ import bcrypt from 'bcrypt'
  *   // ... autres champs employé
  * }
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

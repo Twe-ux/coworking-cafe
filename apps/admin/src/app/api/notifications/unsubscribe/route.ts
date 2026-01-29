@@ -9,6 +9,8 @@ import { PushSubscription } from '@/models/pushSubscription';
  * Supprime une push subscription
  * Sécurité: Requiert une session authentifiée (dev, admin, staff)
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     // Vérification d'authentification

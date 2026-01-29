@@ -18,6 +18,8 @@ interface CalculateRequest {
  * Calculate price for a reservation based on space configuration
  * Identical logic to apps/site but adapted for admin context
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     // Auth required for admin booking

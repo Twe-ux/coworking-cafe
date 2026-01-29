@@ -8,6 +8,8 @@ import { sendNewBookingNotification } from "@/lib/push-notifications"
  * Envoie une notification push pour une nouvelle réservation en attente
  * Appelé par le site après création d'une réservation
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     // Vérifier le token d'authentification inter-services

@@ -15,6 +15,8 @@ interface VerifyPinRequest {
  * POST /api/hr/employees/verify-pin - Vérifier le PIN d'un employé
  * 🔓 ROUTE PUBLIQUE avec sécurités : IP whitelist + Rate limiting + Logging
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   const clientIP = getClientIP(request)
   const userAgent = request.headers.get('user-agent') || undefined

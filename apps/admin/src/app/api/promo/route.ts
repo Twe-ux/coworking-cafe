@@ -10,6 +10,8 @@ import type { PromoConfig, ApiResponse, CreatePromoCodeRequest } from '@/types/p
  * GET /api/promo - Récupérer la configuration promo complète
  * Auth: dev, admin, staff (lecture)
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<PromoConfig>>> {

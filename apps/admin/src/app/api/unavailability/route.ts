@@ -9,6 +9,8 @@ import type { IUnavailabilityWithEmployee } from '@/types/unavailability';
 /**
  * GET /api/unavailability - Get all unavailabilities with filters
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

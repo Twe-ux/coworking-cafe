@@ -7,6 +7,8 @@ import Unavailability from '@/models/unavailability';
 /**
  * GET /api/unavailability/pending - Get count of pending requests
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

@@ -8,6 +8,8 @@ import Employee from '@/models/employee'
 /**
  * PUT /api/hr/employees/[id]/end-contract - Terminer le contrat d'un employé
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }

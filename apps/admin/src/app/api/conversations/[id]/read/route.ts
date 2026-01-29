@@ -13,6 +13,8 @@ interface RouteParams {
 }
 
 // POST /api/conversations/[id]/read - Marquer tous les messages comme lus
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(
   request: NextRequest,
   { params }: RouteParams

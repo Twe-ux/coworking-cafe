@@ -7,6 +7,8 @@ import Employee from '@/models/employee';
  * POST /api/unavailability/request - Staff request for unavailability (with PIN)
  * Public endpoint - no auth required (PIN verification instead)
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     await connectMongoose();

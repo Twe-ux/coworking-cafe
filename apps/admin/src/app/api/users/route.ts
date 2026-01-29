@@ -10,6 +10,8 @@ import type { User as UserType, UserFilters, PopulatedUserDocument } from "@/typ
  * GET /api/users
  * Récupère la liste des utilisateurs + newsletter subscribers
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<UserType[]>>> {

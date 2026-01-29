@@ -23,6 +23,8 @@ interface RouteParams {
 /**
  * GET /api/time-entries/[id] - Récupérer un time entry spécifique
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions)

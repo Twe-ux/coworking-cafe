@@ -16,6 +16,8 @@ interface RouteParams {
  * GET /api/users/[id]
  * Récupère un utilisateur par son ID
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: RouteParams

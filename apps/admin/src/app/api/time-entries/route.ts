@@ -14,6 +14,8 @@ import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
 /**
  * GET /api/time-entries - Récupérer les time entries avec filtres et pagination
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

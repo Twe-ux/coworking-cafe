@@ -15,6 +15,8 @@ interface ReorderRequest {
  * Réorganise l'ordre des catégories
  * Accessible à : dev, admin
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function PUT(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<void>>> {

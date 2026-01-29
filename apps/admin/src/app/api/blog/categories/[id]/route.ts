@@ -7,6 +7,8 @@ import type { ApiResponse } from "@/types/timeEntry"
 import type { Category as CategoryType } from "@/types/blog"
 
 // GET /api/blog/categories/[id] - Récupérer une catégorie
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

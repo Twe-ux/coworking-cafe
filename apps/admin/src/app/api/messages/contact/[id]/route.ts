@@ -12,6 +12,8 @@ import { generateContactReplyEmail } from '@/lib/email/templates/contactReply';
  * GET /api/messages/contact/[id]
  * Récupère un message de contact par ID
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

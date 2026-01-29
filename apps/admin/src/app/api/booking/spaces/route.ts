@@ -9,6 +9,8 @@ import type { SpaceConfiguration as SpaceConfigurationType } from '@/types/booki
  * GET /api/booking/spaces
  * List all space configurations
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const authResult = await requireAuth(['dev', 'admin', 'staff'])

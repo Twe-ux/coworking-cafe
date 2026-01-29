@@ -41,6 +41,8 @@ function mapBookingToType(booking: any): BookingType {
 }
 
 // GET /api/booking/reservations/[id] - Récupérer une réservation
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

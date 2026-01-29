@@ -11,6 +11,8 @@ import { ContactMail } from '@coworking-cafe/database';
  * - Depuis apps/site avec un token secret (NOTIFICATIONS_SECRET)
  * - En développement, fonctionne sans token avec warning
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     // Vérification de sécurité: token secret pour appels inter-services

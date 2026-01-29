@@ -8,6 +8,8 @@ import { requireAuth } from '@/lib/api/auth'
 /**
  * GET /api/availabilities - Retrieve list of availabilities with optional filters
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const authResult = await requireAuth(['dev', 'admin', 'staff'])

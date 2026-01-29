@@ -18,6 +18,8 @@ interface PromoteRequest {
  * - Promote: Set admin role (Manager/Assistant manager) and create PIN
  * - Demote: Set to "Employé polyvalent" and remove PIN
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }

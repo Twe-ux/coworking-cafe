@@ -6,6 +6,8 @@ import type { PrestaB2BItem, DepenseItem } from "@/types/accounting"
 import { parseAndValidate } from "@/lib/api/validation"
 import { createCashEntrySchema } from "@/lib/validations/cashEntry"
 
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const authResult = await requireAuth(["dev", "admin"])

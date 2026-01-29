@@ -19,6 +19,8 @@ interface MongooseError extends Error {
 /**
  * GET /api/hr/employees/[id] - Recuperer un employe par ID
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

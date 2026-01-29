@@ -8,6 +8,8 @@ import { Booking } from "@coworking-cafe/database"
  * PUT /api/booking/reservations/[id]/validate
  * Valider une réservation en attente (changer status de 'pending' à 'confirmed')
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }

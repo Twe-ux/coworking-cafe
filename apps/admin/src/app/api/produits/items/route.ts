@@ -11,6 +11,8 @@ import type { ApiResponse, MenuItem as MenuItemType, ProduitsItemType } from "@/
  * Récupère la liste des items
  * Accessible à : dev, admin, staff
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<MenuItemType[]>>> {

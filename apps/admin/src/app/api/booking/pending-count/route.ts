@@ -6,6 +6,8 @@ import { Booking } from "@coworking-cafe/database";
  * GET /api/booking/pending-count
  * Returns count of pending bookings
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     await connectDB();

@@ -10,6 +10,8 @@ import type { ApiResponse, MenuData } from "@/types/produits";
  * Récupère toutes les catégories et tous les items du menu
  * Public endpoint - accessible without authentication for staff pages (menu)
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<MenuData>>> {

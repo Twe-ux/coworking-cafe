@@ -8,6 +8,8 @@ import type Stripe from "stripe";
  * POST /api/stripe/webhook
  * Gérer les événements Stripe (webhooks)
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // 1. Récupérer le body brut (nécessaire pour signature)

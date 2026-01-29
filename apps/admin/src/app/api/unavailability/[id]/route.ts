@@ -11,6 +11,8 @@ import { generateUnavailabilityRejectedEmail } from '@/lib/email/templates/unava
 /**
  * GET /api/unavailability/[id] - Get a single unavailability
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

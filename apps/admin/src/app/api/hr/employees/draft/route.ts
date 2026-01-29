@@ -7,6 +7,8 @@ import Employee from '@/models/employee'
 /**
  * GET /api/hr/employees/draft - Récupérer le brouillon en cours
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

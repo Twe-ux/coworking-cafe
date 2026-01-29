@@ -14,6 +14,8 @@ interface RouteParams {
 /**
  * GET /api/availabilities/[id] - Retrieve a specific availability
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const authResult = await requireAuth(['dev', 'admin', 'staff'])

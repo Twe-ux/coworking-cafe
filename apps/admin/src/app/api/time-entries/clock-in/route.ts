@@ -18,6 +18,8 @@ import { clockInSchema } from '@/lib/validations/timeEntry'
  * POST /api/time-entries/clock-in - Débuter un nouveau shift
  * 🔓 ROUTE PUBLIQUE avec sécurités : IP whitelist + Rate limiting + Logging
  */
+// Force dynamic rendering (no static analysis at build time)
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   const clientIP = getClientIP(request)
   const userAgent = request.headers.get('user-agent') || undefined
