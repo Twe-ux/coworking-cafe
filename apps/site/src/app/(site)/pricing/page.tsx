@@ -1,5 +1,5 @@
 import ProtectedEmail from "../../../components/common/ProtectedEmail";
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 import PricingMeetingRoom from "../../../components/site/pricing/pricingMeetingRoom";
 import PricingOpenSpace from "../../../components/site/pricing/pricingOpenSpace";
 

@@ -3,7 +3,7 @@
 import BlogArticleDetail from "../../../../components/site/blogs/blogArticleDetail";
 import BlogBreadcrumb from "../../../../components/site/blogs/BlogBreadcrumb";
 import BlogSidebar from "../../../../components/site/blogs/blogSidebar";
-import PageTitle from "../../../../components/site/pageTitle";
+import PageTitle from "../../../../components/site/PageTitle";
 import { useGetArticleBySlugQuery } from "../../../../store/api/blogApi";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import MembersProgram from "../../../components/site/membersProgram/membersProgram";
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
 
 export default function MembersProgramPage() {

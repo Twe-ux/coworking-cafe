@@ -1,4 +1,4 @@
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 import Spaces from "../../../components/site/spaces/spaces";
 import { Metadata } from "next";
 

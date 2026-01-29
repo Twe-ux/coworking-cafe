@@ -1,5 +1,5 @@
 import ProjectsHistory from "../../../components/site/history/projectsHistory";
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
 
 export default function historyPage() {

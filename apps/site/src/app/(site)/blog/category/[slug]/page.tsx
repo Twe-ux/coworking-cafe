@@ -2,7 +2,7 @@
 
 import BlogCard from "../../../../../components/site/blogs/blogCard";
 import BlogSidebar from "../../../../../components/site/blogs/blogSidebar";
-import PageTitle from "../../../../../components/site/pageTitle";
+import PageTitle from "../../../../../components/site/PageTitle";
 import { useGetArticlesQuery, useGetCategoriesQuery } from "../../../../../store/api/blogApi";
 import SlideDown from "../../../../../utils/animations/slideDown";
 import { useState, useEffect } from "react";

@@ -1,7 +1,7 @@
 "use client";
 
 import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
-import PageTitle from "@/components/site/pageTitle";
+import PageTitle from "@/components/site/PageTitle";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

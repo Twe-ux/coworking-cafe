@@ -2,7 +2,7 @@
 
 import ProtectedEmail from "@/components/common/ProtectedEmail";
 import { useEffect, useState } from "react";
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 
 interface DayHours {
   isOpen: boolean;

@@ -1,5 +1,5 @@
 import Menu from "../../../components/site/menu/menu";
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 
 const FoodPage = () => {
   return (

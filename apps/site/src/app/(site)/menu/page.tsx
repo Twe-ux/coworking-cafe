@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Menu from "../../../components/site/menu/menu";
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 
 type MenuType = "drink" | "food" | "grocery" | "goodies";
 

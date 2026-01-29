@@ -1,4 +1,4 @@
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
 
 const StudentsOffersPage = () => {

@@ -7,7 +7,7 @@
  * Pour appliquer: Copier le contenu dans page.tsx
  */
 
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
 import { Metadata } from "next";
 

@@ -1,5 +1,5 @@
 import ManifestDetails from "../../../components/site/manifest/manifestDetails";
-import PageTitle from "../../../components/site/pageTitle";
+import PageTitle from "../../../components/site/PageTitle";
 import { manifestDetailsData } from "../../../db/manifest/manifestData";
 
 const ManifestPage = () => {
