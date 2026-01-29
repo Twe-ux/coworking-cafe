@@ -3,9 +3,10 @@ import { DynamicBreadcrumb } from "@/components/dynamic-breadcrumb"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
 /**
- * Layout pour les routes staff (simplifié temporairement)
+ * Layout Dashboard (Staff + accueil)
+ * Inclut la sidebar pour toutes les routes dashboard
  */
-export default function StaffLayout({
+export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
