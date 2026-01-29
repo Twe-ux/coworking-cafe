@@ -54,7 +54,7 @@ temp/
 
 
 # PDF files
-# *.pdf
+*.pdf
 
 # Scripts with sensitive data
 fix-*.js
