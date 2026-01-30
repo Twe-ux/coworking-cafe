@@ -18,14 +18,16 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://local
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(express.json())
 
-// Health check endpoint
-app.get('/health', (req, res) => {
+// Health check endpoint (both /health and /api/health for Northflank compatibility)
+const healthCheckHandler = (req: express.Request, res: express.Response) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   })
-})
+}
+app.get('/health', healthCheckHandler)
+app.get('/api/health', healthCheckHandler)
 
 // Socket.io server
 const io = new Server(httpServer, {
