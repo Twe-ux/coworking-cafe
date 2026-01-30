@@ -194,6 +194,11 @@ export default withAuth(
     pages: {
       signIn: '/login',
     },
+    cookies: {
+      sessionToken: {
+        name: 'next-auth.session-token.admin',
+      },
+    },
   }
 );
 
