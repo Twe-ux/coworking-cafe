@@ -412,6 +412,51 @@ Seules ces routes peuvent être **publiques** :
 
 **Toutes les autres routes DOIVENT être protégées !**
 
+### 🚨 RÈGLE CRITIQUE : Secrets et Documentation
+
+**⚠️ JAMAIS DE SECRETS EN DUR DANS LES FICHIERS .md OU CODE**
+
+```typescript
+// ❌ INTERDIT - Secrets en dur
+const mongoUri = "mongodb+srv://admin:G4mgKEL...@cluster.mongodb.net/db"
+const stripeKey = "sk_live_51ABC..."
+
+// ❌ INTERDIT - Dans documentation .md
+/**
+ * Exemple :
+ * MONGODB_URI=mongodb+srv://admin:REAL_PASSWORD@cluster.mongodb.net/db
+ */
+
+// ✅ CORRECT - Variables d'environnement
+const mongoUri = process.env.MONGODB_URI!
+const stripeKey = process.env.STRIPE_SECRET_KEY!
+
+// ✅ CORRECT - Placeholders dans documentation
+/**
+ * Exemple :
+ * MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/DATABASE
+ */
+```
+
+**Règles strictes** :
+- ✅ Toujours utiliser `process.env.XXX` pour les secrets
+- ✅ Fichiers .md dans `/docs/` uniquement (pas à la racine)
+- ✅ Placeholders génériques dans la documentation (`PASSWORD`, `YOUR_SECRET`, etc.)
+- ❌ JAMAIS de vrais credentials dans les .md
+- ❌ JAMAIS de secrets committés dans Git
+- ❌ JAMAIS de .md à la racine du projet (sauf README, CHANGELOG)
+
+**Checklist avant commit** :
+```bash
+# Vérifier qu'aucun secret n'est présent
+git diff | grep -i "password\|secret\|key" | grep -v "PASSWORD\|SECRET\|KEY"
+# → Ne doit rien afficher
+
+# Pre-commit hook détecte automatiquement les secrets
+git commit -m "..."
+# Si bloqué → Vérifier et supprimer les secrets
+```
+
 ---
 
 ## 📦 Types Partagés (Single Source of Truth)
