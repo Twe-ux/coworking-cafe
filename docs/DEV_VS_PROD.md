@@ -10,6 +10,7 @@
 **JAMAIS de données de production en développement !**
 
 Le développement local DOIT utiliser :
+
 - ✅ Un cluster MongoDB DEV
 - ✅ Une database DEV (`coworking_cafe_dev`)
 - ✅ Des données de test (pas de vraies données clients)
@@ -50,14 +51,14 @@ Le développement local DOIT utiliser :
 │ ├── MONGODB_URI → Cluster PROD                      │
 │ │   mongodb+srv://admin-prod:pass@                  │
 │ │   coworking-cafe-prod.mongodb.net/                │
-│ │   coworking_cafe_prod                              │
+│ │   coworking_cafe                              │
 │ │                                                    │
 │ ├── NEXTAUTH_URL=https://admin.coworkingcafe.fr     │
 │ └── Toutes clés en mode LIVE                        │
 │                                                     │
 │ MongoDB Atlas                                        │
 │ └── Cluster: coworking-cafe-prod (M10+)             │
-│     └── Database: coworking_cafe_prod                │
+│     └── Database: coworking_cafe                │
 │         ├── admins (comptes réels)                   │
 │         ├── employees (données réelles)              │
 │         └── users (clients réels)                    │
@@ -74,7 +75,7 @@ Le développement local DOIT utiliser :
 
 ```bash
 # MongoDB - CLUSTER DEV
-MONGODB_URI=mongodb+srv://dev:PASSWORD@coworking.jhxdixz.mongodb.net/coworking_cafe_dev
+MONGODB_URI=mongodb+srv://username:YOUR_PASSWORD@coworking.jhxdixz.mongodb.net/coworking_cafe_dev
 
 # NextAuth - Local
 NEXTAUTH_URL=http://localhost:3001
@@ -92,6 +93,7 @@ ALLOWED_STAFF_IPS=
 ```
 
 **Compte Admin Dev** :
+
 - Email: `dev@coworkingcafe.fr`
 - Password: `dev123`
 - Rôle: `dev`
@@ -104,7 +106,7 @@ ALLOWED_STAFF_IPS=
 
 ```bash
 # MongoDB - CLUSTER PROD
-MONGODB_URI=mongodb+srv://admin-prod:PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod
+MONGODB_URI=mongodb+srv://username:YOUR_PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe
 
 # NextAuth - Production
 NEXTAUTH_URL=https://admin.coworkingcafe.fr
@@ -122,6 +124,7 @@ ALLOWED_STAFF_IPS=192.168.1.100,10.0.0.50
 ```
 
 **Compte Admin Prod** :
+
 - Email: `dev@coworkingcafe.fr`
 - Password: `Dev123456!` (fort)
 - Rôle: `dev`
@@ -146,6 +149,7 @@ MONGODB_URI_DEV="mongodb+srv://dev:VOTRE_PASSWORD_DEV@coworking.jhxdixz.mongodb.
 ```
 
 **Résultat** :
+
 - ✅ Database `coworking_cafe_dev` créée
 - ✅ Collections créées (admins, users, employees, etc.)
 - ✅ Admin dev créé : `dev@coworkingcafe.fr` / `dev123`
@@ -189,7 +193,7 @@ pnpm dev
 ### Checklist Prod
 
 - [ ] Vercel pointe vers cluster PROD
-- [ ] Database name = `coworking_cafe_prod`
+- [ ] Database name = `coworking_cafe`
 - [ ] Compte admin avec mot de passe fort
 - [ ] IP Whitelist configurée (pas `0.0.0.0/0`)
 - [ ] Stripe en mode LIVE (après tests complets)
@@ -253,12 +257,13 @@ GitHub → Vercel (auto)
 **Cause** : `.env.local` pointe vers cluster prod
 
 **Solution** :
+
 ```bash
 # Vérifier l'URI
 cat apps/admin/.env.local | grep MONGODB_URI
 
 # Doit contenir : @coworking.jhxdixz.mongodb.net/coworking_cafe_dev
-# PAS : @coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod
+# PAS : @coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe
 ```
 
 ---
@@ -270,6 +275,7 @@ cat apps/admin/.env.local | grep MONGODB_URI
 **Cause** : Vercel pointe vers cluster dev
 
 **Solution** :
+
 ```bash
 # Vérifier Vercel env vars
 vercel env ls
@@ -288,6 +294,7 @@ vercel env add MONGODB_URI production
 **Cause** : Migration accidentelle dev → prod
 
 **Solution** :
+
 ```bash
 # JAMAIS migrer dev → prod
 # Toujours prod → dev si besoin de données réelles pour tester
@@ -300,27 +307,27 @@ vercel env add MONGODB_URI production
 
 ## 📊 Comparaison Dev vs Prod
 
-| Aspect | DEV | PROD |
-|--------|-----|------|
-| **MongoDB** | | |
-| Cluster | `coworking` (M0) | `coworking-cafe-prod` (M10+) |
-| Database | `coworking_cafe_dev` | `coworking_cafe_prod` |
-| User | `dev` | `admin-prod`, `site-prod`, `socket-prod` |
-| IP Whitelist | Ouvert ou votre IP | Vercel + Northflank seulement |
-| **NextAuth** | | |
-| URL | `http://localhost:3001` | `https://admin.coworkingcafe.fr` |
-| Secret | Court (dev) | Long + aléatoire (64+ chars) |
-| **Stripe** | | |
-| Mode | TEST (`sk_test_...`) | LIVE (`sk_live_...`) |
-| Webhook | Localhost test | URL production |
-| **Email** | | |
-| From | `onboarding@resend.dev` | `noreply@coworkingcafe.fr` |
-| **Sécurité** | | |
-| IP Staff | Désactivé (`""`) | Activé (IPs spécifiques) |
-| Secrets | Simples | Forts (32+ chars) |
-| **Données** | | |
-| Type | Données de test | Données réelles clients |
-| Backup | Optionnel | Obligatoire (quotidien) |
+| Aspect       | DEV                     | PROD                                     |
+| ------------ | ----------------------- | ---------------------------------------- |
+| **MongoDB**  |                         |                                          |
+| Cluster      | `coworking` (M0)        | `coworking-cafe-prod` (M10+)             |
+| Database     | `coworking_cafe_dev`    | `coworking_cafe`                         |
+| User         | `dev`                   | `admin-prod`, `site-prod`, `socket-prod` |
+| IP Whitelist | Ouvert ou votre IP      | Vercel + Northflank seulement            |
+| **NextAuth** |                         |                                          |
+| URL          | `http://localhost:3001` | `https://admin.coworkingcafe.fr`         |
+| Secret       | Court (dev)             | Long + aléatoire (64+ chars)             |
+| **Stripe**   |                         |                                          |
+| Mode         | TEST (`sk_test_...`)    | LIVE (`sk_live_...`)                     |
+| Webhook      | Localhost test          | URL production                           |
+| **Email**    |                         |                                          |
+| From         | `onboarding@resend.dev` | `noreply@coworkingcafe.fr`               |
+| **Sécurité** |                         |                                          |
+| IP Staff     | Désactivé (`""`)        | Activé (IPs spécifiques)                 |
+| Secrets      | Simples                 | Forts (32+ chars)                        |
+| **Données**  |                         |                                          |
+| Type         | Données de test         | Données réelles clients                  |
+| Backup       | Optionnel               | Obligatoire (quotidien)                  |
 
 ---
 

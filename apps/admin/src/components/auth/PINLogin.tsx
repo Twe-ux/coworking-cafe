@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Delete } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface PINLoginProps {
   onSubmit: (pin: string) => void
@@ -21,6 +21,13 @@ export function PINLogin({
   pinLength = 6,
 }: PINLoginProps) {
   const [pin, setPin] = useState('')
+
+  // Reset le PIN quand il y a une erreur
+  useEffect(() => {
+    if (error) {
+      setPin('')
+    }
+  }, [error])
 
   const handleNumberPress = (number: string) => {
     if (pin.length < pinLength) {

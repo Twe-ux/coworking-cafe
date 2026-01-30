@@ -1,4 +1,4 @@
-import { MongoClient, Db, MongoClientOptions } from "mongodb";
+import { Db, MongoClient, MongoClientOptions } from "mongodb";
 import mongoose from "mongoose";
 
 /**
@@ -10,14 +10,14 @@ function getMongoUri(): string {
 
   if (!uri) {
     throw new Error(
-      "MONGODB_URI manquante dans .env.local - Veuillez configurer la connexion MongoDB"
+      "MONGODB_URI manquante dans .env.local - Veuillez configurer la connexion MongoDB",
     );
   }
 
   return uri;
 }
 
-const databaseName = process.env.MONGODB_DB || "coworking_cafe_prod";
+const databaseName = process.env.MONGODB_DB || "coworking_cafe";
 
 const options: MongoClientOptions = {
   maxPoolSize: 5, // Reduced for M0 cluster limit
@@ -86,10 +86,10 @@ async function getClientPromise(): Promise<MongoClient> {
 
 /**
  * Connect to MongoDB database
- * @param dbName - Optional database name (defaults to MONGODB_DB env var or "coworking_cafe_prod")
+ * @param dbName - Optional database name (defaults to MONGODB_DB env var or "coworking_cafe")
  */
 export async function connectToDatabase(
-  dbName?: string
+  dbName?: string,
 ): Promise<{ client: MongoClient; db: Db }> {
   let retryCount = 0;
   const maxRetries = 3;
@@ -117,20 +117,20 @@ export async function connectToDatabase(
       retryCount++;
       console.error(
         `Tentative de connexion MongoDB ${retryCount}/${maxRetries} échouée:`,
-        error
+        error,
       );
 
       if (retryCount >= maxRetries) {
         throw new Error(
           `Impossible de se connecter à MongoDB après ${maxRetries} tentatives: ${
             error instanceof Error ? error.message : "Erreur inconnue"
-          }`
+          }`,
         );
       }
 
       // Exponential backoff
       await new Promise((resolve) =>
-        setTimeout(resolve, Math.pow(2, retryCount) * 1000)
+        setTimeout(resolve, Math.pow(2, retryCount) * 1000),
       );
     }
   }
@@ -180,7 +180,10 @@ export async function closeConnection(): Promise<void> {
     // Clear database cache
     cached.dbCache.clear();
   } catch (error) {
-    console.error("Erreur lors de la fermeture de la connexion MongoDB:", error);
+    console.error(
+      "Erreur lors de la fermeture de la connexion MongoDB:",
+      error,
+    );
   }
 }
 

@@ -65,57 +65,6 @@ export interface ArticleFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-// Comment Types
-export interface Comment {
-  _id: string;
-  content: string;
-  article: string | { _id: string; title: string; slug: string };
-  user: {
-    _id: string;
-    username: string;
-    name?: string;
-    email?: string;
-  };
-  parent?: {
-    _id: string;
-    content: string;
-    user: {
-      _id: string;
-      username: string;
-      name?: string;
-    };
-  } | string | null;
-  status: 'pending' | 'approved' | 'rejected' | 'spam';
-  likeCount: number;
-  createdAt: string;
-  updatedAt: string;
-  replies?: Comment[];
-}
-
-export interface CreateCommentDto {
-  content: string;
-  articleId: string;
-  parentId?: string;
-}
-
-export interface UpdateCommentDto {
-  content?: string;
-}
-
-export interface CommentsResponse {
-  comments: Comment[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-}
-
-export interface CommentFilters {
-  article?: string;
-  status?: string;
-  page?: number;
-  limit?: number;
-}
 
 // Category Types
 export interface Category {
@@ -163,33 +112,6 @@ export interface CategoriesResponse {
   pages: number;
 }
 
-// Tag Types
-export interface Tag {
-  _id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  color?: string;
-  articleCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateTagDto {
-  name: string;
-  description?: string;
-  color?: string;
-}
-
-export interface UpdateTagDto extends Partial<CreateTagDto> {}
-
-export interface TagsResponse {
-  tags: Tag[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-}
 
 export const blogApi = createApi({
   reducerPath: 'blogApi',
@@ -209,10 +131,6 @@ export const blogApi = createApi({
     'Articles',
     'ArticleLikes',
     'Categories',
-    'Tags',
-    'Comment',
-    'Comments',
-    'CommentLikes',
   ],
   endpoints: (builder) => ({
     // Get all articles (with filters)
@@ -390,147 +308,6 @@ export const blogApi = createApi({
       invalidatesTags: (result, error, id) => [{ type: 'ArticleLikes', id }],
     }),
 
-    // ========== COMMENTS ==========
-
-    // Get comments for an article
-    getComments: builder.query<CommentsResponse, CommentFilters>({
-      query: (filters) => {
-        const params = new URLSearchParams();
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined) params.append(key, String(value));
-        });
-        return `/comments?${params.toString()}`;
-      },
-      providesTags: (result, error, { article }) =>
-        result
-          ? [
-              ...result.comments.map(({ _id }) => ({
-                type: 'Comment' as const,
-                id: _id,
-              })),
-              { type: 'Comments' as const, id: article || 'ALL' },
-            ]
-          : [{ type: 'Comments' as const, id: article || 'ALL' }],
-    }),
-
-    // Get single comment
-    getComment: builder.query<Comment, string>({
-      query: (id) => `/comments/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Comment', id }],
-    }),
-
-    // Create comment
-    createComment: builder.mutation<Comment, CreateCommentDto>({
-      query: (data) => ({
-        url: '/comments',
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { articleId }) => [
-        { type: 'Comments', id: articleId },
-        { type: 'Comments', id: 'ALL' },
-      ],
-    }),
-
-    // Update comment
-    updateComment: builder.mutation<Comment, { id: string; data: UpdateCommentDto }>({
-      query: ({ id, data }) => ({
-        url: `/comments/${id}`,
-        method: 'PATCH',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Comment', id },
-      ],
-    }),
-
-    // Delete comment
-    deleteComment: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/comments/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'Comment', id },
-        { type: 'Comments', id: 'ALL' },
-      ],
-    }),
-
-    // Approve/Reject comment (admin)
-    approveComment: builder.mutation<Comment, { id: string; status: 'approved' | 'rejected' | 'spam' }>({
-      query: ({ id, status }) => ({
-        url: `/comments/${id}/approve`,
-        method: 'POST',
-        body: { status },
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Comment', id },
-        { type: 'Comments', id: 'ALL' },
-      ],
-    }),
-
-    // Check if comment is liked by current user
-    isCommentLiked: builder.query<{ liked: boolean }, string>({
-      query: (id) => `/comments/${id}/like`,
-      providesTags: (result, error, id) => [{ type: 'CommentLikes', id }],
-    }),
-
-    // Like comment
-    likeComment: builder.mutation<
-      { success: boolean; liked: boolean; likeCount: number },
-      string
-    >({
-      query: (id) => ({
-        url: `/comments/${id}/like`,
-        method: 'POST',
-      }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'CommentLikes', id },
-        { type: 'Comment', id },
-      ],
-      // Optimistic update
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          blogApi.util.updateQueryData('getComment', id, (draft) => {
-            draft.likeCount += 1;
-          })
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
-    }),
-
-    // Unlike comment
-    unlikeComment: builder.mutation<
-      { success: boolean; liked: boolean; likeCount: number },
-      string
-    >({
-      query: (id) => ({
-        url: `/comments/${id}/like`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'CommentLikes', id },
-        { type: 'Comment', id },
-      ],
-      // Optimistic update
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          blogApi.util.updateQueryData('getComment', id, (draft) => {
-            draft.likeCount -= 1;
-          })
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
-    }),
-
     // ========== CATEGORIES ==========
 
     // Get all categories
@@ -594,68 +371,6 @@ export const blogApi = createApi({
       invalidatesTags: [{ type: 'Categories', id: 'LIST' }],
     }),
 
-    // ========== TAGS ==========
-
-    // Get all tags
-    getTags: builder.query<TagsResponse, { search?: string; page?: number; limit?: number } | void>({
-      query: (params) => {
-        const searchParams = new URLSearchParams();
-        if (params) {
-          Object.entries(params).forEach(([key, value]) => {
-            if (value !== undefined) searchParams.append(key, String(value));
-          });
-        }
-        return `/tags?${searchParams.toString()}`;
-      },
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.tags.map(({ _id }) => ({
-                type: 'Tags' as const,
-                id: _id,
-              })),
-              { type: 'Tags' as const, id: 'LIST' },
-            ]
-          : [{ type: 'Tags' as const, id: 'LIST' }],
-    }),
-
-    // Get single tag
-    getTag: builder.query<Tag, string>({
-      query: (id) => `/tags/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Tags', id }],
-    }),
-
-    // Create tag
-    createTag: builder.mutation<Tag, CreateTagDto>({
-      query: (data) => ({
-        url: '/tags',
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: [{ type: 'Tags', id: 'LIST' }],
-    }),
-
-    // Update tag
-    updateTag: builder.mutation<Tag, { id: string; data: UpdateTagDto }>({
-      query: ({ id, data }) => ({
-        url: `/tags/${id}`,
-        method: 'PATCH',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Tags', id },
-        { type: 'Tags', id: 'LIST' },
-      ],
-    }),
-
-    // Delete tag
-    deleteTag: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/tags/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: [{ type: 'Tags', id: 'LIST' }],
-    }),
   }),
 });
 
@@ -672,26 +387,10 @@ export const {
   useIsArticleLikedQuery,
   useLikeArticleMutation,
   useUnlikeArticleMutation,
-  // Comment hooks
-  useGetCommentsQuery,
-  useGetCommentQuery,
-  useCreateCommentMutation,
-  useUpdateCommentMutation,
-  useDeleteCommentMutation,
-  useApproveCommentMutation,
-  useLikeCommentMutation,
-  useUnlikeCommentMutation,
-  useIsCommentLikedQuery,
   // Category hooks
   useGetCategoriesQuery,
   useGetCategoryQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
-  // Tag hooks
-  useGetTagsQuery,
-  useGetTagQuery,
-  useCreateTagMutation,
-  useUpdateTagMutation,
-  useDeleteTagMutation,
 } = blogApi;

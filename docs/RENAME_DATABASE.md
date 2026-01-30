@@ -6,16 +6,17 @@
 
 ## Situation Actuelle vs Cible
 
-| Environnement | Ancien nom | Nouveau nom |
-|---------------|------------|-------------|
-| **Dev** | `coworking_cafe_dev` | `coworking_cafe` |
-| **Prod** | `coworking_cafe_prod` | `coworking_cafe` |
+| Environnement | Ancien nom           | Nouveau nom      |
+| ------------- | -------------------- | ---------------- |
+| **Dev**       | `coworking_cafe_dev` | `coworking_cafe` |
+| **Prod**      | `coworking_cafe`     | `coworking_cafe` |
 
 ---
 
 ## ⚠️ IMPORTANT
 
 MongoDB Atlas **ne permet PAS de renommer une database**. Il faut :
+
 1. Créer une nouvelle database avec le bon nom
 2. Copier les données
 3. Supprimer l'ancienne database
@@ -28,14 +29,14 @@ MongoDB Atlas **ne permet PAS de renommer une database**. Il faut :
 
 ```javascript
 // scripts/rename-database.js
-const { MongoClient } = require('mongodb');
+const { MongoClient } = require("mongodb");
 
 async function renameDatabase(sourceDb, targetDb, uri) {
   const client = new MongoClient(uri);
 
   try {
     await client.connect();
-    console.log(`Connected to ${uri.split('@')[1].split('/')[0]}`);
+    console.log(`Connected to ${uri.split("@")[1].split("/")[0]}`);
 
     // Get source database
     const source = client.db(sourceDb);
@@ -65,24 +66,23 @@ async function renameDatabase(sourceDb, targetDb, uri) {
       // Copy indexes
       const indexes = await sourceCollection.indexes();
       for (const index of indexes) {
-        if (index.name !== '_id_') {
+        if (index.name !== "_id_") {
           await targetCollection.createIndex(index.key, {
             name: index.name,
-            unique: index.unique || false
+            unique: index.unique || false,
           });
           console.log(`  ✅ Created index: ${index.name}`);
         }
       }
     }
 
-    console.log('\n✅ Migration completed successfully!');
+    console.log("\n✅ Migration completed successfully!");
     console.log(`\n⚠️  Remember to:`);
     console.log(`  1. Update MONGODB_URI to use database: ${targetDb}`);
     console.log(`  2. Test the application`);
     console.log(`  3. Delete old database: ${sourceDb}`);
-
   } catch (error) {
-    console.error('❌ Error:', error);
+    console.error("❌ Error:", error);
   } finally {
     await client.close();
   }
@@ -94,7 +94,9 @@ const NEW_DB = process.argv[3];
 const URI = process.env.MONGODB_URI;
 
 if (!OLD_DB || !NEW_DB || !URI) {
-  console.log('Usage: MONGODB_URI="..." node scripts/rename-database.js <old-db> <new-db>');
+  console.log(
+    'Usage: MONGODB_URI="..." node scripts/rename-database.js <old-db> <new-db>',
+  );
   process.exit(1);
 }
 
@@ -109,7 +111,7 @@ cd scripts
 npm install mongodb
 
 # Renommer DEV
-MONGODB_URI="mongodb+srv://dev-user:PASSWORD@coworking-cafe-dev.lxjwvii.mongodb.net" \
+MONGODB_URI="mongodb+srv://dev-user:YOUR_PASSWORD@coworking-cafe-dev.lxjwvii.mongodb.net" \
 node rename-database.js coworking_cafe_dev coworking_cafe
 ```
 
@@ -117,20 +119,20 @@ node rename-database.js coworking_cafe_dev coworking_cafe
 
 ```bash
 # Renommer PROD (⚠️ Faire backup avant !)
-MONGODB_URI="mongodb+srv://prod-user:PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net" \
-node rename-database.js coworking_cafe_prod coworking_cafe
+MONGODB_URI="mongodb+srv://prod-user:YOUR_PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net" \
+node rename-database.js coworking_cafe coworking_cafe
 ```
 
 ### 4. Mettre à jour les URIs
 
 ```bash
 # apps/admin/.env.local
-MONGODB_URI=mongodb+srv://dev-user:PASSWORD@coworking-cafe-dev.lxjwvii.mongodb.net/coworking_cafe
+MONGODB_URI=mongodb+srv://dev-user:YOUR_PASSWORD@coworking-cafe-dev.lxjwvii.mongodb.net/coworking_cafe
 
 # Vercel (prod)
 vercel env rm MONGODB_URI production
 vercel env add MONGODB_URI production
-# Coller: mongodb+srv://prod-user:PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe
+# Coller: mongodb+srv://prod-user:YOUR_PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe
 ```
 
 ### 5. Tester
@@ -148,8 +150,9 @@ pnpm dev
 ### 6. Supprimer anciennes databases
 
 **MongoDB Atlas** :
+
 1. Cluster dev → Browse Collections → `coworking_cafe_dev` → Drop Database
-2. Cluster prod → Browse Collections → `coworking_cafe_prod` → Drop Database
+2. Cluster prod → Browse Collections → `coworking_cafe` → Drop Database
 
 ---
 
@@ -158,12 +161,13 @@ pnpm dev
 Si vous préférez l'interface graphique :
 
 ### 1. Installer MongoDB Compass
+
 https://www.mongodb.com/try/download/compass
 
 ### 2. Connecter au Cluster Dev
 
 ```
-URI: mongodb+srv://dev-user:PASSWORD@coworking-cafe-dev.lxjwvii.mongodb.net
+URI: mongodb+srv://dev-user:YOUR_PASSWORD@coworking-cafe-dev.lxjwvii.mongodb.net
 ```
 
 ### 3. Pour Chaque Collection
@@ -193,7 +197,7 @@ URI: mongodb+srv://dev-user:PASSWORD@coworking-cafe-dev.lxjwvii.mongodb.net
 - [ ] Vercel env vars mis à jour
 - [ ] Application testée (dev)
 - [ ] Application testée (prod)
-- [ ] Anciennes databases supprimées (`coworking_cafe_dev`, `coworking_cafe_prod`)
+- [ ] Anciennes databases supprimées (`coworking_cafe_dev`, `coworking_cafe`)
 
 ---
 

@@ -26,8 +26,11 @@ export function PINAuthProvider({ children }: { children: ReactNode }) {
 
   // Vérifier si PIN existe dans localStorage
   useEffect(() => {
+    console.log('[PINAuthContext] useEffect triggered', { isPWA, hasSession: !!session, userId: session?.user?.id });
+
     if (!isPWA) {
       // Si pas en mode PWA, pas de vérification PIN
+      console.log('[PINAuthContext] Mode Web - PIN vérifié par défaut');
       setIsPINVerified(true);
       setIsLoading(false);
       return;
@@ -36,6 +39,12 @@ export function PINAuthProvider({ children }: { children: ReactNode }) {
     // Vérifier si PIN existe
     const storedPINHash = localStorage.getItem('pin_hash');
     const storedUserId = localStorage.getItem('pin_user_id');
+
+    console.log('[PINAuthContext] Mode PWA - Vérification localStorage', {
+      hasPINHash: !!storedPINHash,
+      storedUserId,
+      currentUserId: session?.user?.id
+    });
 
     if (storedPINHash && storedUserId === session?.user?.id) {
       setIsPINSet(true);

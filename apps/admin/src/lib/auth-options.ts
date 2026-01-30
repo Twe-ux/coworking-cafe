@@ -54,9 +54,44 @@ export const authOptions: NextAuthOptions = {
           // Vérifier si c'est un PIN (6 chiffres uniquement)
           const isPIN = /^\d{6}$/.test(credentials.password);
 
-          // ===== AUTHENTIFICATION EMPLOYEE PAR PIN (sans email) =====
+          // ===== AUTHENTIFICATION PAR PIN 6 CHIFFRES (sans email) =====
           if (isPIN && !credentials.email) {
-            console.log('🔑 Employee PIN authentication (6 digits, no email)');
+            console.log('🔑 PIN authentication (6 digits, no email)');
+
+            // 1️⃣ Chercher d'abord dans la collection admins
+            const { db } = await connectToDatabase();
+            const adminsCollection = db.collection<AdminDocument>('admins');
+
+            const admins = await adminsCollection.find({
+              dashboardPin: { $exists: true }
+            }).toArray();
+
+            console.log(`🔍 Found ${admins.length} admins with PIN`);
+
+            // Comparer le PIN avec le dashboardPin de chaque admin
+            let matchedAdmin = null;
+            for (const admin of admins) {
+              if (admin.dashboardPin) {
+                const isPinValid = await bcrypt.compare(credentials.password, admin.dashboardPin);
+                if (isPinValid) {
+                  matchedAdmin = admin;
+                  break;
+                }
+              }
+            }
+
+            if (matchedAdmin) {
+              console.log('✅ Admin found with PIN:', matchedAdmin.email);
+              return {
+                id: matchedAdmin._id.toString(),
+                email: matchedAdmin.email,
+                name: matchedAdmin.givenName || matchedAdmin.email.split('@')[0],
+                role: matchedAdmin.role,
+              } as NextAuthUser;
+            }
+
+            // 2️⃣ Si pas d'admin trouvé, chercher dans employees
+            console.log('🔍 No admin found, checking employees...');
             await connectMongoose();
 
             const Employee = mongoose.model('Employee');
@@ -271,9 +306,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        // Autoriser les cookies non-sécurisés en développement HTTP
-        // mais exiger HTTPS en production ou si configuré
-        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production',
       },
     },
   },

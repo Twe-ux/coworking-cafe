@@ -22,17 +22,6 @@ export function PINLoginForm({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession();
-
-  // Si on arrive sur la page login avec une session active,
-  // c'est probablement une session corrompue (après redémarrage serveur)
-  // On la nettoie pour permettre une nouvelle connexion
-  useEffect(() => {
-    if (status === "authenticated" && session) {
-      console.log("[Login] Session active détectée, nettoyage...");
-      signOut({ redirect: false });
-    }
-  }, [status, session]);
 
   const handlePINSubmit = async (pin: string) => {
     setError("");

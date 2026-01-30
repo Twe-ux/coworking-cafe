@@ -33,8 +33,6 @@ export { Article } from './article';
 export type { ArticleDocument } from './article';
 export { Category } from './category';
 export type { CategoryDocument } from './category';
-export { Comment } from './comment';
-export type { CommentDocument } from './comment';
 
 // ===== Messaging =====
 export { Conversation } from './conversation';

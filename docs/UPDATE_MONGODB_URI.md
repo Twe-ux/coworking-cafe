@@ -1,4 +1,4 @@
-# 🔄 Migration Database : coworking-admin → coworking_cafe_prod
+# 🔄 Migration Database : coworking-admin → coworking_cafe
 
 > Guide pour pointer toutes les apps vers la nouvelle database
 > Date : 2026-01-30
@@ -13,23 +13,23 @@ Vous avez **2 databases** dans MongoDB Atlas :
 ❌ coworking-admin (ancienne)
    └── Contient toutes les collections
 
-✅ coworking_cafe_prod (nouvelle)
+✅ coworking_cafe (nouvelle)
    └── Contient la collection admins + structure propre
 ```
 
-**Solution** : Pointer toutes les URIs vers `coworking_cafe_prod`
+**Solution** : Pointer toutes les URIs vers `coworking_cafe`
 
 ---
 
 ## 📝 Nouvelle URI à Utiliser Partout
 
 ```bash
-mongodb+srv://admin-prod:VOTRE_PASSWORD_PROD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
+mongodb+srv://admin-prod:VOTRE_PASSWORD_PROD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe?retryWrites=true&w=majority
 #                                                                                                      ^^^^^^^^^^^^^^^^^^^
 #                                                                                                      Nouvelle DB
 ```
 
-**Changement** : `/coworking-admin` → `/coworking_cafe_prod`
+**Changement** : `/coworking-admin` → `/coworking_cafe`
 
 ---
 
@@ -38,13 +38,15 @@ mongodb+srv://admin-prod:VOTRE_PASSWORD_PROD@coworking-cafe-prod.ypxy4uk.mongodb
 ### 1. Développement Local ✅ (FAIT)
 
 **apps/admin/.env.local**
+
 ```bash
-MONGODB_URI=mongodb+srv://admin-prod:PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod
+MONGODB_URI=mongodb+srv://admin-prod:YOUR_PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe
 ```
 
 **apps/site/.env.local** (si existe)
+
 ```bash
-MONGODB_URI=mongodb+srv://site-prod:PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod
+MONGODB_URI=mongodb+srv://site-prod:YOUR_PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe
 ```
 
 ---
@@ -64,7 +66,7 @@ MONGODB_URI=mongodb+srv://site-prod:PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb
    - Cliquer "Edit"
    - Remplacer la valeur par :
      ```
-     mongodb+srv://admin-prod:VOTRE_PASSWORD_PROD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
+     mongodb+srv://admin-prod:VOTRE_PASSWORD_PROD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe?retryWrites=true&w=majority
      ```
    - Sélectionner les environnements : `Production`, `Preview`, `Development`
    - Cliquer "Save"
@@ -113,7 +115,7 @@ vercel --prod
 cd apps/site
 vercel env rm MONGODB_URI production
 vercel env add MONGODB_URI production
-# Coller : mongodb+srv://site-prod:PASSWORD@...coworking_cafe_prod
+# Coller : mongodb+srv://site-prod:YOUR_PASSWORD@...coworking_cafe
 vercel --prod
 ```
 
@@ -129,8 +131,9 @@ vercel --prod
 3. **Aller dans Environment Variables**
 
 4. **Modifier MONGODB_URI**
+
    ```
-   mongodb+srv://socket-prod:PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
+   mongodb+srv://socket-prod:YOUR_PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe?retryWrites=true&w=majority
    ```
 
 5. **Redémarrer le service**
@@ -139,19 +142,19 @@ vercel --prod
 
 ## 📦 Migration des Données (SI NÉCESSAIRE)
 
-Si `coworking-admin` contient des données importantes qu'il faut garder, migrons-les vers `coworking_cafe_prod`.
+Si `coworking-admin` contient des données importantes qu'il faut garder, migrons-les vers `coworking_cafe`.
 
 ### Option A : Migration Complète (Recommandé)
 
 ```bash
 # 1. Export de coworking-admin
-mongodump --uri="mongodb+srv://admin-prod:PASSWORD@cluster.mongodb.net/coworking-admin" --out=./backup-coworking-admin
+mongodump --uri="mongodb+srv://admin-prod:YOUR_PASSWORD@cluster.mongodb.net/coworking-admin" --out=./backup-coworking-admin
 
-# 2. Import vers coworking_cafe_prod
-mongorestore --uri="mongodb+srv://admin-prod:PASSWORD@cluster.mongodb.net/coworking_cafe_prod" ./backup-coworking-admin/coworking-admin
+# 2. Import vers coworking_cafe
+mongorestore --uri="mongodb+srv://admin-prod:YOUR_PASSWORD@cluster.mongodb.net/coworking_cafe" ./backup-coworking-admin/coworking-admin
 
 # 3. Vérifier dans MongoDB Compass
-# → coworking_cafe_prod doit contenir toutes les collections
+# → coworking_cafe doit contenir toutes les collections
 ```
 
 ### Option B : Migration Sélective (Collections Importantes)
@@ -167,8 +170,8 @@ use coworking-admin
 
 // Pour chaque collection :
 db.employees.find().forEach(function(doc) {
-  // Se connecter à coworking_cafe_prod (destination)
-  db.getSiblingDB('coworking_cafe_prod').employees.insertOne(doc);
+  // Se connecter à coworking_cafe (destination)
+  db.getSiblingDB('coworking_cafe').employees.insertOne(doc);
 });
 
 // Répéter pour chaque collection nécessaire
@@ -181,7 +184,7 @@ db.employees.find().forEach(function(doc) {
 1. Aller dans MongoDB Atlas → Clusters
 2. Cliquer sur "⋯" à côté de `coworking-admin`
 3. "Clone Database"
-4. Nom de destination : `coworking_cafe_prod`
+4. Nom de destination : `coworking_cafe`
 5. Confirmer
 
 ---
@@ -189,28 +192,33 @@ db.employees.find().forEach(function(doc) {
 ## ✅ Checklist de Migration
 
 ### Préparation
+
 - [ ] Backup de `coworking-admin` (par sécurité)
-- [ ] Compte `admins` créé dans `coworking_cafe_prod`
-- [ ] Vérifier que `coworking_cafe_prod` est prête
+- [ ] Compte `admins` créé dans `coworking_cafe`
+- [ ] Vérifier que `coworking_cafe` est prête
 
 ### Migration Base de Données
-- [ ] **Option 1** : Migrer toutes les données de `coworking-admin` → `coworking_cafe_prod`
-- [ ] **Option 2** : Utiliser `coworking_cafe_prod` vide et recréer les données
+
+- [ ] **Option 1** : Migrer toutes les données de `coworking-admin` → `coworking_cafe`
+- [ ] **Option 2** : Utiliser `coworking_cafe` vide et recréer les données
 
 ### Mise à Jour URIs
-- [ ] ✅ apps/admin/.env.local (dev) → `coworking_cafe_prod`
-- [ ] apps/site/.env.local (dev) → `coworking_cafe_prod`
-- [ ] Vercel apps/admin (prod) → `coworking_cafe_prod`
-- [ ] Vercel apps/site (prod) → `coworking_cafe_prod`
-- [ ] Northflank socket-server (prod) → `coworking_cafe_prod`
+
+- [ ] ✅ apps/admin/.env.local (dev) → `coworking_cafe`
+- [ ] apps/site/.env.local (dev) → `coworking_cafe`
+- [ ] Vercel apps/admin (prod) → `coworking_cafe`
+- [ ] Vercel apps/site (prod) → `coworking_cafe`
+- [ ] Northflank socket-server (prod) → `coworking_cafe`
 
 ### Tests
+
 - [ ] Test login admin local (http://localhost:3001/login)
 - [ ] Test login admin prod (https://admin.coworkingcafe.fr/login)
 - [ ] Vérifier que les données sont présentes
 - [ ] Tester les fonctionnalités principales
 
 ### Nettoyage (Optionnel)
+
 - [ ] Supprimer `coworking-admin` dans MongoDB Atlas (après validation)
 - [ ] Archiver les backups
 
@@ -220,7 +228,7 @@ db.employees.find().forEach(function(doc) {
 
 ### 1. Collections Nécessaires
 
-**Vérifier que `coworking_cafe_prod` contient** :
+**Vérifier que `coworking_cafe` contient** :
 
 ```
 ✅ admins (nouveau, créé manuellement)
@@ -239,23 +247,23 @@ Si migration manuelle, **recréer les index** :
 
 ```javascript
 // Exemple pour employees
-db.employees.createIndex({ email: 1 }, { unique: true })
-db.employees.createIndex({ isActive: 1 })
+db.employees.createIndex({ email: 1 }, { unique: true });
+db.employees.createIndex({ isActive: 1 });
 
 // Exemple pour bookings
-db.bookings.createIndex({ userId: 1 })
-db.bookings.createIndex({ date: 1 })
+db.bookings.createIndex({ userId: 1 });
+db.bookings.createIndex({ date: 1 });
 ```
 
 ### 3. Permissions Utilisateurs
 
-**Vérifier que les utilisateurs MongoDB ont accès à `coworking_cafe_prod`** :
+**Vérifier que les utilisateurs MongoDB ont accès à `coworking_cafe`** :
 
 ```
 Atlas → Database Access → Modifier chaque utilisateur
 → Database User Privileges
 → Specific Privileges:
-   Database: coworking_cafe_prod
+   Database: coworking_cafe
    Collection: All Collections
    Privilege: readWrite
 ```
@@ -273,7 +281,7 @@ pnpm dev
 
 # Console doit afficher :
 # ✅ Connected to MongoDB
-# Database: coworking_cafe_prod
+# Database: coworking_cafe
 ```
 
 ### Test 2 : Login Admin
@@ -292,7 +300,7 @@ Password: Dev123456!
 
 ```bash
 # Dans MongoDB Compass
-# Connexion → coworking_cafe_prod
+# Connexion → coworking_cafe
 
 # Vérifier que les collections existent :
 ✅ admins (1 document minimum)
@@ -306,13 +314,13 @@ Password: Dev123456!
 
 ## 📊 Comparaison
 
-| Aspect | AVANT (coworking-admin) | APRÈS (coworking_cafe_prod) |
-|--------|------------------------|----------------------------|
-| Nom | coworking-admin | coworking_cafe_prod |
-| Structure | Ancienne | Nouvelle (3 collections) |
-| Admins | Dans `users` avec rôle ObjectId | Dans `admins` avec rôle string |
-| Clarté | Confusion users/admins | Séparation claire |
-| Performance | 2 requêtes (user + role) | 1 requête (admin inline) |
+| Aspect      | AVANT (coworking-admin)         | APRÈS (coworking_cafe)         |
+| ----------- | ------------------------------- | ------------------------------ |
+| Nom         | coworking-admin                 | coworking_cafe                 |
+| Structure   | Ancienne                        | Nouvelle (3 collections)       |
+| Admins      | Dans `users` avec rôle ObjectId | Dans `admins` avec rôle string |
+| Clarté      | Confusion users/admins          | Séparation claire              |
+| Performance | 2 requêtes (user + role)        | 1 requête (admin inline)       |
 
 ---
 
@@ -323,11 +331,12 @@ Password: Dev123456!
 **Cause** : L'URI pointe vers une DB inexistante
 
 **Solution** :
+
 ```bash
 # Vérifier l'URI
 echo $MONGODB_URI
 
-# Doit contenir : /coworking_cafe_prod
+# Doit contenir : /coworking_cafe
 # PAS : /coworking-admin
 ```
 
@@ -338,9 +347,10 @@ echo $MONGODB_URI
 **Cause** : La collection `admins` n'existe pas encore
 
 **Solution** :
+
 ```bash
 # Recréer le compte admin
-MONGODB_URI="mongodb+srv://...coworking_cafe_prod..." \
+MONGODB_URI="mongodb+srv://...coworking_cafe..." \
   node scripts/create-admin-direct.js \
   --email dev@coworkingcafe.fr \
   --password Dev123456! \
@@ -352,13 +362,14 @@ MONGODB_URI="mongodb+srv://...coworking_cafe_prod..." \
 
 ### Erreur : "Authentication failed"
 
-**Cause** : L'utilisateur MongoDB n'a pas les permissions sur `coworking_cafe_prod`
+**Cause** : L'utilisateur MongoDB n'a pas les permissions sur `coworking_cafe`
 
 **Solution** :
+
 ```
 Atlas → Database Access → Modifier admin-prod
 → Specific Privileges:
-   Database: coworking_cafe_prod
+   Database: coworking_cafe
    Privilege: readWrite
 → Save
 ```

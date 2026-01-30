@@ -55,6 +55,7 @@ async function createAdmin() {
     // Demander les infos
     const email = await question('📧 Email: ');
     const password = await question('🔑 Mot de passe: ');
+    const pin = await question('📱 PIN 6 chiffres: ');
     const givenName = await question('👤 Prénom: ');
     const roleChoice = await question('🎭 Rôle (dev/admin/staff) [admin]: ');
 
@@ -62,6 +63,12 @@ async function createAdmin() {
 
     if (!['dev', 'admin', 'staff'].includes(role)) {
       console.error('❌ Rôle invalide. Doit être: dev, admin ou staff');
+      process.exit(1);
+    }
+
+    // Valider le PIN
+    if (!/^\d{6}$/.test(pin)) {
+      console.error('❌ Le PIN doit contenir exactement 6 chiffres');
       process.exit(1);
     }
 
@@ -93,14 +100,16 @@ async function createAdmin() {
       console.log('ℹ️  Aucun employé trouvé avec cet email');
     }
 
-    // Hash le mot de passe
-    console.log('\n🔐 Hashing du mot de passe...');
+    // Hash le mot de passe et le PIN
+    console.log('\n🔐 Hashing du mot de passe et du PIN...');
     const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPin = await bcrypt.hash(pin, 10);
 
     // Créer l'admin
     const newAdmin = {
       email: email.toLowerCase(),
       password: hashedPassword,
+      dashboardPin: hashedPin, // PIN 6 chiffres hashé
       givenName,
       role, // dev, admin, ou staff (string direct, pas ObjectId)
       employeeId: employeeId ? new ObjectId(employeeId) : null,
@@ -120,8 +129,10 @@ async function createAdmin() {
     console.log(`   Rôle: ${role}`);
     console.log(`   Lié à employé: ${employeeId ? 'Oui (ID: ' + employeeId + ')' : 'Non'}`);
     console.log(`   Mot de passe: ${password}`);
+    console.log(`   PIN: ${pin}`);
     console.log('\n⚠️  IMPORTANT: Notez ces informations dans un endroit sûr !');
-    console.log('🔗 URL de connexion: https://admin.coworkingcafe.fr/login\n');
+    console.log('🔗 URL de connexion: https://admin.coworkingcafe.fr/login');
+    console.log('📱 Connexion rapide: Utilisez le PIN à 6 chiffres\n');
 
     if (employeeId) {
       console.log('💡 Cet admin apparaîtra dans le planning car lié à un employé');

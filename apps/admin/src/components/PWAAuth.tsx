@@ -19,8 +19,11 @@ export function PWAAuth({ children }: { children: React.ReactNode }) {
   const { isPWA, isPINSet, isPINVerified, isLoading } = usePINAuth();
   const router = useRouter();
 
+  console.log('[PWAAuth]', { isPWA, isPINSet, isPINVerified, isLoading, status, hasSession: !!session });
+
   // Si pas en mode PWA, afficher le contenu normalement
   if (!isPWA) {
+    console.log('[PWAAuth] Mode Web détecté, pas de vérification PIN localStorage');
     return <>{children}</>;
   }
 

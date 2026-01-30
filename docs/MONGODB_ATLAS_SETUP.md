@@ -23,7 +23,7 @@ MongoDB Atlas Organization
 │
 ├── Project: Coworking-Cafe-PROD
 │   ├── Cluster: prod-cluster (M10 ou supérieur)
-│   ├── Database: coworking_cafe_prod
+│   ├── Database: coworking_cafe
 │   ├── Users: admin-prod, site-prod, socket-prod
 │   └── Network: Vercel IPs, Northflank IPs
 │
@@ -35,6 +35,7 @@ MongoDB Atlas Organization
 ```
 
 **Avantages** :
+
 - ✅ Isolation totale prod/dev
 - ✅ Facturation séparée
 - ✅ Pas de risque de toucher la prod par erreur
@@ -47,7 +48,7 @@ MongoDB Atlas Organization
 │
 └── Project: Coworking-Cafe
     ├── Cluster: prod-cluster
-    │   ├── Database: coworking_cafe_prod
+    │   ├── Database: coworking_cafe
     │   └── Users: admin-prod, site-prod
     │
     └── Cluster: dev-cluster
@@ -56,6 +57,7 @@ MongoDB Atlas Organization
 ```
 
 **Avantages** :
+
 - ✅ Plus simple à gérer (un seul projet)
 - ⚠️ Risque de confusion prod/dev
 
@@ -69,14 +71,14 @@ MongoDB Atlas Organization
 
 Créer des utilisateurs spécialisés par service :
 
-| Utilisateur | Rôle | Usage | Permissions |
-|-------------|------|-------|-------------|
-| `admin-prod` | Admin | Scripts, migrations | `atlasAdmin` ou `readWriteAnyDatabase` |
-| `site-prod` | Application | apps/site | `readWrite` sur `coworking_cafe_prod` |
-| `admin-app-prod` | Application | apps/admin | `readWrite` sur `coworking_cafe_prod` |
-| `socket-prod` | Application | socket-server | `readWrite` sur `coworking_cafe_prod` |
-| `readonly-prod` | Analytics | Dashboards | `read` sur `coworking_cafe_prod` |
-| `dev-user` | Dev | Développement local | `readWrite` sur `coworking_cafe_dev` |
+| Utilisateur      | Rôle        | Usage               | Permissions                            |
+| ---------------- | ----------- | ------------------- | -------------------------------------- |
+| `admin-prod`     | Admin       | Scripts, migrations | `atlasAdmin` ou `readWriteAnyDatabase` |
+| `site-prod`      | Application | apps/site           | `readWrite` sur `coworking_cafe`       |
+| `admin-app-prod` | Application | apps/admin          | `readWrite` sur `coworking_cafe`       |
+| `socket-prod`    | Application | socket-server       | `readWrite` sur `coworking_cafe`       |
+| `readonly-prod`  | Analytics   | Dashboards          | `read` sur `coworking_cafe`            |
+| `dev-user`       | Dev         | Développement local | `readWrite` sur `coworking_cafe_dev`   |
 
 ### Créer un Utilisateur dans Atlas
 
@@ -85,6 +87,7 @@ Créer des utilisateurs spécialisés par service :
 1. **Aller dans Database Access** (menu gauche)
 2. **Cliquer "Add New Database User"**
 3. **Remplir le formulaire** :
+
    ```
    Authentication Method: Password
    Username: site-prod
@@ -94,10 +97,11 @@ Créer des utilisateurs spécialisés par service :
    - Built-in Role: Read and write to any database
      OU
    - Specific Privileges:
-     → Database: coworking_cafe_prod
+     → Database: coworking_cafe
      → Collection: (All Collections)
      → Privileges: readWrite
    ```
+
 4. **Cliquer "Add User"**
 
 #### Via MongoDB CLI
@@ -113,7 +117,7 @@ mongocli auth login
 mongocli atlas dbusers create \
   --username site-prod \
   --password "VotreMotDePasseSecurise123!" \
-  --role readWrite@coworking_cafe_prod \
+  --role readWrite@coworking_cafe \
   --projectId YOUR_PROJECT_ID
 ```
 
@@ -137,6 +141,7 @@ mongocli atlas dbusers create \
 ```
 
 **Comment trouver les IPs Vercel** :
+
 1. Aller sur https://vercel.com/docs/concepts/edge-network/ip-addresses
 2. Copier les plages IP de la région de déploiement
 3. Ou utiliser un service IP fixe (Vercel Pro)
@@ -200,38 +205,44 @@ mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites
 ### Exemples par Environnement
 
 #### Production - apps/site
+
 ```bash
 # .env.production (apps/site)
-MONGODB_URI=mongodb+srv://site-prod:PASSWORD@prod-cluster.abc123.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://site-prod:YOUR_PASSWORD@prod-cluster.abc123.mongodb.net/coworking_cafe?retryWrites=true&w=majority
 ```
 
 #### Production - apps/admin
+
 ```bash
 # .env.production (apps/admin)
-MONGODB_URI=mongodb+srv://admin-app-prod:PASSWORD@prod-cluster.abc123.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://admin-app-prod:YOUR_PASSWORD@prod-cluster.abc123.mongodb.net/coworking_cafe?retryWrites=true&w=majority
 ```
 
 #### Production - socket-server
+
 ```bash
 # .env.production (socket-server)
-MONGODB_URI=mongodb+srv://socket-prod:PASSWORD@prod-cluster.abc123.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://socket-prod:YOUR_PASSWORD@prod-cluster.abc123.mongodb.net/coworking_cafe?retryWrites=true&w=majority
 ```
 
 #### Développement
+
 ```bash
 # .env.local (tous les apps)
-MONGODB_URI=mongodb+srv://dev-user:PASSWORD@dev-cluster.xyz789.mongodb.net/coworking_cafe_dev?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://dev-user:YOUR_PASSWORD@dev-cluster.xyz789.mongodb.net/coworking_cafe_dev?retryWrites=true&w=majority
 ```
 
 ### ⚠️ Sécurité des Mots de Passe
 
 **Règles** :
+
 - ✅ Minimum 16 caractères
 - ✅ Majuscules + Minuscules + Chiffres + Symboles
 - ✅ Différent pour chaque utilisateur
 - ✅ Stocké dans variables d'environnement (JAMAIS dans le code)
 
 **Générer un mot de passe fort** :
+
 ```bash
 # Méthode 1 : OpenSSL
 openssl rand -base64 24
@@ -242,6 +253,7 @@ openssl rand -base64 24
 ```
 
 **Encoder les caractères spéciaux dans l'URI** :
+
 ```bash
 # Si le mot de passe contient des caractères spéciaux (@ # % etc.)
 # Les encoder en URL :
@@ -311,6 +323,7 @@ openssl rand -base64 24
 ### Procédure
 
 1. **Créer un nouvel utilisateur avec nouveau mot de passe**
+
    ```
    Atlas → Database Access → Add New Database User
    Username: site-prod-2
@@ -319,6 +332,7 @@ openssl rand -base64 24
    ```
 
 2. **Mettre à jour les variables d'environnement**
+
    ```bash
    # Vercel (apps/site)
    vercel env rm MONGODB_URI production
@@ -327,6 +341,7 @@ openssl rand -base64 24
    ```
 
 3. **Redéployer les applications**
+
    ```bash
    # Vercel redéploie automatiquement quand env change
    # Ou forcer un redéploiement
@@ -334,6 +349,7 @@ openssl rand -base64 24
    ```
 
 4. **Supprimer l'ancien utilisateur**
+
    ```
    Atlas → Database Access → site-prod → Delete
    ```
@@ -423,6 +439,7 @@ Error: MongoServerError: Authentication failed
 ```
 
 **Solutions** :
+
 1. Vérifier username/password dans connection string
 2. Vérifier que l'utilisateur existe dans Database Access
 3. Vérifier les permissions de l'utilisateur
@@ -435,6 +452,7 @@ Error: connection error: IP address is not whitelisted
 ```
 
 **Solutions** :
+
 1. Ajouter l'IP dans Network Access
 2. Vérifier que l'IP est correcte (`curl https://api.ipify.org`)
 3. En dev temporaire : Ajouter `0.0.0.0/0` (JAMAIS EN PROD)
@@ -446,6 +464,7 @@ Error: Too many connections
 ```
 
 **Solutions** :
+
 1. Fermer les connexions inutilisées (`.close()`)
 2. Utiliser connection pooling (déjà fait avec Mongoose)
 3. Upgrader le cluster (M10 → M20)
@@ -453,6 +472,7 @@ Error: Too many connections
 ### Performances lentes
 
 **Diagnostics** :
+
 1. Atlas → Performance Advisor → Voir les recommandations
 2. Créer les index suggérés
 3. Vérifier les slow queries (> 100ms)
@@ -462,16 +482,19 @@ Error: Too many connections
 ## 📚 Ressources
 
 ### Documentation Officielle
+
 - [MongoDB Atlas Docs](https://docs.atlas.mongodb.com/)
 - [Connection Strings](https://docs.mongodb.com/manual/reference/connection-string/)
 - [Security Best Practices](https://docs.mongodb.com/manual/security/)
 
 ### Outils Utiles
+
 - [MongoDB Compass](https://www.mongodb.com/products/compass) - GUI pour explorer la DB
 - [mongodump/mongorestore](https://docs.mongodb.com/database-tools/) - Backup/restore manuels
 - [mongocli](https://www.mongodb.com/docs/mongocli/stable/) - CLI pour gérer Atlas
 
 ### Support
+
 - [MongoDB Community Forums](https://www.mongodb.com/community/forums/)
 - [Atlas Support](https://support.mongodb.com/) (avec plan payant)
 
