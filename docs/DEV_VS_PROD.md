@@ -142,7 +142,7 @@ ALLOWED_STAFF_IPS=192.168.1.100,10.0.0.50
 
 ```bash
 # Créer les collections et un admin de test
-MONGODB_URI_DEV="mongodb+srv://dev:***REMOVED***@coworking.jhxdixz.mongodb.net/coworking_cafe_dev" node scripts/setup-dev-database.js
+MONGODB_URI_DEV="mongodb+srv://dev:VOTRE_PASSWORD_DEV@coworking.jhxdixz.mongodb.net/coworking_cafe_dev" node scripts/setup-dev-database.js
 ```
 
 **Résultat** :

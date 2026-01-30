@@ -24,7 +24,7 @@ Vous avez **2 databases** dans MongoDB Atlas :
 ## 📝 Nouvelle URI à Utiliser Partout
 
 ```bash
-mongodb+srv://admin-prod:***REMOVED***@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
+mongodb+srv://admin-prod:VOTRE_PASSWORD_PROD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
 #                                                                                                      ^^^^^^^^^^^^^^^^^^^
 #                                                                                                      Nouvelle DB
 ```
@@ -64,7 +64,7 @@ MONGODB_URI=mongodb+srv://site-prod:PASSWORD@coworking-cafe-prod.ypxy4uk.mongodb
    - Cliquer "Edit"
    - Remplacer la valeur par :
      ```
-     mongodb+srv://admin-prod:***REMOVED***@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
+     mongodb+srv://admin-prod:VOTRE_PASSWORD_PROD@coworking-cafe-prod.ypxy4uk.mongodb.net/coworking_cafe_prod?retryWrites=true&w=majority
      ```
    - Sélectionner les environnements : `Production`, `Preview`, `Development`
    - Cliquer "Save"
