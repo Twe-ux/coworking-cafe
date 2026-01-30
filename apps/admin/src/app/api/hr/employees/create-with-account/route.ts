@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import { User, Role } from '@coworking-cafe/database'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 /**
  * POST /api/hr/employees/create-with-account

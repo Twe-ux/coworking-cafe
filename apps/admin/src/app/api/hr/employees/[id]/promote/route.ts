@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from '@/lib/api/response';
 import { connectMongoose } from '@/lib/mongodb';
 import mongoose from 'mongoose';
 import '@/models/employee';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import type { EmployeeRole } from '@/types/hr';
 
 interface PromoteRequest {

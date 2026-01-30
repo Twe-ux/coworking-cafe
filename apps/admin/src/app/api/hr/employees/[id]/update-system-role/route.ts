@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 /**
  * PUT /api/hr/employees/[id]/update-system-role

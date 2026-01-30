@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongodb'
 import mongoose from 'mongoose'
 import '@/models/employee'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import logger from '@/lib/logger'
 
 interface PINVerifyRequest {

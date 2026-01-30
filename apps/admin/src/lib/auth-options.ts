@@ -2,7 +2,7 @@ import { NextAuthOptions } from 'next-auth';
 import type { User as NextAuthUser } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDatabase } from '@/lib/mongodb';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { ObjectId } from 'mongodb';
 import { connectMongoose } from '@/lib/mongodb';
 import { User } from '@coworking-cafe/database';
