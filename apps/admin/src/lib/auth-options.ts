@@ -251,7 +251,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
+        // Extraire le slug du role (string) au lieu de l'objet complet
+        // user.role peut être une string ou un objet { slug: 'admin', ... }
+        const roleValue = typeof user.role === 'string'
+          ? user.role
+          : (user.role as any)?.slug || 'staff';
+
+        token.role = roleValue;
         token.id = user.id;
         token.name = user.name;
       }
