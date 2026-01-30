@@ -100,10 +100,21 @@ function checkIPAccess(req: NextRequest): NextResponse | null {
     return null; // Continuer sans bloquer
   }
 
-  // IP non autorisée → Bloquer accès à /(dashboard)
+  // IP non autorisée → Comportement différent selon PWA vs Web
   console.warn(`[IP CHECK] ❌ IP refusée: ${clientIP} → ${pathname} (IPs autorisées: ${allowedIPs.join(', ')})`);
 
-  return NextResponse.redirect(new URL('/403', req.url));
+  // Détecter si la requête vient d'une PWA
+  const isPWA = req.headers.get('x-pwa-mode') === 'true';
+
+  if (isPWA) {
+    // PWA → Redirect vers /admin pour permettre login
+    console.log('[IP CHECK] 📱 Mode PWA détecté → Redirect vers /admin');
+    return NextResponse.redirect(new URL('/admin', req.url));
+  } else {
+    // Web → Bloquer avec 403 (sécurité par obscurité)
+    console.log('[IP CHECK] 🌐 Mode Web → 403');
+    return NextResponse.redirect(new URL('/403', req.url));
+  }
 }
 
 /**

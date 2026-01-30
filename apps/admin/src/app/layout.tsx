@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Montserrat, Merriweather, Source_Code_Pro } from "next/font/google"
 import { Providers } from "@/components/providers"
+import { PWADetector } from "@/components/PWADetector"
 import "./globals.css"
 
 const montserrat = Montserrat({
@@ -63,6 +64,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${montserrat.variable} ${merriweather.variable} ${sourceCodePro.variable} font-sans antialiased`}>
+        <PWADetector />
         <Providers>
           {children}
         </Providers>
