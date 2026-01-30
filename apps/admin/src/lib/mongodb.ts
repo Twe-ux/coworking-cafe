@@ -17,7 +17,7 @@ function getMongoUri(): string {
   return uri;
 }
 
-const databaseName = process.env.MONGODB_DB || "coworking-admin";
+const databaseName = process.env.MONGODB_DB || "coworking_cafe_prod";
 
 const options: MongoClientOptions = {
   maxPoolSize: 5, // Reduced for M0 cluster limit
@@ -86,7 +86,7 @@ async function getClientPromise(): Promise<MongoClient> {
 
 /**
  * Connect to MongoDB database
- * @param dbName - Optional database name (defaults to MONGODB_DB env var or "coworking-admin")
+ * @param dbName - Optional database name (defaults to MONGODB_DB env var or "coworking_cafe_prod")
  */
 export async function connectToDatabase(
   dbName?: string
