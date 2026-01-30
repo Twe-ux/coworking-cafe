@@ -218,6 +218,42 @@ const paymentIntent = await stripe.paymentIntents.create({
 
 ---
 
+## 🔒 2.5. SÉCURITÉ - Règles Critiques (TOUT LE PROJET)
+
+**⚠️ JAMAIS DE SECRETS EN DUR DANS LES FICHIERS .md OU CODE**
+
+### Règles Strictes
+
+```typescript
+// ❌ INTERDIT - Secrets en dur
+const mongoUri = "mongodb+srv://admin:G4mgKEL...@cluster.mongodb.net/db"
+const stripeKey = "sk_live_51ABC..."
+
+// ❌ INTERDIT - Dans documentation
+/**
+ * MONGODB_URI=mongodb+srv://admin:REAL_PASSWORD@cluster.mongodb.net/db
+ */
+
+// ✅ CORRECT - Variables d'environnement
+const mongoUri = process.env.MONGODB_URI!
+const stripeKey = process.env.STRIPE_SECRET_KEY!
+
+// ✅ CORRECT - Placeholders dans docs
+/**
+ * MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/DATABASE
+ */
+```
+
+**Checklist avant commit** :
+- [ ] Aucun secret en dur dans le code
+- [ ] Placeholders génériques dans les .md
+- [ ] Fichiers .md dans `/docs/` uniquement (sauf README, CLAUDE)
+- [ ] Pre-commit hook vérifie automatiquement
+
+**Voir** : `/CLAUDE.md` (racine) section "🔒 SÉCURITÉ" pour la liste complète des règles.
+
+---
+
 ## 🛠️ 3. Stack Technique
 
 ### Frontend
