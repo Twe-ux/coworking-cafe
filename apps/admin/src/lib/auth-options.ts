@@ -25,6 +25,15 @@ interface RoleDocument {
   name: string;
 }
 
+interface AdminDocument {
+  _id: ObjectId;
+  email: string;
+  password: string;
+  givenName?: string;
+  role: 'dev' | 'admin' | 'staff';
+  employeeId?: ObjectId | null;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -143,7 +152,7 @@ export const authOptions: NextAuthOptions = {
             } as NextAuthUser;
           }
 
-          // ===== AUTHENTIFICATION EMAIL + PASSWORD (clients site) =====
+          // ===== AUTHENTIFICATION EMAIL + PASSWORD (admin app) =====
           if (!credentials.email) {
             console.log('❌ Email requis pour authentification par password');
             throw new Error('Email et mot de passe requis');
@@ -152,22 +161,23 @@ export const authOptions: NextAuthOptions = {
           console.log('📡 Password authentication with email:', credentials.email);
           const { db } = await connectToDatabase();
 
-          console.log('🔍 Looking for user:', credentials.email);
-          const usersCollection = db.collection<UserDocument>('users');
-          const rolesCollection = db.collection<RoleDocument>('roles');
+          console.log('🔍 Looking for admin:', credentials.email);
+          const adminsCollection = db.collection<AdminDocument>('admins');
 
-          const user = await usersCollection.findOne({ email: credentials.email });
+          const admin = await adminsCollection.findOne({
+            email: credentials.email.toLowerCase()
+          });
 
-          if (!user) {
-            console.log('❌ User not found');
+          if (!admin) {
+            console.log('❌ Admin not found');
             throw new Error('Email ou mot de passe incorrect');
           }
 
-          console.log('✅ User found:', user.email);
+          console.log('✅ Admin found:', admin.email);
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
-            user.password
+            admin.password
           );
 
           console.log('🔐 Password comparison result:', isPasswordValid);
@@ -179,29 +189,22 @@ export const authOptions: NextAuthOptions = {
 
           console.log('✅ Password valid');
 
-          // Populate role
-          const role = await rolesCollection.findOne({ _id: user.role });
-          if (!role) {
-            console.log('❌ Role not found for user');
-            throw new Error('Rôle utilisateur invalide');
-          }
+          // Vérifier le rôle (string direct)
+          console.log('👤 Admin role:', admin.role);
 
-          console.log('👤 User role found:', role.slug);
-
-          // Check if user has valid admin role (ou client pour compatibilité)
-          if (!['dev', 'admin', 'staff', 'client'].includes(role.slug)) {
-            console.log('❌ Invalid role:', role.slug);
+          if (!['dev', 'admin', 'staff'].includes(admin.role)) {
+            console.log('❌ Invalid role:', admin.role);
             throw new Error('Accès non autorisé');
           }
 
-          console.log('✅ Role valid:', role.slug);
+          console.log('✅ Role valid:', admin.role);
 
           // Retourner l'objet utilisateur avec les champs requis par NextAuth
           return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.givenName || user.username || user.email.split('@')[0],
-            role: role.slug,
+            id: admin._id.toString(),
+            email: admin.email,
+            name: admin.givenName || admin.email.split('@')[0],
+            role: admin.role,
           } as NextAuthUser;
         } catch (error) {
           console.error('❌ Authorization error:', error);

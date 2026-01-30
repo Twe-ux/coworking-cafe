@@ -25,5 +25,10 @@
     "monorepo",
     "nextjs",
     "tailwind"
-  ]
+  ],
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
+    "mongodb": "^7.0.0"
+  }
 }
