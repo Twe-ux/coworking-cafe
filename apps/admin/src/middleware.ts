@@ -1,6 +1,7 @@
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 /**
  * Vérifier si une IP est dans la liste autorisée
@@ -121,8 +122,7 @@ function checkIPAccess(req: NextRequest): NextResponse | null {
  * Middleware NextAuth avec vérification IP pour /(dashboard)
  */
 export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
+  async function middleware(req) {
     const path = req.nextUrl.pathname;
 
     // 1️⃣ VÉRIFICATION IP pour /(dashboard)
@@ -137,10 +137,27 @@ export default withAuth(
     const isAdminRoute = path.startsWith('/admin');
 
     if (isAdminRoute) {
+      // Récupérer le token avec le bon nom de cookie
+      const token = await getToken({
+        req,
+        secret: process.env.NEXTAUTH_SECRET,
+        cookieName: 'next-auth.session-token.admin',
+      });
+
       // Vérifier rôle pour routes admin
-      if (!token?.role || !['dev', 'admin'].includes(token.role)) {
+      if (!token?.role || !['dev', 'admin'].includes(token.role as string)) {
+        console.log('[MIDDLEWARE] Access denied to /admin:', {
+          hasToken: !!token,
+          role: token?.role,
+          roleType: typeof token?.role,
+        });
         return NextResponse.redirect(new URL('/login', req.url));
       }
+
+      console.log('[MIDDLEWARE] Access granted to /admin:', {
+        email: token.email,
+        role: token.role,
+      });
     }
 
     // 3️⃣ Routes /(dashboard) sont publiques (pas d'auth NextAuth requise)

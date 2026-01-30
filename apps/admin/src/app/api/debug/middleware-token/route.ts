@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
+      cookieName: 'next-auth.session-token.admin', // Utiliser le même nom que dans auth-options.ts
     })
 
     return NextResponse.json({
