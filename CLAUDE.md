@@ -190,6 +190,84 @@ function handleData(data: UserData) { }
 
 ---
 
+## 🔒 SÉCURITÉ - Règles Critiques (TOUT LE PROJET)
+
+**⚠️ JAMAIS DE SECRETS EN DUR DANS LES FICHIERS .md OU CODE**
+
+### Règles Strictes
+
+```typescript
+// ❌ INTERDIT - Secrets en dur dans le code
+const mongoUri = "mongodb+srv://admin:G4mgKEL...@cluster.mongodb.net/db"
+const stripeKey = "sk_live_51ABC..."
+const apiKey = "real-api-key-12345"
+
+// ❌ INTERDIT - Secrets dans documentation (.md)
+/**
+ * Exemple de configuration :
+ * MONGODB_URI=mongodb+srv://admin:REAL_PASSWORD@cluster.mongodb.net/db
+ * STRIPE_KEY=sk_live_REAL_KEY
+ */
+
+// ✅ CORRECT - Variables d'environnement
+const mongoUri = process.env.MONGODB_URI!
+const stripeKey = process.env.STRIPE_SECRET_KEY!
+const apiKey = process.env.API_KEY!
+
+// ✅ CORRECT - Placeholders dans documentation
+/**
+ * Exemple de configuration :
+ * MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/DATABASE
+ * STRIPE_KEY=sk_live_YOUR_KEY_HERE
+ */
+```
+
+### Checklist Sécurité
+
+**Avant CHAQUE commit** :
+- [ ] ✅ Aucun secret en dur dans le code
+- [ ] ✅ Placeholders génériques dans les .md (`PASSWORD`, `YOUR_SECRET`, `USERNAME`)
+- [ ] ✅ Fichiers .md uniquement dans `/docs/` (sauf README.md, CLAUDE.md)
+- [ ] ✅ `.env.local` dans `.gitignore` (jamais commité)
+- [ ] ✅ Pre-commit hook vérifie les secrets automatiquement
+
+**Si le pre-commit hook bloque** :
+```bash
+# 1. Vérifier le fichier
+git diff
+
+# 2. Remplacer secret par placeholder
+# Exemple: "password123" → "YOUR_PASSWORD"
+
+# 3. Recommiter
+git add .
+git commit -m "..."
+
+# ⚠️ JAMAIS utiliser --no-verify sauf si c'est vraiment un faux positif
+```
+
+### Où Mettre les .md
+
+| Fichier | Emplacement |
+|---------|-------------|
+| README.md | ✅ Racine du projet |
+| CLAUDE.md | ✅ Racine du projet |
+| CHANGELOG.md | ✅ Racine du projet (optionnel) |
+| **Tous les autres .md** | ✅ `/docs/` uniquement |
+
+### Exemples de Secrets à JAMAIS Committer
+
+- ❌ Passwords MongoDB/PostgreSQL
+- ❌ Clés API (Stripe, Resend, Cloudinary, etc.)
+- ❌ Tokens d'authentification
+- ❌ Secrets NextAuth/JWT
+- ❌ Clés privées (VAPID, SSH, etc.)
+- ❌ Webhooks secrets
+
+**Toujours utiliser** : `process.env.XXX` + `.env.local`
+
+---
+
 ## 🚨 Rappels Importants
 
 1. **Lire le CLAUDE.md de l'app** avant de coder (`/apps/site/` ou `/apps/admin/`)
