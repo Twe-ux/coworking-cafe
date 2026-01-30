@@ -31,6 +31,7 @@ interface AdminDocument {
   password: string;
   givenName?: string;
   role: 'dev' | 'admin' | 'staff';
+  dashboardPin?: string; // Hashed PIN for dashboard login
   employeeId?: ObjectId | null;
 }
 
