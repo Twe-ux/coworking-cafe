@@ -46,6 +46,24 @@ L'application admin utilise un **système d'authentification à deux niveaux** p
 
 ## 🔒 Sécurité
 
+### ⚠️ IMPORTANT : Pas de Création de Compte
+
+**Le système n'autorise PAS la création de compte depuis l'app admin.**
+
+- ❌ **Aucune page signup/register** dans l'application
+- ❌ **Impossible de créer un compte** via PWA ou web
+- ✅ **Seules les connexions** avec un compte existant en BD sont autorisées
+- ✅ **Vérification stricte** : L'email doit exister dans la collection `users` de MongoDB
+
+**Pour accéder à /admin via PWA** :
+1. L'email DOIT être présent dans la base de données
+2. L'utilisateur DOIT avoir un rôle valide (`dev`, `admin`, ou `staff`)
+3. Le mot de passe DOIT correspondre au hash en BD
+
+**Ajout d'un nouvel admin** :
+→ Créer l'utilisateur **directement dans MongoDB** (ou via script admin)
+→ Impossible via l'interface publique
+
 ### Stockage du PIN
 
 - **Hashé** avec SHA-256 avant stockage
@@ -307,6 +325,109 @@ function MyComponent() {
 - [ ] Test flow PIN complet
 - [ ] Test 3 tentatives échecs
 - [ ] Test reset PIN
+
+---
+
+## 🔑 Ajouter un Nouvel Admin (Procédure)
+
+### Méthode 1 : Script MongoDB Direct
+
+```javascript
+// Script à exécuter dans MongoDB Compass ou mongosh
+use coworking_cafe_db
+
+// 1. Créer le rôle admin si n'existe pas
+const adminRole = db.roles.findOne({ slug: 'admin' })
+if (!adminRole) {
+  db.roles.insertOne({
+    name: 'Admin',
+    slug: 'admin',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  })
+}
+
+// 2. Créer l'utilisateur admin
+// ⚠️ Remplacer les valeurs ci-dessous
+const bcrypt = require('bcrypt')
+const hashedPassword = await bcrypt.hash('VotreMotDePasse123', 10)
+
+db.users.insertOne({
+  email: 'admin@coworkingcafe.fr',
+  password: hashedPassword,
+  givenName: 'Admin',
+  username: 'admin',
+  role: adminRole._id,
+  emailVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date()
+})
+```
+
+### Méthode 2 : Via Script Node.js
+
+```bash
+# Créer un script d'administration
+touch scripts/create-admin.js
+```
+
+```javascript
+// scripts/create-admin.js
+const { MongoClient } = require('mongodb')
+const bcrypt = require('bcrypt')
+
+async function createAdmin() {
+  const uri = process.env.MONGODB_URI
+  const client = new MongoClient(uri)
+
+  try {
+    await client.connect()
+    const db = client.db('coworking_cafe_db')
+
+    // Trouver le rôle admin
+    const adminRole = await db.collection('roles').findOne({ slug: 'admin' })
+    if (!adminRole) {
+      console.error('❌ Rôle admin non trouvé')
+      return
+    }
+
+    // Hash le mot de passe
+    const hashedPassword = await bcrypt.hash('VotreMotDePasse123', 10)
+
+    // Créer l'admin
+    await db.collection('users').insertOne({
+      email: 'admin@coworkingcafe.fr',
+      password: hashedPassword,
+      givenName: 'Admin',
+      username: 'admin',
+      role: adminRole._id,
+      emailVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
+
+    console.log('✅ Admin créé avec succès')
+  } finally {
+    await client.close()
+  }
+}
+
+createAdmin()
+```
+
+```bash
+# Exécuter le script
+node scripts/create-admin.js
+```
+
+### Rôles Disponibles
+
+| Rôle | Slug | Accès |
+|------|------|-------|
+| Développeur | `dev` | Accès complet (debug tools) |
+| Admin | `admin` | Gestion complète (HR, Compta) |
+| Staff | `staff` | Lecture seule (Planning, Pointage) |
+| Client | `client` | Non autorisé sur /admin |
 
 ---
 
