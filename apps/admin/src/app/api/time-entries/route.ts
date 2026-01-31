@@ -20,31 +20,15 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
-    // Vérification d'authentification
-    if (!session?.user?.id) {
-      return NextResponse.json<ApiResponse<null>>(
-        {
-          success: false,
-          error: 'Non authentifié',
-          details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
-        },
-        { status: 401 }
-      )
-    }
+    // GET en lecture seule est PUBLIC pour permettre l'affichage du pointage staff
+    // Pas besoin d'auth pour lire les time entries (données publiques limitées)
+    // L'écriture (POST/PUT/DELETE) reste protégée
 
-    // Vérification des permissions (dev, admin ou staff pour lecture)
     const userRole = session?.user?.role
-    console.log('🔍 DEBUG API time-entries - User role:', userRole, 'Session user:', session?.user)
-
-    if (!userRole || !['dev', 'admin', 'staff'].includes(userRole)) {
-      return NextResponse.json<ApiResponse<null>>(
-        {
-          success: false,
-          error: 'Permissions insuffisantes',
-          details: TIME_ENTRY_ERRORS.UNAUTHORIZED,
-        },
-        { status: 403 }
-      )
+    if (session?.user?.id) {
+      console.log('🔍 DEBUG API time-entries - User role:', userRole, 'Session user:', session?.user)
+    } else {
+      console.log('🔍 DEBUG API time-entries - Accès public (pas de session)')
     }
 
     await connectToDatabase()

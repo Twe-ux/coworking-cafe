@@ -28,7 +28,7 @@ export default function TimeTrackingCard({
   const [isLoading, setIsLoading] = useState(false);
   const [showPINDialog, setShowPINDialog] = useState(false);
   const [pinAction, setPinAction] = useState<"clock-in" | "clock-out" | null>(
-    null
+    null,
   );
   const [error, setError] = useState<string | null>(null);
   const [activeEntries, setActiveEntries] = useState<TimeEntry[]>([]);
@@ -47,24 +47,38 @@ export default function TimeTrackingCard({
       const today = new Date();
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-      const activeUrl = `/api/time-entries?employeeId=${employee.id}&status=active&limit=10`;
-      const activeResponse = await fetch(activeUrl);
+      // Cache bust pour forcer le fetch des nouvelles données
+      const timestamp = Date.now();
+      const activeUrl = `/api/time-entries?employeeId=${employee.id}&status=active&limit=10&_t=${timestamp}`;
+      const activeResponse = await fetch(activeUrl, { cache: "no-store" });
+
+      // Si 401, ignorer silencieusement (mode staff public)
+      if (activeResponse.status === 401) {
+        setActiveEntries([]);
+        setTotalTodayEntries(0);
+        return;
+      }
 
       if (activeResponse.ok) {
         const activeData = await activeResponse.json();
         const todayActiveEntries = (activeData.data || []).filter(
-          (entry: TimeEntry) => entry.date === todayStr
+          (entry: TimeEntry) => entry.date === todayStr,
         );
         setActiveEntries(todayActiveEntries);
       }
 
-      const allUrl = `/api/time-entries?employeeId=${employee.id}&limit=10`;
-      const allResponse = await fetch(allUrl);
+      const allUrl = `/api/time-entries?employeeId=${employee.id}&limit=10&_t=${timestamp}`;
+      const allResponse = await fetch(allUrl, { cache: "no-store" });
+
+      // Si 401, ignorer silencieusement
+      if (allResponse.status === 401) {
+        return;
+      }
 
       if (allResponse.ok) {
         const allData = await allResponse.json();
         const todayAllEntries = (allData.data || []).filter(
-          (entry: TimeEntry) => entry.date === todayStr
+          (entry: TimeEntry) => entry.date === todayStr,
         );
         setTotalTodayEntries(todayAllEntries.length);
       }
@@ -78,9 +92,15 @@ export default function TimeTrackingCard({
   }, [fetchActiveEntries]);
 
   const handleClockAction = (action: "clock-in" | "clock-out") => {
-    setPinAction(action);
-    setShowPINDialog(true);
-    setError(null);
+    // Si c'est un clock-out, pas besoin de PIN
+    if (action === "clock-out") {
+      handleDirectClockOut();
+    } else {
+      // Pour clock-in, demander le PIN
+      setPinAction(action);
+      setShowPINDialog(true);
+      setError(null);
+    }
   };
 
   const handleCardClick = () => {
@@ -88,6 +108,41 @@ export default function TimeTrackingCard({
       handleClockAction("clock-out");
     } else if (canClockIn) {
       handleClockAction("clock-in");
+    }
+  };
+
+  // Clock-out direct sans PIN
+  const handleDirectClockOut = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const endpoint = `/api/time-entries/clock-out`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          employeeId: employee.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Petit délai pour laisser la BD se mettre à jour
+        setTimeout(async () => {
+          await fetchActiveEntries();
+          onStatusChange?.();
+        }, 300);
+      } else {
+        setError(result.error || "Erreur lors de l'arrêt du pointage");
+      }
+    } catch (error) {
+      setError("Erreur de connexion");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -134,8 +189,12 @@ export default function TimeTrackingCard({
       if (result.success) {
         setShowPINDialog(false);
         setPinAction(null);
-        await fetchActiveEntries();
-        onStatusChange?.();
+
+        // Petit délai pour laisser la BD se mettre à jour
+        setTimeout(async () => {
+          await fetchActiveEntries();
+          onStatusChange?.();
+        }, 300);
       } else {
         setError(result.error || "Erreur lors du pointage");
       }
@@ -159,7 +218,7 @@ export default function TimeTrackingCard({
     const clockInDate = new Date(year, month - 1, day, hours, minutes, 0);
 
     const elapsed = Math.floor(
-      (currentTime.getTime() - clockInDate.getTime()) / 1000
+      (currentTime.getTime() - clockInDate.getTime()) / 1000,
     );
     const hrs = Math.floor(elapsed / 3600);
     const mins = Math.floor((elapsed % 3600) / 60);

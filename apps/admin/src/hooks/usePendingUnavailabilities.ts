@@ -21,6 +21,14 @@ export function usePendingUnavailabilities(): UsePendingUnavailabilitiesReturn {
       setError(null);
 
       const response = await fetch('/api/unavailability/pending');
+
+      // Si 401 (non authentifié), on ignore silencieusement (mode staff sans auth)
+      if (response.status === 401) {
+        setPendingCount(0);
+        setLoading(false);
+        return;
+      }
+
       const data = await response.json();
 
       if (!data.success) {

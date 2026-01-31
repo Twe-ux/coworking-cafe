@@ -40,6 +40,15 @@ export function useUnreadContactMessages(): UseUnreadContactMessagesReturn {
       setError(null);
 
       const response = await fetch('/api/messages/contact/unread-count');
+
+      // Si 401 (non authentifié), on ignore silencieusement (mode staff sans auth)
+      if (response.status === 401) {
+        setUnreadCount(0);
+        updatePWABadge(0);
+        setLoading(false);
+        return;
+      }
+
       const data = await response.json();
 
       if (!data.success) {

@@ -1,50 +1,50 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import TimeTrackingCard from '@/components/shared/TimeTrackingCard'
-import { StaffClockingPageSkeleton } from './StaffClockingPageSkeleton'
-import { ErrorDisplay } from '@/components/ui/error-display'
-import { Clock } from 'lucide-react'
-import type { Employee } from '@/types/hr'
+import TimeTrackingCard from "@/components/shared/TimeTrackingCard";
+import { ErrorDisplay } from "@/components/ui/error-display";
+import type { Employee } from "@/types/hr";
+import { Clock } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { StaffClockingPageSkeleton } from "./StaffClockingPageSkeleton";
 
 export default function ClockingPage() {
-  const [employees, setEmployees] = useState<Employee[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchEmployees = useCallback(async () => {
     try {
-      setIsLoading(true)
-      const response = await fetch('/api/hr/employees?status=active')
-      const result = await response.json()
+      setIsLoading(true);
+      const response = await fetch("/api/hr/employees?status=active");
+      const result = await response.json();
 
       if (result.success) {
-        setEmployees(result.data || [])
+        setEmployees(result.data || []);
       } else {
-        setError(result.error || 'Erreur lors de la recuperation des employes')
+        setError(result.error || "Erreur lors de la recuperation des employes");
       }
     } catch (error) {
-      console.error('Error fetching employees:', error)
-      setError('Erreur de connexion')
+      console.error("Error fetching employees:", error);
+      setError("Erreur de connexion");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchEmployees()
-  }, [fetchEmployees])
+    fetchEmployees();
+  }, [fetchEmployees]);
 
   const handleStatusChange = () => {
-    fetchEmployees()
-  }
+    fetchEmployees();
+  };
 
   if (isLoading) {
-    return <StaffClockingPageSkeleton />
+    return <StaffClockingPageSkeleton />;
   }
 
   if (error) {
-    return <ErrorDisplay error={error} onRetry={fetchEmployees} />
+    return <ErrorDisplay error={error} onRetry={fetchEmployees} />;
   }
 
   return (
@@ -63,7 +63,7 @@ export default function ClockingPage() {
       </div>
 
       {employees.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
           {employees.map((employee) => (
             <TimeTrackingCard
               key={employee.id}
@@ -86,10 +86,11 @@ export default function ClockingPage() {
 
       <div className="rounded-lg bg-blue-50 p-4">
         <p className="text-sm text-blue-900">
-          <strong>Note :</strong> Chaque employe peut effectuer maximum 2 pointages par jour.
-          Cliquez sur une carte pour commencer ou arreter un pointage.
+          <strong>Note :</strong> Chaque employe peut effectuer maximum 2
+          pointages par jour. Cliquez sur une carte pour commencer ou arreter un
+          pointage.
         </p>
       </div>
     </div>
-  )
+  );
 }

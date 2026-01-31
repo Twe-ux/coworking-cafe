@@ -14,10 +14,11 @@ export const clockInSchema = z.object({
 
 /**
  * Validation schema for clock-out request
+ * PIN optionnel pour permettre l'arrêt de pointage sans re-saisie
  */
 export const clockOutSchema = z.object({
   employeeId: z.string().min(1, 'ID employé requis'),
-  pin: z.string().regex(/^\d{4}$/, 'Le PIN doit être composé de 4 chiffres'),
+  pin: z.string().regex(/^\d{4}$/, 'Le PIN doit être composé de 4 chiffres').optional(),
   timeEntryId: z.string().optional(),
   clockOut: z
     .string()

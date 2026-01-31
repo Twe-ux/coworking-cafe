@@ -107,32 +107,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Vérifier le PIN
-    const isPinValid = employee.verifyPin(body.pin)
+    // Vérifier le PIN (optionnel pour clock-out)
+    // Si un PIN est fourni, on le vérifie. Sinon, on permet le clock-out sans PIN.
+    if (body.pin) {
+      const isPinValid = employee.verifyPin(body.pin)
 
-    // 🔒 Enregistrer la tentative (succès ou échec)
-    recordAttempt(clientIP, body.employeeId)
+      // 🔒 Enregistrer la tentative (succès ou échec)
+      recordAttempt(clientIP, body.employeeId)
 
-    if (!isPinValid) {
-      // 📝 Logger l'échec
-      logPINAttempt({
-        ip: clientIP,
-        employeeId: body.employeeId,
-        employeeName: employee.getFullName(),
-        success: false,
-        action: 'clock-out',
-        failureReason: 'PIN incorrect',
-        userAgent,
-      })
-
-      return NextResponse.json<ApiResponse<null>>(
-        {
+      if (!isPinValid) {
+        // 📝 Logger l'échec
+        logPINAttempt({
+          ip: clientIP,
+          employeeId: body.employeeId,
+          employeeName: employee.getFullName(),
           success: false,
-          error: 'PIN incorrect',
-          details: TIME_ENTRY_ERRORS.INVALID_PIN,
-        },
-        { status: 401 }
-      )
+          action: 'clock-out',
+          failureReason: 'PIN incorrect',
+          userAgent,
+        })
+
+        return NextResponse.json<ApiResponse<null>>(
+          {
+            success: false,
+            error: 'PIN incorrect',
+            details: TIME_ENTRY_ERRORS.INVALID_PIN,
+          },
+          { status: 401 }
+        )
+      }
     }
 
     // Trouver le time entry à mettre à jour

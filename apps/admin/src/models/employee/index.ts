@@ -2,6 +2,8 @@ import { Model, model, models, HydratedDocument } from 'mongoose';
 import { EmployeeDocument, EmployeeSchema } from './document';
 import { attachHooks } from './hooks';
 import { EmployeeMethods } from './methods';
+import './methods'; // ← Importer pour attacher les méthodes au schéma
+import './virtuals'; // ← Importer pour attacher les virtuals au schéma
 import { VirtualEmployee } from './virtuals';
 
 // Type complet avec méthodes et virtuals
@@ -22,6 +24,7 @@ if (models.Employee && process.env.NODE_ENV === 'production') {
   if (models.Employee) {
     delete models.Employee;
   }
+  // Attacher hooks ET méthodes (importées ci-dessus)
   attachHooks();
   EmployeeModel = model<EmployeeDocument, EmployeeModelType>('Employee', EmployeeSchema);
 }
