@@ -29,7 +29,7 @@ import { Shield } from "lucide-react";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status } = useSession();
   const { isDev, isAdmin } = useRole();
-  const { state, isMobile } = useSidebar();
+  const { state, isMobile, openMobile } = useSidebar();
   const { unreadCount } = useUnreadContactMessages();
   const { pendingCount } = usePendingUnavailabilities();
   const { pendingCount: pendingBookings } = usePendingBookings();
@@ -83,13 +83,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      {(isMobile ? state === "expanded" : true) && (
+      {(!isMobile || openMobile) && (
         <SidebarContent>
           <NavMain items={navMain} />
           <NavSecondary items={navSecondary} className="mt-auto" />
         </SidebarContent>
       )}
-      {(isMobile ? state === "expanded" : true) && (
+      {(!isMobile || openMobile) && (
         <SidebarFooter>
           {/* Bouton Accès Admin - visible pour non-admin/dev */}
           {!isDev && !isAdmin && (
