@@ -72,7 +72,8 @@ export function SidebarProvider({
     };
   }, [openMobile, setOpenMobile]);
 
-  const state = open ? "expanded" : "collapsed";
+  // State doit être basé sur openMobile quand on est sur mobile, sinon sur open
+  const state = (isMobile ? openMobile : open) ? "expanded" : "collapsed";
 
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
