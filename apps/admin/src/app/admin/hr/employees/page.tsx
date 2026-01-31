@@ -5,209 +5,47 @@ import { ContractGenerationModal } from "@/components/hr/contract/ContractGenera
 import { EmployeeList } from "@/components/hr/employees";
 import { DraftCard } from "@/components/hr/employees/DraftCard";
 import { EndContractModal } from "@/components/hr/modals/EndContractModal";
-import { HREmployeesPageSkeleton } from "./HREmployeesPageSkeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDrafts } from "@/hooks/hr/useDrafts";
-import { useEmployeesData } from "@/hooks/hr/useEmployeesData";
-import type { Employee } from "@/types/hr";
+import { useHRManagement } from "@/hooks/hr/useHRManagement";
 import { CalendarCheck2, FileText, Users } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { Suspense } from "react";
+import { HREmployeesPageSkeleton } from "./HREmployeesPageSkeleton";
 
 /**
  * HR Management content component (uses useSearchParams)
  */
 function HRManagementContent() {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const userRole = session?.user?.role;
-  const activeTab = searchParams.get("tab") || "employees";
-
   const {
-    employees: allEmployees,
-    loading,
-    error,
-    fetchEmployees,
-    archiveEmployee,
-  } = useEmployeesData();
-
-  // Filtrer pour exclure l'employé dev
-  const isDevEmployee = (emp: Employee) => {
-    return (
-      emp.email.toLowerCase().includes("dev@") ||
-      emp.email === "dev@coworkingcafe.com"
-    );
-  };
-
-  // Tous les employés (exclure dev uniquement)
-  // Les employés en attente seront affichés dans la liste principale avec bordure bleue
-  const employees = allEmployees.filter((emp) => !isDevEmployee(emp));
-
-  const {
+    // Data
+    session,
+    activeTab,
+    employees,
     drafts,
-    loading: draftsLoading,
-    refetch: refetchDrafts,
-  } = useDrafts();
+    loading,
 
-  // États pour les modals
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null,
-  );
-  const [endContractModalOpen, setEndContractModalOpen] = useState(false);
-  const [contractModalOpen, setContractModalOpen] = useState(false);
-  const [contractEmployee, setContractEmployee] = useState<Employee | null>(
-    null,
-  );
+    // Modal states
+    selectedEmployee,
+    endContractModalOpen,
+    contractModalOpen,
+    contractEmployee,
 
-  // Charger les employés au montage
-  useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
-
-  // Rediriger staff vers leur vue dédiée
-  useEffect(() => {
-    if (userRole === "staff") {
-      router.push("/staff/schedule");
-    }
-  }, [userRole, router]);
-
-  // Afficher les erreurs
-  useEffect(() => {
-    if (error) {
-      toast.error("Erreur", {
-        description: error,
-      });
-    }
-  }, [error]);
+    // Actions
+    handleCreateNew,
+    handleEdit,
+    handleViewContract,
+    handleEndContract,
+    handleDelete,
+    handleDeleteDraft,
+    handleEndContractConfirm,
+    handleCloseEndContractModal,
+    setContractModalOpen,
+    handleTabChange,
+  } = useHRManagement();
 
   // Loading state
   if (!session) {
     return <HREmployeesPageSkeleton />;
   }
-
-  // Handlers
-  const handleCreateNew = async () => {
-    // Nettoyer localStorage et brouillon BD avant de créer un nouvel employé
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("onboarding-draft");
-      localStorage.removeItem("onboarding-draft-step");
-    }
-
-    try {
-      await fetch("/api/hr/employees/draft", {
-        method: "DELETE",
-      });
-    } catch (err) {
-      console.error("Erreur suppression brouillon:", err);
-    }
-
-    router.push("/admin/hr/employees/new");
-  };
-
-  const handleEdit = (employee: Employee) => {
-    router.push(`/admin/hr/employees/${employee._id}/edit`);
-  };
-
-  const handleViewContract = async (employee: Employee) => {
-    try {
-      // Charger l'employé complet avec tous les détails
-      const response = await fetch(`/api/hr/employees/${employee._id}`);
-      const result = await response.json();
-
-      if (result.success && result.data) {
-        setContractEmployee(result.data);
-        setContractModalOpen(true);
-      } else {
-        toast.error("Erreur", {
-          description: "Impossible de charger les détails de l'employé",
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching employee details:", error);
-      toast.error("Erreur", {
-        description: "Une erreur est survenue",
-      });
-    }
-  };
-
-  const handleEndContract = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setEndContractModalOpen(true);
-  };
-
-  const handleEndContractConfirm = async (endDate: string, reason: string) => {
-    if (!selectedEmployee) return;
-
-    try {
-      const response = await fetch(
-        `/api/hr/employees/${selectedEmployee._id}/end-contract`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ endDate, endContractReason: reason }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success("Succès", {
-          description: "Contrat terminé avec succès",
-        });
-        fetchEmployees();
-      } else {
-        toast.error("Erreur", {
-          description: data.error || "Impossible de terminer le contrat",
-        });
-      }
-    } catch (error) {
-      toast.error("Erreur", {
-        description: "Une erreur est survenue",
-      });
-    }
-  };
-
-  const handleDelete = async (employee: Employee) => {
-    if (
-      confirm(
-        `Voulez-vous vraiment archiver ${employee.firstName} ${employee.lastName} ?`,
-      )
-    ) {
-      const result = await archiveEmployee(employee._id);
-      if (result.success) {
-        toast.success("Succès", {
-          description: "Employé archivé avec succès",
-        });
-      }
-    }
-  };
-
-  const handleDeleteDraft = async (draftId: string) => {
-    if (confirm("Voulez-vous vraiment supprimer ce brouillon ?")) {
-      try {
-        await fetch("/api/hr/employees/draft", {
-          method: "DELETE",
-        });
-        toast.success("Succès", {
-          description: "Brouillon supprimé",
-        });
-        refetchDrafts();
-      } catch (err) {
-        toast.error("Erreur", {
-          description: "Impossible de supprimer le brouillon",
-        });
-      }
-    }
-  };
-
-  const handleTabChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", value);
-    router.push(`/admin/hr/employees?${params.toString()}`);
-  };
 
   return (
     <div className="space-y-6">
@@ -259,7 +97,7 @@ function HRManagementContent() {
             </div>
           )}
 
-          {/* Liste des employés (avec employés en attente en bleu) */}
+          {/* Liste des employés */}
           <EmployeeList
             employees={employees}
             loading={loading}
@@ -276,13 +114,11 @@ function HRManagementContent() {
         </TabsContent>
       </Tabs>
 
+      {/* Modals */}
       <EndContractModal
         employee={selectedEmployee}
         open={endContractModalOpen}
-        onClose={() => {
-          setEndContractModalOpen(false);
-          setSelectedEmployee(null);
-        }}
+        onClose={handleCloseEndContractModal}
         onConfirm={handleEndContractConfirm}
       />
 
@@ -299,7 +135,7 @@ function HRManagementContent() {
 
 /**
  * Page HR Management - Admin/Dev only
- * Onglets : Employés, Disponibilités, Planning, Pointage
+ * Onglets : Employés, Disponibilités
  */
 export default function HRManagementPage() {
   return (
