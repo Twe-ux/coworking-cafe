@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import {
   Select,
   SelectContent,
@@ -11,14 +12,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
-import type { Employee, EmployeeRole } from "@/types/hr";
 import { filterEmployees } from "@/lib/utils/hr/employee-utils";
+import type { Employee, EmployeeRole } from "@/types/hr";
+import { Plus, Search } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { EmployeeCard } from "./EmployeeCard";
 import { PromoteToAdminModal } from "./PromoteToAdminModal";
-import { Plus, Search } from "lucide-react";
-import { toast } from "sonner";
 
 interface EmployeeListProps {
   employees: Employee[];
@@ -61,8 +61,10 @@ export function EmployeeList({
     role: roleFilter || undefined,
   }).filter((emp) => {
     // Masquer l'employé dev
-    return !emp.email.toLowerCase().includes("dev@") &&
-           emp.email !== "dev@coworkingcafe.com";
+    return (
+      !emp.email.toLowerCase().includes("dev@") &&
+      emp.email !== "dev@coworkingcafe.com"
+    );
   });
 
   const handlePromoteToAdmin = (employee: Employee) => {
@@ -119,7 +121,7 @@ export function EmployeeList({
       </div>
 
       {/* Filtres */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {/* Recherche */}
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
