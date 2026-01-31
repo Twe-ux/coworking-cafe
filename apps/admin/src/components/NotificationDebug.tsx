@@ -218,6 +218,61 @@ export function NotificationDebug() {
     }
   };
 
+  const handleTestServerPush = async () => {
+    try {
+      const response = await fetch("/api/notifications/test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: "🧪 Test Push Serveur",
+          message: "Notification envoyée depuis le serveur via web-push",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Notification envoyée par le serveur",
+          description: `Envoyée à ${data.subscriptionsCount} appareil(s). Vérifiez si la bannière apparaît !`,
+        });
+        console.log("[Test] Server push result:", data);
+      } else {
+        toast({
+          title: "Erreur serveur",
+          description: data.error || "Erreur inconnue",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur test push serveur:", error);
+      toast({
+        title: "Erreur",
+        description: (error as Error).message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCheckServerConfig = async () => {
+    try {
+      const response = await fetch("/api/notifications/test");
+      const data = await response.json();
+
+      if (data.success) {
+        console.log("[Debug] Server config:", data.data);
+        toast({
+          title: "Configuration serveur",
+          description: `${data.data.subscriptionsCount} subscription(s), VAPID: ${data.data.vapidConfigured ? "✅" : "❌"}, Env: ${data.data.environment}`,
+        });
+      }
+    } catch (error) {
+      console.error("Erreur check config:", error);
+    }
+  };
+
   const StatusBadge = ({ condition, label }: { condition: boolean; label: string }) => (
     <div className="flex items-center gap-2">
       {condition ? (
@@ -326,7 +381,7 @@ export function NotificationDebug() {
         {/* Tests */}
         <div className="space-y-3">
           <h3 className="font-semibold">Tests de notifications</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Button
               onClick={handleTestLocalNotification}
               disabled={permission !== "granted"}
@@ -352,10 +407,28 @@ export function NotificationDebug() {
               <TestTube className="w-4 h-4 mr-2" />
               Test Badge (iOS/PWA)
             </Button>
+
+            <Button
+              onClick={handleTestServerPush}
+              disabled={!subscribed}
+              variant="default"
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              🚀 Test Push Serveur (PROD)
+            </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Le test Badge affiche '5' pendant 3 secondes puis efface. Regardez la console pour les logs détaillés.
+            Le test Badge affiche '5' pendant 3 secondes. Le Test Push Serveur envoie une vraie notification via web-push (comme en production).
           </p>
+        </div>
+
+        {/* Config serveur */}
+        <div className="space-y-3">
+          <h3 className="font-semibold">Configuration serveur</h3>
+          <Button onClick={handleCheckServerConfig} variant="outline" size="sm">
+            Vérifier config serveur
+          </Button>
         </div>
 
         {/* Instructions */}

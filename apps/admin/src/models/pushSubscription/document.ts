@@ -1,29 +1,34 @@
-import { Schema, model, models, Document } from 'mongoose';
+import { Schema, Document } from 'mongoose';
 
 /**
- * Interface pour les push subscriptions
+ * Interface pour une subscription push
  */
-export interface PushSubscriptionDocument extends Document {
+export interface IPushSubscription {
   endpoint: string;
   keys: {
     p256dh: string;
     auth: string;
   };
-  userId?: string; // ID de l'utilisateur (optionnel)
-  userAgent?: string; // User agent du navigateur
+  userAgent?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 /**
- * Schema Mongoose pour les push subscriptions
+ * Interface pour le document Mongoose
  */
-const PushSubscriptionSchema = new Schema<PushSubscriptionDocument>(
+export interface PushSubscriptionDocument extends Document, IPushSubscription {}
+
+/**
+ * Schéma Mongoose pour les push subscriptions
+ */
+export const PushSubscriptionSchema = new Schema<PushSubscriptionDocument>(
   {
     endpoint: {
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
     keys: {
       p256dh: {
@@ -35,10 +40,6 @@ const PushSubscriptionSchema = new Schema<PushSubscriptionDocument>(
         required: true,
       },
     },
-    userId: {
-      type: String,
-      required: false,
-    },
     userAgent: {
       type: String,
       required: false,
@@ -46,15 +47,9 @@ const PushSubscriptionSchema = new Schema<PushSubscriptionDocument>(
   },
   {
     timestamps: true,
+    collection: 'pushsubscriptions', // Nom existant en prod (créé automatiquement par Mongoose)
   }
 );
 
-// Index pour rechercher par endpoint
+// Index pour recherche rapide
 PushSubscriptionSchema.index({ endpoint: 1 });
-PushSubscriptionSchema.index({ userId: 1 });
-
-/**
- * Model Mongoose pour les push subscriptions
- */
-export const PushSubscription =
-  models.PushSubscription || model<PushSubscriptionDocument>('PushSubscription', PushSubscriptionSchema);
