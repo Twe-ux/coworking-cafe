@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { cn } from "@/lib/utils";
+import * as React from "react";
 import { useSidebar } from "./context";
 import type { SidebarProps } from "./types";
 
@@ -18,7 +18,9 @@ export function Sidebar({
   ...props
 }: SidebarProps) {
   const { isMobile, state, openMobile, setOpenMobile, setOpen } = useSidebar();
-  const closeTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const closeTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   const sidebarRef = React.useRef<HTMLDivElement>(null);
   const startXRef = React.useRef<number>(0);
   const isDraggingRef = React.useRef<boolean>(false);
@@ -51,7 +53,7 @@ export function Sidebar({
       startXRef.current = touch.clientX;
       isDraggingRef.current = false;
     },
-    [isMobile]
+    [isMobile],
   );
 
   const handleTouchMove = React.useCallback(
@@ -71,7 +73,7 @@ export function Sidebar({
         e.preventDefault(); // Prevent scrolling
       }
     },
-    [isMobile, openMobile]
+    [isMobile, openMobile],
   );
 
   const handleTouchEnd = React.useCallback(
@@ -97,7 +99,7 @@ export function Sidebar({
       startXRef.current = 0;
       isDraggingRef.current = false;
     },
-    [isMobile, openMobile, setOpenMobile]
+    [isMobile, openMobile, setOpenMobile],
   );
 
   // Handle escape key for mobile
@@ -151,19 +153,22 @@ export function Sidebar({
       {isMobile && state === "expanded" && (
         <div
           className="fixed inset-0 z-30 bg-black/20"
-          onClick={() => setOpen(false)}
+          onClick={() => setOpenMobile(false)}
           aria-hidden="true"
         />
       )}
 
       {/* Zone de hover étendue (desktop uniquement) - du bord gauche jusqu'à la sidebar */}
-      {!isMobile && state === "collapsed" && collapsible === "icon" && variant === "floating" && (
-        <div
-          className="fixed top-0 left-0 h-screen w-[calc(var(--sidebar-width-icon)+1rem)] z-30"
-          onMouseEnter={handleMouseEnter}
-          aria-hidden="true"
-        />
-      )}
+      {!isMobile &&
+        state === "collapsed" &&
+        collapsible === "icon" &&
+        variant === "floating" && (
+          <div
+            className="fixed top-0 left-0 h-screen w-[calc(var(--sidebar-width-icon)+1rem)] z-30"
+            onMouseEnter={handleMouseEnter}
+            aria-hidden="true"
+          />
+        )}
 
       <aside
         ref={sidebarRef}
@@ -175,20 +180,22 @@ export function Sidebar({
               ? "w-[3rem] h-[3rem] rounded-lg" // Mobile collapsed: 56px with padding around logo
               : "h-screen w-[var(--sidebar-width-icon)]" // Desktop collapsed: normal icon width
             : isMobile
-            ? "h-screen w-[var(--sidebar-width)]" // Mobile expanded: full screen height
-            : "h-screen w-[var(--sidebar-width)]", // Desktop: normal
+              ? "h-screen w-[var(--sidebar-width)]" // Mobile expanded: full screen height
+              : "h-screen w-[var(--sidebar-width)]", // Desktop: normal
           // Enhanced desktop variant styles
           variant === "floating" && [
             state === "collapsed" && isMobile
-              ? "fixed top-4 left-4 z-40 rounded-lg border shadow-xl" // Mobile collapsed: same position as expanded
+              ? "fixed top-4 left-4 z-40 rounded-lg border border-green-700 bg-background shadow-xl" // Mobile collapsed: bg blanc, border complète
               : "fixed top-4 left-4 z-40 h-[calc(100vh-2rem)] rounded-xl border shadow-xl",
-            "bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur ",
-            // Better floating shadow and border
-            "border-green-700 border shadow-2xl",
+            state === "collapsed" && isMobile
+              ? "" // Pas de bg override pour mobile collapsed (on garde bg-background défini ci-dessus)
+              : "bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur",
+            // Better floating shadow and border pour expanded
+            state === "expanded" && "border-green-700 border shadow-2xl",
           ],
           variant === "sidebar" && "border-r",
           variant === "inset" && "border-0 shadow-md",
-          className
+          className,
         )}
         data-state={state}
         data-variant={variant}

@@ -29,7 +29,7 @@ import { Shield } from "lucide-react";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status } = useSession();
   const { isDev, isAdmin } = useRole();
-  const { state, isMobile, openMobile } = useSidebar();
+  const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
   const { unreadCount } = useUnreadContactMessages();
   const { pendingCount } = usePendingUnavailabilities();
   const { pendingCount: pendingBookings } = usePendingBookings();
@@ -58,13 +58,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return "Staff";
   }, [isDev, isAdmin, isLoading]);
 
+  // Handler pour toggle sidebar sur mobile quand on clique sur le logo
+  const handleLogoClick = React.useCallback((e: React.MouseEvent) => {
+    if (isMobile && state === "collapsed") {
+      e.preventDefault();
+      setOpenMobile(true);
+    }
+  }, [isMobile, state, setOpenMobile]);
+
   return (
     <Sidebar variant="floating" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/admin">
+              <Link href="/admin" onClick={handleLogoClick}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden shrink-0">
                   <Image
                     src="/logo/logo-circle.webp"
