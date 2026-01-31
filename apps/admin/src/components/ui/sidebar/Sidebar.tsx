@@ -155,6 +155,16 @@ export function Sidebar({
           aria-hidden="true"
         />
       )}
+
+      {/* Zone de hover étendue (desktop uniquement) - du bord gauche jusqu'à la sidebar */}
+      {!isMobile && state === "collapsed" && collapsible === "icon" && variant === "floating" && (
+        <div
+          className="fixed top-0 left-0 h-screen w-[calc(var(--sidebar-width-icon)+1rem)] z-30"
+          onMouseEnter={handleMouseEnter}
+          aria-hidden="true"
+        />
+      )}
+
       <aside
         ref={sidebarRef}
         className={cn(

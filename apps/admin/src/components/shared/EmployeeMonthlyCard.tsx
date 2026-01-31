@@ -196,7 +196,10 @@ export default function EmployeeMonthlyCard({
                     <CardTitle className="truncate text-base font-medium">
                       {employee.firstName} {employee.lastName}
                     </CardTitle>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge
+                      variant="outline"
+                      className="text-xs border-green-500 text-green-600 bg-green-100 capitalize"
+                    >
                       {employee.employeeRole}
                     </Badge>
                   </div>
@@ -213,9 +216,7 @@ export default function EmployeeMonthlyCard({
                   </div>
                   <Badge
                     variant="outline"
-                    className={`font-mono text-sm ${getHoursColorClass(
-                      plannedHours,
-                    )}`}
+                    className={`font-mono text-sm text-blue-500`}
                   >
                     {formatHoursToHHMM(plannedHours)}
                   </Badge>
@@ -230,9 +231,7 @@ export default function EmployeeMonthlyCard({
                   </div>
                   <Badge
                     variant="outline"
-                    className={`font-mono text-sm ${getHoursColorClass(
-                      actualHours,
-                    )}`}
+                    className={`font-mono text-sm text-green-500`}
                   >
                     {formatHoursToHHMM(actualHours)}
                   </Badge>
@@ -247,9 +246,7 @@ export default function EmployeeMonthlyCard({
                   </div>
                   <Badge
                     variant="outline"
-                    className={`font-mono text-sm ${getHoursColorClass(
-                      projectedHours,
-                    )}`}
+                    className={`font-mono text-sm text-purple-500 $`}
                   >
                     {formatHoursToHHMM(projectedHours)}
                   </Badge>

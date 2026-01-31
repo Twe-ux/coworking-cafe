@@ -1,3 +1,5 @@
+"use client";
+
 import { AppSidebar } from "@/components/app-sidebar"
 import { DynamicBreadcrumb } from "@/components/dynamic-breadcrumb"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"

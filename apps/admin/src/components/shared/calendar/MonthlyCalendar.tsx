@@ -251,13 +251,11 @@ export function MonthlyCalendar<T = any>({
                     key={index}
                     className={`
                       flex flex-col bg-white p-2
+                      ${!dayInfo.isCurrentMonth ? " opacity-80" : ""}
                       ${
-                        !dayInfo.isCurrentMonth
-                          ? "bg-gray-50 text-gray-400"
-                          : ""
-                      }
-                      ${
-                        dayInfo.isToday ? "ring-2 ring-blue-500 ring-inset" : ""
+                        dayInfo.isToday
+                          ? " ring-2 ring-blue-500 ring-inset"
+                          : " "
                       }
                       ${
                         !readOnly && onCellClick
@@ -271,7 +269,11 @@ export function MonthlyCalendar<T = any>({
                     {/* Numéro du jour */}
                     <div
                       className={`mb-1 text-sm font-medium ${
-                        dayInfo.isToday ? "text-blue-600" : ""
+                        !dayInfo.isCurrentMonth
+                          ? "text-red-500"
+                          : dayInfo.isToday
+                            ? "text-blue-600"
+                            : ""
                       }`}
                     >
                       {dayInfo.date.getDate()}

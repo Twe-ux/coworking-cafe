@@ -17,7 +17,7 @@ import type { Employee } from "@/types/hr";
  * - Redirections selon rôle
  */
 export function useHRManagement() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const userRole = session?.user?.role;
