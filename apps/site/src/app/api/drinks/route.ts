@@ -13,46 +13,37 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type") || "drink";
 
-    // Utiliser le cache avec une clé unique par type
-    const getCachedMenu = cache24h(
-      async () => {
-        await connectDB();
+    // Connexion directe sans cache (temporaire pour debug)
+    await connectDB();
 
-        const categories = await MenuCategory.find({
-          isActive: true,
-          showOnSite: { $ne: false },
-          type,
-        })
-          .sort({ order: 1 })
-          .lean();
+    const categories = await MenuCategory.find({
+      isActive: true,
+      showOnSite: { $ne: false },
+      type,
+    })
+      .sort({ order: 1 })
+      .lean();
 
-        const drinks = await MenuItem.find({ isActive: true, type })
-          .populate("category", "name slug type")
-          .sort({ order: 1 })
-          .lean();
+    const drinks = await MenuItem.find({ isActive: true, type })
+      .populate("category", "name slug type")
+      .sort({ order: 1 })
+      .lean();
 
-        // Grouper les boissons par catégorie (seulement celles visibles sur le site)
-        const menu = categories.map((category) => ({
-          _id: category._id,
-          name: category.name,
-          slug: category.slug,
-          description: category.description,
-          drinks: drinks.filter(
-            (drink: any) =>
-              drink.category?._id?.toString() === category._id.toString(),
-          ),
-        }));
-
-        return menu;
-      },
-      ['menu', type],
-      { tags: ['menu', `menu-${type}`] }
-    );
-
-    const menu = await getCachedMenu();
+    // Grouper les boissons par catégorie (seulement celles visibles sur le site)
+    const menu = categories.map((category) => ({
+      _id: category._id,
+      name: category.name,
+      slug: category.slug,
+      description: category.description,
+      drinks: drinks.filter(
+        (drink: any) =>
+          drink.category?._id?.toString() === category._id.toString(),
+      ),
+    }));
 
     return NextResponse.json({ menu }, { status: 200 });
   } catch (error) {
+    console.error("Error in /api/drinks:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
