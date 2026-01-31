@@ -12,6 +12,7 @@ interface PINKeypadProps {
   isLoading?: boolean
   error?: string
   employeeName?: string
+  pinLength?: number // Longueur du PIN (4 pour pointage, 6 pour admin)
 }
 
 export default function PINKeypad({
@@ -20,16 +21,17 @@ export default function PINKeypad({
   isLoading = false,
   error,
   employeeName,
+  pinLength = 4, // Par défaut 4 chiffres pour le pointage
 }: PINKeypadProps) {
   const [pin, setPin] = useState('')
-  const PIN_LENGTH = 6 // 6 chiffres au lieu de 4
+  const PIN_LENGTH = pinLength
 
   const handleNumberPress = (number: string) => {
     if (pin.length < PIN_LENGTH) {
       const newPin = pin + number
       setPin(newPin)
 
-      // Auto-valider dès que 6 chiffres sont saisis
+      // Auto-valider dès que le PIN est complet
       if (newPin.length === PIN_LENGTH) {
         setTimeout(() => {
           onSubmit(newPin)
@@ -81,7 +83,7 @@ export default function PINKeypad({
             ))}
           </div>
           <p className="text-sm text-gray-600">
-            Saisissez votre code PIN à 6 chiffres
+            Saisissez votre code PIN à {PIN_LENGTH} chiffres
           </p>
           {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         </div>
