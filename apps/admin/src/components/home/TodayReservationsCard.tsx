@@ -4,10 +4,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTodayReservations } from "@/hooks/useTodayReservations";
 import type { Booking } from "@/types/booking";
-import { Calendar, Clock, Copy, ExternalLink, UserCheck, UserX, Users } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Copy,
+  ExternalLink,
+  UserCheck,
+  UserX,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "../ui/button";
+
+const SPACE_PRICES: Record<string, { hourly: string; daily: string }> = {
+  "open-space": { hourly: "6€/H", daily: "29€/Jour" },
+  "salle-verriere": { hourly: "24€/H", daily: "120€/Jour" },
+  "salle-etage": { hourly: "60€/H", daily: "300€/Jour" },
+};
+
+function capitalize(name?: string): string {
+  if (!name) return "";
+  return name.replace(/(^|[\s-])[a-zA-ZÀ-ÿ]/g, (c) => c.toUpperCase());
+}
 
 /**
  * Card affichant les réservations validées du jour
@@ -21,10 +40,18 @@ export function TodayReservationsCard() {
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
 
   const handleMarkPresent = async (bookingId: string) => {
-    if (!confirm("Confirmer la présence du client ? Cela libérera l'empreinte bancaire et enverra un email de confirmation.")) return;
+    if (
+      !confirm(
+        "Confirmer la présence du client ? Cela libérera l'empreinte bancaire et enverra un email de confirmation.",
+      )
+    )
+      return;
     try {
       setIsMarkingPresent(true);
-      const response = await fetch(`/api/booking/reservations/${bookingId}/mark-present`, { method: "POST" });
+      const response = await fetch(
+        `/api/booking/reservations/${bookingId}/mark-present`,
+        { method: "POST" },
+      );
       const data = await response.json();
       if (data.success) {
         refetch();
@@ -37,10 +64,18 @@ export function TodayReservationsCard() {
   };
 
   const handleMarkNoShow = async (bookingId: string) => {
-    if (!confirm("Marquer comme no-show ? Cela capturera l'empreinte bancaire et enverra un email au client.")) return;
+    if (
+      !confirm(
+        "Marquer comme no-show ? Cela capturera l'empreinte bancaire et enverra un email au client.",
+      )
+    )
+      return;
     try {
       setIsMarkingNoShow(true);
-      const response = await fetch(`/api/booking/reservations/${bookingId}/mark-noshow`, { method: "POST" });
+      const response = await fetch(
+        `/api/booking/reservations/${bookingId}/mark-noshow`,
+        { method: "POST" },
+      );
       const data = await response.json();
       if (data.success) {
         refetch();
@@ -52,10 +87,14 @@ export function TodayReservationsCard() {
     }
   };
 
-  // Filtrer uniquement les réservations confirmées
-  const confirmedReservations = reservations.filter(
-    (booking) => booking.status === "confirmed",
-  );
+  // Filtrer les réservations confirmées et trier par heure d'arrivée
+  const confirmedReservations = reservations
+    .filter((booking) => booking.status === "confirmed")
+    .sort((a, b) => {
+      const timeA = a.startTime || "23:59";
+      const timeB = b.startTime || "23:59";
+      return timeA.localeCompare(timeB);
+    });
 
   const spaceTypeColors: Record<string, string> = {
     "open-space": "border-l-blue-500",
@@ -86,7 +125,7 @@ export function TodayReservationsCard() {
           <div className="flex flex-col gap-0.5 flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm truncate">
-                {booking.spaceName}
+                {capitalize(booking.spaceName)}
               </span>
               <span className="text-xs text-muted-foreground">·</span>
               <span className="text-sm font-semibold truncate">
@@ -97,7 +136,9 @@ export function TodayReservationsCard() {
                   type="button"
                   title={booking.clientEmail}
                   className="text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={() => navigator.clipboard.writeText(booking.clientEmail!)}
+                  onClick={() =>
+                    navigator.clipboard.writeText(booking.clientEmail!)
+                  }
                 >
                   <Copy className="h-3.5 w-3.5" />
                 </button>
@@ -117,6 +158,25 @@ export function TodayReservationsCard() {
               <span>·</span>
               <Users className="h-3 w-3" />
               <span>{booking.numberOfPeople} pers.</span>
+              {(() => {
+                const prices = SPACE_PRICES[spaceType];
+                if (!prices) return null;
+                let isDaily = !booking.startTime || !booking.endTime;
+                if (!isDaily && booking.startTime && booking.endTime) {
+                  const [sH, sM] = booking.startTime.split(":").map(Number);
+                  const [eH, eM] = booking.endTime.split(":").map(Number);
+                  const hours = eH - sH + (eM - sM) / 60;
+                  if (hours > 5) isDaily = true;
+                }
+                return (
+                  <>
+                    <span>·</span>
+                    <span className="font-bold text-blue-500">
+                      {isDaily ? prices.daily : prices.hourly}
+                    </span>
+                  </>
+                );
+              })()}
             </div>
           </div>
           {booking.status === "confirmed" && !booking.isAdminBooking && (
@@ -193,7 +253,10 @@ export function TodayReservationsCard() {
             Réservations du jour
           </div>
           <Link href="/agenda">
-            <Button variant="outline" className="gap-2">
+            <Button
+              variant="outline"
+              className="gap-2  border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
+            >
               Voir agenda
               <ExternalLink className="w-4 h-4" />
             </Button>
