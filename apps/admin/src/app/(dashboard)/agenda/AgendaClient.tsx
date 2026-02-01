@@ -10,6 +10,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { AgendaDayModal } from "./AgendaDayModal";
+import { AgendaPageSkeleton } from "./AgendaPageSkeleton";
 import type { Booking } from "@/types/booking";
 
 const spaceTypeColors: Record<string, string> = {
@@ -206,11 +207,7 @@ export function AgendaClient() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[600px]">
-        <div className="text-muted-foreground">Chargement...</div>
-      </div>
-    );
+    return <AgendaPageSkeleton />;
   }
 
   return (

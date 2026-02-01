@@ -52,8 +52,8 @@ export default function ForbiddenPage() {
           </Button>
 
           <Button asChild variant="outline" size="lg" className="gap-2">
-            <Link href="/my-schedule">
-              Mon planning
+            <Link href="/planning">
+              Planning
             </Link>
           </Button>
         </div>

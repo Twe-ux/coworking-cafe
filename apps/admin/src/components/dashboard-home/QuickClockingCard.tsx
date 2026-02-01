@@ -50,7 +50,7 @@ export function QuickClockingCard() {
           </div>
           <CardTitle>Pointage</CardTitle>
         </div>
-        <Link href="/clocking">
+        <Link href="/">
           <Button variant="ghost" size="sm" className="gap-2">
             Voir tout
             <ExternalLink className="w-4 h-4" />

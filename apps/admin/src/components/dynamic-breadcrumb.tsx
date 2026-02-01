@@ -14,7 +14,7 @@ const routeLabels: Record<string, string> = {
   employees: "Employés",
   onboarding: "Intégration",
   schedule: "Planning",
-  clocking: "Pointage",
+  planning: "Planning",
   "clocking-admin": "Pointage Admin",
   availability: "Disponibilités",
   users: "Utilisateurs",
@@ -40,7 +40,7 @@ const routeLabels: Record<string, string> = {
   food: "Nourriture",
   recipes: "Recettes",
   promo: "Promotions",
-  "my-schedule": "Mon Planning",
+  agenda: "Agenda Réservations",
   notifications: "Notifications",
 }
 

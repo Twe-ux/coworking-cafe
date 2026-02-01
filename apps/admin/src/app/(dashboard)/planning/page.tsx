@@ -1,9 +1,9 @@
 "use client";
 
 import EmployeeScheduling from "@/components/employee-scheduling/EmployeeScheduling";
-import { MySchedulePageSkeleton } from "./MySchedulePageSkeleton";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useShifts } from "@/hooks/useShifts";
+import { PlanningPageSkeleton } from "./PlanningPageSkeleton";
 
 export default function StaffSchedulePage() {
   // Charger les employés et shifts depuis l'API
@@ -21,12 +21,12 @@ export default function StaffSchedulePage() {
 
   // Gérer les états de chargement et d'erreur
   if (employeesLoading || shiftsLoading) {
-    return <MySchedulePageSkeleton />;
+    return <PlanningPageSkeleton />;
   }
 
   if (employeesError || shiftsError) {
     return (
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 ">
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
           <p className="font-medium">Erreur lors du chargement des données</p>
           {employeesError && (
@@ -39,14 +39,12 @@ export default function StaffSchedulePage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Planning uniquement pour le staff - afficher tous les employés et tous les créneaux */}
-      <EmployeeScheduling
-        employees={employees}
-        shifts={shifts}
-        readOnly={true}
-        userRole="staff"
-      />
-    </div>
+    // {/* Planning uniquement pour le staff - afficher tous les employés et tous les créneaux */}
+    <EmployeeScheduling
+      employees={employees}
+      shifts={shifts}
+      readOnly={true}
+      userRole="staff"
+    />
   );
 }

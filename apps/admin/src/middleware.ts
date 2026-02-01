@@ -70,8 +70,7 @@ function checkIPAccess(req: NextRequest): NextResponse | null {
   // Note: /(dashboard) est un route group, donc les URLs sont directes
   const isDashboardRoute =
     pathname === '/' ||
-    pathname.startsWith('/clocking') ||
-    pathname.startsWith('/my-schedule') ||
+    pathname.startsWith('/planning') ||
     pathname.startsWith('/agenda') ||
     pathname.startsWith('/produits');
 
@@ -174,8 +173,7 @@ export default withAuth(
         // Routes /(dashboard) : pas d'auth requise (seulement IP)
         const isDashboardRoute =
           path === '/' ||
-          path.startsWith('/clocking') ||
-          path.startsWith('/my-schedule') ||
+          path.startsWith('/planning') ||
           path.startsWith('/agenda') ||
           path.startsWith('/produits');
 

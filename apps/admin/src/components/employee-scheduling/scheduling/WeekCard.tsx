@@ -1,19 +1,27 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Employee } from '@/hooks/useEmployees'
-import type { WeekData, PositionedShifts } from './types'
-import { DAYS_OF_WEEK } from './types'
-import { getDaysInWeek } from './utils'
-import { StaffColumn } from './StaffColumn'
-import { DayCell } from './DayCell'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Employee } from "@/hooks/useEmployees";
+import { ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { DayCell } from "./DayCell";
+import { StaffColumn } from "./StaffColumn";
+import type { PositionedShifts, WeekData } from "./types";
+import { DAYS_OF_WEEK } from "./types";
+import { getDaysInWeek } from "./utils";
 
 interface WeekCardProps {
-  week: WeekData
-  employees: Employee[]
-  getShiftsPositionedByEmployee: (date: Date) => PositionedShifts[]
-  calculateWeeklyHours: (employeeId: string, weekStart: Date, weekEnd: Date) => number
-  showHours?: boolean
+  week: WeekData;
+  employees: Employee[];
+  getShiftsPositionedByEmployee: (date: Date) => PositionedShifts[];
+  calculateWeeklyHours: (
+    employeeId: string,
+    weekStart: Date,
+    weekEnd: Date,
+  ) => number;
+  showHours?: boolean;
+  showViewAllButton?: boolean;
 }
 
 /**
@@ -25,28 +33,37 @@ export function WeekCard({
   getShiftsPositionedByEmployee,
   calculateWeeklyHours,
   showHours = true,
+  showViewAllButton = false,
 }: WeekCardProps) {
-  const daysInWeek = getDaysInWeek(week.weekStart)
+  const daysInWeek = getDaysInWeek(week.weekStart);
 
   const weeklyHoursCalculator = (employeeId: string) =>
-    calculateWeeklyHours(employeeId, week.weekStart, week.weekEnd)
+    calculateWeeklyHours(employeeId, week.weekStart, week.weekEnd);
 
   return (
     <Card>
-      <CardHeader className="pb-4">
+      <CardHeader className="flex flex-row justify-between pb-4">
         <CardTitle className="text-lg">
-          Semaine du{' '}
-          {week.weekStart.toLocaleDateString('fr-FR', {
-            day: 'numeric',
-            month: 'long',
-          })}{' '}
-          au{' '}
-          {week.weekEnd.toLocaleDateString('fr-FR', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
+          Semaine du{" "}
+          {week.weekStart.toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "long",
+          })}{" "}
+          au{" "}
+          {week.weekEnd.toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
           })}
         </CardTitle>
+        {showViewAllButton && (
+          <Link href="/planning">
+            <Button variant="outline" className="gap-2">
+              Voir planning
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+          </Link>
+        )}
       </CardHeader>
       <CardContent>
         <div className="flex gap-4">
@@ -72,7 +89,9 @@ export function WeekCard({
 
               {/* Day Cells */}
               {daysInWeek.map((day, dayIndex) => {
-                const positionedShifts = getShiftsPositionedByEmployee(day)
+                const positionedShifts = getShiftsPositionedByEmployee(day);
+                const isFirstDay = dayIndex === 0;
+                const isLastDay = dayIndex === daysInWeek.length - 1;
 
                 return (
                   <DayCell
@@ -80,13 +99,15 @@ export function WeekCard({
                     day={day}
                     employees={employees}
                     positionedShifts={positionedShifts}
+                    isFirstDay={isFirstDay}
+                    isLastDay={isLastDay}
                   />
-                )
+                );
               })}
             </div>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

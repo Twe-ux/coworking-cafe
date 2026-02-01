@@ -10,7 +10,6 @@ import {
   Calculator,
   Calendar,
   CalendarDays,
-  Clock,
   Home,
   Mail,
   ScanQrCode,
@@ -46,13 +45,8 @@ export function getStaffMenu(): MenuItem[] {
       icon: Home,
     },
     {
-      title: "Pointage",
-      url: "/clocking",
-      icon: Clock,
-    },
-    {
-      title: "Mon Planning",
-      url: "/my-schedule",
+      title: "Planning",
+      url: "/planning",
       icon: Calendar,
     },
     {
