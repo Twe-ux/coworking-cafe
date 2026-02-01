@@ -3,16 +3,26 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { DynamicBreadcrumb } from "@/components/dynamic-breadcrumb"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { usePathname } from "next/navigation"
 
 /**
  * Layout Dashboard (Staff + accueil)
- * Inclut la sidebar pour toutes les routes dashboard
+ * Inclut la sidebar pour toutes les routes dashboard sauf "/"
  */
 export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const pathname = usePathname()
+  const isHomePage = pathname === "/"
+
+  // Page d'accueil "/" sans sidebar (fullscreen)
+  if (isHomePage) {
+    return <>{children}</>
+  }
+
+  // Autres pages avec sidebar
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
