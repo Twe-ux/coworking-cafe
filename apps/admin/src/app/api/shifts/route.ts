@@ -5,15 +5,6 @@ import Employee from '@/models/employee'
 import { requireAuth } from '@/lib/api/auth'
 
 /**
- * Utility function to create a UTC date from YYYY-MM-DD string
- * Creates date at midnight UTC
- */
-function createLocalDate(dateString: string): Date {
-  const [year, month, day] = dateString.split('-').map(Number)
-  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0))
-}
-
-/**
  * GET /api/shifts - Retrieve list of shifts with optional filters
  * Public endpoint - accessible without authentication for staff pages
  */
@@ -43,10 +34,10 @@ export async function GET(request: NextRequest) {
     if (startDate || endDate) {
       filter.date = {}
       if (startDate) {
-        filter.date.$gte = createLocalDate(startDate)
+        filter.date.$gte = startDate // Direct string comparison
       }
       if (endDate) {
-        filter.date.$lte = createLocalDate(endDate)
+        filter.date.$lte = endDate // Direct string comparison
       }
     }
 
@@ -150,7 +141,7 @@ export async function POST(request: NextRequest) {
     // Check for conflicting shifts
     const conflictingShift = await Shift.findOne({
       employeeId,
-      date: createLocalDate(date),
+      date: date, // Direct string comparison
       isActive: true,
       $or: [
         {
@@ -190,7 +181,7 @@ export async function POST(request: NextRequest) {
     // Create new shift
     const newShift = new Shift({
       employeeId,
-      date: createLocalDate(date),
+      date: date, // Keep as string YYYY-MM-DD
       startTime,
       endTime,
       type,

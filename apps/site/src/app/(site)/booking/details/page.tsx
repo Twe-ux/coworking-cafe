@@ -3,7 +3,7 @@
 import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useBookingForm } from "@/hooks/useBookingForm";
 import type { SPACE_TYPE_INFO } from "@/types/booking";
 import "../../[id]/client-dashboard.scss";
@@ -11,6 +11,7 @@ import "../../[id]/client-dashboard.scss";
 export default function BookingDetailsPage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     bookingData,
@@ -32,17 +33,38 @@ export default function BookingDetailsPage() {
     setShowTTC,
     convertPrice,
     errors,
+    isFormValid,
     validateContactForm,
     loading,
   } = useBookingForm({ loadFromStorage: true, autoSave: true, loadServices: true });
 
   const bookingCardRef = useRef<HTMLDivElement>(null);
 
-  // Redirection si pas de données
+  // Redirection si pas de données (avec délai pour laisser le temps de charger)
   useEffect(() => {
-    if (!bookingData) {
-      router.push("/booking");
+    console.log("[BookingDetailsPage] bookingData:", bookingData);
+
+    // Si les données sont chargées, arrêter le loading
+    if (bookingData) {
+      setIsLoading(false);
+      return;
     }
+
+    // Vérifier d'abord si sessionStorage a des données
+    const hasStoredData = typeof window !== 'undefined' && sessionStorage.getItem("bookingData");
+    console.log("[BookingDetailsPage] hasStoredData:", !!hasStoredData);
+
+    // Délai court pour laisser le hook charger les données
+    const timer = setTimeout(() => {
+      if (!bookingData && !hasStoredData) {
+        console.log("[BookingDetailsPage] No booking data, redirecting to /booking");
+        router.push("/booking");
+      } else {
+        setIsLoading(false);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [bookingData, router]);
 
   // Auto-scroll to center the card when page loads
@@ -128,8 +150,23 @@ export default function BookingDetailsPage() {
     router.push("/booking/summary");
   };
 
-  if (!bookingData) {
-    return null;
+  if (isLoading || !bookingData) {
+    return (
+      <section className="booking-details-page py-5">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-lg-10">
+              <div className="booking-card text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Chargement...</span>
+                </div>
+                <p className="mt-3 text-muted">Chargement de vos informations...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   // Import spaceTypeInfo constant
@@ -1082,7 +1119,7 @@ export default function BookingDetailsPage() {
                   <button
                     className="btn btn-success btn-lg w-100"
                     onClick={handleContinue}
-                    disabled={!validateContactForm() || loading}
+                    disabled={!isFormValid || loading}
                     style={{
                       padding: "0.875rem 1.5rem",
                       fontSize: "0.9375rem",
@@ -1102,7 +1139,7 @@ export default function BookingDetailsPage() {
                     )}
                   </button>
 
-                  {!validateContactForm() && (
+                  {!isFormValid && (
                     <p className="text-danger text-center mt-3 mb-0 small">
                       Veuillez remplir tous les champs obligatoires
                     </p>

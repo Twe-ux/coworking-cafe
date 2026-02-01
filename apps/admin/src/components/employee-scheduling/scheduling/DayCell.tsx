@@ -9,19 +9,30 @@ interface DayCellProps {
   day: Date
   employees: Employee[]
   positionedShifts: PositionedShifts[]
+  isFirstDay?: boolean
+  isLastDay?: boolean
 }
 
 /**
  * Single day cell in the week calendar
  */
-export function DayCell({ day, employees, positionedShifts }: DayCellProps) {
+export function DayCell({ day, employees, positionedShifts, isFirstDay, isLastDay }: DayCellProps) {
   const dayIsToday = isToday(day)
+
+  // Arrondir les coins bas si c'est aujourd'hui et première/dernière cellule
+  const roundedClass = dayIsToday
+    ? isFirstDay
+      ? 'rounded-bl-lg'
+      : isLastDay
+      ? 'rounded-br-lg'
+      : ''
+    : '';
 
   return (
     <div
       className={`flex min-h-[120px] flex-col bg-white p-2 ${
         dayIsToday ? 'ring-2 ring-blue-500 ring-inset' : ''
-      } cursor-pointer transition-colors hover:bg-gray-50`}
+      } ${roundedClass} cursor-pointer transition-colors hover:bg-gray-50`}
     >
       {/* Day number */}
       <div

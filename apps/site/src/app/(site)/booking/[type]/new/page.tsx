@@ -716,7 +716,9 @@ export default function BookingDatePage({
       bookingData.endDate = endDate;
     }
 
+    console.log("[BookingForm] Saving booking data to sessionStorage:", bookingData);
     sessionStorage.setItem("bookingData", JSON.stringify(bookingData));
+    console.log("[BookingForm] Redirecting to /booking/details");
     router.push("/booking/details");
   };
 

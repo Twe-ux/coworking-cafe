@@ -72,6 +72,7 @@ export interface BookingData {
   date: string; // Format: YYYY-MM-DD
   startTime: string; // Format: HH:mm
   endTime: string; // Format: HH:mm
+  endDate?: string; // Format: YYYY-MM-DD (for weekly/monthly reservations)
   duration: string; // Human-readable duration (e.g., "2h30")
 
   // Pricing

@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import type { EmployeeSchedulingProps } from './types'
-import { DEFAULT_EMPLOYEES } from './types'
-import { useScheduleData } from './useScheduleData'
-import { useTimeEntries } from './useTimeEntries'
-import { WeekCard } from './WeekCard'
-import { TimeTrackingSection } from './TimeTrackingSection'
-import { EmptyState, NonStaffFallback } from './EmptyState'
+import { useState } from "react";
+import type { EmployeeSchedulingProps } from "./types";
+import { DEFAULT_EMPLOYEES } from "./types";
+import { useScheduleData } from "./useScheduleData";
+import { useTimeEntries } from "./useTimeEntries";
+import { WeekCard } from "./WeekCard";
+import { TimeTrackingSection } from "./TimeTrackingSection";
+import { EmptyState, NonStaffFallback } from "./EmptyState";
 
 /**
  * EmployeeScheduling - Staff weekly schedule view
@@ -20,15 +20,15 @@ import { EmptyState, NonStaffFallback } from './EmptyState'
  * Refactored from 697 lines to ~80 lines using sub-components and hooks
  */
 export function EmployeeScheduling({
-  className = '',
+  className = "",
   employees: propEmployees = DEFAULT_EMPLOYEES,
   shifts: propShifts = [],
   onAddShift,
   readOnly = false,
-  userRole = '',
+  userRole = "",
 }: EmployeeSchedulingProps) {
-  const employees = propEmployees
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const employees = propEmployees;
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   // Hooks for data management
   const {
@@ -38,27 +38,29 @@ export function EmployeeScheduling({
   } = useScheduleData({
     employees,
     shifts: propShifts,
-  })
+  });
 
-  const { timeEntries, fetchTimeEntries } = useTimeEntries({ currentDate })
+  const { timeEntries, fetchTimeEntries } = useTimeEntries({ currentDate });
 
   // Staff-only view
-  if (userRole === 'staff') {
-    const weeksWithShifts = getWeeksWithShifts()
+  if (userRole === "staff") {
+    const weeksWithShifts = getWeeksWithShifts();
 
     if (weeksWithShifts.length === 0) {
-      return <EmptyState className={className} />
+      return <EmptyState className={className} />;
     }
 
     return (
       <div className={`space-y-6 ${className}`}>
         {/* Time Tracking Section */}
-        <TimeTrackingSection employees={employees} />
+        {/* <TimeTrackingSection employees={employees} /> */}
 
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Mon Planning</h1>
-          <p className="mt-1 text-gray-600">Vos creneaux de travail par semaine</p>
+          <p className="mt-1 text-gray-600">
+            Vos creneaux de travail par semaine
+          </p>
         </div>
 
         {/* Weeks with Shifts */}
@@ -74,12 +76,12 @@ export function EmployeeScheduling({
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   // Non-staff fallback
-  return <NonStaffFallback className={className} />
+  return <NonStaffFallback className={className} />;
 }
 
 // Default export for backward compatibility
-export default EmployeeScheduling
+export default EmployeeScheduling;

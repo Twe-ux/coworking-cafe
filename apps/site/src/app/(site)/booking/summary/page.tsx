@@ -65,6 +65,7 @@ interface CancellationPolicy {
 export default function BookingSummaryPage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     bookingData,
@@ -108,54 +109,73 @@ export default function BookingSummaryPage() {
   }, []);
 
   useEffect(() => {
-    if (!bookingData) {
-      router.push("/booking");
+    console.log("[BookingSummaryPage] bookingData:", bookingData);
+
+    // Si les données sont chargées, arrêter le loading et continuer
+    if (bookingData) {
+      setIsLoading(false);
+
+      // Calculate days until booking
+      const now = new Date();
+      const bookingDate = new Date(bookingData.date);
+      const days = Math.ceil(
+        (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      setDaysUntilBooking(days);
+
+      // Fetch space configuration to get deposit policy
+      const fetchSpaceConfig = async () => {
+        try {
+          const dbSpaceType = slugToSpaceType[bookingData.spaceType] || bookingData.spaceType;
+          const response = await fetch(
+            `/api/space-configurations/${dbSpaceType}`,
+          );
+          if (response.ok) {
+            const configData = await response.json();
+            setSpaceConfig(configData.data);
+          }
+        } catch (error) {
+          console.error("Error fetching space configuration:", error);
+        }
+      };
+
+      // Fetch cancellation policy
+      const fetchCancellationPolicy = async () => {
+        try {
+          const dbSpaceType = slugToSpaceType[bookingData.spaceType] || bookingData.spaceType;
+          const response = await fetch(
+            `/api/cancellation-policy?spaceType=${dbSpaceType}`,
+          );
+          if (response.ok) {
+            const policyData = await response.json();
+            setCancellationPolicy(policyData.data.cancellationPolicy);
+          }
+        } catch (error) {
+          console.error("Error fetching cancellation policy:", error);
+        }
+      };
+
+      fetchSpaceConfig();
+      fetchCancellationPolicy();
       return;
     }
 
-    // Calculate days until booking
-    const now = new Date();
-    const bookingDate = new Date(bookingData.date);
-    const days = Math.ceil(
-      (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-    );
-    setDaysUntilBooking(days);
+    // Vérifier si sessionStorage a des données
+    const hasStoredData = typeof window !== 'undefined' && sessionStorage.getItem("bookingData");
+    console.log("[BookingSummaryPage] hasStoredData:", !!hasStoredData);
 
-    // Fetch space configuration to get deposit policy
-    const fetchSpaceConfig = async () => {
-      try {
-        const dbSpaceType = slugToSpaceType[bookingData.spaceType] || bookingData.spaceType;
-        const response = await fetch(
-          `/api/space-configurations/${dbSpaceType}`,
-        );
-        if (response.ok) {
-          const configData = await response.json();
-          setSpaceConfig(configData.data);
-        }
-      } catch (error) {
-        console.error("Error fetching space configuration:", error);
+    // Délai court pour laisser le hook charger les données
+    const timer = setTimeout(() => {
+      if (!bookingData && !hasStoredData) {
+        console.log("[BookingSummaryPage] No booking data, redirecting to /booking");
+        router.push("/booking");
+      } else {
+        setIsLoading(false);
       }
-    };
+    }, 100);
 
-    // Fetch cancellation policy
-    const fetchCancellationPolicy = async () => {
-      try {
-        const dbSpaceType = slugToSpaceType[bookingData.spaceType] || bookingData.spaceType;
-        const response = await fetch(
-          `/api/cancellation-policy?spaceType=${dbSpaceType}`,
-        );
-        if (response.ok) {
-          const policyData = await response.json();
-          setCancellationPolicy(policyData.data.cancellationPolicy);
-        }
-      } catch (error) {
-        console.error("Error fetching cancellation policy:", error);
-      }
-    };
-
-    fetchSpaceConfig();
-    fetchCancellationPolicy();
-  }, [bookingData]);
+    return () => clearTimeout(timer);
+  }, [bookingData, router]);
 
   const isDailyRate = (): boolean => {
     return bookingData?.isDailyRate === true;
@@ -315,8 +335,23 @@ export default function BookingSummaryPage() {
     }
   };
 
-  if (!bookingData) {
-    return null;
+  if (isLoading || !bookingData) {
+    return (
+      <section className="booking-summary-page py-5">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-lg-10">
+              <div className="booking-card text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Chargement...</span>
+                </div>
+                <p className="mt-3 text-muted">Chargement du récapitulatif...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   const servicesPrice = calculateServicesPrice();

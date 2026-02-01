@@ -6,7 +6,7 @@
 // Created: 2026-01-29
 // ============================================================================
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import type {
   BookingData,
@@ -89,6 +89,7 @@ interface UseBookingFormReturn {
 
   // Validation
   errors: ValidationErrors;
+  isFormValid: boolean;
   validateContactForm: () => boolean;
   validatePasswordMatch: () => boolean;
   clearErrors: () => void;
@@ -192,6 +193,7 @@ export function useBookingForm(
       // Fetch additional user data (phone, company)
       fetchUserProfile();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   // ========================================
@@ -225,8 +227,11 @@ export function useBookingForm(
 
   const loadFromStorageInternal = useCallback(() => {
     const storedData = sessionStorage.getItem("bookingData");
+    console.log("[useBookingForm] Loading from storage:", storedData);
+
     if (storedData) {
       const data: BookingData = JSON.parse(storedData);
+      console.log("[useBookingForm] Parsed booking data:", data);
       setBookingData(data);
 
       // Restore contact form data
@@ -237,6 +242,8 @@ export function useBookingForm(
       if (data.specialRequests) setContactForm((prev) => ({ ...prev, specialRequests: data.specialRequests! }));
       if (data.createAccount !== undefined) setContactForm((prev) => ({ ...prev, createAccount: data.createAccount! }));
       if (data.subscribeNewsletter !== undefined) setContactForm((prev) => ({ ...prev, subscribeNewsletter: data.subscribeNewsletter! }));
+    } else {
+      console.log("[useBookingForm] No booking data found in sessionStorage");
     }
 
     // Load selected services
@@ -508,6 +515,26 @@ export function useBookingForm(
   }, []);
 
   // ========================================
+  // Form Validity (computed, no side effects)
+  // ========================================
+
+  const isFormValid = useMemo((): boolean => {
+    // Check required fields
+    if (!contactForm.contactName.trim()) return false;
+    if (!contactForm.contactEmail.trim()) return false;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactForm.contactEmail)) return false;
+    if (!contactForm.contactPhone.trim()) return false;
+
+    // Check password if creating account
+    if (contactForm.createAccount) {
+      if (!contactForm.password || contactForm.password.length < 8) return false;
+      if (contactForm.password !== contactForm.confirmPassword) return false;
+    }
+
+    return true;
+  }, [contactForm]);
+
+  // ========================================
   // Form Submission
   // ========================================
 
@@ -600,6 +627,7 @@ export function useBookingForm(
 
     // Validation
     errors,
+    isFormValid,
     validateContactForm,
     validatePasswordMatch,
     clearErrors,

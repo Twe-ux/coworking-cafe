@@ -50,15 +50,20 @@ function inferReservationType(
 export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await requireAuth(["dev", "admin", "staff"])
-    if (!authResult.authorized) {
-      return authResult.response
+    const searchParams = request.nextUrl.searchParams
+    const isPublic = searchParams.get("public") === "true"
+
+    // Public mode: no auth needed, only confirmed reservations
+    if (!isPublic) {
+      const authResult = await requireAuth(["dev", "admin", "staff"])
+      if (!authResult.authorized) {
+        return authResult.response
+      }
     }
 
     await connectDB()
 
     // Filtres optionnels
-    const searchParams = request.nextUrl.searchParams
     const spaceId = searchParams.get("spaceId")
     const clientId = searchParams.get("clientId")
     const status = searchParams.get("status")
@@ -67,9 +72,15 @@ export async function GET(request: NextRequest) {
 
     const filter: Record<string, unknown> = {}
 
+    // Public mode forces confirmed status only
+    if (isPublic) {
+      filter.status = "confirmed"
+    } else {
+      if (status) filter.status = status
+    }
+
     if (spaceId) filter.space = spaceId
     if (clientId) filter.user = clientId
-    if (status) filter.status = status
     if (startDate && endDate) {
       filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) }
     }
