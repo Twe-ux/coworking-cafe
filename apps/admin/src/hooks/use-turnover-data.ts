@@ -27,6 +27,11 @@ export function useTurnoverData(params?: UseTurnoverDataParams) {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["turnovers", params],
     queryFn: () => fetchTurnovers(params),
+    // Rafraîchir automatiquement quand l'app revient au focus (ex: le matin)
+    refetchOnWindowFocus: true,
+    // Données considérées fraîches pendant 10 minutes (évite trop d'appels)
+    staleTime: 10 * 60 * 1000,
+    // Pas de refetchInterval pour éviter les appels inutiles en arrière-plan
   })
 
   return {
