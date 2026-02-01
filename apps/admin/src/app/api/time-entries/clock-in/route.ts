@@ -131,9 +131,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Vérifier les shifts actifs pour aujourd'hui
+    // Vérifier les shifts actifs pour aujourd'hui (timezone Europe/Paris)
     const today = new Date()
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    const parisDate = new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Europe/Paris',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(today).split('/').reverse().join('-')  // DD/MM/YYYY → YYYY-MM-DD
+
+    const todayStr = parisDate
 
     const activeShifts = await TimeEntry.find({
       employeeId: body.employeeId,
@@ -173,10 +180,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Créer le nouveau time entry avec format string
+    // Utiliser le timezone Europe/Paris pour éviter les décalages en prod (Vercel = UTC)
     const now = new Date()
+    const parisTime = new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Europe/Paris',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(now)
+
     const clockInTimeStr = body.clockIn
       ? body.clockIn
-      : `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+      : parisTime  // Format "HH:mm" en heure de Paris
 
     const timeEntryData = {
       employeeId: body.employeeId,

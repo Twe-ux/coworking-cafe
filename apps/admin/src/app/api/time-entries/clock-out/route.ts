@@ -183,11 +183,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Définir l'heure de sortie au format string "HH:mm"
+    // Définir l'heure de sortie au format string "HH:mm" (timezone Europe/Paris)
     const now = new Date()
+    const parisTime = new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Europe/Paris',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(now)
+
     const clockOutTimeStr = body.clockOut
       ? body.clockOut
-      : `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+      : parisTime  // Format "HH:mm" en heure de Paris
 
     // Simple validation: both times should be different
     if (clockOutTimeStr === timeEntry.clockIn) {
