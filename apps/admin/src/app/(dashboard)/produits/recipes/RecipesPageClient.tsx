@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProduitsManager } from "@/hooks/useProduitsManager";
+import type { ProduitsItem, ProduitsItemType } from "@/types/produits";
+import { useState } from "react";
 import { RecipesPageSkeleton } from "./RecipesPageSkeleton";
-import type { ProduitsItem, ProduitsCategory, ProduitsItemType } from "@/types/produits";
 
 export function RecipesPageClient() {
   const [selectedType, setSelectedType] = useState<ProduitsItemType>("food");
@@ -22,16 +22,14 @@ export function RecipesPageClient() {
 
   if (error) {
     return (
-      <div className="p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-destructive">Erreur</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{error}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-destructive">Erreur</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{error}</p>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -50,7 +48,7 @@ export function RecipesPageClient() {
   const itemsWithRecipe = items.filter((item) => item.recipe).length;
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Recettes du Menu</h1>

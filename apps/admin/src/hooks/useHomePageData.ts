@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Employee } from "@/types/hr";
 import type { Shift } from "@/types/shift";
 
@@ -14,10 +14,14 @@ export function useHomePageData() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasFetched = useRef(false);
 
   const fetchData = useCallback(async () => {
     try {
-      setIsLoading(true);
+      // Only show loading skeleton on initial fetch, not on refetch
+      if (!hasFetched.current) {
+        setIsLoading(true);
+      }
       setError(null);
 
       const [employeesRes, shiftsRes] = await Promise.all([
@@ -34,6 +38,7 @@ export function useHomePageData() {
 
       setEmployees(employeesData.data || []);
       setShifts(shiftsData.data || []);
+      hasFetched.current = true;
     } catch (err) {
       console.error("Error fetching data:", err);
       setError(err instanceof Error ? err.message : "Erreur inconnue");

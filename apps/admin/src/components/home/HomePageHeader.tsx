@@ -1,4 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { CardHeader, CardTitle } from "@/components/ui/card";
+import { Coffee } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -38,6 +40,12 @@ export function HomePageHeader() {
           </p>
         </div>
       </div>
+      <Link href="/produits">
+        <Button className="gap-2 bg-yellow-50  border-yellow-600 border text-yellow-600 hover:bg-yellow-300/30">
+          <Coffee className="w-4 h-4" />
+          Produits
+        </Button>
+      </Link>
     </CardHeader>
   );
 }

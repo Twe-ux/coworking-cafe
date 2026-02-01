@@ -55,17 +55,17 @@ export function getStaffMenu(): MenuItem[] {
       icon: CalendarDays,
     },
     {
-      title: "Menu",
-      url: "/menu",
+      title: "Produits & Recettes",
+      url: "/produits",
       icon: UtensilsCrossed,
       items: [
         {
           title: "Recettes Boissons",
-          url: "/menu/recipes?category=drinks",
+          url: "/produits/recipes?category=drinks",
         },
         {
           title: "Recettes Food",
-          url: "/menu/recipes?category=food",
+          url: "/produits/recipes?category=food",
         },
       ],
     },

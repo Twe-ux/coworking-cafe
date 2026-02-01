@@ -1,10 +1,12 @@
 "use client";
 
+import { RequestUnavailabilityModal } from "@/components/staff/RequestUnavailabilityModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Employee } from "@/hooks/useEmployees";
-import { ExternalLink } from "lucide-react";
+import { CalendarOff, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { DayCell } from "./DayCell";
 import { StaffColumn } from "./StaffColumn";
 import type { PositionedShifts, WeekData } from "./types";
@@ -35,6 +37,7 @@ export function WeekCard({
   showHours = true,
   showViewAllButton = false,
 }: WeekCardProps) {
+  const [unavailabilityModalOpen, setUnavailabilityModalOpen] = useState(false);
   const daysInWeek = getDaysInWeek(week.weekStart);
 
   const weeklyHoursCalculator = (employeeId: string) =>
@@ -56,13 +59,27 @@ export function WeekCard({
             year: "numeric",
           })}
         </CardTitle>
+
         {showViewAllButton && (
-          <Link href="/planning">
-            <Button variant="outline" className="gap-2">
-              Voir planning
-              <ExternalLink className="w-4 h-4" />
+          <div className="flex gap-2">
+            <Button
+              variant="destructive"
+              className="gap-2 border-red-600 border text-red-500 bg-red-50 hover:bg-red-600/20 hover:text-red-700"
+              onClick={() => setUnavailabilityModalOpen(true)}
+            >
+              <CalendarOff className="w-4 h-4" />
+              Demander une indispo
             </Button>
-          </Link>
+            <Link href="/planning">
+              <Button
+                variant="outline"
+                className="gap-2 border-green-600 border text-green-600 hover:bg-green-600/20"
+              >
+                Voir planning
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
         )}
       </CardHeader>
       <CardContent>
@@ -108,6 +125,12 @@ export function WeekCard({
           </div>
         </div>
       </CardContent>
+
+      <RequestUnavailabilityModal
+        isOpen={unavailabilityModalOpen}
+        employees={employees}
+        onClose={() => setUnavailabilityModalOpen(false)}
+      />
     </Card>
   );
 }

@@ -1,8 +1,10 @@
-import { redirect } from 'next/navigation'
+import { ProduitsPageClient } from "./ProduitsPageClient";
 
-/**
- * Page d'accueil du menu - Redirige vers les recettes
- */
-export default function MenuPage() {
-  redirect('/menu/recipes')
+export const metadata = {
+  title: "Produits | Dashboard",
+  description: "Consultation des produits - Catégories et items",
+};
+
+export default function ProduitsPage() {
+  return <ProduitsPageClient />;
 }
