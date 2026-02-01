@@ -9,7 +9,7 @@ import {
   Building2,
   Calculator,
   Calendar,
-  CalendarOff,
+  CalendarDays,
   Clock,
   Home,
   Mail,
@@ -54,6 +54,11 @@ export function getStaffMenu(): MenuItem[] {
       title: "Mon Planning",
       url: "/my-schedule",
       icon: Calendar,
+    },
+    {
+      title: "Agenda Réservations",
+      url: "/agenda",
+      icon: CalendarDays,
     },
     {
       title: "Menu",

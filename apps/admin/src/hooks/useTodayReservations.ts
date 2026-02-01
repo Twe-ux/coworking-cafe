@@ -5,37 +5,36 @@ import { getTodayParis } from "@/lib/utils/date";
 
 /**
  * Hook pour récupérer les réservations du jour
- * Filtré selon le rôle de l'utilisateur :
+ * - Sans session (page publique "/") : mode public, seulement confirmées
  * - staff : seulement les réservations confirmées
  * - admin/dev : toutes les réservations
- *
- * Logique séparée du composant pour respecter limite 100 lignes
  */
 export function useTodayReservations() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const [reservations, setReservations] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const isAuthenticated = sessionStatus === "authenticated";
   const userRole = session?.user?.role?.name || "staff";
-  const isAdminOrDev = ["admin", "dev"].includes(userRole);
+  const isAdminOrDev = isAuthenticated && ["admin", "dev"].includes(userRole);
 
   const fetchTodayReservations = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Date du jour (format YYYY-MM-DD) - timezone Paris pour Vercel
       const today = getTodayParis();
 
-      // Construire les paramètres
       const params = new URLSearchParams({
         startDate: today,
         endDate: today,
       });
 
-      // Si staff, filtrer seulement les confirmées
-      if (!isAdminOrDev) {
+      // No session: use public mode (confirmed only, no auth)
+      if (!isAuthenticated) {
+        params.set("public", "true");
+      } else if (!isAdminOrDev) {
         params.set("status", "confirmed");
       }
 
@@ -55,11 +54,13 @@ export function useTodayReservations() {
     } finally {
       setIsLoading(false);
     }
-  }, [isAdminOrDev]);
+  }, [isAuthenticated, isAdminOrDev]);
 
   useEffect(() => {
+    // Wait for session check to complete before fetching
+    if (sessionStatus === "loading") return;
     fetchTodayReservations();
-  }, [fetchTodayReservations]);
+  }, [fetchTodayReservations, sessionStatus]);
 
   return {
     reservations,

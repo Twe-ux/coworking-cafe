@@ -72,6 +72,7 @@ function checkIPAccess(req: NextRequest): NextResponse | null {
     pathname === '/' ||
     pathname.startsWith('/clocking') ||
     pathname.startsWith('/my-schedule') ||
+    pathname.startsWith('/agenda') ||
     pathname.startsWith('/produits');
 
   // Si pas dans /(dashboard), pas de vérification IP
@@ -175,6 +176,7 @@ export default withAuth(
           path === '/' ||
           path.startsWith('/clocking') ||
           path.startsWith('/my-schedule') ||
+          path.startsWith('/agenda') ||
           path.startsWith('/produits');
 
         if (isDashboardRoute) {
