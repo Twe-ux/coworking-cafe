@@ -19,7 +19,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getStaffMenu, getAdminMenu, getSecondaryMenu } from "@/config/menuSidebar";
+import {
+  getStaffMenu,
+  getAdminMenu,
+  getSecondaryMenu,
+} from "@/config/menuSidebar";
 import { useRole } from "@/hooks/useRole";
 import { useUnreadContactMessages } from "@/hooks/useUnreadContactMessages";
 import { usePendingUnavailabilities } from "@/hooks/usePendingUnavailabilities";
@@ -41,7 +45,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const navMain = React.useMemo(() => {
     // Pendant le chargement OU si dev/admin → menu admin
     if (isLoading || isDev || isAdmin) {
-      return getAdminMenu(unreadCount, pendingCount, pendingBookings, isDev, isAdmin, isLoading);
+      return getAdminMenu(
+        unreadCount,
+        pendingCount,
+        pendingBookings,
+        isDev,
+        isAdmin,
+        isLoading,
+      );
     }
 
     // Menu STAFF pour les autres
@@ -59,15 +70,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [isDev, isAdmin, isLoading]);
 
   // Handler pour toggle sidebar sur mobile quand on clique sur le logo
-  const handleLogoClick = React.useCallback((e: React.MouseEvent) => {
-    if (isMobile && state === "collapsed") {
-      e.preventDefault();
-      setOpenMobile(true);
-    }
-  }, [isMobile, state, setOpenMobile]);
+  const handleLogoClick = React.useCallback(
+    (e: React.MouseEvent) => {
+      if (isMobile && state === "collapsed") {
+        e.preventDefault();
+        setOpenMobile(true);
+      }
+    },
+    [isMobile, state, setOpenMobile],
+  );
 
   return (
-    <Sidebar variant="floating" collapsible="icon" {...props}>
+    <Sidebar
+      variant="floating"
+      className="border-green-600"
+      collapsible="icon"
+      {...props}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

@@ -58,16 +58,6 @@ export function getStaffMenu(): MenuItem[] {
       title: "Produits & Recettes",
       url: "/produits",
       icon: UtensilsCrossed,
-      items: [
-        {
-          title: "Recettes Boissons",
-          url: "/produits/recipes?category=drinks",
-        },
-        {
-          title: "Recettes Food",
-          url: "/produits/recipes?category=food",
-        },
-      ],
     },
   ];
 }
