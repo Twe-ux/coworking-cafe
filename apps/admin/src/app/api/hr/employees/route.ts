@@ -17,6 +17,53 @@ export async function GET(request: NextRequest) {
     // No auth required for reading employees (staff clocking page is public)
     await connectMongoose()
 
+    // 🔧 ACTIVATION AUTOMATIQUE des employés dont la date d'embauche est arrivée
+    // Vérifie et active automatiquement les employés dont hireDate <= aujourd'hui
+    // Utilise Europe/Paris timezone pour éviter les décalages (serveur = UTC)
+    const now = new Date()
+    const parisDate = new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Europe/Paris',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(now).split('/').reverse().join('-')  // DD/MM/YYYY → YYYY-MM-DD
+
+    const todayStr = parisDate
+
+    console.log('🔍 [AUTO-ACTIVATION] Date du jour (Paris):', todayStr)
+
+    // Vérifier quels employés correspondent aux critères AVANT activation
+    const employeesToActivate = await Employee.find({
+      hireDate: { $lte: todayStr },
+      isActive: false,
+      isDraft: false,
+    }).select('firstName lastName hireDate isActive').lean()
+
+    if (employeesToActivate.length > 0) {
+      console.log(`📋 [AUTO-ACTIVATION] ${employeesToActivate.length} employé(s) à activer:`,
+        employeesToActivate.map(e => `${e.firstName} ${e.lastName} (hireDate: ${e.hireDate})`))
+    } else {
+      console.log('ℹ️ [AUTO-ACTIVATION] Aucun employé à activer')
+    }
+
+    const activationResult = await Employee.updateMany(
+      {
+        hireDate: { $lte: todayStr },
+        isActive: false,
+        isDraft: false,
+      },
+      {
+        $set: {
+          isActive: true,
+        },
+      }
+    )
+
+    // Log si des employés ont été activés
+    if (activationResult.modifiedCount > 0) {
+      console.log(`✅ [AUTO-ACTIVATION] ${activationResult.modifiedCount} employé(s) activé(s) avec succès`)
+    }
+
     // Paramètres de recherche depuis l'URL
     const { searchParams } = new URL(request.url)
     const role = searchParams.get('role')
