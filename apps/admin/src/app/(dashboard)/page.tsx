@@ -52,7 +52,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background px-4">
-      {/* <HomePageHeader /> */}
+      <HomePageHeader />
 
       <CardContent className="space-y-2 p-4">
         <PointagesSection employees={employees} onStatusChange={refetch} />
