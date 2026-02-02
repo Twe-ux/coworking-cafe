@@ -102,7 +102,7 @@ export function FormCashControl({
 
   return (
     <form
-      className="mb-8 flex flex-wrap items-end gap-4 rounded-2xl border bg-white p-4"
+      className="flex flex-col gap-4"
       onSubmit={onSubmit}
     >
       <DynamicItemsList

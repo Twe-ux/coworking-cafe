@@ -15,6 +15,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { CashEntryRow, CashEntryFormData } from "@/types/accounting";
 import React from "react";
 import { FormCashControl } from "./cash-entry-form";
@@ -54,6 +64,7 @@ export function DataTable<TData extends CashEntryRow>({
 
   const [open, setOpen] = React.useState(false);
   const [selectedRow, setSelectedRow] = React.useState<TData | null>(null);
+  const [deleteRow, setDeleteRow] = React.useState<TData | null>(null);
 
   // Calculer les totaux avec le hook
   const totals = useCashEntryTotals(data);
@@ -97,19 +108,15 @@ export function DataTable<TData extends CashEntryRow>({
   // Supprimer une ligne
   const handleDeleteRow = (row: TData) => {
     const deleteId = row._id || row.date;
-    if (!deleteId) {
-      alert("Impossible de supprimer : identifiant manquant");
-      return;
-    }
+    if (!deleteId) return;
+    setDeleteRow(row);
+  };
 
-    const confirmDelete = window.confirm(
-      `Êtes-vous sûr de vouloir supprimer les données du ${row.date} ?`
-    );
-    if (!confirmDelete) return;
-
-    if (onDelete) {
-      onDelete(row);
+  const confirmDelete = () => {
+    if (deleteRow && onDelete) {
+      onDelete(deleteRow);
     }
+    setDeleteRow(null);
   };
 
   // Fermer le modal quand l'événement custom est dispatché
@@ -138,6 +145,28 @@ export function DataTable<TData extends CashEntryRow>({
           />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteRow} onOpenChange={(open) => !open && setDeleteRow(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Supprimer les données du{" "}
+              {deleteRow?.date ? formatDateDDMMYYYY(deleteRow.date) : ""} ?
+              Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Table className="bg-white">
         <TableHeader className="bg-gray-200">
