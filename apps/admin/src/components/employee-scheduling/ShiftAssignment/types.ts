@@ -37,7 +37,7 @@ export interface ShiftFormData {
  */
 export interface ShiftSaveData {
   employeeId: string
-  date: Date
+  date: Date | string
   startTime: string
   endTime: string
   type: string

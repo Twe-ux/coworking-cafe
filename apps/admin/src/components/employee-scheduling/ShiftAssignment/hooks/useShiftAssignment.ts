@@ -26,7 +26,7 @@ interface UseShiftAssignmentOptions {
   open: boolean
   onSave: (shift: {
     employeeId: string
-    date: Date
+    date: Date | string
     startTime: string
     endTime: string
     type: string
@@ -94,7 +94,7 @@ export function useShiftAssignment({
       try {
         const shiftData = {
           employeeId: dataToSubmit.employeeId,
-          date: dataToSubmit.date,
+          date: typeof dataToSubmit.date === 'string' ? dataToSubmit.date : dataToSubmit.date.toISOString().split('T')[0],
           startTime: dataToSubmit.startTime,
           endTime: dataToSubmit.endTime,
           type: dataToSubmit.type,

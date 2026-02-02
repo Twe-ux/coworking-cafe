@@ -61,7 +61,7 @@ export function transformDraftToOnboardingData(draft: DraftData): OnboardingData
       firstName: draft.firstName,
       lastName: draft.lastName || '',
       dateOfBirth: draft.dateOfBirth || '',
-      placeOfBirth: draft.placeOfBirth,
+      placeOfBirth: draft.placeOfBirth ? { city: draft.placeOfBirth, department: '', country: 'France' } : undefined,
       nationality: draft.nationality,
       address: draft.address || { street: '', postalCode: '', city: '' },
       phone: draft.phone || '',

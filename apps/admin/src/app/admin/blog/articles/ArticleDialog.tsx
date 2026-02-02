@@ -224,7 +224,7 @@ export function ArticleDialog({
                   {categories
                     .filter(cat => cat._id && cat._id.trim().length > 0)
                     .map((cat) => (
-                      <SelectItem key={cat._id} value={cat._id}>
+                      <SelectItem key={cat._id} value={cat._id!}>
                         {cat.name}
                       </SelectItem>
                     ))}

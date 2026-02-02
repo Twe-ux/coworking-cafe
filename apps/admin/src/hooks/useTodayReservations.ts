@@ -16,7 +16,7 @@ export function useTodayReservations() {
   const [error, setError] = useState<string | null>(null);
 
   const isAuthenticated = sessionStatus === "authenticated";
-  const userRole = session?.user?.role?.name || "staff";
+  const userRole = (session?.user as { role?: string })?.role || "staff";
   const isAdminOrDev = isAuthenticated && ["admin", "dev"].includes(userRole);
 
   const fetchTodayReservations = useCallback(async () => {

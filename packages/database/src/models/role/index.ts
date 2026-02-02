@@ -5,7 +5,7 @@ import { RoleMethods } from "./methods";
 import { VirtualRole } from "./virtuals";
 
 export type Role = VirtualRole & RoleMethods;
-export { RoleDocument };
+export type { RoleDocument };
 
 let RoleModel: Model<RoleDocument>;
 

@@ -46,7 +46,7 @@ export async function PUT(
     await booking.save()
 
     // Préparer les données pour l'email
-    const user = booking.user || {}
+    const user = (booking.user || {}) as { firstName?: string; lastName?: string; email?: string }
     const clientName = (user.firstName && user.lastName)
       ? `${user.firstName} ${user.lastName}`
       : booking.contactName || user.email || booking.contactEmail || 'Client'
@@ -72,7 +72,7 @@ export async function PUT(
         const { generateAdminBookingRejectionEmail } = await import('@coworking-cafe/email')
 
         await sendEmail({
-          to: user.email || booking.contactEmail,
+          to: user.email || booking.contactEmail || '',
           subject: '❌ Réservation refusée - CoworKing Café',
           html: generateAdminBookingRejectionEmail(emailData),
         })
@@ -81,7 +81,7 @@ export async function PUT(
         const { generateReservationRejectedEmail } = await import('@coworking-cafe/email')
 
         await sendEmail({
-          to: user.email || booking.contactEmail,
+          to: user.email || booking.contactEmail || '',
           subject: '❌ Réservation refusée - CoworKing Café',
           html: generateReservationRejectedEmail({
             ...emailData,

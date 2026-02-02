@@ -32,7 +32,7 @@ ShiftSchema.methods.hasConflictWith = function (
     return false
   }
 
-  if (this.date.toDateString() !== otherShift.date.toDateString()) {
+  if (this.date !== otherShift.date) {
     return false
   }
 

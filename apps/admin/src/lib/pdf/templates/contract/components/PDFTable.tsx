@@ -35,7 +35,7 @@ export function PDFTable({ rows, labelWidth = '40%' }: PDFTableProps) {
             key={index}
             style={[
               isLast ? styles.tableRowLast : styles.tableRow,
-              isFirst && { borderTop: 'none' },
+              isFirst ? { borderTop: 'none' } : {},
             ]}
           >
             <View style={[styles.tableCellLeft, styles.tableCellBold, { width: labelWidth }]}>

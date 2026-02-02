@@ -3,6 +3,7 @@
  * This file is dynamically imported to avoid SSR issues
  */
 
+import React from 'react'
 import type { Employee } from '@/types/hr'
 
 export interface GenerateContractPDFOptions {
@@ -41,6 +42,7 @@ export async function generateContractPDF(options: GenerateContractPDFOptions): 
   })
 
   // Generate PDF blob
-  const blob = await pdf(doc).toBlob()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const blob = await pdf(doc as any).toBlob()
   return blob
 }

@@ -80,8 +80,8 @@ async function fixEmployeeDates() {
       }
 
       // Check and fix startDate
-      if (employee.startDate && typeof employee.startDate === 'string') {
-        const startDateStr = employee.startDate as string
+      if ((employee as unknown as Record<string, unknown>).startDate && typeof (employee as unknown as Record<string, unknown>).startDate === 'string') {
+        const startDateStr = (employee as unknown as Record<string, unknown>).startDate as string
 
         // Si ce n'est pas au format YYYY-MM-DD
         if (!/^\d{4}-\d{2}-\d{2}$/.test(startDateStr)) {

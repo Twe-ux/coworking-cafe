@@ -166,7 +166,7 @@ export function DayBookingsModal({
               </span>
               {booking.clientEmail && (
                 <button
-                  onClick={() => booking._id && handleCopyEmail(booking.clientEmail, booking._id)}
+                  onClick={() => booking._id && handleCopyEmail(booking.clientEmail!, booking._id)}
                   className="h-5 w-5 p-0.5 rounded hover:bg-muted transition-colors"
                   title={copiedEmailId === booking._id ? "Copié !" : "Copier l'email"}
                 >

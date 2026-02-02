@@ -71,7 +71,7 @@ export async function POST(
       return errorResponse('Employé introuvable', `Aucun employé avec l'ID ${employeeId}`, 404)
     }
 
-    const employeeData = employee.toObject() as EmployeeType
+    const employeeData = employee.toObject() as unknown as EmployeeType
 
     // 6. Convert PDF File to Buffer for Resend
     const pdfArrayBuffer = await pdfFile.arrayBuffer()

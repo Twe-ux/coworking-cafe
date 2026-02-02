@@ -5,7 +5,7 @@ import { UserMethods } from "./methods";
 import { VirtualUser } from "./virtuals";
 
 export type User = VirtualUser & UserMethods;
-export { UserDocument };
+export type { UserDocument };
 
 let UserModel: Model<UserDocument>;
 

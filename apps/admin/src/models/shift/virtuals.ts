@@ -8,7 +8,8 @@ export interface VirtualShift extends IShift {
 
 // Virtuel pour formater la date
 ShiftSchema.virtual('formattedDate').get(function (this: IShift) {
-  return this.date.toLocaleDateString('fr-FR')
+  const [year, month, day] = this.date.split('-')
+  return `${day}/${month}/${year}`
 })
 
 // Virtuel pour formater la période

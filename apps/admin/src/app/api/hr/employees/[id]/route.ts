@@ -120,16 +120,16 @@ interface EmployeeUpdateData {
   lastName?: string
   email?: string | null
   phone?: string | null
-  dateOfBirth?: Date
+  dateOfBirth?: string
   placeOfBirth?: { city?: string; department?: string; country?: string }
   nationality?: string
   address?: { street?: string; postalCode?: string; city?: string }
   socialSecurityNumber?: string
   contractType?: string
   contractualHours?: number
-  hireDate?: Date
+  hireDate?: string
   hireTime?: string
-  endDate?: Date | null
+  endDate?: string | null
   endContractReason?: string
   level?: string
   step?: number
