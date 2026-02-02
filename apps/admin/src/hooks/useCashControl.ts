@@ -111,9 +111,27 @@ export function useCashControl() {
 
   // Handler pour supprimer une entrée
   const handleDelete = useCallback(
-    (row: CashEntryRow) => {
-      console.log("Delete row:", row);
-      refetch();
+    async (row: CashEntryRow) => {
+      const id = row._id;
+      if (!id) {
+        setFormStatus("Impossible de supprimer : identifiant manquant");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/accounting/cash-entries/${id}`, {
+          method: "DELETE",
+        });
+
+        if (!res.ok) throw new Error("Erreur lors de la suppression");
+
+        setFormStatus("Suppression réussie");
+        await refetch();
+
+        setTimeout(() => setFormStatus(null), 1500);
+      } catch {
+        setFormStatus("Erreur lors de la suppression");
+      }
     },
     [refetch]
   );
