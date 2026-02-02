@@ -86,16 +86,10 @@ export function useCashControl() {
         const result = await res.json();
 
         if (result.success) {
-          setFormStatus(isEdit ? "Modification réussie !" : "Ajout réussi !");
-
-          // Rafraîchir les données
-          await refetch();
-
-          // Fermer le modal après un court délai
-          setTimeout(() => {
-            setFormStatus(null);
-            window.dispatchEvent(new CustomEvent("cash-modal-close"));
-          }, 1500);
+          // Fermer le modal immédiatement, rafraîchir en arrière-plan
+          window.dispatchEvent(new CustomEvent("cash-modal-close"));
+          setFormStatus(null);
+          refetch();
         } else {
           setFormStatus(
             "Erreur : " + (result.error || "Impossible d'enregistrer")
