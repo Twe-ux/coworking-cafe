@@ -153,6 +153,8 @@ export async function connectMongoose(): Promise<typeof mongoose> {
   // Connect with Mongoose
   await mongoose.connect(uri, {
     dbName: databaseName,
+    maxPoolSize: 5,
+    maxConnecting: 2,
   });
 
   return mongoose;

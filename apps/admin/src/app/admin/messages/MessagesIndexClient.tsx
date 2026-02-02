@@ -4,12 +4,10 @@ import { MessageCircle, Mail, HelpCircle, CalendarOff } from "lucide-react";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useUnreadContactMessages } from "@/hooks/useUnreadContactMessages";
-import { usePendingUnavailabilities } from "@/hooks/usePendingUnavailabilities";
+import { useSidebarCounts } from "@/hooks/useSidebarCounts";
 
 export function MessagesIndexClient() {
-  const { unreadCount } = useUnreadContactMessages();
-  const { pendingCount } = usePendingUnavailabilities();
+  const { counts } = useSidebarCounts();
 
   const modules = [
     {
@@ -18,7 +16,7 @@ export function MessagesIndexClient() {
       icon: CalendarOff,
       href: "/admin/messages/unavailability-requests",
       stats: "En attente",
-      badge: pendingCount > 0 ? pendingCount : undefined,
+      badge: counts.pendingUnavailabilities > 0 ? counts.pendingUnavailabilities : undefined,
     },
     {
       title: "Contact",
@@ -26,7 +24,7 @@ export function MessagesIndexClient() {
       icon: Mail,
       href: "/admin/messages/contact",
       stats: "Messages entrants",
-      badge: unreadCount > 0 ? unreadCount : undefined,
+      badge: counts.unreadMessages > 0 ? counts.unreadMessages : undefined,
     },
     {
       title: "Support",

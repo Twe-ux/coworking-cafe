@@ -25,18 +25,14 @@ import {
   getSecondaryMenu,
 } from "@/config/menuSidebar";
 import { useRole } from "@/hooks/useRole";
-import { useUnreadContactMessages } from "@/hooks/useUnreadContactMessages";
-import { usePendingUnavailabilities } from "@/hooks/usePendingUnavailabilities";
-import { usePendingBookings } from "@/hooks/usePendingBookings";
+import { useSidebarCounts } from "@/hooks/useSidebarCounts";
 import { Shield } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status } = useSession();
   const { isDev, isAdmin } = useRole();
   const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
-  const { unreadCount } = useUnreadContactMessages();
-  const { pendingCount } = usePendingUnavailabilities();
-  const { pendingCount: pendingBookings } = usePendingBookings();
+  const { counts } = useSidebarCounts();
 
   // Pendant le chargement, afficher le menu admin par défaut (évite le flash)
   const isLoading = status === "loading";
@@ -46,9 +42,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     // Pendant le chargement OU si dev/admin → menu admin
     if (isLoading || isDev || isAdmin) {
       return getAdminMenu(
-        unreadCount,
-        pendingCount,
-        pendingBookings,
+        counts.unreadMessages,
+        counts.pendingUnavailabilities,
+        counts.pendingBookings,
         isDev,
         isAdmin,
         isLoading,
@@ -57,7 +53,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     // Menu STAFF pour les autres
     return getStaffMenu();
-  }, [isDev, isAdmin, unreadCount, pendingCount, pendingBookings, isLoading]);
+  }, [isDev, isAdmin, counts, isLoading]);
 
   const navSecondary = React.useMemo(() => getSecondaryMenu(), []);
 

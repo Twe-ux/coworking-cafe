@@ -31,6 +31,8 @@ export async function connectToDatabase() {
   if (!global.mongoose.promise) {
     const opts = {
       bufferCommands: false,
+      maxPoolSize: 5,
+      maxConnecting: 2,
     };
 
     global.mongoose.promise = mongoose.connect(process.env.MONGODB_URI, opts);
