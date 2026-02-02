@@ -32,11 +32,16 @@ export function useConsolidatedRevenue({
 
     // Ajouter les turnovers
     turnovers.forEach((turnover) => {
-      const date = turnover.date;
+      // Use date or _id if date is missing, and convert YYYY/MM/DD to YYYY-MM-DD
+      const rawDate = turnover.date || (turnover as any)._id || '';
+      const date = rawDate.replace(/\//g, '-');
+
+      if (!date) return;
+
       const d = new Date(date);
 
       // Filtrer par année/mois
-      if (d.getFullYear() !== selectedYear || d.getMonth() !== selectedMonth) {
+      if (isNaN(d.getTime()) || d.getFullYear() !== selectedYear || d.getMonth() !== selectedMonth) {
         return;
       }
 

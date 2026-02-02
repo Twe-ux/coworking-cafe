@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calculator, FileText, TrendingUp } from "lucide-react";
+import { Calculator, FileText, TrendingUp, BarChart3 } from "lucide-react";
 import Link from "next/link";
 
 export default function AccountingPage() {
@@ -45,6 +45,19 @@ export default function AccountingPage() {
               <span className="text-lg font-semibold">Vue Consolidée</span>
               <span className="text-sm text-muted-foreground">
                 CA total (Caisse + B2B)
+              </span>
+            </Button>
+          </Link>
+
+          <Link href="/admin/accounting/stats">
+            <Button
+              variant="outline"
+              className="h-32 w-full flex flex-col gap-2 hover:bg-accent"
+            >
+              <BarChart3 className="h-8 w-8 text-primary" />
+              <span className="text-lg font-semibold">Statistiques</span>
+              <span className="text-sm text-muted-foreground">
+                Comparaison de périodes
               </span>
             </Button>
           </Link>

@@ -147,3 +147,55 @@ export interface ConsolidatedMonthlyStats {
     tva: number
   }
 }
+
+// ============================================================================
+// Comparison Stats (Comparaison de périodes)
+// ============================================================================
+
+export interface PeriodFilter {
+  startDate: string               // YYYY-MM-DD
+  endDate: string                 // YYYY-MM-DD
+  label?: string                  // "Janvier 2026", "Q1 2026", etc.
+}
+
+export interface PeriodStats {
+  period: PeriodFilter
+  turnovers: {
+    ht: number
+    ttc: number
+    tva: number
+  }
+  b2b: {
+    ht: number
+    ttc: number
+    tva: number
+  }
+  total: {
+    ht: number
+    ttc: number
+    tva: number
+  }
+  dailyAverage: {
+    ht: number
+    ttc: number
+  }
+  daysCount: number
+}
+
+export interface ComparisonEvolution {
+  amount: number                  // Différence en €
+  percent: number                 // Différence en %
+}
+
+export interface ComparisonStats {
+  period1: PeriodStats
+  period2: PeriodStats
+  evolution: {
+    ht: ComparisonEvolution
+    ttc: ComparisonEvolution
+  }
+  dailyData: {
+    period1: ConsolidatedDailyRevenue[]
+    period2: ConsolidatedDailyRevenue[]
+  }
+}

@@ -124,6 +124,14 @@ export function getAdminMenu(
           url: "/admin/accounting/b2b-revenue",
         },
         {
+          title: "Vue Consolidée",
+          url: "/admin/accounting/consolidated",
+        },
+        {
+          title: "Statistiques",
+          url: "/admin/accounting/stats",
+        },
+        {
           title: "Chiffre d'affaires",
           url: "/admin/accounting/turnover",
         },
