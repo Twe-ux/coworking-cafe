@@ -8,7 +8,7 @@ import type { PrestaB2BItem, DepenseItem } from "@/types/accounting"
 export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string[] } }
 ) {
   try {
     const authResult = await requireAuth(["dev", "admin"])
@@ -18,7 +18,8 @@ export async function GET(
 
     await connectMongoose()
 
-    const entry = await CashEntry.findById(params.id).lean()
+    const id = params.id.join("/")
+    const entry = await CashEntry.findById(id).lean()
 
     if (!entry) {
       return NextResponse.json(
@@ -49,7 +50,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string[] } }
 ) {
   try {
     const authResult = await requireAuth(["dev", "admin"])
@@ -59,10 +60,11 @@ export async function PUT(
 
     await connectMongoose()
 
+    const id = params.id.join("/")
     const body = await request.json()
 
     const updatedEntry = await CashEntry.findByIdAndUpdate(
-      params.id,
+      id,
       {
         prestaB2B: body.prestaB2B?.filter((item: PrestaB2BItem) => item.label && item.value),
         depenses: body.depenses?.filter((item: DepenseItem) => item.label && item.value),
@@ -71,7 +73,7 @@ export async function PUT(
         cbClassique: body.cbClassique || 0,
         cbSansContact: body.cbSansContact || 0,
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }
     ).lean()
 
     if (!updatedEntry) {
@@ -103,7 +105,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string[] } }
 ) {
   try {
     const authResult = await requireAuth(["dev", "admin"])
@@ -113,7 +115,8 @@ export async function DELETE(
 
     await connectMongoose()
 
-    const deletedEntry = await CashEntry.findByIdAndDelete(params.id).lean()
+    const id = params.id.join("/")
+    const deletedEntry = await CashEntry.findByIdAndDelete(id).lean()
 
     if (!deletedEntry) {
       return NextResponse.json(
