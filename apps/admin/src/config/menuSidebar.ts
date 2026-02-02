@@ -120,6 +120,10 @@ export function getAdminMenu(
           url: "/admin/accounting/cash-control",
         },
         {
+          title: "CA B2B",
+          url: "/admin/accounting/b2b-revenue",
+        },
+        {
           title: "Chiffre d'affaires",
           url: "/admin/accounting/turnover",
         },
