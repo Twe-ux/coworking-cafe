@@ -3,13 +3,12 @@
 import { WeekCard } from "@/components/employee-scheduling/scheduling/WeekCard";
 import type { WeekData } from "@/components/employee-scheduling/scheduling/types";
 import { useScheduleData } from "@/components/employee-scheduling/scheduling/useScheduleData";
-import { CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useHomePageData } from "@/hooks/useHomePageData";
-import { HomePageHeader } from "@/components/home/HomePageHeader";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayReservationsCard } from "@/components/home/TodayReservationsCard";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
+import { CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useHomePageData } from "@/hooks/useHomePageData";
 import { useMemo } from "react";
 
 /**
@@ -51,7 +50,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-background">
       {/* <HomePageHeader /> */}
 
       <CardContent className="space-y-2 p-4">
