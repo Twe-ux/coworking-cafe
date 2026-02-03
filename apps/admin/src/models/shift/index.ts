@@ -8,12 +8,14 @@ export type Shift = VirtualShift & ShiftMethods
 
 let ShiftModel: Model<IShift>
 
+// IMPORTANT: Delete cached model to ensure schema changes are applied
+// This is necessary when schema changes (like date: Date → date: String)
 if (models.Shift) {
-  ShiftModel = models.Shift as Model<IShift>
-} else {
-  attachHooks()
-  ShiftModel = model<IShift>('Shift', ShiftSchema)
+  delete models.Shift
 }
+
+attachHooks()
+ShiftModel = model<IShift>('Shift', ShiftSchema)
 
 if (!ShiftModel) {
   throw new Error('Shift model not initialized')
