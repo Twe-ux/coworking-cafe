@@ -3,10 +3,16 @@
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Euro } from "lucide-react"
 import type { PriceSectionProps } from "./types"
 
-export function PriceSection({ totalPrice, loading }: PriceSectionProps) {
+export function PriceSection({
+  totalPrice,
+  loading,
+  invoicePayment,
+  onInvoicePaymentChange
+}: PriceSectionProps) {
   return (
     <div className="space-y-3">
       <Label>Prix total</Label>
@@ -46,6 +52,20 @@ export function PriceSection({ totalPrice, loading }: PriceSectionProps) {
           )}
         </CardContent>
       </Card>
+
+      <div className="flex items-center space-x-2 mt-4">
+        <Checkbox
+          id="invoicePayment"
+          checked={invoicePayment}
+          onCheckedChange={(checked) => onInvoicePaymentChange(checked as boolean)}
+        />
+        <Label
+          htmlFor="invoicePayment"
+          className="text-sm font-normal cursor-pointer"
+        >
+          Paiement sur facture
+        </Label>
+      </div>
     </div>
   )
 }

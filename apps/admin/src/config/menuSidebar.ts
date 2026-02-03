@@ -138,7 +138,7 @@ export function getAdminMenu(
         },
         {
           title: "Agenda",
-          url: "/agenda",
+          url: "/admin/booking/agenda",
         },
         {
           title: "Espaces",

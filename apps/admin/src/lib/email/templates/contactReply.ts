@@ -12,9 +12,7 @@ interface ContactReplyEmailData {
   subject: string;
 }
 
-export function generateContactReplyEmail(
-  data: ContactReplyEmailData
-): string {
+export function generateContactReplyEmail(data: ContactReplyEmailData): string {
   const { clientName, clientMessage, replyMessage, subject } = data;
 
   return `

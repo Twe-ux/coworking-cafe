@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Minus, Plus, Users, Euro } from "lucide-react"
 
 interface PeopleAndPriceSectionProps {
@@ -11,6 +12,8 @@ interface PeopleAndPriceSectionProps {
   onPeopleChange: (count: number) => void
   totalPrice: number
   priceLoading: boolean
+  invoicePayment: boolean
+  onInvoicePaymentChange: (checked: boolean) => void
   min?: number
   max?: number
   error?: string
@@ -21,6 +24,8 @@ export function PeopleAndPriceSection({
   onPeopleChange,
   totalPrice,
   priceLoading,
+  invoicePayment,
+  onInvoicePaymentChange,
   min = 1,
   max = 50,
   error,
@@ -108,6 +113,21 @@ export function PeopleAndPriceSection({
             </p>
           )}
         </div>
+      </div>
+
+      {/* Checkbox Paiement sur facture */}
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="invoicePayment"
+          checked={invoicePayment}
+          onCheckedChange={(checked) => onInvoicePaymentChange(checked as boolean)}
+        />
+        <Label
+          htmlFor="invoicePayment"
+          className="text-sm font-normal cursor-pointer"
+        >
+          Paiement sur facture
+        </Label>
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}

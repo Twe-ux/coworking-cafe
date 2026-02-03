@@ -32,6 +32,9 @@ export interface ReservationFormData {
   // Prix (calculé automatiquement)
   totalPrice: number
 
+  // Paiement sur facture
+  invoicePayment: boolean
+
   // Acompte (conditionnel)
   depositRequired: boolean
   depositAmount: number
@@ -91,6 +94,8 @@ export interface PeopleSectionProps {
 export interface PriceSectionProps {
   totalPrice: number
   loading: boolean
+  invoicePayment: boolean
+  onInvoicePaymentChange: (invoicePayment: boolean) => void
 }
 
 export interface DepositSectionProps {

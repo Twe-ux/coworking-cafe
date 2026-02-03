@@ -83,7 +83,9 @@ export function ReservationsClient() {
   const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
   // Quick cancel dialog state
   const [quickCancelDialogOpen, setQuickCancelDialogOpen] = useState(false);
-  const [quickCancelBookingId, setQuickCancelBookingId] = useState<string | null>(null);
+  const [quickCancelBookingId, setQuickCancelBookingId] = useState<
+    string | null
+  >(null);
   const [quickCancelReason, setQuickCancelReason] = useState("");
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -172,7 +174,7 @@ export function ReservationsClient() {
     if (quickCancelBookingId) {
       await handleCancel(
         quickCancelBookingId,
-        quickCancelReason || "Annulée par l'administrateur"
+        quickCancelReason || "Annulée par l'administrateur",
       );
       setQuickCancelDialogOpen(false);
       setQuickCancelBookingId(null);
@@ -190,9 +192,12 @@ export function ReservationsClient() {
   const getSpaceType = (spaceName?: string): string => {
     if (!spaceName) return "open-space";
     const lower = spaceName.toLowerCase();
-    if (lower.includes("verriere") || lower.includes("verrière")) return "salle-verriere";
-    if (lower.includes("etage") || lower.includes("étage")) return "salle-etage";
-    if (lower.includes("evenement") || lower.includes("événement")) return "evenementiel";
+    if (lower.includes("verriere") || lower.includes("verrière"))
+      return "salle-verriere";
+    if (lower.includes("etage") || lower.includes("étage"))
+      return "salle-etage";
+    if (lower.includes("evenement") || lower.includes("événement"))
+      return "evenementiel";
     return "open-space";
   };
 
@@ -213,16 +218,19 @@ export function ReservationsClient() {
 
     setEditLoading(true);
     try {
-      const response = await fetch(`/api/booking/reservations/${editBooking._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          spaceType: editFormData.spaceName,
-          date: editFormData.startDate,
-          startTime: editFormData.startTime,
-          endTime: editFormData.endTime,
-        }),
-      });
+      const response = await fetch(
+        `/api/booking/reservations/${editBooking._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            spaceType: editFormData.spaceName,
+            date: editFormData.startDate,
+            startTime: editFormData.startTime,
+            endTime: editFormData.endTime,
+          }),
+        },
+      );
 
       const data = await response.json();
 
@@ -289,7 +297,7 @@ export function ReservationsClient() {
             Gérer les réservations clients
           </p>
         </div>
-        <Link href="/agenda">
+        <Link href="/admin/booking/agenda">
           <Button>
             <CalendarDays className="w-4 h-4 mr-2" />
             Voir l'agenda
@@ -308,14 +316,19 @@ export function ReservationsClient() {
       />
 
       {/* Quick Cancel Dialog */}
-      <Dialog open={quickCancelDialogOpen} onOpenChange={handleQuickCancelClose}>
+      <Dialog
+        open={quickCancelDialogOpen}
+        onOpenChange={handleQuickCancelClose}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Annuler la réservation</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="cancelReason">Raison de l'annulation (optionnel)</Label>
+              <Label htmlFor="cancelReason">
+                Raison de l'annulation (optionnel)
+              </Label>
               <Textarea
                 id="cancelReason"
                 placeholder="Ex: Indisponibilité de l'espace, demande du client..."
@@ -334,7 +347,9 @@ export function ReservationsClient() {
               onClick={handleQuickCancelConfirm}
               disabled={cancelBooking.isPending}
             >
-              {cancelBooking.isPending ? "Annulation..." : "Confirmer l'annulation"}
+              {cancelBooking.isPending
+                ? "Annulation..."
+                : "Confirmer l'annulation"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -374,7 +389,10 @@ export function ReservationsClient() {
                 type="date"
                 value={editFormData.startDate}
                 onChange={(e) =>
-                  setEditFormData({ ...editFormData, startDate: e.target.value })
+                  setEditFormData({
+                    ...editFormData,
+                    startDate: e.target.value,
+                  })
                 }
               />
             </div>
@@ -387,7 +405,10 @@ export function ReservationsClient() {
                   type="time"
                   value={editFormData.startTime}
                   onChange={(e) =>
-                    setEditFormData({ ...editFormData, startTime: e.target.value })
+                    setEditFormData({
+                      ...editFormData,
+                      startTime: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -398,7 +419,10 @@ export function ReservationsClient() {
                   type="time"
                   value={editFormData.endTime}
                   onChange={(e) =>
-                    setEditFormData({ ...editFormData, endTime: e.target.value })
+                    setEditFormData({
+                      ...editFormData,
+                      endTime: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -416,7 +440,9 @@ export function ReservationsClient() {
       </Dialog>
 
       {message && (
-        <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+        <StyledAlert
+          variant={message.type === "success" ? "success" : "destructive"}
+        >
           {message.text}
         </StyledAlert>
       )}
@@ -521,11 +547,17 @@ export function ReservationsClient() {
                         <Badge
                           variant="outline"
                           className={getReservationTypeBadgeClass(
-                            getCalculatedReservationType(booking.startTime, booking.endTime),
+                            getCalculatedReservationType(
+                              booking.startTime,
+                              booking.endTime,
+                            ),
                           )}
                         >
                           {getReservationTypeLabel(
-                            getCalculatedReservationType(booking.startTime, booking.endTime)
+                            getCalculatedReservationType(
+                              booking.startTime,
+                              booking.endTime,
+                            ),
                           )}
                         </Badge>
                       </div>
@@ -541,7 +573,10 @@ export function ReservationsClient() {
                         {booking.startTime && (
                           <span className="flex items-center gap-1 font-medium text-foreground">
                             <Clock className="w-4 h-4 text-muted-foreground" />
-                            {formatTimeDisplay(booking.startTime, booking.endTime)}
+                            {formatTimeDisplay(
+                              booking.startTime,
+                              booking.endTime,
+                            )}
                           </span>
                         )}
                       </div>
@@ -555,8 +590,10 @@ export function ReservationsClient() {
 
                     {/* Right: Prix + Actions */}
                     <div className="flex items-center gap-3">
-                      <span className="font-bold text-primary w-[80px] text-right">
-                        {formatPrice(booking.totalPrice)}
+                      <span className="font-bold text-primary w-[140px] text-right text-sm">
+                        {booking.invoicePayment
+                          ? "Paiement sur facture"
+                          : formatPrice(booking.totalPrice)}
                       </span>
 
                       {/* Boutons icônes - largeur fixe pour alignement */}
@@ -592,7 +629,8 @@ export function ReservationsClient() {
                               size="icon"
                               className="h-8 w-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
                               onClick={() =>
-                                booking._id && handleQuickCancelClick(booking._id)
+                                booking._id &&
+                                handleQuickCancelClick(booking._id)
                               }
                               disabled={cancelBooking.isPending}
                               title="Annuler"
