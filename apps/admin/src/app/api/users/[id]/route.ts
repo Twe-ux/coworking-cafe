@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
-import { User } from "@coworking-cafe/database";
+import { User, Newsletter } from "@coworking-cafe/database";
 import type { ApiResponse } from "@/types/timeEntry";
 import type { User as UserType, UserUpdateData, PopulatedUserDocument } from "@/types/user";
 
@@ -186,7 +186,7 @@ export async function PUT(
 
 /**
  * DELETE /api/users/[id]
- * Supprime un utilisateur (soft delete)
+ * Supprime un utilisateur (soft delete) ou un abonné newsletter
  */
 export async function DELETE(
   request: NextRequest,
@@ -203,16 +203,26 @@ export async function DELETE(
   try {
     const { id } = params;
 
-    // Check if user exists
+    // Try to find in users collection first
     const user = await User.findById(id);
-    if (!user) {
-      return errorResponse("Utilisateur non trouvé", `Aucun utilisateur avec l'ID ${id}`, 404);
+
+    if (user) {
+      // Soft delete user
+      await User.findByIdAndUpdate(id, { deletedAt: new Date() });
+      return successResponse(null, "Utilisateur supprimé avec succès");
     }
 
-    // Soft delete
-    await User.findByIdAndUpdate(id, { deletedAt: new Date() });
+    // If not found in users, try newsletters collection
+    const newsletter = await Newsletter.findById(id);
 
-    return successResponse(null, "Utilisateur supprimé avec succès");
+    if (newsletter) {
+      // Unsubscribe newsletter
+      await Newsletter.findByIdAndUpdate(id, { isSubscribed: false });
+      return successResponse(null, "Abonné newsletter supprimé avec succès");
+    }
+
+    // Not found in either collection
+    return errorResponse("Utilisateur non trouvé", `Aucun utilisateur avec l'ID ${id}`, 404);
   } catch (error) {
     console.error(`DELETE /api/users/${params.id} error:`, error);
     return errorResponse(
