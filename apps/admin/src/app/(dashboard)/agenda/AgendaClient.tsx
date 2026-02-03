@@ -3,11 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { MonthlyCalendar } from "@/components/shared/calendar";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { StyledAlert } from "@/components/ui/styled-alert";
 import {
   Calendar as CalendarIcon,
-  AlertCircle,
-  CheckCircle2,
 } from "lucide-react";
 import { AgendaDayModal } from "./AgendaDayModal";
 import { AgendaPageSkeleton } from "./AgendaPageSkeleton";
@@ -231,14 +229,9 @@ export function AgendaClient() {
       />
 
       {message && (
-        <Alert variant={message.type === "success" ? "default" : "destructive"}>
-          {message.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4" />
-          ) : (
-            <AlertCircle className="h-4 w-4" />
-          )}
-          <AlertDescription>{message.text}</AlertDescription>
-        </Alert>
+        <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+          {message.text}
+        </StyledAlert>
       )}
 
       <MonthlyCalendar

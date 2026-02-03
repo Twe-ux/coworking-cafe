@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { StyledAlert } from "@/components/ui/styled-alert"
 import {
   Table,
   TableBody,
@@ -253,9 +253,9 @@ export function BookingSettingsClient() {
       </div>
 
       {message && (
-        <Alert variant={message.type === "success" ? "default" : "destructive"}>
-          <AlertDescription>{message.text}</AlertDescription>
-        </Alert>
+        <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+          {message.text}
+        </StyledAlert>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

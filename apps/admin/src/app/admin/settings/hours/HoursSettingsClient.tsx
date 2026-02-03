@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Clock, Plus, Trash2, Save, AlertCircle, CheckCircle2 } from "lucide-react"
+import { StyledAlert } from "@/components/ui/styled-alert"
+import { Clock, Plus, Trash2, Save } from "lucide-react"
 import { HoursSettingsSkeleton } from "./HoursSettingsSkeleton"
 import type { GlobalHoursConfiguration, DayHours, ExceptionalClosure, WeeklyHours } from "@/types/settings"
 
@@ -148,12 +148,9 @@ export function HoursSettingsClient() {
   if (!configuration) {
     return (
       <div className="space-y-6 p-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Impossible de charger la configuration des horaires.
-          </AlertDescription>
-        </Alert>
+        <StyledAlert variant="destructive">
+          Impossible de charger la configuration des horaires.
+        </StyledAlert>
         <Button onClick={fetchConfiguration}>Réessayer</Button>
       </div>
     )
@@ -178,14 +175,9 @@ export function HoursSettingsClient() {
       </div>
 
       {message && (
-        <Alert variant={message.type === "success" ? "default" : "destructive"}>
-          {message.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4" />
-          ) : (
-            <AlertCircle className="h-4 w-4" />
-          )}
-          <AlertDescription>{message.text}</AlertDescription>
-        </Alert>
+        <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+          {message.text}
+        </StyledAlert>
       )}
 
       <Card>
@@ -255,11 +247,9 @@ export function HoursSettingsClient() {
         </CardHeader>
         <CardContent className="space-y-4">
           {configuration.exceptionalClosures.length === 0 ? (
-            <Alert>
-              <AlertDescription>
-                Aucune fermeture exceptionnelle programmée
-              </AlertDescription>
-            </Alert>
+            <StyledAlert variant="info">
+              Aucune fermeture exceptionnelle programmée
+            </StyledAlert>
           ) : (
             configuration.exceptionalClosures.map((closure, index) => (
               <div key={index} className="border rounded-lg p-4 space-y-4">

@@ -10,8 +10,7 @@ import { PromoCreateForm } from "@/components/promo/PromoCreateForm";
 import { PromoMarketingForm } from "@/components/promo/PromoMarketingForm";
 import { PromoHistory } from "@/components/promo/PromoHistory";
 import { PromoPageSkeleton } from "@/components/promo/PromoPageSkeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { StyledAlert } from "@/components/ui/styled-alert";
 
 /**
  * Page Promo - S'adapte selon le rôle utilisateur
@@ -37,10 +36,7 @@ export default function PromoPage() {
   if (error) {
     return (
       <div className="p-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <StyledAlert variant="destructive">{error}</StyledAlert>
       </div>
     );
   }
@@ -64,12 +60,9 @@ export default function PromoPage() {
 
     return (
       <div className="p-6 space-y-4">
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Aucune configuration promo n'existe encore en base de données.
-          </AlertDescription>
-        </Alert>
+        <StyledAlert variant="info">
+          Aucune configuration promo n'existe encore en base de données.
+        </StyledAlert>
         {!isStaff && (
           <button
             onClick={handleInit}

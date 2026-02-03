@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Building2, Plus, Edit, Trash2, AlertCircle, CheckCircle2 } from "lucide-react"
+import { StyledAlert } from "@/components/ui/styled-alert"
+import { Building2, Plus, Edit, Trash2 } from "lucide-react"
 import { SpacesSkeleton } from "./SpacesSkeleton"
 import { SpaceDialog } from "./SpaceDialog"
 import type { SpaceConfiguration } from "@/types/booking"
@@ -124,22 +124,15 @@ export function SpacesClient() {
       />
 
       {message && (
-        <Alert variant={message.type === "success" ? "default" : "destructive"}>
-          {message.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4" />
-          ) : (
-            <AlertCircle className="h-4 w-4" />
-          )}
-          <AlertDescription>{message.text}</AlertDescription>
-        </Alert>
+        <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+          {message.text}
+        </StyledAlert>
       )}
 
       {spaces.length === 0 ? (
-        <Alert>
-          <AlertDescription>
-            Aucun espace configuré pour le moment.
-          </AlertDescription>
-        </Alert>
+        <StyledAlert variant="info">
+          Aucun espace configuré pour le moment.
+        </StyledAlert>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {spaces.map((space) => (

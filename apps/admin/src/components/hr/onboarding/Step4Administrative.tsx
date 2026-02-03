@@ -1,7 +1,7 @@
 "use client";
 
 import { ContractGenerationModal } from "@/components/hr/contract/ContractGenerationModal";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { StyledAlert } from "@/components/ui/styled-alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -122,9 +122,9 @@ export function Step4Administrative() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <StyledAlert variant="destructive">
+          {error}
+        </StyledAlert>
       )}
 
       <Card>
@@ -341,12 +341,10 @@ export function Step4Administrative() {
 
       <div className="space-y-3">
         {!allAdminTasksCompleted && (
-          <Alert>
-            <AlertDescription>
-              Veuillez cocher toutes les étapes du suivi administratif avant de
-              créer l'employé.
-            </AlertDescription>
-          </Alert>
+          <StyledAlert variant="info">
+            Veuillez cocher toutes les étapes du suivi administratif avant de
+            créer l'employé.
+          </StyledAlert>
         )}
 
         <div className="flex justify-end">

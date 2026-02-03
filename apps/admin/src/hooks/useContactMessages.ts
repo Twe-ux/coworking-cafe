@@ -44,12 +44,8 @@ export function useContactMessages(
     try {
       setLoading(true);
 
-      const params = new URLSearchParams();
-      if (statusFilter !== "all") {
-        params.set("status", statusFilter);
-      }
-
-      const response = await fetch(`/api/messages/contact?${params}`);
+      // Toujours récupérer TOUS les messages pour les stats
+      const response = await fetch("/api/messages/contact");
       const data = await response.json();
 
       if (!data.success) {
@@ -57,10 +53,18 @@ export function useContactMessages(
       }
 
       const allMessages = data.data || [];
-      setMessages(allMessages);
 
+      // Calculer les stats sur TOUS les messages
       const newStats = calculateStats(allMessages);
       setStats(newStats);
+
+      // Filtrer les messages côté client selon le filtre
+      const filteredMessages =
+        statusFilter === "all"
+          ? allMessages
+          : allMessages.filter((m) => m.status === statusFilter);
+
+      setMessages(filteredMessages);
 
       // Mettre à jour le badge de l'app avec le nombre de messages non lus
       updateAppBadge(newStats.unread);
