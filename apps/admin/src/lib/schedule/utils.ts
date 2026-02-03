@@ -36,9 +36,10 @@ export function getCalendarDateRange(date: Date): CalendarDateRange {
   const startDate = new Date(firstDayOfMonth);
   startDate.setDate(startDate.getDate() - daysToSubtract);
 
-  // Calculate last day visible (6 weeks maximum)
+  // Calculate last day visible (6 complete weeks)
+  // If calendar shows until Sunday Apr 5, we need to include that day
   const endDate = new Date(startDate);
-  endDate.setDate(endDate.getDate() + 6 * 7 - 1);
+  endDate.setDate(endDate.getDate() + (6 * 7)); // 42 days to cover all visible days
 
   return { startDate, endDate };
 }
