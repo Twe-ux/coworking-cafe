@@ -57,6 +57,8 @@ export interface UserUpdateData {
   companyName?: string;
   roleId?: string;
   newsletter?: boolean;
+  activationToken?: string;
+  activationTokenExpires?: Date | string;
 }
 
 /**

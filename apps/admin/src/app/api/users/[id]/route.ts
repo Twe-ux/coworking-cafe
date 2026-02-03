@@ -136,6 +136,8 @@ export async function PUT(
         ...(body.companyName !== undefined && { companyName: body.companyName }),
         ...(body.roleId && { role: body.roleId }),
         ...(body.newsletter !== undefined && { newsletter: body.newsletter }),
+        ...(body.activationToken !== undefined && { activationToken: body.activationToken }),
+        ...(body.activationTokenExpires !== undefined && { activationTokenExpires: body.activationTokenExpires }),
       },
       { new: true, runValidators: true }
     ).populate("role")) as unknown as PopulatedUserDocument | null;
