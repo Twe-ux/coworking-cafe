@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Check,
   X,
-  Calendar,
   User,
   FileText,
   AlertTriangle,
@@ -18,6 +17,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
+import { StyledAlert } from "@/components/ui/styled-alert";
 import { formatDateFr, calculateDays } from "@/lib/utils/format-date";
 import { toast } from "sonner";
 import type { IUnavailabilityWithEmployee } from "@/types/unavailability";
@@ -344,15 +344,9 @@ export function UnavailabilityRequestsClient() {
                       {/* Motif du refus si rejeté */}
                       {request.status === "rejected" &&
                         request.rejectionReason && (
-                          <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-                            <div className="flex items-center gap-2 text-sm font-medium mb-1 text-red-700">
-                              <AlertTriangle className="h-4 w-4" />
-                              <span>Motif du refus</span>
-                            </div>
-                            <p className="text-sm text-red-700">
-                              {request.rejectionReason}
-                            </p>
-                          </div>
+                          <StyledAlert variant="destructive" title="Motif du refus">
+                            {request.rejectionReason}
+                          </StyledAlert>
                         )}
 
                       {/* Planning d'équipe (seulement pour les demandes en attente) */}

@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { type Employee } from "@/types/hr";
 import type { TimeEntry } from "@/types/timeEntry";
-import { AlertCircle, Clock, Play, Square, User } from "lucide-react";
+import { Clock, Play, Square, User } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import PINKeypad from "@/components/clocking/PINKeypad";
+import { StyledAlert } from "@/components/ui/styled-alert";
 
 interface TimeTrackingCardProps {
   employee: Employee;
@@ -326,10 +327,9 @@ export default function TimeTrackingCard({
           </div>
 
           {!canClockIn && (
-            <div className="flex items-center gap-2 rounded border border-amber-200 bg-amber-50 p-2 text-sm text-amber-700">
-              <AlertCircle className="h-4 w-4" />
+            <StyledAlert variant="warning">
               Maximum 2 pointages par jour atteint
-            </div>
+            </StyledAlert>
           )}
         </CardContent>
       </Card>

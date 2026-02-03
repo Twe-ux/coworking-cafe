@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from "lucide-react";
 import { WeekCard } from "@/components/employee-scheduling/scheduling/WeekCard";
 import type { Employee } from "@/types/hr";
 import type { Shift } from "@/types/shift";
+import { StyledAlert } from "@/components/ui/styled-alert";
 
 interface AvailabilityWeekCardProps {
   startDate: string; // YYYY-MM-DD
@@ -156,12 +156,9 @@ export function AvailabilityWeekCard({
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <div className="flex items-center gap-2 text-red-700">
-          <AlertCircle className="h-4 w-4" />
-          <p className="text-sm">{error}</p>
-        </div>
-      </div>
+      <StyledAlert variant="destructive">
+        {error}
+      </StyledAlert>
     );
   }
 

@@ -1,7 +1,7 @@
 import { TabsContent } from '@/components/ui/tabs'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { WeeklyDistributionTable } from './WeeklyDistributionTable'
 import type { Availability, WeeklyDistributionData } from '@/types/onboarding'
+import { StyledAlert } from '@/components/ui/styled-alert'
 
 /**
  * Props for DistributionTab component
@@ -54,27 +54,25 @@ export function DistributionTab({
           calculateWeekTotal={calculateWeekTotal}
         />
 
-        <Alert variant={isDistributionValid ? 'default' : 'destructive'}>
-          <AlertDescription>
-            <div className="flex items-center gap-2">
-              {isDistributionValid ? (
-                <span className="text-green-600 font-semibold">
-                  ✓ Total mensuel : {grandTotal.toFixed(1)}h
-                </span>
-              ) : (
-                <span className="font-semibold">⚠️ Total mensuel : {grandTotal.toFixed(1)}h</span>
-              )}
-            </div>
-            <div className="text-sm mt-1">
-              Attendu : {expectedTotal.toFixed(1)}h ({contractualHours}h/semaine × 4 semaines)
-            </div>
-            {!isDistributionValid && (
-              <div className="text-sm mt-2">
-                Le total ne correspond pas aux heures contractuelles
-              </div>
+        <StyledAlert variant={isDistributionValid ? 'success' : 'destructive'}>
+          <div className="flex items-center gap-2">
+            {isDistributionValid ? (
+              <span className="text-green-600 font-semibold">
+                ✓ Total mensuel : {grandTotal.toFixed(1)}h
+              </span>
+            ) : (
+              <span className="font-semibold">⚠️ Total mensuel : {grandTotal.toFixed(1)}h</span>
             )}
-          </AlertDescription>
-        </Alert>
+          </div>
+          <div className="text-sm mt-1">
+            Attendu : {expectedTotal.toFixed(1)}h ({contractualHours}h/semaine × 4 semaines)
+          </div>
+          {!isDistributionValid && (
+            <div className="text-sm mt-2">
+              Le total ne correspond pas aux heures contractuelles
+            </div>
+          )}
+        </StyledAlert>
       </div>
     </TabsContent>
   )

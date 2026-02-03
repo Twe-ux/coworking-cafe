@@ -6,7 +6,8 @@ import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, AlertCircle } from 'lucide-react';
+import { Shield } from 'lucide-react';
+import { StyledAlert } from '@/components/ui/styled-alert';
 
 /**
  * Écran de configuration du PIN
@@ -104,10 +105,9 @@ export function PINSetup() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-3 rounded">
-                <AlertCircle className="w-4 h-4" />
-                <span>{error}</span>
-              </div>
+              <StyledAlert variant="destructive">
+                {error}
+              </StyledAlert>
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>

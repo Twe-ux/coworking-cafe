@@ -4,13 +4,13 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Calendar, Clock } from 'lucide-react'
 import { useOnboardingContext } from '@/contexts/OnboardingContext'
 import { DEFAULT_AVAILABILITY } from '@/types/onboarding'
 import { useAvailabilityForm } from './step3-availability/useAvailabilityForm'
 import { AvailabilityTab } from './step3-availability/AvailabilityTab'
 import { DistributionTab } from './step3-availability/DistributionTab'
+import { StyledAlert } from '@/components/ui/styled-alert'
 
 /**
  * Step 3: Employee Availability and Weekly Distribution
@@ -95,22 +95,20 @@ export function Step3Availability() {
       </Card>
 
       {!canSubmit && (
-        <Alert>
-          <AlertDescription>
-            {!hasAvailability && (
-              <div>
-                ⚠️ Veuillez renseigner au moins un jour de disponibilité avec des créneaux
-                horaires.
-              </div>
-            )}
-            {hasAvailability && !isDistributionValid && (
-              <div>
-                ⚠️ Veuillez remplir la répartition hebdomadaire pour que le total corresponde aux
-                heures contractuelles ({expectedTotal.toFixed(1)}h).
-              </div>
-            )}
-          </AlertDescription>
-        </Alert>
+        <StyledAlert variant="warning">
+          {!hasAvailability && (
+            <div>
+              ⚠️ Veuillez renseigner au moins un jour de disponibilité avec des créneaux
+              horaires.
+            </div>
+          )}
+          {hasAvailability && !isDistributionValid && (
+            <div>
+              ⚠️ Veuillez remplir la répartition hebdomadaire pour que le total corresponde aux
+              heures contractuelles ({expectedTotal.toFixed(1)}h).
+            </div>
+          )}
+        </StyledAlert>
       )}
 
       <div className="flex justify-end">
