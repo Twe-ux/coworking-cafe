@@ -32,6 +32,7 @@ function mapBookingToType(booking: any): BookingType {
     depositPaid: booking.amountPaid || 0,
     captureMethod: booking.captureMethod,
     depositAmount: booking.depositAmount,
+    isAdminBooking: booking.isAdminBooking || false,
     notes: booking.notes || booking.message || "",
     createdAt: booking.createdAt?.toISOString(),
     updatedAt: booking.updatedAt?.toISOString(),

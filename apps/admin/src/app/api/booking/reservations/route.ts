@@ -121,6 +121,7 @@ export async function GET(request: NextRequest) {
         depositPaid: booking.amountPaid || 0,
         captureMethod: booking.captureMethod,
         depositAmount: booking.depositAmount,
+        isAdminBooking: booking.isAdminBooking || false,
         notes: booking.notes || booking.message || '',
         createdAt: booking.createdAt?.toISOString(),
         updatedAt: booking.updatedAt?.toISOString(),
