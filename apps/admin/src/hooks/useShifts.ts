@@ -30,6 +30,7 @@ export function useShifts(options: UseShiftsOptions = {}) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Manual refresh function (without AbortController, for user-triggered refreshes)
   const fetchShifts = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -44,37 +45,17 @@ export function useShifts(options: UseShiftsOptions = {}) {
       if (options.active !== undefined)
         params.append('active', String(options.active))
 
+      console.log('🔄 [useShifts] Manual refresh')
+
       const response = await fetch(`/api/shifts?${params.toString()}`)
       const result = await response.json()
 
       if (result.success) {
-        // Keep dates as strings (YYYY-MM-DD) to avoid timezone issues
         const shiftsWithNormalizedDates = result.data.map((shift: any) => ({
           ...shift,
           date: formatDateToLocalString(shift.date),
         }))
-
-        // Avoid unnecessary re-renders by comparing content
-        setShifts((prev) => {
-          if (prev.length !== shiftsWithNormalizedDates.length) return shiftsWithNormalizedDates
-
-          // Compare by ID instead of index to avoid false positives when order changes
-          const prevById = new Map(prev.map(s => [s.id, s]))
-
-          const hasChanges = shiftsWithNormalizedDates.some((newShift: any) => {
-            const oldShift = prevById.get(newShift.id)
-            return (
-              !oldShift ||
-              oldShift.employeeId !== newShift.employeeId ||
-              oldShift.date !== newShift.date ||
-              oldShift.startTime !== newShift.startTime ||
-              oldShift.endTime !== newShift.endTime ||
-              oldShift.isActive !== newShift.isActive
-            )
-          })
-
-          return hasChanges ? shiftsWithNormalizedDates : prev
-        })
+        setShifts(shiftsWithNormalizedDates)
         setError(null)
       } else {
         setError(result.error || 'Error fetching shifts')
@@ -96,8 +77,93 @@ export function useShifts(options: UseShiftsOptions = {}) {
   ])
 
   useEffect(() => {
-    fetchShifts()
-  }, [fetchShifts])
+    // AbortController to cancel previous requests
+    const abortController = new AbortController()
+
+    // Create a version of fetchShifts that can be aborted
+    const fetchWithAbort = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        // Build query parameters
+        const params = new URLSearchParams()
+        if (options.employeeId) params.append('employeeId', options.employeeId)
+        if (options.startDate) params.append('startDate', options.startDate)
+        if (options.endDate) params.append('endDate', options.endDate)
+        if (options.type) params.append('type', options.type)
+        if (options.active !== undefined)
+          params.append('active', String(options.active))
+
+        console.log('🔵 [useShifts] Fetching shifts:', {
+          startDate: options.startDate,
+          endDate: options.endDate,
+        })
+
+        const response = await fetch(`/api/shifts?${params.toString()}`, {
+          signal: abortController.signal, // Pass abort signal
+        })
+
+        // If aborted, don't process the result
+        if (abortController.signal.aborted) {
+          console.log('⚠️ [useShifts] Request aborted')
+          return
+        }
+
+        const result = await response.json()
+
+        console.log('🟢 [useShifts] Received shifts:', {
+          count: result.data?.length || 0,
+          startDate: options.startDate,
+          endDate: options.endDate,
+        })
+
+        if (result.success) {
+          // Keep dates as strings (YYYY-MM-DD) to avoid timezone issues
+          const shiftsWithNormalizedDates = result.data.map((shift: any) => ({
+            ...shift,
+            date: formatDateToLocalString(shift.date),
+          }))
+
+          console.log('✅ [useShifts] Setting shifts to state:', shiftsWithNormalizedDates.length)
+
+          // Always update shifts - React will handle re-render optimization
+          setShifts(shiftsWithNormalizedDates)
+          setError(null)
+        } else {
+          setError(result.error || 'Error fetching shifts')
+          setShifts([])
+        }
+      } catch (err: any) {
+        // Don't log error if request was aborted
+        if (err.name === 'AbortError') {
+          console.log('⚠️ [useShifts] Request cancelled')
+          return
+        }
+        console.error('Error useShifts:', err)
+        setError('Server connection error')
+        setShifts([])
+      } finally {
+        if (!abortController.signal.aborted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchWithAbort()
+
+    // Cleanup: abort request when component unmounts or dependencies change
+    return () => {
+      console.log('🔴 [useShifts] Aborting previous request')
+      abortController.abort()
+    }
+  }, [
+    options.employeeId,
+    options.startDate,
+    options.endDate,
+    options.type,
+    options.active,
+  ])
 
   const createShift = useCallback(async (shiftData: CreateShiftInput) => {
     try {
