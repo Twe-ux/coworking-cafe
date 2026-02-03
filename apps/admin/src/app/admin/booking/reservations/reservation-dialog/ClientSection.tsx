@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Edit2, Save, Search, X } from "lucide-react";
+import { Edit2, Loader2, Save, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ClientData, ClientSectionProps } from "./types";
 
@@ -548,7 +548,7 @@ export function ClientSection({
             <Button
               type="button"
               onClick={handleCreateNewClient}
-              disabled={!newClient.name}
+              disabled={!newClient.name || loading}
               className={cn(
                 "w-full",
                 newClient.email
@@ -556,9 +556,18 @@ export function ClientSection({
                   : "bg-orange-500 hover:bg-orange-600 text-white"
               )}
             >
-              {newClient.email
-                ? "Créer un compte client"
-                : "Créer un client simple"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Création en cours...
+                </>
+              ) : (
+                <>
+                  {newClient.email
+                    ? "Créer un compte client"
+                    : "Créer un client simple"}
+                </>
+              )}
             </Button>
           </div>
         </div>
