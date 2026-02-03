@@ -62,7 +62,7 @@ export function useContactMessages(
       const filteredMessages =
         statusFilter === "all"
           ? allMessages
-          : allMessages.filter((m) => m.status === statusFilter);
+          : allMessages.filter((m: ContactMail) => m.status === statusFilter);
 
       setMessages(filteredMessages);
 

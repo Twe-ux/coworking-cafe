@@ -153,8 +153,13 @@ export function useShiftAssignment({
     [submitWithData, formData]
   )
 
-  const handleDelete = useCallback(() => {
-    if (existingShift && window.confirm('Are you sure you want to delete this shift?')) {
+  const handleDelete = useCallback(async () => {
+    if (!existingShift) return
+
+    // Note: This requires async confirm dialog integration
+    // For now, keeping synchronous check until ConfirmDialog is integrated at component level
+    const confirmed = window.confirm('Are you sure you want to delete this shift?')
+    if (confirmed) {
       onDelete(existingShift.id)
       onClose()
     }

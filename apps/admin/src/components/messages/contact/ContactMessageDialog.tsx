@@ -23,6 +23,8 @@ import {
   Reply,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/hooks/useConfirm";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface ContactMessageDialogProps {
   open: boolean;
@@ -45,6 +47,7 @@ export function ContactMessageDialog({
   const [reply, setReply] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
+  const { confirm, isOpen, config: confirmConfig, handleConfirm, handleCancel, setIsOpen } = useConfirm();
 
   // Ouvrir automatiquement le formulaire de réponse si demandé
   useEffect(() => {
@@ -118,9 +121,13 @@ export function ContactMessageDialog({
   };
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(
-      "Êtes-vous sûr de vouloir supprimer ce message définitivement ?"
-    );
+    const confirmed = await confirm({
+      title: "Supprimer définitivement",
+      description: "Êtes-vous sûr de vouloir supprimer ce message définitivement ?",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      variant: "destructive",
+    });
 
     if (!confirmed) return;
 
@@ -328,6 +335,17 @@ Elle sera envoyée par email à l'adresse fournie."
           )}
         </div>
       </DialogContent>
+
+      <ConfirmDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title={confirmConfig?.title || ""}
+        description={confirmConfig?.description || ""}
+        confirmText={confirmConfig?.confirmText}
+        cancelText={confirmConfig?.cancelText}
+        variant={confirmConfig?.variant}
+        onConfirm={handleConfirm}
+      />
     </Dialog>
   );
 }

@@ -10,6 +10,8 @@ import { UserFilters } from "@/components/users/UserFilters";
 import { UsersPageSkeleton } from "./UsersPageSkeleton";
 import { toast } from "sonner";
 import type { UserFilters as UserFiltersType } from "@/types/user";
+import { useConfirm } from "@/hooks/useConfirm";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export default function UsersPage() {
   const [filters, setFilters] = useState<UserFiltersType>({
@@ -20,11 +22,16 @@ export default function UsersPage() {
   });
 
   const { users, loading, error, refetch, deleteUser } = useUsers(filters);
+  const { confirm, isOpen, config, handleConfirm, handleCancel, setIsOpen } = useConfirm();
 
   const handleDeleteUser = async (userId: string) => {
-    const confirmed = window.confirm(
-      "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
-    );
+    const confirmed = await confirm({
+      title: "Supprimer l'utilisateur",
+      description: "Êtes-vous sûr de vouloir supprimer cet utilisateur ?",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      variant: "destructive",
+    });
 
     if (!confirmed) return;
 
@@ -151,6 +158,17 @@ export default function UsersPage() {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title={config?.title || ""}
+        description={config?.description || ""}
+        confirmText={config?.confirmText}
+        cancelText={config?.cancelText}
+        variant={config?.variant}
+        onConfirm={handleConfirm}
+      />
     </div>
   );
 }

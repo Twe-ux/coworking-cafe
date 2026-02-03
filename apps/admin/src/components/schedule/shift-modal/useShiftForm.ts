@@ -182,7 +182,11 @@ export function useShiftForm({
 
   const handleDelete = useCallback(async () => {
     if (!existingShift || !onDelete) return
-    if (!window.confirm('Etes-vous sur de vouloir supprimer ce creneau ?')) return
+
+    // Note: This requires async confirm dialog integration
+    // For now, keeping synchronous check until ConfirmDialog is integrated at component level
+    const confirmed = window.confirm('Etes-vous sur de vouloir supprimer ce creneau ?')
+    if (!confirmed) return
 
     setIsSubmitting(true)
     try {

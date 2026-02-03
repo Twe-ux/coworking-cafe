@@ -26,6 +26,8 @@ import {
   Inbox,
   Trash2,
 } from "lucide-react";
+import { useConfirm } from "@/hooks/useConfirm";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 /**
  * Composant client pour la page de gestion des messages de contact
@@ -43,6 +45,7 @@ export function ContactPageClient() {
 
   const { messages, loading, stats, fetchMessages } =
     useContactMessages(statusFilter);
+  const { confirm, isOpen, config, handleConfirm, handleCancel, setIsOpen } = useConfirm();
 
   // Obtenir les messages sélectionnés
   const selectedMessages = Object.keys(rowSelection)
@@ -116,9 +119,13 @@ export function ContactPageClient() {
   };
 
   const handleDelete = async (id: string) => {
-    const confirmed = window.confirm(
-      "Êtes-vous sûr de vouloir supprimer ce message ?"
-    );
+    const confirmed = await confirm({
+      title: "Supprimer le message",
+      description: "Êtes-vous sûr de vouloir supprimer ce message ?",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      variant: "destructive",
+    });
 
     if (!confirmed) return;
 
@@ -144,9 +151,13 @@ export function ContactPageClient() {
   const handleBulkDelete = async () => {
     if (selectedMessages.length === 0) return;
 
-    const confirmed = window.confirm(
-      `Êtes-vous sûr de vouloir supprimer ${selectedMessages.length} message(s) ?`
-    );
+    const confirmed = await confirm({
+      title: "Supprimer les messages",
+      description: `Êtes-vous sûr de vouloir supprimer ${selectedMessages.length} message(s) ?`,
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      variant: "destructive",
+    });
 
     if (!confirmed) return;
 
@@ -319,6 +330,17 @@ export function ContactPageClient() {
         message={selectedMessage}
         openInReplyMode={openInReplyMode}
         onUpdate={fetchMessages}
+      />
+
+      <ConfirmDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title={config?.title || ""}
+        description={config?.description || ""}
+        confirmText={config?.confirmText}
+        cancelText={config?.cancelText}
+        variant={config?.variant}
+        onConfirm={handleConfirm}
       />
     </div>
   );

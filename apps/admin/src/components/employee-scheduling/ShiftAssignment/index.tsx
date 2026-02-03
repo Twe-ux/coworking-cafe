@@ -32,6 +32,8 @@ import {
 import type { ShiftAssignmentProps } from './types'
 import { useShiftAssignment } from './hooks/useShiftAssignment'
 import { useShiftTypes } from './hooks/useShiftTypes'
+import { useConfirm } from '@/hooks/useConfirm'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { DateDisplay } from './DateDisplay'
 import { EmployeeSelector } from './EmployeeSelector'
 import { ShiftTypeSelector } from './ShiftTypeSelector'
