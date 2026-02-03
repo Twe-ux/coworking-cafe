@@ -16,10 +16,10 @@ export default function BookingPage() {
       href: "/admin/booking/reservations",
     },
     {
-      title: "Calendrier",
-      description: "Vue calendrier mensuel des réservations",
+      title: "Agenda",
+      description: "Vue agenda mensuel des réservations",
       icon: Clock,
-      href: "/admin/booking/calendar",
+      href: "/agenda",
     },
     {
       title: "Espaces de réunion",

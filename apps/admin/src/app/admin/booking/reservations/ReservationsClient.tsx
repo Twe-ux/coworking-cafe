@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { StyledAlert } from "@/components/ui/styled-alert";
 import {
   Dialog,
   DialogContent,
@@ -25,8 +25,6 @@ import {
 } from "@/components/ui/select";
 import {
   Calendar,
-  AlertCircle,
-  CheckCircle2,
   Check,
   X,
   Users,
@@ -270,14 +268,11 @@ export function ReservationsClient() {
   if (error) {
     return (
       <div className="space-y-6 p-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            {error instanceof Error
-              ? error.message
-              : "Erreur lors du chargement des réservations"}
-          </AlertDescription>
-        </Alert>
+        <StyledAlert variant="destructive">
+          {error instanceof Error
+            ? error.message
+            : "Erreur lors du chargement des réservations"}
+        </StyledAlert>
       </div>
     );
   }
@@ -294,10 +289,10 @@ export function ReservationsClient() {
             Gérer les réservations clients
           </p>
         </div>
-        <Link href="/admin/booking/calendar">
+        <Link href="/agenda">
           <Button>
             <CalendarDays className="w-4 h-4 mr-2" />
-            Voir le calendrier
+            Voir l'agenda
           </Button>
         </Link>
       </div>
@@ -421,14 +416,9 @@ export function ReservationsClient() {
       </Dialog>
 
       {message && (
-        <Alert variant={message.type === "success" ? "default" : "destructive"}>
-          {message.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4" />
-          ) : (
-            <AlertCircle className="h-4 w-4" />
-          )}
-          <AlertDescription>{message.text}</AlertDescription>
-        </Alert>
+        <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+          {message.text}
+        </StyledAlert>
       )}
 
       {/* Stats Cards */}
@@ -487,9 +477,7 @@ export function ReservationsClient() {
       </div>
 
       {bookings.length === 0 ? (
-        <Alert>
-          <AlertDescription>Aucune réservation trouvée.</AlertDescription>
-        </Alert>
+        <StyledAlert variant="info">Aucune réservation trouvée.</StyledAlert>
       ) : (
         <>
           <CardHeader className="px-0">

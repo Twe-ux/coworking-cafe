@@ -137,8 +137,8 @@ export function getAdminMenu(
           badge: pendingBookings > 0 ? pendingBookings : undefined,
         },
         {
-          title: "Calendrier",
-          url: "/admin/booking/calendar",
+          title: "Agenda",
+          url: "/agenda",
         },
         {
           title: "Espaces",
