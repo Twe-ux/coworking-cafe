@@ -761,7 +761,7 @@ export default function BookingSummaryPage() {
                             >
                               J'accepte les{" "}
                               <a
-                                href="/CGU"
+                                href="/cgu"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{

@@ -21,7 +21,7 @@ const Footer = () => {
         "/",
 
         // Static pages - legal and info
-        "/CGU",
+        "/cgu",
         "/confidentiality",
         "/mentions-legales",
         "/contact",
@@ -217,7 +217,7 @@ const Footer = () => {
               <h3 className="footer__info_group">À propos</h3>
               <ul>
                 <li>
-                  <Link href={"/CGU"}>CGU / CGV</Link>
+                  <Link href={"/cgu"}>CGU / CGV</Link>
                 </li>
                 <li>
                   <Link href={"/mentions-legales"}>Mentions légales</Link>

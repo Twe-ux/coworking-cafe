@@ -61,17 +61,17 @@ export default function CancelBookingModal({
         let cancellationMessage = "";
         if (booking.spaceType === "open-space") {
           cancellationMessage =
-            "Attention, des frais d'annulation peuvent s'appliquer selon les <a href='/CGU#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>CGVs</a>.<br/><em>Entre 0 et 15 jours calendaires avant la réservation : 50% du montant total sera prélevé.</em>";
+            "Attention, des frais d'annulation peuvent s'appliquer selon les <a href='/cgu#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>CGVs</a>.<br/><em>Entre 0 et 15 jours calendaires avant la réservation : 50% du montant total sera prélevé.</em>";
         } else if (
           booking.spaceType === "salle-verriere" ||
           booking.spaceType === "salle-etage"
         ) {
           cancellationMessage =
-            "Attention, des frais d'annulation peuvent s'appliquer selon les <a href='/CGU#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>CGVs</a>.<br/><em>Entre 0 et 29 jours calendaires avant la réservation : jusqu'à 70% du montant total peut être prélevé.</em>";
+            "Attention, des frais d'annulation peuvent s'appliquer selon les <a href='/cgu#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>CGVs</a>.<br/><em>Entre 0 et 29 jours calendaires avant la réservation : jusqu'à 70% du montant total peut être prélevé.</em>";
         } else {
           // Default for evenementiel or other types
           cancellationMessage =
-            "Attention, des frais d'annulation peuvent s'appliquer selon les <a href='/CGU#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>CGVs</a>.";
+            "Attention, des frais d'annulation peuvent s'appliquer selon les <a href='/cgu#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>CGVs</a>.";
         }
 
         setPreview({
@@ -166,7 +166,7 @@ export default function CancelBookingModal({
           2
         )}€</strong> sera <strong>prélevée intégralement</strong>.`;
       } else {
-        message = `Selon nos <a href='/CGU#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>conditions générales de vente</a>, <strong>${cancellationFee.toFixed(
+        message = `Selon nos <a href='/cgu#article6' target='_blank' rel='noopener noreferrer' style='color: inherit; text-decoration: underline;'>conditions générales de vente</a>, <strong>${cancellationFee.toFixed(
           2
         )}€</strong> sera <strong>prélevé</strong> (${chargePercentage}% du montant total).`;
       }

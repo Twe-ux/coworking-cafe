@@ -7,7 +7,7 @@ const publicRoutes = [
   "/",
 
   // Static pages - legal and info
-  "/CGU",
+  "/cgu",
   "/confidentiality",
   "/mentions-legales",
   "/contact",

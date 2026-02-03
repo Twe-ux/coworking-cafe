@@ -49,7 +49,7 @@ export default function InfoEmpreinte({
         <strong style={{ color: "#333" }}>{formatAmount(amount)}</strong> sera
         effectuée sur votre carte pour garantir votre réservation, selon{" "}
         <a
-          href="/CGU#article6"
+          href="/cgu#article6"
           style={{
             color: "#588983",
             textDecoration: "underline",

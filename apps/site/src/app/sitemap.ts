@@ -81,7 +81,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: "https://new.coworkingcafe.fr/CGU",
+      url: "https://new.coworkingcafe.fr/cgu",
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,

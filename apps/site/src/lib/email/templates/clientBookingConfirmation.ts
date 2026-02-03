@@ -160,7 +160,7 @@ export function generateBookingInitialEmail(
       <div class="info-box" style="background: #EFF6FF; border-left: 4px solid #3B82F6; padding: 20px; border-radius: 8px; margin: 28px 0;">
         <p style="margin: 0 0 12px 0; font-weight: 700; color: #1E40AF; font-size: 16px;">💳 Empreinte bancaire effectuée</p>
         <p style="margin: 0; color: #1E40AF; font-size: 15px; line-height: 1.7;">
-          Une empreinte bancaire de <strong>${depositInEuros}€</strong> soit <strong>${depositPercentage}%</strong> du montant de la réservation a été effectuée sur votre carte. Cette empreinte sera automatiquement annulée lors de votre venue. <br /> Si vous annulez votre réservation ou ne vous présentez pas le jour de votre réservation, des frais d'annulation seront débités selon nos <a href="https://coworkingcafe.fr/CGU#article6" style="color: #1E40AF; text-decoration: underline; font-weight: 600;">CGVs</a>.
+          Une empreinte bancaire de <strong>${depositInEuros}€</strong> soit <strong>${depositPercentage}%</strong> du montant de la réservation a été effectuée sur votre carte. Cette empreinte sera automatiquement annulée lors de votre venue. <br /> Si vous annulez votre réservation ou ne vous présentez pas le jour de votre réservation, des frais d'annulation seront débités selon nos <a href="https://coworkingcafe.fr/cgu#article6" style="color: #1E40AF; text-decoration: underline; font-weight: 600;">CGVs</a>.
         </p>
       </div>
       `

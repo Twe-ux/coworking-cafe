@@ -135,7 +135,7 @@ export default function CancellationPolicyDisplay({
           <p style={{ margin: "0", color: "#92400E" }}>
             Pour plus de détails, consultez nos{" "}
             <a
-              href="/CGU#article6"
+              href="/cgu#article6"
               target="_blank"
               rel="noopener noreferrer"
               style={{
