@@ -117,8 +117,7 @@ export function useScheduleData(): UseScheduleDataReturn {
                 : shift.date,
           }));
         },
-        // Prefetch data is considered stale after 30s (same as main query)
-        staleTime: 30 * 1000,
+        // No staleTime override - uses global config (5min dev / 24h prod)
       });
     };
 

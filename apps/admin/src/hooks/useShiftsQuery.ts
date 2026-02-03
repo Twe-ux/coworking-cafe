@@ -61,6 +61,7 @@ export function useShiftsQuery(options: UseShiftsOptions = {}) {
   const queryClient = useQueryClient()
 
   // Query for fetching shifts
+  // Uses global config: 5min in dev, 24h in prod
   const {
     data: shifts = [],
     isLoading,
@@ -69,8 +70,7 @@ export function useShiftsQuery(options: UseShiftsOptions = {}) {
   } = useQuery({
     queryKey: shiftsKeys.list(options),
     queryFn: () => fetchShifts(options),
-    // Shifts are considered stale after 30 seconds (will refetch in background)
-    staleTime: 30 * 1000,
+    // No staleTime override - uses global config (5min dev / 24h prod)
   })
 
   // Mutation for creating a shift
