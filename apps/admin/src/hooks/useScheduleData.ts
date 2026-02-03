@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useShifts } from "@/hooks/useShifts";
+import { useShiftsQuery } from "@/hooks/useShiftsQuery";
 import { useUnavailabilities } from "@/hooks/useUnavailabilities";
 import type { Employee } from "@/types/hr";
 import type { TimeEntry, ApiResponse } from "@/types/timeEntry";
@@ -12,7 +12,7 @@ interface UseScheduleDataReturn {
   // Data
   currentDate: Date;
   employees: Employee[];
-  shifts: ReturnType<typeof useShifts>["shifts"];
+  shifts: ReturnType<typeof useShiftsQuery>["shifts"];
   timeEntries: TimeEntry[];
   unavailabilities: IUnavailabilityWithEmployee[];
 
@@ -25,9 +25,9 @@ interface UseScheduleDataReturn {
   refreshShifts: () => void;
 
   // Shift operations
-  createShift: ReturnType<typeof useShifts>["createShift"];
-  updateShift: ReturnType<typeof useShifts>["updateShift"];
-  deleteShift: ReturnType<typeof useShifts>["deleteShift"];
+  createShift: ReturnType<typeof useShiftsQuery>["createShift"];
+  updateShift: ReturnType<typeof useShiftsQuery>["updateShift"];
+  deleteShift: ReturnType<typeof useShiftsQuery>["deleteShift"];
 }
 
 /**
@@ -48,7 +48,7 @@ export function useScheduleData(): UseScheduleDataReturn {
   const { startDate: calendarStartDate, endDate: calendarEndDate } =
     getCalendarDateRange(currentDate);
 
-  // Fetch shifts using the existing hook
+  // Fetch shifts using React Query (with automatic caching)
   const {
     shifts,
     isLoading: isLoadingShifts,
@@ -57,7 +57,7 @@ export function useScheduleData(): UseScheduleDataReturn {
     updateShift,
     deleteShift,
     refreshShifts,
-  } = useShifts({
+  } = useShiftsQuery({
     startDate: calendarStartDate.toISOString().split("T")[0],
     endDate: calendarEndDate.toISOString().split("T")[0],
     active: true,
