@@ -29,6 +29,7 @@ export async function GET(
     const roleSlug = searchParams.get("roleSlug");
     const isActiveParam = searchParams.get("isActive");
     const newsletterParam = searchParams.get("newsletter");
+    const excludeNewsletterOnly = searchParams.get("excludeNewsletterOnly") === "true";
 
     // Fetch all users with roles
     // Filter out users with invalid role field (string instead of ObjectId)
@@ -51,8 +52,10 @@ export async function GET(
       }
     }
 
-    // Fetch all newsletter entries (for standalone emails)
-    const newsletters = await Newsletter.find({ isSubscribed: true }).lean();
+    // Fetch all newsletter entries (for standalone emails) - only if not excluded
+    const newsletters = excludeNewsletterOnly
+      ? []
+      : await Newsletter.find({ isSubscribed: true }).lean();
 
     // Create a map to combine users + newsletters
     const usersMap = new Map<string, UserType>();

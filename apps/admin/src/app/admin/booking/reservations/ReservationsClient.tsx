@@ -35,9 +35,11 @@ import {
   XCircle,
   CalendarDays,
   Pencil,
+  Plus,
 } from "lucide-react";
 import { ReservationsSkeleton } from "./ReservationsSkeleton";
 import { ReservationDetailModal } from "./ReservationDetailModal";
+import { ReservationDialog } from "./reservation-dialog";
 import type { Booking, BookingStatus } from "@/types/booking";
 import {
   getStatusLabel,
@@ -97,12 +99,15 @@ export function ReservationsClient() {
     endTime: "",
   });
   const [editLoading, setEditLoading] = useState(false);
+  // Create reservation dialog state
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   // Load all bookings to calculate stats
   const {
     data: allBookings = [],
     isLoading: loading,
     error,
+    refetch,
   } = useBookings({ status: "all" });
   const confirmBooking = useConfirmBooking();
   const cancelBooking = useCancelBooking();
@@ -297,12 +302,18 @@ export function ReservationsClient() {
             Gérer les réservations clients
           </p>
         </div>
-        <Link href="/admin/booking/agenda">
-          <Button>
-            <CalendarDays className="w-4 h-4 mr-2" />
-            Voir l'agenda
+        <div className="flex gap-2">
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nouvelle réservation
           </Button>
-        </Link>
+          <Link href="/admin/booking/agenda">
+            <Button variant="outline">
+              <CalendarDays className="w-4 h-4 mr-2" />
+              Voir l'agenda
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <ReservationDetailModal
@@ -662,6 +673,19 @@ export function ReservationsClient() {
           </CardContent>
         </>
       )}
+
+      {/* Dialog pour créer une nouvelle réservation */}
+      <ReservationDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={() => {
+          refetch();
+          setMessage({
+            type: "success",
+            text: "Réservation créée avec succès",
+          });
+        }}
+      />
     </div>
   );
 }

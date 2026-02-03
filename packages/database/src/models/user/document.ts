@@ -15,6 +15,8 @@ export interface UserDocument extends Document {
   passwordChangedAt?: Date;
   newsletter: boolean;
   isTemporary: boolean;
+  activationToken?: string;
+  activationTokenExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
@@ -68,6 +70,14 @@ export const UserSchema = new Schema<UserDocument>(
     isTemporary: {
       type: Boolean,
       default: false,
+    },
+    activationToken: {
+      type: String,
+      select: false,
+    },
+    activationTokenExpires: {
+      type: Date,
+      select: false,
     },
     deletedAt: {
       type: Date,

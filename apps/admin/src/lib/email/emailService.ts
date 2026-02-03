@@ -5,6 +5,7 @@ import {
   generateBookingModifiedEmail,
   generatePendingWithDepositEmail,
 } from '@coworking-cafe/email';
+import { accountActivationEmail } from './templates/accountActivation';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -175,6 +176,34 @@ export async function sendPendingWithDepositEmail(
     totalPrice: bookingDetails.totalPrice,
     depositAmount: bookingDetails.depositAmount,
     depositFileUrl: bookingDetails.depositFileUrl,
+  });
+
+  const result = await sendEmail({
+    to: email,
+    subject,
+    html,
+  });
+
+  return result.success;
+}
+
+/**
+ * Send account activation email
+ */
+export async function sendAccountActivationEmail(
+  email: string,
+  data: {
+    userName: string;
+    activationToken: string;
+  }
+): Promise<boolean> {
+  const subject = '🎉 Activez votre compte - CoworKing Café';
+
+  const activationUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/activate-account?token=${data.activationToken}`;
+
+  const html = accountActivationEmail({
+    userName: data.userName,
+    activationUrl,
   });
 
   const result = await sendEmail({

@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Edit2, Save, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -37,7 +38,8 @@ export function ClientSection({
   const fetchClients = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/users");
+      // Exclure les abonnés newsletter - uniquement les vrais utilisateurs
+      const response = await fetch("/api/users?excludeNewsletterOnly=true");
       const data = await response.json();
 
       if (data.success) {
@@ -80,62 +82,116 @@ export function ClientSection({
   };
 
   const handleCreateNewClient = async () => {
-    if (!newClient.name || !newClient.email) {
+    if (!newClient.name) {
       return;
     }
 
     try {
       setLoading(true);
 
-      // Récupérer le roleId du rôle "client"
-      const rolesResponse = await fetch("/api/hr/roles");
-      const rolesData = await rolesResponse.json();
+      // Si email + téléphone fournis → créer un compte user
+      if (newClient.email) {
+        // Récupérer le roleId du rôle "client"
+        const rolesResponse = await fetch("/api/hr/roles");
+        const rolesData = await rolesResponse.json();
 
-      const clientRole = rolesData.data?.find(
-        (role: any) => role.slug === "client",
-      );
-      if (!clientRole) {
-        console.error("❌ Rôle 'client' introuvable");
-        return;
-      }
+        const clientRole = rolesData.data?.find(
+          (role: any) => role.slug === "client",
+        );
+        if (!clientRole) {
+          console.error("❌ Rôle 'client' introuvable");
+          return;
+        }
 
-      // Créer le nouveau client dans la base users
-      const response = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: newClient.email,
-          givenName: newClient.name,
-          phone: newClient.phone,
-          companyName: newClient.company,
-          roleId: clientRole.id,
-          password: Math.random().toString(36).slice(-12), // Mot de passe temporaire
-          newsletter: false,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        console.log("✅ Nouveau client créé:", data.data);
-
-        // Retourner le client créé avec son ID
-        onChange({
-          id: data.data.id,
-          name: data.data.givenName || data.data.email,
-          email: data.data.email,
-          phone: data.data.phone || "",
-          company: data.data.companyName || "",
+        // Créer le nouveau client dans la base users
+        const response = await fetch("/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: newClient.email,
+            givenName: newClient.name,
+            phone: newClient.phone,
+            companyName: newClient.company,
+            roleId: clientRole.id,
+            password: Math.random().toString(36).slice(-12), // Mot de passe temporaire
+            newsletter: false,
+          }),
         });
 
-        // Rafraîchir la liste des clients
-        await fetchClients();
+        const data = await response.json();
 
-        setSearchQuery("");
-        setNewClient({ name: "", email: "", phone: "", company: "" });
+        if (data.success) {
+          console.log("✅ Compte client créé:", data.data);
+
+          // Générer le token d'activation
+          const activationToken = crypto.randomUUID();
+          const tokenExpires = new Date();
+          tokenExpires.setHours(tokenExpires.getHours() + 48); // Token valide 48h
+
+          // Sauvegarder le token dans le user
+          await fetch(`/api/users/${data.data.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              activationToken,
+              activationTokenExpires: tokenExpires.toISOString(),
+            }),
+          });
+
+          // Envoyer l'email d'activation
+          try {
+            const emailResponse = await fetch("/api/email/send-activation", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: data.data.email,
+                userName: data.data.givenName || data.data.email,
+                activationToken,
+              }),
+            });
+
+            const emailData = await emailResponse.json();
+            if (emailData.success) {
+              console.log("✅ Email d'activation envoyé à", data.data.email);
+            } else {
+              console.error(
+                "❌ Erreur envoi email d'activation:",
+                emailData.error,
+              );
+            }
+          } catch (emailError) {
+            console.error("❌ Erreur envoi email:", emailError);
+          }
+
+          // Retourner le client créé avec son ID
+          onChange({
+            id: data.data.id,
+            name: data.data.givenName || data.data.email,
+            email: data.data.email,
+            phone: data.data.phone || "",
+            company: data.data.companyName || "",
+          });
+
+          // Rafraîchir la liste des clients
+          await fetchClients();
+        } else {
+          console.error("❌ Erreur lors de la création du client:", data.error);
+        }
       } else {
-        console.error("❌ Erreur lors de la création du client:", data.error);
+        // Pas d'email → client simple sans compte (juste contact info)
+        console.log("✅ Client simple créé (sans compte):", newClient);
+
+        onChange({
+          id: undefined, // Pas d'ID user
+          name: newClient.name,
+          email: "",
+          phone: newClient.phone || "",
+          company: newClient.company || "",
+        });
       }
+
+      setSearchQuery("");
+      setNewClient({ name: "", email: "", phone: "", company: "" });
     } catch (error) {
       console.error("❌ Erreur lors de la création du client:", error);
     } finally {
@@ -297,10 +353,27 @@ export function ClientSection({
         <div className="rounded-md border p-4 bg-muted/50">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="font-medium">{selectedClient.name}</p>
-              <p className="text-sm text-muted-foreground">
-                {selectedClient.email}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-medium">{selectedClient.name}</p>
+                {!selectedClient.id ? (
+                  <Badge variant="outline" className="text-xs">
+                    Client simple
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="text-xs">
+                    Avec compte
+                  </Badge>
+                )}
+              </div>
+              {selectedClient.email ? (
+                <p className="text-sm text-muted-foreground">
+                  {selectedClient.email}
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  Pas d'email renseigné
+                </p>
+              )}
               {selectedClient.phone && (
                 <p className="text-sm text-muted-foreground">
                   {selectedClient.phone}
@@ -415,7 +488,7 @@ export function ClientSection({
               Aucun client trouvé pour "{searchQuery}"
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Complétez les informations ci-dessous pour créer un nouveau client
+              Créer un client simple (nom uniquement) ou avec compte (nom + email)
             </p>
           </div>
 
@@ -433,7 +506,9 @@ export function ClientSection({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="client-email">Email *</Label>
+              <Label htmlFor="client-email">
+                Email <span className="text-xs text-muted-foreground">(optionnel - requis pour créer un compte)</span>
+              </Label>
               <Input
                 id="client-email"
                 type="email"
@@ -473,10 +548,17 @@ export function ClientSection({
             <Button
               type="button"
               onClick={handleCreateNewClient}
-              disabled={!newClient.name || !newClient.email}
-              className="w-full"
+              disabled={!newClient.name}
+              className={cn(
+                "w-full",
+                newClient.email
+                  ? "bg-green-500 hover:bg-green-600 text-white"
+                  : "bg-orange-500 hover:bg-orange-600 text-white"
+              )}
             >
-              Créer et utiliser ce client
+              {newClient.email
+                ? "Créer un compte client"
+                : "Créer un client simple"}
             </Button>
           </div>
         </div>

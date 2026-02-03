@@ -48,6 +48,7 @@ const authRoutes = [
   "/auth/register",
   "/auth/forgot-password",
   "/auth/reset-password",
+  "/auth/activate-account",
 ];
 
 // Protected routes that require authentication but are accessible to all authenticated users

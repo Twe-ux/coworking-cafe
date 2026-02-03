@@ -165,11 +165,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validation: userId OU infos de contact requis
-    if (!body.userId && (!body.contactName || !body.contactEmail)) {
+    // Validation: userId OU au minimum contactName requis
+    if (!body.userId && !body.contactName) {
       return errorResponse(
         "Missing client information",
-        "Either userId or contact information (contactName + contactEmail) is required",
+        "Either userId or at least contactName is required",
         400
       )
     }
