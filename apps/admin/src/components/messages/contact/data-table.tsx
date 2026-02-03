@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
+  type RowSelectionState,
+  type OnChangeFn,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -22,6 +25,8 @@ interface DataTableProps<TData> {
   onView?: (message: ContactMail) => void;
   onReply?: (message: ContactMail) => void;
   onDelete?: (id: string) => void;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
 }
 
 /**
@@ -33,11 +38,18 @@ export function DataTable<TData extends ContactMail>({
   onView,
   onReply,
   onDelete,
+  rowSelection,
+  onRowSelectionChange,
 }: DataTableProps<TData>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    enableRowSelection: true,
+    onRowSelectionChange,
+    state: {
+      rowSelection: rowSelection || {},
+    },
     meta: {
       onView,
       onReply,

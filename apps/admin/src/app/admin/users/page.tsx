@@ -8,6 +8,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { UsersTable } from "@/components/users/UsersTable";
 import { UserFilters } from "@/components/users/UserFilters";
 import { UsersPageSkeleton } from "./UsersPageSkeleton";
+import { toast } from "sonner";
 import type { UserFilters as UserFiltersType } from "@/types/user";
 
 export default function UsersPage() {
@@ -18,7 +19,22 @@ export default function UsersPage() {
     newsletter: undefined,
   });
 
-  const { users, loading, error, refetch } = useUsers(filters);
+  const { users, loading, error, refetch, deleteUser } = useUsers(filters);
+
+  const handleDeleteUser = async (userId: string) => {
+    const confirmed = window.confirm(
+      "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
+    );
+
+    if (!confirmed) return;
+
+    const success = await deleteUser(userId);
+    if (success) {
+      toast.success("Utilisateur supprimé avec succès");
+    } else {
+      toast.error("Erreur lors de la suppression de l'utilisateur");
+    }
+  };
 
   // Stats calculées
   const stats = useMemo(() => {
@@ -130,7 +146,7 @@ export default function UsersPage() {
             <UsersTable
               users={users}
               onEdit={(user) => console.log("Edit user:", user)}
-              onDelete={(userId) => console.log("Delete user:", userId)}
+              onDelete={handleDeleteUser}
             />
           )}
         </CardContent>

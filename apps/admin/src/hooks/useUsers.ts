@@ -6,6 +6,7 @@ interface UseUsersReturn {
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
+  deleteUser: (userId: string) => Promise<boolean>;
 }
 
 /**
@@ -63,10 +64,33 @@ export function useUsers(filters?: UserFilters): UseUsersReturn {
     fetchUsers();
   }, [fetchUsers]);
 
+  const deleteUser = useCallback(async (userId: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || "Erreur lors de la suppression");
+      }
+
+      // Refetch users after successful deletion
+      await fetchUsers();
+      return true;
+    } catch (err) {
+      console.error("Delete user error:", err);
+      setError(err instanceof Error ? err.message : "Erreur lors de la suppression");
+      return false;
+    }
+  }, [fetchUsers]);
+
   return {
     users,
     loading,
     error,
     refetch: fetchUsers,
+    deleteUser,
   };
 }

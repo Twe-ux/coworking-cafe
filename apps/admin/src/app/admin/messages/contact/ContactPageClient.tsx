@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -16,12 +17,14 @@ import { ContactPageSkeleton } from "./ContactPageSkeleton";
 import { useContactMessages } from "@/hooks/useContactMessages";
 import { toast } from "sonner";
 import type { ContactMail, ContactMailStatus } from "@/types/contactMail";
+import type { RowSelectionState } from "@tanstack/react-table";
 import {
   Mail,
   MailOpen,
   MessageSquare,
   Archive,
   Inbox,
+  Trash2,
 } from "lucide-react";
 
 /**
@@ -36,9 +39,15 @@ export function ContactPageClient() {
   );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [openInReplyMode, setOpenInReplyMode] = useState(false);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const { messages, loading, stats, fetchMessages } =
     useContactMessages(statusFilter);
+
+  // Obtenir les messages sélectionnés
+  const selectedMessages = Object.keys(rowSelection)
+    .filter((key) => rowSelection[key])
+    .map((index) => messages[parseInt(index)]);
 
   const handleView = async (message: ContactMail) => {
     // Mettre à jour localement le message pour éviter le flash
@@ -107,6 +116,44 @@ export function ContactPageClient() {
     } catch (error) {
       console.error("Error deleting message:", error);
       toast.error("Erreur lors de la suppression du message");
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedMessages.length === 0) return;
+
+    const confirmed = window.confirm(
+      `Êtes-vous sûr de vouloir supprimer ${selectedMessages.length} message(s) ?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      // Supprimer tous les messages sélectionnés en parallèle
+      const deletePromises = selectedMessages.map((message) =>
+        fetch(`/api/messages/contact/${message.id}`, {
+          method: "DELETE",
+        }).then((res) => res.json())
+      );
+
+      const results = await Promise.all(deletePromises);
+
+      const failedCount = results.filter((r) => !r.success).length;
+
+      if (failedCount === 0) {
+        toast.success(`${selectedMessages.length} message(s) supprimé(s) avec succès`);
+      } else {
+        toast.error(
+          `${failedCount} message(s) n'ont pas pu être supprimé(s)`
+        );
+      }
+
+      // Réinitialiser la sélection
+      setRowSelection({});
+      fetchMessages();
+    } catch (error) {
+      console.error("Error bulk deleting messages:", error);
+      toast.error("Erreur lors de la suppression des messages");
     }
   };
 
@@ -210,7 +257,19 @@ export function ContactPageClient() {
       {/* Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Messages</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Messages</CardTitle>
+            {selectedMessages.length > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Supprimer ({selectedMessages.length})
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <DataTable
@@ -219,6 +278,8 @@ export function ContactPageClient() {
             onView={handleView}
             onReply={handleReply}
             onDelete={handleDelete}
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
           />
         </CardContent>
       </Card>
