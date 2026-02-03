@@ -86,8 +86,42 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     }
   };
 
-  const handleRemove = () => {
-    onChange("");
+  const handleRemove = async () => {
+    if (!value) return;
+
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette image ?")) {
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      // Supprimer de Cloudinary
+      const response = await fetch("/api/upload/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: value }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || "Erreur lors de la suppression");
+      }
+
+      // Vider le champ
+      onChange("");
+    } catch (err) {
+      console.error("Delete error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erreur lors de la suppression de l'image"
+      );
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
