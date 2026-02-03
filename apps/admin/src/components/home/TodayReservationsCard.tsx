@@ -2,13 +2,19 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useTodayReservations } from "@/hooks/useTodayReservations";
 import type { Booking } from "@/types/booking";
 import {
   Calendar,
   Clock,
-  Copy,
   ExternalLink,
+  MessageSquareMore,
   UserCheck,
   UserX,
   Users,
@@ -116,6 +122,9 @@ export function TodayReservationsCard() {
     const spaceType = getSpaceType(booking.spaceName);
     const borderClass = spaceTypeColors[spaceType];
 
+    // Afficher société si existe, sinon nom du client
+    const displayName = booking.clientCompany || booking.clientName;
+
     return (
       <div
         key={booking._id}
@@ -129,19 +138,23 @@ export function TodayReservationsCard() {
               </span>
               <span className="text-xs text-muted-foreground">·</span>
               <span className="text-sm font-semibold truncate">
-                {booking.clientName}
+                {displayName}
               </span>
-              {booking.clientEmail && (
-                <button
-                  type="button"
-                  title={booking.clientEmail}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={() =>
-                    navigator.clipboard.writeText(booking.clientEmail!)
-                  }
-                >
-                  <Copy className="h-3.5 w-3.5" />
-                </button>
+              {booking.notes && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="text-red-500 hover:text-red-600 transition-colors cursor-pointer">
+                        <MessageSquareMore className="h-4 w-4" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs border-red-500 border">
+                      <p className="text-base whitespace-pre-wrap ">
+                        {booking.notes}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -165,7 +178,7 @@ export function TodayReservationsCard() {
                     <>
                       <span>·</span>
                       <span className="font-bold text-blue-500">
-                        Sur facture
+                        €€€ Sur facture
                       </span>
                     </>
                   );

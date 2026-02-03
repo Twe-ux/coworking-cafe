@@ -200,6 +200,7 @@ export function ReservationDialog({
         endTime: formData.endTime,
         numberOfPeople: formData.numberOfPeople,
         totalPrice: formData.totalPrice,
+        invoiceOption: formData.invoiceOption,
         status: formData.status,
         // Contact info
         contactName: formData.client?.name,

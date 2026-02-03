@@ -1,11 +1,11 @@
-import { Calendar, Building2, Clock, Settings } from "lucide-react";
-import Link from "next/link";
 import {
   Card,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
+import { Building2, Calendar, Clock, Settings } from "lucide-react";
+import Link from "next/link";
 
 export default function BookingPage() {
   const bookingModules = [
@@ -19,7 +19,7 @@ export default function BookingPage() {
       title: "Agenda",
       description: "Vue agenda mensuel des réservations",
       icon: Clock,
-      href: "/agenda",
+      href: "/admin/booking/agenda",
     },
     {
       title: "Espaces de réunion",
