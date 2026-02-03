@@ -54,6 +54,7 @@ export default function SchedulePage() {
     getShiftsPositionedByEmployee,
     calculateWeeklyHours,
     formatHoursToHHMM,
+    isEmployeeUnavailable,
   } = useSchedulePage();
 
   // Loading state
@@ -68,6 +69,7 @@ export default function SchedulePage() {
       dayShifts={cellDayShifts}
       employees={employees}
       getShiftsPositionedByEmployee={getShiftsPositionedByEmployee}
+      isEmployeeUnavailable={isEmployeeUnavailable}
       onShiftClick={handleShiftClick}
     />
   );

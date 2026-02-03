@@ -5,6 +5,7 @@ import { useScheduleData } from "@/hooks/useScheduleData";
 import { useScheduleModals } from "@/hooks/useScheduleModals";
 import type { Shift } from "@/types/shift";
 import type { Employee } from "@/types/hr";
+import type { IUnavailabilityWithEmployee } from "@/types/unavailability";
 import {
   formatDateToYMD,
   formatHoursToHHMM,
@@ -12,6 +13,7 @@ import {
   getShiftsPositionedByEmployee,
   type EmployeeShiftPosition,
 } from "@/lib/schedule/utils";
+import { isDateInRange } from "@/lib/utils/format-date";
 
 // Re-export types for convenience
 export type { EmployeeShiftPosition } from "@/lib/schedule/utils";
@@ -22,6 +24,7 @@ export interface UseSchedulePageReturn {
   employees: Employee[];
   shifts: Shift[];
   timeEntries: ReturnType<typeof useScheduleData>["timeEntries"];
+  unavailabilities: IUnavailabilityWithEmployee[];
   dayShifts: Shift[];
 
   // Loading states
@@ -49,6 +52,7 @@ export interface UseSchedulePageReturn {
   calculateWeeklyHours: (employeeId: string, weekShifts: Shift[]) => number;
   formatHoursToHHMM: (decimalHours: number) => string;
   formatDateToYMD: (date: Date | string) => string;
+  isEmployeeUnavailable: (dateStr: string, employeeId: string) => boolean;
 }
 
 /**
@@ -62,6 +66,7 @@ export function useSchedulePage(): UseSchedulePageReturn {
     employees,
     shifts,
     timeEntries,
+    unavailabilities,
     isLoading,
     shiftsError,
     setCurrentDate,
@@ -108,12 +113,26 @@ export function useSchedulePage(): UseSchedulePageReturn {
     });
   }, [shifts, dayShiftsModal.date]);
 
+  // Check if employee is unavailable on a specific date
+  const isEmployeeUnavailable = useCallback(
+    (dateStr: string, employeeId: string): boolean => {
+      return unavailabilities.some((unavail) => {
+        return (
+          unavail.employeeId === employeeId &&
+          isDateInRange(dateStr, unavail.startDate, unavail.endDate)
+        );
+      });
+    },
+    [unavailabilities]
+  );
+
   return {
     // Data
     currentDate,
     employees,
     shifts,
     timeEntries,
+    unavailabilities,
     dayShifts,
 
     // Loading states
@@ -141,5 +160,6 @@ export function useSchedulePage(): UseSchedulePageReturn {
     calculateWeeklyHours,
     formatHoursToHHMM,
     formatDateToYMD,
+    isEmployeeUnavailable,
   };
 }

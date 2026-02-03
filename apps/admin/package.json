@@ -16,7 +16,8 @@
     "debug-db": "tsx scripts/debug-db.ts",
     "reset-users": "tsx scripts/reset-users.ts",
     "check-password": "tsx scripts/check-password.ts",
-    "generate-vapid-keys": "tsx scripts/generate-vapid-keys.ts"
+    "generate-vapid-keys": "tsx scripts/generate-vapid-keys.ts",
+    "migrate-shift-dates": "tsx scripts/migrate-shift-dates.ts"
   },
   "dependencies": {
     "@coworking-cafe/database": "workspace:*",

@@ -1,10 +1,12 @@
 /**
  * Schedule day cell component
  * Renders shift buttons organized by morning/afternoon for each employee
+ * Shows unavailabilities in red when employee is unavailable
  */
 
 import type { Employee } from "@/types/hr";
 import type { Shift } from "@/types/shift";
+import { formatDateToYMD } from "@/lib/schedule/utils";
 
 interface EmployeeShiftPosition {
   employee: Employee;
@@ -21,6 +23,7 @@ interface ScheduleDayCellProps {
     date: Date,
     dayShifts: Shift[]
   ) => EmployeeShiftPosition[];
+  isEmployeeUnavailable: (dateStr: string, employeeId: string) => boolean;
   onShiftClick: (shift: Shift, e: React.MouseEvent) => void;
 }
 
@@ -73,13 +76,33 @@ export function ScheduleDayCell({
   dayShifts,
   employees,
   getShiftsPositionedByEmployee,
+  isEmployeeUnavailable,
   onShiftClick,
 }: ScheduleDayCellProps) {
   const positionedShifts = getShiftsPositionedByEmployee(date, dayShifts);
+  const dateStr = formatDateToYMD(date);
 
   return (
     <div className="flex-1 space-y-1 overflow-hidden">
       {employees.map((employee) => {
+        // Check if employee is unavailable on this date
+        const isUnavailable = isEmployeeUnavailable(dateStr, employee.id);
+
+        // If unavailable, show red "INDISPO" badge instead of shifts
+        if (isUnavailable) {
+          return (
+            <div key={employee.id} className="grid min-h-4 grid-cols-1">
+              <div
+                className="rounded bg-red-600 px-1 py-0.5 text-center text-xs font-bold text-white"
+                title={`${employee.firstName} est indisponible ce jour`}
+              >
+                INDISPO
+              </div>
+            </div>
+          );
+        }
+
+        // Otherwise, show shifts as usual
         const employeeShifts = positionedShifts.find(
           (ps) => ps.employee.id === employee.id
         );

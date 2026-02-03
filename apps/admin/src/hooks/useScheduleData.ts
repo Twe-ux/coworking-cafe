@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useShifts } from "@/hooks/useShifts";
+import { useUnavailabilities } from "@/hooks/useUnavailabilities";
 import type { Employee } from "@/types/hr";
 import type { TimeEntry, ApiResponse } from "@/types/timeEntry";
+import type { IUnavailabilityWithEmployee } from "@/types/unavailability";
 import { getCalendarDateRange } from "@/lib/schedule/utils";
 
 interface UseScheduleDataReturn {
@@ -12,6 +14,7 @@ interface UseScheduleDataReturn {
   employees: Employee[];
   shifts: ReturnType<typeof useShifts>["shifts"];
   timeEntries: TimeEntry[];
+  unavailabilities: IUnavailabilityWithEmployee[];
 
   // Loading states
   isLoading: boolean;
@@ -58,6 +61,13 @@ export function useScheduleData(): UseScheduleDataReturn {
     startDate: calendarStartDate.toISOString().split("T")[0],
     endDate: calendarEndDate.toISOString().split("T")[0],
     active: true,
+  });
+
+  // Fetch unavailabilities (approved only) for current month
+  const { unavailabilities } = useUnavailabilities({
+    startDate: calendarStartDate.toISOString().split("T")[0],
+    endDate: calendarEndDate.toISOString().split("T")[0],
+    status: "approved",
   });
 
   // Fetch active employees
@@ -118,9 +128,8 @@ export function useScheduleData(): UseScheduleDataReturn {
     fetchTimeEntries();
   }, [fetchTimeEntries]);
 
-  useEffect(() => {
-    refreshShifts();
-  }, [currentDate, refreshShifts]);
+  // ✅ SUPPRIMÉ : useEffect redondant qui causait une double récupération des shifts
+  // useShifts gère déjà le fetch automatiquement quand les options changent
 
   // Combined loading state
   const isLoading = isLoadingShifts || isLoadingEmployees || isLoadingTimeEntries;
@@ -130,6 +139,7 @@ export function useScheduleData(): UseScheduleDataReturn {
     employees,
     shifts,
     timeEntries,
+    unavailabilities,
     isLoading,
     shiftsError,
     setCurrentDate,
