@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useShiftsQuery } from "@/hooks/useShiftsQuery";
 import { useUnavailabilities } from "@/hooks/useUnavailabilities";
 import type { Employee } from "@/types/hr";
@@ -40,6 +41,7 @@ export function useScheduleData(): UseScheduleDataReturn {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
+  const queryClient = useQueryClient();
 
   // Loading states
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(true);
@@ -70,6 +72,61 @@ export function useScheduleData(): UseScheduleDataReturn {
     endDate: calendarEndDate.toISOString().split("T")[0],
     status: "approved",
   });
+
+  // 🚀 PREFETCH: Preload next month's shifts in background for instant navigation
+  useEffect(() => {
+    const prefetchNextMonth = async () => {
+      // Calculate next month
+      const nextMonth = new Date(currentDate);
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+      // Get date range for next month
+      const { startDate: nextStartDate, endDate: nextEndDate } =
+        getCalendarDateRange(nextMonth);
+
+      // Prefetch shifts for next month (silent background fetch)
+      await queryClient.prefetchQuery({
+        queryKey: [
+          "shifts",
+          "list",
+          {
+            startDate: nextStartDate.toISOString().split("T")[0],
+            endDate: nextEndDate.toISOString().split("T")[0],
+            active: true,
+          },
+        ],
+        queryFn: async () => {
+          const params = new URLSearchParams({
+            startDate: nextStartDate.toISOString().split("T")[0],
+            endDate: nextEndDate.toISOString().split("T")[0],
+            active: "true",
+          });
+
+          const response = await fetch(`/api/shifts?${params.toString()}`);
+          const result = await response.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Error prefetching shifts");
+          }
+
+          return result.data.map((shift: any) => ({
+            ...shift,
+            date:
+              typeof shift.date === "string"
+                ? shift.date.split("T")[0]
+                : shift.date,
+          }));
+        },
+        // Prefetch data is considered stale after 30s (same as main query)
+        staleTime: 30 * 1000,
+      });
+    };
+
+    // Small delay to avoid prefetching during initial load
+    const timeoutId = setTimeout(prefetchNextMonth, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentDate, queryClient]);
 
   // Fetch active employees
   const fetchEmployees = useCallback(async () => {
