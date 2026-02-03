@@ -159,6 +159,19 @@ export function TodayReservationsCard() {
               <Users className="h-3 w-3" />
               <span>{booking.numberOfPeople} pers.</span>
               {(() => {
+                // Si paiement sur facture, afficher le texte au lieu du prix
+                if (booking.invoicePayment) {
+                  return (
+                    <>
+                      <span>·</span>
+                      <span className="font-bold text-blue-500">
+                        Sur facture
+                      </span>
+                    </>
+                  );
+                }
+
+                // Sinon, afficher le prix comme avant
                 const prices = SPACE_PRICES[spaceType];
                 if (!prices) return null;
                 let isDaily = !booking.startTime || !booking.endTime;

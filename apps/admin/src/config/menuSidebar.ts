@@ -83,6 +83,11 @@ export function getAdminMenu(
 ): MenuItem[] {
   const items: MenuItem[] = [
     {
+      title: "Accueil Staff",
+      url: "/",
+      icon: Home,
+    },
+    {
       title: "Dashboard",
       url: "/admin",
       icon: Home,
