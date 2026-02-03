@@ -58,15 +58,18 @@ export function useShifts(options: UseShiftsOptions = {}) {
         setShifts((prev) => {
           if (prev.length !== shiftsWithNormalizedDates.length) return shiftsWithNormalizedDates
 
-          const hasChanges = shiftsWithNormalizedDates.some((newShift: any, index: number) => {
-            const oldShift = prev[index]
+          // Compare by ID instead of index to avoid false positives when order changes
+          const prevById = new Map(prev.map(s => [s.id, s]))
+
+          const hasChanges = shiftsWithNormalizedDates.some((newShift: any) => {
+            const oldShift = prevById.get(newShift.id)
             return (
               !oldShift ||
-              oldShift.id !== newShift.id ||
               oldShift.employeeId !== newShift.employeeId ||
               oldShift.date !== newShift.date ||
               oldShift.startTime !== newShift.startTime ||
-              oldShift.endTime !== newShift.endTime
+              oldShift.endTime !== newShift.endTime ||
+              oldShift.isActive !== newShift.isActive
             )
           })
 
