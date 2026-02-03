@@ -199,7 +199,7 @@ export async function sendAccountActivationEmail(
 ): Promise<boolean> {
   const subject = '🎉 Activez votre compte - CoworKing Café';
 
-  const activationUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/activate-account?token=${data.activationToken}`;
+  const activationUrl = `${process.env.SITE_URL || 'http://localhost:3000'}/auth/activate-account?token=${data.activationToken}`;
 
   const html = accountActivationEmail({
     userName: data.userName,
