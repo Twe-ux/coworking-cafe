@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import type { ProduitsItem, ProduitsCategory, ProduitsItemType } from "@/types/produits";
 
 interface ProduitsItemModalProps {
@@ -203,28 +204,14 @@ export function ProduitsItemModal({
             </p>
           </div>
 
-          {/* Image URL */}
+          {/* Image Upload */}
           <div className="space-y-2">
-            <Label htmlFor="image">URL de l'image</Label>
-            <Input
-              id="image"
+            <Label>Image du produit</Label>
+            <ImageUpload
               value={image}
-              onChange={(e) => setImage(e.target.value)}
-              placeholder="https://..."
+              onChange={setImage}
+              disabled={saving}
             />
-            {image && (
-              <div className="mt-2">
-                <img
-                  src={image}
-                  alt="Prévisualisation"
-                  className="w-32 h-32 object-cover rounded-md"
-                  onError={(e) => {
-                    e.currentTarget.src = "";
-                    e.currentTarget.alt = "Image invalide";
-                  }}
-                />
-              </div>
-            )}
           </div>
 
           {/* Switch Actif */}

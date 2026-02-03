@@ -209,16 +209,6 @@ export function getAdminMenu(
       title: "Produits",
       url: "/admin/produits",
       icon: UtensilsCrossed,
-      items: [
-        {
-          title: "Boissons",
-          url: "/admin/produits/drinks",
-        },
-        {
-          title: "Food",
-          url: "/admin/produits/food",
-        },
-      ],
     },
     {
       title: "Paramètres",
