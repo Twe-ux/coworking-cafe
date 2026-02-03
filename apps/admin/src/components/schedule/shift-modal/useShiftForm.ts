@@ -6,14 +6,13 @@ import type { ShiftFormData, FormErrors, ShiftTypeConfig } from './types'
 import {
   getPersistentEmployeeId,
   savePersistentEmployeeId,
-  formatDateToLocalString,
   validateShiftForm,
   calculateShiftDuration,
 } from './formUtils'
 
 interface UseShiftFormProps {
   existingShift?: Shift | null
-  selectedDate: Date
+  selectedDate: string // YYYY-MM-DD format (always string, never Date)
   onSave: (data: CreateShiftInput) => Promise<{ success: boolean; error?: string }>
   onUpdate?: (id: string, data: Partial<Shift>) => Promise<{ success: boolean; error?: string }>
   onDelete?: (id: string) => Promise<{ success: boolean; error?: string }>
@@ -36,7 +35,6 @@ interface UseShiftFormReturn {
   handleSubmit: () => Promise<void>
   handleDelete: () => Promise<void>
   calculateDuration: () => string
-  formatDateToLocalString: (date: Date | string) => string
 }
 
 /**
@@ -123,7 +121,7 @@ export function useShiftForm({
     try {
       const shiftData: CreateShiftInput = {
         employeeId: updatedFormData.employeeId,
-        date: formatDateToLocalString(updatedFormData.date),
+        date: updatedFormData.date, // Already string YYYY-MM-DD
         startTime: updatedFormData.startTime,
         endTime: updatedFormData.endTime,
         type: updatedFormData.type,
@@ -156,7 +154,7 @@ export function useShiftForm({
     try {
       const shiftData: CreateShiftInput = {
         employeeId: formData.employeeId,
-        date: formatDateToLocalString(formData.date),
+        date: formData.date, // Already string YYYY-MM-DD
         startTime: formData.startTime,
         endTime: formData.endTime,
         type: formData.type,
@@ -223,6 +221,5 @@ export function useShiftForm({
     handleSubmit,
     handleDelete,
     calculateDuration,
-    formatDateToLocalString,
   }
 }

@@ -21,7 +21,7 @@ import type { Shift } from "@/types/shift";
 interface DayShiftsModalProps {
   open: boolean;
   onClose: () => void;
-  date: Date | string;
+  date: string; // YYYY-MM-DD format (always string, never Date)
   shifts: Shift[];
   onEditShift: (shift: Shift) => void;
   onDeleteShift: (
@@ -44,9 +44,8 @@ export function DayShiftsModal({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<Shift | null>(null);
 
-  // Handle both Date objects and string dates
-  const dateObj =
-    typeof date === "string" ? new Date(date + "T12:00:00") : date;
+  // Convert string date to Date object for formatting
+  const dateObj = new Date(date + "T12:00:00");
   const formattedDate = dateObj.toLocaleDateString("fr-FR", {
     weekday: "long",
     day: "numeric",

@@ -3,17 +3,29 @@
 import { useCallback, useState } from "react";
 import type { Shift, CreateShiftInput, UpdateShiftInput } from "@/types/shift";
 
+// ==================== UTILITIES ====================
+
+/**
+ * Convert Date object to YYYY-MM-DD string format
+ */
+function formatDateToYMD(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 // ==================== TYPES ====================
 
 interface ScheduleModalState {
   isOpen: boolean;
-  selectedDate: Date;
+  selectedDate: string; // YYYY-MM-DD format (always string, never Date)
   selectedShift: Shift | null;
 }
 
 interface DayShiftsModalState {
   isOpen: boolean;
-  date: Date;
+  date: string; // YYYY-MM-DD format (always string, never Date)
 }
 
 /** Result type for shift operations matching existing modal interfaces */
@@ -60,49 +72,49 @@ export function useScheduleModals({
   // Modal states
   const [scheduleModal, setScheduleModal] = useState<ScheduleModalState>({
     isOpen: false,
-    selectedDate: new Date(),
+    selectedDate: "", // Will be set when modal opens
     selectedShift: null,
   });
 
   const [dayShiftsModal, setDayShiftsModal] = useState<DayShiftsModalState>({
     isOpen: false,
-    date: new Date(),
+    date: "", // Will be set when modal opens
   });
 
   // ==================== HANDLERS ====================
 
   const handleCellClick = useCallback((date: Date, cellDayShifts: Shift[]) => {
+    const dateStr = formatDateToYMD(date); // Convert Date to YYYY-MM-DD string
+
     if (cellDayShifts.length === 0) {
       // No shifts: open creation modal directly
       setScheduleModal({
         isOpen: true,
-        selectedDate: date,
+        selectedDate: dateStr,
         selectedShift: null,
       });
     } else {
       // Shifts exist: open day shifts modal
       setDayShiftsModal({
         isOpen: true,
-        date,
+        date: dateStr,
       });
     }
   }, []);
 
   const handleShiftClick = useCallback((shift: Shift, e: React.MouseEvent) => {
     e.stopPropagation();
-    const dateValue = typeof shift.date === "string" ? new Date(shift.date) : shift.date;
     setDayShiftsModal({
       isOpen: true,
-      date: dateValue,
+      date: shift.date, // Already YYYY-MM-DD string
     });
   }, []);
 
   const handleEditShiftFromDay = useCallback((shift: Shift) => {
     setDayShiftsModal((prev) => ({ ...prev, isOpen: false }));
-    const dateValue = typeof shift.date === "string" ? new Date(shift.date) : shift.date;
     setScheduleModal({
       isOpen: true,
-      selectedDate: dateValue,
+      selectedDate: shift.date, // Already YYYY-MM-DD string
       selectedShift: shift,
     });
   }, []);

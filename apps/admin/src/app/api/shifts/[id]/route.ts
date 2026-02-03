@@ -5,22 +5,6 @@ import Employee from '@/models/employee'
 import { requireAuth } from '@/lib/api/auth'
 import { mapShiftToApi } from '@/lib/mappers'
 
-/**
- * Normalize date to YYYY-MM-DD string format
- * Handles both Date objects and string inputs
- */
-function normalizeDateToString(date: Date | string): string {
-  if (typeof date === 'string') {
-    // Extract YYYY-MM-DD from ISO string or return as-is
-    return date.split('T')[0]
-  }
-  // Convert Date object to YYYY-MM-DD
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
 /** Shift update data interface */
 interface ShiftUpdateData {
   employeeId?: string
@@ -127,8 +111,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Build update data
     const updateData: ShiftUpdateData = {}
     if (body.employeeId !== undefined) updateData.employeeId = body.employeeId
-    // ⚠️ IMPORTANT: Normalize date to string YYYY-MM-DD format
-    if (body.date !== undefined) updateData.date = normalizeDateToString(body.date)
+    // Date should already be YYYY-MM-DD string from front-end
+    if (body.date !== undefined) updateData.date = body.date
     if (body.startTime !== undefined) updateData.startTime = body.startTime
     if (body.endTime !== undefined) updateData.endTime = body.endTime
     if (body.type !== undefined) updateData.type = body.type
@@ -139,8 +123,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Check for conflicts if timing data changes
     if (body.employeeId || body.date || body.startTime || body.endTime) {
       const checkEmployeeId = body.employeeId || existingShift.employeeId
-      // Normalize date for comparison
-      const checkDate = body.date ? normalizeDateToString(body.date) : existingShift.date
+      // Date is already YYYY-MM-DD string from front-end
+      const checkDate = body.date || existingShift.date
       const checkStartTime = body.startTime || existingShift.startTime
       const checkEndTime = body.endTime || existingShift.endTime
 

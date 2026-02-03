@@ -20,13 +20,13 @@ export interface ShiftModalProps {
   onUpdate?: (id: string, data: Partial<Shift>) => Promise<{ success: boolean; error?: string }>
   onDelete?: (id: string) => Promise<{ success: boolean; error?: string }>
   employees: Employee[]
-  selectedDate: Date
+  selectedDate: string // YYYY-MM-DD format (always string, never Date)
   existingShift?: Shift | null
 }
 
 export interface ShiftFormData {
   employeeId: string
-  date: Date | string
+  date: string // YYYY-MM-DD format (always string, never Date)
   startTime: string
   endTime: string
   type: string

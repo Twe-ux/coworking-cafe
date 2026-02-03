@@ -16,13 +16,13 @@ interface ShiftOperationResult {
 
 interface ScheduleModalState {
   isOpen: boolean;
-  selectedDate: Date;
+  selectedDate: string; // YYYY-MM-DD format (always string, never Date)
   selectedShift: Shift | null;
 }
 
 interface DayShiftsModalState {
   isOpen: boolean;
-  date: Date;
+  date: string; // YYYY-MM-DD format (always string, never Date)
 }
 
 interface ScheduleModalsProps {
