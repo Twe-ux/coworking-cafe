@@ -90,7 +90,7 @@ export interface Booking {
   numberOfPeople: number
   status: BookingStatus
   totalPrice: number
-  invoicePayment?: boolean // Paiement sur facture (au lieu d'afficher le prix)
+  invoiceOption?: boolean // Paiement sur facture (au lieu d'afficher le prix)
   depositPaid?: number
   captureMethod?: CaptureMethod // Type de capture: automatic = paiement direct, manual/deferred = empreinte CB
   depositAmount?: number // Montant de l'acompte requis

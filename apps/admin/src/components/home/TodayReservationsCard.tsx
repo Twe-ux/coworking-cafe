@@ -160,7 +160,7 @@ export function TodayReservationsCard() {
               <span>{booking.numberOfPeople} pers.</span>
               {(() => {
                 // Si paiement sur facture, afficher le texte au lieu du prix
-                if (booking.invoicePayment) {
+                if (booking.invoiceOption) {
                   return (
                     <>
                       <span>·</span>

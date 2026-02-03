@@ -10,7 +10,7 @@ import type { PriceSectionProps } from "./types"
 export function PriceSection({
   totalPrice,
   loading,
-  invoicePayment,
+  invoiceOption,
   onInvoicePaymentChange
 }: PriceSectionProps) {
   return (
@@ -55,12 +55,12 @@ export function PriceSection({
 
       <div className="flex items-center space-x-2 mt-4">
         <Checkbox
-          id="invoicePayment"
-          checked={invoicePayment}
+          id="invoiceOption"
+          checked={invoiceOption}
           onCheckedChange={(checked) => onInvoicePaymentChange(checked as boolean)}
         />
         <Label
-          htmlFor="invoicePayment"
+          htmlFor="invoiceOption"
           className="text-sm font-normal cursor-pointer"
         >
           Paiement sur facture

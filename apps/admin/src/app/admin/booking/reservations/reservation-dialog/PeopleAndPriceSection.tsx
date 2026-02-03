@@ -12,7 +12,7 @@ interface PeopleAndPriceSectionProps {
   onPeopleChange: (count: number) => void
   totalPrice: number
   priceLoading: boolean
-  invoicePayment: boolean
+  invoiceOption: boolean
   onInvoicePaymentChange: (checked: boolean) => void
   min?: number
   max?: number
@@ -24,7 +24,7 @@ export function PeopleAndPriceSection({
   onPeopleChange,
   totalPrice,
   priceLoading,
-  invoicePayment,
+  invoiceOption,
   onInvoicePaymentChange,
   min = 1,
   max = 50,
@@ -118,12 +118,12 @@ export function PeopleAndPriceSection({
       {/* Checkbox Paiement sur facture */}
       <div className="flex items-center space-x-2">
         <Checkbox
-          id="invoicePayment"
-          checked={invoicePayment}
+          id="invoiceOption"
+          checked={invoiceOption}
           onCheckedChange={(checked) => onInvoicePaymentChange(checked as boolean)}
         />
         <Label
-          htmlFor="invoicePayment"
+          htmlFor="invoiceOption"
           className="text-sm font-normal cursor-pointer"
         >
           Paiement sur facture

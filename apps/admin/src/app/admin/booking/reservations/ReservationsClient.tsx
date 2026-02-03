@@ -591,7 +591,7 @@ export function ReservationsClient() {
                     {/* Right: Prix + Actions */}
                     <div className="flex items-center gap-3">
                       <span className="font-bold text-primary w-[140px] text-right text-sm">
-                        {booking.invoicePayment
+                        {booking.invoiceOption
                           ? "Paiement sur facture"
                           : formatPrice(booking.totalPrice)}
                       </span>

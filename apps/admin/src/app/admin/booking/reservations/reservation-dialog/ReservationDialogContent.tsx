@@ -43,7 +43,7 @@ export function ReservationDialog({
     endTime: "18:00",
     numberOfPeople: 1,
     totalPrice: 0,
-    invoicePayment: false,
+    invoiceOption: false,
     depositRequired: false,
     depositAmount: 0,
     depositFileAttached: false,
@@ -258,7 +258,7 @@ export function ReservationDialog({
       endTime: "18:00",
       numberOfPeople: 1,
       totalPrice: 0,
-      invoicePayment: false,
+      invoiceOption: false,
       depositRequired: false,
       depositAmount: 0,
       depositFileAttached: false,
@@ -340,9 +340,9 @@ export function ReservationDialog({
               }
               totalPrice={formData.totalPrice}
               priceLoading={priceLoading}
-              invoicePayment={formData.invoicePayment}
+              invoiceOption={formData.invoiceOption}
               onInvoicePaymentChange={(checked: boolean) =>
-                setFormData((prev) => ({ ...prev, invoicePayment: checked }))
+                setFormData((prev) => ({ ...prev, invoiceOption: checked }))
               }
             />
 
