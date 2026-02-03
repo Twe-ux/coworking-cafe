@@ -117,19 +117,24 @@ export async function PUT(
       );
     }
 
+    // Préparer les données de mise à jour
+    const updateData: any = {};
+    if (body.name) updateData.name = body.name;
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.recipe !== undefined) updateData.recipe = body.recipe;
+    // Gérer l'image : si chaîne vide, supprimer le champ (null)
+    if (body.image !== undefined) {
+      updateData.image = body.image === "" ? null : body.image;
+    }
+    if (body.categoryId) updateData.category = body.categoryId;
+    if (body.type) updateData.type = body.type;
+    if (body.order !== undefined) updateData.order = body.order;
+    if (body.isActive !== undefined) updateData.isActive = body.isActive;
+
     // Mettre à jour
     const updatedItem = await MenuItem.findByIdAndUpdate(
       params.id,
-      {
-        ...(body.name && { name: body.name }),
-        ...(body.description !== undefined && { description: body.description }),
-        ...(body.recipe !== undefined && { recipe: body.recipe }),
-        ...(body.image !== undefined && { image: body.image }),
-        ...(body.categoryId && { category: body.categoryId }),
-        ...(body.type && { type: body.type }),
-        ...(body.order !== undefined && { order: body.order }),
-        ...(body.isActive !== undefined && { isActive: body.isActive }),
-      },
+      updateData,
       { new: true, runValidators: true }
     )
       .populate("category", "name slug")

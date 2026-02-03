@@ -112,7 +112,7 @@ export function ProduitsItemModal({
         name,
         description: description || undefined,
         recipe: recipe || undefined,
-        image: image || undefined,
+        image: image || "", // Envoyer chaîne vide au lieu de undefined pour permettre la suppression
         categoryId,
         type,
         isActive,
