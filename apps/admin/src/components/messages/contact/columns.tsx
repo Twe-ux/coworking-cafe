@@ -4,7 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, Trash2 } from "lucide-react";
+import { Mail, Trash2, Archive } from "lucide-react";
 import type { ContactMail } from "@/types/contactMail";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -132,6 +132,7 @@ export const columns: ColumnDef<ContactMail>[] = [
       const meta = table.options.meta as {
         onView?: (message: ContactMail) => void;
         onReply?: (message: ContactMail) => void;
+        onArchive?: (id: string) => void;
         onDelete?: (id: string) => void;
       };
 
@@ -146,6 +147,16 @@ export const columns: ColumnDef<ContactMail>[] = [
             }}
           >
             <Mail className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              meta?.onArchive?.(row.original.id);
+            }}
+          >
+            <Archive className="w-4 h-4 text-muted-foreground" />
           </Button>
           <Button
             variant="ghost"

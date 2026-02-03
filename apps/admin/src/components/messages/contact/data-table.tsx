@@ -24,6 +24,7 @@ interface DataTableProps<TData> {
   data: TData[];
   onView?: (message: ContactMail) => void;
   onReply?: (message: ContactMail) => void;
+  onArchive?: (id: string) => void;
   onDelete?: (id: string) => void;
   rowSelection?: RowSelectionState;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
@@ -37,6 +38,7 @@ export function DataTable<TData extends ContactMail>({
   data,
   onView,
   onReply,
+  onArchive,
   onDelete,
   rowSelection,
   onRowSelectionChange,
@@ -53,6 +55,7 @@ export function DataTable<TData extends ContactMail>({
     meta: {
       onView,
       onReply,
+      onArchive,
       onDelete,
     },
   });

@@ -33,7 +33,7 @@ import {
 export function ContactPageClient() {
   const [statusFilter, setStatusFilter] = useState<
     ContactMailStatus | "all"
-  >("all");
+  >("unread");
   const [selectedMessage, setSelectedMessage] = useState<ContactMail | null>(
     null
   );
@@ -90,6 +90,28 @@ export function ContactPageClient() {
       } catch (error) {
         console.error("Error marking as read:", error);
       }
+    }
+  };
+
+  const handleArchive = async (id: string) => {
+    try {
+      const response = await fetch(`/api/messages/contact/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "archived" }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || "Erreur lors de l'archivage");
+      }
+
+      toast.success("Message archivé avec succès");
+      fetchMessages();
+    } catch (error) {
+      console.error("Error archiving message:", error);
+      toast.error("Erreur lors de l'archivage du message");
     }
   };
 
@@ -189,19 +211,6 @@ export function ContactPageClient() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card
-          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "all" ? "ring-2 ring-primary" : ""}`}
-          onClick={() => setStatusFilter("all")}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total</CardTitle>
-            <Inbox className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-
-        <Card
           className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "unread" ? "ring-2 ring-red-500" : ""}`}
           onClick={() => setStatusFilter("unread")}
         >
@@ -252,6 +261,19 @@ export function ContactPageClient() {
             <div className="text-2xl font-bold">{stats.archived}</div>
           </CardContent>
         </Card>
+
+        <Card
+          className={`cursor-pointer transition-all hover:shadow-md ${statusFilter === "all" ? "ring-2 ring-primary" : ""}`}
+          onClick={() => setStatusFilter("all")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tous</CardTitle>
+            <Inbox className="w-4 h-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Table */}
@@ -277,6 +299,7 @@ export function ContactPageClient() {
             data={messages}
             onView={handleView}
             onReply={handleReply}
+            onArchive={handleArchive}
             onDelete={handleDelete}
             rowSelection={rowSelection}
             onRowSelectionChange={setRowSelection}
