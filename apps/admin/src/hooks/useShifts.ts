@@ -45,8 +45,6 @@ export function useShifts(options: UseShiftsOptions = {}) {
       if (options.active !== undefined)
         params.append('active', String(options.active))
 
-      console.log('🔄 [useShifts] Manual refresh')
-
       const response = await fetch(`/api/shifts?${params.toString()}`)
       const result = await response.json()
 
@@ -106,17 +104,10 @@ export function useShifts(options: UseShiftsOptions = {}) {
 
         // If aborted, don't process the result
         if (abortController.signal.aborted) {
-          console.log('⚠️ [useShifts] Request aborted')
           return
         }
 
         const result = await response.json()
-
-        console.log('🟢 [useShifts] Received shifts:', {
-          count: result.data?.length || 0,
-          startDate: options.startDate,
-          endDate: options.endDate,
-        })
 
         if (result.success) {
           // Keep dates as strings (YYYY-MM-DD) to avoid timezone issues
@@ -124,8 +115,6 @@ export function useShifts(options: UseShiftsOptions = {}) {
             ...shift,
             date: formatDateToLocalString(shift.date),
           }))
-
-          console.log('✅ [useShifts] Setting shifts to state:', shiftsWithNormalizedDates.length)
 
           // Always update shifts - React will handle re-render optimization
           setShifts(shiftsWithNormalizedDates)
@@ -137,7 +126,6 @@ export function useShifts(options: UseShiftsOptions = {}) {
       } catch (err: any) {
         // Don't log error if request was aborted
         if (err.name === 'AbortError') {
-          console.log('⚠️ [useShifts] Request cancelled')
           return
         }
         console.error('Error useShifts:', err)
@@ -154,7 +142,6 @@ export function useShifts(options: UseShiftsOptions = {}) {
 
     // Cleanup: abort request when component unmounts or dependencies change
     return () => {
-      console.log('🔴 [useShifts] Aborting previous request')
       abortController.abort()
     }
   }, [

@@ -49,39 +49,11 @@ export async function GET(request: NextRequest) {
       filter.isActive = active === 'true'
     }
 
-    console.log('🔵 [API /api/shifts] Query params:', { startDate, endDate, active })
-    console.log('🔵 [API /api/shifts] Filter:', JSON.stringify(filter))
-
-    // First, check total shifts in DB without filter
-    const totalShifts = await Shift.countDocuments({})
-    console.log('📊 [API /api/shifts] Total shifts in DB:', totalShifts)
-
-    // Check shifts in date range without filtering
-    if (startDate && endDate) {
-      const allShiftsInRange = await Shift.find({})
-        .select('date')
-        .lean()
-      console.log('📅 [API /api/shifts] All shift dates in DB:',
-        allShiftsInRange.slice(0, 5).map(s => ({ date: s.date, type: typeof s.date }))
-      )
-    }
-
     // Fetch shifts with employee information
     const shifts = await Shift.find(filter)
       .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .sort({ date: 1, startTime: 1 })
       .lean()
-
-    console.log('🟢 [API /api/shifts] MongoDB returned:', shifts.length, 'shifts')
-
-    // Debug: log first few dates to check format
-    if (shifts.length > 0) {
-      console.log('✅ [API /api/shifts] Sample shift dates:',
-        shifts.slice(0, 3).map(s => ({ date: s.date, type: typeof s.date }))
-      )
-    } else {
-      console.log('❌ [API /api/shifts] No shifts matched the filter')
-    }
 
     // Transform data for frontend
     const transformedShifts = shifts.map((shift) => ({
