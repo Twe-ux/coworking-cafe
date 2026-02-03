@@ -83,6 +83,7 @@ export async function middleware(req: NextRequest) {
   // 1. Public routes - allow everyone
   const isPublicRoute =
     publicRoutes.includes(pathname) ||
+    publicRoutes.some((route) => route.toLowerCase() === pathname.toLowerCase()) ||
     pathname.startsWith("/blog/") ||
     pathname.startsWith("/promo/") ||
     publicRoutePatterns.some((pattern) => pattern.test(pathname));
