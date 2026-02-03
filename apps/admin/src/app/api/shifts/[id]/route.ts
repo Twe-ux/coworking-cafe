@@ -6,18 +6,25 @@ import { requireAuth } from '@/lib/api/auth'
 import { mapShiftToApi } from '@/lib/mappers'
 
 /**
- * Utility function to create a UTC date from YYYY-MM-DD string
- * Creates date at midnight UTC
+ * Normalize date to YYYY-MM-DD string format
+ * Handles both Date objects and string inputs
  */
-function createLocalDate(dateString: string): Date {
-  const [year, month, day] = dateString.split('-').map(Number)
-  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0))
+function normalizeDateToString(date: Date | string): string {
+  if (typeof date === 'string') {
+    // Extract YYYY-MM-DD from ISO string or return as-is
+    return date.split('T')[0]
+  }
+  // Convert Date object to YYYY-MM-DD
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 /** Shift update data interface */
 interface ShiftUpdateData {
   employeeId?: string
-  date?: Date
+  date?: string // ⚠️ CHANGED: Was Date, now string YYYY-MM-DD
   startTime?: string
   endTime?: string
   type?: string
@@ -120,7 +127,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Build update data
     const updateData: ShiftUpdateData = {}
     if (body.employeeId !== undefined) updateData.employeeId = body.employeeId
-    if (body.date !== undefined) updateData.date = createLocalDate(body.date)
+    // ⚠️ IMPORTANT: Normalize date to string YYYY-MM-DD format
+    if (body.date !== undefined) updateData.date = normalizeDateToString(body.date)
     if (body.startTime !== undefined) updateData.startTime = body.startTime
     if (body.endTime !== undefined) updateData.endTime = body.endTime
     if (body.type !== undefined) updateData.type = body.type
@@ -131,7 +139,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Check for conflicts if timing data changes
     if (body.employeeId || body.date || body.startTime || body.endTime) {
       const checkEmployeeId = body.employeeId || existingShift.employeeId
-      const checkDate = body.date ? createLocalDate(body.date) : existingShift.date
+      // Normalize date for comparison
+      const checkDate = body.date ? normalizeDateToString(body.date) : existingShift.date
       const checkStartTime = body.startTime || existingShift.startTime
       const checkEndTime = body.endTime || existingShift.endTime
 

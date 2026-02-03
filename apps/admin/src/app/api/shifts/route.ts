@@ -5,6 +5,22 @@ import Employee from '@/models/employee'
 import { requireAuth } from '@/lib/api/auth'
 
 /**
+ * Normalize date to YYYY-MM-DD string format
+ * Handles both Date objects and string inputs
+ */
+function normalizeDateToString(date: Date | string): string {
+  if (typeof date === 'string') {
+    // Extract YYYY-MM-DD from ISO string or return as-is
+    return date.split('T')[0]
+  }
+  // Convert Date object to YYYY-MM-DD
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/**
  * GET /api/shifts - Retrieve list of shifts with optional filters
  * Public endpoint - accessible without authentication for staff pages
  */
@@ -138,10 +154,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // ⚠️ IMPORTANT: Normalize date to string YYYY-MM-DD format
+    // This prevents Mongoose from storing Date objects as ISO strings
+    const normalizedDate = normalizeDateToString(date)
+
     // Check for conflicting shifts
     const conflictingShift = await Shift.findOne({
       employeeId,
-      date: date, // Direct string comparison
+      date: normalizedDate, // Direct string comparison
       isActive: true,
       $or: [
         {
@@ -178,10 +198,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create new shift
+    // Create new shift with normalized date
     const newShift = new Shift({
       employeeId,
-      date: date, // Keep as string YYYY-MM-DD
+      date: normalizedDate, // Always string YYYY-MM-DD
       startTime,
       endTime,
       type,
