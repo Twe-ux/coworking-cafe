@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { User } from "@coworking-cafe/database";
-import bcrypt from "bcryptjs";
 
 /**
  * POST /api/auth/activate-account - Activate user account with token
@@ -51,11 +50,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(body.password, 10);
-
-    // Update user: set password, activate account, remove token
-    user.password = hashedPassword;
+    // Update user: set password (will be hashed by pre-save hook), activate account, remove token
+    user.password = body.password;
     user.isTemporary = false;
     user.emailVerifiedAt = new Date();
     user.activationToken = undefined;

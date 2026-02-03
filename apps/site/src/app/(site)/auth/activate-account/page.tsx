@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
 import "../login/auth.scss";
 
 export default function ActivateAccountPage() {
@@ -54,10 +55,23 @@ export default function ActivateAccountPage() {
       const data = await response.json();
 
       if (data.success) {
-        setSuccess(true);
-        setTimeout(() => {
-          router.push("/auth/login");
-        }, 3000);
+        // Auto-login après activation
+        const loginResult = await signIn("credentials", {
+          email: data.data.email,
+          password: password,
+          redirect: false,
+        });
+
+        if (loginResult?.ok) {
+          // Connexion réussie, rediriger vers le dashboard client
+          router.push("/id");
+        } else {
+          // Si connexion échoue, afficher message et rediriger vers login
+          setSuccess(true);
+          setTimeout(() => {
+            router.push("/auth/login");
+          }, 3000);
+        }
       } else {
         setError(data.error || "Erreur lors de l'activation du compte");
       }

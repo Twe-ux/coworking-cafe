@@ -70,6 +70,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Mot de passe réinitialisé avec succès",
+      data: {
+        email: user.email,
+      },
     });
   } catch (error) {
     console.error("Erreur lors de la réinitialisation du mot de passe:", error);

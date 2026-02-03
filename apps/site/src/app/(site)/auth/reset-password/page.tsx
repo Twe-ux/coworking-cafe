@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import "../login/auth.scss";
 
@@ -58,10 +59,24 @@ function ResetPasswordForm() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage("Mot de passe réinitialisé avec succès ! Redirection...");
-        setTimeout(() => {
-          router.push("/auth/login");
-        }, 2000);
+        // Auto-login après reset password
+        const loginResult = await signIn("credentials", {
+          email: data.data.email,
+          password: password,
+          redirect: false,
+        });
+
+        if (loginResult?.ok) {
+          // Connexion réussie, rediriger vers le dashboard client
+          setMessage("Mot de passe réinitialisé avec succès ! Connexion...");
+          router.push("/id");
+        } else {
+          // Si connexion échoue, afficher message et rediriger vers login
+          setMessage("Mot de passe réinitialisé avec succès ! Redirection...");
+          setTimeout(() => {
+            router.push("/auth/login");
+          }, 2000);
+        }
       } else {
         setError(data.message || "Une erreur est survenue");
       }
