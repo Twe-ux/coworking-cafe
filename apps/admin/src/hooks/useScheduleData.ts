@@ -17,7 +17,8 @@ interface UseScheduleDataReturn {
   unavailabilities: IUnavailabilityWithEmployee[];
 
   // Loading states
-  isLoading: boolean;
+  isLoading: boolean; // Initial load (no cached data)
+  isRefetching: boolean; // Background refetch (has cached data)
   shiftsError: string | null;
 
   // Actions
@@ -131,8 +132,14 @@ export function useScheduleData(): UseScheduleDataReturn {
   // ✅ SUPPRIMÉ : useEffect redondant qui causait une double récupération des shifts
   // useShifts gère déjà le fetch automatiquement quand les options changent
 
-  // Combined loading state
-  const isLoading = isLoadingShifts || isLoadingEmployees || isLoadingTimeEntries;
+  // Critical loading state: only show skeleton if shifts or employees are loading
+  // AND we don't have any cached data yet (initial load)
+  const isInitialLoading =
+    (isLoadingShifts && shifts.length === 0) ||
+    (isLoadingEmployees && employees.length === 0);
+
+  // Background loading: data is being refetched but we have cached data
+  const isRefetching = isLoadingShifts || isLoadingEmployees || isLoadingTimeEntries;
 
   return {
     currentDate,
@@ -140,7 +147,8 @@ export function useScheduleData(): UseScheduleDataReturn {
     shifts,
     timeEntries,
     unavailabilities,
-    isLoading,
+    isLoading: isInitialLoading,
+    isRefetching,
     shiftsError,
     setCurrentDate,
     refreshShifts,
