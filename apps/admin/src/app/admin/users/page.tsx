@@ -17,7 +17,7 @@ export default function UsersPage() {
   const [filters, setFilters] = useState<UserFiltersType>({
     search: "",
     roleSlug: "all",
-    isActive: undefined,
+    isActive: true,  // Par défaut, afficher uniquement les utilisateurs actifs
     newsletter: undefined,
   });
 

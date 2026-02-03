@@ -61,6 +61,12 @@ export async function POST(request: NextRequest) {
 
     // Mettre à jour le mot de passe (sera hashé automatiquement par le hook pre-save)
     user.password = password;
+
+    // Vérifier l'email (l'utilisateur a prouvé qu'il contrôle cet email en cliquant sur le lien)
+    if (!user.emailVerifiedAt) {
+      user.emailVerifiedAt = new Date();
+    }
+
     await user.save();
 
     // Marquer le token comme utilisé
