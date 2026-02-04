@@ -8,64 +8,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
-import { PINLogin } from "./auth/PINLogin";
 import { EmailPasswordLogin } from "./auth/EmailPasswordLogin";
 
-type LoginMode = 'email' | 'pin';
-
-interface PINLoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
-  allowPinMode?: boolean; // Si false, cache le mode PIN (sécurité depuis l'extérieur)
-}
-
+/**
+ * Formulaire de connexion - Email + Password uniquement
+ *
+ * Note: Le mode PIN est réservé au bouton "Admin" dans la sidebar staff.
+ * La page login n'affiche que Email + Password pour plus de sécurité.
+ */
 export function PINLoginForm({
   className,
-  allowPinMode = true, // Par défaut autorisé (dev local)
   ...props
-}: PINLoginFormProps) {
+}: React.ComponentPropsWithoutRef<"div">) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<LoginMode>('email'); // Email par défaut
-
-  const handlePINSubmit = async (pin: string) => {
-    setError("");
-    setLoading(true);
-
-    try {
-      // Vérifier que c'est bien un PIN de 6 chiffres
-      if (!/^\d{6}$/.test(pin)) {
-        setError("Le PIN doit contenir exactement 6 chiffres");
-        setLoading(false);
-        return;
-      }
-
-      // Connecter avec NextAuth en utilisant le PIN uniquement (pas d'email)
-      const result = await signIn("credentials", {
-        email: "", // Pas d'email pour l'authentification par PIN
-        password: pin, // PIN 6 chiffres
-        redirect: false, // Gérer la redirection manuellement
-      });
-
-      if (result?.error) {
-        setError(result.error);
-        setLoading(false);
-      } else if (result?.ok) {
-        // Force un refresh complet pour éviter les problèmes de cache
-        // et garantir que la nouvelle session est bien prise en compte
-        window.location.replace('/admin');
-      } else {
-        setError("Une erreur s'est produite lors de la connexion");
-        setLoading(false);
-      }
-    } catch (error) {
-      setError("Une erreur s'est produite lors de la connexion");
-      setLoading(false);
-    }
-  };
 
   const handleEmailPasswordSubmit = async (email: string, password: string) => {
     setError("");
@@ -112,48 +72,15 @@ export function PINLoginForm({
 
           <CardTitle className="text-xl">Bienvenue sur CoworKing Café</CardTitle>
           <CardDescription>
-            {mode === 'email'
-              ? "Connectez-vous avec votre email et mot de passe"
-              : "Connectez-vous avec votre code PIN"
-            }
+            Connectez-vous avec votre email et mot de passe
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {mode === 'email' ? (
-            <EmailPasswordLogin
-              onSubmit={handleEmailPasswordSubmit}
-              isLoading={loading}
-              error={error}
-            />
-          ) : (
-            <PINLogin
-              onSubmit={handlePINSubmit}
-              isLoading={loading}
-              error={error}
-              title=""
-              pinLength={6}
-            />
-          )}
-
-          {/* Toggle entre les modes - Visible seulement si IP autorisée */}
-          {allowPinMode && (
-            <div className="text-center pt-4 border-t">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setMode(mode === 'email' ? 'pin' : 'email');
-                  setError('');
-                }}
-                disabled={loading}
-              >
-                {mode === 'email'
-                  ? "🔢 Connexion avec PIN"
-                  : "📧 Connexion avec email"
-                }
-              </Button>
-            </div>
-          )}
+        <CardContent>
+          <EmailPasswordLogin
+            onSubmit={handleEmailPasswordSubmit}
+            isLoading={loading}
+            error={error}
+          />
         </CardContent>
       </Card>
     </div>
