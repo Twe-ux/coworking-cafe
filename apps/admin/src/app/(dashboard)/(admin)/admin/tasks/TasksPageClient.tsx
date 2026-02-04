@@ -12,9 +12,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface TasksPageClientProps {
   userRole: string;
+  canCreate: boolean;
 }
 
-export function TasksPageClient({ userRole }: TasksPageClientProps) {
+export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"pending" | "completed">("pending");
 
@@ -57,10 +58,12 @@ export function TasksPageClient({ userRole }: TasksPageClientProps) {
             Gérez les tâches de l'équipe
           </p>
         </div>
-        <Button onClick={() => setModalOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Créer une tâche
-        </Button>
+        {canCreate && (
+          <Button onClick={() => setModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Créer une tâche
+          </Button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -136,11 +139,13 @@ export function TasksPageClient({ userRole }: TasksPageClientProps) {
       </Tabs>
 
       {/* Modal création */}
-      <TaskCreateModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        onSubmit={handleCreateTask}
-      />
+      {canCreate && (
+        <TaskCreateModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          onSubmit={handleCreateTask}
+        />
+      )}
     </div>
   );
 }

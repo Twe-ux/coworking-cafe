@@ -19,5 +19,8 @@ export default async function TasksPage() {
     redirect("/403");
   }
 
-  return <TasksPageClient userRole={userRole} />;
+  // Seuls dev et admin peuvent créer des tâches
+  const canCreate = ["dev", "admin"].includes(userRole);
+
+  return <TasksPageClient userRole={userRole} canCreate={canCreate} />;
 }

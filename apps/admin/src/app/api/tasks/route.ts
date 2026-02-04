@@ -87,8 +87,8 @@ export async function GET(
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<TaskType>>> {
-  // Auth : tous les rôles peuvent créer des tâches
-  const authResult = await requireAuth(['dev', 'admin', 'staff']);
+  // Auth : seuls dev et admin peuvent créer des tâches
+  const authResult = await requireAuth(['dev', 'admin']);
   if (!authResult.authorized) {
     return authResult.response;
   }

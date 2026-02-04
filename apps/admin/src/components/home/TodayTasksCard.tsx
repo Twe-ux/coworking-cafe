@@ -8,6 +8,7 @@ import { CheckSquare, Plus, ArrowRight, ListTodo } from "lucide-react";
 import { TaskList } from "@/components/tasks/TaskList";
 import { TaskCreateModal } from "@/components/tasks/TaskCreateModal";
 import { useTasks } from "@/hooks/useTasks";
+import { useRole } from "@/hooks/useRole";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
@@ -16,9 +17,13 @@ import { Skeleton } from "@/components/ui/skeleton";
  */
 export function TodayTasksCard() {
   const [modalOpen, setModalOpen] = useState(false);
+  const { isDev, isAdmin } = useRole();
   const { tasks, loading, createTask, toggleTaskStatus } = useTasks({
     status: "pending",
   });
+
+  // Seuls dev et admin peuvent créer des tâches
+  const canCreate = isDev || isAdmin;
 
   // Limiter à 5 tâches pour le dashboard
   const displayedTasks = tasks.slice(0, 5);
@@ -63,15 +68,17 @@ export function TodayTasksCard() {
                 </span>
               )}
             </span>
-            <Button
-              variant="outline"
-              className="border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700 px-4"
-              size="sm"
-              onClick={() => setModalOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Créer
-            </Button>
+            {canCreate && (
+              <Button
+                variant="outline"
+                className="border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700 px-4"
+                size="sm"
+                onClick={() => setModalOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Créer
+              </Button>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -104,11 +111,13 @@ export function TodayTasksCard() {
         </CardContent>
       </Card>
 
-      <TaskCreateModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        onSubmit={handleCreateTask}
-      />
+      {canCreate && (
+        <TaskCreateModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          onSubmit={handleCreateTask}
+        />
+      )}
     </>
   );
 }
