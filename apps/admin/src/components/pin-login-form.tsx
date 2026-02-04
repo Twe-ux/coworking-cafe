@@ -18,10 +18,15 @@ import { EmailPasswordLogin } from "./auth/EmailPasswordLogin";
 
 type LoginMode = 'email' | 'pin';
 
+interface PINLoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
+  allowPinMode?: boolean; // Si false, cache le mode PIN (sécurité depuis l'extérieur)
+}
+
 export function PINLoginForm({
   className,
+  allowPinMode = true, // Par défaut autorisé (dev local)
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: PINLoginFormProps) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<LoginMode>('email'); // Email par défaut
@@ -130,23 +135,25 @@ export function PINLoginForm({
             />
           )}
 
-          {/* Toggle entre les modes */}
-          <div className="text-center pt-4 border-t">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setMode(mode === 'email' ? 'pin' : 'email');
-                setError('');
-              }}
-              disabled={loading}
-            >
-              {mode === 'email'
-                ? "🔢 Connexion avec PIN"
-                : "📧 Connexion avec email"
-              }
-            </Button>
-          </div>
+          {/* Toggle entre les modes - Visible seulement si IP autorisée */}
+          {allowPinMode && (
+            <div className="text-center pt-4 border-t">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setMode(mode === 'email' ? 'pin' : 'email');
+                  setError('');
+                }}
+                disabled={loading}
+              >
+                {mode === 'email'
+                  ? "🔢 Connexion avec PIN"
+                  : "📧 Connexion avec email"
+                }
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

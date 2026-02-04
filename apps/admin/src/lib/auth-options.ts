@@ -144,7 +144,11 @@ export const authOptions: NextAuthOptions = {
             } as NextAuthUser;
           }
 
-          // ===== AUTHENTIFICATION USER CLASSIQUE (email + PIN ou password) =====
+          // ===== AUTHENTIFICATION EMAIL + PIN DÉSACTIVÉE =====
+          // Mode désactivé pour sécurité : seule la collection "admins" est autorisée
+          // Si besoin d'activer, déplacer ce bloc APRÈS la vérification "admins"
+          // pour que "admins" soit prioritaire sur "users"
+          /*
           if (isPIN && credentials.email) {
             console.log('🔑 User PIN authentication (6 digits with email)');
             await connectMongoose();
@@ -187,6 +191,7 @@ export const authOptions: NextAuthOptions = {
               role: role.slug,
             } as NextAuthUser;
           }
+          */
 
           // ===== AUTHENTIFICATION EMAIL + PASSWORD (admin app) =====
           if (!credentials.email) {
