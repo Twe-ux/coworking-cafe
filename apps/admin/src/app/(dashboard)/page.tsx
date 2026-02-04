@@ -5,7 +5,7 @@ import type { WeekData } from "@/components/employee-scheduling/scheduling/types
 import { useScheduleData } from "@/components/employee-scheduling/scheduling/useScheduleData";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useHomePageData } from "@/hooks/useHomePageData";
+import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
 import { HomePageHeader } from "@/components/home/HomePageHeader";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayReservationsCard } from "@/components/home/TodayReservationsCard";
@@ -22,7 +22,7 @@ import { useMemo } from "react";
  * - Réservations + Tâches du jour
  */
 export default function HomePage() {
-  const { employees, shifts, isLoading, error, refetch } = useHomePageData();
+  const { employees, shifts, isLoading, error, refetch } = useHomePageDataQuery();
 
   const {
     getShiftsPositionedByEmployee,
