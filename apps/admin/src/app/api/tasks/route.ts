@@ -33,9 +33,10 @@ export async function GET(
     if (createdBy) filter.createdBy = createdBy;
 
     // Récupérer les tâches
-    const tasks = await Task.find(filter)
-      .sort({ priority: -1, createdAt: -1 }) // high > medium > low, puis par date
-      .lean();
+    const tasks = await Task.find(filter).lean();
+
+    // Ordre de priorité pour le tri
+    const priorityOrder = { high: 1, medium: 2, low: 3 };
 
     // Transformer les ObjectId en strings
     const tasksFormatted = tasks.map((task) => ({
@@ -51,6 +52,24 @@ export async function GET(
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),
     }));
+
+    // Tri : Priorité (high > medium > low), puis date d'échéance, puis date de création
+    tasksFormatted.sort((a, b) => {
+      // 1. Tri par priorité
+      const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      if (priorityDiff !== 0) return priorityDiff;
+
+      // 2. Tri par date d'échéance (si présente, les tâches avec date viennent avant)
+      if (a.dueDate && !b.dueDate) return -1;
+      if (!a.dueDate && b.dueDate) return 1;
+      if (a.dueDate && b.dueDate) {
+        const dueDateDiff = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        if (dueDateDiff !== 0) return dueDateDiff;
+      }
+
+      // 3. Tri par date de création (plus récent d'abord)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
     return successResponse(tasksFormatted, 'Tâches récupérées avec succès');
   } catch (error) {

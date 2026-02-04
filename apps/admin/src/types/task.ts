@@ -8,14 +8,14 @@
  * - medium: Orange (normal)
  * - low: Vert (faible)
  */
-export type TaskPriority = 'high' | 'medium' | 'low';
+export type TaskPriority = "high" | "medium" | "low";
 
 /**
  * Statut de la tâche
  * - pending: À faire
  * - completed: Terminée
  */
-export type TaskStatus = 'pending' | 'completed';
+export type TaskStatus = "pending" | "completed";
 
 /**
  * Tâche complète
@@ -84,16 +84,16 @@ export interface TaskWithUser extends Task {
  * Couleurs de bordure par priorité (pour UI)
  */
 export const TASK_PRIORITY_COLORS: Record<TaskPriority, string> = {
-  high: 'border-red-500', // Rouge
-  medium: 'border-orange-500', // Orange
-  low: 'border-green-500', // Vert
+  high: "border-l-red-500", // Rouge
+  medium: "border-orange-500", // Orange
+  low: "border-green-500", // Vert
 };
 
 /**
  * Labels de priorité (pour affichage)
  */
 export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
-  high: 'Urgent',
-  medium: 'Normal',
-  low: 'Faible',
+  high: "Urgent",
+  medium: "Normal",
+  low: "Faible",
 };
