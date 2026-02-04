@@ -63,8 +63,13 @@ export function TodayTasksCard() {
                 </span>
               )}
             </span>
-            <Button size="sm" onClick={() => setModalOpen(true)}>
-              <Plus className="h-4 w-4 mr-1" />
+            <Button
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700 px-4"
+              size="sm"
+              onClick={() => setModalOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
               Créer
             </Button>
           </CardTitle>

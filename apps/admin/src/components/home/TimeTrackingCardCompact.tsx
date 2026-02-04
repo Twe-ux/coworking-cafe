@@ -29,7 +29,9 @@ export function TimeTrackingCardCompact({
 }: TimeTrackingCardCompactProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPINDialog, setShowPINDialog] = useState(false);
-  const [pinAction, setPinAction] = useState<"clock-in" | "clock-out" | null>(null);
+  const [pinAction, setPinAction] = useState<"clock-in" | "clock-out" | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [activeEntry, setActiveEntry] = useState<TimeEntry | null>(null);
 
@@ -49,7 +51,7 @@ export function TimeTrackingCardCompact({
 
       const activeData = await activeResponse.json();
       const todayActiveEntry = (activeData.data || []).find(
-        (entry: TimeEntry) => entry.date === todayStr
+        (entry: TimeEntry) => entry.date === todayStr,
       );
       setActiveEntry(todayActiveEntry || null);
     } catch {
@@ -161,7 +163,7 @@ export function TimeTrackingCardCompact({
         className={`p-3 transition-all duration-200 ${
           hasActiveShift
             ? "bg-green-50 ring-2 ring-green-500"
-            : "hover:ring-2 hover:ring-blue-500"
+            : "hover:ring-1 hover:ring-blue-500"
         }`}
       >
         <div className="flex items-center justify-between gap-3">

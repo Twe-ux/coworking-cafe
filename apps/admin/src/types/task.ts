@@ -84,7 +84,7 @@ export interface TaskWithUser extends Task {
  * Couleurs de bordure par priorité (pour UI)
  */
 export const TASK_PRIORITY_COLORS: Record<TaskPriority, string> = {
-  high: "border-l-red-500", // Rouge
+  high: "border-red-500", // Rouge
   medium: "border-orange-500", // Orange
   low: "border-green-500", // Vert
 };
