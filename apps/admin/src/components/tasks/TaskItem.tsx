@@ -1,11 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/task";
 import { TASK_PRIORITY_COLORS } from "@/types/task";
-import { Calendar, Trash2 } from "lucide-react";
+import { Calendar, Trash2, Loader2 } from "lucide-react";
 
 interface TaskItemProps {
   task: Task;
@@ -20,6 +21,7 @@ export function TaskItem({
   onDelete,
   showDeleteButton = false,
 }: TaskItemProps) {
+  const [isToggling, setIsToggling] = useState(false);
   const isCompleted = task.status === "completed";
   const borderColor = TASK_PRIORITY_COLORS[task.priority];
 
@@ -32,27 +34,39 @@ export function TaskItem({
     });
   };
 
+  // Gérer le toggle avec indicateur de chargement
+  const handleToggle = async () => {
+    setIsToggling(true);
+    try {
+      await onToggle(task);
+    } finally {
+      // Petit délai pour que l'utilisateur voie bien l'animation
+      setTimeout(() => setIsToggling(false), 300);
+    }
+  };
+
   return (
     <div
       className={cn(
-        "border rounded-lg border-l-4 py-2.5 px-3 hover:bg-muted/50 transition-colors",
+        "border rounded-lg border-l-4 py-2.5 px-3 hover:bg-muted/50 transition-all duration-300",
         borderColor,
         isCompleted && "opacity-60",
+        isToggling && "opacity-50",
       )}
-      // className={cn(
-      //   "flex gap-3 p-3 rounded-lg border-l-4 bg-white hover:bg-gray-50 transition-colors",
-      //   borderColor,
-      //   isCompleted && "opacity-60",
-      // )}
     >
       <div className="flex flex-row gap-3 ">
-        {/* Checkbox */}
-        <div className="pt-0.5">
-          <Checkbox
-            checked={isCompleted}
-            onCheckedChange={() => onToggle(task)}
-            className="h-5 w-5"
-          />
+        {/* Checkbox avec spinner de chargement */}
+        <div className="pt-0.5 relative">
+          {isToggling ? (
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          ) : (
+            <Checkbox
+              checked={isCompleted}
+              onCheckedChange={handleToggle}
+              disabled={isToggling}
+              className="h-5 w-5"
+            />
+          )}
         </div>
 
         {/* Contenu */}
