@@ -40,6 +40,7 @@ import {
 import { ReservationsSkeleton } from "./ReservationsSkeleton";
 import { ReservationDetailModal } from "./ReservationDetailModal";
 import { ReservationDialog } from "./reservation-dialog";
+import { EditBookingDialog } from "./EditBookingDialog";
 import type { Booking, BookingStatus } from "@/types/booking";
 import {
   getStatusLabel,
@@ -58,19 +59,31 @@ import {
 } from "@/hooks/useBookings";
 
 /**
- * Get border class based on booking status (like EmployeeCard)
+ * Get border class based on space type (like TodayReservationsCard)
  */
-function getBorderClass(status: BookingStatus): string {
-  switch (status) {
-    case "confirmed":
-      return "border-l-4 border-l-green-500";
-    case "pending":
-      return "border-l-4 border-l-orange-500";
-    case "cancelled":
-      return "border-l-4 border-l-red-500";
-    default:
-      return "border-l-4 border-l-gray-300";
-  }
+function getSpaceType(spaceName?: string): string {
+  if (!spaceName) return "open-space";
+  const lower = spaceName.toLowerCase();
+  if (lower.includes("verriere")) return "salle-verriere";
+  if (lower.includes("etage")) return "salle-etage";
+  if (lower.includes("evenement")) return "evenementiel";
+  return "open-space";
+}
+
+function getBorderClassBySpace(spaceName?: string): string {
+  const spaceType = getSpaceType(spaceName);
+  const spaceTypeColors: Record<string, string> = {
+    "open-space": "border-l-blue-500",
+    "salle-verriere": "border-l-green-500",
+    "salle-etage": "border-l-purple-500",
+    evenementiel: "border-l-red-500",
+  };
+  return `border-l-4 ${spaceTypeColors[spaceType]}`;
+}
+
+function capitalize(name?: string): string {
+  if (!name) return "";
+  return name.replace(/(^|[\s-])[a-zA-ZÀ-ÿ]/g, (c) => c.toUpperCase());
 }
 
 export function ReservationsClient() {
@@ -92,13 +105,6 @@ export function ReservationsClient() {
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editBooking, setEditBooking] = useState<Booking | null>(null);
-  const [editFormData, setEditFormData] = useState({
-    spaceName: "",
-    startDate: "",
-    startTime: "",
-    endTime: "",
-  });
-  const [editLoading, setEditLoading] = useState(false);
   // Create reservation dialog state
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
@@ -209,69 +215,15 @@ export function ReservationsClient() {
   // Edit handlers
   const handleEditClick = (booking: Booking) => {
     setEditBooking(booking);
-    setEditFormData({
-      spaceName: getSpaceType(booking.spaceName),
-      startDate: booking.startDate || "",
-      startTime: booking.startTime || "",
-      endTime: booking.endTime || "",
-    });
     setEditDialogOpen(true);
   };
 
-  const handleEditSubmit = async () => {
-    if (!editBooking?._id) return;
-
-    setEditLoading(true);
-    try {
-      const response = await fetch(
-        `/api/booking/reservations/${editBooking._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            spaceType: editFormData.spaceName,
-            date: editFormData.startDate,
-            startTime: editFormData.startTime,
-            endTime: editFormData.endTime,
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({
-          type: "success",
-          text: "Réservation modifiée avec succès",
-        });
-        setEditDialogOpen(false);
-        // Refetch bookings to update the list
-        window.location.reload();
-      } else {
-        setMessage({
-          type: "error",
-          text: data.error || "Erreur lors de la modification",
-        });
-      }
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: "Erreur lors de la modification de la réservation",
-      });
-    } finally {
-      setEditLoading(false);
-    }
-  };
-
-  const handleEditClose = () => {
-    setEditDialogOpen(false);
-    setEditBooking(null);
-    setEditFormData({
-      spaceName: "",
-      startDate: "",
-      startTime: "",
-      endTime: "",
+  const handleEditSuccess = () => {
+    setMessage({
+      type: "success",
+      text: "Réservation modifiée avec succès",
     });
+    refetch();
   };
 
   if (loading) {
@@ -367,88 +319,12 @@ export function ReservationsClient() {
       </Dialog>
 
       {/* Edit Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={handleEditClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Modifier la réservation</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="editSpace">Espace</Label>
-              <Select
-                value={editFormData.spaceName}
-                onValueChange={(value) =>
-                  setEditFormData({ ...editFormData, spaceName: value })
-                }
-              >
-                <SelectTrigger id="editSpace">
-                  <SelectValue placeholder="Sélectionner un espace" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="open-space">Open Space</SelectItem>
-                  <SelectItem value="salle-verriere">Salle Verrière</SelectItem>
-                  <SelectItem value="salle-etage">Salle Étage</SelectItem>
-                  <SelectItem value="evenementiel">Événementiel</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="editDate">Date</Label>
-              <Input
-                id="editDate"
-                type="date"
-                value={editFormData.startDate}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    startDate: e.target.value,
-                  })
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="editStartTime">Heure début</Label>
-                <Input
-                  id="editStartTime"
-                  type="time"
-                  value={editFormData.startTime}
-                  onChange={(e) =>
-                    setEditFormData({
-                      ...editFormData,
-                      startTime: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="editEndTime">Heure fin</Label>
-                <Input
-                  id="editEndTime"
-                  type="time"
-                  value={editFormData.endTime}
-                  onChange={(e) =>
-                    setEditFormData({
-                      ...editFormData,
-                      endTime: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={handleEditClose}>
-              Annuler
-            </Button>
-            <Button onClick={handleEditSubmit} disabled={editLoading}>
-              {editLoading ? "Modification..." : "Enregistrer"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditBookingDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        booking={editBooking}
+        onSuccess={handleEditSuccess}
+      />
 
       {message && (
         <StyledAlert
@@ -521,155 +397,172 @@ export function ReservationsClient() {
             <CardTitle>Liste des réservations ({bookings.length})</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 p-0">
-            {bookings.map((booking) => (
-              <Card
-                key={booking._id}
-                className={`${getBorderClass(booking.status)} cursor-pointer hover:bg-muted/50 transition-colors`}
-                onClick={() => handleRowClick(booking)}
-              >
-                <CardContent className="py-3 px-4 ">
-                  <div className="flex items-center justify-between">
-                    {/* Colonnes alignées */}
-                    <div className="flex items-center text-sm">
-                      {/* Col 1: Espace */}
-                      <div className="w-[100px] truncate">
-                        <span className="font-bold">{booking.spaceName}</span>
-                      </div>
+            {bookings.map((booking) => {
+              // Afficher société si existe, sinon nom du client
+              const displayName = booking.clientCompany || booking.clientName;
 
-                      {/* Col 2: Statut */}
-                      <div className="w-[100px]">
-                        <Badge
-                          variant="outline"
-                          className={getStatusBadgeClass(booking.status)}
-                        >
-                          {getStatusLabel(booking.status)}
-                        </Badge>
-                      </div>
+              return (
+                <Card
+                  key={booking._id}
+                  className={`${getBorderClassBySpace(booking.spaceName)} cursor-pointer hover:bg-muted/50 transition-colors`}
+                  onClick={() => handleRowClick(booking)}
+                >
+                  <CardContent className="py-3 px-4 ">
+                    <div className="flex items-center justify-between">
+                      {/* Colonnes alignées */}
+                      <div className="flex items-center gap-2 text-sm">
+                        {/* Col 1: Espace */}
+                        <div className="w-[100px] truncate">
+                          <span className="font-bold">{capitalize(booking.spaceName)}</span>
+                        </div>
 
-                      {/* Col 3: Client */}
-                      <div className="w-[175px] truncate">
-                        <span className="font-semibold text-blue-600">
-                          {booking.clientName || "Client"}
-                        </span>
-                      </div>
-
-                      {/* Col 4: Type */}
-                      <div className="w-[100px]">
-                        <Badge
-                          variant="outline"
-                          className={getReservationTypeBadgeClass(
-                            getCalculatedReservationType(
-                              booking.startTime,
-                              booking.endTime,
-                            ),
-                          )}
-                        >
-                          {getReservationTypeLabel(
-                            getCalculatedReservationType(
-                              booking.startTime,
-                              booking.endTime,
-                            ),
-                          )}
-                        </Badge>
-                      </div>
-
-                      {/* Col 5: Date */}
-                      <div className="w-[110px] flex items-center gap-1 font-medium text-foreground">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        {formatDate(booking.startDate)}
-                      </div>
-
-                      {/* Col 6: Heures */}
-                      <div className="w-[140px]">
-                        {booking.startTime && (
-                          <span className="flex items-center gap-1 font-medium text-foreground">
-                            <Clock className="w-4 h-4 text-muted-foreground" />
-                            {formatTimeDisplay(
-                              booking.startTime,
-                              booking.endTime,
-                            )}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Col 7: Personnes */}
-                      <div className="w-[70px] flex items-center gap-1 font-medium text-foreground">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        {booking.numberOfPeople}
-                      </div>
-                    </div>
-
-                    {/* Right: Prix + Actions */}
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-primary w-[140px] text-right text-sm">
-                        {booking.invoiceOption
-                          ? "Paiement sur facture"
-                          : formatPrice(booking.totalPrice)}
-                      </span>
-
-                      {/* Boutons icônes - largeur fixe pour alignement */}
-                      <div
-                        className="flex items-center gap-1 w-[108px] justify-end"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {booking.status === "pending" && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
-                              onClick={() =>
-                                booking._id && handleConfirm(booking._id)
-                              }
-                              disabled={confirmBooking.isPending}
-                              title="Valider"
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-blue-500 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
-                              onClick={() => handleEditClick(booking)}
-                              title="Modifier"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
-                              onClick={() =>
-                                booking._id &&
-                                handleQuickCancelClick(booking._id)
-                              }
-                              disabled={cancelBooking.isPending}
-                              title="Annuler"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                        {booking.status === "confirmed" && (
-                          <Button
+                        {/* Col 2: Statut */}
+                        <div className="w-[100px]">
+                          <Badge
                             variant="outline"
-                            size="icon"
-                            className="h-8 w-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
-                            onClick={() =>
-                              booking._id && handleQuickCancelClick(booking._id)
-                            }
-                            disabled={cancelBooking.isPending}
-                            title="Annuler"
+                            className={getStatusBadgeClass(booking.status)}
                           >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )}
+                            {getStatusLabel(booking.status)}
+                          </Badge>
+                        </div>
+
+                        {/* Col 3: Client */}
+                        <div className="w-[175px] truncate">
+                          <span className="font-semibold text-blue-600">
+                            {displayName || "Client"}
+                          </span>
+                        </div>
+
+                        {/* Col 4: Type */}
+                        <div className="w-[100px] ">
+                          <Badge
+                            variant="outline"
+                            className={getReservationTypeBadgeClass(
+                              getCalculatedReservationType(
+                                booking.startTime,
+                                booking.endTime,
+                              ),
+                            )}
+                          >
+                            {getReservationTypeLabel(
+                              getCalculatedReservationType(
+                                booking.startTime,
+                                booking.endTime,
+                              ),
+                            )}
+                          </Badge>
+                        </div>
+
+                        {/* Col 5: Date */}
+                        <div className="w-[130px] flex items-center gap-1 font-medium text-foreground">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          {formatDate(booking.startDate)}
+                        </div>
+
+                        {/* Col 6: Heures */}
+                        <div className="w-[200px]">
+                          {booking.startTime && (
+                            <span className="flex items-center gap-1 font-medium text-foreground">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              {formatTimeDisplay(
+                                booking.startTime,
+                                booking.endTime,
+                              )}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Col 7: Personnes */}
+                        <div className="w-[70px] flex items-center gap-1 font-medium text-foreground">
+                          <Users className="w-4 h-4 text-muted-foreground" />
+                          {booking.numberOfPeople}
+                        </div>
+                      </div>
+
+                      {/* Right: Prix + Actions */}
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-primary w-[200px] text-right text-sm">
+                          {booking.invoiceOption
+                            ? "Paiement sur facture"
+                            : formatPrice(booking.totalPrice)}
+                        </span>
+
+                        {/* Boutons icônes - largeur fixe pour alignement */}
+                        <div
+                          className="flex items-center gap-1 w-[108px] justify-end"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {booking.status === "pending" && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
+                                onClick={() =>
+                                  booking._id && handleConfirm(booking._id)
+                                }
+                                disabled={confirmBooking.isPending}
+                                title="Valider"
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-blue-500 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+                                onClick={() => handleEditClick(booking)}
+                                title="Modifier"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
+                                onClick={() =>
+                                  booking._id &&
+                                  handleQuickCancelClick(booking._id)
+                                }
+                                disabled={cancelBooking.isPending}
+                                title="Annuler"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                          {booking.status === "confirmed" && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-blue-500 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+                                onClick={() => handleEditClick(booking)}
+                                title="Modifier"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
+                                onClick={() =>
+                                  booking._id &&
+                                  handleQuickCancelClick(booking._id)
+                                }
+                                disabled={cancelBooking.isPending}
+                                title="Annuler"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </CardContent>
         </>
       )}

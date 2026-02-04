@@ -1,39 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { Booking } from "@/types/booking";
 import {
   Calendar,
-  Clock,
-  Edit2,
   Check,
-  X,
+  Edit2,
+  MessageSquareMore,
+  Plus,
+  Trash2,
   UserCheck,
   UserX,
-  Mail,
-  Phone,
-  Users,
-  Plus,
-  Copy,
+  X,
 } from "lucide-react";
-import type { Booking, BookingStatus } from "@/types/booking";
-import {
-  formatDate,
-  formatTimeDisplay,
-  getCalculatedReservationType,
-  getReservationTypeBadgeClass,
-  getReservationTypeLabel,
-  getStatusBadgeClass,
-  getStatusLabel,
-} from "../reservations/utils";
+import { useState } from "react";
+import { formatTimeDisplay } from "../reservations/utils";
+
+function capitalize(name?: string): string {
+  if (!name) return "";
+  return name.replace(/(^|[\s-])[a-zA-ZÀ-ÿ]/g, (c) => c.toUpperCase());
+}
 
 interface DayBookingsModalProps {
   open: boolean;
@@ -47,10 +46,12 @@ interface DayBookingsModalProps {
   onMarkPresent: (bookingId: string) => void;
   onMarkNoShow: (bookingId: string) => void;
   onCreate: () => void;
+  onDelete?: (bookingId: string) => void;
   isConfirming?: boolean;
   isCancelling?: boolean;
   isMarkingPresent?: boolean;
   isMarkingNoShow?: boolean;
+  isDeleting?: boolean;
 }
 
 export function DayBookingsModal({
@@ -65,19 +66,22 @@ export function DayBookingsModal({
   onMarkPresent,
   onMarkNoShow,
   onCreate,
+  onDelete,
   isConfirming = false,
   isCancelling = false,
   isMarkingPresent = false,
   isMarkingNoShow = false,
+  isDeleting = false,
 }: DayBookingsModalProps) {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [selectedBookingForCancel, setSelectedBookingForCancel] =
-    useState<string | null>(null);
+  const [selectedBookingForCancel, setSelectedBookingForCancel] = useState<
+    string | null
+  >(null);
   const [cancelReason, setCancelReason] = useState("");
-  const [copiedEmailId, setCopiedEmailId] = useState<string | null>(null);
 
   // Handle both Date objects and string dates
-  const dateObj = typeof date === "string" ? new Date(date + "T12:00:00") : date;
+  const dateObj =
+    typeof date === "string" ? new Date(date + "T12:00:00") : date;
   const formattedDate = dateObj.toLocaleDateString("fr-FR", {
     weekday: "long",
     day: "numeric",
@@ -92,9 +96,7 @@ export function DayBookingsModal({
   const hasFullPermissions = ["dev", "admin", "manager"].includes(userRole);
 
   // Staff can only see confirmed bookings and mark presence
-  const visibleBookings = hasFullPermissions
-    ? bookings
-    : confirmedBookings;
+  const visibleBookings = hasFullPermissions ? bookings : confirmedBookings;
 
   const handleCancelClick = (bookingId: string) => {
     setSelectedBookingForCancel(bookingId);
@@ -105,7 +107,7 @@ export function DayBookingsModal({
     if (selectedBookingForCancel) {
       onCancel(
         selectedBookingForCancel,
-        cancelReason || "Annulée par l'administrateur"
+        cancelReason || "Annulée par l'administrateur",
       );
       setCancelDialogOpen(false);
       setCancelReason("");
@@ -117,16 +119,6 @@ export function DayBookingsModal({
     setCancelDialogOpen(false);
     setCancelReason("");
     setSelectedBookingForCancel(null);
-  };
-
-  const handleCopyEmail = async (email: string, bookingId: string) => {
-    try {
-      await navigator.clipboard.writeText(email);
-      setCopiedEmailId(bookingId);
-      setTimeout(() => setCopiedEmailId(null), 2000); // Reset after 2 seconds
-    } catch (error) {
-      console.error("Failed to copy email:", error);
-    }
   };
 
   const renderBookingCard = (booking: Booking, isPending: boolean) => {
@@ -159,23 +151,28 @@ export function DayBookingsModal({
           <div className={`w-1 h-12 rounded ${spaceColor}`} />
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">{booking.spaceName}</span>
+              <span className="font-medium text-sm">
+                {capitalize(booking.spaceName)}
+              </span>
               <span className="text-sm text-muted-foreground">•</span>
               <span className="text-sm font-semibold">
-                {booking.clientName}
+                {booking.clientCompany || booking.clientName}
               </span>
-              {booking.clientEmail && (
-                <button
-                  onClick={() => booking._id && handleCopyEmail(booking.clientEmail!, booking._id)}
-                  className="h-5 w-5 p-0.5 rounded hover:bg-muted transition-colors"
-                  title={copiedEmailId === booking._id ? "Copié !" : "Copier l'email"}
-                >
-                  {copiedEmailId === booking._id ? (
-                    <Check className="h-full w-full text-green-600" />
-                  ) : (
-                    <Copy className="h-full w-full text-muted-foreground hover:text-foreground" />
-                  )}
-                </button>
+              {booking.notes && (
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="text-red-500 hover:text-red-600 transition-colors cursor-pointer">
+                        <MessageSquareMore className="h-4 w-4" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs border-red-500 border">
+                      <p className="text-base whitespace-pre-wrap">
+                        {booking.notes}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -223,6 +220,18 @@ export function DayBookingsModal({
                 <X className="h-3 w-3 mr-1" />
                 Refuser
               </Button>
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
+                  onClick={() => booking._id && onDelete(booking._id)}
+                  disabled={isDeleting}
+                  title="Supprimer"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              )}
             </>
           )}
 
@@ -254,14 +263,28 @@ export function DayBookingsModal({
                 </>
               )}
               {hasFullPermissions && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8"
-                  onClick={() => onEdit(booking)}
-                >
-                  <Edit2 className="h-3 w-3" />
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                    onClick={() => onEdit(booking)}
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                  {onDelete && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
+                      onClick={() => booking._id && onDelete(booking._id)}
+                      disabled={isDeleting}
+                      title="Supprimer"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </>
               )}
             </>
           )}
@@ -286,11 +309,7 @@ export function DayBookingsModal({
               <div className="py-12 text-center text-muted-foreground">
                 <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="text-sm">Aucune réservation pour ce jour</p>
-                <Button
-                  onClick={onCreate}
-                  className="mt-4"
-                  size="sm"
-                >
+                <Button onClick={onCreate} className="mt-4" size="sm">
                   <Plus className="h-4 w-4 mr-2" />
                   Nouvelle réservation
                 </Button>
@@ -309,7 +328,7 @@ export function DayBookingsModal({
                       </div>
                       <div>
                         {pendingBookings.map((booking) =>
-                          renderBookingCard(booking, true)
+                          renderBookingCard(booking, true),
                         )}
                       </div>
                     </CardContent>
@@ -318,9 +337,9 @@ export function DayBookingsModal({
 
                 {/* Confirmed bookings section */}
                 {confirmedBookings.length > 0 && (
-                  <Card className="border-green-200">
+                  <Card className="border-green-300">
                     <CardContent className="p-0">
-                      <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border-b border-green-200">
+                      <div className="flex items-center gap-2 px-3 py-2 bg-green-100 border-b rounded-t-2xl border-green-300">
                         <div className="h-2 w-2 rounded-full bg-green-500" />
                         <h3 className="text-sm font-semibold text-green-700">
                           Confirmées ({confirmedBookings.length})
@@ -328,7 +347,7 @@ export function DayBookingsModal({
                       </div>
                       <div>
                         {confirmedBookings.map((booking) =>
-                          renderBookingCard(booking, false)
+                          renderBookingCard(booking, false),
                         )}
                       </div>
                     </CardContent>

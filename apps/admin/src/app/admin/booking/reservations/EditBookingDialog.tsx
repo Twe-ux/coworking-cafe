@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,7 @@ export function EditBookingDialog({
     startDate: "",
     startTime: "",
     endTime: "",
+    notes: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +51,7 @@ export function EditBookingDialog({
         startDate: booking.startDate || "",
         startTime: booking.startTime || "",
         endTime: booking.endTime || "",
+        notes: booking.notes || "",
       });
     }
   }, [booking, open]);
@@ -59,6 +62,7 @@ export function EditBookingDialog({
       startDate: "",
       startTime: "",
       endTime: "",
+      notes: "",
     });
     onOpenChange(false);
   };
@@ -77,6 +81,7 @@ export function EditBookingDialog({
           date: formData.startDate,
           startTime: formData.startTime,
           endTime: formData.endTime,
+          notes: formData.notes,
         }),
       });
 
@@ -158,6 +163,19 @@ export function EditBookingDialog({
                 }
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="editNotes">Note (optionnel)</Label>
+            <Textarea
+              id="editNotes"
+              placeholder="Ex: Client régulier, demandes spéciales..."
+              value={formData.notes}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
+              rows={3}
+            />
           </div>
         </div>
 

@@ -53,6 +53,7 @@ export interface ReservationDialogProps {
   onOpenChange: (open: boolean) => void
   booking?: Booking | null
   onSuccess: () => void
+  initialDate?: Date // Date pré-remplie si ouverte depuis un jour spécifique
 }
 
 export interface ClientSectionProps {

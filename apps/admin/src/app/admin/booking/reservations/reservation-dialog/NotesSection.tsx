@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import type { NotesSectionProps } from "./types"
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { NotesSectionProps } from "./types";
 
 export function NotesSection({ notes, onChange }: NotesSectionProps) {
   return (
@@ -13,9 +13,9 @@ export function NotesSection({ notes, onChange }: NotesSectionProps) {
         placeholder="Ajouter des notes concernant cette réservation..."
         value={notes}
         onChange={(e) => onChange(e.target.value)}
-        rows={4}
+        rows={10}
         className="resize-none"
       />
     </div>
-  )
+  );
 }

@@ -66,6 +66,7 @@ export function AgendaClient() {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isMarkingPresent, setIsMarkingPresent] = useState(false);
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -96,6 +97,7 @@ export function AgendaClient() {
   };
 
   const handleCreate = () => {
+    setSelectedDate(null); // Pas de date pré-remplie pour création générale
     setSelectedBooking(null);
     setDialogOpen(true);
   };
@@ -291,6 +293,42 @@ export function AgendaClient() {
     }
   };
 
+  const handleDelete = async (bookingId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?")) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`/api/booking/reservations/${bookingId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: "Réservation supprimée avec succès",
+        });
+        fetchBookings();
+        setDayModalOpen(false);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.error || "Erreur lors de la suppression",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors de la suppression de la réservation",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const getSpaceType = (spaceName?: string): string => {
     if (!spaceName) return "open-space";
     const lower = spaceName.toLowerCase();
@@ -372,6 +410,7 @@ export function AgendaClient() {
         onOpenChange={setDialogOpen}
         booking={selectedBooking}
         onSuccess={handleDialogSuccess}
+        initialDate={selectedDate || undefined}
       />
 
       <EditBookingDialog
@@ -393,10 +432,12 @@ export function AgendaClient() {
         onMarkPresent={handleMarkPresent}
         onMarkNoShow={handleMarkNoShow}
         onCreate={handleCreateFromModal}
+        onDelete={handleDelete}
         isConfirming={isConfirming}
         isCancelling={isCancelling}
         isMarkingPresent={isMarkingPresent}
         isMarkingNoShow={isMarkingNoShow}
+        isDeleting={isDeleting}
       />
 
       {message && (

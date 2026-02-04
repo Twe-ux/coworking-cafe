@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { format } from "date-fns";
 import { ClientSection } from "./ClientSection";
 import { SpaceSection } from "./SpaceSection";
 import { DateSection } from "./DateSection";
@@ -31,14 +32,15 @@ export function ReservationDialog({
   onOpenChange,
   booking,
   onSuccess,
+  initialDate,
 }: ReservationDialogProps) {
   // Form state
   const [formData, setFormData] = useState<ReservationFormData>({
     client: null,
     spaceId: "",
     spaceName: "",
-    startDate: "",
-    endDate: "",
+    startDate: initialDate ? format(initialDate, "yyyy-MM-dd") : "",
+    endDate: initialDate ? format(initialDate, "yyyy-MM-dd") : "",
     startTime: "09:00",
     endTime: "18:00",
     numberOfPeople: 1,
@@ -56,6 +58,18 @@ export function ReservationDialog({
 
   const [priceLoading, setPriceLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Update dates when dialog opens with initialDate
+  useEffect(() => {
+    if (open && initialDate) {
+      const formattedDate = format(initialDate, "yyyy-MM-dd");
+      setFormData((prev) => ({
+        ...prev,
+        startDate: formattedDate,
+        endDate: formattedDate,
+      }));
+    }
+  }, [open, initialDate]);
 
   // Calculate price in real-time
   const calculatePrice = useCallback(async () => {
@@ -121,9 +135,12 @@ export function ReservationDialog({
 
   // Form validation
   const isFormValid = (): boolean => {
+    const isEventSpace = formData.spaceId === "evenementiel";
+
     console.log("🔍 Validation - formData:", {
       client: !!formData.client,
       spaceId: formData.spaceId,
+      isEventSpace,
       dates: { start: formData.startDate, end: formData.endDate },
       times: { start: formData.startTime, end: formData.endTime },
       people: formData.numberOfPeople,
@@ -150,13 +167,17 @@ export function ReservationDialog({
       console.log("❌ Heures manquantes");
       return false;
     }
-    if (formData.numberOfPeople <= 0) {
-      console.log("❌ Nombre de personnes invalide");
-      return false;
-    }
-    if (formData.totalPrice <= 0) {
-      console.log("❌ Prix invalide");
-      return false;
+
+    // Pour l'événementiel, numberOfPeople et totalPrice ne sont pas requis
+    if (!isEventSpace) {
+      if (formData.numberOfPeople <= 0) {
+        console.log("❌ Nombre de personnes invalide");
+        return false;
+      }
+      if (formData.totalPrice <= 0) {
+        console.log("❌ Prix invalide");
+        return false;
+      }
     }
 
     // Deposit validation (if required)
@@ -167,11 +188,17 @@ export function ReservationDialog({
       });
 
       if (formData.depositAmount <= 0) {
-        console.log("❌ Validation échoue: depositAmount =", formData.depositAmount);
+        console.log(
+          "❌ Validation échoue: depositAmount =",
+          formData.depositAmount,
+        );
         return false;
       }
       if (!formData.depositFileUrl) {
-        console.log("❌ Validation échoue: depositFileUrl =", formData.depositFileUrl);
+        console.log(
+          "❌ Validation échoue: depositFileUrl =",
+          formData.depositFileUrl,
+        );
         return false;
       }
     }
@@ -253,8 +280,8 @@ export function ReservationDialog({
       client: null,
       spaceId: "",
       spaceName: "",
-      startDate: "",
-      endDate: "",
+      startDate: initialDate ? format(initialDate, "yyyy-MM-dd") : "",
+      endDate: initialDate ? format(initialDate, "yyyy-MM-dd") : "",
       startTime: "09:00",
       endTime: "18:00",
       numberOfPeople: 1,
@@ -305,49 +332,66 @@ export function ReservationDialog({
 
             <Separator />
 
-            {/* Dates */}
-            <DateSection
-              startDate={formData.startDate}
-              endDate={formData.endDate}
-              onStartDateChange={(date: string) =>
-                setFormData((prev) => ({ ...prev, startDate: date }))
-              }
-              onEndDateChange={(date: string) =>
-                setFormData((prev) => ({ ...prev, endDate: date }))
-              }
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Dates */}
+              <DateSection
+                startDate={formData.startDate}
+                endDate={formData.endDate}
+                onStartDateChange={(date: string) =>
+                  setFormData((prev) => ({ ...prev, startDate: date }))
+                }
+                onEndDateChange={(date: string) =>
+                  setFormData((prev) => ({ ...prev, endDate: date }))
+                }
+              />
 
+              {/* Times */}
+              <TimeSection
+                startTime={formData.startTime}
+                endTime={formData.endTime}
+                onStartTimeChange={(time: string) =>
+                  setFormData((prev) => ({ ...prev, startTime: time }))
+                }
+                onEndTimeChange={(time: string) =>
+                  setFormData((prev) => ({ ...prev, endTime: time }))
+                }
+              />
+            </div>
             <Separator />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* People & Price - Masqué pour événementiel */}
+              {formData.spaceId !== "evenementiel" && (
+                <>
+                  <PeopleAndPriceSection
+                    numberOfPeople={formData.numberOfPeople}
+                    onPeopleChange={(count: number) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        numberOfPeople: count,
+                      }))
+                    }
+                    totalPrice={formData.totalPrice}
+                    priceLoading={priceLoading}
+                    invoiceOption={formData.invoiceOption}
+                    onInvoicePaymentChange={(checked: boolean) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        invoiceOption: checked,
+                      }))
+                    }
+                  />
+                  {/* <Separator /> */}
+                </>
+              )}
 
-            {/* Times */}
-            <TimeSection
-              startTime={formData.startTime}
-              endTime={formData.endTime}
-              onStartTimeChange={(time: string) =>
-                setFormData((prev) => ({ ...prev, startTime: time }))
-              }
-              onEndTimeChange={(time: string) =>
-                setFormData((prev) => ({ ...prev, endTime: time }))
-              }
-            />
-
-            <Separator />
-
-            {/* People & Price */}
-            <PeopleAndPriceSection
-              numberOfPeople={formData.numberOfPeople}
-              onPeopleChange={(count: number) =>
-                setFormData((prev) => ({ ...prev, numberOfPeople: count }))
-              }
-              totalPrice={formData.totalPrice}
-              priceLoading={priceLoading}
-              invoiceOption={formData.invoiceOption}
-              onInvoicePaymentChange={(checked: boolean) =>
-                setFormData((prev) => ({ ...prev, invoiceOption: checked }))
-              }
-            />
-
-            <Separator />
+              {/* Notes */}
+              <NotesSection
+                notes={formData.notes}
+                onChange={(notes: string) =>
+                  setFormData((prev) => ({ ...prev, notes }))
+                }
+              />
+            </div>
 
             {/* Deposit (conditional) */}
             <DepositSection
@@ -365,7 +409,11 @@ export function ReservationDialog({
               }}
               onFileAttachedChange={(attached: boolean) => {
                 console.log("✅ depositFileAttached changed to:", attached);
-                setFormData((prev) => ({ ...prev, depositFileAttached: attached, depositFileUrl: attached ? prev.depositFileUrl : "" }));
+                setFormData((prev) => ({
+                  ...prev,
+                  depositFileAttached: attached,
+                  depositFileUrl: attached ? prev.depositFileUrl : "",
+                }));
               }}
               onFileUploaded={(url: string) => {
                 console.log("✅ depositFileUrl changed to:", url);
@@ -374,15 +422,7 @@ export function ReservationDialog({
               spaceType={formData.spaceId}
             />
 
-            <Separator />
-
-            {/* Notes */}
-            <NotesSection
-              notes={formData.notes}
-              onChange={(notes: string) =>
-                setFormData((prev) => ({ ...prev, notes }))
-              }
-            />
+            {/* <Separator /> */}
 
             <Separator />
 
@@ -411,7 +451,11 @@ export function ReservationDialog({
             </label>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleClose} disabled={submitting}>
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={submitting}
+            >
               Annuler
             </Button>
             <Button

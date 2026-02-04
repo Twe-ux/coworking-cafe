@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Minus, Plus, Users, Euro } from "lucide-react"
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Minus, Plus, Users, Euro } from "lucide-react";
 
 interface PeopleAndPriceSectionProps {
-  numberOfPeople: number
-  onPeopleChange: (count: number) => void
-  totalPrice: number
-  priceLoading: boolean
-  invoiceOption: boolean
-  onInvoicePaymentChange: (checked: boolean) => void
-  min?: number
-  max?: number
-  error?: string
+  numberOfPeople: number;
+  onPeopleChange: (count: number) => void;
+  totalPrice: number;
+  priceLoading: boolean;
+  invoiceOption: boolean;
+  onInvoicePaymentChange: (checked: boolean) => void;
+  min?: number;
+  max?: number;
+  error?: string;
 }
 
 export function PeopleAndPriceSection({
@@ -32,19 +32,19 @@ export function PeopleAndPriceSection({
 }: PeopleAndPriceSectionProps) {
   const handleIncrement = () => {
     if (numberOfPeople < max) {
-      onPeopleChange(numberOfPeople + 1)
+      onPeopleChange(numberOfPeople + 1);
     }
-  }
+  };
 
   const handleDecrement = () => {
     if (numberOfPeople > min) {
-      onPeopleChange(numberOfPeople - 1)
+      onPeopleChange(numberOfPeople - 1);
     }
-  }
+  };
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-3 p-4">
+      <div className="flex flex-col gap-4 ">
         {/* Nombre de personnes */}
         <div className="space-y-3">
           <Label>Nombre de personnes *</Label>
@@ -85,14 +85,14 @@ export function PeopleAndPriceSection({
 
           <Card className="h-[56px]">
             <CardContent className="p-3">
-              <div className="flex items-center justify-between h-full">
+              <div className="flex items-center justify-center h-full">
                 <div className="flex items-center gap-2">
                   <Euro className="h-4 w-4 text-muted-foreground" />
                   {priceLoading ? (
                     <Skeleton className="h-6 w-20" />
                   ) : (
                     <>
-                      <span className="text-2xl font-bold text-primary">
+                      <span className="text-2xl font-bold text-primary ">
                         {totalPrice.toFixed(2)}
                       </span>
                       <span className="text-sm text-muted-foreground">€</span>
@@ -120,7 +120,9 @@ export function PeopleAndPriceSection({
         <Checkbox
           id="invoiceOption"
           checked={invoiceOption}
-          onCheckedChange={(checked) => onInvoicePaymentChange(checked as boolean)}
+          onCheckedChange={(checked) =>
+            onInvoicePaymentChange(checked as boolean)
+          }
         />
         <Label
           htmlFor="invoiceOption"
@@ -132,5 +134,5 @@ export function PeopleAndPriceSection({
 
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
-  )
+  );
 }

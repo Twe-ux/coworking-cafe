@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import type { TimeSectionProps } from "./types"
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import type { TimeSectionProps } from "./types";
 
 export function TimeSection({
   startTime,
@@ -12,10 +12,10 @@ export function TimeSection({
   error,
 }: TimeSectionProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="grid grid-cols-2 gap-4">
         {/* Start Time */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor="start-time">Heure de début *</Label>
           <Input
             id="start-time"
@@ -27,7 +27,7 @@ export function TimeSection({
         </div>
 
         {/* End Time */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor="end-time">Heure de fin *</Label>
           <Input
             id="end-time"
@@ -39,7 +39,10 @@ export function TimeSection({
         </div>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {/* Espace réservé pour équilibrer avec le texte descriptif de DateSection */}
+      <div className="min-h-[32px]">
+        {error && <p className="text-sm text-destructive">{error}</p>}
+      </div>
     </div>
-  )
+  );
 }
