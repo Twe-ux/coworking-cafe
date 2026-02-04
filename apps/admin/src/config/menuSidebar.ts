@@ -11,6 +11,7 @@ import {
   Calendar,
   CalendarDays,
   Home,
+  ListTodo,
   Mail,
   ScanQrCode,
   Settings,
@@ -91,6 +92,11 @@ export function getAdminMenu(
       title: "Dashboard",
       url: "/admin",
       icon: Home,
+    },
+    {
+      title: "Tâches",
+      url: "/admin/tasks",
+      icon: ListTodo,
     },
     {
       title: "Ressources Humaines",

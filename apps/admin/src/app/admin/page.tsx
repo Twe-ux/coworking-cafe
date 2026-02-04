@@ -5,6 +5,7 @@ import { Chart } from "@/components/dashboard/Chart";
 import { DashSectionCards } from "@/components/dashboard/DashSectionCards";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import SwitchWithText from "@/components/dashboard/SwitchWithText";
+import { TodayTasksCard } from "@/components/home/TodayTasksCard";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -73,6 +74,7 @@ export default function DashboardPage() {
             <Chart mode={checked ? "TTC" : "HT"} />
           </div>
         </div>
+        <TodayTasksCard />
       </RoleGuard>
     </div>
   );

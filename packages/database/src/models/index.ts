@@ -57,3 +57,7 @@ export type { PaymentDocument, CardBrand } from './payment';
 // ===== Additional Services =====
 export { AdditionalService } from './additionalService';
 export type { AdditionalServiceDocument } from './additionalService';
+
+// ===== Tasks =====
+export { Task } from './task';
+export type { TaskDocument } from './task';
