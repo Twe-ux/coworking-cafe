@@ -33,6 +33,13 @@ export function useTasks(filters?: TaskFilters): UseTasksReturn {
       if (filters?.createdBy) params.set('createdBy', filters.createdBy);
 
       const response = await fetch(`/api/tasks?${params}`);
+
+      // Vérifier le status HTTP
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Erreur réseau' }));
+        throw new Error(errorData.error || `Erreur ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (!data.success) {
@@ -41,6 +48,7 @@ export function useTasks(filters?: TaskFilters): UseTasksReturn {
 
       setTasks(data.data || []);
     } catch (err) {
+      console.error('useTasks fetchTasks error:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
     } finally {
       setLoading(false);

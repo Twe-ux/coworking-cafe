@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function TodayTasksCard() {
   const [modalOpen, setModalOpen] = useState(false);
   const { isDev, isAdmin } = useRole();
-  const { tasks, loading, createTask, toggleTaskStatus } = useTasks({
+  const { tasks, loading, error, createTask, toggleTaskStatus } = useTasks({
     status: "pending",
   });
 
@@ -49,6 +49,25 @@ export function TodayTasksCard() {
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-16 w-full" />
           ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <CheckSquare className="h-5 w-5" />
+            Tâches à faire
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-[200px] flex-col items-center justify-center text-muted-foreground">
+            <p className="text-sm text-red-500">Erreur: {error}</p>
+            <p className="text-xs mt-1">Impossible de charger les tâches</p>
+          </div>
         </CardContent>
       </Card>
     );
