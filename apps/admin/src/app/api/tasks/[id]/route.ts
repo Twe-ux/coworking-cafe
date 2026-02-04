@@ -8,22 +8,31 @@ import type { Task as TaskType, TaskUpdateData } from '@/types/task';
 
 /**
  * PATCH /api/tasks/[id] - Mettre à jour une tâche
+ * PUBLIC pour le toggle status (cocher/décocher)
+ * PROTÉGÉ pour les autres modifications (titre, description, etc.)
  */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ): Promise<NextResponse<ApiResponse<TaskType>>> {
-  // Auth : tous les rôles peuvent modifier des tâches
-  const authResult = await requireAuth(['dev', 'admin', 'staff']);
-  if (!authResult.authorized) {
-    return authResult.response;
-  }
-
   await connectMongoose();
+
+  const body: TaskUpdateData = await request.json();
+
+  // Si modification autre que status → Auth requise (admin/dev uniquement)
+  const isStatusOnlyUpdate = Object.keys(body).length === 1 && 'status' in body;
+
+  if (!isStatusOnlyUpdate) {
+    // Modifications avancées : Auth requise
+    const authResult = await requireAuth(['dev', 'admin']);
+    if (!authResult.authorized) {
+      return authResult.response;
+    }
+  }
+  // Sinon : toggle status public (pas d'auth requise)
 
   try {
     const { id } = params;
-    const body: TaskUpdateData = await request.json();
 
     // Trouver la tâche
     const task = await Task.findById(id);
@@ -68,7 +77,8 @@ export async function PATCH(
     // Si on marque comme complétée
     if (body.status === 'completed' && task.status !== 'completed') {
       task.status = 'completed';
-      task.completedBy = authResult.session.user.id as any;
+      // completedBy reste undefined si pas d'auth (utilisateur non connecté)
+      task.completedBy = undefined;
       task.completedAt = new Date();
     }
 
