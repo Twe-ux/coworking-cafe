@@ -25,10 +25,13 @@ export function useTodayReservations() {
       setError(null);
 
       const today = getTodayParis();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split("T")[0]; // YYYY-MM-DD
 
       const params = new URLSearchParams({
         startDate: today,
-        endDate: today,
+        endDate: tomorrowStr, // Fetch today + tomorrow
       });
 
       // No session: use public mode (confirmed only, no auth)
@@ -47,16 +50,53 @@ export function useTodayReservations() {
         );
       }
 
-      setReservations(result.data || []);
+      const data = result.data || [];
+
+      // Add cache to sessionStorage
+      try {
+        sessionStorage.setItem("todayReservations", JSON.stringify(data));
+        sessionStorage.setItem("todayReservationsTimestamp", Date.now().toString());
+      } catch (e) {
+        // Ignore storage errors
+      }
+
+      setReservations(data);
     } catch (err) {
       console.error("Error fetching today reservations:", err);
       setError(err instanceof Error ? err.message : "Erreur inconnue");
+
+      // Try to load from cache on error
+      try {
+        const cached = sessionStorage.getItem("todayReservations");
+        if (cached) {
+          setReservations(JSON.parse(cached));
+        }
+      } catch (e) {
+        // Ignore cache read errors
+      }
     } finally {
       setIsLoading(false);
     }
   }, [isAuthenticated, isAdminOrDev]);
 
   useEffect(() => {
+    // Load from cache first (if exists and recent)
+    try {
+      const cached = sessionStorage.getItem("todayReservations");
+      const timestamp = sessionStorage.getItem("todayReservationsTimestamp");
+
+      if (cached && timestamp) {
+        const age = Date.now() - parseInt(timestamp);
+        // Cache valid for 5 minutes
+        if (age < 5 * 60 * 1000) {
+          setReservations(JSON.parse(cached));
+          setIsLoading(false);
+        }
+      }
+    } catch (e) {
+      // Ignore cache read errors
+    }
+
     // Wait for session check to complete before fetching
     if (sessionStatus === "loading") return;
     fetchTodayReservations();

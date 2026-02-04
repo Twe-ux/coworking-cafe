@@ -14,6 +14,7 @@ import {
   Calendar,
   Clock,
   ExternalLink,
+  Loader2,
   MessageSquareMore,
   UserCheck,
   UserX,
@@ -22,6 +23,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 
 const SPACE_PRICES: Record<string, { hourly: string; daily: string }> = {
   "open-space": { hourly: "6€/H", daily: "29€/Jour" },
@@ -42,10 +44,12 @@ function capitalize(name?: string): string {
  */
 export function TodayReservationsCard() {
   const { reservations, isLoading, error, refetch } = useTodayReservations();
-  const [isMarkingPresent, setIsMarkingPresent] = useState(false);
-  const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [actionType, setActionType] = useState<"present" | "noshow" | null>(null);
 
   const handleMarkPresent = async (bookingId: string) => {
+    if (processingId) return; // Block if already processing
+
     if (
       !confirm(
         "Confirmer la présence du client ? Cela libérera l'empreinte bancaire et enverra un email de confirmation.",
@@ -53,7 +57,8 @@ export function TodayReservationsCard() {
     )
       return;
     try {
-      setIsMarkingPresent(true);
+      setProcessingId(bookingId);
+      setActionType("present");
       const response = await fetch(
         `/api/booking/reservations/${bookingId}/mark-present`,
         { method: "POST" },
@@ -65,11 +70,14 @@ export function TodayReservationsCard() {
     } catch {
       // Silent fail - the UI will stay as-is
     } finally {
-      setIsMarkingPresent(false);
+      setProcessingId(null);
+      setActionType(null);
     }
   };
 
   const handleMarkNoShow = async (bookingId: string) => {
+    if (processingId) return; // Block if already processing
+
     if (
       !confirm(
         "Marquer comme no-show ? Cela capturera l'empreinte bancaire et enverra un email au client.",
@@ -77,7 +85,8 @@ export function TodayReservationsCard() {
     )
       return;
     try {
-      setIsMarkingNoShow(true);
+      setProcessingId(bookingId);
+      setActionType("noshow");
       const response = await fetch(
         `/api/booking/reservations/${bookingId}/mark-noshow`,
         { method: "POST" },
@@ -89,13 +98,29 @@ export function TodayReservationsCard() {
     } catch {
       // Silent fail
     } finally {
-      setIsMarkingNoShow(false);
+      setProcessingId(null);
+      setActionType(null);
     }
   };
 
-  // Filtrer les réservations confirmées et trier par heure d'arrivée
-  const confirmedReservations = reservations
-    .filter((booking) => booking.status === "confirmed")
+  // Get today's date (YYYY-MM-DD)
+  const today = new Date().toISOString().split("T")[0];
+
+  // Filtrer les réservations confirmées et séparer aujourd'hui/demain
+  const confirmedReservations = reservations.filter(
+    (booking) => booking.status === "confirmed",
+  );
+
+  const todayReservations = confirmedReservations
+    .filter((booking) => booking.startDate === today)
+    .sort((a, b) => {
+      const timeA = a.startTime || "23:59";
+      const timeB = b.startTime || "23:59";
+      return timeA.localeCompare(timeB);
+    });
+
+  const tomorrowReservations = confirmedReservations
+    .filter((booking) => booking.startDate !== today)
     .sort((a, b) => {
       const timeA = a.startTime || "23:59";
       const timeB = b.startTime || "23:59";
@@ -118,12 +143,14 @@ export function TodayReservationsCard() {
     return "open-space";
   };
 
-  const renderBookingItem = (booking: Booking) => {
+  const renderBookingItem = (booking: Booking, isTomorrow = false) => {
     const spaceType = getSpaceType(booking.spaceName);
     const borderClass = spaceTypeColors[spaceType];
 
     // Afficher société si existe, sinon nom du client
     const displayName = booking.clientCompany || booking.clientName;
+
+    const isProcessing = processingId === booking._id;
 
     return (
       <div
@@ -133,6 +160,11 @@ export function TodayReservationsCard() {
         <div className="flex items-center gap-3">
           <div className="flex flex-col gap-0.5 flex-1 min-w-0">
             <div className="flex items-center gap-2">
+              {isTomorrow && (
+                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-300">
+                  Demain
+                </Badge>
+              )}
               <span className="font-medium text-sm truncate">
                 {capitalize(booking.spaceName)}
               </span>
@@ -212,9 +244,13 @@ export function TodayReservationsCard() {
                 size="sm"
                 className="h-7 px-2 border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
                 onClick={() => booking._id && handleMarkPresent(booking._id)}
-                disabled={isMarkingPresent}
+                disabled={isProcessing || processingId !== null}
               >
-                <UserCheck className="h-3 w-3 mr-1" />
+                {isProcessing && actionType === "present" ? (
+                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                ) : (
+                  <UserCheck className="h-3 w-3 mr-1" />
+                )}
                 Présent
               </Button>
               <Button
@@ -222,9 +258,13 @@ export function TodayReservationsCard() {
                 size="sm"
                 className="h-7 px-2 border-orange-500 text-orange-600 hover:bg-orange-100 hover:text-orange-700"
                 onClick={() => booking._id && handleMarkNoShow(booking._id)}
-                disabled={isMarkingNoShow}
+                disabled={isProcessing || processingId !== null}
               >
-                <UserX className="h-3 w-3 mr-1" />
+                {isProcessing && actionType === "noshow" ? (
+                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                ) : (
+                  <UserX className="h-3 w-3 mr-1" />
+                )}
                 No-show
               </Button>
             </div>
@@ -290,14 +330,31 @@ export function TodayReservationsCard() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {confirmedReservations.length > 0 ? (
-          <div className="space-y-2">
-            {confirmedReservations.map(renderBookingItem)}
-          </div>
-        ) : (
+        {todayReservations.length === 0 && tomorrowReservations.length === 0 ? (
           <div className="flex h-[200px] flex-col items-center justify-center text-muted-foreground">
             <Users className="h-12 w-12 mb-3 opacity-50" />
             <p className="text-sm">Aucune réservation validée aujourd'hui</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {todayReservations.length > 0 && (
+              <div className="space-y-2">
+                {todayReservations.map((booking) =>
+                  renderBookingItem(booking, false),
+                )}
+              </div>
+            )}
+
+            {tomorrowReservations.length > 0 && (
+              <div className="space-y-2">
+                {todayReservations.length > 0 && (
+                  <div className="border-t pt-3 mt-3" />
+                )}
+                {tomorrowReservations.map((booking) =>
+                  renderBookingItem(booking, true),
+                )}
+              </div>
+            )}
           </div>
         )}
       </CardContent>
