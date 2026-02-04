@@ -114,6 +114,7 @@ export interface DepositSectionProps {
 export interface NotesSectionProps {
   notes: string
   onChange: (notes: string) => void
+  spaceId: string
 }
 
 export interface StatusSectionProps {

@@ -1,31 +1,31 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import type { BookingStatus } from "@/types/booking";
 import { format } from "date-fns";
+import { useCallback, useEffect, useState } from "react";
 import { ClientSection } from "./ClientSection";
-import { SpaceSection } from "./SpaceSection";
 import { DateSection } from "./DateSection";
-import { TimeSection } from "./TimeSection";
-import { PeopleAndPriceSection } from "./PeopleAndPriceSection";
 import { DepositSection } from "./DepositSection";
 import { NotesSection } from "./NotesSection";
+import { PeopleAndPriceSection } from "./PeopleAndPriceSection";
+import { SpaceSection } from "./SpaceSection";
 import { StatusSection } from "./StatusSection";
+import { TimeSection } from "./TimeSection";
 import type {
+  ClientData,
   ReservationDialogProps,
   ReservationFormData,
-  ClientData,
 } from "./types";
-import type { BookingStatus } from "@/types/booking";
 
 export function ReservationDialog({
   open,
@@ -125,6 +125,29 @@ export function ReservationDialog({
   useEffect(() => {
     calculatePrice();
   }, [calculatePrice]);
+
+  // Reset price and adjust people count when space changes
+  useEffect(() => {
+    if (formData.spaceId) {
+      // Capacités maximales par salle
+      const maxCapacities: Record<string, number> = {
+        "open-space": 50,
+        "salle-verriere": 5,
+        "salle-etage": 10,
+        evenementiel: 100,
+      };
+
+      const maxCapacity = maxCapacities[formData.spaceId] || 50;
+
+      setFormData((prev) => ({
+        ...prev,
+        totalPrice: 0,
+        // Ajuster le nombre de personnes si dépasse la capacité max
+        numberOfPeople:
+          prev.numberOfPeople > maxCapacity ? maxCapacity : prev.numberOfPeople,
+      }));
+    }
+  }, [formData.spaceId]);
 
   // Force status to "pending" when deposit is required
   useEffect(() => {
@@ -358,40 +381,52 @@ export function ReservationDialog({
               />
             </div>
             <Separator />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* People & Price - Masqué pour événementiel */}
-              {formData.spaceId !== "evenementiel" && (
-                <>
-                  <PeopleAndPriceSection
-                    numberOfPeople={formData.numberOfPeople}
-                    onPeopleChange={(count: number) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        numberOfPeople: count,
-                      }))
-                    }
-                    totalPrice={formData.totalPrice}
-                    priceLoading={priceLoading}
-                    invoiceOption={formData.invoiceOption}
-                    onInvoicePaymentChange={(checked: boolean) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        invoiceOption: checked,
-                      }))
-                    }
-                  />
-                  {/* <Separator /> */}
-                </>
-              )}
 
-              {/* Notes */}
+            {formData.spaceId === "evenementiel" ? (
               <NotesSection
+                spaceId={formData.spaceId}
                 notes={formData.notes}
                 onChange={(notes: string) =>
                   setFormData((prev) => ({ ...prev, notes }))
                 }
               />
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* People & Price - Masqué pour événementiel */}
+                {formData.spaceId !== "evenementiel" && (
+                  <>
+                    <PeopleAndPriceSection
+                      numberOfPeople={formData.numberOfPeople}
+                      onPeopleChange={(count: number) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          numberOfPeople: count,
+                        }))
+                      }
+                      totalPrice={formData.totalPrice}
+                      priceLoading={priceLoading}
+                      invoiceOption={formData.invoiceOption}
+                      onInvoicePaymentChange={(checked: boolean) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          invoiceOption: checked,
+                        }))
+                      }
+                    />
+                    {/* <Separator /> */}
+                  </>
+                )}
+
+                {/* Notes */}
+                <NotesSection
+                  spaceId={formData.spaceId}
+                  notes={formData.notes}
+                  onChange={(notes: string) =>
+                    setFormData((prev) => ({ ...prev, notes }))
+                  }
+                />
+              </div>
+            )}
 
             {/* Deposit (conditional) */}
             <DepositSection
