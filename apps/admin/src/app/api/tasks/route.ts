@@ -8,30 +8,12 @@ import type { Task as TaskType, TaskCreateData, TaskFilters } from '@/types/task
 
 /**
  * GET /api/tasks - Récupérer la liste des tâches
+ * PUBLIC - Accessible sans authentification (lecture seule)
  */
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<TaskType[]>>> {
-  // Debug: Log de la session pour comprendre le problème
-  const { getServerSession } = await import('next-auth');
-  const { authOptions } = await import('@/lib/auth-options');
-  const session = await getServerSession(authOptions);
-  console.log('🔍 GET /api/tasks - Session debug:', {
-    exists: !!session,
-    user: session?.user,
-    userId: session?.user?.id,
-    userRole: session?.user?.role,
-  });
-
-  // Auth : tous les rôles peuvent voir les tâches
-  const authResult = await requireAuth(['dev', 'admin', 'staff']);
-  if (!authResult.authorized) {
-    console.log('❌ GET /api/tasks - Auth failed');
-    return authResult.response;
-  }
-
-  console.log('✅ GET /api/tasks - Auth successful, role:', authResult.userRole);
-
+  // Pas d'authentification requise - les tâches sont publiques (lecture seule)
   await connectMongoose();
 
   try {
