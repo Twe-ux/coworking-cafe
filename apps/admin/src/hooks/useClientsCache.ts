@@ -8,9 +8,54 @@ interface ClientData {
   company: string;
 }
 
+const CACHE_KEY = "clients-cache";
+const CACHE_TIMESTAMP_KEY = "clients-cache-timestamp";
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
 // Cache global partagé entre toutes les instances du hook
 let clientsCache: ClientData[] | null = null;
 let cachePromise: Promise<ClientData[]> | null = null;
+
+// Charger le cache depuis sessionStorage
+function loadCacheFromStorage(): ClientData[] | null {
+  try {
+    const cached = sessionStorage.getItem(CACHE_KEY);
+    const timestamp = sessionStorage.getItem(CACHE_TIMESTAMP_KEY);
+
+    if (cached && timestamp) {
+      const age = Date.now() - parseInt(timestamp, 10);
+
+      // Si le cache a moins de 30 minutes, l'utiliser
+      if (age < CACHE_DURATION) {
+        console.log("📦 Cache chargé depuis sessionStorage (âge:", Math.round(age / 1000), "s)");
+        return JSON.parse(cached);
+      } else {
+        console.log("⏰ Cache expiré, suppression...");
+        sessionStorage.removeItem(CACHE_KEY);
+        sessionStorage.removeItem(CACHE_TIMESTAMP_KEY);
+      }
+    }
+  } catch (error) {
+    console.error("Erreur lors du chargement du cache:", error);
+  }
+  return null;
+}
+
+// Sauvegarder le cache dans sessionStorage
+function saveCacheToStorage(data: ClientData[]) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    sessionStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+    console.log("💾 Cache sauvegardé dans sessionStorage");
+  } catch (error) {
+    console.error("Erreur lors de la sauvegarde du cache:", error);
+  }
+}
+
+// Initialiser le cache depuis sessionStorage au chargement du module
+if (typeof window !== "undefined") {
+  clientsCache = loadCacheFromStorage();
+}
 
 /**
  * Hook pour gérer le cache des clients
@@ -63,8 +108,9 @@ export function useClientsCache() {
             company: user.companyName || "",
           }));
 
-          // Mettre à jour le cache global
+          // Mettre à jour le cache global et sessionStorage
           clientsCache = clientsData;
+          saveCacheToStorage(clientsData);
           setClients(clientsData);
           console.log("👥 Clients chargés et mis en cache:", clientsData.length);
           return clientsData;
@@ -102,6 +148,7 @@ export function useClientsCache() {
   const addToCache = useCallback((newClient: ClientData) => {
     if (clientsCache) {
       clientsCache = [newClient, ...clientsCache];
+      saveCacheToStorage(clientsCache);
       setClients(clientsCache);
     }
   }, []);
@@ -112,6 +159,7 @@ export function useClientsCache() {
       clientsCache = clientsCache.map((client) =>
         client.id === updatedClient.id ? updatedClient : client
       );
+      saveCacheToStorage(clientsCache);
       setClients(clientsCache);
     }
   }, []);
