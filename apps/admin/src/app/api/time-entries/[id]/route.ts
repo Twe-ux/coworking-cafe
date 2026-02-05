@@ -318,9 +318,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Soft delete - deactivate instead of deleting
-    timeEntry.isActive = false
-    await timeEntry.save()
+    // Hard delete - remove from database permanently
+    await timeEntry.deleteOne()
 
     return NextResponse.json<ApiResponse<null>>({
       success: true,
