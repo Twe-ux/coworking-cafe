@@ -178,7 +178,7 @@ export function TodayReservationsCard() {
                 {displayName}
               </span>
               {booking.notes && (
-                <TooltipProvider>
+                <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="text-red-500 hover:text-red-600 transition-colors cursor-pointer">
