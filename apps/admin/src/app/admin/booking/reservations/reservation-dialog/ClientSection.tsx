@@ -414,26 +414,18 @@ export function ClientSection({
     );
   }
 
-  // Afficher un skeleton pendant le chargement initial
-  if (initialLoading) {
-    return (
-      <div className="space-y-4">
-        <Label>Client</Label>
-        <div className="space-y-3">
-          <Skeleton className="h-10 w-full" />
-          <div className="text-xs text-muted-foreground flex items-center gap-2">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            Chargement des clients...
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Sinon, afficher le champ de recherche
+  // Afficher le champ de recherche immédiatement (chargement en arrière-plan)
   return (
     <div className="space-y-4">
-      <Label>Client</Label>
+      <div className="flex items-center gap-2">
+        <Label>Client</Label>
+        {initialLoading && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            <span>Chargement...</span>
+          </div>
+        )}
+      </div>
 
       {/* Champ de recherche */}
       <div className="relative">
@@ -443,7 +435,7 @@ export function ClientSection({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-9 pr-9"
-          disabled={loading}
+          disabled={loading && !initialLoading}
         />
         {searchQuery && (
           <button
@@ -456,8 +448,18 @@ export function ClientSection({
         )}
       </div>
 
+      {/* Message de chargement si recherche pendant le chargement initial */}
+      {searchQuery && initialLoading && (
+        <div className="rounded-md border p-4 bg-muted/50">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Chargement des clients en cours...</span>
+          </div>
+        </div>
+      )}
+
       {/* Résultats de recherche */}
-      {searchQuery && filteredClients.length > 0 && (
+      {searchQuery && !initialLoading && filteredClients.length > 0 && (
         <div className="rounded-md border max-h-[300px] overflow-y-auto">
           <div className="p-2">
             <p className="text-sm text-muted-foreground px-2 py-1">
@@ -500,7 +502,7 @@ export function ClientSection({
       )}
 
       {/* Aucun résultat trouvé - Afficher le formulaire de création */}
-      {searchQuery && filteredClients.length === 0 && (
+      {searchQuery && !initialLoading && filteredClients.length === 0 && (
         <div className="space-y-3 rounded-md border p-4 bg-muted/50">
           <div className="text-center py-2">
             <p className="text-sm text-muted-foreground">
