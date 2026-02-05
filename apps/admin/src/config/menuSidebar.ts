@@ -10,6 +10,7 @@ import {
   Calculator,
   Calendar,
   CalendarDays,
+  Coins,
   Home,
   ListTodo,
   Mail,
@@ -54,6 +55,11 @@ export function getStaffMenu(): MenuItem[] {
       title: "Agenda Réservations",
       url: "/agenda",
       icon: CalendarDays,
+    },
+    {
+      title: "Fond de Caisse",
+      url: "/cash-register",
+      icon: Coins,
     },
     {
       title: "Produits & Recettes",
@@ -135,9 +141,13 @@ export function getAdminMenu(
           url: "/admin/accounting/cash-control",
         },
         {
-          title: "Chiffre d'affaires",
-          url: "/admin/accounting/turnover",
+          title: "Fond de caisse",
+          url: "/admin/accounting/cash-register",
         },
+        // {
+        //   title: "Chiffre d'affaires",
+        //   url: "/admin/accounting/turnover",
+        // },
       ],
     },
     {

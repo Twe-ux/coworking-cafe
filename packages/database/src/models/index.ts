@@ -61,3 +61,7 @@ export type { AdditionalServiceDocument } from './additionalService';
 // ===== Tasks =====
 export { Task } from './task';
 export type { TaskDocument } from './task';
+
+// ===== Cash Register =====
+export { CashRegister } from './cashRegister';
+export type { CashRegisterDocument, CashCountDetails, CountedBy } from './cashRegister';
