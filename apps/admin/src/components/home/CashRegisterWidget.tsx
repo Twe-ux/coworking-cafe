@@ -83,8 +83,12 @@ export function CashRegisterWidget() {
       // Récupérer les employés pointés
       const employeesResponse = await fetch("/api/hr/employees/clocked");
       const employeesResult = await employeesResponse.json();
+      console.log("🔍 API /api/hr/employees/clocked response:", employeesResult);
       if (employeesResult.success) {
+        console.log("✅ Employés pointés récupérés:", employeesResult.data);
         setClockedEmployees(employeesResult.data || []);
+      } else {
+        console.error("❌ Erreur récupération employés pointés:", employeesResult.error);
       }
 
       // Récupérer les admins
@@ -442,9 +446,9 @@ export function CashRegisterWidget() {
 
             <div className="space-y-4">
               {/* Employés pointés */}
-              {clockedEmployees.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Employés pointés :</p>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Employés pointés :</p>
+                {clockedEmployees.length > 0 ? (
                   <div className="grid grid-cols-2 gap-2">
                     {clockedEmployees.map((emp) => (
                       <Button
@@ -458,8 +462,12 @@ export function CashRegisterWidget() {
                       </Button>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-xs text-muted-foreground italic py-2">
+                    Aucun employé pointé actuellement
+                  </p>
+                )}
+              </div>
 
               {/* Admin/Dev avec sélection + PIN */}
               <div className="space-y-2">
