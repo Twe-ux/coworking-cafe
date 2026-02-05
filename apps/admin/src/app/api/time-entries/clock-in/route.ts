@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
       status: 'active' as const,
       shiftNumber: (totalShifts + 1) as 1 | 2,
       isOutOfSchedule,
-      justificationNote: body.justificationNote,
+      justificationNote: body.justificationNote ? `[Arrivée] ${body.justificationNote}` : undefined,
     }
 
     const newTimeEntry = new TimeEntry(timeEntryData)
