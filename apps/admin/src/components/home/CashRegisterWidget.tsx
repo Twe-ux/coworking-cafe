@@ -83,12 +83,8 @@ export function CashRegisterWidget() {
       // Récupérer les employés pointés
       const employeesResponse = await fetch("/api/hr/employees/clocked");
       const employeesResult = await employeesResponse.json();
-      console.log("🔍 API /api/hr/employees/clocked response:", employeesResult);
       if (employeesResult.success) {
-        console.log("✅ Employés pointés récupérés:", employeesResult.data);
         setClockedEmployees(employeesResult.data || []);
-      } else {
-        console.error("❌ Erreur récupération employés pointés:", employeesResult.error);
       }
 
       // Récupérer les admins
