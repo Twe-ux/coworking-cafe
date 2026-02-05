@@ -152,19 +152,21 @@ export function TimeEntryShiftCell({
         >
           <Trash2 className="h-4 w-4" />
         </button>
-        {hasJustification && (
-          <button
-            onClick={handleJustificationClick}
-            className={`rounded p-1 transition-colors ${
-              isJustificationRead
+        {/* Always render button to maintain alignment, but make invisible if no justification */}
+        <button
+          onClick={hasJustification ? handleJustificationClick : undefined}
+          disabled={!hasJustification}
+          className={`rounded p-1 transition-colors ${
+            !hasJustification
+              ? 'invisible cursor-default'
+              : isJustificationRead
                 ? 'text-green-600 hover:bg-green-50 hover:text-green-700'
                 : 'text-orange-500 hover:bg-orange-50 hover:text-orange-600'
-            }`}
-            title={isJustificationRead ? 'Justification lue' : 'Cliquez pour lire la justification'}
-          >
-            <MessageSquareMore className="h-4 w-4" />
-          </button>
-        )}
+          }`}
+          title={hasJustification ? (isJustificationRead ? 'Justification lue' : 'Cliquez pour lire la justification') : ''}
+        >
+          <MessageSquareMore className="h-4 w-4" />
+        </button>
       </div>
       {shift.status === 'active' && !hasError && (
         <div className="mt-1 flex justify-center">
