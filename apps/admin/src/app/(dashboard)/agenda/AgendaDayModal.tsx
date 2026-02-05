@@ -1,23 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Calendar,
-  Clock,
-  Check,
-  Copy,
-  UserCheck,
-  UserX,
-  Users,
-} from "lucide-react";
 import type { Booking } from "@/types/booking";
+import { Calendar, Clock, UserCheck, UserX, Users } from "lucide-react";
 
 interface AgendaDayModalProps {
   open: boolean;
@@ -56,24 +47,14 @@ export function AgendaDayModal({
   isMarkingPresent = false,
   isMarkingNoShow = false,
 }: AgendaDayModalProps) {
-  const [copiedEmailId, setCopiedEmailId] = useState<string | null>(null);
-
-  const dateObj = typeof date === "string" ? new Date(date + "T12:00:00") : date;
+  const dateObj =
+    typeof date === "string" ? new Date(date + "T12:00:00") : date;
   const formattedDate = dateObj.toLocaleDateString("fr-FR", {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
-
-  const handleCopyEmail = async (email: string, bookingId: string) => {
-    try {
-      await navigator.clipboard.writeText(email);
-      setCopiedEmailId(bookingId);
-      setTimeout(() => setCopiedEmailId(null), 2000);
-    } catch {
-      // Silent fail
-    }
-  };
+  
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -95,6 +76,7 @@ export function AgendaDayModal({
             bookings.map((booking) => {
               const spaceType = getSpaceType(booking.spaceName);
               const spaceColor = spaceTypeColors[spaceType];
+              const displayName = booking.clientCompany || booking.clientName;
 
               return (
                 <div
@@ -110,9 +92,9 @@ export function AgendaDayModal({
                         </span>
                         <span className="text-sm text-muted-foreground">·</span>
                         <span className="text-sm font-semibold">
-                          {booking.clientName}
+                          {displayName}
                         </span>
-                        {booking.clientEmail && (
+                        {/* {booking.clientEmail && (
                           <button
                             onClick={() =>
                               booking._id &&
@@ -131,7 +113,7 @@ export function AgendaDayModal({
                               <Copy className="h-full w-full text-muted-foreground hover:text-foreground" />
                             )}
                           </button>
-                        )}
+                        )} */}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         {booking.startTime && booking.endTime ? (
@@ -157,7 +139,9 @@ export function AgendaDayModal({
                         variant="outline"
                         size="sm"
                         className="h-8 border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
-                        onClick={() => booking._id && onMarkPresent(booking._id)}
+                        onClick={() =>
+                          booking._id && onMarkPresent(booking._id)
+                        }
                         disabled={isMarkingPresent}
                       >
                         <UserCheck className="h-3 w-3 mr-1" />
