@@ -42,6 +42,7 @@ export default function TimeEntriesList({
     handleCreateShift,
     handleCancelAddShift,
     handleDeleteShift,
+    fetchTimeEntries,
   } = useTimeEntries({ employees, currentDate })
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -96,6 +97,7 @@ export default function TimeEntriesList({
         onCellSave={handleCellSave}
         onKeyDown={handleKeyDown}
         onDeleteShift={handleDeleteShift}
+        onJustificationRead={fetchTimeEntries}
       />
 
       {/* Instructions and Summary */}

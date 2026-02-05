@@ -40,7 +40,11 @@ export async function GET(
         ContactMail.countDocuments({ status: "unread" }),
         Unavailability.countDocuments({ status: "pending" }),
         Booking.countDocuments({ status: "pending" }),
-        TimeEntry.countDocuments({ isOutOfSchedule: true, isActive: true }),
+        TimeEntry.countDocuments({
+          isOutOfSchedule: true,
+          justificationRead: { $ne: true }, // Only count unread justifications
+          isActive: true,
+        }),
       ]);
 
     const counts: SidebarCounts = {

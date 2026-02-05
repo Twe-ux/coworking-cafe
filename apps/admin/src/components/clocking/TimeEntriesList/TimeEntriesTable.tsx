@@ -25,6 +25,7 @@ interface TimeEntriesTableProps {
   onCellSave: () => void
   onKeyDown: (e: React.KeyboardEvent) => void
   onDeleteShift: (shiftId: string) => void
+  onJustificationRead?: () => void
 }
 
 export function TimeEntriesTable({
@@ -38,6 +39,7 @@ export function TimeEntriesTable({
   onCellSave,
   onKeyDown,
   onDeleteShift,
+  onJustificationRead,
 }: TimeEntriesTableProps) {
   if (isLoading) {
     return (
@@ -93,6 +95,7 @@ export function TimeEntriesTable({
                 onCellSave={onCellSave}
                 onKeyDown={onKeyDown}
                 onDeleteShift={onDeleteShift}
+                onJustificationRead={onJustificationRead}
               />
             ))}
             {groupedEntries.length > 0 && (

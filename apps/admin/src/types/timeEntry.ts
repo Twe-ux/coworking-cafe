@@ -19,6 +19,7 @@ export interface TimeEntry {
   errorMessage?: string
   isOutOfSchedule?: boolean // True if clocked in/out outside scheduled shift (±15min)
   justificationNote?: string // Note explaining why clocked in/out outside schedule
+  justificationRead?: boolean // True if admin has read and acknowledged the justification
   isActive: boolean
   createdAt: Date
   updatedAt: Date

@@ -1,14 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { Trash2, MessageSquareMore } from 'lucide-react'
+import { JustificationReadDialog } from '@/components/clocking/JustificationReadDialog'
+import { toast } from 'sonner'
 import type { TimeEntry, EditingCell } from './types'
 
 interface TimeEntryShiftCellProps {
@@ -22,6 +19,7 @@ interface TimeEntryShiftCellProps {
   onCellSave: () => void
   onKeyDown: (e: React.KeyboardEvent) => void
   onDeleteShift: (shiftId: string) => void
+  onJustificationRead?: () => void // Callback to refresh list after marking as read
 }
 
 function formatTime(time: string | null | undefined): string {
@@ -40,12 +38,54 @@ export function TimeEntryShiftCell({
   onCellSave,
   onKeyDown,
   onDeleteShift,
+  onJustificationRead,
 }: TimeEntryShiftCellProps) {
+  const [showJustificationDialog, setShowJustificationDialog] = useState(false)
+  const [isMarkingRead, setIsMarkingRead] = useState(false)
+
   if (!shift) {
     return <div className="text-center text-gray-400">--</div>
   }
 
   const hasError = shift.hasError === true
+  const hasJustification = !!shift.justificationNote
+  const isJustificationRead = shift.justificationRead === true
+
+  const handleJustificationClick = () => {
+    if (hasJustification) {
+      setShowJustificationDialog(true)
+    }
+  }
+
+  const handleMarkAsRead = async () => {
+    setIsMarkingRead(true)
+    toast.loading('Marquage comme lu...', { id: 'mark-read' })
+
+    try {
+      const response = await fetch(`/api/time-entries/${shift.id}/mark-justification-read`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Justification marquée comme lue', { id: 'mark-read' })
+        setShowJustificationDialog(false)
+
+        // Refresh list
+        if (onJustificationRead) {
+          onJustificationRead()
+        }
+      } else {
+        toast.error(result.error || 'Erreur lors du marquage', { id: 'mark-read' })
+      }
+    } catch (error) {
+      toast.error('Erreur de connexion', { id: 'mark-read' })
+    } finally {
+      setIsMarkingRead(false)
+    }
+  }
 
   const renderEditableTime = (field: 'clockIn' | 'clockOut') => {
     const isEditing =
@@ -105,21 +145,18 @@ export function TimeEntryShiftCell({
           <span className="px-1">-</span>
           {renderEditableTime('clockOut')}
         </div>
-        {shift.justificationNote && (
-          <TooltipProvider delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="cursor-pointer text-orange-500 transition-colors hover:text-orange-600">
-                  <MessageSquareMore className="h-4 w-4" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs border border-orange-500">
-                <p className="whitespace-pre-wrap text-base">
-                  {shift.justificationNote}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        {hasJustification && (
+          <button
+            onClick={handleJustificationClick}
+            className={`rounded p-1 transition-colors ${
+              isJustificationRead
+                ? 'text-green-600 hover:bg-green-50 hover:text-green-700'
+                : 'text-orange-500 hover:bg-orange-50 hover:text-orange-600'
+            }`}
+            title={isJustificationRead ? 'Justification lue' : 'Cliquez pour lire la justification'}
+          >
+            <MessageSquareMore className="h-4 w-4" />
+          </button>
         )}
         <button
           onClick={() => onDeleteShift(shift.id)}
@@ -147,6 +184,21 @@ export function TimeEntryShiftCell({
             Erreur
           </Badge>
         </div>
+      )}
+
+      {/* Justification Read Dialog */}
+      {hasJustification && (
+        <JustificationReadDialog
+          open={showJustificationDialog}
+          onClose={() => setShowJustificationDialog(false)}
+          onConfirmRead={handleMarkAsRead}
+          isLoading={isMarkingRead}
+          justificationNote={shift.justificationNote!}
+          clockIn={shift.clockIn}
+          clockOut={shift.clockOut}
+          date={shift.date}
+          employeeName={shift.employee?.fullName || 'Employé inconnu'}
+        />
       )}
     </div>
   )

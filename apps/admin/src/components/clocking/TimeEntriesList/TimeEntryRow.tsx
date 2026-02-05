@@ -15,6 +15,7 @@ interface TimeEntryRowProps {
   onCellSave: () => void
   onKeyDown: (e: React.KeyboardEvent) => void
   onDeleteShift: (shiftId: string) => void
+  onJustificationRead?: () => void
 }
 
 function formatHours(hours?: number): string {
@@ -34,6 +35,7 @@ export function TimeEntryRow({
   onCellSave,
   onKeyDown,
   onDeleteShift,
+  onJustificationRead,
 }: TimeEntryRowProps) {
   return (
     <TableRow
@@ -96,6 +98,7 @@ export function TimeEntryRow({
           onCellSave={onCellSave}
           onKeyDown={onKeyDown}
           onDeleteShift={onDeleteShift}
+          onJustificationRead={onJustificationRead}
         />
       </TableCell>
       <TableCell className="text-center">
@@ -110,6 +113,7 @@ export function TimeEntryRow({
           onCellSave={onCellSave}
           onKeyDown={onKeyDown}
           onDeleteShift={onDeleteShift}
+          onJustificationRead={onJustificationRead}
         />
       </TableCell>
       <TableCell className="text-center">

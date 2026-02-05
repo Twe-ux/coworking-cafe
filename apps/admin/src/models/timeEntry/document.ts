@@ -22,6 +22,7 @@ export interface ITimeEntry extends Document, ITimeEntryMethods {
   errorMessage?: string
   isOutOfSchedule?: boolean // True if clocked in/out outside of scheduled shift (±15min)
   justificationNote?: string // Note explaining why the employee clocked in/out outside schedule
+  justificationRead?: boolean // True if admin has read and acknowledged the justification
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -88,6 +89,10 @@ export const TimeEntrySchema = new Schema<ITimeEntry>(
     justificationNote: {
       type: String,
       maxlength: [500, 'La note de justification ne peut pas dépasser 500 caractères'],
+    },
+    justificationRead: {
+      type: Boolean,
+      default: false,
     },
     isActive: {
       type: Boolean,
