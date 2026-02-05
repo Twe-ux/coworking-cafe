@@ -3,7 +3,7 @@ import type { TimeEntry, NewShiftData } from '../types'
 
 interface UseTimeEntryAPIReturn {
   // Delete
-  handleDeleteShift: (shiftId: string, onSuccess: () => Promise<void>) => Promise<void>
+  handleDeleteShift: (shiftId: string, onSuccess: () => Promise<void>) => Promise<boolean>
 
   // Create
   isCreatingShift: boolean
@@ -26,11 +26,9 @@ export function useTimeEntryAPI(): UseTimeEntryAPIReturn {
   const [isCreatingShift, setIsCreatingShift] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  // Delete shift
+  // Delete shift (confirmation handled by caller)
   const handleDeleteShift = useCallback(
     async (shiftId: string, onSuccess: () => Promise<void>) => {
-      if (!confirm('Etes-vous sur de vouloir supprimer ce shift ?')) return
-
       try {
         const response = await fetch(`/api/time-entries/${shiftId}`, {
           method: 'DELETE',
@@ -39,12 +37,15 @@ export function useTimeEntryAPI(): UseTimeEntryAPIReturn {
 
         if (result.success) {
           await onSuccess()
+          return true
         } else {
           alert(result.error || 'Erreur lors de la suppression du shift')
+          return false
         }
       } catch (error) {
         console.error('Error deleting shift:', error)
         alert('Erreur lors de la suppression du shift')
+        return false
       }
     },
     []

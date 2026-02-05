@@ -3,7 +3,17 @@
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Trash2, MessageSquareMore } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Trash2, MessageSquareMore, AlertTriangle } from 'lucide-react'
 import { JustificationReadDialog } from '@/components/clocking/JustificationReadDialog'
 import { toast } from 'sonner'
 import { triggerSidebarRefresh } from '@/lib/events/sidebar-refresh'
@@ -43,6 +53,7 @@ export function TimeEntryShiftCell({
 }: TimeEntryShiftCellProps) {
   const [showJustificationDialog, setShowJustificationDialog] = useState(false)
   const [isMarkingRead, setIsMarkingRead] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   if (!shift) {
     return <div className="text-center text-gray-400">--</div>
@@ -150,7 +161,7 @@ export function TimeEntryShiftCell({
           {renderEditableTime('clockOut')}
         </div>
         <button
-          onClick={() => onDeleteShift(shift.id)}
+          onClick={() => setShowDeleteDialog(true)}
           className="rounded p-1 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
           title="Supprimer ce shift"
         >
@@ -206,6 +217,31 @@ export function TimeEntryShiftCell({
           employeeName={shift.employee?.fullName || 'Employé inconnu'}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+              Supprimer ce shift
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce shift ({shift.clockIn} - {shift.clockOut || '--:--'}) ?
+              Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => onDeleteShift(shift.id)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
