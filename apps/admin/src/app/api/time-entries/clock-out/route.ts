@@ -210,9 +210,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if clock-out is within scheduled shifts (only if not already marked as out of schedule)
+    // Check if clock-out is within scheduled shifts
+    // Si une justification existe déjà (du clock-in), ne pas bloquer le clock-out
     let isOutOfScheduleClockOut = timeEntry.isOutOfSchedule || false
-    if (!timeEntry.isOutOfSchedule) {
+
+    // Si pas encore de justification, vérifier le clock-out
+    if (!timeEntry.justificationNote && !timeEntry.isOutOfSchedule) {
       const scheduledShifts = await Shift.find({
         employeeId: body.employeeId,
         date: timeEntry.date,
@@ -228,7 +231,7 @@ export async function POST(request: NextRequest) {
         isOutOfScheduleClockOut = true
 
         // Si hors planning et pas de justification → exiger justification
-        if (!body.justificationNote && !timeEntry.justificationNote) {
+        if (!body.justificationNote) {
           return NextResponse.json<ApiResponse<null>>(
             {
               success: false,
@@ -245,6 +248,25 @@ export async function POST(request: NextRequest) {
             },
             { status: 400 }
           )
+        }
+      }
+    } else if (timeEntry.justificationNote) {
+      // Si une justification existe déjà, juste marquer comme hors planning si nécessaire
+      // mais ne pas bloquer le clock-out
+      if (!timeEntry.isOutOfSchedule) {
+        const scheduledShifts = await Shift.find({
+          employeeId: body.employeeId,
+          date: timeEntry.date,
+          isActive: true,
+        }).lean();
+
+        const isWithinScheduleTime = isClockOutWithinSchedule(
+          clockOutTimeStr,
+          scheduledShifts.map((s: any) => ({ startTime: s.startTime, endTime: s.endTime }))
+        );
+
+        if (!isWithinScheduleTime) {
+          isOutOfScheduleClockOut = true
         }
       }
     }
