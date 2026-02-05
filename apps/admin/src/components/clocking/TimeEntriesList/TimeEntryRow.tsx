@@ -37,14 +37,21 @@ export function TimeEntryRow({
   onDeleteShift,
   onJustificationRead,
 }: TimeEntryRowProps) {
+  // Check if any shift has unread justification
+  const hasUnreadJustification =
+    (group.morningShift?.justificationNote && !group.morningShift?.justificationRead) ||
+    (group.afternoonShift?.justificationNote && !group.afternoonShift?.justificationRead)
+
   return (
     <TableRow
       className={
         group.hasError
           ? 'border-red-200 bg-red-50'
-          : group.hasActiveShift
-            ? 'bg-green-50'
-            : ''
+          : hasUnreadJustification
+            ? 'border-orange-200 bg-orange-50'
+            : group.hasActiveShift
+              ? 'bg-green-50'
+              : ''
       }
     >
       <TableCell className="text-center">

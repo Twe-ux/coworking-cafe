@@ -145,6 +145,13 @@ export function TimeEntryShiftCell({
           <span className="px-1">-</span>
           {renderEditableTime('clockOut')}
         </div>
+        <button
+          onClick={() => onDeleteShift(shift.id)}
+          className="rounded p-1 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+          title="Supprimer ce shift"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
         {hasJustification && (
           <button
             onClick={handleJustificationClick}
@@ -158,13 +165,6 @@ export function TimeEntryShiftCell({
             <MessageSquareMore className="h-4 w-4" />
           </button>
         )}
-        <button
-          onClick={() => onDeleteShift(shift.id)}
-          className="rounded p-1 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-          title="Supprimer ce shift"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
       </div>
       {shift.status === 'active' && !hasError && (
         <div className="mt-1 flex justify-center">
