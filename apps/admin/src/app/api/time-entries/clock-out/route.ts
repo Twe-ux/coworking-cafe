@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import TimeEntry from '@/models/timeEntry'
+import Shift from '@/models/shift'
 import type {
   ClockOutRequest,
   ApiResponse,
@@ -13,6 +14,7 @@ import { checkRateLimit, recordAttempt, resetAttempts } from '@/lib/security/rat
 import { logPINAttempt } from '@/lib/security/pin-logger'
 import { validateRequest } from '@/lib/api/validation'
 import { clockOutSchema } from '@/lib/validations/timeEntry'
+import { isClockOutWithinSchedule } from '@/lib/utils/schedule-checker'
 
 /**
  * POST /api/time-entries/clock-out - Terminer un shift actif
@@ -208,6 +210,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if clock-out is within scheduled shifts (only if not already marked as out of schedule)
+    if (!timeEntry.isOutOfSchedule) {
+      const scheduledShifts = await Shift.find({
+        employeeId: body.employeeId,
+        date: timeEntry.date,
+        isActive: true,
+      }).lean();
+
+      const isWithinScheduleTime = isClockOutWithinSchedule(
+        clockOutTimeStr,
+        scheduledShifts.map((s: any) => ({ startTime: s.startTime, endTime: s.endTime }))
+      );
+
+      if (!isWithinScheduleTime) {
+        timeEntry.isOutOfSchedule = true;
+      }
+    }
+
     // Mettre à jour le time entry
     timeEntry.clockOut = clockOutTimeStr
     timeEntry.totalHours = timeEntry.calculateTotalHours()
@@ -246,6 +266,8 @@ export async function POST(request: NextRequest) {
       shiftNumber: timeEntry.shiftNumber,
       totalHours: timeEntry.totalHours,
       status: timeEntry.status,
+      isOutOfSchedule: timeEntry.isOutOfSchedule,
+      justificationNote: timeEntry.justificationNote,
       isActive: timeEntry.isActive,
       createdAt: timeEntry.createdAt,
       updatedAt: timeEntry.updatedAt,

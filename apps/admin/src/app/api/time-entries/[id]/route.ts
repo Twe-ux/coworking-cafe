@@ -168,6 +168,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (updates.clockOut !== undefined) actualUpdates.clockOut = updates.clockOut
     if (updates.totalHours !== undefined) actualUpdates.totalHours = updates.totalHours
     if (updates.status !== undefined) actualUpdates.status = updates.status
+    if (updates.justificationNote !== undefined) actualUpdates.justificationNote = updates.justificationNote
 
     // Handle null clockOut (reset to active)
     if (actualUpdates.clockOut === null) {
@@ -203,6 +204,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (actualUpdates.clockOut !== undefined) timeEntry.clockOut = actualUpdates.clockOut
     if (actualUpdates.status) timeEntry.status = actualUpdates.status
     if (actualUpdates.totalHours !== undefined) timeEntry.totalHours = actualUpdates.totalHours
+    if (actualUpdates.justificationNote !== undefined) timeEntry.justificationNote = actualUpdates.justificationNote
 
     // Recalculate hours if clockOut is set and totalHours not provided
     if (timeEntry.clockOut && actualUpdates.totalHours === undefined) {

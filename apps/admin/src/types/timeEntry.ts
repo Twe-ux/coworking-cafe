@@ -17,6 +17,8 @@ export interface TimeEntry {
   hasError?: boolean
   errorType?: 'MISSING_CLOCK_OUT' | 'INVALID_TIME_RANGE' | 'DUPLICATE_ENTRY'
   errorMessage?: string
+  isOutOfSchedule?: boolean // True if clocked in/out outside scheduled shift (±15min)
+  justificationNote?: string // Note explaining why clocked in/out outside schedule
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -78,6 +80,7 @@ export interface TimeEntryUpdate {
   clockOut?: string | null
   totalHours?: number
   status?: 'active' | 'completed'
+  justificationNote?: string
 }
 
 export interface EmployeeTimeReport {

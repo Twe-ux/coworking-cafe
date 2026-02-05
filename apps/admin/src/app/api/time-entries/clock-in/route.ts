@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import TimeEntry from '@/models/timeEntry'
+import Shift from '@/models/shift'
 import type {
   ClockInRequest,
   ApiResponse,
@@ -13,6 +14,7 @@ import { checkRateLimit, recordAttempt, resetAttempts } from '@/lib/security/rat
 import { logPINAttempt } from '@/lib/security/pin-logger'
 import { validateRequest } from '@/lib/api/validation'
 import { clockInSchema } from '@/lib/validations/timeEntry'
+import { isClockInWithinSchedule } from '@/lib/utils/schedule-checker'
 
 /**
  * POST /api/time-entries/clock-in - Débuter un nouveau shift
@@ -193,12 +195,25 @@ export async function POST(request: NextRequest) {
       ? body.clockIn
       : parisTime  // Format "HH:mm" en heure de Paris
 
+    // Check if clock-in is within scheduled shifts
+    const scheduledShifts = await Shift.find({
+      employeeId: body.employeeId,
+      date: todayStr,
+      isActive: true,
+    }).lean();
+
+    const isWithinScheduleTime = isClockInWithinSchedule(
+      clockInTimeStr,
+      scheduledShifts.map((s: any) => ({ startTime: s.startTime, endTime: s.endTime }))
+    );
+
     const timeEntryData = {
       employeeId: body.employeeId,
       date: todayStr,
       clockIn: clockInTimeStr,
       status: 'active' as const,
       shiftNumber: (totalShifts + 1) as 1 | 2,
+      isOutOfSchedule: !isWithinScheduleTime,
     }
 
     const newTimeEntry = new TimeEntry(timeEntryData)
@@ -238,6 +253,8 @@ export async function POST(request: NextRequest) {
       shiftNumber: newTimeEntry.shiftNumber,
       totalHours: newTimeEntry.totalHours,
       status: newTimeEntry.status,
+      isOutOfSchedule: newTimeEntry.isOutOfSchedule,
+      justificationNote: newTimeEntry.justificationNote,
       isActive: newTimeEntry.isActive,
       createdAt: newTimeEntry.createdAt,
       updatedAt: newTimeEntry.updatedAt,

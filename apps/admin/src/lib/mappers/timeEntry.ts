@@ -30,6 +30,8 @@ interface TimeEntryDocument {
   hasError?: boolean
   errorType?: string
   errorMessage?: string
+  isOutOfSchedule?: boolean
+  justificationNote?: string
   isActive: boolean
   createdAt?: Date
   updatedAt?: Date
@@ -57,6 +59,8 @@ export interface MappedTimeEntry {
   hasError?: boolean
   errorType?: string
   errorMessage?: string
+  isOutOfSchedule?: boolean
+  justificationNote?: string
   isActive: boolean
   createdAt?: Date
   updatedAt?: Date
@@ -119,6 +123,8 @@ export function mapTimeEntryToApi(
     hasError: entry.hasError,
     errorType: entry.errorType,
     errorMessage: entry.errorMessage,
+    isOutOfSchedule: entry.isOutOfSchedule,
+    justificationNote: entry.justificationNote,
     isActive: entry.isActive,
     createdAt: entry.createdAt,
     updatedAt: entry.updatedAt,

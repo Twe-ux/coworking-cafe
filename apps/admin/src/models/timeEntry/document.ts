@@ -20,6 +20,8 @@ export interface ITimeEntry extends Document, ITimeEntryMethods {
   hasError?: boolean
   errorType?: 'MISSING_CLOCK_OUT' | 'INVALID_TIME_RANGE' | 'DUPLICATE_ENTRY'
   errorMessage?: string
+  isOutOfSchedule?: boolean // True if clocked in/out outside of scheduled shift (±15min)
+  justificationNote?: string // Note explaining why the employee clocked in/out outside schedule
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -78,6 +80,14 @@ export const TimeEntrySchema = new Schema<ITimeEntry>(
     },
     errorMessage: {
       type: String,
+    },
+    isOutOfSchedule: {
+      type: Boolean,
+      default: false,
+    },
+    justificationNote: {
+      type: String,
+      maxlength: [500, 'La note de justification ne peut pas dépasser 500 caractères'],
     },
     isActive: {
       type: Boolean,

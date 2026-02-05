@@ -2,7 +2,13 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Trash2 } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Trash2, MessageSquareMore } from 'lucide-react'
 import type { TimeEntry, EditingCell } from './types'
 
 interface TimeEntryShiftCellProps {
@@ -99,6 +105,22 @@ export function TimeEntryShiftCell({
           <span className="px-1">-</span>
           {renderEditableTime('clockOut')}
         </div>
+        {shift.justificationNote && (
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="cursor-pointer text-orange-500 transition-colors hover:text-orange-600">
+                  <MessageSquareMore className="h-4 w-4" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs border border-orange-500">
+                <p className="whitespace-pre-wrap text-base">
+                  {shift.justificationNote}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
         <button
           onClick={() => onDeleteShift(shift.id)}
           className="rounded p-1 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
