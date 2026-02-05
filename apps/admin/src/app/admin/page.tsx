@@ -5,6 +5,7 @@ import { Chart } from "@/components/dashboard/Chart";
 import { DashSectionCards } from "@/components/dashboard/DashSectionCards";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import SwitchWithText from "@/components/dashboard/SwitchWithText";
+import { CashRegisterWidget } from "@/components/home/CashRegisterWidget";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
@@ -59,8 +60,7 @@ export default function DashboardPage() {
           </div>
         }
       >
-        <PointagesSection employees={employees} onStatusChange={refetch} />
-
+        <div className="grid md:grid-cols-2 lg:grid-cols-12 gap-3"></div>
         <div className="flex flex-col gap-4">
           {/* Toggle HT/TTC */}
           <div className="flex items-center justify-end px-3 md:px-0">
@@ -80,7 +80,12 @@ export default function DashboardPage() {
             <Chart mode={checked ? "TTC" : "HT"} />
           </div>
         </div>
-        <TodayTasksCard />
+        <PointagesSection employees={employees} onStatusChange={refetch} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
+          <TodayTasksCard />
+          <CashRegisterWidget />
+        </div>
       </RoleGuard>
     </div>
   );
