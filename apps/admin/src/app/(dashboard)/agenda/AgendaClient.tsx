@@ -184,7 +184,9 @@ export function AgendaClient() {
               key={booking._id}
               className={`${spaceColor} text-white rounded px-2 py-0.5 text-xs cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-between gap-2`}
             >
-              <span className="truncate font-medium">{booking.clientName}</span>
+              <span className="truncate font-medium">
+                {booking.clientCompany || booking.clientName}
+              </span>
               {booking.startTime && (
                 <span className="text-[10px] opacity-90 whitespace-nowrap">
                   {booking.startTime}-{booking.endTime}
