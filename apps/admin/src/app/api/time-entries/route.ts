@@ -94,11 +94,28 @@ export async function GET(request: NextRequest) {
     ])
 
     // Formatage des données
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+
     const formattedTimeEntries: TimeEntryType[] = timeEntries.map(
       (entry: any) => {
         const populatedEmployee = entry.employeeId
         const originalEmployeeId =
           populatedEmployee._id || populatedEmployee.toString()
+
+        // Recalculate hasError for past dates without clockOut
+        let hasError = entry.hasError || false
+        let errorType = entry.errorType
+        let errorMessage = entry.errorMessage
+
+        if (!entry.clockOut && entry.date < today) {
+          hasError = true
+          errorType = 'MISSING_CLOCK_OUT'
+          errorMessage = 'Pointage de sortie manquant pour une journée passée'
+        } else if (entry.clockOut || entry.date >= today) {
+          hasError = false
+          errorType = undefined
+          errorMessage = undefined
+        }
 
         return {
           id: entry._id.toString(),
@@ -119,9 +136,9 @@ export async function GET(request: NextRequest) {
           shiftNumber: entry.shiftNumber,
           totalHours: entry.totalHours,
           status: entry.status,
-          hasError: entry.hasError,
-          errorType: entry.errorType,
-          errorMessage: entry.errorMessage,
+          hasError,
+          errorType,
+          errorMessage,
           isActive: entry.isActive,
           createdAt: entry.createdAt,
           updatedAt: entry.updatedAt,

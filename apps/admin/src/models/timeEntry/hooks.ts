@@ -14,11 +14,27 @@ export function attachHooks() {
       this.status = 'active'
     }
 
+    // Detect error: missing clockOut for past dates
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+    const entryDate = this.date
+
+    if (!this.clockOut && entryDate < today) {
+      // Entry is from the past and has no clockOut → error
+      this.hasError = true
+      this.errorType = 'MISSING_CLOCK_OUT'
+      this.errorMessage = 'Pointage de sortie manquant pour une journée passée'
+    } else if (this.clockOut || entryDate >= today) {
+      // Entry has clockOut OR is today/future → no error
+      this.hasError = false
+      this.errorType = undefined
+      this.errorMessage = undefined
+    }
+
     next()
   })
 
   // Pre-update: Calculate totalHours if clockOut is updated
-  TimeEntrySchema.pre('findOneAndUpdate', function (next) {
+  TimeEntrySchema.pre('findOneAndUpdate', async function (next) {
     const update = this.getUpdate() as any
 
     if (update.clockOut !== undefined) {
@@ -46,10 +62,28 @@ export function attachHooks() {
 
         // Set status to completed
         update.status = 'completed'
+
+        // Clear error if clockOut is set
+        update.hasError = false
+        update.errorType = undefined
+        update.errorMessage = undefined
       } else {
         // If clockOut is null, remove totalHours and set status to active
         update.totalHours = undefined
         update.status = 'active'
+
+        // Check if this creates an error (past date without clockOut)
+        const doc = await this.model.findOne(this.getQuery())
+        if (doc) {
+          const today = new Date().toISOString().split('T')[0]
+          const entryDate = update.date || doc.date
+
+          if (entryDate < today) {
+            update.hasError = true
+            update.errorType = 'MISSING_CLOCK_OUT'
+            update.errorMessage = 'Pointage de sortie manquant pour une journée passée'
+          }
+        }
       }
     }
 

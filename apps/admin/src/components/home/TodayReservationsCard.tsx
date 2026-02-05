@@ -22,8 +22,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 
 const SPACE_PRICES: Record<string, { hourly: string; daily: string }> = {
   "open-space": { hourly: "6€/H", daily: "29€/Jour" },
@@ -45,7 +45,9 @@ function capitalize(name?: string): string {
 export function TodayReservationsCard() {
   const { reservations, isLoading, error, refetch } = useTodayReservations();
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [actionType, setActionType] = useState<"present" | "noshow" | null>(null);
+  const [actionType, setActionType] = useState<"present" | "noshow" | null>(
+    null,
+  );
 
   const handleMarkPresent = async (bookingId: string) => {
     if (processingId) return; // Block if already processing
@@ -161,7 +163,10 @@ export function TodayReservationsCard() {
           <div className="flex flex-col gap-0.5 flex-1 min-w-0">
             <div className="flex items-center gap-2">
               {isTomorrow && (
-                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-300">
+                <Badge
+                  variant="outline"
+                  className="text-xs bg-blue-50 text-blue-700 border-blue-300"
+                >
                   Demain
                 </Badge>
               )}
@@ -348,7 +353,7 @@ export function TodayReservationsCard() {
             {tomorrowReservations.length > 0 && (
               <div className="space-y-2">
                 {todayReservations.length > 0 && (
-                  <div className="border-t pt-3 mt-3" />
+                  <div className="border-t border-green-700 pt-3 mt-3" />
                 )}
                 {tomorrowReservations.map((booking) =>
                   renderBookingItem(booking, true),

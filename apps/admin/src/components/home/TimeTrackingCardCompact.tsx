@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { type Employee } from "@/types/hr";
 import type { TimeEntry } from "@/types/timeEntry";
-import { Play, Square } from "lucide-react";
+import { Loader2, Play, Square } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import PINKeypad from "@/components/clocking/PINKeypad";
+import { toast } from "sonner";
 
 interface TimeTrackingCardCompactProps {
   employee: Employee;
@@ -74,8 +75,16 @@ export function TimeTrackingCardCompact({
   };
 
   const handleDirectClockOut = async () => {
+    // Save current state for rollback
+    const previousEntry = activeEntry;
+
+    // Optimistic update: remove active entry immediately
+    setActiveEntry(null);
     setIsLoading(true);
     setError(null);
+
+    // Show immediate feedback
+    toast.loading("Arrêt du pointage en cours...", { id: "clock-out" });
 
     try {
       const response = await fetch("/api/time-entries/clock-out", {
@@ -87,15 +96,27 @@ export function TimeTrackingCardCompact({
       const result = await response.json();
 
       if (result.success) {
+        // Success feedback
+        toast.success("Pointage arrêté avec succès", { id: "clock-out" });
+
+        // Refresh in background
         setTimeout(async () => {
           await fetchActiveEntry();
           onStatusChange?.();
         }, 300);
       } else {
+        // Rollback on error
+        setActiveEntry(previousEntry);
         setError(result.error || "Erreur lors de l'arrêt du pointage");
+        toast.error(result.error || "Erreur lors de l'arrêt du pointage", {
+          id: "clock-out",
+        });
       }
     } catch {
+      // Rollback on error
+      setActiveEntry(previousEntry);
       setError("Erreur de connexion");
+      toast.error("Erreur de connexion", { id: "clock-out" });
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +127,9 @@ export function TimeTrackingCardCompact({
 
     setIsLoading(true);
     setError(null);
+
+    // Show loading toast
+    toast.loading("Vérification du code PIN...", { id: "clock-action" });
 
     try {
       const pinResponse = await fetch("/api/hr/employees/verify-pin", {
@@ -118,9 +142,18 @@ export function TimeTrackingCardCompact({
 
       if (!pinResult.success) {
         setError("Code PIN incorrect");
+        toast.error("Code PIN incorrect", { id: "clock-action" });
         setIsLoading(false);
         return;
       }
+
+      // PIN verified, update toast
+      toast.loading(
+        pinAction === "clock-in"
+          ? "Démarrage du pointage..."
+          : "Arrêt du pointage...",
+        { id: "clock-action" }
+      );
 
       const endpoint = `/api/time-entries/${pinAction}`;
       const response = await fetch(endpoint, {
@@ -132,18 +165,32 @@ export function TimeTrackingCardCompact({
       const result = await response.json();
 
       if (result.success) {
+        // Success feedback
+        toast.success(
+          pinAction === "clock-in"
+            ? "Pointage démarré avec succès"
+            : "Pointage arrêté avec succès",
+          { id: "clock-action" }
+        );
+
+        // Close dialog and update UI
         setShowPINDialog(false);
         setPinAction(null);
 
+        // Refresh in background
         setTimeout(async () => {
           await fetchActiveEntry();
           onStatusChange?.();
         }, 300);
       } else {
         setError(result.error || "Erreur lors du pointage");
+        toast.error(result.error || "Erreur lors du pointage", {
+          id: "clock-action",
+        });
       }
     } catch {
       setError("Erreur de connexion");
+      toast.error("Erreur de connexion", { id: "clock-action" });
     } finally {
       setIsLoading(false);
     }
@@ -188,7 +235,11 @@ export function TimeTrackingCardCompact({
               className="h-8"
               disabled={isLoading}
             >
-              <Square className="h-3 w-3 mr-1" />
+              {isLoading ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Square className="h-3 w-3 mr-1" />
+              )}
               Stop
             </Button>
           ) : (
@@ -201,7 +252,11 @@ export function TimeTrackingCardCompact({
               className="bg-green-600 hover:bg-green-700 h-8"
               disabled={isLoading}
             >
-              <Play className="h-3 w-3 mr-1" />
+              {isLoading ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Play className="h-3 w-3 mr-1" />
+              )}
               Pointer
             </Button>
           )}
