@@ -320,8 +320,30 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       )
     }
 
+    // Store info before deletion for renumbering
+    const employeeId = timeEntry.employeeId
+    const date = timeEntry.date
+    const shiftNumber = timeEntry.shiftNumber
+
     // Hard delete - remove from database permanently
     await timeEntry.deleteOne()
+
+    // Renumber remaining shifts if we deleted shift 1
+    if (shiftNumber === 1) {
+      // Check if shift 2 exists for same employee and date
+      const shift2 = await TimeEntry.findOne({
+        employeeId,
+        date,
+        shiftNumber: 2,
+        isActive: true,
+      })
+
+      // If shift 2 exists, renumber it to shift 1
+      if (shift2) {
+        shift2.shiftNumber = 1
+        await shift2.save()
+      }
+    }
 
     return NextResponse.json<ApiResponse<null>>({
       success: true,

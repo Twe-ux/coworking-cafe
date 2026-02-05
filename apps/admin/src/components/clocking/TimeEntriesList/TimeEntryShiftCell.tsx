@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Trash2, MessageSquareMore } from 'lucide-react'
 import { JustificationReadDialog } from '@/components/clocking/JustificationReadDialog'
 import { toast } from 'sonner'
+import { triggerSidebarRefresh } from '@/lib/events/sidebar-refresh'
 import type { TimeEntry, EditingCell } from './types'
 
 interface TimeEntryShiftCellProps {
@@ -77,6 +78,9 @@ export function TimeEntryShiftCell({
         if (onJustificationRead) {
           onJustificationRead()
         }
+
+        // Trigger sidebar badge refresh
+        triggerSidebarRefresh()
       } else {
         toast.error(result.error || 'Erreur lors du marquage', { id: 'mark-read' })
       }

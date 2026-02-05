@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { onSidebarRefresh } from "@/lib/events/sidebar-refresh";
 
 interface SidebarCounts {
   pendingBookings: number;
@@ -117,6 +118,11 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [fetchCounts]);
+
+  // Listen to manual refresh events
+  useEffect(() => {
+    return onSidebarRefresh(fetchCounts);
   }, [fetchCounts]);
 
   return { counts, loading, error, refetch: fetchCounts };
