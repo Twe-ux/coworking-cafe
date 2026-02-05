@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Edit2, Loader2, Save, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useClientsCache } from "@/hooks/useClientsCache";
 import type { ClientData, ClientSectionProps } from "./types";
 
 export function ClientSection({
@@ -15,9 +15,16 @@ export function ClientSection({
   onChange,
   error,
 }: ClientSectionProps) {
-  const [clients, setClients] = useState<ClientData[]>([]);
+  // Utiliser le hook de cache pour les clients
+  const {
+    clients,
+    loading: initialLoading,
+    refresh: refreshClients,
+    addToCache,
+    updateInCache,
+  } = useClientsCache();
+
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
@@ -31,38 +38,6 @@ export function ClientSection({
 
   // Form pour édition client
   const [editClient, setEditClient] = useState<ClientData | null>(null);
-
-  // Fetch clients existants
-  useEffect(() => {
-    fetchClients();
-  }, []);
-
-  const fetchClients = async () => {
-    try {
-      setLoading(true);
-      // Exclure les abonnés newsletter - uniquement les vrais utilisateurs
-      const response = await fetch("/api/users?excludeNewsletterOnly=true");
-      const data = await response.json();
-
-      if (data.success) {
-        // L'API retourne déjà uniquement les clients (filtre côté serveur)
-        const clientsData: ClientData[] = data.data.map((user: any) => ({
-          id: user.id, // L'API retourne "id" pas "_id"
-          name: user.givenName || user.username || user.email,
-          email: user.email,
-          phone: user.phone || "",
-          company: user.companyName || "",
-        }));
-        console.log("👥 Clients récupérés:", clientsData);
-        setClients(clientsData);
-      }
-    } catch (error) {
-      console.error("Error fetching clients:", error);
-    } finally {
-      setLoading(false);
-      setInitialLoading(false);
-    }
-  };
 
   // Filtrer les clients en fonction de la recherche
   const filteredClients = useMemo(() => {
@@ -167,16 +142,17 @@ export function ClientSection({
           }
 
           // Retourner le client créé avec son ID
-          onChange({
+          const createdClient = {
             id: data.data.id,
             name: data.data.givenName || data.data.email,
             email: data.data.email,
             phone: data.data.phone || "",
             company: data.data.companyName || "",
-          });
+          };
+          onChange(createdClient);
 
-          // Rafraîchir la liste des clients
-          await fetchClients();
+          // Ajouter au cache
+          addToCache(createdClient);
         } else {
           console.error("❌ Erreur lors de la création du client:", data.error);
         }
@@ -240,16 +216,17 @@ export function ClientSection({
         console.log("✅ Client modifié:", data.data);
 
         // Mettre à jour le client sélectionné
-        onChange({
+        const updatedClient = {
           id: data.data.id,
           name: data.data.givenName || data.data.email,
           email: data.data.email,
           phone: data.data.phone || "",
           company: data.data.companyName || "",
-        });
+        };
+        onChange(updatedClient);
 
-        // Rafraîchir la liste des clients
-        await fetchClients();
+        // Mettre à jour le cache
+        updateInCache(updatedClient);
 
         setIsEditing(false);
         setEditClient(null);
