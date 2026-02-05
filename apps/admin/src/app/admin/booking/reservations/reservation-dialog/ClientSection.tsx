@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Edit2, Loader2, Save, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -16,6 +17,7 @@ export function ClientSection({
 }: ClientSectionProps) {
   const [clients, setClients] = useState<ClientData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
@@ -58,6 +60,7 @@ export function ClientSection({
       console.error("Error fetching clients:", error);
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   };
 
@@ -407,6 +410,22 @@ export function ClientSection({
           </div>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
+      </div>
+    );
+  }
+
+  // Afficher un skeleton pendant le chargement initial
+  if (initialLoading) {
+    return (
+      <div className="space-y-4">
+        <Label>Client</Label>
+        <div className="space-y-3">
+          <Skeleton className="h-10 w-full" />
+          <div className="text-xs text-muted-foreground flex items-center gap-2">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Chargement des clients...
+          </div>
+        </div>
       </div>
     );
   }
