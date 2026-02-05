@@ -5,7 +5,8 @@ import TimeEntriesList from "@/components/clocking/TimeEntriesList";
 import { ClockingAdminPageSkeleton } from "./ClockingAdminPageSkeleton";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { Button } from "@/components/ui/button";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Calendar, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import type { Employee } from "@/types/hr";
 
 export default function ClockingAdminPage() {
@@ -122,13 +123,14 @@ export default function ClockingAdminPage() {
       )}
 
       {/* Info message */}
-      <div className="rounded-lg bg-blue-50 p-4">
-        <p className="text-sm text-blue-900">
+      <Alert variant="info">
+        <Info className="h-4 w-4" />
+        <AlertDescription>
           <strong>Note :</strong> Vous pouvez modifier les heures de pointage en
           cliquant sur les cellules. Les modifications sont enregistrées
           automatiquement.
-        </p>
-      </div>
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }
