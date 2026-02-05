@@ -211,6 +211,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if clock-out is within scheduled shifts (only if not already marked as out of schedule)
+    let isOutOfScheduleClockOut = timeEntry.isOutOfSchedule || false
     if (!timeEntry.isOutOfSchedule) {
       const scheduledShifts = await Shift.find({
         employeeId: body.employeeId,
@@ -224,7 +225,27 @@ export async function POST(request: NextRequest) {
       );
 
       if (!isWithinScheduleTime) {
-        timeEntry.isOutOfSchedule = true;
+        isOutOfScheduleClockOut = true
+
+        // Si hors planning et pas de justification → exiger justification
+        if (!body.justificationNote && !timeEntry.justificationNote) {
+          return NextResponse.json<ApiResponse<null>>(
+            {
+              success: false,
+              error: 'Pointage hors planning détecté',
+              details: {
+                code: 'JUSTIFICATION_REQUIRED',
+                message: 'Vous pointez en dehors de vos horaires planifiés (±15min). Veuillez justifier ce pointage.',
+                clockOutTime: clockOutTimeStr,
+                scheduledShifts: scheduledShifts.map((s: any) => ({
+                  startTime: s.startTime,
+                  endTime: s.endTime,
+                })),
+              },
+            },
+            { status: 400 }
+          )
+        }
       }
     }
 
@@ -232,6 +253,12 @@ export async function POST(request: NextRequest) {
     timeEntry.clockOut = clockOutTimeStr
     timeEntry.totalHours = timeEntry.calculateTotalHours()
     timeEntry.status = 'completed'
+    timeEntry.isOutOfSchedule = isOutOfScheduleClockOut
+
+    // Ajouter la justification si fournie (seulement si pas déjà une justification existante)
+    if (body.justificationNote && !timeEntry.justificationNote) {
+      timeEntry.justificationNote = body.justificationNote
+    }
 
     await timeEntry.save()
 

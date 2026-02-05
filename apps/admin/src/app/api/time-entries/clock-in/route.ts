@@ -207,13 +207,35 @@ export async function POST(request: NextRequest) {
       scheduledShifts.map((s: any) => ({ startTime: s.startTime, endTime: s.endTime }))
     );
 
+    // Si hors planning et pas de justification → exiger justification
+    const isOutOfSchedule = !isWithinScheduleTime
+    if (isOutOfSchedule && !body.justificationNote) {
+      return NextResponse.json<ApiResponse<null>>(
+        {
+          success: false,
+          error: 'Pointage hors planning détecté',
+          details: {
+            code: 'JUSTIFICATION_REQUIRED',
+            message: 'Vous pointez en dehors de vos horaires planifiés (±15min). Veuillez justifier ce pointage.',
+            clockInTime: clockInTimeStr,
+            scheduledShifts: scheduledShifts.map((s: any) => ({
+              startTime: s.startTime,
+              endTime: s.endTime,
+            })),
+          },
+        },
+        { status: 400 }
+      )
+    }
+
     const timeEntryData = {
       employeeId: body.employeeId,
       date: todayStr,
       clockIn: clockInTimeStr,
       status: 'active' as const,
       shiftNumber: (totalShifts + 1) as 1 | 2,
-      isOutOfSchedule: !isWithinScheduleTime,
+      isOutOfSchedule,
+      justificationNote: body.justificationNote,
     }
 
     const newTimeEntry = new TimeEntry(timeEntryData)

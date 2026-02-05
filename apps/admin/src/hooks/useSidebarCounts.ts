@@ -4,6 +4,7 @@ interface SidebarCounts {
   pendingBookings: number;
   unreadMessages: number;
   pendingUnavailabilities: number;
+  pendingJustifications: number;
 }
 
 interface UseSidebarCountsReturn {
@@ -17,6 +18,7 @@ const DEFAULT_COUNTS: SidebarCounts = {
   pendingBookings: 0,
   unreadMessages: 0,
   pendingUnavailabilities: 0,
+  pendingJustifications: 0,
 };
 
 const POLLING_INTERVAL = 300_000; // 5 minutes
@@ -68,6 +70,7 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
         pendingBookings: data.data?.pendingBookings || 0,
         unreadMessages: data.data?.unreadMessages || 0,
         pendingUnavailabilities: data.data?.pendingUnavailabilities || 0,
+        pendingJustifications: data.data?.pendingJustifications || 0,
       };
 
       setCounts(newCounts);
@@ -75,7 +78,8 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
       const total =
         newCounts.pendingBookings +
         newCounts.unreadMessages +
-        newCounts.pendingUnavailabilities;
+        newCounts.pendingUnavailabilities +
+        newCounts.pendingJustifications;
       updatePWABadge(total);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");

@@ -5,12 +5,14 @@ import { connectMongoose } from "@/lib/mongodb";
 import { connectDB } from "@/lib/db";
 import { ContactMail } from "@/models/contactMail";
 import Unavailability from "@/models/unavailability";
+import TimeEntry from "@/models/timeEntry";
 import { Booking } from "@coworking-cafe/database";
 
 interface SidebarCounts {
   pendingBookings: number;
   unreadMessages: number;
   pendingUnavailabilities: number;
+  pendingJustifications: number;
 }
 
 /**
@@ -32,18 +34,20 @@ export async function GET(
     // Connect both drivers in parallel
     await Promise.all([connectMongoose(), connectDB()]);
 
-    // Run all 3 count queries in parallel
-    const [unreadMessages, pendingUnavailabilities, pendingBookings] =
+    // Run all 4 count queries in parallel
+    const [unreadMessages, pendingUnavailabilities, pendingBookings, pendingJustifications] =
       await Promise.all([
         ContactMail.countDocuments({ status: "unread" }),
         Unavailability.countDocuments({ status: "pending" }),
         Booking.countDocuments({ status: "pending" }),
+        TimeEntry.countDocuments({ isOutOfSchedule: true, isActive: true }),
       ]);
 
     const counts: SidebarCounts = {
       pendingBookings,
       unreadMessages,
       pendingUnavailabilities,
+      pendingJustifications,
     };
 
     return successResponse(counts);

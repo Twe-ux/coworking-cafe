@@ -10,6 +10,7 @@ export const clockInSchema = z.object({
     .string()
     .regex(/^\d{2}:\d{2}$/, 'L\'heure d\'entrée doit être au format HH:mm')
     .optional(),
+  justificationNote: z.string().max(500, 'La note de justification ne peut pas dépasser 500 caractères').optional(),
 })
 
 /**
@@ -24,6 +25,7 @@ export const clockOutSchema = z.object({
     .string()
     .regex(/^\d{2}:\d{2}$/, 'L\'heure de sortie doit être au format HH:mm')
     .optional(),
+  justificationNote: z.string().max(500, 'La note de justification ne peut pas dépasser 500 caractères').optional(),
 })
 
 /**

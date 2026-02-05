@@ -45,6 +45,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         counts.unreadMessages,
         counts.pendingUnavailabilities,
         counts.pendingBookings,
+        counts.pendingJustifications,
         isDev,
         isAdmin,
         isLoading,

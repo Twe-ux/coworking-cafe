@@ -1,6 +1,7 @@
 "use client";
 
 import PINKeypad from "@/components/clocking/PINKeypad";
+import { JustificationDialog } from "@/components/clocking/JustificationDialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -35,6 +36,15 @@ export function TimeTrackingCardCompact({
   );
   const [error, setError] = useState<string | null>(null);
   const [activeEntry, setActiveEntry] = useState<TimeEntry | null>(null);
+
+  // État pour le modal de justification
+  const [showJustificationDialog, setShowJustificationDialog] = useState(false);
+  const [justificationData, setJustificationData] = useState<{
+    action: "clock-in" | "clock-out";
+    pin: string;
+    clockTime?: string;
+    scheduledShifts?: Array<{ startTime: string; endTime: string }>;
+  } | null>(null);
 
   const fetchActiveEntry = useCallback(async () => {
     try {
@@ -183,10 +193,30 @@ export function TimeTrackingCardCompact({
           onStatusChange?.();
         }, 300);
       } else {
-        setError(result.error || "Erreur lors du pointage");
-        toast.error(result.error || "Erreur lors du pointage", {
-          id: "clock-action",
-        });
+        // Vérifier si c'est une erreur de justification requise
+        if (
+          result.details &&
+          typeof result.details === "object" &&
+          "code" in result.details &&
+          result.details.code === "JUSTIFICATION_REQUIRED"
+        ) {
+          // Fermer le dialog PIN et ouvrir le dialog de justification
+          setShowPINDialog(false);
+          toast.dismiss("clock-action");
+
+          setJustificationData({
+            action: pinAction,
+            pin,
+            clockTime: result.details.clockInTime || result.details.clockOutTime,
+            scheduledShifts: result.details.scheduledShifts,
+          });
+          setShowJustificationDialog(true);
+        } else {
+          setError(result.error || "Erreur lors du pointage");
+          toast.error(result.error || "Erreur lors du pointage", {
+            id: "clock-action",
+          });
+        }
       }
     } catch {
       setError("Erreur de connexion");
@@ -200,6 +230,62 @@ export function TimeTrackingCardCompact({
     setShowPINDialog(false);
     setPinAction(null);
     setError(null);
+  };
+
+  const handleJustificationSubmit = async (justification: string) => {
+    if (!justificationData) return;
+
+    setIsLoading(true);
+    toast.loading("Enregistrement du pointage...", { id: "clock-justification" });
+
+    try {
+      const endpoint = `/api/time-entries/${justificationData.action}`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          employeeId: employee.id,
+          pin: justificationData.pin,
+          justificationNote: justification,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(
+          justificationData.action === "clock-in"
+            ? "Pointage démarré avec succès"
+            : "Pointage arrêté avec succès",
+          { id: "clock-justification" },
+        );
+
+        // Close dialogs and reset
+        setShowJustificationDialog(false);
+        setJustificationData(null);
+        setPinAction(null);
+
+        // Refresh
+        setTimeout(async () => {
+          await fetchActiveEntry();
+          onStatusChange?.();
+        }, 300);
+      } else {
+        toast.error(result.error || "Erreur lors du pointage", {
+          id: "clock-justification",
+        });
+      }
+    } catch {
+      toast.error("Erreur de connexion", { id: "clock-justification" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleJustificationCancel = () => {
+    setShowJustificationDialog(false);
+    setJustificationData(null);
+    setPinAction(null);
   };
 
   const hasActiveShift = !!activeEntry;
@@ -281,6 +367,16 @@ export function TimeTrackingCardCompact({
           />
         </DialogContent>
       </Dialog>
+
+      <JustificationDialog
+        open={showJustificationDialog}
+        onClose={handleJustificationCancel}
+        onSubmit={handleJustificationSubmit}
+        isLoading={isLoading}
+        action={justificationData?.action || "clock-in"}
+        clockTime={justificationData?.clockTime}
+        scheduledShifts={justificationData?.scheduledShifts}
+      />
     </>
   );
 }

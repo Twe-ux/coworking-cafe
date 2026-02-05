@@ -353,7 +353,7 @@ export function TodayReservationsCard() {
             {tomorrowReservations.length > 0 && (
               <div className="space-y-2">
                 {todayReservations.length > 0 && (
-                  <div className="border-t border-gray-200 pt-3 mx-10 mt-3" />
+                  <div className="border-t border-gray-400 pt-3 mx-10 mt-3" />
                 )}
                 {tomorrowReservations.map((booking) =>
                   renderBookingItem(booking, true),

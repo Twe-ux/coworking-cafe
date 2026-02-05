@@ -70,6 +70,7 @@ export function getStaffMenu(): MenuItem[] {
  * @param unreadCount - Nombre de messages non lus (pour le badge)
  * @param pendingUnavailabilities - Nombre de demandes d'indisponibilité en attente
  * @param pendingBookings - Nombre de réservations en attente
+ * @param pendingJustifications - Nombre de pointages avec justification
  * @param isDev - Si l'utilisateur est dev (pour afficher Dev Tools)
  * @param isAdmin - Si l'utilisateur est admin (pour afficher Dev Tools)
  * @param isLoading - Si la session est en chargement (pour éviter le flash)
@@ -78,6 +79,7 @@ export function getAdminMenu(
   unreadCount: number,
   pendingUnavailabilities: number,
   pendingBookings: number,
+  pendingJustifications: number,
   isDev: boolean,
   isAdmin: boolean,
   isLoading = false,
@@ -102,6 +104,7 @@ export function getAdminMenu(
       title: "Ressources Humaines",
       url: "/admin/hr",
       icon: UserCog,
+      badge: pendingJustifications > 0 ? pendingJustifications : undefined,
       items: [
         {
           title: "Employés",
@@ -114,6 +117,7 @@ export function getAdminMenu(
         {
           title: "Pointage Admin",
           url: "/admin/hr/clocking-admin",
+          badge: pendingJustifications > 0 ? pendingJustifications : undefined,
         },
         {
           title: "Disponibilités",
