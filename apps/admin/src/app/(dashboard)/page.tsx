@@ -55,10 +55,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background px-4">
       <HomePageHeader />
-
-      <CardContent className="space-y-2 p-4">
+      <CardContent className="space-y-4 p-4">
         <PointagesSection employees={employees} onStatusChange={refetch} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3">
           <div className="lg:col-span-5">
             <TodayReservationsCard />
           </div>
