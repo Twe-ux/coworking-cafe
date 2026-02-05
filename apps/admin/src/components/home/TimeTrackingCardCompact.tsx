@@ -1,5 +1,6 @@
 "use client";
 
+import PINKeypad from "@/components/clocking/PINKeypad";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -12,7 +13,6 @@ import { type Employee } from "@/types/hr";
 import type { TimeEntry } from "@/types/timeEntry";
 import { Loader2, Play, Square } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import PINKeypad from "@/components/clocking/PINKeypad";
 import { toast } from "sonner";
 
 interface TimeTrackingCardCompactProps {
@@ -152,7 +152,7 @@ export function TimeTrackingCardCompact({
         pinAction === "clock-in"
           ? "Démarrage du pointage..."
           : "Arrêt du pointage...",
-        { id: "clock-action" }
+        { id: "clock-action" },
       );
 
       const endpoint = `/api/time-entries/${pinAction}`;
@@ -170,7 +170,7 @@ export function TimeTrackingCardCompact({
           pinAction === "clock-in"
             ? "Pointage démarré avec succès"
             : "Pointage arrêté avec succès",
-          { id: "clock-action" }
+          { id: "clock-action" },
         );
 
         // Close dialog and update UI
@@ -209,7 +209,7 @@ export function TimeTrackingCardCompact({
       <Card
         className={`p-3 transition-all duration-200 ${
           hasActiveShift
-            ? "bg-green-50 ring-2 ring-green-500"
+            ? "bg-green-50 ring-1 ring-green-500"
             : "hover:ring-1 hover:ring-blue-500"
         }`}
       >
