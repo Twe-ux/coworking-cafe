@@ -115,12 +115,33 @@ export function TimeTrackingCardCompact({
           onStatusChange?.();
         }, 300);
       } else {
-        // Rollback on error
-        setActiveEntry(previousEntry);
-        setError(result.error || "Erreur lors de l'arrêt du pointage");
-        toast.error(result.error || "Erreur lors de l'arrêt du pointage", {
-          id: "clock-out",
-        });
+        // Vérifier si c'est une erreur de justification requise
+        if (
+          result.details &&
+          typeof result.details === "object" &&
+          "code" in result.details &&
+          result.details.code === "JUSTIFICATION_REQUIRED"
+        ) {
+          // Rollback optimistic update
+          setActiveEntry(previousEntry);
+          toast.dismiss("clock-out");
+
+          // Afficher le modal de justification pour clock-out
+          setJustificationData({
+            action: "clock-out",
+            pin: "", // Pas de PIN pour clock-out direct
+            clockTime: result.details.clockOutTime,
+            scheduledShifts: result.details.scheduledShifts,
+          });
+          setShowJustificationDialog(true);
+        } else {
+          // Rollback on error
+          setActiveEntry(previousEntry);
+          setError(result.error || "Erreur lors de l'arrêt du pointage");
+          toast.error(result.error || "Erreur lors de l'arrêt du pointage", {
+            id: "clock-out",
+          });
+        }
       }
     } catch {
       // Rollback on error
@@ -240,14 +261,21 @@ export function TimeTrackingCardCompact({
 
     try {
       const endpoint = `/api/time-entries/${justificationData.action}`;
+
+      // Construire le body - n'inclure le PIN que s'il existe
+      const requestBody: Record<string, string> = {
+        employeeId: employee.id,
+        justificationNote: justification,
+      };
+
+      if (justificationData.pin) {
+        requestBody.pin = justificationData.pin;
+      }
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          employeeId: employee.id,
-          pin: justificationData.pin,
-          justificationNote: justification,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const result = await response.json();
