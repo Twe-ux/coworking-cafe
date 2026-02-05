@@ -5,12 +5,16 @@ import { Chart } from "@/components/dashboard/Chart";
 import { DashSectionCards } from "@/components/dashboard/DashSectionCards";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import SwitchWithText from "@/components/dashboard/SwitchWithText";
+import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
+import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
+  const { employees, shifts, isLoading, error, refetch } =
+    useHomePageDataQuery();
   const { data: session, status } = useSession();
   const permissions = usePermissions();
   const [checked, setChecked] = useState(false); // false = HT, true = TTC
@@ -55,6 +59,8 @@ export default function DashboardPage() {
           </div>
         }
       >
+        <PointagesSection employees={employees} onStatusChange={refetch} />
+
         <div className="flex flex-col gap-4">
           {/* Toggle HT/TTC */}
           <div className="flex items-center justify-end px-3 md:px-0">
