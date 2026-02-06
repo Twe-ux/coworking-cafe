@@ -44,11 +44,18 @@ export async function GET(request: NextRequest) {
       },
       testURL: `/api/debug/employee-pin?employeeId=${employee._id.toString()}&pin=${pin}`,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({
+        success: false,
+        error: error.message,
+        stack: error.stack,
+      })
+    }
     return NextResponse.json({
       success: false,
-      error: error.message,
-      stack: error.stack,
+      error: 'Unknown error',
+      stack: undefined,
     })
   }
 }

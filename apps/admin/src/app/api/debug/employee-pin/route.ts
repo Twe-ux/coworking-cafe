@@ -58,8 +58,12 @@ export async function GET(request: NextRequest) {
       } else {
         verifyPinError = 'Méthode verifyPin non disponible'
       }
-    } catch (err: any) {
-      verifyPinError = err.message
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        verifyPinError = err.message
+      } else {
+        verifyPinError = 'Unknown error'
+      }
     }
 
     return NextResponse.json({
@@ -72,11 +76,17 @@ export async function GET(request: NextRequest) {
           ? '✅ Le PIN devrait être valide (comparaison directe OK)'
           : '❌ Le PIN ne correspond pas',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({
+        success: false,
+        error: error.message,
+        stack: error.stack,
+      })
+    }
     return NextResponse.json({
       success: false,
-      error: error.message,
-      stack: error.stack,
+      error: 'Unknown error',
     })
   }
 }

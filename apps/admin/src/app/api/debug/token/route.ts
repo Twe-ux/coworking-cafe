@@ -23,10 +23,11 @@ export async function GET() {
         fullSession: session,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: errorMessage,
     })
   }
 }
