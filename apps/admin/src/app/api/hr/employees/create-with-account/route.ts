@@ -5,6 +5,64 @@ import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import { User, Role } from '@coworking-cafe/database'
 import bcrypt from 'bcryptjs'
+import type { Types } from 'mongoose'
+
+/**
+ * Types pour les erreurs MongoDB
+ */
+interface MongoDBValidationError {
+  name: string
+  errors: Record<string, { message: string }>
+}
+
+interface MongoDuplicateKeyError {
+  code: number
+  keyPattern?: Record<string, number>
+  keyValue?: Record<string, unknown>
+}
+
+interface RoleDocument {
+  _id: Types.ObjectId
+  slug: string
+  name: string
+  level: number
+}
+
+interface CreateEmployeeRequestBody {
+  // Employee data
+  firstName: string
+  lastName: string
+  email: string
+  phone?: string
+  employeeRole: 'Manager' | 'Assistant manager' | 'Employé polyvalent'
+  clockingCode: string // PIN pointage 4 chiffres
+  dashboardPin?: string // PIN dashboard 6 chiffres (optionnel)
+  color?: string
+  dateOfBirth?: string
+  placeOfBirth?: string
+  address?: {
+    street: string
+    postalCode: string
+    city: string
+  }
+  socialSecurityNumber?: string
+  contractType?: string
+  contractualHours?: number
+  hireDate?: string
+  hireTime?: string
+  endDate?: string
+  endContractReason?: string
+  level?: string
+  step?: number
+  hourlyRate?: number
+  monthlySalary?: number
+  availability?: Record<string, unknown>
+  bankDetails?: {
+    iban: string
+    bic: string
+    bankName: string
+  }
+}
 
 /**
  * POST /api/hr/employees/create-with-account
@@ -53,7 +111,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
+    const body = await request.json() as CreateEmployeeRequestBody
     const {
       // Employee data
       firstName,
@@ -178,7 +236,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Récupérer le Role document selon systemRole
-    const roleDoc = await Role.findOne({ slug: systemRole })
+    const roleDoc = await Role.findOne({ slug: systemRole }) as RoleDocument | null
     if (!roleDoc) {
       return NextResponse.json(
         { success: false, error: `Rôle système ${systemRole} introuvable` },
@@ -277,13 +335,14 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API POST employees/create-with-account:', error)
 
     // Gestion des erreurs de validation Mongoose
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
+      const validationError = error as MongoDBValidationError
+      const validationErrors = Object.values(validationError.errors).map(
+        (err) => err.message
       )
       return NextResponse.json(
         {
@@ -296,8 +355,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Gestion des erreurs de duplication
-    if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern || {})[0]
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+      const duplicateError = error as MongoDuplicateKeyError
+      const field = Object.keys(duplicateError.keyPattern || {})[0]
       const fieldNames: Record<string, string> = {
         email: 'cet email',
         socialSecurityNumber: 'ce numéro de sécurité sociale',
@@ -315,11 +375,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Erreur générique
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
     return NextResponse.json(
       {
         success: false,
         error: "Erreur lors de la création de l'employé",
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     )

@@ -173,7 +173,7 @@ export async function PUT(
         },
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(
       '❌ Erreur API PUT employees/[id]/update-system-role:',
       error
@@ -183,7 +183,7 @@ export async function PUT(
       {
         success: false,
         error: 'Erreur lors de la mise à jour du rôle système',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Erreur inconnue',
       },
       { status: 500 }
     )

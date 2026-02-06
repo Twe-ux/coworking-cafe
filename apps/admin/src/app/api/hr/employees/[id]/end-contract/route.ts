@@ -4,6 +4,21 @@ import mongoose from 'mongoose'
 import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
+import type { EndContractReason } from '@/types/hr'
+
+interface SessionUser {
+  id: string
+  role: string
+}
+
+interface EmployeeDocument {
+  _id: mongoose.Types.ObjectId
+  endDate?: string
+  endContractReason?: EndContractReason
+  isActive: boolean
+  deletedAt?: Date
+  save: () => Promise<EmployeeDocument>
+}
 
 /**
  * PUT /api/hr/employees/[id]/end-contract - Terminer le contrat d'un employé
@@ -24,7 +39,7 @@ export async function PUT(
       )
     }
 
-    const userRole = (session.user as any).role
+    const userRole = (session.user as SessionUser).role
     if (!['dev', 'admin'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'Permissions insuffisantes' },
@@ -53,7 +68,7 @@ export async function PUT(
 
     await connectMongoose()
 
-    const employee = await Employee.findById(params.id)
+    const employee = await Employee.findById(params.id) as EmployeeDocument | null
 
     if (!employee) {
       return NextResponse.json(
@@ -80,14 +95,39 @@ export async function PUT(
         isActive: employee.isActive,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API PUT end-contract:', error)
 
+    // Gestion erreur CastError (MongoDB ID invalide)
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Format d\'ID invalide',
+          details: '',
+        },
+        { status: 400 }
+      )
+    }
+
+    // Gestion erreur standard
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Erreur lors de la fin du contrat',
+          details: error.message,
+        },
+        { status: 500 }
+      )
+    }
+
+    // Erreur inconnue
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la fin du contrat',
-        details: error.message,
+        details: 'Unknown error',
       },
       { status: 500 }
     )

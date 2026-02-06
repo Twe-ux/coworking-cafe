@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { connectToDatabase } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
-import type { ApiResponse, DailyTimeReport, TimeTrackingStats } from '@/types/timeEntry'
+import type { ApiResponse, DailyTimeReport, TimeTrackingStats, EmployeeTimeReport } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
 
 /**
@@ -60,29 +60,29 @@ export async function GET(request: NextRequest) {
         }, { status: 400 })
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API GET time-entries/reports:', error)
 
     return NextResponse.json<ApiResponse<null>>({
       success: false,
       error: 'Erreur lors de la génération du rapport',
-      details: error.message,
+      details: error instanceof Error ? error.message : 'Erreur inconnue',
     }, { status: 500 })
   }
 }
 
 async function generateDailyReport(dateParam?: string | null): Promise<NextResponse> {
   const targetDate = dateParam ? new Date(dateParam) : new Date()
-  
+
   try {
-    const report = await (TimeEntry as any).getDailyReport(targetDate)
-    
+    const report = await (TimeEntry as unknown as { getDailyReport: (date: Date) => Promise<EmployeeTimeReport[]> }).getDailyReport(targetDate)
+
     const dailyReport: DailyTimeReport = {
       date: targetDate,
       employees: report,
-      totalActiveShifts: report.reduce((sum: any, emp: any) => sum + emp.activeShifts, 0),
-      totalCompletedShifts: report.reduce((sum: any, emp: any) => sum + (emp.shifts.length - emp.activeShifts), 0),
-      totalHoursWorked: report.reduce((sum: any, emp: any) => sum + emp.totalHours, 0),
+      totalActiveShifts: report.reduce((sum: number, emp: EmployeeTimeReport) => sum + emp.activeShifts, 0),
+      totalCompletedShifts: report.reduce((sum: number, emp: EmployeeTimeReport) => sum + (emp.shifts.length - emp.activeShifts), 0),
+      totalHoursWorked: report.reduce((sum: number, emp: EmployeeTimeReport) => sum + emp.totalHours, 0),
     }
 
     return NextResponse.json<ApiResponse<DailyTimeReport>>({
@@ -90,11 +90,11 @@ async function generateDailyReport(dateParam?: string | null): Promise<NextRespo
       data: dailyReport,
       message: `Rapport journalier pour le ${targetDate.toLocaleDateString('fr-FR')}`,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json<ApiResponse<null>>({
       success: false,
       error: 'Erreur lors de la génération du rapport journalier',
-      details: error.message,
+      details: error instanceof Error ? error.message : 'Erreur inconnue',
     }, { status: 500 })
   }
 }
@@ -116,8 +116,16 @@ async function generateEmployeeStats(
   const endDate = endDateParam ? new Date(endDateParam) : new Date()
 
   try {
-    const [statsResult] = await (TimeEntry as any).getEmployeeHours(employeeId, startDate, endDate)
-    
+    interface EmployeeHoursResult {
+      totalHours: number
+      totalShifts: number
+      averageHoursPerShift: number
+    }
+
+    const [statsResult] = await (TimeEntry as unknown as {
+      getEmployeeHours: (employeeId: string, startDate: Date, endDate: Date) => Promise<EmployeeHoursResult[]>
+    }).getEmployeeHours(employeeId, startDate, endDate)
+
     // Compter les shifts actifs
     const activeShifts = await TimeEntry.countDocuments({
       employeeId,
@@ -138,11 +146,11 @@ async function generateEmployeeStats(
       data: stats,
       message: `Statistiques pour l'employé du ${startDate.toLocaleDateString('fr-FR')} au ${endDate.toLocaleDateString('fr-FR')}`,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json<ApiResponse<null>>({
       success: false,
       error: 'Erreur lors de la génération des statistiques employé',
-      details: error.message,
+      details: error instanceof Error ? error.message : 'Erreur inconnue',
     }, { status: 500 })
   }
 }
@@ -155,7 +163,16 @@ async function generateSummaryStats(
   const endDate = endDateParam ? new Date(endDateParam) : new Date()
 
   try {
-    const [summaryStats] = await TimeEntry.aggregate([
+    interface AggregateResult {
+      _id: null
+      totalHours: number
+      totalShifts: number
+      activeShifts: number
+      completedShifts: number
+      averageHoursPerShift: number
+    }
+
+    const aggregateResults = await TimeEntry.aggregate<AggregateResult>([
       {
         $match: {
           date: {
@@ -185,6 +202,8 @@ async function generateSummaryStats(
       },
     ])
 
+    const summaryStats = aggregateResults[0]
+
     const stats: TimeTrackingStats = summaryStats || {
       totalHours: 0,
       totalShifts: 0,
@@ -198,11 +217,11 @@ async function generateSummaryStats(
       data: stats,
       message: `Statistiques résumées du ${startDate.toLocaleDateString('fr-FR')} au ${endDate.toLocaleDateString('fr-FR')}`,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json<ApiResponse<null>>({
       success: false,
       error: 'Erreur lors de la génération des statistiques résumées',
-      details: error.message,
+      details: error instanceof Error ? error.message : 'Erreur inconnue',
     }, { status: 500 })
   }
 }
