@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { TimeEntry } from "@/types/timeEntry";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 /**
@@ -111,7 +111,7 @@ async function clockOut(params: ClockOutParams): Promise<TimeEntry> {
  * - First access: Fetch fresh data
  * - Subsequent accesses: Use cached data (30s stale time)
  * - After clock-in/out: Automatic refetch
- * - Polling: Every 30s when page is visible, paused when inactive
+ * - Polling: Every 10s when page is visible, paused when inactive
  *
  * Performance:
  * - With 1-2 active employees: ~2-4 req/min when page visible
@@ -138,11 +138,14 @@ export function useActiveTimeEntry(employeeId: string) {
     // Économise ~50% des requêtes si l'écran est souvent inactif
     refetchInterval: (query) => {
       // Si la page n'est pas visible, ne pas poll
-      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+      if (
+        typeof document !== "undefined" &&
+        document.visibilityState !== "visible"
+      ) {
         return false;
       }
-      // Si visible, poll toutes les 30 secondes
-      return 30000;
+      // Si visible, poll toutes les 10 secondes
+      return 10000;
     },
   });
 
@@ -151,7 +154,9 @@ export function useActiveTimeEntry(employeeId: string) {
     mutationFn: clockIn,
     onMutate: async (variables) => {
       // Optimistic update: set activeEntry immediately
-      await queryClient.cancelQueries({ queryKey: ["activeEntry", variables.employeeId, today] });
+      await queryClient.cancelQueries({
+        queryKey: ["activeEntry", variables.employeeId, today],
+      });
 
       const previousEntry = queryClient.getQueryData<TimeEntry | null>([
         "activeEntry",
@@ -195,7 +200,7 @@ export function useActiveTimeEntry(employeeId: string) {
       // Invalidate and refetch after 100ms
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ["activeEntry", variables.employeeId, today]
+          queryKey: ["activeEntry", variables.employeeId, today],
         });
         // Also invalidate home page data to refresh employee list
         queryClient.invalidateQueries({ queryKey: ["homePage"] });
@@ -210,7 +215,9 @@ export function useActiveTimeEntry(employeeId: string) {
     mutationFn: clockOut,
     onMutate: async (variables) => {
       // Optimistic update: remove activeEntry immediately
-      await queryClient.cancelQueries({ queryKey: ["activeEntry", variables.employeeId, today] });
+      await queryClient.cancelQueries({
+        queryKey: ["activeEntry", variables.employeeId, today],
+      });
 
       const previousEntry = queryClient.getQueryData<TimeEntry | null>([
         "activeEntry",
@@ -240,7 +247,7 @@ export function useActiveTimeEntry(employeeId: string) {
       // Invalidate and refetch after 100ms
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: ["activeEntry", variables.employeeId, today]
+          queryKey: ["activeEntry", variables.employeeId, today],
         });
         // Also invalidate home page data to refresh employee list
         queryClient.invalidateQueries({ queryKey: ["homePage"] });
