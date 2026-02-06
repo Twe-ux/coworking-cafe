@@ -52,13 +52,13 @@ export async function GET(request: NextRequest) {
       data: formattedAdmins,
       count: formattedAdmins.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching admins:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la récupération des admins',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Erreur inconnue',
       },
       { status: 500 }
     );

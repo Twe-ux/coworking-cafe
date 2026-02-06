@@ -3,9 +3,20 @@ import { connectMongoose } from '@/lib/mongodb';
 import { TimeEntry } from '@coworking-cafe/database';
 import Employee from '@/models/employee';
 import type { EmployeeInfo } from '@/types/cashRegister';
+import type { Types } from 'mongoose';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
+
+/**
+ * Interface pour employé MongoDB avec lean()
+ * Résultat de Employee.find().lean()
+ */
+interface EmployeeLeanDocument {
+  _id: Types.ObjectId;
+  firstName: string;
+  lastName: string;
+}
 
 /**
  * GET /api/hr/employees/clocked
@@ -43,10 +54,10 @@ export async function GET(request: NextRequest) {
     })
       .select('_id firstName lastName')
       .sort({ firstName: 1, lastName: 1 })
-      .lean();
+      .lean<EmployeeLeanDocument[]>();
 
     // Formater au format EmployeeInfo
-    const clockedEmployees: EmployeeInfo[] = employees.map((emp: any) => ({
+    const clockedEmployees: EmployeeInfo[] = employees.map((emp) => ({
       id: emp._id.toString(),
       firstName: emp.firstName,
       lastName: emp.lastName,
@@ -57,13 +68,16 @@ export async function GET(request: NextRequest) {
       data: clockedEmployees,
       count: clockedEmployees.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching clocked employees:', error);
+
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la récupération des employés pointés',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );

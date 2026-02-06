@@ -63,16 +63,33 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Transform entries to ensure proper types
-    const transformedEntries = entries.map((entry: any) => ({
-      _id: entry._id.toString(),
-      date: entry.date,
-      amount: entry.amount,
-      countedBy: entry.countedBy,
-      countDetails: entry.countDetails,
-      notes: entry.notes,
-      createdAt: entry.createdAt,
-      updatedAt: entry.updatedAt
-    }));
+    interface RawCashRegisterEntry {
+      _id: unknown
+      date: string
+      amount: number
+      countedBy: string
+      countDetails: {
+        coins: Record<string, number>
+        bills: Record<string, number>
+      }
+      notes?: string
+      createdAt: Date
+      updatedAt: Date
+    }
+
+    const transformedEntries = entries.map((entry) => {
+      const typedEntry = entry as unknown as RawCashRegisterEntry;
+      return {
+        _id: String(typedEntry._id),
+        date: typedEntry.date,
+        amount: typedEntry.amount,
+        countedBy: typedEntry.countedBy,
+        countDetails: typedEntry.countDetails,
+        notes: typedEntry.notes,
+        createdAt: typedEntry.createdAt,
+        updatedAt: typedEntry.updatedAt
+      };
+    });
 
     return NextResponse.json({
       success: true,
@@ -82,10 +99,11 @@ export async function GET(request: NextRequest) {
         filters: { date, month, limit }
       }
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching cash register entries:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: 'Erreur serveur' },
+      { success: false, error: 'Erreur serveur', details: errorMessage },
       { status: 500 }
     );
   }

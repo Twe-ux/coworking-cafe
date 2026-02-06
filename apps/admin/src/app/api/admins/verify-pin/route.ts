@@ -107,11 +107,11 @@ export async function POST(request: NextRequest) {
       data: adminData,
       message: 'PIN vérifié avec succès',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Verify admin PIN error:', error);
 
     // Gestion erreur ObjectId invalide
-    if (error.name === 'BSONError' || error.message.includes('ObjectId')) {
+    if (error instanceof Error && (error.name === 'BSONError' || error.message.includes('ObjectId'))) {
       return NextResponse.json(
         {
           success: false,
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: 'Erreur lors de la vérification du PIN',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
