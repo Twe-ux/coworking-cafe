@@ -21,8 +21,12 @@ export function useDrafts() {
       } else {
         setError(data.error || 'Erreur lors du chargement')
       }
-    } catch (err: any) {
-      setError(err.message || 'Erreur réseau')
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message)
+      } else {
+        setError('Erreur réseau')
+      }
     } finally {
       setLoading(false)
     }

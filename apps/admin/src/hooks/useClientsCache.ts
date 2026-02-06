@@ -8,6 +8,15 @@ interface ClientData {
   company: string;
 }
 
+interface ApiUserData {
+  id: string;
+  givenName?: string;
+  username?: string;
+  email: string;
+  phone?: string;
+  companyName?: string;
+}
+
 const CACHE_KEY = "clients-cache";
 const CACHE_TIMESTAMP_KEY = "clients-cache-timestamp";
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
@@ -35,8 +44,12 @@ function loadCacheFromStorage(): ClientData[] | null {
         sessionStorage.removeItem(CACHE_TIMESTAMP_KEY);
       }
     }
-  } catch (error) {
-    console.error("Erreur lors du chargement du cache:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Erreur lors du chargement du cache:", error.message);
+    } else {
+      console.error("Erreur inconnue lors du chargement du cache");
+    }
   }
   return null;
 }
@@ -47,8 +60,12 @@ function saveCacheToStorage(data: ClientData[]) {
     sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
     sessionStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
     console.log("💾 Cache sauvegardé dans sessionStorage");
-  } catch (error) {
-    console.error("Erreur lors de la sauvegarde du cache:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Erreur lors de la sauvegarde du cache:", error.message);
+    } else {
+      console.error("Erreur inconnue lors de la sauvegarde du cache");
+    }
   }
 }
 
@@ -100,7 +117,7 @@ export function useClientsCache() {
         const data = await response.json();
 
         if (data.success) {
-          const clientsData: ClientData[] = data.data.map((user: any) => ({
+          const clientsData: ClientData[] = data.data.map((user: ApiUserData) => ({
             id: user.id,
             name: user.givenName || user.username || user.email,
             email: user.email,

@@ -111,7 +111,7 @@ export function useShifts(options: UseShiftsOptions = {}) {
 
         if (result.success) {
           // Keep dates as strings (YYYY-MM-DD) to avoid timezone issues
-          const shiftsWithNormalizedDates = result.data.map((shift: any) => ({
+          const shiftsWithNormalizedDates = result.data.map((shift: Shift) => ({
             ...shift,
             date: formatDateToLocalString(shift.date),
           }))

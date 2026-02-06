@@ -70,7 +70,7 @@ const getResendClient = () => {
 
 export async function sendEmail(
   options: EmailOptions,
-  senderType: EmailSenderType = "default"
+  senderType: EmailSenderType = "default",
 ): Promise<boolean> {
   try {
     const resend = getResendClient();
@@ -107,7 +107,7 @@ export async function sendBookingConfirmation(
       price: number;
     }>;
     numberOfPeople?: number;
-  }
+  },
 ): Promise<boolean> {
   const subject = "Confirmation de réservation - CoworKing Café by Anticafé";
 
@@ -122,7 +122,7 @@ export async function sendBookingConfirmation(
     depositAmount: bookingDetails.depositAmount,
     captureMethod: bookingDetails.captureMethod,
     additionalServices: bookingDetails.additionalServices?.map(
-      (s) => `${s.name} (x${s.quantity}) - ${s.price}€`
+      (s) => `${s.name} (x${s.quantity}) - ${s.price}€`,
     ),
     numberOfPeople: bookingDetails.numberOfPeople,
   });
@@ -148,8 +148,8 @@ ${
         .map(
           (s) =>
             `- ${s.name} (x${s.quantity}) : ${(s.price * s.quantity).toFixed(
-              2
-            )}€`
+              2,
+            )}€`,
         )
         .join("\n")}\n\n`
     : ""
@@ -175,7 +175,7 @@ L-V: 09h-20h | S-D & JF: 10h-20h
       html,
       text,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -192,7 +192,7 @@ export async function sendReservationConfirmed(
     confirmationNumber?: string;
     paymentStatus: string;
     invoiceOption?: boolean;
-  }
+  },
 ): Promise<boolean> {
   const subject = "✅ Réservation confirmée - CoworKing Café by Anticafé";
 
@@ -250,7 +250,7 @@ L-V: 09h-20h | S-D & JF: 10h-20h
       html,
       text,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -261,7 +261,7 @@ export async function sendBookingReminder(
     spaceName: string;
     date: string;
     time: string;
-  }
+  },
 ): Promise<boolean> {
   const subject =
     "Rappel : Votre réservation demain - CoworKing Café by Anticafé";
@@ -279,7 +279,7 @@ export async function sendBookingReminder(
       subject,
       html,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -294,7 +294,7 @@ export async function sendReservationCancelled(
     numberOfPeople: number;
     totalPrice: number;
     confirmationNumber?: string;
-  }
+  },
 ): Promise<boolean> {
   const subject = "❌ Réservation annulée - CoworKing Café by Anticafé";
 
@@ -350,7 +350,7 @@ L-V: 09h-20h | S-D & JF: 10h-20h
       html,
       text,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -364,7 +364,7 @@ export async function sendDepositHoldConfirmation(
     endTime: string;
     depositAmount: number;
     totalPrice: number;
-  }
+  },
 ): Promise<boolean> {
   const subject = "Empreinte bancaire effectuée - CoworKing Café by Anticafé";
 
@@ -384,7 +384,7 @@ export async function sendDepositHoldConfirmation(
       subject,
       html,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -395,7 +395,7 @@ export async function sendDepositCaptured(
     spaceName: string;
     date: string;
     depositAmount: number;
-  }
+  },
 ): Promise<boolean> {
   const subject = "Prélèvement effectué (no-show) - CoworKing Café by Anticafé";
 
@@ -412,7 +412,7 @@ export async function sendDepositCaptured(
       subject,
       html,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -423,7 +423,7 @@ export async function sendDepositReleased(
     spaceName: string;
     date: string;
     depositAmount: number;
-  }
+  },
 ): Promise<boolean> {
   const subject = "Empreinte bancaire levée - CoworKing Café by Anticafé";
 
@@ -440,7 +440,7 @@ export async function sendDepositReleased(
       subject,
       html,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -453,7 +453,7 @@ export async function sendCardSavedConfirmation(
     startTime: string;
     endTime: string;
     totalPrice: number;
-  }
+  },
 ): Promise<boolean> {
   const subject =
     "Carte enregistrée - Paiement dans 7 jours - CoworKing Café by Anticafé";
@@ -473,7 +473,7 @@ export async function sendCardSavedConfirmation(
       subject,
       html,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -491,7 +491,7 @@ export async function sendCancellationConfirmation(
     cancellationFee: number;
     refundAmount: number;
     confirmationNumber?: string;
-  }
+  },
 ): Promise<boolean> {
   const subject = "Confirmation d'annulation - CoworKing Café by Anticafé";
 
@@ -512,7 +512,7 @@ export async function sendCancellationConfirmation(
       subject,
       html,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -531,7 +531,7 @@ export async function sendReservationRejected(
     totalPrice: number;
     confirmationNumber: string;
     reason?: string;
-  }
+  },
 ): Promise<boolean> {
   const subject =
     "❌ Demande de réservation refusée - CoworKing Café by Anticafé";
@@ -554,7 +554,7 @@ export async function sendReservationRejected(
       subject,
       html,
     },
-    "booking"
+    "booking",
   ); // Use booking sender
 }
 
@@ -569,7 +569,7 @@ export async function sendContactFormEmail(
     subject: string;
     message: string;
     replyTo?: string;
-  }
+  },
 ): Promise<boolean> {
   const subject = `Nouveau message de contact: ${details.subject}`;
 
@@ -622,6 +622,6 @@ ${details.message}
       html,
       text,
     },
-    "contact"
+    "contact",
   ); // Use contact sender
 }
