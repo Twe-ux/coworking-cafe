@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Booking, SpaceConfiguration, User } from "@coworking-cafe/database";
-import { sendBookingConfirmation, sendCardSavedConfirmation } from '@/lib/email/emailService';
+import { sendBookingInitialEmail, sendCardSavedConfirmation } from '@/lib/email/emailService';
+import { getSpaceTypeName } from '@/lib/space-names';
 import { urlToDbSpaceType } from '@/lib/space-types';
 import mongoose from 'mongoose';
 
@@ -226,16 +227,26 @@ export async function POST(request: NextRequest) {
     try {
       const spaceConfig = await SpaceConfiguration.findOne({ spaceType: dbSpaceType });
 
+      // Parse additional services for email if present
+      let emailServices: Array<{ name: string; quantity: number; price: number }> = [];
+      if (additionalServices && Array.isArray(additionalServices)) {
+        emailServices = additionalServices.map((service: any) => ({
+          name: service.name || service.serviceName || 'Service',
+          quantity: service.quantity || 1,
+          price: service.unitPrice || service.price || 0,
+        }));
+      }
+
       console.log('📧 Attempting to send email to:', metadata.contactEmail);
       console.log('📧 Email data:', {
         name: metadata.contactName,
-        spaceName: spaceConfig?.name || metadata.spaceType,
+        spaceName: spaceConfig?.name || getSpaceTypeName(dbSpaceType),
         price: parseFloat(metadata.totalPrice),
       });
 
-      await sendBookingConfirmation(metadata.contactEmail, {
+      await sendBookingInitialEmail(metadata.contactEmail, {
         name: metadata.contactName,
-        spaceName: spaceConfig?.name || metadata.spaceType,
+        spaceName: spaceConfig?.name || getSpaceTypeName(dbSpaceType),
         date: new Date(metadata.date).toLocaleDateString('fr-FR', {
           weekday: 'long',
           year: 'numeric',
@@ -248,8 +259,9 @@ export async function POST(request: NextRequest) {
         price: parseFloat(metadata.totalPrice),
         bookingId: (reservation._id as any).toString(),
         requiresPayment: true,
-        depositAmount: parseInt(metadata.depositAmount || metadata.totalPrice) || parseFloat(metadata.totalPrice) * 100, // Use stored deposit amount in cents
+        depositAmount: depositAmountInCents, // Use stored deposit amount in cents
         captureMethod: metadata.captureMethod as 'manual' | 'automatic',
+        additionalServices: emailServices.length > 0 ? emailServices : undefined,
         numberOfPeople: parseInt(metadata.numberOfPeople),
       });
       console.log('✅ Email sent successfully to:', metadata.contactEmail);

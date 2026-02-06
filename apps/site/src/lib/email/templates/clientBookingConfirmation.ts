@@ -19,6 +19,7 @@ export interface BookingInitialEmailData {
   captureMethod?: "manual" | "automatic";
   additionalServices?: string[];
   numberOfPeople?: number;
+  contactEmail: string; // Email de contact (strasbourg@coworkingcafe.fr)
 }
 
 export function generateBookingInitialEmail(
@@ -188,7 +189,7 @@ export function generateBookingInitialEmail(
           </tr>
           <tr>
             <td style="padding: 4px 0; font-size: 15px; color: #92400E !important;">
-              <strong style="color: #92400E !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #F59E0B !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+              <strong style="color: #92400E !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #F59E0B !important; text-decoration: none;">${data.contactEmail}</a>
             </td>
           </tr>
         </table>

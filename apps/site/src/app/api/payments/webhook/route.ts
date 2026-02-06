@@ -4,7 +4,7 @@ import { Payment, Booking, SpaceConfiguration } from "@coworking-cafe/database";
 import { verifyWebhookSignature, stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 import type { CardBrand } from '@coworking-cafe/database';
-import { sendBookingConfirmation, sendCardSavedConfirmation } from '@/lib/email/emailService';
+import { sendBookingInitialEmail, sendCardSavedConfirmation } from '@/lib/email/emailService';
 import { getSpaceTypeName } from '@/lib/space-names';
 
 // Force dynamic rendering
@@ -345,7 +345,17 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
     try {
       const spaceConfig = await SpaceConfiguration.findOne({ spaceType: metadata.spaceType });
 
-      await sendBookingConfirmation(metadata.contactEmail, {
+      // Parse additional services for email if present
+      let emailServices: Array<{ name: string; quantity: number; price: number }> = [];
+      if (additionalServices && Array.isArray(additionalServices)) {
+        emailServices = additionalServices.map((service: any) => ({
+          name: service.name || service.serviceName || 'Service',
+          quantity: service.quantity || 1,
+          price: service.unitPrice || service.price || 0,
+        }));
+      }
+
+      await sendBookingInitialEmail(metadata.contactEmail, {
         name: metadata.contactName,
         spaceName: spaceConfig?.name || getSpaceTypeName(metadata.spaceType),
         date: new Date(metadata.date).toLocaleDateString('fr-FR', {
@@ -362,6 +372,7 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
         requiresPayment: true,
         depositAmount: depositAmountInCents, // Use stored deposit amount in cents
         captureMethod: metadata.captureMethod as 'manual' | 'automatic',
+        additionalServices: emailServices.length > 0 ? emailServices : undefined,
         numberOfPeople: parseInt(metadata.numberOfPeople),
       });
     } catch (emailError) {
