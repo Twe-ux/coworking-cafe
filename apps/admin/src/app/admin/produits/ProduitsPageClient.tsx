@@ -15,6 +15,25 @@ import { ProduitsItemModal } from "@/components/produits/ProduitsItemModal";
 import { ProduitsPageSkeleton } from "./ProduitsPageSkeleton";
 import type { ProduitsCategory, ProduitsItem, ProduitsItemType } from "@/types/produits";
 
+interface ProduitsCategorySaveData {
+  name: string;
+  slug: string;
+  description?: string;
+  type: ProduitsItemType;
+  isActive?: boolean;
+  showOnSite?: boolean;
+}
+
+interface ProduitsItemSaveData {
+  name: string;
+  description?: string;
+  recipe?: string;
+  image?: string;
+  categoryId: string;
+  type: ProduitsItemType;
+  isActive?: boolean;
+}
+
 export function ProduitsPageClient() {
   const { toast } = useToast();
   const {
@@ -142,7 +161,7 @@ export function ProduitsPageClient() {
     setCategoryModalOpen(true);
   };
 
-  const handleSaveCategory = async (data: any) => {
+  const handleSaveCategory = async (data: ProduitsCategorySaveData) => {
     const success = editingCategory
       ? await updateCategory(editingCategory.id, data)
       : await createCategory(data);
@@ -194,7 +213,7 @@ export function ProduitsPageClient() {
     setItemModalOpen(true);
   };
 
-  const handleSaveItem = async (data: any) => {
+  const handleSaveItem = async (data: ProduitsItemSaveData) => {
     const success = editingItem
       ? await updateItem(editingItem.id, data)
       : await createItem(data);

@@ -118,8 +118,10 @@ export function TimeTrackingCardCompact({
           });
         }
       }
-    } catch (error: any) {
-      toast.error("Erreur de connexion", { id: "clock-out" });
+    } catch (error: unknown) {
+      console.error("Clock-out error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Erreur de connexion";
+      toast.error(errorMessage, { id: "clock-out" });
     }
   };
 
@@ -210,9 +212,11 @@ export function TimeTrackingCardCompact({
           });
         }
       }
-    } catch (error: any) {
-      setError("Erreur de connexion");
-      toast.error("Erreur de connexion", { id: "clock-action" });
+    } catch (error: unknown) {
+      console.error("Clock action error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Erreur de connexion";
+      setError(errorMessage);
+      toast.error(errorMessage, { id: "clock-action" });
     }
   };
 
@@ -274,8 +278,10 @@ export function TimeTrackingCardCompact({
           id: "clock-justification",
         });
       }
-    } catch (error: any) {
-      toast.error("Erreur de connexion", { id: "clock-justification" });
+    } catch (error: unknown) {
+      console.error("Clock justification error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Erreur de connexion";
+      toast.error(errorMessage, { id: "clock-justification" });
     }
   };
 

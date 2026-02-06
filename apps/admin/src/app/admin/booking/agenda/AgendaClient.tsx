@@ -338,7 +338,7 @@ export function AgendaClient() {
     return "open-space";
   };
 
-  const renderCell = (date: Date, dayBookings: Booking[], cellInfo: any) => {
+  const renderCell = (date: Date, dayBookings: Booking[], cellInfo: { isCurrentMonth: boolean; isToday: boolean }) => {
     // Ne pas afficher les réservations annulées
     const activeBookings = dayBookings.filter((b) => b.status !== "cancelled");
 

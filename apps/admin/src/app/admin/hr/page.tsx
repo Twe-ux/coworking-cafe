@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useEmployees } from "@/hooks/useEmployees";
+import type { TimeEntry } from "@/types/timeEntry";
 import { Calendar, CalendarCheck, Clock, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -42,13 +43,13 @@ export default function HROverviewPage() {
         const result = await response.json();
 
         if (result.success && result.data) {
-          const entries = result.data;
+          const entries = result.data as TimeEntry[];
           const totalHours = entries.reduce(
-            (sum: number, entry: any) => sum + (entry.totalHours || 0),
+            (sum: number, entry: TimeEntry) => sum + (entry.totalHours || 0),
             0,
           );
           const activeShifts = entries.filter(
-            (entry: any) => entry.status === "active",
+            (entry: TimeEntry) => entry.status === "active",
           ).length;
 
           setTimeStats({

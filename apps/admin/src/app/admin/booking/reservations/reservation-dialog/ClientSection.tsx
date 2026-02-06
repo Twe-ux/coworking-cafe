@@ -9,6 +9,8 @@ import { Edit2, Loader2, Save, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useClientsCache } from "@/hooks/useClientsCache";
 import type { ClientData, ClientSectionProps } from "./types";
+import type { ApiResponse } from "@/types/timeEntry";
+import type { Role, User } from "@/types/user";
 
 export function ClientSection({
   selectedClient,
@@ -71,10 +73,10 @@ export function ClientSection({
       if (newClient.email) {
         // Récupérer le roleId du rôle "client"
         const rolesResponse = await fetch("/api/hr/roles");
-        const rolesData = await rolesResponse.json();
+        const rolesData: ApiResponse<Role[]> = await rolesResponse.json();
 
         const clientRole = rolesData.data?.find(
-          (role: any) => role.slug === "client",
+          (role) => role.slug === "client",
         );
         if (!clientRole) {
           console.error("❌ Rôle 'client' introuvable");
@@ -96,10 +98,12 @@ export function ClientSection({
           }),
         });
 
-        const data = await response.json();
+        const data: ApiResponse<User> = await response.json();
 
-        if (data.success) {
+        if (data.success && data.data) {
           console.log("✅ Compte client créé:", data.data);
+
+          const createdUser = data.data;
 
           // Générer le token d'activation
           const activationToken = crypto.randomUUID();
@@ -107,7 +111,7 @@ export function ClientSection({
           tokenExpires.setHours(tokenExpires.getHours() + 48); // Token valide 48h
 
           // Sauvegarder le token dans le user
-          await fetch(`/api/users/${data.data.id}`, {
+          await fetch(`/api/users/${createdUser.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -122,15 +126,16 @@ export function ClientSection({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                email: data.data.email,
-                userName: data.data.givenName || data.data.email,
+                email: createdUser.email,
+                userName: createdUser.givenName || createdUser.email,
                 activationToken,
               }),
             });
 
-            const emailData = await emailResponse.json();
+            const emailData: ApiResponse<{ messageId: string }> =
+              await emailResponse.json();
             if (emailData.success) {
-              console.log("✅ Email d'activation envoyé à", data.data.email);
+              console.log("✅ Email d'activation envoyé à", createdUser.email);
             } else {
               console.error(
                 "❌ Erreur envoi email d'activation:",
@@ -143,11 +148,11 @@ export function ClientSection({
 
           // Retourner le client créé avec son ID
           const createdClient = {
-            id: data.data.id,
-            name: data.data.givenName || data.data.email,
-            email: data.data.email,
-            phone: data.data.phone || "",
-            company: data.data.companyName || "",
+            id: createdUser.id,
+            name: createdUser.givenName || createdUser.email,
+            email: createdUser.email,
+            phone: createdUser.phone || "",
+            company: createdUser.companyName || "",
           };
           onChange(createdClient);
 
@@ -210,18 +215,20 @@ export function ClientSection({
         }),
       });
 
-      const data = await response.json();
+      const data: ApiResponse<User> = await response.json();
 
-      if (data.success) {
+      if (data.success && data.data) {
         console.log("✅ Client modifié:", data.data);
+
+        const updatedUser = data.data;
 
         // Mettre à jour le client sélectionné
         const updatedClient = {
-          id: data.data.id,
-          name: data.data.givenName || data.data.email,
-          email: data.data.email,
-          phone: data.data.phone || "",
-          company: data.data.companyName || "",
+          id: updatedUser.id,
+          name: updatedUser.givenName || updatedUser.email,
+          email: updatedUser.email,
+          phone: updatedUser.phone || "",
+          company: updatedUser.companyName || "",
         };
         onChange(updatedClient);
 
