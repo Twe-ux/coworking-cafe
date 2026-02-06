@@ -4,11 +4,50 @@ import { Availability } from '@/models/availability'
 import Employee from '@/models/employee'
 import { getDayOfWeekLabel } from '@/types/availability'
 import { requireAuth } from '@/lib/api/auth'
+import type { ObjectId } from 'mongoose'
 
 interface RouteParams {
   params: {
     id: string
   }
+}
+
+// Interface pour l'employé populé
+interface PopulatedEmployee {
+  _id: ObjectId
+  firstName: string
+  lastName: string
+  fullName: string
+  role: string
+  color: string
+}
+
+// Interface pour l'availability avec employé populé
+interface PopulatedAvailability {
+  _id: ObjectId
+  employeeId: PopulatedEmployee
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  isRecurring: boolean
+  effectiveFrom?: Date
+  effectiveUntil?: Date
+  notes?: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Interface pour les données de mise à jour
+interface UpdateData {
+  dayOfWeek?: number
+  startTime?: string
+  endTime?: string
+  isRecurring?: boolean
+  effectiveFrom?: Date | undefined
+  effectiveUntil?: Date | undefined
+  notes?: string | undefined
+  isActive?: boolean
 }
 
 /**
@@ -36,41 +75,67 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
+    const populatedAvailability = availability as unknown as PopulatedAvailability
+
     const transformedAvailability = {
-      id: (availability as any)._id.toString(),
-      employeeId: (availability as any).employeeId._id.toString(),
+      id: populatedAvailability._id.toString(),
+      employeeId: populatedAvailability.employeeId._id.toString(),
       employee: {
-        id: (availability as any).employeeId._id.toString(),
-        firstName: (availability as any).employeeId.firstName,
-        lastName: (availability as any).employeeId.lastName,
-        fullName: (availability as any).employeeId.fullName,
-        role: (availability as any).employeeId.role,
-        color: (availability as any).employeeId.color,
+        id: populatedAvailability.employeeId._id.toString(),
+        firstName: populatedAvailability.employeeId.firstName,
+        lastName: populatedAvailability.employeeId.lastName,
+        fullName: populatedAvailability.employeeId.fullName,
+        role: populatedAvailability.employeeId.role,
+        color: populatedAvailability.employeeId.color,
       },
-      dayOfWeek: (availability as any).dayOfWeek,
-      dayOfWeekLabel: getDayOfWeekLabel((availability as any).dayOfWeek),
-      startTime: (availability as any).startTime,
-      endTime: (availability as any).endTime,
-      timeRange: `${(availability as any).startTime} - ${(availability as any).endTime}`,
-      isRecurring: (availability as any).isRecurring,
-      effectiveFrom: (availability as any).effectiveFrom,
-      effectiveUntil: (availability as any).effectiveUntil,
-      notes: (availability as any).notes,
-      isActive: (availability as any).isActive,
-      createdAt: (availability as any).createdAt,
-      updatedAt: (availability as any).updatedAt,
+      dayOfWeek: populatedAvailability.dayOfWeek,
+      dayOfWeekLabel: getDayOfWeekLabel(populatedAvailability.dayOfWeek),
+      startTime: populatedAvailability.startTime,
+      endTime: populatedAvailability.endTime,
+      timeRange: `${populatedAvailability.startTime} - ${populatedAvailability.endTime}`,
+      isRecurring: populatedAvailability.isRecurring,
+      effectiveFrom: populatedAvailability.effectiveFrom,
+      effectiveUntil: populatedAvailability.effectiveUntil,
+      notes: populatedAvailability.notes,
+      isActive: populatedAvailability.isActive,
+      createdAt: populatedAvailability.createdAt,
+      updatedAt: populatedAvailability.updatedAt,
     }
 
     return NextResponse.json({
       success: true,
       data: transformedAvailability,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error GET availability:', error)
+
+    // Handle MongoDB CastError (format d'ID invalide)
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Format d'ID invalide",
+        },
+        { status: 400 }
+      )
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Server error while fetching availability',
+          details: error.message,
+        },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json(
       {
         success: false,
         error: 'Server error while fetching availability',
+        details: 'Unknown error',
       },
       { status: 500 }
     )
@@ -111,7 +176,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Prepare update data
-    const updateData: any = {}
+    const updateData: UpdateData = {}
     if (dayOfWeek !== undefined) updateData.dayOfWeek = dayOfWeek
     if (startTime !== undefined) updateData.startTime = startTime
     if (endTime !== undefined) updateData.endTime = endTime
@@ -176,29 +241,31 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .lean()
 
+    const populatedUpdatedAvailability = updatedAvailability as unknown as PopulatedAvailability
+
     const transformedAvailability = {
-      id: (updatedAvailability as any)?._id.toString(),
-      employeeId: (updatedAvailability as any)?.employeeId._id.toString(),
+      id: populatedUpdatedAvailability._id.toString(),
+      employeeId: populatedUpdatedAvailability.employeeId._id.toString(),
       employee: {
-        id: (updatedAvailability as any)?.employeeId._id.toString(),
-        firstName: (updatedAvailability as any)?.employeeId.firstName,
-        lastName: (updatedAvailability as any)?.employeeId.lastName,
-        fullName: (updatedAvailability as any)?.employeeId.fullName,
-        role: (updatedAvailability as any)?.employeeId.role,
-        color: (updatedAvailability as any)?.employeeId.color,
+        id: populatedUpdatedAvailability.employeeId._id.toString(),
+        firstName: populatedUpdatedAvailability.employeeId.firstName,
+        lastName: populatedUpdatedAvailability.employeeId.lastName,
+        fullName: populatedUpdatedAvailability.employeeId.fullName,
+        role: populatedUpdatedAvailability.employeeId.role,
+        color: populatedUpdatedAvailability.employeeId.color,
       },
-      dayOfWeek: (updatedAvailability as any)?.dayOfWeek,
-      dayOfWeekLabel: getDayOfWeekLabel((updatedAvailability as any)?.dayOfWeek),
-      startTime: (updatedAvailability as any)?.startTime,
-      endTime: (updatedAvailability as any)?.endTime,
-      timeRange: `${(updatedAvailability as any)?.startTime} - ${(updatedAvailability as any)?.endTime}`,
-      isRecurring: (updatedAvailability as any)?.isRecurring,
-      effectiveFrom: (updatedAvailability as any)?.effectiveFrom,
-      effectiveUntil: (updatedAvailability as any)?.effectiveUntil,
-      notes: (updatedAvailability as any)?.notes,
-      isActive: (updatedAvailability as any)?.isActive,
-      createdAt: (updatedAvailability as any)?.createdAt,
-      updatedAt: (updatedAvailability as any)?.updatedAt,
+      dayOfWeek: populatedUpdatedAvailability.dayOfWeek,
+      dayOfWeekLabel: getDayOfWeekLabel(populatedUpdatedAvailability.dayOfWeek),
+      startTime: populatedUpdatedAvailability.startTime,
+      endTime: populatedUpdatedAvailability.endTime,
+      timeRange: `${populatedUpdatedAvailability.startTime} - ${populatedUpdatedAvailability.endTime}`,
+      isRecurring: populatedUpdatedAvailability.isRecurring,
+      effectiveFrom: populatedUpdatedAvailability.effectiveFrom,
+      effectiveUntil: populatedUpdatedAvailability.effectiveUntil,
+      notes: populatedUpdatedAvailability.notes,
+      isActive: populatedUpdatedAvailability.isActive,
+      createdAt: populatedUpdatedAvailability.createdAt,
+      updatedAt: populatedUpdatedAvailability.updatedAt,
     }
 
     return NextResponse.json({
@@ -206,14 +273,26 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       data: transformedAvailability,
       message: 'Availability updated successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error PUT availability:', error)
 
+    // Handle MongoDB CastError (format d'ID invalide)
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Format d'ID invalide",
+        },
+        { status: 400 }
+      )
+    }
+
     // Handle Mongoose validation errors
-    if (error.name === 'ValidationError') {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
       const validationErrors: Record<string, string> = {}
-      for (const field in error.errors) {
-        validationErrors[field] = error.errors[field].message
+      const errorObj = error as unknown as { errors: Record<string, { message: string }> }
+      for (const field in errorObj.errors) {
+        validationErrors[field] = errorObj.errors[field].message
       }
 
       return NextResponse.json(
@@ -226,10 +305,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       )
     }
 
+    // Handle generic errors
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Server error while updating availability',
+          details: error.message,
+        },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json(
       {
         success: false,
         error: 'Server error while updating availability',
+        details: 'Unknown error',
       },
       { status: 500 }
     )
@@ -264,12 +356,36 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       success: true,
       message: 'Availability deleted successfully',
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error DELETE availability:', error)
+
+    // Handle MongoDB CastError (format d'ID invalide)
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Format d'ID invalide",
+        },
+        { status: 400 }
+      )
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Server error while deleting availability',
+          details: error.message,
+        },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json(
       {
         success: false,
         error: 'Server error while deleting availability',
+        details: 'Unknown error',
       },
       { status: 500 }
     )

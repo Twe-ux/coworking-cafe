@@ -4,6 +4,38 @@ import { Availability } from '@/models/availability'
 import Employee from '@/models/employee'
 import { getDayOfWeekLabel } from '@/types/availability'
 import { requireAuth } from '@/lib/api/auth'
+import mongoose from 'mongoose'
+
+// Types for MongoDB populated documents
+interface PopulatedEmployee {
+  _id: mongoose.Types.ObjectId
+  firstName: string
+  lastName: string
+  fullName: string
+  employeeRole: string
+  color?: string
+}
+
+interface AvailabilityFilter {
+  employeeId?: string
+  dayOfWeek?: number
+  isActive?: boolean
+}
+
+interface AvailabilityLean {
+  _id: mongoose.Types.ObjectId
+  employeeId: PopulatedEmployee | mongoose.Types.ObjectId
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  isRecurring: boolean
+  effectiveFrom?: Date
+  effectiveUntil?: Date
+  notes?: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
 
 /**
  * GET /api/availabilities - Retrieve list of availabilities with optional filters
@@ -27,7 +59,7 @@ export async function GET(request: NextRequest) {
     const active = searchParams.get('active')
 
     // Build filter query
-    const filter: any = {}
+    const filter: AvailabilityFilter = {}
 
     if (employeeId) {
       filter.employeeId = employeeId
@@ -45,45 +77,52 @@ export async function GET(request: NextRequest) {
     const availabilities = await Availability.find(filter)
       .populate('employeeId', 'firstName lastName fullName employeeRole color')
       .sort({ employeeId: 1, dayOfWeek: 1, startTime: 1 })
-      .lean()
+      .lean() as AvailabilityLean[]
 
     // Transform data for frontend
-    const transformedAvailabilities = availabilities.map((availability) => ({
-      id: (availability._id as any).toString(),
-      employeeId: (availability.employeeId as any)._id.toString(),
-      employee: {
-        id: (availability.employeeId as any)._id.toString(),
-        firstName: (availability.employeeId as any).firstName,
-        lastName: (availability.employeeId as any).lastName,
-        fullName: (availability.employeeId as any).fullName,
-        role: (availability.employeeId as any).role,
-        color: (availability.employeeId as any).color,
-      },
-      dayOfWeek: availability.dayOfWeek,
-      dayOfWeekLabel: getDayOfWeekLabel(availability.dayOfWeek),
-      startTime: availability.startTime,
-      endTime: availability.endTime,
-      timeRange: `${availability.startTime} - ${availability.endTime}`,
-      isRecurring: availability.isRecurring,
-      effectiveFrom: availability.effectiveFrom,
-      effectiveUntil: availability.effectiveUntil,
-      notes: availability.notes,
-      isActive: availability.isActive,
-      createdAt: availability.createdAt,
-      updatedAt: availability.updatedAt,
-    }))
+    const transformedAvailabilities = availabilities.map((availability) => {
+      // Type guard to ensure employeeId is populated
+      const employee = availability.employeeId as PopulatedEmployee
+
+      return {
+        id: availability._id.toString(),
+        employeeId: employee._id.toString(),
+        employee: {
+          id: employee._id.toString(),
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          fullName: employee.fullName,
+          role: employee.employeeRole,
+          color: employee.color,
+        },
+        dayOfWeek: availability.dayOfWeek,
+        dayOfWeekLabel: getDayOfWeekLabel(availability.dayOfWeek),
+        startTime: availability.startTime,
+        endTime: availability.endTime,
+        timeRange: `${availability.startTime} - ${availability.endTime}`,
+        isRecurring: availability.isRecurring,
+        effectiveFrom: availability.effectiveFrom,
+        effectiveUntil: availability.effectiveUntil,
+        notes: availability.notes,
+        isActive: availability.isActive,
+        createdAt: availability.createdAt,
+        updatedAt: availability.updatedAt,
+      }
+    })
 
     return NextResponse.json({
       success: true,
       data: transformedAvailabilities,
       count: transformedAvailabilities.length,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error GET availabilities:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       {
         success: false,
         error: 'Server error while fetching availabilities',
+        details: errorMessage,
       },
       { status: 500 }
     )
@@ -132,8 +171,8 @@ export async function POST(request: NextRequest) {
     await connectMongoose()
 
     // Verify employee exists
-    const employee = await Employee.findById(employeeId)
-    if (!employee) {
+    const existingEmployee = await Employee.findById(employeeId)
+    if (!existingEmployee) {
       return NextResponse.json(
         { success: false, error: 'Employee not found' },
         { status: 404 }
@@ -197,7 +236,7 @@ export async function POST(request: NextRequest) {
     // Fetch created availability with employee info
     const populatedAvailability = await Availability.findById(newAvailability._id)
       .populate('employeeId', 'firstName lastName fullName employeeRole color')
-      .lean()
+      .lean() as AvailabilityLean | null
 
     if (!populatedAvailability) {
       return NextResponse.json(
@@ -206,29 +245,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Type guard to ensure employeeId is populated
+    const employee = populatedAvailability.employeeId as PopulatedEmployee
+
     const transformedAvailability = {
-      id: ((populatedAvailability as any)._id as any).toString(),
-      employeeId: (populatedAvailability as any).employeeId._id.toString(),
+      id: populatedAvailability._id.toString(),
+      employeeId: employee._id.toString(),
       employee: {
-        id: (populatedAvailability as any).employeeId._id.toString(),
-        firstName: (populatedAvailability as any).employeeId.firstName,
-        lastName: (populatedAvailability as any).employeeId.lastName,
-        fullName: (populatedAvailability as any).employeeId.fullName,
-        role: (populatedAvailability as any).employeeId.role,
-        color: (populatedAvailability as any).employeeId.color,
+        id: employee._id.toString(),
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        fullName: employee.fullName,
+        role: employee.employeeRole,
+        color: employee.color,
       },
-      dayOfWeek: (populatedAvailability as any).dayOfWeek,
-      dayOfWeekLabel: getDayOfWeekLabel((populatedAvailability as any).dayOfWeek),
-      startTime: (populatedAvailability as any).startTime,
-      endTime: (populatedAvailability as any).endTime,
-      timeRange: `${(populatedAvailability as any).startTime} - ${(populatedAvailability as any).endTime}`,
-      isRecurring: (populatedAvailability as any).isRecurring,
-      effectiveFrom: (populatedAvailability as any).effectiveFrom,
-      effectiveUntil: (populatedAvailability as any).effectiveUntil,
-      notes: (populatedAvailability as any).notes,
-      isActive: (populatedAvailability as any).isActive,
-      createdAt: (populatedAvailability as any).createdAt,
-      updatedAt: (populatedAvailability as any).updatedAt,
+      dayOfWeek: populatedAvailability.dayOfWeek,
+      dayOfWeekLabel: getDayOfWeekLabel(populatedAvailability.dayOfWeek),
+      startTime: populatedAvailability.startTime,
+      endTime: populatedAvailability.endTime,
+      timeRange: `${populatedAvailability.startTime} - ${populatedAvailability.endTime}`,
+      isRecurring: populatedAvailability.isRecurring,
+      effectiveFrom: populatedAvailability.effectiveFrom,
+      effectiveUntil: populatedAvailability.effectiveUntil,
+      notes: populatedAvailability.notes,
+      isActive: populatedAvailability.isActive,
+      createdAt: populatedAvailability.createdAt,
+      updatedAt: populatedAvailability.updatedAt,
     }
 
     return NextResponse.json(
@@ -239,14 +281,16 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error POST availabilities:', error)
 
     // Handle Mongoose validation errors
-    if (error.name === 'ValidationError') {
+    if (error instanceof Error && error.name === 'ValidationError') {
+      const mongooseError = error as mongoose.Error.ValidationError
       const validationErrors: Record<string, string> = {}
-      for (const field in error.errors) {
-        validationErrors[field] = error.errors[field].message
+
+      for (const field in mongooseError.errors) {
+        validationErrors[field] = mongooseError.errors[field].message
       }
 
       return NextResponse.json(
@@ -259,10 +303,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       {
         success: false,
         error: 'Server error while creating availability',
+        details: errorMessage,
       },
       { status: 500 }
     )

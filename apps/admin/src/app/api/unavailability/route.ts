@@ -4,7 +4,38 @@ import { authOptions } from '@/lib/auth-options';
 import { connectMongoose } from '@/lib/mongodb';
 import Unavailability from '@/models/unavailability';
 import Employee from '@/models/employee';
-import type { IUnavailabilityWithEmployee } from '@/types/unavailability';
+import type { IUnavailabilityWithEmployee, UnavailabilityStatus, UnavailabilityType, UnavailabilityRequestedBy } from '@/types/unavailability';
+import { Types } from 'mongoose';
+
+interface PopulatedEmployee {
+  _id: Types.ObjectId;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+interface PopulatedApprover {
+  _id: Types.ObjectId;
+  firstName: string;
+  lastName: string;
+}
+
+interface PopulatedUnavailability {
+  _id: Types.ObjectId;
+  employeeId: PopulatedEmployee;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+  type: UnavailabilityType;
+  status: UnavailabilityStatus;
+  requestedBy: UnavailabilityRequestedBy;
+  approvedBy?: PopulatedApprover;
+  approvedAt?: Date;
+  rejectionReason?: string;
+  notificationSent: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 /**
  * GET /api/unavailability - Get all unavailabilities with filters
@@ -30,14 +61,23 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    const query: any = {};
+    interface UnavailabilityQuery {
+      employeeId?: string;
+      status?: UnavailabilityStatus;
+      $or?: Array<{
+        startDate?: { $gte?: string; $lte?: string };
+        endDate?: { $gte?: string; $lte?: string };
+      }>;
+    }
+
+    const query: UnavailabilityQuery = {};
 
     if (employeeId) {
       query.employeeId = employeeId;
     }
 
     if (status) {
-      query.status = status;
+      query.status = status as UnavailabilityStatus;
     }
 
     if (startDate && endDate) {
@@ -61,7 +101,7 @@ export async function GET(request: NextRequest) {
       .sort({ startDate: -1, createdAt: -1 })
       .lean();
 
-    const formattedData: IUnavailabilityWithEmployee[] = unavailabilities.map((item: any) => ({
+    const formattedData: IUnavailabilityWithEmployee[] = (unavailabilities as unknown as PopulatedUnavailability[]).map((item) => ({
       _id: item._id.toString(),
       employeeId: item.employeeId._id.toString(),
       startDate: item.startDate,
@@ -89,13 +129,14 @@ export async function GET(request: NextRequest) {
       data: formattedData,
       count: formattedData.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API GET unavailability:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la récupération des indisponibilités',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );
@@ -166,7 +207,17 @@ export async function POST(request: NextRequest) {
 
     const populated = await Unavailability.findById(newUnavailability._id)
       .populate('employeeId', 'firstName lastName email')
-      .lean();
+      .lean() as unknown as PopulatedUnavailability | null;
+
+    if (!populated) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Erreur lors de la récupération de l\'indisponibilité créée',
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       {
@@ -174,25 +225,26 @@ export async function POST(request: NextRequest) {
         message: 'Indisponibilité créée avec succès',
         data: {
           ...populated,
-          _id: populated!._id.toString(),
-          employeeId: (populated!.employeeId as any)._id.toString(),
+          _id: populated._id.toString(),
+          employeeId: populated.employeeId._id.toString(),
           employee: {
-            _id: (populated!.employeeId as any)._id.toString(),
-            firstName: (populated!.employeeId as any).firstName,
-            lastName: (populated!.employeeId as any).lastName,
-            email: (populated!.employeeId as any).email,
+            _id: populated.employeeId._id.toString(),
+            firstName: populated.employeeId.firstName,
+            lastName: populated.employeeId.lastName,
+            email: populated.employeeId.email,
           },
         },
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API POST unavailability:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la création de l\'indisponibilité',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );
