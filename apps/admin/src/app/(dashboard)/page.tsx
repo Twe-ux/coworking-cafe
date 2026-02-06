@@ -11,7 +11,7 @@ import { TodayTasksCard } from "@/components/home/TodayTasksCard";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 
 /**
  * Page d'accueil "/" - Vue fullscreen sans sidebar
@@ -25,6 +25,21 @@ import { useMemo } from "react";
 export default function HomePage() {
   const { employees, shifts, isLoading, error, refetch } =
     useHomePageDataQuery();
+
+  // Refetch immédiat quand la fenêtre redevient active
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refetch();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refetch]);
 
   const {
     getShiftsPositionedByEmployee,
