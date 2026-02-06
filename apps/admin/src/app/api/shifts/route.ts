@@ -3,6 +3,52 @@ import { connectMongoose } from '@/lib/mongodb'
 import Shift from '@/models/shift'
 import Employee from '@/models/employee'
 import { requireAuth } from '@/lib/api/auth'
+import { Types } from 'mongoose'
+
+// MongoDB document interfaces
+interface MongoDBObjectId {
+  _id: Types.ObjectId
+  toString(): string
+}
+
+interface PopulatedEmployee {
+  _id: Types.ObjectId
+  firstName: string
+  lastName: string
+  fullName: string
+  employeeRole: string
+  color: string
+}
+
+interface ShiftDocument {
+  _id: Types.ObjectId
+  employeeId: PopulatedEmployee
+  date: string
+  startTime: string
+  endTime: string
+  type: string
+  location?: string
+  notes?: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface ShiftFilter {
+  employeeId?: string
+  date?: {
+    $gte?: string
+    $lte?: string
+  }
+  type?: string
+  isActive?: boolean
+}
+
+interface MongoDBValidationError {
+  name: string
+  errors: Record<string, { message: string }>
+  code?: number
+}
 
 /**
  * GET /api/shifts - Retrieve list of shifts with optional filters
@@ -25,7 +71,7 @@ export async function GET(request: NextRequest) {
     const active = searchParams.get('active')
 
     // Build filter query
-    const filter: any = {}
+    const filter: ShiftFilter = {}
 
     if (employeeId) {
       filter.employeeId = employeeId
@@ -56,28 +102,31 @@ export async function GET(request: NextRequest) {
       .lean()
 
     // Transform data for frontend
-    const transformedShifts = shifts.map((shift) => ({
-      id: (shift._id as any).toString(),
-      employeeId: (shift.employeeId as any)._id.toString(),
-      employee: {
-        id: (shift.employeeId as any)._id.toString(),
-        firstName: (shift.employeeId as any).firstName,
-        lastName: (shift.employeeId as any).lastName,
-        fullName: (shift.employeeId as any).fullName,
-        role: (shift.employeeId as any).role,
-        color: (shift.employeeId as any).color,
-      },
-      date: shift.date,
-      startTime: shift.startTime,
-      endTime: shift.endTime,
-      type: shift.type,
-      location: shift.location,
-      notes: shift.notes,
-      isActive: shift.isActive,
-      timeRange: `${shift.startTime} - ${shift.endTime}`,
-      createdAt: shift.createdAt,
-      updatedAt: shift.updatedAt,
-    }))
+    const transformedShifts = shifts.map((shift) => {
+      const shiftDoc = shift as unknown as ShiftDocument
+      return {
+        id: shiftDoc._id.toString(),
+        employeeId: shiftDoc.employeeId._id.toString(),
+        employee: {
+          id: shiftDoc.employeeId._id.toString(),
+          firstName: shiftDoc.employeeId.firstName,
+          lastName: shiftDoc.employeeId.lastName,
+          fullName: shiftDoc.employeeId.fullName,
+          role: shiftDoc.employeeId.employeeRole,
+          color: shiftDoc.employeeId.color,
+        },
+        date: shiftDoc.date,
+        startTime: shiftDoc.startTime,
+        endTime: shiftDoc.endTime,
+        type: shiftDoc.type,
+        location: shiftDoc.location,
+        notes: shiftDoc.notes,
+        isActive: shiftDoc.isActive,
+        timeRange: `${shiftDoc.startTime} - ${shiftDoc.endTime}`,
+        createdAt: shiftDoc.createdAt,
+        updatedAt: shiftDoc.updatedAt,
+      }
+    })
 
     return NextResponse.json({
       success: true,
@@ -206,27 +255,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const shiftDoc = populatedShift as unknown as ShiftDocument
     const transformedShift = {
-      id: ((populatedShift as any)._id as any).toString(),
-      employeeId: (populatedShift as any).employeeId._id.toString(),
+      id: shiftDoc._id.toString(),
+      employeeId: shiftDoc.employeeId._id.toString(),
       employee: {
-        id: (populatedShift as any).employeeId._id.toString(),
-        firstName: (populatedShift as any).employeeId.firstName,
-        lastName: (populatedShift as any).employeeId.lastName,
-        fullName: (populatedShift as any).employeeId.fullName,
-        role: (populatedShift as any).employeeId.role,
-        color: (populatedShift as any).employeeId.color,
+        id: shiftDoc.employeeId._id.toString(),
+        firstName: shiftDoc.employeeId.firstName,
+        lastName: shiftDoc.employeeId.lastName,
+        fullName: shiftDoc.employeeId.fullName,
+        role: shiftDoc.employeeId.employeeRole,
+        color: shiftDoc.employeeId.color,
       },
-      date: (populatedShift as any).date,
-      startTime: (populatedShift as any).startTime,
-      endTime: (populatedShift as any).endTime,
-      type: (populatedShift as any).type,
-      location: (populatedShift as any).location,
-      notes: (populatedShift as any).notes,
-      isActive: (populatedShift as any).isActive,
-      timeRange: `${(populatedShift as any).startTime} - ${(populatedShift as any).endTime}`,
-      createdAt: (populatedShift as any).createdAt,
-      updatedAt: (populatedShift as any).updatedAt,
+      date: shiftDoc.date,
+      startTime: shiftDoc.startTime,
+      endTime: shiftDoc.endTime,
+      type: shiftDoc.type,
+      location: shiftDoc.location,
+      notes: shiftDoc.notes,
+      isActive: shiftDoc.isActive,
+      timeRange: `${shiftDoc.startTime} - ${shiftDoc.endTime}`,
+      createdAt: shiftDoc.createdAt,
+      updatedAt: shiftDoc.updatedAt,
     }
 
     return NextResponse.json(
@@ -237,14 +287,20 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error POST shifts:', error)
 
     // Handle Mongoose validation errors
-    if (error.name === 'ValidationError') {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      error.name === 'ValidationError'
+    ) {
+      const validationError = error as MongoDBValidationError
       const validationErrors: Record<string, string> = {}
-      for (const field in error.errors) {
-        validationErrors[field] = error.errors[field].message
+      for (const field in validationError.errors) {
+        validationErrors[field] = validationError.errors[field].message
       }
 
       return NextResponse.json(
@@ -258,7 +314,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle duplicate errors
-    if (error.code === 11000) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 11000
+    ) {
       return NextResponse.json(
         {
           success: false,

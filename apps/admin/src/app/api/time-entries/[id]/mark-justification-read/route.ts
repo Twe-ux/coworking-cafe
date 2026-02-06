@@ -6,6 +6,30 @@ import TimeEntry from '@/models/timeEntry'
 import type { ApiResponse, TimeEntry as TimeEntryType } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
 
+// Type guard pour CastError Mongoose
+interface MongooseCastError {
+  name: string
+  path: string
+}
+
+function isCastError(err: unknown): err is MongooseCastError {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'name' in err &&
+    err.name === 'CastError' &&
+    'path' in err
+  )
+}
+
+// Interface pour employé populé
+interface PopulatedEmployee {
+  _id?: { toString(): string }
+  firstName: string
+  lastName: string
+  employeeRole: string
+}
+
 /**
  * PUT /api/time-entries/[id]/mark-justification-read
  * Mark justification as read by admin
@@ -73,7 +97,7 @@ export async function PUT(
     await timeEntry.save()
 
     // Format response
-    const populatedEmployee = timeEntry.employeeId as any
+    const populatedEmployee = timeEntry.employeeId as unknown as PopulatedEmployee
     const formattedTimeEntry: TimeEntryType = {
       id: timeEntry._id.toString(),
       employeeId: populatedEmployee._id?.toString() || timeEntry.employeeId.toString(),
@@ -106,10 +130,10 @@ export async function PUT(
       },
       { status: 200 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API PUT time-entries/[id]/mark-justification-read:', error)
 
-    if (error.name === 'CastError' && error.path === '_id') {
+    if (isCastError(error) && error.path === '_id') {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -120,11 +144,22 @@ export async function PUT(
       )
     }
 
+    if (error instanceof Error) {
+      return NextResponse.json<ApiResponse<null>>(
+        {
+          success: false,
+          error: 'Erreur lors de la mise à jour',
+          details: error.message,
+        },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json<ApiResponse<null>>(
       {
         success: false,
         error: 'Erreur lors de la mise à jour',
-        details: error.message,
+        details: 'Unknown error',
       },
       { status: 500 }
     )

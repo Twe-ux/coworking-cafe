@@ -3,7 +3,91 @@ import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
-import type { Booking as BookingType, ReservationType } from "@/types/booking"
+import type { Booking as BookingType, ReservationType, BookingStatus, CaptureMethod } from "@/types/booking"
+import type { Types } from "mongoose"
+
+/**
+ * Populated user from MongoDB
+ */
+interface PopulatedUser {
+  _id: Types.ObjectId
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
+}
+
+/**
+ * MongoDB Booking document from lean() query
+ */
+interface LeanBookingDocument {
+  _id: Types.ObjectId
+  user?: PopulatedUser
+  space?: Types.ObjectId
+  spaceType: string
+  date: Date
+  startTime?: string
+  endTime?: string
+  numberOfPeople: number
+  status: BookingStatus
+  totalPrice: number
+  basePrice?: number
+  servicesPrice?: number
+  invoiceOption?: boolean
+  reservationType?: string
+  contactName?: string
+  contactEmail?: string
+  contactPhone?: string
+  contactCompany?: string
+  notes?: string
+  message?: string
+  amountPaid?: number
+  captureMethod?: CaptureMethod
+  depositAmount?: number
+  depositRequired?: boolean
+  depositFileUrl?: string | null
+  isAdminBooking?: boolean
+  createdAt?: Date
+  updatedAt?: Date
+  cancelledAt?: Date
+  cancelReason?: string
+}
+
+/**
+ * MongoDB Booking document from toObject()
+ */
+interface BookingDocumentObject {
+  _id: Types.ObjectId
+  user?: Types.ObjectId | PopulatedUser
+  space?: Types.ObjectId
+  spaceType: string
+  date: Date
+  startTime?: string
+  endTime?: string
+  numberOfPeople: number
+  status: BookingStatus
+  totalPrice: number
+  basePrice?: number
+  servicesPrice?: number
+  invoiceOption?: boolean
+  reservationType?: string
+  contactName?: string
+  contactEmail?: string
+  contactPhone?: string
+  contactCompany?: string
+  notes?: string
+  message?: string
+  amountPaid?: number
+  captureMethod?: CaptureMethod
+  depositAmount?: number
+  depositRequired?: boolean
+  depositFileUrl?: string | null
+  isAdminBooking?: boolean
+  createdAt?: Date
+  updatedAt?: Date
+  cancelledAt?: Date
+  cancelReason?: string
+}
 
 /**
  * Infer reservation type based on space type and time data
@@ -90,21 +174,22 @@ export async function GET(request: NextRequest) {
       .sort({ date: -1 })
       .lean()
 
-    const data: BookingType[] = bookings.map((booking: any) => {
-      const user = booking.user || {}
+    const data: BookingType[] = (bookings as unknown as LeanBookingDocument[]).map((booking) => {
+      const user = booking.user
+
       // Priority: user name > contactName > email > fallback
-      const clientName = (user.firstName && user.lastName)
+      const clientName = (user?.firstName && user?.lastName)
         ? `${user.firstName} ${user.lastName}`
-        : booking.contactName || user.email || booking.contactEmail || 'Client inconnu'
+        : booking.contactName || user?.email || booking.contactEmail || 'Client inconnu'
 
       return {
         _id: booking._id.toString(),
         spaceId: booking.space?.toString() || booking._id.toString(),
         spaceName: booking.spaceType || 'Espace',
-        clientId: booking.user?._id?.toString() || booking.user?.toString() || '',
+        clientId: user?._id?.toString() || (typeof booking.user === 'string' ? booking.user : ''),
         clientName,
-        clientEmail: user.email || booking.contactEmail || '',
-        clientPhone: user.phone || booking.contactPhone || '',
+        clientEmail: user?.email || booking.contactEmail || '',
+        clientPhone: user?.phone || booking.contactPhone || '',
         clientCompany: booking.contactCompany || '',
         reservationType: inferReservationType(
           booking.reservationType,
@@ -133,9 +218,12 @@ export async function GET(request: NextRequest) {
     })
 
     return successResponse(data)
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("GET /api/booking/reservations error:", error)
-    return errorResponse("Failed to fetch bookings", undefined, 500)
+    if (error instanceof Error) {
+      return errorResponse("Failed to fetch bookings", error.message, 500)
+    }
+    return errorResponse("Failed to fetch bookings", "Unknown error", 500)
   }
 }
 
@@ -208,22 +296,24 @@ export async function POST(request: NextRequest) {
     if (booking.user) {
       await booking.populate('user', 'firstName lastName email')
     }
-    const populatedBooking: any = booking.toObject()
-    const user = populatedBooking.user || {}
+    const populatedBooking = booking.toObject() as unknown as BookingDocumentObject
+    const user = typeof populatedBooking.user === 'object' && populatedBooking.user !== null && '_id' in populatedBooking.user
+      ? populatedBooking.user as PopulatedUser
+      : undefined
 
     // Utiliser les infos de contact si pas d'user
-    const clientName = user.firstName && user.lastName
+    const clientName = user?.firstName && user?.lastName
       ? `${user.firstName} ${user.lastName}`
-      : booking.contactName || user.email || 'Client inconnu'
+      : booking.contactName || user?.email || 'Client inconnu'
 
     const data: BookingType = {
       _id: booking._id.toString(),
       spaceId: booking.space?.toString() || booking._id.toString(),
       spaceName: booking.spaceType,
-      clientId: booking.user?.toString() || '',
+      clientId: user?._id?.toString() || booking.user?.toString() || '',
       clientName,
-      clientEmail: user.email || booking.contactEmail || '',
-      clientPhone: user.phone || booking.contactPhone || '',
+      clientEmail: user?.email || booking.contactEmail || '',
+      clientPhone: user?.phone || booking.contactPhone || '',
       clientCompany: booking.contactCompany,
       reservationType: inferReservationType(
         booking.reservationType,
@@ -272,7 +362,7 @@ export async function POST(request: NextRequest) {
             const { generateAdminBookingValidationEmail } = await import('@coworking-cafe/email')
 
             await sendEmail({
-              to: user.email || booking.contactEmail,
+              to: user?.email || booking.contactEmail || '',
               subject: '✅ Réservation confirmée - CoworKing Café',
               html: generateAdminBookingValidationEmail({
                 ...emailData,
@@ -284,7 +374,7 @@ export async function POST(request: NextRequest) {
             const { generateValidatedEmail } = await import('@coworking-cafe/email')
 
             await sendEmail({
-              to: user.email || booking.contactEmail,
+              to: user?.email || booking.contactEmail || '',
               subject: '✅ Réservation confirmée - CoworKing Café',
               html: generateValidatedEmail({
                 ...emailData,
@@ -297,7 +387,7 @@ export async function POST(request: NextRequest) {
           const { sendPendingWithDepositEmail } = await import('@/lib/email/emailService')
 
           await sendPendingWithDepositEmail(
-            user.email || booking.contactEmail,
+            user?.email || booking.contactEmail || '',
             {
               ...emailData,
               depositAmount: booking.depositAmount || 0,
@@ -305,8 +395,12 @@ export async function POST(request: NextRequest) {
             }
           )
         }
-      } catch (emailError) {
-        console.error('Error sending booking email:', emailError)
+      } catch (emailError: unknown) {
+        if (emailError instanceof Error) {
+          console.error('Error sending booking email:', emailError.message)
+        } else {
+          console.error('Error sending booking email: Unknown error')
+        }
         // Ne pas bloquer la création de réservation si l'email échoue
       }
     } else {
@@ -314,8 +408,11 @@ export async function POST(request: NextRequest) {
     }
 
     return successResponse(data, "Booking created successfully", 201)
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("POST /api/booking/reservations error:", error)
-    return errorResponse("Failed to create booking", undefined, 500)
+    if (error instanceof Error) {
+      return errorResponse("Failed to create booking", error.message, 500)
+    }
+    return errorResponse("Failed to create booking", "Unknown error", 500)
   }
 }

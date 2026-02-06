@@ -10,6 +10,36 @@ import type {
   ApiResponse,
 } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
+import type { Types } from 'mongoose'
+
+// Interfaces pour les documents MongoDB populés
+interface PopulatedEmployee {
+  _id: Types.ObjectId | string
+  firstName: string
+  lastName: string
+  employeeRole: string
+  color?: string
+}
+
+interface TimeEntryDocument {
+  _id: Types.ObjectId
+  employeeId: PopulatedEmployee | Types.ObjectId
+  date: string
+  clockIn: string
+  clockOut?: string | null
+  shiftNumber: 1 | 2
+  totalHours?: number
+  status: 'active' | 'completed'
+  hasError?: boolean
+  errorType?: 'MISSING_CLOCK_OUT' | 'INVALID_TIME_RANGE' | 'DUPLICATE_ENTRY'
+  errorMessage?: string
+  isOutOfSchedule?: boolean
+  justificationNote?: string
+  justificationRead?: boolean
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
 
 /**
  * GET /api/time-entries - Récupérer les time entries avec filtres et pagination
@@ -54,7 +84,18 @@ export async function GET(request: NextRequest) {
     if (filters.limit && (filters.limit < 1 || filters.limit > 100)) filters.limit = 50
 
     // Construction de la requête MongoDB
-    const query: any = { isActive: true }
+    interface MongoQuery {
+      isActive: boolean
+      employeeId?: string
+      status?: 'active' | 'completed'
+      shiftNumber?: 1 | 2
+      date?: {
+        $gte?: string
+        $lte?: string
+      }
+    }
+
+    const query: MongoQuery = { isActive: true }
 
     if (filters.employeeId) {
       query.employeeId = filters.employeeId
@@ -96,11 +137,22 @@ export async function GET(request: NextRequest) {
     // Formatage des données
     const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
 
-    const formattedTimeEntries: TimeEntryType[] = timeEntries.map(
-      (entry: any) => {
-        const populatedEmployee = entry.employeeId
-        const originalEmployeeId =
-          populatedEmployee._id || populatedEmployee.toString()
+    const formattedTimeEntries: TimeEntryType[] = (timeEntries as unknown as TimeEntryDocument[]).map(
+      (entry) => {
+        const isPopulated =
+          entry.employeeId &&
+          typeof entry.employeeId === 'object' &&
+          '_id' in entry.employeeId
+
+        const populatedEmployee = isPopulated
+          ? (entry.employeeId as PopulatedEmployee)
+          : null
+
+        const originalEmployeeId = populatedEmployee
+          ? typeof populatedEmployee._id === 'string'
+            ? populatedEmployee._id
+            : populatedEmployee._id.toString()
+          : (entry.employeeId as Types.ObjectId).toString()
 
         // Recalculate hasError for past dates without clockOut
         let hasError = entry.hasError || false
@@ -119,17 +171,19 @@ export async function GET(request: NextRequest) {
 
         return {
           id: entry._id.toString(),
-          employeeId: originalEmployeeId.toString(),
-          employee:
-            populatedEmployee && populatedEmployee._id
-              ? {
-                  id: populatedEmployee._id.toString(),
-                  firstName: populatedEmployee.firstName,
-                  lastName: populatedEmployee.lastName,
-                  fullName: `${populatedEmployee.firstName} ${populatedEmployee.lastName}`,
-                  employeeRole: populatedEmployee.employeeRole,
-                }
-              : undefined,
+          employeeId: originalEmployeeId,
+          employee: populatedEmployee
+            ? {
+                id:
+                  typeof populatedEmployee._id === 'string'
+                    ? populatedEmployee._id
+                    : populatedEmployee._id.toString(),
+                firstName: populatedEmployee.firstName,
+                lastName: populatedEmployee.lastName,
+                fullName: `${populatedEmployee.firstName} ${populatedEmployee.lastName}`,
+                employeeRole: populatedEmployee.employeeRole,
+              }
+            : undefined,
           date: entry.date,
           clockIn: entry.clockIn,
           clockOut: entry.clockOut,
@@ -178,11 +232,14 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(response)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API GET time-entries:', error)
 
     // Gestion des erreurs de date invalide
-    if (error.message.includes('Invalid Date') || error.name === 'CastError') {
+    if (
+      error instanceof Error &&
+      (error.message.includes('Invalid Date') || error.name === 'CastError')
+    ) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -197,7 +254,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: 'Erreur lors de la récupération des time entries',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Erreur inconnue',
       },
       { status: 500 }
     )
@@ -256,7 +313,16 @@ export async function POST(request: NextRequest) {
     // Créer les données du time entry
     // date format: "YYYY-MM-DD"
     // clockIn/clockOut format: "HH:mm"
-    const timeEntryData: any = {
+    interface TimeEntryData {
+      employeeId: string
+      date: string
+      clockIn: string
+      shiftNumber: 1 | 2
+      status: 'active' | 'completed'
+      clockOut?: string
+    }
+
+    const timeEntryData: TimeEntryData = {
       employeeId,
       date: date || new Date().toISOString().split('T')[0], // Use string format
       clockIn, // Already in "HH:mm" format
@@ -275,37 +341,53 @@ export async function POST(request: NextRequest) {
     await newTimeEntry.populate('employeeId', 'firstName lastName employeeRole')
 
     // Formater la réponse
-    const populatedEmployee = (newTimeEntry as any).employeeId
-    const formattedTimeEntry = {
-      id: (newTimeEntry as any)._id.toString(),
-      employeeId: populatedEmployee._id
-        ? populatedEmployee._id.toString()
-        : populatedEmployee.toString(),
-      employee:
-        populatedEmployee && populatedEmployee._id
-          ? {
-              id: populatedEmployee._id.toString(),
-              firstName: populatedEmployee.firstName,
-              lastName: populatedEmployee.lastName,
-              fullName: `${populatedEmployee.firstName} ${populatedEmployee.lastName}`,
-              role: populatedEmployee.role,
-            }
-          : undefined,
-      date: (newTimeEntry as any).date,
-      clockIn: (newTimeEntry as any).clockIn,
-      clockOut: (newTimeEntry as any).clockOut,
-      shiftNumber: (newTimeEntry as any).shiftNumber,
-      totalHours: (newTimeEntry as any).totalHours,
-      status: (newTimeEntry as any).status,
-      hasError: (newTimeEntry as any).hasError,
-      errorType: (newTimeEntry as any).errorType,
-      errorMessage: (newTimeEntry as any).errorMessage,
-      isActive: (newTimeEntry as any).isActive,
-      createdAt: (newTimeEntry as any).createdAt,
-      updatedAt: (newTimeEntry as any).updatedAt,
+    const populatedTimeEntry = newTimeEntry as unknown as TimeEntryDocument
+
+    const isPopulated =
+      populatedTimeEntry.employeeId &&
+      typeof populatedTimeEntry.employeeId === 'object' &&
+      '_id' in populatedTimeEntry.employeeId
+
+    const populatedEmployee = isPopulated
+      ? (populatedTimeEntry.employeeId as PopulatedEmployee)
+      : null
+
+    const originalEmployeeId = populatedEmployee
+      ? typeof populatedEmployee._id === 'string'
+        ? populatedEmployee._id
+        : populatedEmployee._id.toString()
+      : (populatedTimeEntry.employeeId as Types.ObjectId).toString()
+
+    const formattedTimeEntry: TimeEntryType = {
+      id: populatedTimeEntry._id.toString(),
+      employeeId: originalEmployeeId,
+      employee: populatedEmployee
+        ? {
+            id:
+              typeof populatedEmployee._id === 'string'
+                ? populatedEmployee._id
+                : populatedEmployee._id.toString(),
+            firstName: populatedEmployee.firstName,
+            lastName: populatedEmployee.lastName,
+            fullName: `${populatedEmployee.firstName} ${populatedEmployee.lastName}`,
+            employeeRole: populatedEmployee.employeeRole,
+          }
+        : undefined,
+      date: populatedTimeEntry.date,
+      clockIn: populatedTimeEntry.clockIn,
+      clockOut: populatedTimeEntry.clockOut,
+      shiftNumber: populatedTimeEntry.shiftNumber,
+      totalHours: populatedTimeEntry.totalHours,
+      status: populatedTimeEntry.status,
+      hasError: populatedTimeEntry.hasError,
+      errorType: populatedTimeEntry.errorType,
+      errorMessage: populatedTimeEntry.errorMessage,
+      isActive: populatedTimeEntry.isActive,
+      createdAt: populatedTimeEntry.createdAt,
+      updatedAt: populatedTimeEntry.updatedAt,
     }
 
-    return NextResponse.json<ApiResponse<any>>(
+    return NextResponse.json<ApiResponse<TimeEntryType>>(
       {
         success: true,
         data: formattedTimeEntry,
@@ -313,13 +395,23 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API POST time-entries:', error)
 
     // Gestion des erreurs de validation Mongoose
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
+    interface MongooseValidationError extends Error {
+      name: 'ValidationError'
+      errors: Record<string, { message: string }>
+    }
+
+    interface MongoDuplicateKeyError extends Error {
+      code: number
+    }
+
+    if (error instanceof Error && error.name === 'ValidationError') {
+      const mongooseError = error as MongooseValidationError
+      const validationErrors = Object.values(mongooseError.errors).map(
+        (err) => err.message
       )
       return NextResponse.json<ApiResponse<null>>(
         {
@@ -331,7 +423,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (error.code === 11000) {
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      (error as MongoDuplicateKeyError).code === 11000
+    ) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -347,7 +443,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: 'Erreur lors de la création du time entry',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Erreur inconnue',
       },
       { status: 500 }
     )
