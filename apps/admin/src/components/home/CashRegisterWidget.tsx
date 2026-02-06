@@ -1,35 +1,20 @@
 "use client";
 
-import { CashCountHelper } from "@/components/cash-register/CashCountHelper";
+import { AmountWarningDialog } from "@/components/cash-register/AmountWarningDialog";
+import { CashCountDialog } from "@/components/cash-register/CashCountDialog";
+import { ConfirmationDialog } from "@/components/cash-register/ConfirmationDialog";
+import { NotesDialog } from "@/components/cash-register/NotesDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import type {
   CashCountDetails,
   CashRegisterEntry,
   EmployeeInfo,
 } from "@/types/cashRegister";
 import { formatCurrency } from "@/types/cashRegister";
-import { Calculator, Coins, FileText, History } from "lucide-react";
+import { Coins, History } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -43,7 +28,7 @@ interface AdminUser {
 
 /**
  * Widget Fond de Caisse pour le dashboard staff
- * Version compacte avec confirmation employé/admin
+ * Version compacte optimisée avec confirmation employé/admin
  */
 export function CashRegisterWidget() {
   const [lastEntry, setLastEntry] = useState<CashRegisterEntry | null>(null);
@@ -73,21 +58,18 @@ export function CashRegisterWidget() {
     try {
       setLoading(true);
 
-      // Récupérer la dernière saisie
       const lastEntryResponse = await fetch("/api/cash-register/list?limit=1");
       const lastEntryResult = await lastEntryResponse.json();
       if (lastEntryResult.success && lastEntryResult.data.entries.length > 0) {
         setLastEntry(lastEntryResult.data.entries[0]);
       }
 
-      // Récupérer les employés pointés
       const employeesResponse = await fetch("/api/hr/employees/clocked");
       const employeesResult = await employeesResponse.json();
       if (employeesResult.success) {
         setClockedEmployees(employeesResult.data || []);
       }
 
-      // Récupérer les admins
       const adminsResponse = await fetch("/api/admins");
       const adminsResult = await adminsResponse.json();
       if (adminsResult.success) {
@@ -114,18 +96,15 @@ export function CashRegisterWidget() {
       return;
     }
 
-    // Vérifier l'écart avec le dernier montant
     if (lastEntry) {
       const difference = Math.abs(amountNum - lastEntry.amount);
       if (difference > 5) {
-        // Écart supérieur à 5€, afficher l'alerte
         setAmountDifference(amountNum - lastEntry.amount);
         setWarningModalOpen(true);
         return;
       }
     }
 
-    // Pas d'écart important, continuer normalement
     openConfirmModal();
   };
 
@@ -171,7 +150,6 @@ export function CashRegisterWidget() {
       return;
     }
 
-    // Vérifier le PIN admin
     try {
       const response = await fetch("/api/admins/verify-pin", {
         method: "POST",
@@ -189,7 +167,6 @@ export function CashRegisterWidget() {
         return;
       }
 
-      // PIN correct, soumettre avec l'admin
       await submitEntry({
         userId: result.data.id,
         name: result.data.name,
@@ -206,13 +183,11 @@ export function CashRegisterWidget() {
     try {
       const amountNum = parseFloat(amount);
 
-      // Construire les notes avec indication si responsable prévenu
       let notes = "Saisie rapide depuis le dashboard";
       if (wasWarningConfirmed) {
         const diff = lastEntry ? amountNum - lastEntry.amount : 0;
         notes += ` - Écart de ${formatCurrency(Math.abs(diff))} (${diff > 0 ? "+" : ""}${formatCurrency(diff)}) - Responsable prévenu`;
       }
-      // Ajouter les notes additionnelles si présentes
       if (additionalNotes.trim()) {
         notes += ` - ${additionalNotes.trim()}`;
       }
@@ -255,263 +230,119 @@ export function CashRegisterWidget() {
   };
 
   return (
-    <Card className="border-green-400 border min-h-64 flex flex-col justify-between">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3">
-        <CardTitle className="text-xs sm:text-sm font-semibold flex items-center gap-1.5 sm:gap-2">
-          <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-          <span className="truncate">Fond de Caisse</span>
-        </CardTitle>
-        <Link href="/cash-register">
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700 h-7 sm:h-8 px-2 sm:px-3"
-          >
-            <History className="h-3 w-3 sm:mr-1" />
-            <span className="hidden sm:inline">Historique</span>
-          </Button>
-        </Link>
+    <Card className="border-green-400 border h-full flex flex-col  justify-between">
+      <CardHeader className="pb-2">
+        {/* Vertical stack: Titre + Historique */}
+        <div className="space-y-2">
+          <CardTitle className="text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+            <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+            <span>Fond de Caisse</span>
+          </CardTitle>
+          <Link href="/cash-register" className="block">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700 h-7 w-full text-xs"
+            >
+              <History className="h-3 w-3 mr-1" />
+              <span>Historique</span>
+            </Button>
+          </Link>
+        </div>
       </CardHeader>
 
-      <CardContent className="space-y-4 sm:space-y-6">
-        {/* Dernière saisie - Une ligne */}
+      <CardContent className="space-y-2">
+        {/* Dernière saisie */}
         {loading ? (
           <p className="text-xs text-muted-foreground">Chargement...</p>
         ) : lastEntry ? (
-          <div className="text-sm sm:text-lg text-muted-foreground flex justify-between items-center gap-2">
-            <span className="text-xs sm:text-base truncate">Dernière saisie :</span>
-            <span className="font-bold text-primary whitespace-nowrap text-base sm:text-lg">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <div className="text-xs text-muted-foreground">Dernière saisie</div>
+            <div className="font-bold text-primary text-lg">
               {formatCurrency(lastEntry.amount)}
-            </span>
+            </div>
           </div>
         ) : (
           <p className="text-xs text-muted-foreground">Aucune saisie</p>
         )}
 
-        {/* Saisie */}
-        <div className="space-y-2">
-          <div className="flex gap-1.5 sm:gap-2">
-            {/* Bouton Aide au comptage */}
-            <Dialog open={countModalOpen} onOpenChange={setCountModalOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
-                  title="Aide au comptage"
-                >
-                  <Calculator className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Aide au comptage</DialogTitle>
-                </DialogHeader>
-                <CashCountHelper onTotalCalculated={handleTotalCalculated} />
-              </DialogContent>
-            </Dialog>
-            {/* Saisie montant */}
-            <Input
-              type="number"
-              step="0.01"
-              min="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="Montant €"
-              className="h-8 sm:h-9 text-sm flex-1 min-w-0"
-            />
+        {/* Input montant avec boutons autour (tous sur la même ligne) */}
+        <div className="flex gap-1.5">
+          <CashCountDialog
+            open={countModalOpen}
+            onOpenChange={setCountModalOpen}
+            onTotalCalculated={handleTotalCalculated}
+          />
 
-            {/* Bouton Notes */}
-            <Dialog open={notesModalOpen} onOpenChange={setNotesModalOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant={additionalNotes ? "default" : "outline"}
-                  size="icon"
-                  className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
-                  title="Ajouter une note"
-                >
-                  <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Note additionnelle</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Textarea
-                    value={additionalNotes}
-                    onChange={(e) => setAdditionalNotes(e.target.value)}
-                    placeholder="Remarques, incidents, etc."
-                    rows={4}
-                    className="resize-none"
-                  />
-                  <div className="flex gap-2 justify-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setAdditionalNotes("");
-                        setNotesModalOpen(false);
-                      }}
-                    >
-                      Effacer
-                    </Button>
-                    <Button onClick={() => setNotesModalOpen(false)}>
-                      Enregistrer
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Montant €"
+            className="h-8 sm:h-9 text-sm w-20 sm:flex-1"
+          />
 
-          {error && (
-            <Alert variant="destructive" className="py-1.5 sm:py-2">
-              <AlertDescription className="text-[10px] sm:text-xs">{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {success && (
-            <Alert className="py-1.5 sm:py-2">
-              <AlertDescription className="text-[10px] sm:text-xs">
-                ✓ Saisie enregistrée !
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <Button
-            onClick={handleValidate}
-            className="w-full h-8 sm:h-9 text-xs sm:text-sm"
-            disabled={submitting || !amount}
-          >
-            {submitting ? "Enregistrement..." : "Valider"}
-          </Button>
+          <NotesDialog
+            open={notesModalOpen}
+            onOpenChange={setNotesModalOpen}
+            notes={additionalNotes}
+            onNotesChange={setAdditionalNotes}
+          />
         </div>
 
+        {/* Alerts */}
+        {error && (
+          <Alert variant="destructive" className="py-1.5">
+            <AlertDescription className="text-[10px] sm:text-xs">
+              {error}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {success && (
+          <Alert className="py-1.5">
+            <AlertDescription className="text-[10px] sm:text-xs">
+              ✓ Saisie enregistrée !
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Bouton valider */}
+        <Button
+          onClick={handleValidate}
+          className="w-full h-8 sm:h-9 text-xs sm:text-sm"
+          disabled={submitting || !amount}
+        >
+          {submitting ? "Enregistrement..." : "Valider"}
+        </Button>
+
         {/* Modal d'alerte écart */}
-        <AlertDialog open={warningModalOpen} onOpenChange={setWarningModalOpen}>
-          <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-base sm:text-lg">⚠️ Écart important détecté</AlertDialogTitle>
-              <AlertDialogDescription className="space-y-2 text-xs sm:text-sm">
-                <p>
-                  Le montant saisi diffère de{" "}
-                  <span className="font-bold text-destructive">
-                    {formatCurrency(Math.abs(amountDifference))}
-                  </span>{" "}
-                  par rapport au dernier enregistrement.
-                </p>
-                <p className="text-xs sm:text-sm">
-                  Dernier montant :{" "}
-                  <span className="font-semibold">
-                    {lastEntry && formatCurrency(lastEntry.amount)}
-                  </span>
-                </p>
-                <p className="text-xs sm:text-sm">
-                  Montant actuel :{" "}
-                  <span className="font-semibold">
-                    {formatCurrency(parseFloat(amount) || 0)}
-                  </span>
-                </p>
-                <p className="font-semibold text-orange-600 mt-4 text-xs sm:text-sm">
-                  Veuillez prévenir le responsable avant de continuer.
-                </p>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-              <AlertDialogCancel className="m-0 text-sm">Annuler</AlertDialogCancel>
-              <AlertDialogAction onClick={handleWarningContinue} className="m-0 text-sm">
-                J'ai prévenu, continuer
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <AmountWarningDialog
+          open={warningModalOpen}
+          onOpenChange={setWarningModalOpen}
+          amountDifference={amountDifference}
+          lastAmount={lastEntry?.amount || null}
+          currentAmount={parseFloat(amount) || 0}
+          onContinue={handleWarningContinue}
+        />
 
         {/* Modal de confirmation */}
-        <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
-          <DialogContent className="max-w-[95vw] sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Qui a compté la caisse ?</DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              {/* Employés pointés */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Employés pointés :</p>
-                {clockedEmployees.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {clockedEmployees.map((emp) => (
-                      <Button
-                        key={emp.id}
-                        variant="outline"
-                        onClick={() => handleEmployeeSelect(emp.id)}
-                        disabled={submitting}
-                        className="w-full text-sm h-9"
-                      >
-                        {emp.firstName} {emp.lastName?.charAt(0)}.
-                      </Button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground italic py-2">
-                    Aucun employé pointé actuellement
-                  </p>
-                )}
-              </div>
-
-              {/* Admin/Dev avec sélection + PIN */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Admin / Gérant :</p>
-
-                {/* Sélection admin */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {adminUsers.map((admin) => (
-                    <Button
-                      key={admin._id}
-                      variant={
-                        selectedAdmin?._id === admin._id ? "default" : "outline"
-                      }
-                      onClick={() => handleAdminSelect(admin)}
-                      disabled={submitting}
-                      className="w-full text-sm"
-                    >
-                      {admin.name}
-                    </Button>
-                  ))}
-                </div>
-
-                {/* Input PIN si admin sélectionné */}
-                {selectedAdmin && (
-                  <div className="space-y-2 pt-2">
-                    <Input
-                      type="password"
-                      inputMode="numeric"
-                      maxLength={6}
-                      value={adminPin}
-                      onChange={(e) =>
-                        setAdminPin(e.target.value.replace(/\D/g, ""))
-                      }
-                      placeholder="Code PIN (6 chiffres)"
-                      className="text-center text-lg tracking-widest"
-                      onFocus={(e) => e.target.select()}
-                    />
-                    {pinError && (
-                      <p className="text-xs text-destructive">{pinError}</p>
-                    )}
-                    <Button
-                      onClick={handleAdminConfirm}
-                      disabled={submitting || adminPin.length !== 6}
-                      className="w-full"
-                    >
-                      Confirmer
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <ConfirmationDialog
+          open={confirmModalOpen}
+          onOpenChange={setConfirmModalOpen}
+          clockedEmployees={clockedEmployees}
+          adminUsers={adminUsers}
+          submitting={submitting}
+          selectedAdmin={selectedAdmin}
+          adminPin={adminPin}
+          pinError={pinError}
+          onEmployeeSelect={handleEmployeeSelect}
+          onAdminSelect={handleAdminSelect}
+          onAdminPinChange={setAdminPin}
+          onAdminConfirm={handleAdminConfirm}
+        />
       </CardContent>
     </Card>
   );
