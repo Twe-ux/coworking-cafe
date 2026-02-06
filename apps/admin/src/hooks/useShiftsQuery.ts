@@ -47,7 +47,7 @@ async function fetchShifts(options: UseShiftsOptions = {}): Promise<Shift[]> {
   }
 
   // Normalize dates to strings
-  return result.data.map((shift: any) => ({
+  return result.data.map((shift: Shift) => ({
     ...shift,
     date: formatDateToLocalString(shift.date),
   }))
@@ -155,8 +155,9 @@ export function useShiftsQuery(options: UseShiftsOptions = {}) {
     try {
       const data = await createShiftMutation.mutateAsync(shiftData)
       return { success: true, data }
-    } catch (error: any) {
-      return { success: false, error: error.message }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      return { success: false, error: message }
     }
   }
 
@@ -164,8 +165,9 @@ export function useShiftsQuery(options: UseShiftsOptions = {}) {
     try {
       const data = await updateShiftMutation.mutateAsync({ id, data: updateData })
       return { success: true, data }
-    } catch (error: any) {
-      return { success: false, error: error.message }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      return { success: false, error: message }
     }
   }
 
@@ -173,8 +175,9 @@ export function useShiftsQuery(options: UseShiftsOptions = {}) {
     try {
       await deleteShiftMutation.mutateAsync(id)
       return { success: true }
-    } catch (error: any) {
-      return { success: false, error: error.message }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      return { success: false, error: message }
     }
   }
 

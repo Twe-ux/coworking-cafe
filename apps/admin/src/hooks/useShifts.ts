@@ -49,7 +49,7 @@ export function useShifts(options: UseShiftsOptions = {}) {
       const result = await response.json()
 
       if (result.success) {
-        const shiftsWithNormalizedDates = result.data.map((shift: any) => ({
+        const shiftsWithNormalizedDates = result.data.map((shift: Shift) => ({
           ...shift,
           date: formatDateToLocalString(shift.date),
         }))
@@ -123,9 +123,9 @@ export function useShifts(options: UseShiftsOptions = {}) {
           setError(result.error || 'Error fetching shifts')
           setShifts([])
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Don't log error if request was aborted
-        if (err.name === 'AbortError') {
+        if (err instanceof Error && err.name === 'AbortError') {
           return
         }
         console.error('Error useShifts:', err)

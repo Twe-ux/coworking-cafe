@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useShiftsQuery } from "@/hooks/useShiftsQuery";
 import { useUnavailabilities } from "@/hooks/useUnavailabilities";
 import type { Employee } from "@/types/hr";
+import type { Shift } from "@/types/shift";
 import type { TimeEntry, ApiResponse } from "@/types/timeEntry";
 import type { IUnavailabilityWithEmployee } from "@/types/unavailability";
 import { getCalendarDateRange } from "@/lib/schedule/utils";
@@ -109,7 +110,7 @@ export function useScheduleData(): UseScheduleDataReturn {
             throw new Error(result.error || "Error prefetching shifts");
           }
 
-          return result.data.map((shift: any) => ({
+          return result.data.map((shift: Shift) => ({
             ...shift,
             date:
               typeof shift.date === "string"
