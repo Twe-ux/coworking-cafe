@@ -314,31 +314,71 @@ git commit -m "..."
 
 ---
 
-## ⏰ Tâches Planifiées (Cron Jobs via N8N)
+## ⏰ Tâches Planifiées (Cron Jobs via Vercel)
 
-**IMPORTANT** : Les tâches planifiées sont gérées via **N8N** (pas de cron Northflank)
+**IMPORTANT** : Les tâches planifiées sont gérées via **Vercel Cron** (intégré au déploiement)
 
-### Documentation
+### Configuration
 
-→ **Lire** : `/docs/n8n/README.md`
+**Fichier** : `apps/site/vercel.json`
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/send-reminders",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/check-attendance",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/daily-report",
+      "schedule": "0 19 * * *"
+    }
+  ]
+}
+```
 
 ### Liste des Cron Jobs Actifs
 
 | Job | Schedule | Endpoint | Description |
 |-----|----------|----------|-------------|
-| Send Reminders | 10:00 | `/api/cron/send-reminders` | Rappels 24h avant |
-| Check Attendance | 10:00 | `/api/cron/check-attendance` | No-shows J-1 |
-| Daily Report | 19:00 | `/api/cron/daily-report` | Rapport admin |
+| Send Reminders | 10:00 UTC | `/api/cron/send-reminders` | Rappels 24h avant |
+| Check Attendance | 10:00 UTC | `/api/cron/check-attendance` | No-shows J-1 |
+| Daily Report | 19:00 UTC | `/api/cron/daily-report` | Rapport admin |
 
-> **Note** : Jobs obsolètes : `create-holds`, `capture-deposits` (Stripe 90j), `publish-scheduled` (blog supprimé)
+⚠️ **Horaires en UTC** : 10h00 UTC = 11h00/12h00 Paris selon saison
+
+### Monitoring
+
+- **Dashboard Vercel** : https://vercel.com/[projet]/settings/crons
+- **Logs** : https://vercel.com/[projet]/logs (filtrer `/api/cron/*`)
 
 ### Ajouter un nouveau Cron Job
 
 1. **Créer l'endpoint** dans `apps/site/src/app/api/cron/[nom]/route.ts`
-2. **Sécuriser** avec `CRON_SECRET` header
-3. **Documenter** dans `/docs/n8n/README.md`
-4. **Créer le workflow N8N** (utiliser le template)
-5. **Tester** manuellement avant activation
+2. **Sécuriser** avec `CRON_SECRET` header :
+   ```typescript
+   const authHeader = request.headers.get("authorization");
+   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+   }
+   ```
+3. **Ajouter dans `vercel.json`** :
+   ```json
+   {
+     "path": "/api/cron/nouveau-job",
+     "schedule": "0 12 * * *"
+   }
+   ```
+4. **Tester manuellement** :
+   ```bash
+   curl -X GET https://votre-app.vercel.app/api/cron/nouveau-job \
+     -H "Authorization: Bearer $CRON_SECRET"
+   ```
+5. **Déployer** sur Vercel (les crons s'activent automatiquement)
 
 ---
 
@@ -347,7 +387,7 @@ git commit -m "..."
 - **Projet** : `/Users/twe/Developer/Thierry/coworking-cafe/`
 - **Documentation site** : `/apps/site/CLAUDE.md`
 - **Documentation admin** : `/apps/admin/CLAUDE.md`
-- **Documentation N8N** : `/docs/n8n/README.md`
+- **Cron Jobs** : `apps/site/vercel.json` + [Vercel Dashboard](https://vercel.com)
 - **Conventions générales** : Ce fichier + `/docs/` (si existe)
 
 ---
