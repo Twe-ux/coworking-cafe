@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
       // Vérifier si le clock-in était dans un créneau planifié
       const wasClockInScheduled = isClockInWithinSchedule(
         timeEntry.clockIn,
-        scheduledShifts.map((s: any) => ({ startTime: s.startTime, endTime: s.endTime }))
+        scheduledShifts.map((s) => ({ startTime: s.startTime, endTime: s.endTime }))
       );
 
       if (!wasClockInScheduled) {
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
         // → Vérifier si clock-out est dans les horaires
         const isClockOutScheduled = isClockOutWithinSchedule(
           clockOutTimeStr,
-          scheduledShifts.map((s: any) => ({ startTime: s.startTime, endTime: s.endTime }))
+          scheduledShifts.map((s) => ({ startTime: s.startTime, endTime: s.endTime }))
         );
 
         if (!isClockOutScheduled) {
@@ -254,7 +254,7 @@ export async function POST(request: NextRequest) {
                   code: 'JUSTIFICATION_REQUIRED',
                   message: 'Vous pointez en dehors de vos horaires planifiés (±15min). Veuillez justifier ce pointage.',
                   clockOutTime: clockOutTimeStr,
-                  scheduledShifts: scheduledShifts.map((s: any) => ({
+                  scheduledShifts: scheduledShifts.map((s) => ({
                     startTime: s.startTime,
                     endTime: s.endTime,
                   })),
@@ -300,7 +300,12 @@ export async function POST(request: NextRequest) {
     })
 
     // Formater la réponse
-    const populatedEmployee = timeEntry.employeeId as any
+    const populatedEmployee = timeEntry.employeeId as unknown as {
+      _id?: { toString: () => string }
+      firstName?: string
+      lastName?: string
+      employeeRole?: string
+    }
     const formattedTimeEntry: TimeEntryType = {
       id: timeEntry._id.toString(),
       employeeId: employee._id.toString(),
@@ -329,13 +334,16 @@ export async function POST(request: NextRequest) {
       data: formattedTimeEntry,
       message: `Shift ${timeEntry.shiftNumber} terminé avec succès. Durée: ${timeEntry.totalHours}h`,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API POST time-entries/clock-out:', error)
 
     // Gestion des erreurs spécifiques de MongoDB
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
+    if (error instanceof Error && error.name === 'ValidationError') {
+      const mongooseError = error as Error & {
+        errors: Record<string, { message: string }>
+      }
+      const validationErrors = Object.values(mongooseError.errors).map(
+        (err) => err.message
       )
       return NextResponse.json<ApiResponse<null>>(
         {
@@ -347,22 +355,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (error.name === 'CastError' && error.path === '_id') {
-      return NextResponse.json<ApiResponse<null>>(
-        {
-          success: false,
-          error: "Format d'ID invalide",
-          details: TIME_ENTRY_ERRORS.TIME_ENTRY_NOT_FOUND,
-        },
-        { status: 400 }
-      )
+    if (error instanceof Error && error.name === 'CastError') {
+      const castError = error as Error & { path?: string }
+      if (castError.path === '_id') {
+        return NextResponse.json<ApiResponse<null>>(
+          {
+            success: false,
+            error: "Format d'ID invalide",
+            details: TIME_ENTRY_ERRORS.TIME_ENTRY_NOT_FOUND,
+          },
+          { status: 400 }
+        )
+      }
     }
 
     return NextResponse.json<ApiResponse<null>>(
       {
         success: false,
         error: 'Erreur lors du pointage de sortie',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Erreur inconnue',
       },
       { status: 500 }
     )

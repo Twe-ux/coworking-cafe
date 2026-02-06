@@ -5,6 +5,7 @@ import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import { parseAndValidate } from '@/lib/api/validation'
 import { createEmployeeSchema } from '@/lib/validations/employee'
+import type { Employee as EmployeeType } from '@/types/hr'
 
 /**
  * GET /api/hr/employees - Récupérer tous les employés (avec données HR complètes)
@@ -74,7 +75,21 @@ export async function GET(request: NextRequest) {
     const includeDrafts = searchParams.get('includeDrafts') === 'true'
 
     // Construction de la requête
-    const query: any = includeDrafts
+    interface QueryFilter {
+      role?: string;
+      isActive?: boolean;
+      isDraft?: boolean;
+      $or?: Array<{ isDraft: { $exists: boolean } } | { isDraft: boolean }>;
+      $and?: Array<{
+        $or: Array<
+          | { firstName: { $regex: string; $options: string } }
+          | { lastName: { $regex: string; $options: string } }
+          | { email: { $regex: string; $options: string } }
+        >;
+      }>;
+    }
+
+    const query: QueryFilter = includeDrafts
       ? {} // Inclure tout (brouillons + employés)
       : {
           // Exclure les brouillons de la liste par défaut
@@ -110,8 +125,31 @@ export async function GET(request: NextRequest) {
       .lean()
 
     // Formater les données pour l'interface et filtrer
+    interface LeanEmployee {
+      _id: { toString: () => string };
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string;
+      employeeRole: string;
+      color?: string;
+      clockingCode?: string;
+      contractType: string;
+      contractualHours: number;
+      hireDate: string;
+      endDate?: string;
+      endContractReason?: string;
+      isActive: boolean;
+      isDraft?: boolean;
+      availability?: EmployeeType['availability'];
+      onboardingStatus?: EmployeeType['onboardingStatus'];
+      getOnboardingProgress?: () => number;
+      createdAt?: Date;
+      updatedAt?: Date;
+    }
+
     const formattedEmployees = employees
-      .map((employee: any) => {
+      .map((employee: LeanEmployee) => {
       // Calculer le statut d'emploi
       let employmentStatus: 'draft' | 'waiting' | 'active' | 'inactive' = 'active'
 
@@ -214,13 +252,14 @@ export async function GET(request: NextRequest) {
       data: formattedEmployees,
       count: formattedEmployees.length,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API GET employees:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la récupération des employés',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     )
@@ -347,13 +386,26 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API POST employees:', error)
 
+    // Type guard pour erreur Mongoose ValidationError
+    interface MongooseValidationError extends Error {
+      name: 'ValidationError';
+      errors: Record<string, { message: string }>;
+    }
+
+    // Type guard pour erreur Mongoose duplicate key
+    interface MongoDuplicateError extends Error {
+      code: number;
+      keyPattern?: Record<string, number>;
+    }
+
     // Gestion des erreurs de validation Mongoose
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
+    if (error instanceof Error && error.name === 'ValidationError') {
+      const validationError = error as MongooseValidationError;
+      const validationErrors = Object.values(validationError.errors).map(
+        (err) => err.message
       )
       return NextResponse.json(
         {
@@ -366,8 +418,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Gestion des erreurs de duplication
-    if (error.code === 11000) {
-      const field = Object.keys(error.keyPattern || {})[0]
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+      const duplicateError = error as MongoDuplicateError;
+      const field = Object.keys(duplicateError.keyPattern || {})[0]
       const fieldNames: Record<string, string> = {
         email: "cet email",
         socialSecurityNumber: "ce numéro de sécurité sociale",
@@ -385,11 +438,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
     return NextResponse.json(
       {
         success: false,
         error: "Erreur lors de la création de l'employé",
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     )

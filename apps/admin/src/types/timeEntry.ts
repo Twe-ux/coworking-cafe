@@ -54,7 +54,7 @@ export interface ApiResponse<T> {
   success: boolean
   data?: T
   error?: string
-  details?: string | string[] | Record<string, string> | Record<string, any>
+  details?: string | string[] | Record<string, string> | Record<string, unknown>
   message?: string
 }
 

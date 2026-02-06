@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
 
     const isWithinScheduleTime = isClockInWithinSchedule(
       clockInTimeStr,
-      scheduledShifts.map((s: any) => ({ startTime: s.startTime, endTime: s.endTime }))
+      scheduledShifts.map((s) => ({ startTime: s.startTime, endTime: s.endTime }))
     );
 
     // Si hors planning et pas de justification → exiger justification
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
             code: 'JUSTIFICATION_REQUIRED',
             message: 'Vous pointez en dehors de vos horaires planifiés (±15min). Veuillez justifier ce pointage.',
             clockInTime: clockInTimeStr,
-            scheduledShifts: scheduledShifts.map((s: any) => ({
+            scheduledShifts: scheduledShifts.map((s) => ({
               startTime: s.startTime,
               endTime: s.endTime,
             })),
@@ -258,7 +258,14 @@ export async function POST(request: NextRequest) {
     await newTimeEntry.populate('employeeId', 'firstName lastName employeeRole')
 
     // Formater la réponse
-    const populatedEmployee = newTimeEntry.employeeId as any
+    interface PopulatedEmployee {
+      _id: { toString(): string }
+      firstName: string
+      lastName: string
+      employeeRole: string
+    }
+
+    const populatedEmployee = newTimeEntry.employeeId as unknown as PopulatedEmployee
     const formattedTimeEntry: TimeEntryType = {
       id: newTimeEntry._id.toString(),
       employeeId: employee._id.toString(),
@@ -290,13 +297,29 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API POST time-entries/clock-in:', error)
 
+    // Type guard pour les erreurs MongoDB
+    interface MongoDBValidationError {
+      name: string
+      errors: Record<string, { message: string }>
+    }
+
+    interface MongoDBDuplicateKeyError {
+      code: number
+    }
+
+    interface MongoDBCastError {
+      name: string
+      path: string
+    }
+
     // Gestion des erreurs spécifiques de MongoDB
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(
-        (err: any) => err.message
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
+      const validationError = error as MongoDBValidationError
+      const validationErrors = Object.values(validationError.errors).map(
+        (err) => err.message
       )
       return NextResponse.json<ApiResponse<null>>(
         {
@@ -308,7 +331,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (error.code === 11000) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       return NextResponse.json<ApiResponse<null>>(
         {
           success: false,
@@ -319,22 +342,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (error.name === 'CastError' && error.path === '_id') {
-      return NextResponse.json<ApiResponse<null>>(
-        {
-          success: false,
-          error: "Format d'ID employé invalide",
-          details: TIME_ENTRY_ERRORS.EMPLOYEE_NOT_FOUND,
-        },
-        { status: 400 }
-      )
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError' && 'path' in error) {
+      const castError = error as MongoDBCastError
+      if (castError.path === '_id') {
+        return NextResponse.json<ApiResponse<null>>(
+          {
+            success: false,
+            error: "Format d'ID employé invalide",
+            details: TIME_ENTRY_ERRORS.EMPLOYEE_NOT_FOUND,
+          },
+          { status: 400 }
+        )
+      }
     }
 
     return NextResponse.json<ApiResponse<null>>(
       {
         success: false,
         error: "Erreur lors du pointage d'entrée",
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Erreur inconnue',
       },
       { status: 500 }
     )
