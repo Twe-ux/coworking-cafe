@@ -9,7 +9,7 @@
  * 5. Mark as processed
  */
 
-import { fetchUnreadEmails, markAsRead } from '../providers/imap';
+import { fetchUnreadEmails, markAsRead } from '../providers/imapflow';
 import type { ParsedMail, Attachment } from 'mailparser';
 import * as fs from 'fs/promises';
 import * as path from 'path';

@@ -1,4 +1,4 @@
-import { createSMTPTransporter } from './providers/smtp';
+import { createSMTPTransporter, createSMTPTransporterWithCredentials } from './providers/smtp';
 import type { SMTPProvider } from './providers/smtp';
 
 /**
@@ -223,4 +223,53 @@ ${details.message}
     },
     'contact'
   );
+}
+
+/**
+ * Send email from contact address (strasbourg@coworkingcafe.fr)
+ * Uses separate SMTP credentials for contact replies
+ *
+ * Environment variables required:
+ * CONTACT_SMTP_USER=strasbourg@coworkingcafe.fr
+ * CONTACT_SMTP_PASSWORD=your-password
+ */
+export async function sendEmailAsContact(
+  options: EmailOptions
+): Promise<boolean> {
+  try {
+    const contactUser = process.env.CONTACT_SMTP_USER || process.env.REPLY_TO_SMTP_USER;
+    const contactPassword = process.env.CONTACT_SMTP_PASSWORD || process.env.REPLY_TO_SMTP_PASSWORD;
+
+    if (!contactUser || !contactPassword) {
+      console.error('❌ Contact SMTP credentials not configured');
+      console.error('Set CONTACT_SMTP_USER and CONTACT_SMTP_PASSWORD env variables');
+      return false;
+    }
+
+    // Create transporter with contact email credentials
+    const transporter = createSMTPTransporterWithCredentials(
+      contactUser,
+      contactPassword,
+      process.env.SMTP_PROVIDER as SMTPProvider
+    );
+
+    const fromName = process.env.SMTP_FROM_NAME || 'CoworKing Café';
+    const defaultFrom = `${fromName} - Contact <${contactUser}>`;
+
+    await transporter.sendMail({
+      from: options.from || defaultFrom,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+      text: options.text,
+      replyTo: options.replyTo || contactUser, // Reply to contact email by default
+      attachments: options.attachments,
+    });
+
+    console.log(`✅ Email sent from ${contactUser} to ${options.to}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending email as contact:', error);
+    return false;
+  }
 }

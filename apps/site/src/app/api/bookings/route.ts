@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import { Booking, Space } from "@coworking-cafe/database";
+import { Booking, Space, User } from "@coworking-cafe/database";
 import { getAuthUser, requireAuth, handleApiError } from '@/lib/api-helpers';
 import { getSpaceTypeName } from '@/lib/space-names';
 import mongoose from 'mongoose';
+import { sendClientBookingConfirmation } from '@/lib/email/emailService';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -275,6 +276,42 @@ export async function POST(request: NextRequest) {
 
     // Populate space details
     await booking.populate('space', 'name slug type featuredImage pricing');
+
+    // Send confirmation email to client
+    try {
+      // Get user details
+      const userDoc = await User.findById(user.id);
+
+      if (userDoc && userDoc.email) {
+        // Format date
+        const formattedDate = new Date(bookingDate).toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        // Get space name
+        const spaceName = booking.space?.name || space.name;
+
+        // Send email using existing function
+        await sendClientBookingConfirmation(userDoc.email, {
+          name: userDoc.givenName || userDoc.name || 'Client',
+          spaceName,
+          date: formattedDate,
+          startTime,
+          endTime,
+          numberOfPeople,
+          totalPrice,
+          confirmationNumber: booking._id.toString(),
+        });
+
+        console.log('✅ Booking confirmation email sent to:', userDoc.email);
+      }
+    } catch (emailError) {
+      // Log error but don't fail the booking creation
+      console.error('❌ Failed to send booking confirmation email:', emailError);
+    }
 
     return NextResponse.json(
       {

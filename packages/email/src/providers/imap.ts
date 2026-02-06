@@ -47,7 +47,14 @@ export function connectImap(config?: IMAPConfig): Imap {
     host: imapConfig.host,
     port: imapConfig.port,
     tls: imapConfig.tls,
-    tlsOptions: { rejectUnauthorized: false },
+    tlsOptions: {
+      rejectUnauthorized: false,
+      servername: imapConfig.host, // Force SNI
+    },
+    authTimeout: 10000,
+    connTimeout: 10000,
+    // Force auth methods
+    autotls: 'always',
   });
 }
 

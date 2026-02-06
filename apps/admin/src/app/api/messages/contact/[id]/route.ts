@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from '@/lib/api/response';
 import { connectMongoose } from '@/lib/mongodb';
 import { ContactMail } from '@/models/contactMail';
 import type { ContactMailResponse, ContactMail as ContactMailType } from '@/types/contactMail';
-import { Resend } from 'resend';
+import { sendEmailAsContact } from '@coworking-cafe/email';
 import logger from '@/lib/logger';
 import { generateContactReplyEmail } from '@/lib/email/templates/contactReply';
 
@@ -102,11 +102,8 @@ export async function PUT(
       }
       await message.save();
 
-      // Envoyer l'email de réponse via Resend
+      // Envoyer l'email de réponse via SMTP (strasbourg@coworkingcafe.fr)
       try {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-
         // Générer le HTML avec le template professionnel
         const htmlContent = generateContactReplyEmail({
           clientName: message.name,
@@ -115,11 +112,12 @@ export async function PUT(
           subject: message.subject,
         });
 
-        await resend.emails.send({
-          from: fromEmail,
+        // Envoyer depuis strasbourg@coworkingcafe.fr (pas depuis noreply@)
+        await sendEmailAsContact({
           to: message.email,
           subject: `Re: ${message.subject}`,
           html: htmlContent,
+          text: `Bonjour ${message.name},\n\nMerci de nous avoir contactés. Voici notre réponse :\n\n${reply}\n\nCordialement,\nL'équipe CoworKing Café`,
         });
 
         logger.info('Contact reply email sent successfully', {

@@ -100,7 +100,7 @@ export function generateCardSavedEmail(data: CardSavedEmailData): string {
       <p style="margin: 25px 0 10px 0;"><strong>Pour toute question, n'hésitez pas à nous contacter :</strong></p>
       <ul style="list-style: none; padding: 0; margin: 0 0 20px 0;">
         <li style="padding: 5px 0;">📞 Téléphone : 09 87 33 45 19</li>
-        <li style="padding: 5px 0;">📧 Email : strasbourg@coworkingcafe.fr</li>
+        <li style="padding: 5px 0;">📧 Email : ${data.contactEmail}</li>
       </ul>
 
       <p style="margin: 25px 0 0 0;">À bientôt dans nos locaux,<br><strong>L'équipe CoworKing Café by Anticafé</strong></p>

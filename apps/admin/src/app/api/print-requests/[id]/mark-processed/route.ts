@@ -4,37 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-// TODO: Replace with actual email service when @coworking-cafe/email/services/printService is ready
-interface PrintRequest {
-  id: string;
-  from: string;
-  subject: string;
-  date: string;
-  text?: string;
-  attachments: Array<{ filename: string; contentType: string; size: number }>;
-  status: string;
-  uid?: string;
-}
-
-/**
- * Temporary stub - Fetch print requests from email
- * TODO: Implement when email service is ready
- */
-async function fetchPrintRequests(): Promise<PrintRequest[]> {
-  // TODO: Implement email service connection
-  console.warn('fetchPrintRequests stub called - implement email service');
-  return [];
-}
-
-/**
- * Temporary stub - Mark print request as processed in email
- * TODO: Implement when email service is ready
- */
-async function markPrintRequestProcessed(uid: string): Promise<void> {
-  // TODO: Implement email marking logic
-  console.log('TODO: Mark print request as processed', uid);
-}
+import { fetchPrintRequests, markPrintRequestProcessed } from '@coworking-cafe/email';
 
 export async function POST(
   request: NextRequest,
@@ -43,7 +13,7 @@ export async function POST(
   try {
     // Find print request
     const requests = await fetchPrintRequests();
-    const printRequest = requests.find((r: PrintRequest) => r.id === params.id);
+    const printRequest = requests.find((r) => r.id === params.id);
 
     if (!printRequest) {
       return NextResponse.json(

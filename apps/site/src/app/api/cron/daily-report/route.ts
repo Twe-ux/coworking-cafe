@@ -3,7 +3,7 @@ import { connectDB } from "../../../../lib/mongodb";
 import BookingSettings from "../../../../models/bookingSettings";
 import { Booking } from '@coworking-cafe/database';
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { sendEmail } from "@coworking-cafe/email";
 import type {
   PopulatedBooking,
   DailyReportData,
@@ -138,15 +138,14 @@ export async function GET(request: NextRequest) {
       reportDate: new Date(),
     });
 
-    // Send email using Resend
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: "CoworKing Café by Anticafé <noreply@coworkingcafe.fr>",
+    // Send email using SMTP
+    await sendEmail({
       to: notificationEmail,
       subject: `📊 Rapport quotidien - ${new Date().toLocaleDateString(
         "fr-FR",
       )}`,
       html: emailHtml,
+      text: `Rapport quotidien du ${new Date().toLocaleDateString("fr-FR")}`,
     });
 
     logger.info("Daily report email sent", {

@@ -180,7 +180,7 @@ export function generateReservationRejectedEmail(
           </tr>
           <tr>
             <td style="padding: 4px 0; font-size: 15px; color: #991B1D !important;">
-              <strong style="color: #991B1D !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #EF4444 !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+              <strong style="color: #991B1D !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #EF4444 !important; text-decoration: none;">${data.contactEmail}</a>
             </td>
           </tr>
         </table>

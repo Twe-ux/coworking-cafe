@@ -14,6 +14,7 @@ interface CancellationEmailData {
   startTime: string;
   endTime: string;
   confirmationNumber?: string;
+  contactEmail: string;
   cancellationFee: number;
   refundAmount: number;
   isPending?: boolean; // true = annulation avant validation admin
@@ -211,7 +212,7 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
           </tr>
           <tr>
             <td style="padding: 4px 0; font-size: 15px; color: #991B1B !important;">
-              <strong style="color: #991B1B !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #EF4444 !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+              <strong style="color: #991B1B !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #EF4444 !important; text-decoration: none;">${data.contactEmail}</a>
             </td>
           </tr>
         </table>

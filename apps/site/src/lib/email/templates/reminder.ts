@@ -101,7 +101,7 @@ export function generateReminderEmail(data: ReminderEmailData): string {
           </tr>
           <tr>
             <td style="padding: 4px 0; font-size: 15px; color: #92400E;">
-              <strong style="color: #92400E !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #F59E0B; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+              <strong style="color: #92400E !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #F59E0B; text-decoration: none;">${data.contactEmail}</a>
             </td>
           </tr>
         </table>

@@ -17,6 +17,7 @@ interface ConfirmationEmailData {
   totalPrice: number;
   depositAmount?: number;
   confirmationNumber?: string;
+  contactEmail: string;
 }
 
 export function generateConfirmationEmail(data: ConfirmationEmailData): string {
@@ -284,7 +285,7 @@ export function generateConfirmationEmail(data: ConfirmationEmailData): string {
                         </tr>
                         <tr>
                           <td class="info-box-text" style="padding: 4px 0; font-size: 15px; color: #065f46 !important;">
-                            <strong style="color: #065f46 !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #10B981 !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+                            <strong style="color: #065f46 !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #10B981 !important; text-decoration: none;">${data.contactEmail}</a>
                           </td>
                         </tr>
                       </table>

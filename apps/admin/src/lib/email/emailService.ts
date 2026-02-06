@@ -1,13 +1,11 @@
-import { Resend } from 'resend';
 import {
+  sendEmail as smtpSendEmail,
   generateClientPresentEmail,
   generateClientNoShowEmail,
   generateBookingModifiedEmail,
   generatePendingWithDepositEmail,
 } from '@coworking-cafe/email';
 import { accountActivationEmail } from './templates/accountActivation';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface SendEmailParams {
   to: string;
@@ -17,16 +15,15 @@ interface SendEmailParams {
 
 export async function sendEmail({ to, subject, html }: SendEmailParams) {
   try {
-    const response = await resend.emails.send({
-      from: 'CoworKing Café <noreply@coworkingcafe.fr>',
+    await smtpSendEmail({
       to,
       subject,
       html,
+      text: '', // Texte brut optionnel
     });
 
     return {
       success: true,
-      data: response,
     };
   } catch (error) {
     console.error('❌ Erreur envoi email:', error);

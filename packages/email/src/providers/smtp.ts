@@ -105,6 +105,33 @@ export function createSMTPTransporter(provider?: SMTPProvider): Transporter {
 }
 
 /**
+ * Create SMTP transporter with custom credentials
+ * Useful for sending from a different email address (e.g., strasbourg@coworkingcafe.fr)
+ */
+export function createSMTPTransporterWithCredentials(
+  user: string,
+  password: string,
+  provider?: SMTPProvider
+): Transporter {
+  const selectedProvider = (provider || process.env.SMTP_PROVIDER || 'gmail') as SMTPProvider;
+
+  // Get base config (host, port, secure) but override auth
+  const baseConfig = getSMTPConfig(selectedProvider);
+
+  const transporter = nodemailer.createTransport({
+    host: baseConfig.host,
+    port: baseConfig.port,
+    secure: baseConfig.secure,
+    auth: {
+      user,
+      pass: password,
+    },
+  });
+
+  return transporter;
+}
+
+/**
  * Verify SMTP connection
  */
 export async function verifySMTPConnection(provider?: SMTPProvider): Promise<boolean> {

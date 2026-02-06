@@ -16,6 +16,7 @@ interface ValidatedEmailData {
   numberOfPeople: number;
   totalPrice: number;
   confirmationNumber?: string;
+  contactEmail: string;
 }
 
 export function generateValidatedEmail(data: ValidatedEmailData): string {
@@ -143,7 +144,7 @@ export function generateValidatedEmail(data: ValidatedEmailData): string {
           </tr>
           <tr>
             <td style="padding: 4px 0; font-size: 15px; color: #065f46 !important;">
-              <strong style="color: #065f46 !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #059669 !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+              <strong style="color: #065f46 !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #059669 !important; text-decoration: none;">${data.contactEmail}</a>
             </td>
           </tr>
         </table>

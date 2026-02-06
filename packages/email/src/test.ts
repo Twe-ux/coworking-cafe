@@ -5,6 +5,12 @@
  * pnpm --filter @coworking-cafe/email test-smtp
  */
 
+// Load environment variables
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+config({ path: resolve(__dirname, '../.env.local') });
+
 import { sendEmail } from './emailService';
 import { verifySMTPConnection } from './providers/smtp';
 

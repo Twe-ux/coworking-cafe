@@ -126,7 +126,7 @@ export function generateDepositCapturedEmail(
           </tr>
           <tr>
             <td style="padding: 4px 0; font-size: 15px; color: #991B1B;">
-              <strong style="color: #991B1B !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #EF4444; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+              <strong style="color: #991B1B !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #EF4444; text-decoration: none;">${data.contactEmail}</a>
             </td>
           </tr>
         </table>

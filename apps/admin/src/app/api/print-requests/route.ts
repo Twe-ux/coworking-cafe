@@ -4,57 +4,7 @@
  */
 
 import { NextResponse } from 'next/server';
-
-// ============================================================
-// Types
-// ============================================================
-
-interface PrintAttachment {
-  filename: string;
-  contentType: string;
-  size: number;
-}
-
-interface PrintRequest {
-  id: string;
-  from: string;
-  subject: string;
-  date: string;
-  text?: string;
-  attachments: PrintAttachment[];
-  status: string;
-  uid?: string;
-}
-
-interface PrintStats {
-  total: number;
-  pending: number;
-  processed: number;
-}
-
-// ============================================================
-// Temporary Stub Functions
-// TODO: Replace with real implementation when @coworking-cafe/email/services/printService is created
-// ============================================================
-
-async function fetchPrintRequests(): Promise<PrintRequest[]> {
-  // TODO: Implement email fetching when the service is ready
-  // This should connect to IMAP and fetch emails from the print inbox
-  return [];
-}
-
-async function getPrintStats(): Promise<PrintStats> {
-  // TODO: Implement stats calculation when the service is ready
-  return {
-    total: 0,
-    pending: 0,
-    processed: 0,
-  };
-}
-
-// ============================================================
-// API Route Handler
-// ============================================================
+import { fetchPrintRequests, getPrintStats } from '@coworking-cafe/email';
 
 export async function GET() {
   try {

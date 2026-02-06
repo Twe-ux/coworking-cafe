@@ -7,7 +7,7 @@ import { SpaceConfiguration } from "@coworking-cafe/database";
 import { User } from "@coworking-cafe/database";
 import { getServerSession } from 'next-auth';
 import { options as authOptions } from '@/lib/auth-options';
-import { sendBookingConfirmation } from '@/lib/email/emailService';
+import { sendBookingInitialEmail } from '@/lib/email/emailService';
 import { urlToDbSpaceType } from '@/lib/space-types';
 import mongoose from 'mongoose';
 
@@ -284,7 +284,7 @@ export async function POST(request: NextRequest) {
         price: service.unitPrice || service.price || 0,
       }));
 
-      await sendBookingConfirmation(contactEmail, {
+      await sendBookingInitialEmail(contactEmail, {
         name: contactName,
         spaceName: spaceConfig.name,
         date: bookingDate.toLocaleDateString('fr-FR', {
