@@ -109,9 +109,10 @@ async function clockOut(params: ClockOutParams): Promise<TimeEntry> {
  *
  * Cache behavior:
  * - First access: Fetch fresh data
- * - Subsequent accesses: Use cached data (30s stale time)
+ * - Subsequent accesses: Use cached data (24h stale time = fiable comme V1)
  * - After clock-in/out: Automatic refetch
  * - Polling: Every 10s when page is visible, paused when inactive
+ * - Cache long = Données toujours disponibles même après 3h en arrière-plan
  *
  * Performance:
  * - With 1-2 active employees: ~2-4 req/min when page visible
@@ -131,7 +132,7 @@ export function useActiveTimeEntry(employeeId: string) {
   } = useQuery({
     queryKey: ["activeEntry", employeeId, today],
     queryFn: () => fetchActiveEntry({ employeeId }),
-    staleTime: 30000, // 30s
+    staleTime: 24 * 60 * 60 * 1000, // ✅ 24h (comme V1 : cache fiable, pas d'expiration)
     refetchOnWindowFocus: true,
     retry: 2,
     // 🔄 Polling intelligent : uniquement si la page est visible (active)

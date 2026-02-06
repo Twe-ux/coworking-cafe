@@ -51,7 +51,26 @@ export function CashRegisterWidget() {
   const [additionalNotes, setAdditionalNotes] = useState("");
 
   useEffect(() => {
+    // Fetch initial
     fetchData();
+
+    // ✅ Polling automatique toutes les 30 secondes
+    const pollInterval = setInterval(() => {
+      fetchData();
+    }, 30000); // 30 secondes
+
+    // ✅ Refetch quand l'utilisateur revient sur l'onglet
+    const handleFocus = () => {
+      fetchData();
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    // Cleanup
+    return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const fetchData = async () => {
