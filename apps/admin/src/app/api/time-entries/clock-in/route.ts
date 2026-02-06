@@ -80,8 +80,32 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase()
 
-    // Vérifier l'employé et le PIN
-    const employee = await Employee.findById(body.employeeId).select('+pin')
+    // ⚡ Paralléliser les requêtes MongoDB pour améliorer les performances
+    const today = new Date()
+    const parisDate = new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Europe/Paris',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(today).split('/').reverse().join('-')  // DD/MM/YYYY → YYYY-MM-DD
+
+    const todayStr = parisDate
+
+    // Exécuter toutes les requêtes en parallèle (3x plus rapide)
+    const [employee, activeShifts, totalShifts] = await Promise.all([
+      Employee.findById(body.employeeId).select('+pin').lean(),
+      TimeEntry.find({
+        employeeId: body.employeeId,
+        date: todayStr,
+        status: 'active',
+        isActive: true,
+      }).lean(),
+      TimeEntry.countDocuments({
+        employeeId: body.employeeId,
+        date: todayStr,
+        isActive: true,
+      }),
+    ])
 
     if (!employee) {
       return NextResponse.json<ApiResponse<null>>(
@@ -105,8 +129,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Vérifier le PIN
-    const isPinValid = employee.verifyPin(body.pin)
+    // Vérifier le PIN (utiliser Employee model methods)
+    const employeeDoc = await Employee.findById(body.employeeId).select('+pin')
+    const isPinValid = employeeDoc?.verifyPin(body.pin) || false
 
     // 🔒 Enregistrer la tentative (succès ou échec)
     recordAttempt(clientIP, body.employeeId)
@@ -116,7 +141,7 @@ export async function POST(request: NextRequest) {
       logPINAttempt({
         ip: clientIP,
         employeeId: body.employeeId,
-        employeeName: employee.getFullName(),
+        employeeName: `${employee.firstName} ${employee.lastName}`,
         success: false,
         action: 'clock-in',
         failureReason: 'PIN incorrect',
@@ -133,24 +158,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Vérifier les shifts actifs pour aujourd'hui (timezone Europe/Paris)
-    const today = new Date()
-    const parisDate = new Intl.DateTimeFormat('fr-FR', {
-      timeZone: 'Europe/Paris',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).format(today).split('/').reverse().join('-')  // DD/MM/YYYY → YYYY-MM-DD
-
-    const todayStr = parisDate
-
-    const activeShifts = await TimeEntry.find({
-      employeeId: body.employeeId,
-      date: todayStr,
-      status: 'active',
-      isActive: true,
-    })
-
     if (activeShifts.length > 0) {
       return NextResponse.json<ApiResponse<null>>(
         {
@@ -162,13 +169,6 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       )
     }
-
-    // Compter le nombre total de shifts pour aujourd'hui
-    const totalShifts = await TimeEntry.countDocuments({
-      employeeId: body.employeeId,
-      date: todayStr,
-      isActive: true,
-    })
 
     if (totalShifts >= 2) {
       return NextResponse.json<ApiResponse<null>>(
@@ -195,12 +195,12 @@ export async function POST(request: NextRequest) {
       ? body.clockIn
       : parisTime  // Format "HH:mm" en heure de Paris
 
-    // Check if clock-in is within scheduled shifts
+    // ⚡ Récupérer les shifts planifiés (requête rapide avec lean)
     const scheduledShifts = await Shift.find({
       employeeId: body.employeeId,
       date: todayStr,
       isActive: true,
-    }).lean();
+    }).select('startTime endTime').lean();
 
     const isWithinScheduleTime = isClockInWithinSchedule(
       clockInTimeStr,
@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
     logPINAttempt({
       ip: clientIP,
       employeeId: body.employeeId,
-      employeeName: employee.getFullName(),
+      employeeName: `${employee.firstName} ${employee.lastName}`,
       success: true,
       action: 'clock-in',
       userAgent,

@@ -11,10 +11,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { type Employee } from "@/types/hr";
-import type { TimeEntry } from "@/types/timeEntry";
 import { Loader2, Play, Square } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { useActiveTimeEntry } from "@/hooks/useActiveTimeEntry";
 
 interface TimeTrackingCardCompactProps {
   employee: Employee;
@@ -24,18 +24,31 @@ interface TimeTrackingCardCompactProps {
 /**
  * Version compacte de TimeTrackingCard pour la page d'accueil
  * Nom + prénom + bouton Start/Stop (sans chrono)
+ *
+ * Optimisations:
+ * - React Query pour cache partagé et auto-refresh
+ * - Optimistic updates pour feedback instantané
+ * - Timeout 10s sur toutes les requêtes
+ * - Délai réduit à 100ms (vs 300ms)
  */
 export function TimeTrackingCardCompact({
   employee,
   onStatusChange,
 }: TimeTrackingCardCompactProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    activeEntry,
+    isLoading: isQueryLoading,
+    clockIn,
+    clockOut,
+    isClockingIn,
+    isClockingOut,
+  } = useActiveTimeEntry(employee.id);
+
   const [showPINDialog, setShowPINDialog] = useState(false);
   const [pinAction, setPinAction] = useState<"clock-in" | "clock-out" | null>(
     null,
   );
   const [error, setError] = useState<string | null>(null);
-  const [activeEntry, setActiveEntry] = useState<TimeEntry | null>(null);
 
   // État pour le modal de justification
   const [showJustificationDialog, setShowJustificationDialog] = useState(false);
@@ -46,33 +59,7 @@ export function TimeTrackingCardCompact({
     scheduledShifts?: Array<{ startTime: string; endTime: string }>;
   } | null>(null);
 
-  const fetchActiveEntry = useCallback(async () => {
-    try {
-      const today = new Date();
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-      const timestamp = Date.now();
-      const activeUrl = `/api/time-entries?employeeId=${employee.id}&status=active&limit=1&_t=${timestamp}`;
-      const activeResponse = await fetch(activeUrl, { cache: "no-store" });
-
-      if (activeResponse.status === 401 || !activeResponse.ok) {
-        setActiveEntry(null);
-        return;
-      }
-
-      const activeData = await activeResponse.json();
-      const todayActiveEntry = (activeData.data || []).find(
-        (entry: TimeEntry) => entry.date === todayStr,
-      );
-      setActiveEntry(todayActiveEntry || null);
-    } catch {
-      // Silent fail
-    }
-  }, [employee.id]);
-
-  useEffect(() => {
-    fetchActiveEntry();
-  }, [fetchActiveEntry]);
+  const isLoading = isQueryLoading || isClockingIn || isClockingOut;
 
   const handleClockAction = (action: "clock-in" | "clock-out") => {
     if (action === "clock-out") {
@@ -85,88 +72,53 @@ export function TimeTrackingCardCompact({
   };
 
   const handleDirectClockOut = async () => {
-    // Save current state for rollback
-    const previousEntry = activeEntry;
-
-    // Optimistic update: remove active entry immediately
-    setActiveEntry(null);
-    setIsLoading(true);
-    setError(null);
-
-    // Show immediate feedback
-    toast.loading("Arrêt du pointage en cours...", { id: "clock-out" });
-
     try {
-      const response = await fetch("/api/time-entries/clock-out", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ employeeId: employee.id }),
-      });
+      await clockOut({ employeeId: employee.id });
 
-      const result = await response.json();
-
-      if (result.success) {
-        // Success feedback
-        toast.success("Pointage arrêté avec succès", { id: "clock-out" });
-
-        // Refresh in background
-        setTimeout(async () => {
-          await fetchActiveEntry();
-          onStatusChange?.();
-        }, 300);
-      } else {
-        // Vérifier si c'est une erreur de justification requise
-        if (
-          result.details &&
-          typeof result.details === "object" &&
-          "code" in result.details &&
-          result.details.code === "JUSTIFICATION_REQUIRED"
-        ) {
-          // Rollback optimistic update
-          setActiveEntry(previousEntry);
-          toast.dismiss("clock-out");
-
-          // Afficher le modal de justification pour clock-out
-          setJustificationData({
-            action: "clock-out",
-            pin: "", // Pas de PIN pour clock-out direct
-            clockTime: result.details.clockOutTime,
-            scheduledShifts: result.details.scheduledShifts,
-          });
-          setShowJustificationDialog(true);
-        } else {
-          // Rollback on error
-          setActiveEntry(previousEntry);
-          setError(result.error || "Erreur lors de l'arrêt du pointage");
-          toast.error(result.error || "Erreur lors de l'arrêt du pointage", {
-            id: "clock-out",
-          });
+      // Notify parent to refresh
+      setTimeout(() => {
+        onStatusChange?.();
+      }, 100);
+    } catch (error: any) {
+      // Check if it's a justification required error
+      if (
+        error.message.includes("justification") ||
+        error.message.includes("JUSTIFICATION_REQUIRED")
+      ) {
+        // Parse error details if available
+        try {
+          const errorData = JSON.parse(error.message);
+          if (errorData.code === "JUSTIFICATION_REQUIRED") {
+            setJustificationData({
+              action: "clock-out",
+              pin: "",
+              clockTime: errorData.clockOutTime,
+              scheduledShifts: errorData.scheduledShifts,
+            });
+            setShowJustificationDialog(true);
+            return;
+          }
+        } catch {
+          // If parsing fails, show generic error
         }
       }
-    } catch {
-      // Rollback on error
-      setActiveEntry(previousEntry);
-      setError("Erreur de connexion");
-      toast.error("Erreur de connexion", { id: "clock-out" });
-    } finally {
-      setIsLoading(false);
+      // Error already shown by mutation hook
     }
   };
 
   const handlePINSubmit = async (pin: string) => {
     if (!pinAction) return;
 
-    setIsLoading(true);
     setError(null);
-
-    // Show loading toast
     toast.loading("Vérification du code PIN...", { id: "clock-action" });
 
     try {
+      // Verify PIN first
       const pinResponse = await fetch("/api/hr/employees/verify-pin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ employeeId: employee.id, pin }),
+        signal: AbortSignal.timeout(10000), // 10s timeout
       });
 
       const pinResult = await pinResponse.json();
@@ -174,11 +126,10 @@ export function TimeTrackingCardCompact({
       if (!pinResult.success) {
         setError("Code PIN incorrect");
         toast.error("Code PIN incorrect", { id: "clock-action" });
-        setIsLoading(false);
         return;
       }
 
-      // PIN verified, update toast
+      // PIN verified, proceed with clock action
       toast.loading(
         pinAction === "clock-in"
           ? "Démarrage du pointage..."
@@ -186,64 +137,52 @@ export function TimeTrackingCardCompact({
         { id: "clock-action" },
       );
 
-      const endpoint = `/api/time-entries/${pinAction}`;
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ employeeId: employee.id, pin }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Success feedback
-        toast.success(
-          pinAction === "clock-in"
-            ? "Pointage démarré avec succès"
-            : "Pointage arrêté avec succès",
-          { id: "clock-action" },
-        );
-
-        // Close dialog and update UI
-        setShowPINDialog(false);
-        setPinAction(null);
-
-        // Refresh in background
-        setTimeout(async () => {
-          await fetchActiveEntry();
-          onStatusChange?.();
-        }, 300);
+      if (pinAction === "clock-in") {
+        await clockIn({ employeeId: employee.id, pin });
       } else {
-        // Vérifier si c'est une erreur de justification requise
-        if (
-          result.details &&
-          typeof result.details === "object" &&
-          "code" in result.details &&
-          result.details.code === "JUSTIFICATION_REQUIRED"
-        ) {
-          // Fermer le dialog PIN et ouvrir le dialog de justification
-          setShowPINDialog(false);
-          toast.dismiss("clock-action");
+        await clockOut({ employeeId: employee.id, pin });
+      }
 
-          setJustificationData({
-            action: pinAction,
-            pin,
-            clockTime: result.details.clockInTime || result.details.clockOutTime,
-            scheduledShifts: result.details.scheduledShifts,
-          });
-          setShowJustificationDialog(true);
-        } else {
-          setError(result.error || "Erreur lors du pointage");
-          toast.error(result.error || "Erreur lors du pointage", {
-            id: "clock-action",
-          });
+      // Success handled by mutation hook
+      toast.dismiss("clock-action");
+      setShowPINDialog(false);
+      setPinAction(null);
+
+      // Notify parent to refresh
+      setTimeout(() => {
+        onStatusChange?.();
+      }, 100);
+    } catch (error: any) {
+      // Check if it's a justification required error
+      if (
+        error.message.includes("justification") ||
+        error.message.includes("JUSTIFICATION_REQUIRED")
+      ) {
+        setShowPINDialog(false);
+        toast.dismiss("clock-action");
+
+        // Try to parse error details
+        try {
+          const errorData = JSON.parse(error.message);
+          if (errorData.code === "JUSTIFICATION_REQUIRED") {
+            setJustificationData({
+              action: pinAction,
+              pin,
+              clockTime: errorData.clockInTime || errorData.clockOutTime,
+              scheduledShifts: errorData.scheduledShifts,
+            });
+            setShowJustificationDialog(true);
+            return;
+          }
+        } catch {
+          // If parsing fails, continue to show error
         }
       }
-    } catch {
-      setError("Erreur de connexion");
-      toast.error("Erreur de connexion", { id: "clock-action" });
-    } finally {
-      setIsLoading(false);
+
+      setError(error.message || "Erreur lors du pointage");
+      toast.error(error.message || "Erreur lors du pointage", {
+        id: "clock-action",
+      });
     }
   };
 
@@ -256,14 +195,14 @@ export function TimeTrackingCardCompact({
   const handleJustificationSubmit = async (justification: string) => {
     if (!justificationData) return;
 
-    setIsLoading(true);
     toast.loading("Enregistrement du pointage...", { id: "clock-justification" });
 
     try {
-      const endpoint = `/api/time-entries/${justificationData.action}`;
-
-      // Construire le body - n'inclure le PIN que s'il existe
-      const requestBody: Record<string, string> = {
+      const requestBody: {
+        employeeId: string;
+        justificationNote: string;
+        pin?: string;
+      } = {
         employeeId: employee.id,
         justificationNote: justification,
       };
@@ -272,41 +211,25 @@ export function TimeTrackingCardCompact({
         requestBody.pin = justificationData.pin;
       }
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast.success(
-          justificationData.action === "clock-in"
-            ? "Pointage démarré avec succès"
-            : "Pointage arrêté avec succès",
-          { id: "clock-justification" },
-        );
-
-        // Close dialogs and reset
-        setShowJustificationDialog(false);
-        setJustificationData(null);
-        setPinAction(null);
-
-        // Refresh
-        setTimeout(async () => {
-          await fetchActiveEntry();
-          onStatusChange?.();
-        }, 300);
+      if (justificationData.action === "clock-in") {
+        await clockIn(requestBody);
       } else {
-        toast.error(result.error || "Erreur lors du pointage", {
-          id: "clock-justification",
-        });
+        await clockOut(requestBody);
       }
-    } catch {
-      toast.error("Erreur de connexion", { id: "clock-justification" });
-    } finally {
-      setIsLoading(false);
+
+      toast.dismiss("clock-justification");
+      setShowJustificationDialog(false);
+      setJustificationData(null);
+      setPinAction(null);
+
+      // Notify parent to refresh
+      setTimeout(() => {
+        onStatusChange?.();
+      }, 100);
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors du pointage", {
+        id: "clock-justification",
+      });
     }
   };
 

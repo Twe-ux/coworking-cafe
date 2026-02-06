@@ -84,8 +84,24 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase()
 
-    // Vérifier l'employé et le PIN
-    const employee = await Employee.findById(body.employeeId).select('+pin')
+    // ⚡ Paralléliser la vérification de l'employé et la recherche du time entry
+    const [employee, timeEntry] = await Promise.all([
+      Employee.findById(body.employeeId).select('+pin').lean(),
+      body.timeEntryId
+        ? TimeEntry.findOne({
+            _id: body.timeEntryId,
+            employeeId: body.employeeId,
+            status: 'active',
+            isActive: true,
+          }).populate('employeeId', 'firstName lastName employeeRole')
+        : TimeEntry.findOne({
+            employeeId: body.employeeId,
+            status: 'active',
+            isActive: true,
+          })
+            .sort({ clockIn: -1 })
+            .populate('employeeId', 'firstName lastName employeeRole'),
+    ])
 
     if (!employee) {
       return NextResponse.json<ApiResponse<null>>(
@@ -112,7 +128,9 @@ export async function POST(request: NextRequest) {
     // Vérifier le PIN (optionnel pour clock-out)
     // Si un PIN est fourni, on le vérifie. Sinon, on permet le clock-out sans PIN.
     if (body.pin) {
-      const isPinValid = employee.verifyPin(body.pin)
+      // Utiliser Employee model methods pour vérifier le PIN
+      const employeeDoc = await Employee.findById(body.employeeId).select('+pin')
+      const isPinValid = employeeDoc?.verifyPin(body.pin) || false
 
       // 🔒 Enregistrer la tentative (succès ou échec)
       recordAttempt(clientIP, body.employeeId)
@@ -122,7 +140,7 @@ export async function POST(request: NextRequest) {
         logPINAttempt({
           ip: clientIP,
           employeeId: body.employeeId,
-          employeeName: employee.getFullName(),
+          employeeName: `${employee.firstName} ${employee.lastName}`,
           success: false,
           action: 'clock-out',
           failureReason: 'PIN incorrect',
@@ -138,28 +156,6 @@ export async function POST(request: NextRequest) {
           { status: 401 }
         )
       }
-    }
-
-    // Trouver le time entry à mettre à jour
-    let timeEntry
-
-    if (body.timeEntryId) {
-      // Si un ID spécifique est fourni, l'utiliser
-      timeEntry = await TimeEntry.findOne({
-        _id: body.timeEntryId,
-        employeeId: body.employeeId,
-        status: 'active',
-        isActive: true,
-      }).populate('employeeId', 'firstName lastName employeeRole')
-    } else {
-      // Sinon, trouver le shift actif le plus récent
-      timeEntry = await TimeEntry.findOne({
-        employeeId: body.employeeId,
-        status: 'active',
-        isActive: true,
-      })
-        .sort({ clockIn: -1 })
-        .populate('employeeId', 'firstName lastName employeeRole')
     }
 
     if (!timeEntry) {
@@ -213,12 +209,12 @@ export async function POST(request: NextRequest) {
     // Check if clock-out is within scheduled shifts
     let isOutOfScheduleClockOut = timeEntry.isOutOfSchedule || false
 
-    // Récupérer les shifts planifiés pour ce jour
+    // ⚡ Récupérer les shifts planifiés pour ce jour (requête rapide avec lean + select)
     const scheduledShifts = await Shift.find({
       employeeId: body.employeeId,
       date: timeEntry.date,
       isActive: true,
-    }).lean();
+    }).select('startTime endTime').lean();
 
     // Cas 1 : Aucun shift planifié pour ce jour
     if (scheduledShifts.length === 0) {
@@ -297,7 +293,7 @@ export async function POST(request: NextRequest) {
     logPINAttempt({
       ip: clientIP,
       employeeId: body.employeeId,
-      employeeName: employee.getFullName(),
+      employeeName: `${employee.firstName} ${employee.lastName}`,
       success: true,
       action: 'clock-out',
       userAgent,
