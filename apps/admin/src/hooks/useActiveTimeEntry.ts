@@ -104,12 +104,19 @@ async function clockOut(params: ClockOutParams): Promise<TimeEntry> {
  * - Automatic invalidation after clock-in/out
  * - Optimistic updates
  * - Automatic refetch on window focus
+ * - Intelligent polling (only when page is visible)
  * - 10s timeout on all requests
  *
  * Cache behavior:
  * - First access: Fetch fresh data
  * - Subsequent accesses: Use cached data (30s stale time)
  * - After clock-in/out: Automatic refetch
+ * - Polling: Every 30s when page is visible, paused when inactive
+ *
+ * Performance:
+ * - With 1-2 active employees: ~2-4 req/min when page visible
+ * - If page inactive 50% of time: ~1-2 req/min total
+ * - MongoDB impact: ~0.02-0.03 req/sec (negligible)
  */
 export function useActiveTimeEntry(employeeId: string) {
   const queryClient = useQueryClient();
@@ -127,6 +134,16 @@ export function useActiveTimeEntry(employeeId: string) {
     staleTime: 30000, // 30s
     refetchOnWindowFocus: true,
     retry: 2,
+    // 🔄 Polling intelligent : uniquement si la page est visible (active)
+    // Économise ~50% des requêtes si l'écran est souvent inactif
+    refetchInterval: (query) => {
+      // Si la page n'est pas visible, ne pas poll
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+        return false;
+      }
+      // Si visible, poll toutes les 30 secondes
+      return 30000;
+    },
   });
 
   // Clock-in mutation
