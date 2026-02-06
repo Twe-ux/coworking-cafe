@@ -1,4 +1,4 @@
-import { getServerSession } from 'next-auth'
+import { getServerSession, type Session } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { NextResponse } from 'next/server'
 
@@ -13,7 +13,7 @@ type AuthResult =
     }
   | {
       authorized: true
-      session: any
+      session: Session
       userRole: string
     }
 

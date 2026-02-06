@@ -2,6 +2,8 @@
  * Types pour la gestion des utilisateurs
  */
 
+import type { Types } from "mongoose";
+
 export interface Role {
   id: string;
   slug: "dev" | "admin" | "staff" | "client" | "newsletter-only";
@@ -66,7 +68,7 @@ export interface UserUpdateData {
  * Used internally in API routes after populate()
  */
 export interface PopulatedUserDocument {
-  _id: any; // ObjectId
+  _id: Types.ObjectId | string;
   email: string;
   username?: string;
   givenName?: string;
@@ -85,7 +87,7 @@ export interface PopulatedUserDocument {
  * Populated role from Mongoose populate()
  */
 export interface PopulatedRole {
-  _id: any; // ObjectId
+  _id: Types.ObjectId | string;
   slug: string;
   name: string;
   level: number;

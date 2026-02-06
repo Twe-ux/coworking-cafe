@@ -6,7 +6,7 @@ import { useScheduleData } from "@/components/employee-scheduling/scheduling/use
 import { CashRegisterWidget } from "@/components/home/CashRegisterWidget";
 import { HomePageHeader } from "@/components/home/HomePageHeader";
 import { PointagesSection } from "@/components/home/PointagesSection";
-import { TodayReservationsCard } from "@/components/home/TodayReservationsCard";
+import { TodayReservationsCard } from "@/components/booking/TodayReservationsCard";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -59,7 +59,7 @@ export default function HomePage() {
         <PointagesSection employees={employees} onStatusChange={refetch} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3">
           <div className="lg:col-span-5">
-            <TodayReservationsCard />
+            <TodayReservationsCard variant="staff" />
           </div>
           <div className="lg:col-span-5">
             <TodayTasksCard />
