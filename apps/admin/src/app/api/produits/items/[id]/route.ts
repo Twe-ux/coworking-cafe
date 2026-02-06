@@ -6,6 +6,28 @@ import { MenuItem, MenuCategory } from "@coworking-cafe/database";
 import { revalidateMenuCache } from "@/lib/revalidate-site-cache";
 import type { ApiResponse, MenuItem as MenuItemType, ProduitsItemType } from "@/types/produits";
 
+// Interface pour le document MongoDB populé
+interface PopulatedCategory {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
+// Interface pour le document MenuItem avec category populée
+interface MenuItemDocumentWithCategory {
+  _id: { toString(): string };
+  name: string;
+  description?: string;
+  recipe?: string;
+  image?: string | null;
+  category: PopulatedCategory;
+  type: ProduitsItemType;
+  order: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 /**
  * GET /api/menu/items/[id]
  * Récupère un item par ID
@@ -27,7 +49,7 @@ export async function GET(
   try {
     const item = await MenuItem.findById(params.id)
       .populate("category", "name slug")
-      .lean();
+      .lean() as MenuItemDocumentWithCategory | null;
 
     if (!item) {
       return errorResponse("Item introuvable", "Aucun item avec cet ID", 404);
@@ -38,11 +60,11 @@ export async function GET(
       name: item.name,
       description: item.description,
       recipe: item.recipe,
-      image: item.image,
+      image: item.image || undefined,
       category: {
-        id: (item.category as any)._id.toString(),
-        name: (item.category as any).name,
-        slug: (item.category as any).slug,
+        id: item.category._id.toString(),
+        name: item.category.name,
+        slug: item.category.slug,
       },
       type: item.type,
       order: item.order,
@@ -52,11 +74,24 @@ export async function GET(
     };
 
     return successResponse(formattedItem, "Item récupéré avec succès");
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`GET /api/menu/items/${params.id} error:`, error);
+
+    // MongoDB CastError (ID invalide)
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return errorResponse("Format d'ID invalide", '', 400);
+    }
+
+    if (error instanceof Error) {
+      return errorResponse(
+        "Erreur lors de la récupération de l'item",
+        error.message
+      );
+    }
+
     return errorResponse(
       "Erreur lors de la récupération de l'item",
-      (error as Error).message
+      "Unknown error"
     );
   }
 }
@@ -118,7 +153,16 @@ export async function PUT(
     }
 
     // Préparer les données de mise à jour
-    const updateData: any = {};
+    const updateData: {
+      name?: string;
+      description?: string;
+      recipe?: string;
+      image?: string | null;
+      category?: string;
+      type?: string;
+      order?: number;
+      isActive?: boolean;
+    } = {};
     if (body.name) updateData.name = body.name;
     if (body.description !== undefined) updateData.description = body.description;
     if (body.recipe !== undefined) updateData.recipe = body.recipe;
@@ -138,7 +182,7 @@ export async function PUT(
       { new: true, runValidators: true }
     )
       .populate("category", "name slug")
-      .lean();
+      .lean() as MenuItemDocumentWithCategory | null;
 
     if (!updatedItem) {
       return errorResponse("Erreur lors de la mise à jour", "Item introuvable", 404);
@@ -149,11 +193,11 @@ export async function PUT(
       name: updatedItem.name,
       description: updatedItem.description,
       recipe: updatedItem.recipe,
-      image: updatedItem.image,
+      image: updatedItem.image || undefined,
       category: {
-        id: (updatedItem.category as any)._id.toString(),
-        name: (updatedItem.category as any).name,
-        slug: (updatedItem.category as any).slug,
+        id: updatedItem.category._id.toString(),
+        name: updatedItem.category.name,
+        slug: updatedItem.category.slug,
       },
       type: updatedItem.type,
       order: updatedItem.order,
@@ -166,11 +210,33 @@ export async function PUT(
     await revalidateMenuCache(updatedItem.type as ProduitsItemType);
 
     return successResponse(formattedItem, "Item mis à jour avec succès");
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`PUT /api/menu/items/${params.id} error:`, error);
+
+    // MongoDB CastError (ID invalide)
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return errorResponse("Format d'ID invalide", '', 400);
+    }
+
+    // MongoDB ValidationError
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
+      return errorResponse(
+        "Erreur de validation",
+        error instanceof Error ? error.message : "Données invalides",
+        400
+      );
+    }
+
+    if (error instanceof Error) {
+      return errorResponse(
+        "Erreur lors de la mise à jour de l'item",
+        error.message
+      );
+    }
+
     return errorResponse(
       "Erreur lors de la mise à jour de l'item",
-      (error as Error).message
+      "Unknown error"
     );
   }
 }
@@ -207,11 +273,24 @@ export async function DELETE(
     await revalidateMenuCache(itemType as ProduitsItemType);
 
     return successResponse(undefined, "Item supprimé avec succès");
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`DELETE /api/menu/items/${params.id} error:`, error);
+
+    // MongoDB CastError (ID invalide)
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return errorResponse("Format d'ID invalide", '', 400);
+    }
+
+    if (error instanceof Error) {
+      return errorResponse(
+        "Erreur lors de la suppression de l'item",
+        error.message
+      );
+    }
+
     return errorResponse(
       "Erreur lors de la suppression de l'item",
-      (error as Error).message
+      "Unknown error"
     );
   }
 }

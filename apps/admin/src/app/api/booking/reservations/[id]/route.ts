@@ -5,22 +5,74 @@ import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
 import { generateValidatedEmail, generateReservationRejectedEmail } from "@coworking-cafe/email"
 import { sendEmail, sendBookingModifiedEmail } from "@/lib/email/emailService"
-import type { Booking as BookingType } from "@/types/booking"
+import type { Booking as BookingType, BookingStatus, ReservationType, CaptureMethod } from "@/types/booking"
+import { Types } from "mongoose"
+
+// Interface pour le user populé
+interface PopulatedUser {
+  _id: Types.ObjectId
+  firstName?: string
+  lastName?: string
+  email: string
+}
+
+// Interface pour le booking MongoDB avec user populé
+interface BookingDocumentWithUser {
+  _id: Types.ObjectId
+  user?: PopulatedUser | Types.ObjectId
+  space?: Types.ObjectId
+  spaceType?: string
+  reservationType?: ReservationType
+  date: Date
+  startTime?: string
+  endTime?: string
+  numberOfPeople: number
+  status: BookingStatus
+  totalPrice: number
+  basePrice?: number
+  amountPaid?: number
+  paymentStatus?: string
+  captureMethod?: CaptureMethod
+  depositAmount?: number
+  depositRequired?: boolean
+  depositFileUrl?: string
+  isAdminBooking?: boolean
+  notes?: string
+  message?: string
+  contactName?: string
+  contactEmail?: string
+  contactPhone?: string
+  cancelReason?: string
+  cancelledAt?: Date
+  createdAt?: Date
+  updatedAt?: Date
+  completedAt?: Date
+}
+
+// Helper pour vérifier si user est populé
+function isPopulatedUser(user: PopulatedUser | Types.ObjectId | undefined): user is PopulatedUser {
+  return user !== undefined && typeof user === 'object' && '_id' in user && 'email' in user
+}
 
 // Helper pour mapper un booking vers le type attendu
-function mapBookingToType(booking: any): BookingType {
-  const user = booking.user || {}
-  const clientName = user.firstName && user.lastName
-    ? `${user.firstName} ${user.lastName}`
-    : user.email || booking.contactName || "Client inconnu"
+function mapBookingToType(booking: BookingDocumentWithUser): BookingType {
+  const populatedUser = isPopulatedUser(booking.user) ? booking.user : undefined
+
+  const clientName = populatedUser?.firstName && populatedUser?.lastName
+    ? `${populatedUser.firstName} ${populatedUser.lastName}`
+    : populatedUser?.email || booking.contactName || "Client inconnu"
+
+  const clientId = isPopulatedUser(booking.user)
+    ? booking.user._id.toString()
+    : (booking.user instanceof Types.ObjectId ? booking.user.toString() : "")
 
   return {
     _id: booking._id.toString(),
     spaceId: booking.space?.toString() || booking._id.toString(),
     spaceName: booking.spaceType || "Espace",
-    clientId: booking.user?._id?.toString() || booking.user?.toString() || "",
+    clientId,
     clientName,
-    clientEmail: user.email || booking.contactEmail || "",
+    clientEmail: populatedUser?.email || booking.contactEmail || "",
     reservationType: booking.reservationType || "hourly",
     startDate: booking.date.toISOString().split("T")[0],
     endDate: booking.date.toISOString().split("T")[0],
@@ -58,7 +110,7 @@ export async function GET(
 
     const booking = await Booking.findById(params.id)
       .populate("user", "firstName lastName email")
-      .lean()
+      .lean() as BookingDocumentWithUser | null
 
     if (!booking) {
       return errorResponse("Booking not found", undefined, 404)
@@ -66,8 +118,9 @@ export async function GET(
 
     return successResponse(mapBookingToType(booking))
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     console.error(`GET /api/booking/reservations/${params.id} error:`, error)
-    return errorResponse("Failed to fetch booking", undefined, 500)
+    return errorResponse("Failed to fetch booking", errorMessage, 500)
   }
 }
 
@@ -111,19 +164,18 @@ export async function PATCH(
       { new: true, runValidators: true }
     )
       .populate("user", "firstName lastName email")
-      .lean()
+      .lean() as BookingDocumentWithUser | null
 
     if (!booking) {
       return errorResponse("Booking not found", undefined, 404)
     }
 
     // Send email on status change
-    const bookingAny = booking as any
-    const user = bookingAny.user || {}
-    const clientEmail = user.email || bookingAny.contactEmail
-    const clientName = (user.firstName && user.lastName)
-      ? `${user.firstName} ${user.lastName}`
-      : bookingAny.contactName || user.email || "Client"
+    const populatedUser = isPopulatedUser(booking.user) ? booking.user : undefined
+    const clientEmail = populatedUser?.email || booking.contactEmail
+    const clientName = (populatedUser?.firstName && populatedUser?.lastName)
+      ? `${populatedUser.firstName} ${populatedUser.lastName}`
+      : booking.contactName || populatedUser?.email || "Client"
 
     if (clientEmail && body.status && body.status !== previousStatus) {
       // Format date for email
@@ -139,18 +191,18 @@ export async function PATCH(
 
       const emailData = {
         name: clientName,
-        spaceName: bookingAny.spaceType || "Espace",
-        date: formatDateForEmail(bookingAny.date),
-        startTime: bookingAny.startTime || "09:00",
-        endTime: bookingAny.endTime || "18:00",
-        numberOfPeople: bookingAny.numberOfPeople || 1,
-        totalPrice: bookingAny.totalPrice || 0,
+        spaceName: booking.spaceType || "Espace",
+        date: formatDateForEmail(booking.date),
+        startTime: booking.startTime || "09:00",
+        endTime: booking.endTime || "18:00",
+        numberOfPeople: booking.numberOfPeople || 1,
+        totalPrice: booking.totalPrice || 0,
         confirmationNumber: params.id,
       }
 
       if (body.status === "confirmed") {
         // Send confirmation email - choisir template selon isAdminBooking
-        if (bookingAny.isAdminBooking) {
+        if (booking.isAdminBooking) {
           const { generateAdminBookingValidationEmail } = await import('@coworking-cafe/email')
           const html = generateAdminBookingValidationEmail(emailData)
           await sendEmail({
@@ -169,7 +221,7 @@ export async function PATCH(
         console.log(`✉️ Email de confirmation envoyé à ${clientEmail}`)
       } else if (body.status === "cancelled") {
         // Send rejection/cancellation email with reason - choisir template selon isAdminBooking
-        if (bookingAny.isAdminBooking) {
+        if (booking.isAdminBooking) {
           const { generateAdminBookingCancellationEmail } = await import('@coworking-cafe/email')
           const html = generateAdminBookingCancellationEmail({
             ...emailData,
@@ -197,8 +249,9 @@ export async function PATCH(
 
     return successResponse(mapBookingToType(booking), "Booking updated successfully")
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     console.error(`PATCH /api/booking/reservations/${params.id} error:`, error)
-    return errorResponse("Failed to update booking", undefined, 500)
+    return errorResponse("Failed to update booking", errorMessage, 500)
   }
 }
 
@@ -220,7 +273,7 @@ export async function PUT(
     // Récupérer le booking AVANT modification
     const previousBooking = await Booking.findById(params.id)
       .populate("user", "firstName lastName email")
-      .lean()
+      .lean() as BookingDocumentWithUser | null
 
     if (!previousBooking) {
       return errorResponse("Booking not found", undefined, 404)
@@ -271,19 +324,18 @@ export async function PUT(
       { new: true, runValidators: true }
     )
       .populate("user", "firstName lastName email")
-      .lean()
+      .lean() as BookingDocumentWithUser | null
 
     if (!booking) {
       return errorResponse("Booking not found", undefined, 404)
     }
 
     // Send email if confirmed booking was modified (not status change)
-    const bookingAny = booking as any
-    const user = bookingAny.user || {}
-    const clientEmail = user.email || bookingAny.contactEmail
-    const clientName = (user.firstName && user.lastName)
-      ? `${user.firstName} ${user.lastName}`
-      : bookingAny.contactName || user.email || "Client"
+    const populatedUser = isPopulatedUser(booking.user) ? booking.user : undefined
+    const clientEmail = populatedUser?.email || booking.contactEmail
+    const clientName = (populatedUser?.firstName && populatedUser?.lastName)
+      ? `${populatedUser.firstName} ${populatedUser.lastName}`
+      : booking.contactName || populatedUser?.email || "Client"
 
     // Si la réservation était "confirmed" et qu'on a modifié des données (pas juste le statut)
     if (clientEmail && previousStatus === "confirmed" && hasDataModifications) {
@@ -301,25 +353,27 @@ export async function PUT(
       try {
         await sendBookingModifiedEmail(clientEmail, {
           name: clientName,
-          spaceName: bookingAny.spaceType || "Espace",
-          date: formatDateForEmail(bookingAny.date),
-          startTime: bookingAny.startTime || "09:00",
-          endTime: bookingAny.endTime || "18:00",
-          numberOfPeople: bookingAny.numberOfPeople || 1,
-          totalPrice: bookingAny.totalPrice || 0,
+          spaceName: booking.spaceType || "Espace",
+          date: formatDateForEmail(booking.date),
+          startTime: booking.startTime || "09:00",
+          endTime: booking.endTime || "18:00",
+          numberOfPeople: booking.numberOfPeople || 1,
+          totalPrice: booking.totalPrice || 0,
           confirmationNumber: params.id,
         })
         console.log(`✉️ Email de modification envoyé à ${clientEmail}`)
       } catch (emailError) {
-        console.error("Error sending modification email:", emailError)
+        const errorMsg = emailError instanceof Error ? emailError.message : "Unknown error"
+        console.error("Error sending modification email:", errorMsg)
         // Don't fail the request if email fails
       }
     }
 
     return successResponse(mapBookingToType(booking), "Booking updated successfully")
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     console.error(`PUT /api/booking/reservations/${params.id} error:`, error)
-    return errorResponse("Failed to update booking", undefined, 500)
+    return errorResponse("Failed to update booking", errorMessage, 500)
   }
 }
 
@@ -344,7 +398,8 @@ export async function DELETE(
 
     return successResponse(null, "Booking deleted successfully")
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     console.error(`DELETE /api/booking/reservations/${params.id} error:`, error)
-    return errorResponse("Failed to delete booking", undefined, 500)
+    return errorResponse("Failed to delete booking", errorMessage, 500)
   }
 }

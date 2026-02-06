@@ -3,13 +3,123 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
+import type { Employee as EmployeeType, EmployeeAddress, PlaceOfBirth, WeeklyAvailability, OnboardingStatus } from '@/types/hr'
+import type { ApiResponse } from '@/types/timeEntry'
+import { Types } from 'mongoose'
+
+interface MongoDBValidationError {
+  name: string
+  errors: Record<string, { message: string }>
+}
+
+interface EmployeeDraftData {
+  _id: Types.ObjectId
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
+  dateOfBirth?: string
+  placeOfBirth?: PlaceOfBirth
+  nationality?: string
+  address?: EmployeeAddress
+  socialSecurityNumber?: string
+  contractType?: string
+  contractualHours?: number
+  hireDate?: string
+  hireTime?: string
+  endDate?: string
+  level?: string
+  step?: number
+  hourlyRate?: number
+  monthlySalary?: number
+  employeeRole?: string
+  availability?: WeeklyAvailability
+  clockingCode?: string
+  color?: string
+  role?: string
+  bankDetails?: {
+    iban: string
+    bic: string
+    bankName: string
+  }
+  onboardingStatus?: OnboardingStatus
+}
+
+interface EmployeeDraftResponse {
+  _id: string
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
+  dateOfBirth?: string
+  placeOfBirth?: PlaceOfBirth
+  nationality?: string
+  address?: EmployeeAddress
+  socialSecurityNumber?: string
+  contractType?: string
+  contractualHours?: number
+  hireDate?: string
+  hireTime?: string
+  endDate?: string
+  level?: string
+  step?: number
+  hourlyRate?: number
+  monthlySalary?: number
+  employeeRole?: string
+  availability?: WeeklyAvailability
+  clockingCode?: string
+  color?: string
+  role?: string
+  bankDetails?: {
+    iban: string
+    bic: string
+    bankName: string
+  }
+  onboardingStatus?: OnboardingStatus
+}
+
+interface DraftPayload {
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
+  dateOfBirth?: string
+  placeOfBirth?: PlaceOfBirth
+  nationality?: string
+  address?: EmployeeAddress
+  socialSecurityNumber?: string
+  contractType?: string
+  contractualHours?: number
+  hireDate?: string
+  hireTime?: string
+  endDate?: string
+  level?: string
+  step?: number
+  hourlyRate?: number
+  monthlySalary?: number
+  employeeRole?: string
+  availability?: WeeklyAvailability
+  clockingCode?: string
+  color?: string
+  bankDetails?: {
+    iban: string
+    bic: string
+    bankName: string
+  }
+  onboardingStatus?: OnboardingStatus
+}
+
+interface SessionUser {
+  id: string
+  role: string
+}
 
 /**
  * GET /api/hr/employees/draft - Récupérer le brouillon en cours
  */
 // Force dynamic rendering (no static analysis at build time)
 export const dynamic = 'force-dynamic';
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<EmployeeDraftResponse | null>>> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -20,7 +130,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const userRole = (session.user as any).role
+    const userRole = (session.user as SessionUser).role
     if (!['dev', 'admin'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'Permissions insuffisantes' },
@@ -45,44 +155,47 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    const typedDraft = draft as unknown as EmployeeDraftData
+
     return NextResponse.json({
       success: true,
       data: {
-        _id: (draft as any)._id.toString(),
-        firstName: (draft as any).firstName,
-        lastName: (draft as any).lastName,
-        email: (draft as any).email,
-        phone: (draft as any).phone,
-        dateOfBirth: (draft as any).dateOfBirth,
-        placeOfBirth: (draft as any).placeOfBirth,
-        nationality: (draft as any).nationality,
-        address: (draft as any).address,
-        socialSecurityNumber: (draft as any).socialSecurityNumber,
-        contractType: (draft as any).contractType,
-        contractualHours: (draft as any).contractualHours,
-        hireDate: (draft as any).hireDate,
-        hireTime: (draft as any).hireTime,
-        endDate: (draft as any).endDate,
-        level: (draft as any).level,
-        step: (draft as any).step,
-        hourlyRate: (draft as any).hourlyRate,
-        monthlySalary: (draft as any).monthlySalary,
-        employeeRole: (draft as any).employeeRole,
-        availability: (draft as any).availability,
-        clockingCode: (draft as any).clockingCode,
-        color: (draft as any).color,
-        role: (draft as any).role,
-        bankDetails: (draft as any).bankDetails,
-        onboardingStatus: (draft as any).onboardingStatus,
+        _id: typedDraft._id.toString(),
+        firstName: typedDraft.firstName,
+        lastName: typedDraft.lastName,
+        email: typedDraft.email,
+        phone: typedDraft.phone,
+        dateOfBirth: typedDraft.dateOfBirth,
+        placeOfBirth: typedDraft.placeOfBirth,
+        nationality: typedDraft.nationality,
+        address: typedDraft.address,
+        socialSecurityNumber: typedDraft.socialSecurityNumber,
+        contractType: typedDraft.contractType,
+        contractualHours: typedDraft.contractualHours,
+        hireDate: typedDraft.hireDate,
+        hireTime: typedDraft.hireTime,
+        endDate: typedDraft.endDate,
+        level: typedDraft.level,
+        step: typedDraft.step,
+        hourlyRate: typedDraft.hourlyRate,
+        monthlySalary: typedDraft.monthlySalary,
+        employeeRole: typedDraft.employeeRole,
+        availability: typedDraft.availability,
+        clockingCode: typedDraft.clockingCode,
+        color: typedDraft.color,
+        role: typedDraft.role,
+        bankDetails: typedDraft.bankDetails,
+        onboardingStatus: typedDraft.onboardingStatus,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API GET draft:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la récupération du brouillon',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     )
@@ -92,7 +205,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/hr/employees/draft - Sauvegarder un brouillon
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<{ id: string }>>> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -103,7 +216,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const userRole = (session.user as any).role
+    const userRole = (session.user as SessionUser).role
     if (!['dev', 'admin'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'Permissions insuffisantes' },
@@ -111,7 +224,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const data = await request.json()
+    const data: DraftPayload = await request.json()
 
     await connectMongoose()
 
@@ -121,7 +234,7 @@ export async function POST(request: NextRequest) {
       createdBy: session.user.id,
     })
 
-    const draftData: any = {
+    const draftData: Partial<EmployeeType> & { isDraft: boolean; isActive: boolean; createdBy: string } = {
       isDraft: true,
       isActive: false,
       createdBy: session.user.id,
@@ -138,7 +251,7 @@ export async function POST(request: NextRequest) {
     if (data.address) draftData.address = data.address
     if (data.socialSecurityNumber)
       draftData.socialSecurityNumber = data.socialSecurityNumber
-    if (data.contractType) draftData.contractType = data.contractType
+    if (data.contractType) draftData.contractType = data.contractType as EmployeeType['contractType']
     if (data.contractualHours) draftData.contractualHours = data.contractualHours
     if (data.hireDate) draftData.hireDate = data.hireDate // String YYYY-MM-DD
     if (data.hireTime) draftData.hireTime = data.hireTime
@@ -147,7 +260,7 @@ export async function POST(request: NextRequest) {
     if (data.step !== undefined) draftData.step = data.step
     if (data.hourlyRate) draftData.hourlyRate = data.hourlyRate
     if (data.monthlySalary) draftData.monthlySalary = data.monthlySalary
-    if (data.employeeRole) draftData.employeeRole = data.employeeRole
+    if (data.employeeRole) draftData.employeeRole = data.employeeRole as EmployeeType['employeeRole']
     if (data.availability) draftData.availability = data.availability
     if (data.clockingCode) draftData.clockingCode = data.clockingCode
     if (data.color) draftData.color = data.color
@@ -171,13 +284,30 @@ export async function POST(request: NextRequest) {
         id: draft._id.toString(),
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API POST draft:', error)
+
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
+      const validationError = error as MongoDBValidationError
+      const validationErrors = Object.values(validationError.errors).map(
+        (err) => err.message
+      )
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Erreur de validation',
+          details: validationErrors,
+        },
+        { status: 400 }
+      )
+    }
+
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la sauvegarde du brouillon',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     )
@@ -187,7 +317,7 @@ export async function POST(request: NextRequest) {
 /**
  * DELETE /api/hr/employees/draft - Supprimer le brouillon
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResponse<null>>> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -198,7 +328,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const userRole = (session.user as any).role
+    const userRole = (session.user as SessionUser).role
     if (!['dev', 'admin'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'Permissions insuffisantes' },
@@ -217,13 +347,14 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Brouillon supprimé',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API DELETE draft:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la suppression du brouillon',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     )

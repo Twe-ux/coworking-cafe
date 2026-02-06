@@ -169,29 +169,45 @@ export async function POST(request: NextRequest) {
       data: employeeData,
       message: 'PIN vérifié avec succès',
     })
-  } catch (error: any) {
-    logger.error('Verify PIN API error', {
-      employeeId: (error as any).employeeId,
-      errorName: error.name,
-      errorMessage: error.message,
-    })
+  } catch (error: unknown) {
+    // Type guard pour Error
+    if (error instanceof Error) {
+      logger.error('Verify PIN API error', {
+        errorName: error.name,
+        errorMessage: error.message,
+      })
 
-    // Gestion des erreurs spécifiques
-    if (error.name === 'CastError' && error.path === '_id') {
+      // Gestion des erreurs spécifiques Mongoose CastError
+      if (error.name === 'CastError' && 'path' in error && error.path === '_id') {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Format d'ID employé invalide",
+          },
+          { status: 400 }
+        )
+      }
+
       return NextResponse.json(
         {
           success: false,
-          error: "Format d'ID employé invalide",
+          error: 'Erreur lors de la vérification du PIN',
+          details: error.message,
         },
-        { status: 400 }
+        { status: 500 }
       )
     }
+
+    // Cas d'erreur non-Error (rare mais possible)
+    logger.error('Verify PIN API error', {
+      error: String(error),
+    })
 
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la vérification du PIN',
-        details: error.message,
+        details: 'Unknown error',
       },
       { status: 500 }
     )
