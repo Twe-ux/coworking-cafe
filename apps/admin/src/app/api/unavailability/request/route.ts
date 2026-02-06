@@ -79,13 +79,36 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API POST unavailability/request:', error);
+
+    // MongoDB validation error
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ValidationError') {
+      interface MongoDBValidationError {
+        name: string;
+        errors: Record<string, { message: string }>;
+      }
+      const validationError = error as MongoDBValidationError;
+      const validationErrors = Object.values(validationError.errors).map(
+        (err) => err.message
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Erreur de validation',
+          details: validationErrors,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Standard error
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de l\'envoi de la demande',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );

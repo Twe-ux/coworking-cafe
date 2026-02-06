@@ -7,6 +7,33 @@ import Employee from '@/models/employee';
 import { sendEmail } from '@/lib/email/emailService';
 import { generateUnavailabilityApprovedEmail } from '@/lib/email/templates/unavailabilityApproved';
 import { generateUnavailabilityRejectedEmail } from '@/lib/email/templates/unavailabilityRejected';
+import { Types } from 'mongoose';
+
+// Type pour employee populé depuis MongoDB
+interface PopulatedEmployee {
+  _id: Types.ObjectId;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+// Type pour unavailability populé
+interface PopulatedUnavailability {
+  _id: Types.ObjectId;
+  employeeId: PopulatedEmployee;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+  type: string;
+  status: string;
+  requestedBy: string;
+  approvedBy?: Types.ObjectId;
+  approvedAt?: Date;
+  rejectionReason?: string;
+  notificationSent: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 /**
  * GET /api/unavailability/[id] - Get a single unavailability
@@ -32,7 +59,7 @@ export async function GET(
     const unavailability = await Unavailability.findById(params.id)
       .populate('employeeId', 'firstName lastName email')
       .populate('approvedBy', 'firstName lastName')
-      .lean();
+      .lean() as PopulatedUnavailability | null;
 
     if (!unavailability) {
       return NextResponse.json(
@@ -41,27 +68,37 @@ export async function GET(
       );
     }
 
+    const employee = unavailability.employeeId as PopulatedEmployee;
+
     return NextResponse.json({
       success: true,
       data: {
         ...unavailability,
         _id: unavailability._id.toString(),
-        employeeId: (unavailability.employeeId as any)._id.toString(),
+        employeeId: employee._id.toString(),
         employee: {
-          _id: (unavailability.employeeId as any)._id.toString(),
-          firstName: (unavailability.employeeId as any).firstName,
-          lastName: (unavailability.employeeId as any).lastName,
-          email: (unavailability.employeeId as any).email,
+          _id: employee._id.toString(),
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          email: employee.email,
         },
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API GET unavailability/[id]:', error);
+
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return NextResponse.json(
+        { success: false, error: 'Format d\'ID invalide' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la récupération de l\'indisponibilité',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -108,12 +145,12 @@ export async function PUT(
 
     if (status === 'approved') {
       unavailability.status = 'approved';
-      unavailability.approvedBy = session.user.id as any;
+      unavailability.approvedBy = new Types.ObjectId(session.user.id);
       unavailability.approvedAt = new Date();
       unavailability.rejectionReason = undefined;
     } else if (status === 'rejected') {
       unavailability.status = 'rejected';
-      unavailability.approvedBy = session.user.id as any;
+      unavailability.approvedBy = new Types.ObjectId(session.user.id);
       unavailability.approvedAt = new Date();
       unavailability.rejectionReason = rejectionReason || '';
     } else if (status === 'cancelled') {
@@ -126,10 +163,17 @@ export async function PUT(
 
     const populated = await Unavailability.findById(unavailability._id)
       .populate('employeeId', 'firstName lastName email')
-      .lean();
+      .lean() as PopulatedUnavailability | null;
+
+    if (!populated) {
+      return NextResponse.json(
+        { success: false, error: 'Indisponibilité introuvable après mise à jour' },
+        { status: 404 }
+      );
+    }
 
     // Send email notification
-    const employee = populated!.employeeId as any;
+    const employee = populated.employeeId as PopulatedEmployee;
     const employeeFullName = `${employee.firstName} ${employee.lastName}`;
 
     if (status === 'approved' && !unavailability.notificationSent) {
@@ -174,23 +218,31 @@ export async function PUT(
       message: 'Indisponibilité mise à jour avec succès',
       data: {
         ...populated,
-        _id: populated!._id.toString(),
-        employeeId: (populated!.employeeId as any)._id.toString(),
+        _id: populated._id.toString(),
+        employeeId: employee._id.toString(),
         employee: {
-          _id: (populated!.employeeId as any)._id.toString(),
-          firstName: (populated!.employeeId as any).firstName,
-          lastName: (populated!.employeeId as any).lastName,
-          email: (populated!.employeeId as any).email,
+          _id: employee._id.toString(),
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          email: employee.email,
         },
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API PUT unavailability/[id]:', error);
+
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return NextResponse.json(
+        { success: false, error: 'Format d\'ID invalide' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la mise à jour de l\'indisponibilité',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -237,13 +289,21 @@ export async function DELETE(
       success: true,
       message: 'Indisponibilité supprimée avec succès',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API DELETE unavailability/[id]:', error);
+
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
+      return NextResponse.json(
+        { success: false, error: 'Format d\'ID invalide' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors de la suppression de l\'indisponibilité',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

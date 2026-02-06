@@ -7,6 +7,11 @@ import Unavailability from '@/models/unavailability';
 /**
  * GET /api/unavailability/pending - Get count of pending requests
  */
+
+interface SessionUser {
+  role: string;
+}
+
 // Force dynamic rendering (no static analysis at build time)
 export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
@@ -20,7 +25,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userRole = (session.user as any).role;
+    const userRole = (session.user as SessionUser).role;
     if (!userRole || !['dev', 'admin'].includes(userRole)) {
       return NextResponse.json(
         { success: false, error: 'Permissions insuffisantes' },
@@ -38,13 +43,13 @@ export async function GET(request: NextRequest) {
         count,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur API GET unavailability/pending:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Erreur lors du comptage des demandes en attente',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Erreur inconnue',
       },
       { status: 500 }
     );

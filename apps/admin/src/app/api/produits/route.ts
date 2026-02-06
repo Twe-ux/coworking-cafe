@@ -5,6 +5,28 @@ import { connectMongoose } from "@/lib/mongodb";
 import { MenuCategory, MenuItem } from "@coworking-cafe/database";
 import type { ApiResponse, MenuData } from "@/types/produits";
 
+// Interface pour le résultat de populate() sur MenuItem.category
+interface PopulatedCategory {
+  _id: { toString(): string };
+  name: string;
+  slug: string;
+}
+
+// Interface pour MenuItem avec category populé
+interface MenuItemWithPopulatedCategory {
+  _id: { toString(): string };
+  name: string;
+  description?: string;
+  recipe?: string;
+  image?: string;
+  category: PopulatedCategory;
+  type: "food" | "drink" | "grocery" | "goodies";
+  order: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 /**
  * GET /api/menu
  * Récupère toutes les catégories et tous les items du menu
@@ -27,7 +49,7 @@ export async function GET(
 
   try {
     // 4. Récupérer les catégories
-    const categoryFilter: any = {};
+    const categoryFilter: Record<string, unknown> = {};
     if (type) categoryFilter.type = type;
     if (activeOnly) categoryFilter.isActive = true;
 
@@ -36,14 +58,14 @@ export async function GET(
       .lean();
 
     // 5. Récupérer les items
-    const itemFilter: any = {};
+    const itemFilter: Record<string, unknown> = {};
     if (type) itemFilter.type = type;
     if (activeOnly) itemFilter.isActive = true;
 
-    const items = await MenuItem.find(itemFilter)
+    const items = (await MenuItem.find(itemFilter)
       .populate("category", "name slug")
       .sort({ type: 1, order: 1 })
-      .lean();
+      .lean()) as unknown as MenuItemWithPopulatedCategory[];
 
     // 6. Formatter les données
     const menuData: MenuData = {
@@ -66,9 +88,9 @@ export async function GET(
         recipe: item.recipe,
         image: item.image,
         category: {
-          id: (item.category as any)._id.toString(),
-          name: (item.category as any).name,
-          slug: (item.category as any).slug,
+          id: item.category._id.toString(),
+          name: item.category.name,
+          slug: item.category.slug,
         },
         type: item.type,
         order: item.order,
@@ -79,11 +101,17 @@ export async function GET(
     };
 
     return successResponse(menuData, "Données du menu récupérées avec succès");
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("GET /api/menu error:", error);
+    if (error instanceof Error) {
+      return errorResponse(
+        "Erreur lors de la récupération des données du menu",
+        error.message
+      );
+    }
     return errorResponse(
       "Erreur lors de la récupération des données du menu",
-      (error as Error).message
+      "Unknown error"
     );
   }
 }
