@@ -256,36 +256,31 @@ export function CashRegisterWidget() {
 
   return (
     <Card className="border-green-400 border min-h-64 flex flex-col justify-between">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-sm font-semibold flex items-center gap-2">
-          <Coins className="h-4 w-4 text-primary" />
-          Fond de Caisse
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3">
+        <CardTitle className="text-xs sm:text-sm font-semibold flex items-center gap-1.5 sm:gap-2">
+          <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+          <span className="truncate">Fond de Caisse</span>
         </CardTitle>
         <Link href="/cash-register">
           <Button
             size="sm"
             variant="outline"
-            className="border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
+            className="border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700 h-7 sm:h-8 px-2 sm:px-3"
           >
-            <History className="h-3 w-3" />
-            Historique
+            <History className="h-3 w-3 sm:mr-1" />
+            <span className="hidden sm:inline">Historique</span>
           </Button>
         </Link>
       </CardHeader>
 
-      <CardContent className="space-y-6 ">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Dernière saisie - Une ligne */}
         {loading ? (
           <p className="text-xs text-muted-foreground">Chargement...</p>
         ) : lastEntry ? (
-          <div className="text-lg text-muted-foreground flex justify-between">
-            <span className="">Dernière saisie :</span>{" "}
-            {/* {new Date(lastEntry.date).toLocaleDateString("fr-FR", {
-              day: "2-digit",
-              month: "2-digit",
-            })}{" "}
-            - {lastEntry.countedBy.name} -{" "} */}
-            <span className="font-bold text-primary">
+          <div className="text-sm sm:text-lg text-muted-foreground flex justify-between items-center gap-2">
+            <span className="text-xs sm:text-base truncate">Dernière saisie :</span>
+            <span className="font-bold text-primary whitespace-nowrap text-base sm:text-lg">
               {formatCurrency(lastEntry.amount)}
             </span>
           </div>
@@ -295,7 +290,7 @@ export function CashRegisterWidget() {
 
         {/* Saisie */}
         <div className="space-y-2">
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 sm:gap-2">
             {/* Bouton Aide au comptage */}
             <Dialog open={countModalOpen} onOpenChange={setCountModalOpen}>
               <DialogTrigger asChild>
@@ -303,10 +298,10 @@ export function CashRegisterWidget() {
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-9 w-9"
+                  className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
                   title="Aide au comptage"
                 >
-                  <Calculator className="h-4 w-4" />
+                  <Calculator className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -324,7 +319,7 @@ export function CashRegisterWidget() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Montant €"
-              className="h-9 text-sm flex-1 max-w-[120px]"
+              className="h-8 sm:h-9 text-sm flex-1 min-w-0"
             />
 
             {/* Bouton Notes */}
@@ -334,10 +329,10 @@ export function CashRegisterWidget() {
                   type="button"
                   variant={additionalNotes ? "default" : "outline"}
                   size="icon"
-                  className="h-9 w-9"
+                  className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
                   title="Ajouter une note"
                 >
-                  <FileText className="h-4 w-4" />
+                  <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
@@ -372,14 +367,14 @@ export function CashRegisterWidget() {
           </div>
 
           {error && (
-            <Alert variant="destructive" className="py-2">
-              <AlertDescription className="text-xs">{error}</AlertDescription>
+            <Alert variant="destructive" className="py-1.5 sm:py-2">
+              <AlertDescription className="text-[10px] sm:text-xs">{error}</AlertDescription>
             </Alert>
           )}
 
           {success && (
-            <Alert className="py-2">
-              <AlertDescription className="text-xs">
+            <Alert className="py-1.5 sm:py-2">
+              <AlertDescription className="text-[10px] sm:text-xs">
                 ✓ Saisie enregistrée !
               </AlertDescription>
             </Alert>
@@ -387,7 +382,7 @@ export function CashRegisterWidget() {
 
           <Button
             onClick={handleValidate}
-            className="w-full h-9 text-sm"
+            className="w-full h-8 sm:h-9 text-xs sm:text-sm"
             disabled={submitting || !amount}
           >
             {submitting ? "Enregistrement..." : "Valider"}
@@ -396,10 +391,10 @@ export function CashRegisterWidget() {
 
         {/* Modal d'alerte écart */}
         <AlertDialog open={warningModalOpen} onOpenChange={setWarningModalOpen}>
-          <AlertDialogContent>
+          <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
             <AlertDialogHeader>
-              <AlertDialogTitle>⚠️ Écart important détecté</AlertDialogTitle>
-              <AlertDialogDescription className="space-y-2">
+              <AlertDialogTitle className="text-base sm:text-lg">⚠️ Écart important détecté</AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2 text-xs sm:text-sm">
                 <p>
                   Le montant saisi diffère de{" "}
                   <span className="font-bold text-destructive">
@@ -407,26 +402,26 @@ export function CashRegisterWidget() {
                   </span>{" "}
                   par rapport au dernier enregistrement.
                 </p>
-                <p className="text-sm">
+                <p className="text-xs sm:text-sm">
                   Dernier montant :{" "}
                   <span className="font-semibold">
                     {lastEntry && formatCurrency(lastEntry.amount)}
                   </span>
                 </p>
-                <p className="text-sm">
+                <p className="text-xs sm:text-sm">
                   Montant actuel :{" "}
                   <span className="font-semibold">
                     {formatCurrency(parseFloat(amount) || 0)}
                   </span>
                 </p>
-                <p className="font-semibold text-orange-600 mt-4">
+                <p className="font-semibold text-orange-600 mt-4 text-xs sm:text-sm">
                   Veuillez prévenir le responsable avant de continuer.
                 </p>
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction onClick={handleWarningContinue}>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogCancel className="m-0 text-sm">Annuler</AlertDialogCancel>
+              <AlertDialogAction onClick={handleWarningContinue} className="m-0 text-sm">
                 J'ai prévenu, continuer
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -435,7 +430,7 @@ export function CashRegisterWidget() {
 
         {/* Modal de confirmation */}
         <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-[95vw] sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Qui a compté la caisse ?</DialogTitle>
             </DialogHeader>
@@ -445,14 +440,14 @@ export function CashRegisterWidget() {
               <div className="space-y-2">
                 <p className="text-sm font-medium">Employés pointés :</p>
                 {clockedEmployees.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {clockedEmployees.map((emp) => (
                       <Button
                         key={emp.id}
                         variant="outline"
                         onClick={() => handleEmployeeSelect(emp.id)}
                         disabled={submitting}
-                        className="w-full"
+                        className="w-full text-sm h-9"
                       >
                         {emp.firstName} {emp.lastName?.charAt(0)}.
                       </Button>
@@ -470,7 +465,7 @@ export function CashRegisterWidget() {
                 <p className="text-sm font-medium">Admin / Gérant :</p>
 
                 {/* Sélection admin */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {adminUsers.map((admin) => (
                     <Button
                       key={admin._id}
@@ -479,7 +474,7 @@ export function CashRegisterWidget() {
                       }
                       onClick={() => handleAdminSelect(admin)}
                       disabled={submitting}
-                      className="w-full"
+                      className="w-full text-sm"
                     >
                       {admin.name}
                     </Button>
