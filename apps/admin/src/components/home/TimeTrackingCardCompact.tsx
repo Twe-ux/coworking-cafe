@@ -38,6 +38,7 @@ export function TimeTrackingCardCompact({
   const {
     activeEntry,
     isLoading: isQueryLoading,
+    refetch,
     clockIn,
     clockOut,
     isClockingIn,
@@ -72,37 +73,53 @@ export function TimeTrackingCardCompact({
   };
 
   const handleDirectClockOut = async () => {
-    try {
-      await clockOut({ employeeId: employee.id });
+    toast.loading("Arrêt du pointage en cours...", { id: "clock-out" });
 
-      // Notify parent to refresh
-      setTimeout(() => {
-        onStatusChange?.();
-      }, 100);
-    } catch (error: any) {
-      // Check if it's a justification required error
-      if (
-        error.message.includes("justification") ||
-        error.message.includes("JUSTIFICATION_REQUIRED")
-      ) {
-        // Parse error details if available
-        try {
-          const errorData = JSON.parse(error.message);
-          if (errorData.code === "JUSTIFICATION_REQUIRED") {
-            setJustificationData({
-              action: "clock-out",
-              pin: "",
-              clockTime: errorData.clockOutTime,
-              scheduledShifts: errorData.scheduledShifts,
-            });
-            setShowJustificationDialog(true);
-            return;
-          }
-        } catch {
-          // If parsing fails, show generic error
+    try {
+      // Call API directly to handle JUSTIFICATION_REQUIRED properly
+      const response = await fetch("/api/time-entries/clock-out", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: employee.id }),
+        signal: AbortSignal.timeout(10000),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("Pointage arrêté avec succès", { id: "clock-out" });
+
+        // Invalidate cache to refresh data
+        setTimeout(() => {
+          refetch();
+          onStatusChange?.();
+        }, 100);
+      } else {
+        // Check if it's a justification required error
+        if (
+          result.details &&
+          typeof result.details === "object" &&
+          "code" in result.details &&
+          result.details.code === "JUSTIFICATION_REQUIRED"
+        ) {
+          toast.dismiss("clock-out");
+
+          // Show justification dialog
+          setJustificationData({
+            action: "clock-out",
+            pin: "",
+            clockTime: result.details.clockOutTime,
+            scheduledShifts: result.details.scheduledShifts || [],
+          });
+          setShowJustificationDialog(true);
+        } else {
+          toast.error(result.error || "Erreur lors de l'arrêt du pointage", {
+            id: "clock-out",
+          });
         }
       }
-      // Error already shown by mutation hook
+    } catch (error: any) {
+      toast.error("Erreur de connexion", { id: "clock-out" });
     }
   };
 
@@ -137,52 +154,65 @@ export function TimeTrackingCardCompact({
         { id: "clock-action" },
       );
 
-      if (pinAction === "clock-in") {
-        await clockIn({ employeeId: employee.id, pin });
-      } else {
-        await clockOut({ employeeId: employee.id, pin });
-      }
+      // ⚠️ IMPORTANT: Call API directly instead of using hook
+      // to properly handle JUSTIFICATION_REQUIRED with all details
+      const endpoint = `/api/time-entries/${pinAction}`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: employee.id, pin }),
+        signal: AbortSignal.timeout(10000),
+      });
 
-      // Success handled by mutation hook
-      toast.dismiss("clock-action");
-      setShowPINDialog(false);
-      setPinAction(null);
+      const result = await response.json();
 
-      // Notify parent to refresh
-      setTimeout(() => {
-        onStatusChange?.();
-      }, 100);
-    } catch (error: any) {
-      // Check if it's a justification required error
-      if (
-        error.message.includes("justification") ||
-        error.message.includes("JUSTIFICATION_REQUIRED")
-      ) {
+      if (result.success) {
+        // Success
+        toast.success(
+          pinAction === "clock-in"
+            ? "Pointage démarré avec succès"
+            : "Pointage arrêté avec succès",
+          { id: "clock-action" },
+        );
+
         setShowPINDialog(false);
-        toast.dismiss("clock-action");
+        setPinAction(null);
 
-        // Try to parse error details
-        try {
-          const errorData = JSON.parse(error.message);
-          if (errorData.code === "JUSTIFICATION_REQUIRED") {
-            setJustificationData({
-              action: pinAction,
-              pin,
-              clockTime: errorData.clockInTime || errorData.clockOutTime,
-              scheduledShifts: errorData.scheduledShifts,
-            });
-            setShowJustificationDialog(true);
-            return;
-          }
-        } catch {
-          // If parsing fails, continue to show error
+        // Invalidate React Query cache to refresh data
+        setTimeout(() => {
+          refetch();
+          onStatusChange?.();
+        }, 100);
+      } else {
+        // Check if it's a justification required error
+        if (
+          result.details &&
+          typeof result.details === "object" &&
+          "code" in result.details &&
+          result.details.code === "JUSTIFICATION_REQUIRED"
+        ) {
+          // Show justification dialog
+          setShowPINDialog(false);
+          toast.dismiss("clock-action");
+
+          setJustificationData({
+            action: pinAction,
+            pin,
+            clockTime: result.details.clockInTime || result.details.clockOutTime,
+            scheduledShifts: result.details.scheduledShifts || [],
+          });
+          setShowJustificationDialog(true);
+        } else {
+          // Other error
+          setError(result.error || "Erreur lors du pointage");
+          toast.error(result.error || "Erreur lors du pointage", {
+            id: "clock-action",
+          });
         }
       }
-
-      setError(error.message || "Erreur lors du pointage");
-      toast.error(error.message || "Erreur lors du pointage", {
-        id: "clock-action",
-      });
+    } catch (error: any) {
+      setError("Erreur de connexion");
+      toast.error("Erreur de connexion", { id: "clock-action" });
     }
   };
 
@@ -211,25 +241,41 @@ export function TimeTrackingCardCompact({
         requestBody.pin = justificationData.pin;
       }
 
-      if (justificationData.action === "clock-in") {
-        await clockIn(requestBody);
-      } else {
-        await clockOut(requestBody);
-      }
-
-      toast.dismiss("clock-justification");
-      setShowJustificationDialog(false);
-      setJustificationData(null);
-      setPinAction(null);
-
-      // Notify parent to refresh
-      setTimeout(() => {
-        onStatusChange?.();
-      }, 100);
-    } catch (error: any) {
-      toast.error(error.message || "Erreur lors du pointage", {
-        id: "clock-justification",
+      // Call API directly to handle success/error properly
+      const endpoint = `/api/time-entries/${justificationData.action}`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(10000),
       });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(
+          justificationData.action === "clock-in"
+            ? "Pointage démarré avec succès"
+            : "Pointage arrêté avec succès",
+          { id: "clock-justification" },
+        );
+
+        setShowJustificationDialog(false);
+        setJustificationData(null);
+        setPinAction(null);
+
+        // Invalidate cache to refresh data
+        setTimeout(() => {
+          refetch();
+          onStatusChange?.();
+        }, 100);
+      } else {
+        toast.error(result.error || "Erreur lors du pointage", {
+          id: "clock-justification",
+        });
+      }
+    } catch (error: any) {
+      toast.error("Erreur de connexion", { id: "clock-justification" });
     }
   };
 
