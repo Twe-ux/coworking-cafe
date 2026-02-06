@@ -5,7 +5,8 @@
  * pnpm --filter @coworking-cafe/email test-smtp
  */
 
-import { verifySMTPConnection, sendEmail } from './emailService';
+import { sendEmail } from './emailService';
+import { verifySMTPConnection } from './providers/smtp';
 
 async function testSMTP() {
   console.log('🧪 Testing SMTP Configuration...\n');
