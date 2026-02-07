@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongodb'
-import mongoose from 'mongoose'
+import mongoose, { type FlattenMaps } from 'mongoose'
 import '@/models/employee'
+import type { EmployeeDocument } from '@/models/employee/document'
 import bcrypt from 'bcryptjs'
 import logger from '@/lib/logger'
 
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PINVerify
       )
     }
 
-    const Employee = mongoose.model('Employee')
+    const Employee = mongoose.model<EmployeeDocument>('Employee')
 
     // Chercher tous les employés actifs qui ont un dashboardPinHash
     const employees = await Employee.find({
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PINVerify
     logger.info(`[PIN Auth] Found ${employees.length} employees with dashboard PIN`)
 
     // Comparer le PIN avec le dashboardPinHash de chaque employé
-    let matchedEmployee = null
+    let matchedEmployee: FlattenMaps<EmployeeDocument> | null = null
     for (const emp of employees) {
       if (emp.dashboardPinHash) {
         try {
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PINVerify
     return NextResponse.json({
       success: true,
       user: {
-        id: (matchedEmployee._id as any).toString(),
+        id: matchedEmployee._id.toString(),
         name: `${matchedEmployee.firstName} ${matchedEmployee.lastName}`,
         email: matchedEmployee.email,
         role: systemRole,

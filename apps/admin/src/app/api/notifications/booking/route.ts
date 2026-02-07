@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
-import { Booking } from "@coworking-cafe/database"
+import { Booking, BookingDocument } from "@coworking-cafe/database"
 import { sendNewBookingNotification } from "@/lib/push-notifications"
+import { Types } from "mongoose"
+
+/**
+ * Interface pour un document Booking populé avec les informations de l'utilisateur
+ */
+interface PopulatedUser {
+  _id: Types.ObjectId
+  firstName?: string
+  lastName?: string
+  email: string
+}
+
+interface PopulatedBooking extends Omit<BookingDocument, 'user'> {
+  user?: PopulatedUser
+}
 
 /**
  * POST /api/notifications/booking
@@ -45,10 +60,10 @@ export async function POST(request: NextRequest) {
 
     await connectDB()
 
-    // Récupérer la réservation
+    // Récupérer la réservation avec typage correct
     const booking = await Booking.findById(bookingId)
       .populate("user", "firstName lastName email")
-      .lean()
+      .lean() as PopulatedBooking | null
 
     if (!booking) {
       return NextResponse.json(
@@ -60,15 +75,14 @@ export async function POST(request: NextRequest) {
     // Compter les réservations en attente
     const pendingCount = await Booking.countDocuments({ status: "pending" })
 
-    // Préparer les données pour la notification
-    const bookingAny = booking as any
-    const user = bookingAny.user || {}
-    const clientName = user.firstName && user.lastName
+    // Préparer les données pour la notification avec typage strict
+    const user = booking.user
+    const clientName = user?.firstName && user?.lastName
       ? `${user.firstName} ${user.lastName}`
-      : bookingAny.contactName || user.email || "Client"
+      : booking.contactName || user?.email || "Client"
 
     // Formater la date
-    const bookingDate = new Date(bookingAny.date)
+    const bookingDate = new Date(booking.date)
     const formattedDate = bookingDate.toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "short",
@@ -78,9 +92,9 @@ export async function POST(request: NextRequest) {
     await sendNewBookingNotification({
       id: bookingId,
       clientName,
-      spaceName: bookingAny.spaceType || "Espace",
+      spaceName: booking.spaceType || "Espace",
       date: formattedDate,
-      time: bookingAny.startTime || "Journée",
+      time: booking.startTime || "Journée",
       pendingCount,
     })
 

@@ -4,6 +4,37 @@ import { connectMongoose } from "@/lib/mongodb";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { sendClientNoShowEmail } from "@/lib/email/emailService";
+import type { BookingStatus } from "@/types/booking";
+
+/**
+ * Interface pour un document Booking avec champs populés
+ */
+interface PopulatedUser {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+}
+
+interface PopulatedSpace {
+  _id: string;
+  name: string;
+}
+
+interface BookingDocument {
+  _id: string;
+  user: PopulatedUser;
+  space: PopulatedSpace;
+  date: Date | string;
+  startTime?: string;
+  endTime?: string;
+  numberOfPeople?: number;
+  totalPrice?: number;
+  status: BookingStatus;
+  cancelledAt?: string;
+  cancelReason?: string;
+  save: () => Promise<BookingDocument>;
+}
 
 /**
  * POST /api/booking/reservations/[id]/mark-noshow
@@ -31,7 +62,7 @@ export async function POST(
     // Find the booking with populated fields
     const booking = await Booking.findById(id)
       .populate('user', 'firstName lastName email')
-      .populate('space', 'name');
+      .populate('space', 'name') as BookingDocument | null;
 
     if (!booking) {
       return errorResponse("Réservation introuvable", "Booking not found", 404);
@@ -48,16 +79,16 @@ export async function POST(
 
     // Update status to cancelled with no-show reason
     booking.status = "cancelled";
-    (booking as any).cancelledAt = new Date().toISOString();
-    (booking as any).cancelReason = "No-show - Client ne s'est pas présenté";
+    booking.cancelledAt = new Date().toISOString();
+    booking.cancelReason = "No-show - Client ne s'est pas présenté";
     await booking.save();
 
     // TODO: Capture Stripe card hold (if captureMethod is manual/deferred)
 
     // Send no-show email to client
     try {
-      const user = (booking.user as any);
-      const space = (booking.space as any);
+      const user = booking.user;
+      const space = booking.space;
       const bookingDate = booking.date instanceof Date
         ? booking.date.toISOString().split('T')[0]
         : String(booking.date);
@@ -85,7 +116,7 @@ export async function POST(
       {
         _id: booking._id,
         status: booking.status,
-        cancelReason: (booking as any).cancelReason,
+        cancelReason: booking.cancelReason,
       },
       "Client marqué comme no-show - Empreinte bancaire capturée"
     );

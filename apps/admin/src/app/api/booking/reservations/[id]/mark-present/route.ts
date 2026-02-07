@@ -4,6 +4,59 @@ import { connectMongoose } from "@/lib/mongodb";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { sendClientPresentEmail } from "@/lib/email/emailService";
+import type { Document, Types } from "mongoose";
+
+/**
+ * Interface for populated User in Booking
+ * Matches the fields selected in .populate('user', 'firstName lastName email')
+ */
+interface PopulatedUser {
+  _id: Types.ObjectId;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+}
+
+/**
+ * Interface for populated Space in Booking
+ * Matches the fields selected in .populate('space', 'name')
+ */
+interface PopulatedSpace {
+  _id: Types.ObjectId;
+  name: string;
+}
+
+/**
+ * Interface for Booking with populated references
+ * Extends BookingDocument but replaces ObjectId references with populated documents
+ */
+interface BookingWithPopulatedFields extends Omit<Document, '_id' | 'id'> {
+  _id: Types.ObjectId;
+  user: PopulatedUser | Types.ObjectId;
+  space?: PopulatedSpace | Types.ObjectId;
+  spaceType: string;
+  date: Date;
+  startTime?: string;
+  endTime?: string;
+  numberOfPeople: number;
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  totalPrice: number;
+  save(): Promise<this>;
+}
+
+/**
+ * Type guard to check if user is populated
+ */
+function isPopulatedUser(user: PopulatedUser | Types.ObjectId): user is PopulatedUser {
+  return user && typeof user === 'object' && 'email' in user;
+}
+
+/**
+ * Type guard to check if space is populated
+ */
+function isPopulatedSpace(space: PopulatedSpace | Types.ObjectId | undefined): space is PopulatedSpace {
+  return space !== undefined && space !== null && typeof space === 'object' && 'name' in space;
+}
 
 /**
  * POST /api/booking/reservations/[id]/mark-present
@@ -31,7 +84,7 @@ export async function POST(
     // Find the booking with populated fields
     const booking = await Booking.findById(id)
       .populate('user', 'firstName lastName email')
-      .populate('space', 'name');
+      .populate('space', 'name') as BookingWithPopulatedFields | null;
 
     if (!booking) {
       return errorResponse("Réservation introuvable", "Booking not found", 404);
@@ -54,18 +107,21 @@ export async function POST(
 
     // Send email to client confirming presence and card hold release
     try {
-      const user = (booking.user as any);
-      const space = (booking.space as any);
       const bookingDate = booking.date instanceof Date
         ? booking.date.toISOString().split('T')[0]
         : String(booking.date);
 
-      if (user && user.email) {
+      // Check if user is populated and has email
+      if (isPopulatedUser(booking.user) && booking.user.email) {
+        const user = booking.user;
+        const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client';
+        const spaceName = isPopulatedSpace(booking.space) ? booking.space.name : 'Espace';
+
         await sendClientPresentEmail(
           user.email,
           {
-            name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client',
-            spaceName: space?.name || 'Espace',
+            name: userName,
+            spaceName,
             date: bookingDate,
             startTime: booking.startTime || '09:00',
             endTime: booking.endTime || '18:00',

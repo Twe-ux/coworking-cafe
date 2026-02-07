@@ -35,6 +35,35 @@ interface AdminDocument {
   employeeId?: ObjectId | null;
 }
 
+/**
+ * Interface pour les employés retournés par Mongoose (lean)
+ * Simplifié pour l'authentification
+ */
+interface EmployeeLeanDocument {
+  _id: ObjectId;
+  email: string;
+  firstName: string;
+  lastName: string;
+  employeeRole: 'Manager' | 'Assistant manager' | 'Employé polyvalent';
+  dashboardPinHash?: string;
+  isActive: boolean;
+}
+
+/**
+ * Interface pour le rôle populé depuis User
+ */
+interface PopulatedRole {
+  slug: 'dev' | 'admin' | 'staff' | 'client';
+  name: string;
+}
+
+/**
+ * Interface pour un User avec role populé
+ */
+interface UserWithRole extends Omit<UserDocument, 'role'> {
+  role: PopulatedRole;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -101,12 +130,12 @@ export const authOptions: NextAuthOptions = {
             const employees = await Employee.find({
               isActive: true,
               employeeRole: { $in: ['Manager', 'Assistant manager'] }, // Seuls ceux-ci ont dashboardPin
-            }).lean();
+            }).lean<EmployeeLeanDocument[]>();
 
             console.log(`🔍 Found ${employees.length} potential employees`);
 
             // Comparer le PIN avec le dashboardPinHash de chaque employé
-            let matchedEmployee = null;
+            let matchedEmployee: EmployeeLeanDocument | null = null;
             for (const emp of employees) {
               if (emp.dashboardPinHash) {
                 const isPinValid = await bcrypt.compare(credentials.password, emp.dashboardPinHash);
@@ -137,7 +166,7 @@ export const authOptions: NextAuthOptions = {
             console.log('✅ Employee PIN authentication successful, role:', systemRole);
 
             return {
-              id: (matchedEmployee._id as any).toString(),
+              id: matchedEmployee._id.toString(),
               email: matchedEmployee.email,
               name: `${matchedEmployee.firstName} ${matchedEmployee.lastName}`,
               role: systemRole,
@@ -155,8 +184,8 @@ export const authOptions: NextAuthOptions = {
 
             // Chercher l'utilisateur par email
             const user = await User.findOne({ email: credentials.email.toLowerCase() })
-              .populate('role')
-              .lean();
+              .populate<{ role: PopulatedRole }>('role')
+              .lean<UserWithRole>();
 
             if (!user) {
               console.log('❌ User not found:', credentials.email);
@@ -176,7 +205,7 @@ export const authOptions: NextAuthOptions = {
             console.log('✅ PIN correct');
 
             // Vérifier que le role est bien populé
-            const role = user.role as any;
+            const role = user.role;
             if (!role?.slug || !['dev', 'admin', 'staff', 'client'].includes(role.slug)) {
               console.log('❌ Invalid role for user:', role?.slug);
               throw new Error('Accès non autorisé');
@@ -259,9 +288,15 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         // Extraire le slug du role (string) au lieu de l'objet complet
         // user.role peut être une string ou un objet { slug: 'admin', ... }
-        const roleValue = typeof user.role === 'string'
-          ? user.role
-          : (user.role as any)?.slug || 'staff';
+        let roleValue: string;
+
+        if (typeof user.role === 'string') {
+          roleValue = user.role;
+        } else if (user.role && typeof user.role === 'object' && 'slug' in user.role) {
+          roleValue = (user.role as PopulatedRole).slug;
+        } else {
+          roleValue = 'staff';
+        }
 
         token.role = roleValue;
         token.id = user.id;

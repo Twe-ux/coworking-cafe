@@ -3,6 +3,34 @@ import { Booking } from "@coworking-cafe/database";
 import { connectMongoose } from "@/lib/mongodb";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
+import { Types } from "mongoose";
+
+/**
+ * Interface for populated booking document
+ */
+interface PopulatedBooking {
+  _id: Types.ObjectId;
+  user?: {
+    _id: Types.ObjectId;
+    firstName?: string;
+    lastName?: string;
+    email: string;
+  };
+  spaceType: string;
+  date: Date;
+  startTime?: string;
+  endTime?: string;
+  numberOfPeople: number;
+  totalPrice: number;
+  status: string;
+  cancelledAt?: string;
+  cancelReason?: string;
+  contactName?: string;
+  contactEmail?: string;
+  isAdminBooking?: boolean;
+  save(): Promise<PopulatedBooking>;
+  toObject(): PopulatedBooking;
+}
 
 /**
  * POST /api/booking/reservations/[id]/cancel
@@ -46,59 +74,67 @@ export async function POST(
 
     // Update status to cancelled
     booking.status = "cancelled";
-    (booking as any).cancelledAt = new Date().toISOString();
-    (booking as any).cancelReason = reason || "Annulée par l'administrateur";
+    booking.cancelledAt = new Date();
+    booking.cancelReason = reason || "Annulée par l'administrateur";
     await booking.save();
 
     // Populate user for email
     await booking.populate('user', 'firstName lastName email');
 
+    // Type assertion après populate
+    const populatedBooking = booking as unknown as PopulatedBooking;
+
     // Préparer les données pour l'email
-    const user = (booking as any).user || {};
-    const clientName = (user.firstName && user.lastName)
+    const user = populatedBooking.user;
+    const clientName = (user?.firstName && user?.lastName)
       ? `${user.firstName} ${user.lastName}`
-      : (booking as any).contactName || user.email || (booking as any).contactEmail || 'Client';
+      : populatedBooking.contactName || user?.email || populatedBooking.contactEmail || 'Client';
 
     const emailData = {
       name: clientName,
-      spaceName: booking.spaceType,
-      date: booking.date.toISOString().split("T")[0],
-      startTime: booking.startTime || '',
-      endTime: booking.endTime || '',
-      numberOfPeople: booking.numberOfPeople,
-      totalPrice: booking.totalPrice,
+      spaceName: populatedBooking.spaceType,
+      date: populatedBooking.date.toISOString().split("T")[0],
+      startTime: populatedBooking.startTime || '',
+      endTime: populatedBooking.endTime || '',
+      numberOfPeople: populatedBooking.numberOfPeople,
+      totalPrice: populatedBooking.totalPrice,
       reason: reason || undefined,
     };
 
     // Envoyer l'email d'annulation
     try {
       const { sendEmail } = await import('@/lib/email/emailService');
+      const recipientEmail = user?.email || populatedBooking.contactEmail;
 
-      // Choisir le template selon isAdminBooking
-      if ((booking as any).isAdminBooking) {
-        // Template admin : pas de mention de libération d'empreinte bancaire
-        const { generateAdminBookingCancellationEmail } = await import('@coworking-cafe/email');
-
-        await sendEmail({
-          to: user.email || (booking as any).contactEmail,
-          subject: '❌ Réservation annulée - CoworKing Café',
-          html: generateAdminBookingCancellationEmail(emailData),
-        });
+      if (!recipientEmail) {
+        console.warn('⚠️ Aucun email trouvé pour envoyer la notification d\'annulation');
       } else {
-        // Template classique : avec mention de libération d'empreinte bancaire
-        const { generateReservationRejectedEmail } = await import('@coworking-cafe/email');
+        // Choisir le template selon isAdminBooking
+        if (populatedBooking.isAdminBooking) {
+          // Template admin : pas de mention de libération d'empreinte bancaire
+          const { generateAdminBookingCancellationEmail } = await import('@coworking-cafe/email');
 
-        await sendEmail({
-          to: user.email || (booking as any).contactEmail,
-          subject: '❌ Réservation annulée - CoworKing Café',
-          html: generateReservationRejectedEmail({
-            ...emailData,
-            confirmationNumber: booking._id.toString(),
-          }),
-        });
+          await sendEmail({
+            to: recipientEmail,
+            subject: '❌ Réservation annulée - CoworKing Café',
+            html: generateAdminBookingCancellationEmail(emailData),
+          });
+        } else {
+          // Template classique : avec mention de libération d'empreinte bancaire
+          const { generateReservationRejectedEmail } = await import('@coworking-cafe/email');
+
+          await sendEmail({
+            to: recipientEmail,
+            subject: '❌ Réservation annulée - CoworKing Café',
+            html: generateReservationRejectedEmail({
+              ...emailData,
+              confirmationNumber: populatedBooking._id.toString(),
+            }),
+          });
+        }
+
+        console.log('✅ Email d\'annulation envoyé:', recipientEmail);
       }
-
-      console.log('✅ Email d\'annulation envoyé:', user.email || (booking as any).contactEmail);
     } catch (emailError) {
       console.error('❌ Erreur lors de l\'envoi de l\'email:', emailError);
       // Ne pas bloquer l'annulation si l'email échoue
