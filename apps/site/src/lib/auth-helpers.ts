@@ -5,6 +5,7 @@ import { Role } from '@coworking-cafe/database';
 import { Permission } from '@coworking-cafe/database';
 import type { UserDocument } from "@coworking-cafe/database";
 import type { RoleDocument } from "@coworking-cafe/database";
+import type { PermissionDocument } from "@coworking-cafe/database";
 
 /**
  * Hash a password using bcrypt
@@ -94,7 +95,8 @@ export async function hasPermission(
     return false;
   }
 
-  const role = user.role as any;
+  // After populate, role is a RoleDocument, not ObjectId
+  const role = user.role as unknown as RoleDocument;
 
   // Dev has all permissions
   if (role.slug === "dev") {
@@ -102,9 +104,9 @@ export async function hasPermission(
   }
 
   // Check if permission exists in role's permissions
-  const permissions = role.permissions || [];
+  const permissions = (role.permissions || []) as unknown as PermissionDocument[];
   return permissions.some(
-    (permission: any) =>
+    (permission) =>
       permission.resource === resource && permission.action === action,
   );
 }
@@ -122,7 +124,8 @@ export async function hasRoleLevel(
     return false;
   }
 
-  const role = user.role as any;
+  // After populate, role is a RoleDocument, not ObjectId
+  const role = user.role as unknown as RoleDocument;
   return role.level >= requiredLevel;
 }
 
@@ -138,7 +141,8 @@ export async function getUserRoleSlug(
     return null;
   }
 
-  const role = user.role as any;
+  // After populate, role is a RoleDocument, not ObjectId
+  const role = user.role as unknown as RoleDocument;
   return role.slug;
 }
 

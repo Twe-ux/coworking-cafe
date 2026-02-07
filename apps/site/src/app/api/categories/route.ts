@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../lib/db";
 import { Category } from '@coworking-cafe/database';
-import { requireAuth, generateSlug } from "../../../lib/api-helpers";
+import { requireAuth, generateSlug, getErrorMessage } from "../../../lib/api-helpers";
 
 // GET /api/categories - Get all categories
 
@@ -16,7 +16,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50");
     const visible = searchParams.get("visible");
 
-    const query: any = {};
+    interface CategoryFilter {
+      isVisible?: boolean;
+    }
+
+    const query: CategoryFilter = {};
     if (visible === "true") {
       query.isVisible = true;
     }
@@ -40,9 +44,9 @@ export async function GET(request: NextRequest) {
       limit,
       pages: Math.ceil(total / limit),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to fetch categories", details: error.message },
+      { error: "Failed to fetch categories", details: getErrorMessage(error) },
       { status: 500 },
     );
   }
@@ -106,9 +110,9 @@ export async function POST(request: NextRequest) {
       .lean();
 
     return NextResponse.json(populatedCategory, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to create category", details: error.message },
+      { error: "Failed to create category", details: getErrorMessage(error) },
       { status: 500 },
     );
   }

@@ -1,5 +1,9 @@
 import crypto from "crypto";
-import { PromoConfig, connectToDatabase } from "@coworking-cafe/database";
+import {
+  PromoConfig,
+  connectToDatabase,
+  type PromoConfigDocument,
+} from "@coworking-cafe/database";
 import {
   PromoConfig as PromoConfigType,
   PromoCode,
@@ -15,7 +19,7 @@ class PromoService {
   }
 
   // Convertir le document MongoDB en type PromoConfig
-  private toPromoConfig(doc: any): PromoConfigType {
+  private toPromoConfig(doc: PromoConfigDocument): PromoConfigType {
     const config: PromoConfigType = {
       current: {
         code: doc.current.code,
@@ -30,7 +34,7 @@ class PromoService {
         is_active: doc.current.isActive,
         created_at: doc.current.createdAt.toISOString(),
       },
-      history: doc.history.map((h: any) => ({
+      history: doc.history.map((h) => ({
         code: h.code,
         token: h.token,
         description: h.description,
@@ -69,10 +73,10 @@ class PromoService {
         image_url: doc.marketing.imageUrl,
         cta_text: doc.marketing.ctaText,
       },
-      events: doc.events.map((e: any) => ({
+      events: doc.events.map((e) => ({
         timestamp: e.timestamp.toISOString(),
         type: e.type,
-        session_id: e.session_id,
+        session_id: e.sessionId,
       })),
     };
     return config;
@@ -331,7 +335,7 @@ class PromoService {
   }
 
   // Recalculer les taux de conversion
-  private recalculateConversionRates(doc: any): void {
+  private recalculateConversionRates(doc: PromoConfigDocument): void {
     const { totalScans, totalReveals, totalCopies } = doc.scanStats;
 
     doc.scanStats.conversionRateReveal =
@@ -346,7 +350,7 @@ class PromoService {
   }
 
   // Calculer le temps moyen jusqu'à la révélation
-  private calculateAverageTimeToReveal(doc: any): void {
+  private calculateAverageTimeToReveal(doc: PromoConfigDocument): void {
     const sessionTimes: {
       [sessionId: string]: { scan?: number; reveal?: number };
     } = {};
@@ -451,7 +455,7 @@ class PromoService {
 
     const initialCount = doc.events.length;
     doc.events = doc.events.filter(
-      (event: any) => new Date(event.timestamp).getTime() > thirtyDaysAgo,
+      (event) => new Date(event.timestamp).getTime() > thirtyDaysAgo,
     );
 
     const removedCount = initialCount - doc.events.length;

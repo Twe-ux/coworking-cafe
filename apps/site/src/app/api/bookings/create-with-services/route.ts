@@ -277,7 +277,15 @@ export async function POST(request: NextRequest) {
     // Send confirmation email
     try {
       // Format additional services for email
-      const emailServices = (additionalServices || []).map((service: any) => ({
+      interface AdditionalService {
+        name?: string;
+        serviceName?: string;
+        quantity?: number;
+        unitPrice?: number;
+        price?: number;
+      }
+
+      const emailServices = ((additionalServices as AdditionalService[] | undefined) || []).map((service) => ({
         name: service.name || service.serviceName || 'Service',
         quantity: service.quantity || 1,
         price: service.unitPrice || service.price || 0,

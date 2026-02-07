@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       slug: category.slug,
       description: category.description,
       drinks: drinks.filter(
-        (drink: any) =>
+        (drink) =>
           drink.category?._id?.toString() === category._id.toString(),
       ),
     }));

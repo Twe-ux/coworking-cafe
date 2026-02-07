@@ -228,9 +228,17 @@ export async function POST(request: NextRequest) {
       const spaceConfig = await SpaceConfiguration.findOne({ spaceType: dbSpaceType });
 
       // Parse additional services for email if present
+      interface AdditionalService {
+        name?: string;
+        serviceName?: string;
+        quantity?: number;
+        unitPrice?: number;
+        price?: number;
+      }
+
       let emailServices: Array<{ name: string; quantity: number; price: number }> = [];
       if (additionalServices && Array.isArray(additionalServices)) {
-        emailServices = additionalServices.map((service: any) => ({
+        emailServices = (additionalServices as AdditionalService[]).map((service) => ({
           name: service.name || service.serviceName || 'Service',
           quantity: service.quantity || 1,
           price: service.unitPrice || service.price || 0,

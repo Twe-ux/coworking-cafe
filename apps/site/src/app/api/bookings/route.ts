@@ -85,7 +85,17 @@ export async function GET(request: NextRequest) {
 
     // Transform bookings to ensure space.name is always set
     // For new bookings that use spaceType, create a virtual space object with the French name
-    const transformedBookings = bookings.map((booking: any) => {
+    interface BookingWithSpace {
+      space?: {
+        name: string;
+        type: string;
+        location?: string;
+      };
+      spaceType?: string;
+      [key: string]: unknown;
+    }
+
+    const transformedBookings = (bookings as BookingWithSpace[]).map((booking) => {
       if (!booking.space && booking.spaceType) {
         return {
           ...booking,

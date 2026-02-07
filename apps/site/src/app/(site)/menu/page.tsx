@@ -59,8 +59,11 @@ const MenuPage = () => {
           if (res.ok) {
             const data = await res.json();
             // Compter le nombre total d'items dans toutes les catégories
+            interface MenuCategory {
+              drinks?: unknown[];
+            }
             const totalItems = data.menu.reduce(
-              (sum: number, category: any) =>
+              (sum: number, category: MenuCategory) =>
                 sum + (category.drinks?.length || 0),
               0,
             );

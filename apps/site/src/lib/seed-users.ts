@@ -54,8 +54,8 @@ async function seedUsers() {
       try {
         const user = await createUser(userData);
         // User created successfully
-      } catch (error: any) {
-        if (error.message?.includes('already exists')) {
+      } catch (error: unknown) {
+        if (error instanceof Error && error.message?.includes('already exists')) {
           // User already exists
         } else {
           // Error creating user

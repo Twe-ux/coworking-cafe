@@ -695,7 +695,30 @@ export default function BookingDatePage({
     const existingData = sessionStorage.getItem("bookingData");
     const existingBookingData = existingData ? JSON.parse(existingData) : {};
 
-    let bookingData: any = {
+    interface StoredBookingData {
+      contactName?: string;
+      contactEmail?: string;
+      contactPhone?: string;
+      contactCompanyName?: string;
+      specialRequests?: string;
+      createAccount?: boolean;
+      subscribeNewsletter?: boolean;
+      password?: string;
+      selectedServices?: Array<{ serviceId: string; quantity: number }>;
+    }
+
+    const bookingData: StoredBookingData & {
+      spaceType: string;
+      reservationType: ReservationType;
+      date: string;
+      startTime?: string;
+      endTime?: string;
+      endDate?: string;
+      basePrice: number;
+      duration: string;
+      numberOfPeople: number;
+      isDailyRate: boolean;
+    } = {
       ...existingBookingData, // Preserve existing data (contact, services, etc.)
       spaceType: params.type,
       reservationType,

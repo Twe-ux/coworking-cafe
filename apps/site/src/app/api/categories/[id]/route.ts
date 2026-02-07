@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../../lib/db";
 import { Category } from '@coworking-cafe/database';
-import { requireAuth, generateSlug } from "../../../../lib/api-helpers";
+import { requireAuth, generateSlug, getErrorMessage } from "../../../../lib/api-helpers";
 
 // GET /api/categories/[id]
 
@@ -26,9 +26,9 @@ export async function GET(
     }
 
     return NextResponse.json(category);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to fetch category", details: error.message },
+      { error: "Failed to fetch category", details: getErrorMessage(error) },
       { status: 500 },
     );
   }
@@ -105,9 +105,9 @@ export async function PATCH(
       .lean();
 
     return NextResponse.json(updatedCategory);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to update category", details: error.message },
+      { error: "Failed to update category", details: getErrorMessage(error) },
       { status: 500 },
     );
   }
@@ -146,9 +146,9 @@ export async function DELETE(
     await category.deleteOne();
 
     return NextResponse.json({ message: "Category deleted successfully" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to delete category", details: error.message },
+      { error: "Failed to delete category", details: getErrorMessage(error) },
       { status: 500 },
     );
   }

@@ -30,7 +30,7 @@ export async function GET() {
       success: true,
       data: config,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in /api/global-hours:", error);
     return NextResponse.json(
       { error: "Failed to fetch global hours configuration" },

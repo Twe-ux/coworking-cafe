@@ -63,7 +63,18 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Transform entries to ensure proper types
-    const transformedEntries = entries.map((entry: any) => ({
+    interface CashRegisterEntry {
+      _id: { toString(): string };
+      date: string;
+      amount: number;
+      countedBy: string;
+      countDetails?: unknown;
+      notes?: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }
+
+    const transformedEntries = (entries as CashRegisterEntry[]).map((entry) => ({
       _id: entry._id.toString(),
       date: entry.date,
       amount: entry.amount,
