@@ -97,13 +97,13 @@ export async function POST(request: NextRequest) {
           // Create new user
           if (createAccount && password) {
             // Create permanent account with user-provided password
-            const hashedPassword = await bcrypt.hash(password, 10);
+            // Password will be hashed automatically by User model pre-save hook
             user = await User.create({
               email: contactEmail,
               givenName: contactName,
               phone: contactPhone,
               username: contactEmail.split('@')[0] + '_' + Date.now(),
-              password: hashedPassword,
+              password: password, // Plain password - will be hashed by pre-save hook
               role: clientRole._id,
               newsletter: subscribeNewsletter || false,
               isTemporary: false,
@@ -111,13 +111,13 @@ export async function POST(request: NextRequest) {
           } else {
             // Create temporary user with random password
             const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            const hashedPassword = await bcrypt.hash(randomPassword, 10);
+            // Password will be hashed automatically by User model pre-save hook
             user = await User.create({
               email: contactEmail,
               givenName: contactName,
               phone: contactPhone,
               username: contactEmail.split('@')[0] + '_' + Date.now(),
-              password: hashedPassword,
+              password: randomPassword, // Plain password - will be hashed by pre-save hook
               role: clientRole._id,
               newsletter: subscribeNewsletter || false,
               isTemporary: true,
@@ -127,14 +127,13 @@ export async function POST(request: NextRequest) {
           // User exists - update if needed
           if (user.isTemporary && createAccount && password) {
             // Convert temporary user to permanent account
-            const hashedPassword = await bcrypt.hash(password, 10);
-            await User.findByIdAndUpdate(user._id, {
-              password: hashedPassword,
-              givenName: contactName,
-              phone: contactPhone,
-              newsletter: subscribeNewsletter || false,
-              isTemporary: false,
-            });
+            // Use save() instead of findByIdAndUpdate to trigger pre-save hook
+            user.password = password; // Plain password - will be hashed by pre-save hook
+            user.givenName = contactName;
+            user.phone = contactPhone;
+            user.newsletter = subscribeNewsletter || false;
+            user.isTemporary = false;
+            await user.save(); // Save to trigger pre-save hook
           } else if (subscribeNewsletter !== undefined) {
             // Just update newsletter preference
             await User.findByIdAndUpdate(user._id, {

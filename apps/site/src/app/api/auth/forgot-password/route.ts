@@ -3,7 +3,7 @@ import { connectDB } from "../../../../lib/mongodb";
 import { User } from "@coworking-cafe/database";
 import { PasswordResetToken } from "@coworking-cafe/database";
 import crypto from "crypto";
-import { sendEmail } from "../../../../lib/email/emailService";
+import { sendEmail } from "@coworking-cafe/email";
 import { passwordResetEmail } from "../../../../lib/email/templates";
 
 export const dynamic = "force-dynamic";
@@ -53,18 +53,15 @@ export async function POST(request: NextRequest) {
       `http://localhost:${process.env.PORT || 3000}`;
     const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`;
 
-    // Envoyer l'email avec le sender 'default' (noreply)
-    await sendEmail(
-      {
-        to: user.email,
-        subject: "Réinitialisation de votre mot de passe",
-        html: passwordResetEmail({
-          userName: user.givenName || user.username || user.email,
-          resetUrl,
-        }),
-      },
-      "default",
-    );
+    // Envoyer l'email (via SMTP OVH avec noreply@coworkingcafe.fr)
+    await sendEmail({
+      to: user.email,
+      subject: "Réinitialisation de votre mot de passe",
+      html: passwordResetEmail({
+        userName: user.givenName || user.username || user.email,
+        resetUrl,
+      }),
+    });
 
     return NextResponse.json({
       success: true,
