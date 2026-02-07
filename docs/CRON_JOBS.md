@@ -13,6 +13,8 @@
 | **Check Attendance** | `0 10 * * *` (10h00) | `/api/cron/check-attendance` | Traitement des no-shows (J-1) |
 | **Daily Report** | `0 19 * * *` (19h00) | `/api/cron/daily-report` | Rapport quotidien admin |
 
+⚠️ **Note** : Les horaires sont **fixes** et configurés dans `vercel.json`. Ils ne peuvent pas être modifiés dynamiquement via l'interface admin.
+
 ---
 
 ## ⚙️ Configuration Vercel

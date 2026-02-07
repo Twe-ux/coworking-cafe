@@ -14,6 +14,7 @@ interface UnavailabilityRejectedEmailData {
   endDate: string;
   reason?: string;
   rejectionReason: string;
+  contactEmail?: string;
 }
 
 const typeLabels = {
@@ -26,8 +27,9 @@ const typeLabels = {
 export function generateUnavailabilityRejectedEmail(
   data: UnavailabilityRejectedEmailData
 ): string {
-  const { employeeName, type, startDate, endDate, reason, rejectionReason } = data;
+  const { employeeName, type, startDate, endDate, reason, rejectionReason, contactEmail } = data;
   const days = calculateDays(startDate, endDate);
+  const email = contactEmail || process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr';
 
   return `
 <!DOCTYPE html>
@@ -286,7 +288,7 @@ export function generateUnavailabilityRejectedEmail(
                         </tr>
                         <tr>
                           <td class="info-box-text" style="padding: 4px 0; font-size: 15px; color: #991b1b !important;">
-                            <strong style="color: #991b1b !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #EF4444 !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+                            <strong style="color: #991b1b !important;">Email :</strong> <a href="mailto:${email}" style="color: #EF4444 !important; text-decoration: none;">${email}</a>
                           </td>
                         </tr>
                       </table>

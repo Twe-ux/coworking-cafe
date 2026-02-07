@@ -12,10 +12,6 @@ interface CancellationPolicyTier {
 interface BookingSettingsData {
   cancellationPolicyOpenSpace: CancellationPolicyTier[]
   cancellationPolicyMeetingRooms: CancellationPolicyTier[]
-  cronSchedules: {
-    attendanceCheckTime: string
-    dailyReportTime: string
-  }
   depositPolicy: {
     minAmountRequired: number
     defaultPercent: number
@@ -51,16 +47,6 @@ const BookingSettingsSchema = new mongoose.Schema(
         { daysBeforeBooking: 3, chargePercentage: 50 },
         { daysBeforeBooking: 0, chargePercentage: 100 },
       ],
-    },
-    cronSchedules: {
-      type: {
-        attendanceCheckTime: { type: String, required: true, default: "10:00" },
-        dailyReportTime: { type: String, required: true, default: "19:00" },
-      },
-      default: {
-        attendanceCheckTime: "10:00",
-        dailyReportTime: "19:00",
-      },
     },
     depositPolicy: {
       type: {
@@ -100,16 +86,12 @@ const DEFAULT_SETTINGS: BookingSettingsData = {
     { daysBeforeBooking: 3, chargePercentage: 50 },
     { daysBeforeBooking: 0, chargePercentage: 100 },
   ],
-  cronSchedules: {
-    attendanceCheckTime: "10:00",
-    dailyReportTime: "19:00",
-  },
   depositPolicy: {
     minAmountRequired: 200,
     defaultPercent: 50,
     applyToSpaces: ["salle-etage"],
   },
-  notificationEmail: "strasbourg@coworkingcafe.fr",
+  notificationEmail: process.env.CONTACT_EMAIL || "strasbourg@coworkingcafe.fr",
 }
 
 // Force dynamic rendering (no static analysis at build time)
@@ -132,7 +114,6 @@ export async function GET() {
     return NextResponse.json({
       cancellationPolicyOpenSpace: settings.cancellationPolicyOpenSpace,
       cancellationPolicyMeetingRooms: settings.cancellationPolicyMeetingRooms,
-      cronSchedules: settings.cronSchedules,
       depositPolicy: settings.depositPolicy,
       notificationEmail: settings.notificationEmail,
     })
@@ -164,16 +145,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (
-      !body.cronSchedules?.attendanceCheckTime ||
-      !body.cronSchedules?.dailyReportTime
-    ) {
-      return NextResponse.json(
-        { error: "Horaires cron requis" },
-        { status: 400 }
-      )
-    }
-
     // Upsert settings (create if not exists, update otherwise)
     const settings = await BookingSettings.findOneAndUpdate(
       {},
@@ -181,7 +152,6 @@ export async function POST(request: NextRequest) {
         $set: {
           cancellationPolicyOpenSpace: body.cancellationPolicyOpenSpace,
           cancellationPolicyMeetingRooms: body.cancellationPolicyMeetingRooms,
-          cronSchedules: body.cronSchedules,
           depositPolicy: body.depositPolicy,
           notificationEmail: body.notificationEmail.toLowerCase().trim(),
         },
@@ -195,7 +165,6 @@ export async function POST(request: NextRequest) {
       data: {
         cancellationPolicyOpenSpace: settings.cancellationPolicyOpenSpace,
         cancellationPolicyMeetingRooms: settings.cancellationPolicyMeetingRooms,
-        cronSchedules: settings.cronSchedules,
         depositPolicy: settings.depositPolicy,
         notificationEmail: settings.notificationEmail,
       },

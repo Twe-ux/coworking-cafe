@@ -1,11 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Mail } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Mail } from "lucide-react";
 
 interface NotificationCardProps {
-  email: string
-  onUpdate: (value: string) => void
+  email: string;
+  onUpdate: (value: string) => void;
 }
 
 export function NotificationCard({ email, onUpdate }: NotificationCardProps) {
@@ -25,7 +25,7 @@ export function NotificationCard({ email, onUpdate }: NotificationCardProps) {
             type="email"
             value={email}
             onChange={(e) => onUpdate(e.target.value)}
-            placeholder="strasbourg@coworkingcafe.fr"
+            placeholder="email"
           />
           <p className="text-xs text-muted-foreground">
             Email pour recevoir les rapports quotidiens
@@ -33,5 +33,5 @@ export function NotificationCard({ email, onUpdate }: NotificationCardProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

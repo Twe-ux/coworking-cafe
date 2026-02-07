@@ -25,7 +25,6 @@ interface UseBookingSettingsReturn {
     value: number
   ) => void
   toggleSpaceType: (spaceType: string, checked: boolean) => void
-  updateCronSchedule: (field: "attendanceCheckTime" | "dailyReportTime", value: string) => void
   updateDepositPolicy: (field: "minAmountRequired" | "defaultPercent", value: number) => void
   updateNotificationEmail: (value: string) => void
 }
@@ -136,19 +135,6 @@ export function useBookingSettings(): UseBookingSettingsReturn {
     setSettings((prev) => toggleSpaceTypeHelper(prev, spaceType, checked))
   }
 
-  const updateCronSchedule = (
-    field: "attendanceCheckTime" | "dailyReportTime",
-    value: string
-  ) => {
-    setSettings({
-      ...settings,
-      cronSchedules: {
-        ...settings.cronSchedules,
-        [field]: value,
-      },
-    })
-  }
-
   const updateDepositPolicy = (
     field: "minAmountRequired" | "defaultPercent",
     value: number
@@ -181,7 +167,6 @@ export function useBookingSettings(): UseBookingSettingsReturn {
     removeCancellationTier,
     updateCancellationTier,
     toggleSpaceType,
-    updateCronSchedule,
     updateDepositPolicy,
     updateNotificationEmail,
   }

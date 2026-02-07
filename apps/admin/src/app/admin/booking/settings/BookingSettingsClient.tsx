@@ -5,7 +5,6 @@ import { StyledAlert } from "@/components/ui/styled-alert"
 import { Loader2, RefreshCw, Save } from "lucide-react"
 import { useBookingSettings } from "./hooks/useBookingSettings"
 import { CancellationPolicyCard } from "./components/CancellationPolicyCard"
-import { AutomationCard } from "./components/AutomationCard"
 import { NotificationCard } from "./components/NotificationCard"
 import { DepositPolicyCard } from "./components/DepositPolicyCard"
 
@@ -22,7 +21,6 @@ export function BookingSettingsClient() {
     removeCancellationTier,
     updateCancellationTier,
     toggleSpaceType,
-    updateCronSchedule,
     updateDepositPolicy,
     updateNotificationEmail,
   } = useBookingSettings()
@@ -82,13 +80,6 @@ export function BookingSettingsClient() {
           onUpdate={(index, field, value) =>
             updateCancellationTier("meetingRooms", index, field, value)
           }
-        />
-
-        <AutomationCard
-          attendanceCheckTime={settings.cronSchedules.attendanceCheckTime}
-          dailyReportTime={settings.cronSchedules.dailyReportTime}
-          onUpdateAttendanceTime={(value) => updateCronSchedule("attendanceCheckTime", value)}
-          onUpdateReportTime={(value) => updateCronSchedule("dailyReportTime", value)}
         />
 
         <NotificationCard

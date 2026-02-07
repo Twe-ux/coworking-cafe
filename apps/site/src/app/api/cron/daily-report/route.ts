@@ -1,15 +1,10 @@
+import { Booking } from "@coworking-cafe/database";
+import { sendEmail } from "@coworking-cafe/email";
+import { NextRequest, NextResponse } from "next/server";
 import { logger } from "../../../../lib/logger";
 import { connectDB } from "../../../../lib/mongodb";
 import BookingSettings from "../../../../models/bookingSettings";
-import { Booking } from '@coworking-cafe/database';
-import { NextRequest, NextResponse } from "next/server";
-import { sendEmail } from "@coworking-cafe/email";
-import type {
-  PopulatedBooking,
-  DailyReportData,
-  DailyReportStats,
-  CronApiResponse,
-} from "../../../../types/cron";
+import type { DailyReportData, PopulatedBooking } from "../../../../types/cron";
 
 /**
  * GET /api/cron/daily-report
@@ -49,7 +44,7 @@ export async function GET(request: NextRequest) {
     // Get booking settings for notification email
     const settings = await BookingSettings.findOne();
     const notificationEmail =
-      settings?.notificationEmail || "strasbourg@coworkingcafe.fr";
+      settings?.notificationEmail || process.env.CONTACT_EMAIL;
 
     logger.info("Starting daily-report cron", {
       component: "Cron /daily-report",

@@ -13,6 +13,7 @@ interface UnavailabilityApprovedEmailData {
   startDate: string;
   endDate: string;
   reason?: string;
+  contactEmail?: string;
 }
 
 const typeLabels = {
@@ -25,8 +26,9 @@ const typeLabels = {
 export function generateUnavailabilityApprovedEmail(
   data: UnavailabilityApprovedEmailData
 ): string {
-  const { employeeName, type, startDate, endDate, reason } = data;
+  const { employeeName, type, startDate, endDate, reason, contactEmail } = data;
   const days = calculateDays(startDate, endDate);
+  const email = contactEmail || process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr';
 
   return `
 <!DOCTYPE html>
@@ -265,7 +267,7 @@ export function generateUnavailabilityApprovedEmail(
                         </tr>
                         <tr>
                           <td class="info-box-text" style="padding: 4px 0; font-size: 15px; color: #065f46 !important;">
-                            <strong style="color: #065f46 !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #10B981 !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+                            <strong style="color: #065f46 !important;">Email :</strong> <a href="mailto:${email}" style="color: #10B981 !important; text-decoration: none;">${email}</a>
                           </td>
                         </tr>
                       </table>
