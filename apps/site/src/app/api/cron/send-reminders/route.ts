@@ -12,12 +12,10 @@ import { ObjectId } from "mongoose";
  * Cron job that runs daily to send reminder emails 24h before reservations
  * Sends reminders to customers with upcoming confirmed reservations
  *
- * Configure in Northflank:
- * - Create a Cron Job (HTTP Request type)
- * - URL: https://your-domain.com/api/cron/send-reminders
+ * Configured in vercel.json:
  * - Schedule: 0 10 * * * (daily at 10:00 AM)
- * - Method: GET
- * - Header: Authorization: Bearer ${CRON_SECRET}
+ * - Vercel automatically adds Authorization header with CRON_SECRET
+ * - Environment variable CRON_SECRET must be set in Vercel project settings
  */
 export async function GET(request: NextRequest) {
   try {
