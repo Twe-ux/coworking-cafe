@@ -27,6 +27,19 @@ export interface Shift {
   updatedAt: string
 }
 
+/**
+ * Extended Shift interface for unavailability requests
+ * Used in AvailabilityWeekCard to mark requested unavailability
+ * Also allows Date objects for internal use during shift creation
+ */
+export interface ShiftWithUnavailability extends Omit<Shift, 'date' | 'createdAt' | 'updatedAt'> {
+  date: string | Date
+  createdAt: string | Date
+  updatedAt: string | Date
+  _id?: string // MongoDB internal ID
+  _unavailabilityRequested?: boolean
+}
+
 export interface CreateShiftInput {
   employeeId: string
   date: string // Format "YYYY-MM-DD"

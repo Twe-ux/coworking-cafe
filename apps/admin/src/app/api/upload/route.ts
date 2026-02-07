@@ -3,6 +3,18 @@ import { requireAuth } from "@/lib/api/auth"
 import { errorResponse, successResponse } from "@/lib/api/response"
 import cloudinary from "@/lib/cloudinary"
 
+/**
+ * Cloudinary Upload Result
+ * Type for the result returned by cloudinary.uploader.upload_stream
+ */
+interface CloudinaryUploadResult {
+  secure_url: string
+  public_id: string
+  width: number
+  height: number
+  format: string
+}
+
 // POST /api/upload - Uploader une image vers Cloudinary
 // Force dynamic rendering (no static analysis at build time)
 export const dynamic = 'force-dynamic';
@@ -46,7 +58,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes)
 
     // Upload vers Cloudinary
-    const result = await new Promise((resolve, reject) => {
+    const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
           {
@@ -54,22 +66,25 @@ export async function POST(request: NextRequest) {
             resource_type: "auto",
           },
           (error, result) => {
-            if (error) reject(error)
-            else resolve(result)
+            if (error) {
+              reject(error)
+            } else if (!result) {
+              reject(new Error("Cloudinary upload returned undefined"))
+            } else {
+              resolve(result as CloudinaryUploadResult)
+            }
           }
         )
         .end(buffer)
     })
 
-    const uploadResult = result as any
-
     return successResponse(
       {
-        url: uploadResult.secure_url,
-        publicId: uploadResult.public_id,
-        width: uploadResult.width,
-        height: uploadResult.height,
-        format: uploadResult.format,
+        url: result.secure_url,
+        publicId: result.public_id,
+        width: result.width,
+        height: result.height,
+        format: result.format,
       },
       "Fichier uploadé avec succès",
       201

@@ -6,6 +6,21 @@
 import React from 'react'
 import type { Employee } from '@/types/hr'
 
+/**
+ * Type for the pdf() function from @react-pdf/renderer
+ * @see https://github.com/diegomura/react-pdf/blob/master/packages/renderer/index.d.ts#L652
+ */
+type PDFFunction = (initialValue?: React.ReactElement) => {
+  container: unknown
+  isDirty: () => boolean
+  toString: () => string
+  toBlob: () => Promise<Blob>
+  toBuffer: () => Promise<NodeJS.ReadableStream>
+  on: (event: 'change', callback: () => void) => void
+  updateContainer: (document: React.ReactElement, callback?: () => void) => void
+  removeListener: (event: 'change', callback: () => void) => void
+}
+
 export interface GenerateContractPDFOptions {
   employee: Employee
   monthlySalary: string
@@ -42,7 +57,7 @@ export async function generateContractPDF(options: GenerateContractPDFOptions): 
   })
 
   // Generate PDF blob
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const blob = await pdf(doc as any).toBlob()
+  const pdfInstance = (pdf as PDFFunction)(doc)
+  const blob = await pdfInstance.toBlob()
   return blob
 }

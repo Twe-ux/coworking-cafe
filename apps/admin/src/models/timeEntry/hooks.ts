@@ -1,4 +1,5 @@
-import { TimeEntrySchema } from './document'
+import { UpdateQuery } from 'mongoose'
+import { TimeEntrySchema, ITimeEntry } from './document'
 
 export function attachHooks() {
   // Pre-save: Calculate totalHours if clockOut exists
@@ -35,7 +36,7 @@ export function attachHooks() {
 
   // Pre-update: Calculate totalHours if clockOut is updated
   TimeEntrySchema.pre('findOneAndUpdate', async function (next) {
-    const update = this.getUpdate() as any
+    const update = this.getUpdate() as UpdateQuery<ITimeEntry>
 
     if (update.clockOut !== undefined) {
       // If clockOut is set, calculate totalHours

@@ -11,7 +11,7 @@ export function PWADetector() {
     // Détecter si en mode PWA
     const isPWA =
       window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as any).standalone === true ||
+      window.navigator.standalone === true ||
       document.referrer.includes('android-app://');
 
     // Stocker dans sessionStorage pour y accéder partout
@@ -53,7 +53,7 @@ export function useIsPWA(): boolean {
 
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    (window.navigator as any).standalone === true ||
+    window.navigator.standalone === true ||
     document.referrer.includes('android-app://') ||
     sessionStorage.getItem('isPWA') === 'true'
   );

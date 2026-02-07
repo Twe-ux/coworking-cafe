@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WeekCard } from "@/components/employee-scheduling/scheduling/WeekCard";
 import type { Employee } from "@/types/hr";
-import type { Shift } from "@/types/shift";
+import type { ShiftWithUnavailability } from "@/types/shift";
 import { StyledAlert } from "@/components/ui/styled-alert";
 
 interface AvailabilityWeekCardProps {
@@ -19,7 +19,7 @@ export function AvailabilityWeekCard({
   requestingEmployeeId
 }: AvailabilityWeekCardProps) {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [virtualShifts, setVirtualShifts] = useState<Shift[]>([]);
+  const [virtualShifts, setVirtualShifts] = useState<ShiftWithUnavailability[]>([]);
   const [weekStart, setWeekStart] = useState<Date>(new Date());
   const [weekEnd, setWeekEnd] = useState<Date>(new Date());
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,7 @@ export function AvailabilityWeekCard({
         setWeekEnd(sunday);
 
         // Convert availability to virtual shifts for display
-        const shifts: Shift[] = [];
+        const shifts: ShiftWithUnavailability[] = [];
 
         for (let i = 0; i < 7; i++) {
           const currentDate = new Date(monday);
@@ -69,7 +69,7 @@ export function AvailabilityWeekCard({
             const isRequested = dateStr >= startDate && dateStr <= endDate && employee.id === requestingEmployeeId;
 
             slots.forEach((slot, idx) => {
-              shifts.push({
+              const shift: ShiftWithUnavailability = {
                 _id: `${employee.id}-${dateStr}-${idx}`,
                 id: `${employee.id}-${dateStr}-${idx}`,
                 employeeId: employee.id,
@@ -78,11 +78,13 @@ export function AvailabilityWeekCard({
                 endTime: slot.end,
                 type: slot.start < '14:30' ? 'morning' : 'afternoon',
                 isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                timeRange: `${slot.start}-${slot.end}`,
+                createdAt: currentDate,
+                updatedAt: currentDate,
                 // Override color if requested unavailability
-                ...(isRequested && { _unavailabilityRequested: true })
-              } as any);
+                _unavailabilityRequested: isRequested
+              };
+              shifts.push(shift);
             });
           });
         }
@@ -162,17 +164,51 @@ export function AvailabilityWeekCard({
     );
   }
 
+  // Convert Date objects to strings for WeekCard compatibility
+  const normalizedShifts = virtualShifts.map(shift => ({
+    ...shift,
+    date: shift.date instanceof Date ? shift.date.toISOString().split('T')[0] : shift.date,
+    createdAt: shift.createdAt instanceof Date ? shift.createdAt.toISOString() : shift.createdAt,
+    updatedAt: shift.updatedAt instanceof Date ? shift.updatedAt.toISOString() : shift.updatedAt,
+    _id: undefined, // Remove MongoDB internal ID
+  }));
+
   const week = {
     weekStart,
     weekEnd,
-    shifts: virtualShifts
+    shifts: normalizedShifts
+  };
+
+  // Wrapper function that normalizes shifts in PositionedShifts
+  const normalizedGetShiftsPositionedByEmployee = (date: Date) => {
+    return getShiftsPositionedByEmployee(date).map(positioned => ({
+      ...positioned,
+      shifts: positioned.shifts.map(s => ({
+        ...s,
+        date: s.date instanceof Date ? s.date.toISOString().split('T')[0] : s.date,
+        createdAt: s.createdAt instanceof Date ? s.createdAt.toISOString() : s.createdAt,
+        updatedAt: s.updatedAt instanceof Date ? s.updatedAt.toISOString() : s.updatedAt,
+      })),
+      morningShifts: positioned.morningShifts.map(s => ({
+        ...s,
+        date: s.date instanceof Date ? s.date.toISOString().split('T')[0] : s.date,
+        createdAt: s.createdAt instanceof Date ? s.createdAt.toISOString() : s.createdAt,
+        updatedAt: s.updatedAt instanceof Date ? s.updatedAt.toISOString() : s.updatedAt,
+      })),
+      afternoonShifts: positioned.afternoonShifts.map(s => ({
+        ...s,
+        date: s.date instanceof Date ? s.date.toISOString().split('T')[0] : s.date,
+        createdAt: s.createdAt instanceof Date ? s.createdAt.toISOString() : s.createdAt,
+        updatedAt: s.updatedAt instanceof Date ? s.updatedAt.toISOString() : s.updatedAt,
+      })),
+    }));
   };
 
   return (
     <WeekCard
       week={week}
       employees={employees}
-      getShiftsPositionedByEmployee={getShiftsPositionedByEmployee}
+      getShiftsPositionedByEmployee={normalizedGetShiftsPositionedByEmployee}
       calculateWeeklyHours={calculateWeeklyHours}
       showHours={false}
     />

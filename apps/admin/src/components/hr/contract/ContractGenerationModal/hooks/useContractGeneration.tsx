@@ -11,6 +11,21 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import type { Employee, UseContractGenerationReturn } from '../types'
 
+/**
+ * Type for the pdf() function from @react-pdf/renderer
+ * @see https://github.com/diegomura/react-pdf/blob/master/packages/renderer/index.d.ts#L652
+ */
+type PDFFunction = (initialValue?: React.ReactElement) => {
+  container: unknown
+  isDirty: () => boolean
+  toString: () => string
+  toBlob: () => Promise<Blob>
+  toBuffer: () => Promise<NodeJS.ReadableStream>
+  on: (event: 'change', callback: () => void) => void
+  updateContainer: (document: React.ReactElement, callback?: () => void) => void
+  removeListener: (event: 'change', callback: () => void) => void
+}
+
 interface UseContractGenerationOptions {
   employee: Employee
   monthlySalary: string
@@ -50,7 +65,8 @@ export function useContractGeneration({
       })
 
       console.log('PDF Element créé, génération du blob...')
-      const blob = await pdf(pdfElement as any).toBlob()
+      const pdfInstance = (pdf as PDFFunction)(pdfElement)
+      const blob = await pdfInstance.toBlob()
       console.log('Blob généré avec succès, taille:', blob.size)
 
       return blob

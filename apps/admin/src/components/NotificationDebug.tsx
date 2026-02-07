@@ -315,7 +315,7 @@ export function NotificationDebug() {
           <div><strong>Navigateur:</strong> {navigator.userAgent.includes('Safari') ? 'Safari' : navigator.userAgent.includes('Chrome') ? 'Chrome' : 'Autre'}</div>
           <div><strong>iOS:</strong> {/iPhone|iPad|iPod/.test(navigator.userAgent) ? 'Oui' : 'Non'}</div>
           <div><strong>Standalone (Installée):</strong> {
-            ('standalone' in window.navigator && (window.navigator as any).standalone) ||
+            ('standalone' in window.navigator && window.navigator.standalone) ||
             window.matchMedia('(display-mode: standalone)').matches ? 'Oui ✅' : 'Non ❌'
           }</div>
           <div><strong>Permission:</strong> {permission}</div>

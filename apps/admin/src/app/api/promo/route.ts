@@ -27,13 +27,13 @@ export async function GET(
   // 3. Logic
   try {
     // Récupérer la config (il n'y en a qu'une seule)
-    const promoConfig = await PromoConfigModel.findOne().lean()
+    const promoConfig = await PromoConfigModel.findOne()
 
     if (!promoConfig) {
       return errorResponse('Configuration promo non trouvée', 'Aucune config en base', 404)
     }
 
-    const formattedConfig = formatPromoConfigResponse(promoConfig as any)
+    const formattedConfig = formatPromoConfigResponse(promoConfig)
 
     return successResponse(formattedConfig, 'Configuration promo récupérée avec succès')
   } catch (error) {

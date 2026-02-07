@@ -155,7 +155,7 @@ export async function unsubscribeFromPushNotifications(
 function isStandalone(): boolean {
   // iOS
   if ('standalone' in window.navigator) {
-    return (window.navigator as any).standalone === true;
+    return window.navigator.standalone === true;
   }
 
   // Android et autres

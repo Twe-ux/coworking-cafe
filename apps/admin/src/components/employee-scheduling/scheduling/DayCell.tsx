@@ -2,6 +2,7 @@
 
 import type { Employee } from '@/hooks/useEmployees'
 import type { PositionedShifts } from './types'
+import type { ShiftWithUnavailability } from '@/types/shift'
 import { isToday } from './utils'
 import { ShiftBadge } from './ShiftBadge'
 
@@ -57,14 +58,17 @@ export function DayCell({ day, employees, positionedShifts, isFirstDay, isLastDa
               {/* Morning column (before 14:30) */}
               <div className="space-y-1 text-center">
                 {morningShifts.length > 0 ? (
-                  morningShifts.map((shift) => (
-                    <ShiftBadge
-                      key={shift.id}
-                      shift={shift}
-                      employee={employee}
-                      colorOverride={(shift as any)._unavailabilityRequested ? '#f97316' : undefined}
-                    />
-                  ))
+                  morningShifts.map((shift) => {
+                    const shiftWithMeta = shift as ShiftWithUnavailability;
+                    return (
+                      <ShiftBadge
+                        key={shift.id}
+                        shift={shift}
+                        employee={employee}
+                        colorOverride={shiftWithMeta._unavailabilityRequested ? '#f97316' : undefined}
+                      />
+                    );
+                  })
                 ) : (
                   <div className="h-5 py-0.5" />
                 )}
@@ -73,14 +77,17 @@ export function DayCell({ day, employees, positionedShifts, isFirstDay, isLastDa
               {/* Afternoon column (after 14:30) */}
               <div className="space-y-1 text-center">
                 {afternoonShifts.length > 0 ? (
-                  afternoonShifts.map((shift) => (
-                    <ShiftBadge
-                      key={shift.id}
-                      shift={shift}
-                      employee={employee}
-                      colorOverride={(shift as any)._unavailabilityRequested ? '#f97316' : undefined}
-                    />
-                  ))
+                  afternoonShifts.map((shift) => {
+                    const shiftWithMeta = shift as ShiftWithUnavailability;
+                    return (
+                      <ShiftBadge
+                        key={shift.id}
+                        shift={shift}
+                        employee={employee}
+                        colorOverride={shiftWithMeta._unavailabilityRequested ? '#f97316' : undefined}
+                      />
+                    );
+                  })
                 ) : (
                   <div className="h-5 py-0.5" />
                 )}
