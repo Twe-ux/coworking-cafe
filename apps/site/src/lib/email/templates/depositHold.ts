@@ -6,16 +6,7 @@
  */
 
 import { getSpaceDisplayName } from "./helpers";
-
-interface DepositHoldEmailData {
-  name: string;
-  spaceName: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  depositAmount: number;
-  totalPrice: number;
-}
+import type { DepositHoldEmailData } from "@/types/cron";
 
 export function generateDepositHoldEmail(data: DepositHoldEmailData): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);

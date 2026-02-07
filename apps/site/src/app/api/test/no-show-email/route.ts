@@ -49,7 +49,12 @@ export async function GET(request: NextRequest) {
       name: "Jean Dupont",
       spaceName: "Salle de réunion Grande",
       date: new Date().toLocaleDateString("fr-FR"),
+      startTime: "09:00",
+      endTime: "17:00",
+      numberOfPeople: 4,
+      totalPrice: 140.0,
       depositAmount: 70.0,
+      contactEmail: process.env.CONTACT_EMAIL || "contact@coworkingcafe.fr",
     });
 
     if (success) {

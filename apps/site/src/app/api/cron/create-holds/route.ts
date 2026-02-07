@@ -16,7 +16,7 @@ import type {
   PopulatedBookingUser,
   PopulatedBookingSpace
 } from "../../../../types/cron";
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     // Process each booking
     for (const booking of bookings) {
-      const bookingId = (booking._id as ObjectId).toString();
+      const bookingId = (booking._id as unknown as Types.ObjectId).toString();
 
       try {
         // Get space configuration for deposit policy
@@ -172,8 +172,10 @@ export async function POST(request: NextRequest) {
           }),
           startTime: booking.startTime || "",
           endTime: booking.endTime || "",
-          depositAmount: depositAmount / 100,
+          numberOfPeople: booking.numberOfPeople,
           totalPrice: booking.totalPrice,
+          contactEmail: process.env.CONTACT_EMAIL || "contact@coworkingcafe.fr",
+          depositAmount: depositAmount / 100,
         });
 
         results.success.push({

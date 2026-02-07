@@ -8,15 +8,16 @@
  */
 
 // ============ Actions du client ============
-export { generateBookingInitialEmail } from './clientBookingConfirmation';
-export { generateCancellationEmail } from './clientCancellation';
+export { generateBookingInitialEmail, generateBookingInitialEmail as generateClientBookingConfirmationEmail } from './clientBookingConfirmation';
+export { generateCancellationEmail, generateCancellationEmail as generateClientCancellationEmail } from './clientCancellation';
 
 // ============ Actions de l'admin (depuis package partagé) ============
 export { generateValidatedEmail, generateReservationRejectedEmail } from '@coworking-cafe/email';
-export { generateReservationCancelledEmail } from './adminCancellation';
+export { generateReservationCancelledEmail as generateAdminCancellationEmail } from './adminCancellation';
+export { generateRejectionEmail } from './adminRejection';
 
 // ============ Cas spécial: No-show ============
-export { generateDepositCapturedEmail } from './noShowPenalty';
+export { generateDepositCapturedEmail, generateDepositCapturedEmail as generateNoShowPenaltyEmail } from './noShowPenalty';
 
 // ============ Autres templates ============
 export { generateConfirmationEmail } from './confirmation';

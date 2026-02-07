@@ -540,7 +540,10 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
         }),
         startTime: metadata.startTime || '',
         endTime: metadata.endTime || '',
+        numberOfPeople: parseInt(metadata.numberOfPeople),
         totalPrice: parseFloat(metadata.totalPrice),
+        depositAmount: 0,
+        contactEmail: process.env.CONTACT_EMAIL || "contact@coworkingcafe.fr",
       });
     } catch (emailError: unknown) {
       console.error('[Webhook] Failed to send card saved email:', emailError);

@@ -15,14 +15,14 @@ interface CancellationEmailData {
   endTime: string;
   confirmationNumber?: string;
   contactEmail: string;
-  cancellationFee: number;
+  cancellationFees: number;
   refundAmount: number;
   isPending?: boolean; // true = annulation avant validation admin
 }
 
 export function generateCancellationEmail(data: CancellationEmailData): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
-  const totalAmount = data.cancellationFee + data.refundAmount;
+  const totalAmount = data.cancellationFees + data.refundAmount;
 
   return `
 <!DOCTYPE html>
@@ -82,13 +82,13 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
       `
           : `
         ${
-          data.cancellationFee > 0
+          data.cancellationFees > 0
             ? `
         <!-- Warning Box Frais d'annulation -->
         <div class="warning-box" style="background-color: #FEF3C7; border-radius: 8px; padding: 20px; margin: 28px 0; border-left: 4px solid #F59E0B;">
           <p style="margin: 0 0 12px 0; font-weight: 700; color: #92400E; font-size: 16px;">⚠️ Frais d'annulation appliqués</p>
           <p style="margin: 0; color: #92400E; font-size: 15px; line-height: 1.7;">
-            Des frais d'annulation de <strong>${data.cancellationFee.toFixed(
+            Des frais d'annulation de <strong>${data.cancellationFees.toFixed(
               2
             )}€</strong> ont été prélevés sur l'empreinte bancaire conformément à nos conditions d'annulation.
           </p>
@@ -150,13 +150,13 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
         </div>
 
         ${
-          data.cancellationFee > 0
+          data.cancellationFees > 0
             ? `
         <div class="detail-row" style="padding: 14px 0; border-bottom: 1px solid #e5e7eb;">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Frais d'annulation</td>
-              <td class="detail-value" style="text-align: right; color: #EF4444 !important; font-size: 15px; font-weight: 500;">${data.cancellationFee.toFixed(
+              <td class="detail-value" style="text-align: right; color: #EF4444 !important; font-size: 15px; font-weight: 500;">${data.cancellationFees.toFixed(
                 2
               )}€</td>
             </tr>
@@ -189,7 +189,7 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 700; color: #991B1B; font-size: 16px; padding: 16px 0;">Montant prélevé</td>
-              <td class="price-value" style="text-align: right; color: #EF4444; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; padding: 16px 0;">${data.cancellationFee.toFixed(
+              <td class="price-value" style="text-align: right; color: #EF4444; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; padding: 16px 0;">${data.cancellationFees.toFixed(
                 2
               )}€</td>
             </tr>

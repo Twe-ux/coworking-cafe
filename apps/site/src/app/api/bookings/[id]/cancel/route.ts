@@ -299,7 +299,10 @@ export async function POST(
           date: new Date(booking.date).toLocaleDateString("fr-FR"),
           startTime: booking.startTime || "",
           endTime: booking.endTime || "",
-          cancellationFee: cancellationFee / 100,
+          numberOfPeople: booking.numberOfPeople,
+          totalPrice: booking.totalPrice,
+          contactEmail: process.env.CONTACT_EMAIL || "contact@coworkingcafe.fr",
+          cancellationFees: cancellationFee / 100,
           refundAmount: refundAmount / 100,
           confirmationNumber: booking.confirmationNumber,
         });

@@ -4,7 +4,7 @@ import { Booking } from '@coworking-cafe/database';
 import { logger } from "../../../../lib/logger";
 import { sendBookingReminder } from "../../../../lib/email/emailService";
 import type { PopulatedBooking, SendRemindersResult, CronApiResponse } from "../../../../types/cron";
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 
 /**
  * GET /api/cron/send-reminders
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
     for (const booking of upcomingBookings) {
       try {
-        const bookingId = (booking._id as ObjectId).toString();
+        const bookingId = (booking._id as unknown as Types.ObjectId).toString();
         const userEmail = booking.contactEmail || booking.user?.email;
         const userName = booking.contactName || booking.user?.givenName;
 
@@ -106,6 +106,7 @@ export async function GET(request: NextRequest) {
             year: "numeric",
           }),
           time: timeRange,
+          contactEmail: process.env.CONTACT_EMAIL || "contact@coworkingcafe.fr",
         });
 
         results.sent.push(bookingId);
@@ -118,7 +119,7 @@ export async function GET(request: NextRequest) {
           },
         });
       } catch (error) {
-        const bookingId = (booking._id as ObjectId).toString();
+        const bookingId = (booking._id as unknown as Types.ObjectId).toString();
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
         results.failed.push({
