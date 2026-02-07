@@ -1,12 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-
-interface ClientData {
-  id?: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-}
+import type { ClientData } from "@/app/admin/booking/reservations/reservation-dialog/types";
 
 interface ApiUserData {
   id: string;

@@ -1,16 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { Edit2, Loader2, Save, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useClientsCache } from "@/hooks/useClientsCache";
+import { useClientManagement } from "./hooks/useClientManagement";
+import { ClientEditForm } from "./ClientEditForm";
+import { SelectedClientDisplay } from "./SelectedClientDisplay";
+import { ClientSearchInput } from "./ClientSearchInput";
+import { ClientSearchResults } from "./ClientSearchResults";
+import { ClientCreateForm } from "./ClientCreateForm";
 import type { ClientData, ClientSectionProps } from "./types";
-import type { ApiResponse } from "@/types/timeEntry";
-import type { Role, User } from "@/types/user";
 
 export function ClientSection({
   selectedClient,
@@ -21,25 +19,29 @@ export function ClientSection({
   const {
     clients,
     loading: initialLoading,
-    refresh: refreshClients,
     addToCache,
     updateInCache,
   } = useClientsCache();
 
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
 
-  // Form pour nouveau client
-  const [newClient, setNewClient] = useState<ClientData>({
-    name: "",
-    email: "",
-    phone: "",
-    company: "",
+  // Utiliser le hook de gestion des clients
+  const {
+    loading,
+    newClient,
+    editClient,
+    isEditing,
+    setNewClient,
+    setEditClient,
+    handleCreateNewClient,
+    handleSaveEdit,
+    handleEditClient,
+    handleCancelEdit,
+  } = useClientManagement({
+    onClientChange: onChange,
+    addToCache,
+    updateInCache,
   });
-
-  // Form pour édition client
-  const [editClient, setEditClient] = useState<ClientData | null>(null);
 
   // Filtrer les clients en fonction de la recherche
   const filteredClients = useMemo(() => {
@@ -61,193 +63,14 @@ export function ClientSection({
     setSearchQuery("");
   };
 
-  const handleCreateNewClient = async () => {
-    if (!newClient.name) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // Si email + téléphone fournis → créer un compte user
-      if (newClient.email) {
-        // Récupérer le roleId du rôle "client"
-        const rolesResponse = await fetch("/api/hr/roles");
-        const rolesData: ApiResponse<Role[]> = await rolesResponse.json();
-
-        const clientRole = rolesData.data?.find(
-          (role) => role.slug === "client",
-        );
-        if (!clientRole) {
-          console.error("❌ Rôle 'client' introuvable");
-          return;
-        }
-
-        // Créer le nouveau client dans la base users
-        const response = await fetch("/api/users", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: newClient.email,
-            givenName: newClient.name,
-            phone: newClient.phone,
-            companyName: newClient.company,
-            roleId: clientRole.id,
-            password: Math.random().toString(36).slice(-12), // Mot de passe temporaire
-            newsletter: false,
-          }),
-        });
-
-        const data: ApiResponse<User> = await response.json();
-
-        if (data.success && data.data) {
-          console.log("✅ Compte client créé:", data.data);
-
-          const createdUser = data.data;
-
-          // Générer le token d'activation
-          const activationToken = crypto.randomUUID();
-          const tokenExpires = new Date();
-          tokenExpires.setHours(tokenExpires.getHours() + 48); // Token valide 48h
-
-          // Sauvegarder le token dans le user
-          await fetch(`/api/users/${createdUser.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              activationToken,
-              activationTokenExpires: tokenExpires.toISOString(),
-            }),
-          });
-
-          // Envoyer l'email d'activation
-          try {
-            const emailResponse = await fetch("/api/email/send-activation", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                email: createdUser.email,
-                userName: createdUser.givenName || createdUser.email,
-                activationToken,
-              }),
-            });
-
-            const emailData: ApiResponse<{ messageId: string }> =
-              await emailResponse.json();
-            if (emailData.success) {
-              console.log("✅ Email d'activation envoyé à", createdUser.email);
-            } else {
-              console.error(
-                "❌ Erreur envoi email d'activation:",
-                emailData.error,
-              );
-            }
-          } catch (emailError) {
-            console.error("❌ Erreur envoi email:", emailError);
-          }
-
-          // Retourner le client créé avec son ID
-          const createdClient = {
-            id: createdUser.id,
-            name: createdUser.givenName || createdUser.email,
-            email: createdUser.email,
-            phone: createdUser.phone || "",
-            company: createdUser.companyName || "",
-          };
-          onChange(createdClient);
-
-          // Ajouter au cache
-          addToCache(createdClient);
-        } else {
-          console.error("❌ Erreur lors de la création du client:", data.error);
-        }
-      } else {
-        // Pas d'email → client simple sans compte (juste contact info)
-        console.log("✅ Client simple créé (sans compte):", newClient);
-
-        onChange({
-          id: undefined, // Pas d'ID user
-          name: newClient.name,
-          email: "",
-          phone: newClient.phone || "",
-          company: newClient.company || "",
-        });
-      }
-
-      setSearchQuery("");
-      setNewClient({ name: "", email: "", phone: "", company: "" });
-    } catch (error) {
-      console.error("❌ Erreur lors de la création du client:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleClearSearch = () => {
     setSearchQuery("");
     setNewClient({ name: "", email: "", phone: "", company: "" });
   };
 
-  const handleEditClient = () => {
-    setEditClient({ ...selectedClient! });
-    setIsEditing(true);
-  };
-
-  const handleCancelEdit = () => {
-    setEditClient(null);
-    setIsEditing(false);
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editClient || !editClient.id) return;
-
-    try {
-      setLoading(true);
-
-      const response = await fetch(`/api/users/${editClient.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          givenName: editClient.name,
-          email: editClient.email,
-          phone: editClient.phone,
-          companyName: editClient.company,
-        }),
-      });
-
-      const data: ApiResponse<User> = await response.json();
-
-      if (data.success && data.data) {
-        console.log("✅ Client modifié:", data.data);
-
-        const updatedUser = data.data;
-
-        // Mettre à jour le client sélectionné
-        const updatedClient = {
-          id: updatedUser.id,
-          name: updatedUser.givenName || updatedUser.email,
-          email: updatedUser.email,
-          phone: updatedUser.phone || "",
-          company: updatedUser.companyName || "",
-        };
-        onChange(updatedClient);
-
-        // Mettre à jour le cache
-        updateInCache(updatedClient);
-
-        setIsEditing(false);
-        setEditClient(null);
-      } else {
-        console.error(
-          "❌ Erreur lors de la modification du client:",
-          data.error,
-        );
-      }
-    } catch (error) {
-      console.error("❌ Erreur lors de la modification du client:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleCreateClient = async () => {
+    await handleCreateNewClient();
+    setSearchQuery("");
   };
 
   // Si un client est déjà sélectionné, afficher ses infos
@@ -255,327 +78,56 @@ export function ClientSection({
     // Mode édition
     if (isEditing && editClient) {
       return (
-        <div className="space-y-4">
-          <Label>Modifier le client</Label>
-          <div className="rounded-md border p-4 bg-muted/50 space-y-3">
-            <div className="space-y-2">
-              <Label htmlFor="edit-client-name">Nom complet *</Label>
-              <Input
-                id="edit-client-name"
-                placeholder="Jean Dupont"
-                value={editClient.name}
-                onChange={(e) =>
-                  setEditClient({ ...editClient, name: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-client-email">Email *</Label>
-              <Input
-                id="edit-client-email"
-                type="email"
-                placeholder="jean.dupont@example.com"
-                value={editClient.email}
-                onChange={(e) =>
-                  setEditClient({ ...editClient, email: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-client-phone">Téléphone</Label>
-              <Input
-                id="edit-client-phone"
-                type="tel"
-                placeholder="+33 6 12 34 56 78"
-                value={editClient.phone}
-                onChange={(e) =>
-                  setEditClient({ ...editClient, phone: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-client-company">Société</Label>
-              <Input
-                id="edit-client-company"
-                placeholder="Nom de l'entreprise"
-                value={editClient.company}
-                onChange={(e) =>
-                  setEditClient({ ...editClient, company: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                onClick={handleSaveEdit}
-                disabled={!editClient.name || !editClient.email || loading}
-                className="flex-1"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Enregistrer
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCancelEdit}
-                disabled={loading}
-              >
-                Annuler
-              </Button>
-            </div>
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-        </div>
+        <ClientEditForm
+          editClient={editClient}
+          loading={loading}
+          error={error}
+          onChange={setEditClient}
+          onSave={handleSaveEdit}
+          onCancel={handleCancelEdit}
+        />
       );
     }
 
     // Mode affichage normal
     return (
-      <div className="space-y-4">
-        <Label>Client</Label>
-        <div className="rounded-md border p-4 bg-muted/50">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <p className="font-medium">{selectedClient.name}</p>
-                {!selectedClient.id ? (
-                  <Badge variant="outline" className="text-xs">
-                    Client simple
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="text-xs">
-                    Avec compte
-                  </Badge>
-                )}
-              </div>
-              {selectedClient.email ? (
-                <p className="text-sm text-muted-foreground">
-                  {selectedClient.email}
-                </p>
-              ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  Pas d'email renseigné
-                </p>
-              )}
-              {selectedClient.phone && (
-                <p className="text-sm text-muted-foreground">
-                  {selectedClient.phone}
-                </p>
-              )}
-              {selectedClient.company && (
-                <p className="text-sm text-muted-foreground font-medium">
-                  {selectedClient.company}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleEditClient}
-              >
-                <Edit2 className="h-4 w-4 mr-1" />
-                Modifier
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => onChange(null)}
-              >
-                Changer
-              </Button>
-            </div>
-          </div>
-        </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-      </div>
+      <SelectedClientDisplay
+        client={selectedClient}
+        error={error}
+        onEdit={() => handleEditClient(selectedClient)}
+        onChange={onChange}
+      />
     );
   }
 
-  // Afficher le champ de recherche immédiatement (chargement en arrière-plan)
+  // Afficher le champ de recherche
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Label>Client</Label>
-        {initialLoading && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            <span>Chargement...</span>
-          </div>
-        )}
-      </div>
-
-      {/* Champ de recherche */}
-      <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Rechercher un client par nom, email ou société..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9 pr-9"
-          disabled={loading && !initialLoading}
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={handleClearSearch}
-            className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-
-      {/* Message de chargement si recherche pendant le chargement initial */}
-      {searchQuery && initialLoading && (
-        <div className="rounded-md border p-4 bg-muted/50">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Chargement des clients en cours...</span>
-          </div>
-        </div>
-      )}
+      <ClientSearchInput
+        searchQuery={searchQuery}
+        loading={loading}
+        initialLoading={initialLoading}
+        onChange={setSearchQuery}
+        onClear={handleClearSearch}
+      />
 
       {/* Résultats de recherche */}
       {searchQuery && !initialLoading && filteredClients.length > 0 && (
-        <div className="rounded-md border max-h-[300px] overflow-y-auto">
-          <div className="p-2">
-            <p className="text-sm text-muted-foreground px-2 py-1">
-              {filteredClients.length} client
-              {filteredClients.length > 1 ? "s" : ""} trouvé
-              {filteredClients.length > 1 ? "s" : ""}
-            </p>
-          </div>
-          <div className="space-y-1 p-2">
-            {filteredClients.map((client) => (
-              <button
-                key={client.id || client.email}
-                type="button"
-                onClick={() => handleSelectClient(client)}
-                className={cn(
-                  "w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors",
-                  "focus:outline-none focus:ring-2 focus:ring-ring",
-                )}
-              >
-                <div className="flex flex-col">
-                  <span className="font-medium">{client.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {client.email}
-                  </span>
-                  {client.phone && (
-                    <span className="text-xs text-muted-foreground">
-                      {client.phone}
-                    </span>
-                  )}
-                  {client.company && (
-                    <span className="text-xs text-muted-foreground font-medium">
-                      {client.company}
-                    </span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
+        <ClientSearchResults
+          clients={filteredClients}
+          onSelect={handleSelectClient}
+        />
       )}
 
       {/* Aucun résultat trouvé - Afficher le formulaire de création */}
       {searchQuery && !initialLoading && filteredClients.length === 0 && (
-        <div className="space-y-3 rounded-md border p-4 bg-muted/50">
-          <div className="text-center py-2">
-            <p className="text-sm text-muted-foreground">
-              Aucun client trouvé pour "{searchQuery}"
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Créer un client simple (nom uniquement) ou avec compte (nom + email)
-            </p>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            <div className="space-y-2">
-              <Label htmlFor="client-name">Nom complet *</Label>
-              <Input
-                id="client-name"
-                placeholder="Jean Dupont"
-                value={newClient.name}
-                onChange={(e) =>
-                  setNewClient({ ...newClient, name: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="client-email">
-                Email <span className="text-xs text-muted-foreground">(optionnel - requis pour créer un compte)</span>
-              </Label>
-              <Input
-                id="client-email"
-                type="email"
-                placeholder="jean.dupont@example.com"
-                value={newClient.email}
-                onChange={(e) =>
-                  setNewClient({ ...newClient, email: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="client-phone">Téléphone</Label>
-              <Input
-                id="client-phone"
-                type="tel"
-                placeholder="+33 6 12 34 56 78"
-                value={newClient.phone}
-                onChange={(e) =>
-                  setNewClient({ ...newClient, phone: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="client-company">Société</Label>
-              <Input
-                id="client-company"
-                placeholder="Nom de l'entreprise"
-                value={newClient.company}
-                onChange={(e) =>
-                  setNewClient({ ...newClient, company: e.target.value })
-                }
-              />
-            </div>
-
-            <Button
-              type="button"
-              onClick={handleCreateNewClient}
-              disabled={!newClient.name || loading}
-              className={cn(
-                "w-full",
-                newClient.email
-                  ? "bg-green-500 hover:bg-green-600 text-white"
-                  : "bg-orange-500 hover:bg-orange-600 text-white"
-              )}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Création en cours...
-                </>
-              ) : (
-                <>
-                  {newClient.email
-                    ? "Créer un compte client"
-                    : "Créer un client simple"}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+        <ClientCreateForm
+          newClient={newClient}
+          loading={loading}
+          searchQuery={searchQuery}
+          onChange={setNewClient}
+          onCreate={handleCreateClient}
+        />
       )}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
