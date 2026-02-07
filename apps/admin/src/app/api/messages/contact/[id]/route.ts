@@ -7,6 +7,7 @@ import type { ContactMailResponse, ContactMail as ContactMailType } from '@/type
 import { sendEmailAsContact } from '@coworking-cafe/email';
 import logger from '@/lib/logger';
 import { generateContactReplyEmail } from '@/lib/email/templates/contactReply';
+import { Types } from 'mongoose';
 
 /**
  * GET /api/messages/contact/[id]
@@ -98,7 +99,7 @@ export async function PUT(
       message.reply = reply;
       message.repliedAt = new Date();
       if (authResult.session?.user?.id) {
-        message.repliedBy = authResult.session.user.id as any;
+        message.repliedBy = new Types.ObjectId(authResult.session.user.id);
       }
       await message.save();
 
