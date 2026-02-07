@@ -2,8 +2,44 @@
 
 > **App** : `/apps/site/` - Site Public + Dashboard Client du CoworKing Café
 > **Date de création** : 2026-01-21
-> **Version** : 4.0 - Refactorisation Progressive
-> **Status** : ✅ Code fonctionnel - En phase de tests puis refactorisation
+> **Version** : 5.0 - Phase 1 : Élimination des `any` Types
+> **Status** : 🚧 En refactorisation active (Branche: `refactor/site-phase1-types`)
+
+---
+
+## 🎯 PHASE 1 EN COURS : ÉLIMINATION DES `any` TYPES
+
+**Objectif** : Atteindre **0 `any` types** dans le code (comme apps/admin)
+
+**État actuel** : **53 occurrences** de `any` identifiées
+
+### Catégories Identifiées
+
+| Catégorie | Nb | Priorité | Status |
+|-----------|-----|----------|--------|
+| **API Routes** | 30+ | 🔴 Critique | 🚧 En cours |
+| **Libs/Services** | 10+ | 🟡 Moyenne | ⏳ À faire |
+| **Pages** | 5 | 🔴 Critique | ⏳ À faire |
+| **Props Composants** | 2 | 🔴 Critique | ⏳ À faire |
+| **Hooks** | 2 | 🟡 Moyenne | ⏳ À faire |
+
+### Plan d'Action
+
+1. ✅ **Créer branche** : `refactor/site-phase1-types`
+2. ⏳ **Créer types partagés** : Interfaces manquantes dans `/types/`
+3. ⏳ **Typer API Routes** : Webhooks, bookings, articles
+4. ⏳ **Typer Props** : `component-props.ts`
+5. ⏳ **Typer Pages** : Booking, menu, dashboard
+6. ⏳ **Typer Hooks & Libs** : Services, helpers
+7. ⏳ **Validation** : `pnpm type-check` sans erreurs
+
+### 🚨 RÈGLES STRICTES (comme apps/admin)
+
+- ❌ **ZÉRO `any` type** - Utiliser `unknown` + type guards si nécessaire
+- ❌ **ZÉRO `as any`** - Casting interdit sans justification
+- ❌ **ZÉRO `@ts-ignore`** - Pas de commentaires pour masquer les erreurs
+- ✅ **Types explicites** - Paramètres et retours de fonction typés
+- ✅ **Types partagés** - Centraliser dans `/types/`
 
 ---
 
@@ -36,11 +72,12 @@
 
 ## 📋 Table des Matières
 
-**📌 IMPORTANT : TENIR À JOUR TODO.md + /PROGRESS.md**
-- ✅ Cocher les tâches terminées dans `TODO.md` après chaque étape
-- ✅ Mettre à jour le % de progression dans `TODO.md` (résumé)
-- ✅ Mettre à jour `/PROGRESS.md` à la fin de chaque phase
-- ✅ Commit réguliers avec référence aux tâches terminées
+**📌 DOCUMENTATION**
+- 📁 **Tous les fichiers .md** (sauf CLAUDE.md) sont dans `/docs/`
+- ✅ `TODO.md` → `/docs/TODO.md` (suivi des tâches)
+- ✅ `REFACTORISATION_PLAN.md` → `/docs/REFACTORISATION_PLAN.md` (plan détaillé)
+- ✅ `PWA_GUIDE.md` → `/docs/PWA_GUIDE.md` (guide PWA)
+- ✅ Commit réguliers avec messages descriptifs
 
 1. [Vue d'ensemble](#vue-densemble)
 2. [Architecture Monorepo](#architecture-monorepo)
@@ -661,9 +698,14 @@ export async function GET(request: NextRequest) {
 
 ## ✅ 6. Conventions de Code Strictes
 
+> 🚧 **PHASE 1 EN COURS** : Application stricte de ces conventions pour éliminer les 53 `any` types identifiés.
+> **Branche** : `refactor/site-phase1-types`
+
 ### 1. TypeScript - ZÉRO `any`
 
 **RÈGLE ABSOLUE** : Aucun `any` type dans le code
+
+**État actuel** : 53 occurrences à éliminer (voir section Phase 1 en haut de ce document)
 
 ```typescript
 // ❌ INTERDIT
