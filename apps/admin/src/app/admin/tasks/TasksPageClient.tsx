@@ -15,9 +15,11 @@ interface TasksPageClientProps {
   canCreate: boolean;
 }
 
+type TaskTabValue = "pending" | "completed";
+
 export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"pending" | "completed">("pending");
+  const [activeTab, setActiveTab] = useState<TaskTabValue>("pending");
 
   const {
     tasks: pendingTasks,
@@ -67,7 +69,7 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TaskTabValue)}>
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="pending" className="flex items-center gap-2">
             <ListTodo className="h-4 w-4" />

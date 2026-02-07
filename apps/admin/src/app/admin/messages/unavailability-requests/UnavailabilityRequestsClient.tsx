@@ -44,10 +44,10 @@ const statusColors: Record<string, string> = {
   cancelled: "bg-gray-50 text-gray-700 border-gray-500",
 };
 
+type UnavailabilityTabValue = "pending" | "approved" | "rejected" | "all";
+
 export function UnavailabilityRequestsClient() {
-  const [activeTab, setActiveTab] = useState<
-    "pending" | "approved" | "rejected" | "all"
-  >("pending");
+  const [activeTab, setActiveTab] = useState<UnavailabilityTabValue>("pending");
   const [requests, setRequests] = useState<IUnavailabilityWithEmployee[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] =
@@ -190,7 +190,7 @@ export function UnavailabilityRequestsClient() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as any)}
+        onValueChange={(v) => setActiveTab(v as UnavailabilityTabValue)}
         className="w-full"
       >
         <TabsList className="grid w-full grid-cols-4">

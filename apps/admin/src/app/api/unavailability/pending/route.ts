@@ -3,14 +3,11 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { connectMongoose } from '@/lib/mongodb';
 import Unavailability from '@/models/unavailability';
+import type { SessionUser } from '@/types/session';
 
 /**
  * GET /api/unavailability/pending - Get count of pending requests
  */
-
-interface SessionUser {
-  role: string;
-}
 
 // Force dynamic rendering (no static analysis at build time)
 export const dynamic = 'force-dynamic';

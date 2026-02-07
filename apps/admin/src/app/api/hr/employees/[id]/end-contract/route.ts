@@ -5,11 +5,7 @@ import { authOptions } from '@/lib/auth-options'
 import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import type { EndContractReason } from '@/types/hr'
-
-interface SessionUser {
-  id: string
-  role: string
-}
+import type { SessionUser } from '@/types/session'
 
 interface EmployeeDocument {
   _id: mongoose.Types.ObjectId

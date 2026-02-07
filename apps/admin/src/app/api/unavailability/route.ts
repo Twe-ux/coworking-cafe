@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate');
 
     interface UnavailabilityQuery {
-      employeeId?: string;
+      employeeId?: Types.ObjectId;
       status?: UnavailabilityStatus;
       $or?: Array<{
         startDate?: { $gte?: string; $lte?: string };
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     const query: UnavailabilityQuery = {};
 
     if (employeeId) {
-      query.employeeId = employeeId;
+      query.employeeId = new Types.ObjectId(employeeId);
     }
 
     if (status) {

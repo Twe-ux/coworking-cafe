@@ -5,6 +5,7 @@ import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import type { Employee as EmployeeType, EmployeeAddress, PlaceOfBirth, WeeklyAvailability, OnboardingStatus } from '@/types/hr'
 import type { ApiResponse } from '@/types/timeEntry'
+import type { SessionUser } from '@/types/session'
 import { Types } from 'mongoose'
 
 interface MongoDBValidationError {
@@ -107,11 +108,6 @@ interface DraftPayload {
     bankName: string
   }
   onboardingStatus?: OnboardingStatus
-}
-
-interface SessionUser {
-  id: string
-  role: string
 }
 
 /**
