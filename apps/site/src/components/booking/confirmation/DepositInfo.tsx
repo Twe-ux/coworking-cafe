@@ -7,7 +7,7 @@ interface DepositInfoProps {
 
 export default function DepositInfo({ depositAmount, booking }: DepositInfoProps) {
   return (
-    <>
+    <div className="mb-3">
       <div className="price-divider my-2"></div>
       <div
         className="alert alert-warning border-0 mb-0 py-2"
@@ -39,6 +39,6 @@ export default function DepositInfo({ depositAmount, booking }: DepositInfoProps
             : "Sera débité 7 jours avant la réservation"}
         </small>
       </div>
-    </>
+    </div>
   );
 }
