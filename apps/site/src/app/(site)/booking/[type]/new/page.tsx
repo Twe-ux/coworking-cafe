@@ -14,6 +14,7 @@ import { BookingErrorDisplay } from "@/components/site/booking/BookingErrorDispl
 import { ReservationTypeSelector } from "@/components/site/booking/ReservationTypeSelector";
 import { DateSelectionSection } from "@/components/site/booking/DateSelectionSection";
 import { TimeSelectionSection } from "@/components/site/booking/TimeSelectionSection";
+import { PeopleCounterSection } from "@/components/site/booking/PeopleCounterSection";
 import { PriceDisplayCard } from "@/components/site/booking/PriceDisplayCard";
 import { useSpaceConfiguration } from "@/hooks/useSpaceConfiguration";
 import { useBookingState } from "@/hooks/useBookingState";
@@ -308,6 +309,17 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
                     onToggle={accordion.toggleTimeSection}
                     className="mb-3"
                   />
+
+                  {/* People Counter - Only for perPerson pricing */}
+                  {spaceConfig?.pricing.perPerson && (
+                    <PeopleCounterSection
+                      numberOfPeople={bookingState.numberOfPeople}
+                      minCapacity={spaceConfig.minCapacity}
+                      maxCapacity={spaceConfig.maxCapacity}
+                      onChange={bookingState.setNumberOfPeople}
+                      className="mb-3"
+                    />
+                  )}
 
                   {/* Price Display */}
                   {pricing.calculatedPrice > 0 && (
