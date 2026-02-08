@@ -179,6 +179,16 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
   };
 
   // 🎯 Handlers
+  const handleDateChange = (date: string) => {
+    bookingState.setSelectedDate(date);
+    // Auto-close date section and open time section
+    accordion.closeDateSection();
+    setTimeout(() => {
+      accordion.openTimeSection();
+      accordion.scrollToTimeSection();
+    }, 350); // Wait for date section to close
+  };
+
   const handleStartTimeSelection = (time: string) => {
     bookingState.setStartTime(time);
     // Auto-open price section after selecting start time
@@ -273,7 +283,7 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
                       reservationType={bookingState.reservationType}
                       selectedDate={bookingState.selectedDate}
                       endDate={bookingState.endDate}
-                      onDateChange={bookingState.setSelectedDate}
+                      onDateChange={handleDateChange}
                       isOpen={accordion.dateSectionOpen}
                       isClosing={accordion.dateSectionClosing}
                       onToggle={accordion.toggleDateSection}
