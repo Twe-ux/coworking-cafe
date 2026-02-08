@@ -91,11 +91,19 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const bcrypt = require('bcryptjs');
-
         if (!user) {
           // Create new user
           if (createAccount && password) {
+            // Validate password length
+            if (password.length < 8) {
+              return NextResponse.json(
+                { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' },
+                { status: 400 }
+              );
+            }
+
+            console.log('[Booking] Creating new user account with password length:', password.length);
+
             // Create permanent account with user-provided password
             // Password will be hashed automatically by User model pre-save hook
             user = await User.create({
@@ -108,6 +116,8 @@ export async function POST(request: NextRequest) {
               newsletter: subscribeNewsletter || false,
               isTemporary: false,
             });
+
+            console.log('[Booking] User created, password hash starts with:', user.password.substring(0, 10));
           } else {
             // Create temporary user with random password
             const randomPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -126,6 +136,16 @@ export async function POST(request: NextRequest) {
         } else {
           // User exists - update if needed
           if (user.isTemporary && createAccount && password) {
+            // Validate password length
+            if (password.length < 8) {
+              return NextResponse.json(
+                { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' },
+                { status: 400 }
+              );
+            }
+
+            console.log('[Booking] Converting temporary user to permanent, password length:', password.length);
+
             // Convert temporary user to permanent account
             // Use save() instead of findByIdAndUpdate to trigger pre-save hook
             user.password = password; // Plain password - will be hashed by pre-save hook
@@ -134,6 +154,8 @@ export async function POST(request: NextRequest) {
             user.newsletter = subscribeNewsletter || false;
             user.isTemporary = false;
             await user.save(); // Save to trigger pre-save hook
+
+            console.log('[Booking] User updated, password hash starts with:', user.password.substring(0, 10));
           } else if (subscribeNewsletter !== undefined) {
             // Just update newsletter preference
             await User.findByIdAndUpdate(user._id, {

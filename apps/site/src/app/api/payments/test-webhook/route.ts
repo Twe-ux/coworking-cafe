@@ -75,7 +75,6 @@ export async function POST(request: NextRequest) {
 
     if (metadata.contactEmail) {
       try {
-        const bcrypt = require('bcryptjs');
         let user = await User.findOne({ email: metadata.contactEmail });
 
         // Get client role
@@ -96,14 +95,23 @@ export async function POST(request: NextRequest) {
           const userPassword = metadata.password;
 
           if (shouldCreateAccount && userPassword) {
-            // Permanent account with user password
-            const hashedPassword = await bcrypt.hash(userPassword, 10);
+            // Validate password length
+            if (userPassword.length < 8) {
+              return NextResponse.json(
+                { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' },
+                { status: 400 }
+              );
+            }
+
+            console.log('[Webhook] Creating permanent user, password will be hashed by pre-save hook');
+
+            // Permanent account with user password (plain - will be hashed by pre-save hook)
             user = await User.create({
               email: metadata.contactEmail,
               givenName: metadata.contactName,
               phone: metadata.contactPhone,
               username: metadata.contactEmail.split('@')[0] + '_' + Date.now(),
-              password: hashedPassword,
+              password: userPassword, // Plain password - pre-save hook will hash it
               role: clientRole._id,
               newsletter: metadata.subscribeNewsletter === 'true',
               isTemporary: false,
@@ -113,13 +121,15 @@ export async function POST(request: NextRequest) {
             // Temporary account with random password
             const randomPassword = Math.random().toString(36).substring(2, 15) +
                                  Math.random().toString(36).substring(2, 15);
-            const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+            console.log('[Webhook] Creating temporary user, random password will be hashed by pre-save hook');
+
             user = await User.create({
               email: metadata.contactEmail,
               givenName: metadata.contactName,
               phone: metadata.contactPhone,
               username: metadata.contactEmail.split('@')[0] + '_' + Date.now(),
-              password: hashedPassword,
+              password: randomPassword, // Plain password - pre-save hook will hash it
               role: clientRole._id,
               newsletter: metadata.subscribeNewsletter === 'true',
               isTemporary: true,
@@ -132,18 +142,26 @@ export async function POST(request: NextRequest) {
           const userPassword = metadata.password;
 
           if (user.isTemporary && shouldCreateAccount && userPassword) {
-            // Convert temporary to permanent
-            const hashedPassword = await bcrypt.hash(userPassword, 10);
-            await User.findByIdAndUpdate(user._id, {
-              password: hashedPassword,
-              givenName: metadata.contactName,
-              phone: metadata.contactPhone,
-              newsletter: metadata.subscribeNewsletter === 'true',
-              isTemporary: false,
-            });
+            // Validate password length
+            if (userPassword.length < 8) {
+              return NextResponse.json(
+                { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' },
+                { status: 400 }
+              );
+            }
+
+            console.log('[Webhook] Converting temporary to permanent, password will be hashed by pre-save hook');
+
+            // Convert temporary to permanent - use save() to trigger pre-save hook
+            user.password = userPassword; // Plain password - pre-save hook will hash it
+            user.givenName = metadata.contactName;
+            user.phone = metadata.contactPhone;
+            user.newsletter = metadata.subscribeNewsletter === 'true';
+            user.isTemporary = false;
+            await user.save(); // This triggers the pre-save hook
             console.log('✅ Converted temporary user to permanent:', user.email);
           } else if (metadata.subscribeNewsletter !== undefined) {
-            // Just update info
+            // Just update info (no password change)
             await User.findByIdAndUpdate(user._id, {
               givenName: metadata.contactName,
               phone: metadata.contactPhone,
