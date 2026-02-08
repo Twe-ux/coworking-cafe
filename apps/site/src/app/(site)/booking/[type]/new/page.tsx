@@ -192,6 +192,27 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
 
   const handleStartTimeSelection = (time: string) => {
     bookingState.setStartTime(time);
+
+    // Auto-select end time (+1h) for hourly reservations
+    if (bookingState.reservationType === "hourly" && globalHours && bookingState.selectedDate) {
+      const [hour, minute] = time.split(":").map(Number);
+      const endHour = hour + 1;
+      const endTime = `${String(endHour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+
+      // Get day's closing time
+      const [year, month, day] = bookingState.selectedDate.split("-").map(Number);
+      const selectedDateObj = new Date(year, month - 1, day);
+      const dayOfWeek = selectedDateObj
+        .toLocaleDateString("en-US", { weekday: "long" })
+        .toLowerCase();
+      const dayHours = globalHours.defaultHours?.[dayOfWeek];
+
+      // Check if end time is valid (before closing time)
+      if (dayHours?.closeTime && endTime <= dayHours.closeTime) {
+        bookingState.setEndTime(endTime);
+      }
+    }
+
     // Auto-open price section after selecting start time
     setTimeout(() => {
       accordion.scrollToPriceSection();

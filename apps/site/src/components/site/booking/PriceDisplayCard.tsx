@@ -62,15 +62,11 @@ export function PriceDisplayCard({
   return (
     <div
       ref={priceSectionRef}
-      className={`p-3 p-md-4 border rounded d-flex flex-column justify-content-center ${className}`}
+      className={`p-3 p-md-4 border rounded d-flex flex-column justify-content-center align-items-center text-center ${className}`}
       style={{ backgroundColor: "#f8f9fa" }}
     >
-            <div className="d-flex justify-content-between align-items-start mb-3">
-              <div style={{ visibility: "hidden" }}>
-                {/* Spacer for alignment */}
-              </div>
-
-              {/* TTC/HT Switch */}
+            {/* TTC/HT Switch - Centered */}
+            <div className="d-flex justify-content-center align-items-center mb-3 w-100">
               <div className="d-flex align-items-center gap-2">
                 <span
                   className={`tax-toggle ${showTTC ? "active" : ""}`}
