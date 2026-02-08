@@ -428,6 +428,8 @@ export function isValidBookingStatus(value: string): value is BookingStatus {
 export interface SpaceConfiguration {
   spaceType: string;
   name: string;
+  slug?: string;
+  description?: string;
   pricing: {
     hourly: number;
     daily: number;
@@ -435,6 +437,7 @@ export interface SpaceConfiguration {
     monthly: number;
     perPerson: boolean;
     maxHoursBeforeDaily?: number;
+    isDailyRateAvailable?: boolean;
   };
   availableReservationTypes: {
     hourly: boolean;
@@ -445,7 +448,15 @@ export interface SpaceConfiguration {
   requiresQuote: boolean;
   minCapacity: number;
   maxCapacity: number;
+  imageUrl?: string;
+  displayOrder?: number;
+  features?: string[];
 }
+
+/**
+ * Alias for SpaceConfiguration (backward compatibility)
+ */
+export type SpaceConfig = SpaceConfiguration;
 
 /**
  * Global Hours
