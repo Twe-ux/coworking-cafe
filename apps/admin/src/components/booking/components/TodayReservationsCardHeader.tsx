@@ -14,34 +14,7 @@ export function TodayReservationsCardHeader({
   viewAllUrl,
   viewAllLabel,
 }: TodayReservationsCardHeaderProps) {
-  if (variant === "staff") {
-    return (
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-green-50 rounded-lg">
-            <Calendar className="w-6 h-6 text-green-600" />
-          </div>
-          <div>
-            <CardTitle>Réservations du jour</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              {new Date().toLocaleDateString("fr-FR", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })}
-            </p>
-          </div>
-        </div>
-        <Link href={viewAllUrl}>
-          <Button variant="ghost" size="sm" className="gap-2">
-            {viewAllLabel}
-            <ExternalLink className="w-4 h-4" />
-          </Button>
-        </Link>
-      </CardHeader>
-    );
-  }
-
+  // Même style pour admin et staff - comme dans commit 1e000f4
   return (
     <CardHeader>
       <CardTitle className="flex items-center justify-between text-lg">

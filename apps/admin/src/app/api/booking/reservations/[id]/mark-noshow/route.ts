@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Booking } from "@coworking-cafe/database";
+import { Booking, stripe } from "@coworking-cafe/database";
 import { connectMongoose } from "@/lib/mongodb";
-import { requireAuth } from "@/lib/api/auth";
+import { checkAPIIPAccess } from "@/lib/api/ip-check";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { sendClientNoShowEmail } from "@/lib/email/emailService";
 import type { BookingStatus } from "@/types/booking";
@@ -48,10 +48,10 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Auth check - staff can mark no-show
-  const authResult = await requireAuth(["dev", "admin", "staff"]);
-  if (!authResult.authorized) {
-    return authResult.response;
+  // IP check - staff dashboard can mark no-show
+  const ipCheckResult = checkAPIIPAccess(request);
+  if (ipCheckResult) {
+    return ipCheckResult;
   }
 
   try {
@@ -83,7 +83,30 @@ export async function POST(
     booking.cancelReason = "No-show - Client ne s'est pas présenté";
     await booking.save();
 
-    // TODO: Capture Stripe card hold (if captureMethod is manual/deferred)
+    // Capture Stripe card hold (if captureMethod is manual/deferred)
+    const bookingDoc = booking as unknown as {
+      stripePaymentIntentId?: string;
+      captureMethod?: string;
+      isAdminBooking?: boolean;
+      depositAmount?: number;
+    };
+
+    if (bookingDoc.stripePaymentIntentId &&
+        bookingDoc.captureMethod === 'manual' &&
+        !bookingDoc.isAdminBooking) {
+      try {
+        await stripe.paymentIntents.capture(
+          bookingDoc.stripePaymentIntentId,
+          {
+            amount_to_capture: bookingDoc.depositAmount, // Capture deposit amount in cents
+          }
+        );
+        console.log(`[API] Captured payment intent: ${bookingDoc.stripePaymentIntentId}`);
+      } catch (stripeError) {
+        console.error("[API] Error capturing Stripe payment intent:", stripeError);
+        // Don't fail the request if Stripe capture fails - booking is still marked as no-show
+      }
+    }
 
     // Send no-show email to client
     try {

@@ -338,7 +338,7 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
         companyName: metadata.companyName || '',
         status: 'pending', // Will be confirmed by admin
         paymentStatus: 'pending',
-        invoiceOption: metadata.invoiceOption !== 'no_invoice', // Convert to boolean
+        invoiceOption: false, // Toujours false pour réservations client (seul admin peut créer "sur facture")
         invoiceDetails: invoiceDetails,
         additionalServices,
         stripePaymentIntentId: paymentIntent.id,
@@ -514,7 +514,7 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
       companyName: metadata.companyName || '',
       status: 'pending', // Will be confirmed by admin
       paymentStatus: 'pending',
-      invoiceOption: metadata.invoiceOption !== 'no_invoice', // Convert to boolean
+      invoiceOption: false, // Toujours false pour réservations client (seul admin peut créer "sur facture")
       invoiceDetails: invoiceDetails,
       additionalServices,
       stripeSetupIntentId: setupIntent.id,

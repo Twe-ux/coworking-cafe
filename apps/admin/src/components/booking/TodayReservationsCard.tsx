@@ -7,7 +7,6 @@ import { TodayReservationsCardHeader } from "./components/TodayReservationsCardH
 import { AdminReservationRow } from "./components/AdminReservationRow";
 import { StaffReservationRow } from "./components/StaffReservationRow";
 import { EmptyReservationsState } from "./components/EmptyReservationsState";
-import { StaffReservationsFooter } from "./components/StaffReservationsFooter";
 import { ReservationsLoadingSkeleton } from "./components/ReservationsLoadingSkeleton";
 import { ReservationsErrorState } from "./components/ReservationsErrorState";
 import { SPACE_TYPE_COLORS, getSpaceType } from "./components/utils";
@@ -16,7 +15,7 @@ interface TodayReservationsCardProps {
   /**
    * Variante du composant
    * - admin: Affichage détaillé avec actions (Présent/No-show) et prix
-   * - staff: Affichage simple lecture seule avec statuts
+   * - staff: Affichage simple lecture seule
    */
   variant?: "admin" | "staff";
 
@@ -34,6 +33,8 @@ interface TodayReservationsCardProps {
 /**
  * Card affichant les réservations du jour
  * Versions admin (avec actions) et staff (lecture seule)
+ *
+ * Style du commit 1e000f4 avec variants admin/staff
  */
 export function TodayReservationsCard({
   variant = "admin",
@@ -51,6 +52,11 @@ export function TodayReservationsCard({
   // Get today's date (YYYY-MM-DD)
   const today = new Date().toISOString().split("T")[0];
 
+  // Get tomorrow's date (YYYY-MM-DD)
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowDate = tomorrow.toISOString().split("T")[0];
+
   // Filtrer selon la variante
   const filteredReservations =
     variant === "admin"
@@ -65,16 +71,13 @@ export function TodayReservationsCard({
       return timeA.localeCompare(timeB);
     });
 
-  const tomorrowReservations =
-    variant === "admin"
-      ? filteredReservations
-          .filter((booking) => booking.startDate !== today)
-          .sort((a, b) => {
-            const timeA = a.startTime || "23:59";
-            const timeB = b.startTime || "23:59";
-            return timeA.localeCompare(timeB);
-          })
-      : [];
+  const tomorrowReservations = filteredReservations
+    .filter((booking) => booking.startDate === tomorrowDate)
+    .sort((a, b) => {
+      const timeA = a.startTime || "23:59";
+      const timeB = b.startTime || "23:59";
+      return timeA.localeCompare(timeB);
+    });
 
   if (isLoading) {
     return <ReservationsLoadingSkeleton />;
@@ -159,25 +162,52 @@ export function TodayReservationsCard({
             )}
           </div>
         ) : (
-          <div className="space-y-3 max-h-[400px] overflow-y-auto">
-            {todayReservations.map((reservation) => (
-              <StaffReservationRow
-                key={reservation._id}
-                reservation={reservation}
-              />
-            ))}
+          <div className="space-y-4">
+            {todayReservations.length > 0 && (
+              <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                {todayReservations.map((reservation) => {
+                  const spaceType = getSpaceType(reservation.spaceName);
+                  const borderClass = SPACE_TYPE_COLORS[spaceType];
+                  const displayName =
+                    reservation.clientCompany || reservation.clientName;
+
+                  return (
+                    <StaffReservationRow
+                      key={reservation._id}
+                      reservation={reservation}
+                      borderClass={borderClass}
+                      displayName={displayName}
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {tomorrowReservations.length > 0 && (
+              <div className="space-y-3">
+                {todayReservations.length > 0 && (
+                  <div className="border-t border-gray-400 pt-3 mx-10 mt-3" />
+                )}
+                {tomorrowReservations.map((reservation) => {
+                  const spaceType = getSpaceType(reservation.spaceName);
+                  const borderClass = SPACE_TYPE_COLORS[spaceType];
+                  const displayName =
+                    reservation.clientCompany || reservation.clientName;
+
+                  return (
+                    <StaffReservationRow
+                      key={reservation._id}
+                      reservation={reservation}
+                      borderClass={borderClass}
+                      displayName={displayName}
+                      isTomorrow
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
-
-        {variant === "staff" &&
-          !isLoading &&
-          !error &&
-          todayReservations.length > 0 && (
-            <StaffReservationsFooter
-              reservationsCount={todayReservations.length}
-              isAdminOrDev={isAdminOrDev}
-            />
-          )}
       </CardContent>
     </Card>
   );

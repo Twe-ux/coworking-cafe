@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Booking } from "@coworking-cafe/database";
+import { Booking, stripe } from "@coworking-cafe/database";
 import { connectMongoose } from "@/lib/mongodb";
-import { requireAuth } from "@/lib/api/auth";
+import { checkAPIIPAccess } from "@/lib/api/ip-check";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { sendClientPresentEmail } from "@/lib/email/emailService";
 import type { Document, Types } from "mongoose";
@@ -70,10 +70,10 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Auth check - staff can mark presence
-  const authResult = await requireAuth(["dev", "admin", "staff"]);
-  if (!authResult.authorized) {
-    return authResult.response;
+  // IP check - staff dashboard can mark presence
+  const ipCheckResult = checkAPIIPAccess(request);
+  if (ipCheckResult) {
+    return ipCheckResult;
   }
 
   try {
@@ -103,7 +103,24 @@ export async function POST(
     booking.status = "completed";
     await booking.save();
 
-    // TODO: Release Stripe card hold (if captureMethod is manual/deferred)
+    // Release Stripe card hold (if captureMethod is manual/deferred)
+    const bookingDoc = booking as unknown as {
+      stripePaymentIntentId?: string;
+      captureMethod?: string;
+      isAdminBooking?: boolean;
+    };
+
+    if (bookingDoc.stripePaymentIntentId &&
+        bookingDoc.captureMethod === 'manual' &&
+        !bookingDoc.isAdminBooking) {
+      try {
+        await stripe.paymentIntents.cancel(bookingDoc.stripePaymentIntentId);
+        console.log(`[API] Released payment intent: ${bookingDoc.stripePaymentIntentId}`);
+      } catch (stripeError) {
+        console.error("[API] Error releasing Stripe payment intent:", stripeError);
+        // Don't fail the request if Stripe release fails - booking is still marked as present
+      }
+    }
 
     // Send email to client confirming presence and card hold release
     try {

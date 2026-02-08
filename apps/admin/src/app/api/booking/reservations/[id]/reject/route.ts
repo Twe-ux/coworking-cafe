@@ -37,6 +37,18 @@ export async function PUT(
       return errorResponse("Cette réservation est déjà annulée", undefined, 400)
     }
 
+    // Cancel Stripe Setup Intent if exists
+    if (booking.stripeSetupIntentId) {
+      try {
+        const { stripe } = await import('@coworking-cafe/database');
+        await stripe.setupIntents.cancel(booking.stripeSetupIntentId);
+        console.log('✅ Stripe SetupIntent annulé:', booking.stripeSetupIntentId);
+      } catch (stripeError) {
+        console.error('❌ Erreur annulation Stripe SetupIntent:', stripeError);
+        // Ne pas bloquer le refus si Stripe échoue
+      }
+    }
+
     // Mettre à jour le statut
     booking.status = 'cancelled'
     if (reason) {

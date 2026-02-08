@@ -25,7 +25,15 @@ type AuthResult =
 export async function requireAuth(requiredRoles: string[] = ['dev', 'admin']): Promise<AuthResult> {
   const session = await getServerSession(authOptions)
 
+  console.log('🔐 [requireAuth] Session:', session ? {
+    userId: session.user?.id,
+    userRole: session.user?.role,
+    userEmail: session.user?.email
+  } : 'NO SESSION');
+  console.log('🔐 [requireAuth] Required roles:', requiredRoles);
+
   if (!session?.user?.id) {
+    console.log('❌ [requireAuth] No session or user ID');
     return {
       authorized: false,
       response: NextResponse.json(
@@ -36,7 +44,10 @@ export async function requireAuth(requiredRoles: string[] = ['dev', 'admin']): P
   }
 
   const userRole = session.user.role
+  console.log('🔐 [requireAuth] User role:', userRole);
+
   if (!requiredRoles.includes(userRole)) {
+    console.log('❌ [requireAuth] Role not in required roles');
     return {
       authorized: false,
       response: NextResponse.json(
@@ -46,5 +57,6 @@ export async function requireAuth(requiredRoles: string[] = ['dev', 'admin']): P
     }
   }
 
+  console.log('✅ [requireAuth] Authorized');
   return { authorized: true, session, userRole }
 }

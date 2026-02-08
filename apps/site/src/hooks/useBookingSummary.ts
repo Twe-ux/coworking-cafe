@@ -213,6 +213,7 @@ export function useBookingSummary() {
         contactName: bookingData.contactName,
         contactEmail: bookingData.contactEmail,
         contactPhone: bookingData.contactPhone,
+        companyName: bookingData.contactCompanyName,
         specialRequests: bookingData.specialRequests,
         additionalServices: JSON.stringify(additionalServicesData),
         requiresPayment: true,

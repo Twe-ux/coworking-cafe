@@ -34,14 +34,21 @@ export function useReservationActions(
       setActionType("present");
       const response = await fetch(
         `/api/booking/reservations/${bookingId}/mark-present`,
-        { method: "POST" }
+        {
+          method: "POST",
+          credentials: "include" // Include cookies for authentication
+        }
       );
       const data = await response.json();
+      console.log("[useReservationActions] Mark present response:", data);
       if (data.success) {
+        console.log("[useReservationActions] Calling onSuccess callback");
         options?.onSuccess?.();
+      } else {
+        console.error("[useReservationActions] Mark present failed:", data);
       }
-    } catch {
-      // Silent fail
+    } catch (error) {
+      console.error("[useReservationActions] Mark present error:", error);
     } finally {
       setProcessingId(null);
       setActionType(null);
@@ -63,14 +70,21 @@ export function useReservationActions(
       setActionType("noshow");
       const response = await fetch(
         `/api/booking/reservations/${bookingId}/mark-noshow`,
-        { method: "POST" }
+        {
+          method: "POST",
+          credentials: "include" // Include cookies for authentication
+        }
       );
       const data = await response.json();
+      console.log("[useReservationActions] Mark no-show response:", data);
       if (data.success) {
+        console.log("[useReservationActions] Calling onSuccess callback");
         options?.onSuccess?.();
+      } else {
+        console.error("[useReservationActions] Mark no-show failed:", data);
       }
-    } catch {
-      // Silent fail
+    } catch (error) {
+      console.error("[useReservationActions] Mark no-show error:", error);
     } finally {
       setProcessingId(null);
       setActionType(null);

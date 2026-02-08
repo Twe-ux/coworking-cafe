@@ -74,7 +74,7 @@ export default function HomePage() {
         <PointagesSection employees={employees} onStatusChange={refetch} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3">
           <div className="lg:col-span-5">
-            <TodayReservationsCard variant="staff" />
+            <TodayReservationsCard variant="admin" />
           </div>
           <div className="lg:col-span-5">
             <TodayTasksCard />

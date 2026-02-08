@@ -36,7 +36,7 @@ Migration progressive de modules depuis `/apps/site/src/app/dashboard/` :
 - ⚙️ Settings (espaces, horaires)
 - 📊 Analytics avancées
 
-**⚠️ IMPORTANT** : Migrations = **RÉÉCRITURE** propre, pas copier-coller !
+**✅ NOTE** : L'architecture est maintenant stable. Les composants validés ne doivent pas être recréés différemment sans raison.
 
 ---
 

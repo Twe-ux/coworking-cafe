@@ -39,6 +39,7 @@ interface LeanBookingDocument {
   contactEmail?: string
   contactPhone?: string
   contactCompany?: string
+  companyName?: string // Société (champ site)
   notes?: string
   message?: string
   amountPaid?: number
@@ -75,6 +76,7 @@ interface BookingDocumentObject {
   contactEmail?: string
   contactPhone?: string
   contactCompany?: string
+  companyName?: string // Société (champ site)
   notes?: string
   message?: string
   amountPaid?: number
@@ -190,7 +192,7 @@ export async function GET(request: NextRequest) {
         clientName,
         clientEmail: user?.email || booking.contactEmail || '',
         clientPhone: user?.phone || booking.contactPhone || '',
-        clientCompany: booking.contactCompany || '',
+        clientCompany: booking.contactCompany || booking.companyName || '',
         reservationType: inferReservationType(
           booking.reservationType,
           booking.spaceType,

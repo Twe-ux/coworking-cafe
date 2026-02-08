@@ -62,7 +62,8 @@ export function AdminReservationRow({
   const spaceType = getSpaceType(booking.spaceName);
 
   const renderPriceInfo = () => {
-    if (booking.invoiceOption) {
+    // Afficher "Sur facture" UNIQUEMENT si c'est une réservation admin ET invoiceOption
+    if (booking.isAdminBooking && booking.invoiceOption) {
       return (
         <>
           <span>·</span>
@@ -112,7 +113,7 @@ export function AdminReservationRow({
             </span>
             <span className="text-xs text-muted-foreground">·</span>
             <span className="text-sm font-semibold truncate">
-              {displayName || "Client inconnu"}
+              {displayName}
             </span>
             {booking.notes && (
               <TooltipProvider delayDuration={0}>
@@ -132,60 +133,56 @@ export function AdminReservationRow({
             )}
           </div>
 
-          {!isTomorrow && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              {booking.startTime && booking.endTime ? (
-                <>
-                  <Clock className="h-3 w-3" />
-                  <span>
-                    {booking.startTime} - {booking.endTime}
-                  </span>
-                </>
-              ) : (
-                <span>Journée complète</span>
-              )}
-              <span>·</span>
-              <Users className="h-3 w-3" />
-              <span>{booking.numberOfPeople} pers.</span>
-              {renderPriceInfo()}
-            </div>
-          )}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {booking.startTime && booking.endTime ? (
+              <>
+                <Clock className="h-3 w-3" />
+                <span>
+                  {booking.startTime} - {booking.endTime}
+                </span>
+              </>
+            ) : (
+              <span>Journée complète</span>
+            )}
+            <span>·</span>
+            <Users className="h-3 w-3" />
+            <span>{booking.numberOfPeople} pers.</span>
+            {renderPriceInfo()}
+          </div>
         </div>
 
-        {!isTomorrow &&
-          booking.status === "confirmed" &&
-          !booking.isAdminBooking && (
-            <div className="flex gap-1 flex-shrink-0">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 px-2 border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
-                onClick={() => booking._id && onMarkPresent(booking._id)}
-                disabled={isProcessing || processingDisabled}
-              >
-                {isProcessing && actionType === "present" ? (
-                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                ) : (
-                  <UserCheck className="h-3 w-3 mr-1" />
-                )}
-                Présent
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 px-2 border-orange-500 text-orange-600 hover:bg-orange-100 hover:text-orange-700"
-                onClick={() => booking._id && onMarkNoShow(booking._id)}
-                disabled={isProcessing || processingDisabled}
-              >
-                {isProcessing && actionType === "noshow" ? (
-                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                ) : (
-                  <UserX className="h-3 w-3 mr-1" />
-                )}
-                No-show
-              </Button>
-            </div>
-          )}
+        {booking.status === "confirmed" && (
+          <div className="flex gap-1 flex-shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
+              onClick={() => booking._id && onMarkPresent(booking._id)}
+              disabled={isProcessing || processingDisabled}
+            >
+              {isProcessing && actionType === "present" ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <UserCheck className="h-3 w-3 mr-1" />
+              )}
+              Présent
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 border-orange-500 text-orange-600 hover:bg-orange-100 hover:text-orange-700"
+              onClick={() => booking._id && onMarkNoShow(booking._id)}
+              disabled={isProcessing || processingDisabled}
+            >
+              {isProcessing && actionType === "noshow" ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <UserX className="h-3 w-3 mr-1" />
+              )}
+              No-show
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

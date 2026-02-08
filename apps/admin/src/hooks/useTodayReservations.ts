@@ -20,9 +20,19 @@ export function useTodayReservations() {
   const isAdminOrDev = isAuthenticated && ["admin", "dev"].includes(userRole);
 
   const fetchTodayReservations = useCallback(async () => {
+    console.log("[useTodayReservations] Starting refetch...");
     try {
       setIsLoading(true);
       setError(null);
+
+      // Clear cache before fetching to ensure fresh data
+      try {
+        sessionStorage.removeItem("todayReservations");
+        sessionStorage.removeItem("todayReservationsTimestamp");
+        console.log("[useTodayReservations] Cache cleared");
+      } catch (e) {
+        // Ignore storage errors
+      }
 
       const today = getTodayParis();
       const tomorrow = new Date(today);
@@ -37,11 +47,15 @@ export function useTodayReservations() {
       // No session: use public mode (confirmed only, no auth)
       if (!isAuthenticated) {
         params.set("public", "true");
-      } else if (!isAdminOrDev) {
-        params.set("status", "confirmed");
       }
 
-      const response = await fetch(`/api/booking/reservations?${params}`);
+      // Always filter confirmed reservations for TodayReservationsCard
+      // (completed and cancelled should not appear in today's list)
+      params.set("status", "confirmed");
+
+      const response = await fetch(`/api/booking/reservations?${params}`, {
+        cache: 'no-store', // Disable Next.js cache
+      });
       const result = await response.json();
 
       if (!result.success) {
@@ -51,6 +65,8 @@ export function useTodayReservations() {
       }
 
       const data = result.data || [];
+      console.log("[useTodayReservations] Fetched reservations:", data.length, "items");
+      console.log("[useTodayReservations] Reservation statuses:", data.map((r: { _id: string; status: string }) => ({ id: r._id, status: r.status })));
 
       // Add cache to sessionStorage
       try {
@@ -61,6 +77,7 @@ export function useTodayReservations() {
       }
 
       setReservations(data);
+      console.log("[useTodayReservations] Reservations state updated");
     } catch (err) {
       console.error("Error fetching today reservations:", err);
       setError(err instanceof Error ? err.message : "Erreur inconnue");

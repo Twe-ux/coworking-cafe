@@ -72,6 +72,18 @@ export async function POST(
       );
     }
 
+    // Cancel Stripe Setup Intent if exists
+    if (booking.stripeSetupIntentId) {
+      try {
+        const { stripe } = await import('@coworking-cafe/database');
+        await stripe.setupIntents.cancel(booking.stripeSetupIntentId);
+        console.log('✅ Stripe SetupIntent annulé:', booking.stripeSetupIntentId);
+      } catch (stripeError) {
+        console.error('❌ Erreur annulation Stripe SetupIntent:', stripeError);
+        // Ne pas bloquer l'annulation si Stripe échoue
+      }
+    }
+
     // Update status to cancelled
     booking.status = "cancelled";
     booking.cancelledAt = new Date();
