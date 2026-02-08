@@ -146,6 +146,20 @@ export default function BookingDetailsPage() {
       }
     }
 
+    // Store credentials temporarily for auto-login after account creation
+    if (contactForm.createAccount && contactForm.password) {
+      try {
+        sessionStorage.setItem('autoLogin', JSON.stringify({
+          email: contactForm.contactEmail,
+          password: contactForm.password,
+          timestamp: Date.now()
+        }));
+        console.log('[Auto-login] Credentials stored in sessionStorage for auto-login after payment');
+      } catch (error) {
+        console.error('[Auto-login] Failed to store credentials:', error);
+      }
+    }
+
     // Navigate to summary page
     router.push("/booking/summary");
   };

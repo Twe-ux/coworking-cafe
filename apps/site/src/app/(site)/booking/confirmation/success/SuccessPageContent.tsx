@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 export default function SuccessPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
   const [status, setStatus] = useState<"loading" | "error" | "success">(
     "loading"
   );
@@ -70,6 +72,58 @@ export default function SuccessPageContent() {
     }
   };
 
+  const attemptAutoLogin = async (): Promise<boolean> => {
+    // Check if user is already logged in
+    if (session) {
+      console.log('[Auto-login] User already logged in, skipping auto-login');
+      return true;
+    }
+
+    // Check for stored credentials
+    try {
+      const storedData = sessionStorage.getItem('autoLogin');
+      if (!storedData) {
+        console.log('[Auto-login] No credentials found in sessionStorage');
+        return false;
+      }
+
+      const { email, password, timestamp } = JSON.parse(storedData);
+
+      // Check if credentials are not too old (10 minutes max)
+      const age = Date.now() - timestamp;
+      if (age > 10 * 60 * 1000) {
+        console.log('[Auto-login] Credentials expired, removing from sessionStorage');
+        sessionStorage.removeItem('autoLogin');
+        return false;
+      }
+
+      console.log('[Auto-login] Attempting auto-login for:', email);
+      setMessage("Connexion automatique en cours...");
+
+      // Attempt sign in
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      // Clear credentials from sessionStorage
+      sessionStorage.removeItem('autoLogin');
+
+      if (result?.ok) {
+        console.log('[Auto-login] ✅ Auto-login successful');
+        return true;
+      } else {
+        console.error('[Auto-login] ❌ Auto-login failed:', result?.error);
+        return false;
+      }
+    } catch (error) {
+      console.error('[Auto-login] Error during auto-login:', error);
+      sessionStorage.removeItem('autoLogin');
+      return false;
+    }
+  };
+
   const pollForBooking = async (
     paymentIntentId: string | null,
     setupIntentId: string | null,
@@ -87,10 +141,20 @@ export default function SuccessPageContent() {
       if (data.success && data.data) {
         setStatus("success");
         setMessage("Réservation créée avec succès !");
-        setSubMessage("Redirection vers votre confirmation...");
+
+        // Attempt auto-login before redirecting
+        setSubMessage("Connexion en cours...");
+        const loginSuccess = await attemptAutoLogin();
+
+        if (loginSuccess) {
+          setSubMessage("Connecté ! Redirection...");
+        } else {
+          setSubMessage("Redirection vers votre confirmation...");
+        }
+
         setTimeout(() => {
           router.push(`/booking/confirmation/${data.data._id}`);
-        }, 500);
+        }, loginSuccess ? 1000 : 500);
         return;
       }
 
