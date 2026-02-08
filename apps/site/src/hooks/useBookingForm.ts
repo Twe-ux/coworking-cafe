@@ -201,10 +201,21 @@ export function useBookingForm(
   // ========================================
 
   useEffect(() => {
-    if (autoSave && bookingData) {
-      saveToStorageInternal();
-    }
-  }, [bookingData, contactForm, selectedServices]);
+    if (!autoSave || !bookingData) return;
+
+    // Auto-save booking data + contact form + services
+    const dataToSave: BookingData = {
+      ...bookingData,
+      ...contactForm,
+    };
+
+    console.log('[useBookingForm] Auto-saving to sessionStorage:', dataToSave);
+    sessionStorage.setItem("bookingData", JSON.stringify(dataToSave));
+
+    // Save selected services
+    const servicesArray = Array.from(selectedServices.entries());
+    sessionStorage.setItem("selectedServices", JSON.stringify(servicesArray));
+  }, [autoSave, bookingData, contactForm, selectedServices]);
 
   // ========================================
   // Storage Functions
