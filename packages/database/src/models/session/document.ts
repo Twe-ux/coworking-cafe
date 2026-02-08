@@ -26,7 +26,7 @@ export const SessionSchema = new Schema<SessionDocument>(
     sessionToken: {
       type: String,
       required: [true, 'Session token is required'],
-      unique: true,
+      // unique index defined explicitly below
     },
     expires: {
       type: Date,

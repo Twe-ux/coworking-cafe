@@ -1,7 +1,14 @@
 import bcrypt from "bcryptjs";
 import { UserSchema } from "./document";
 
+let hooksAttached = false;
+
 export function attachHooks() {
+  // Prevent attaching hooks multiple times
+  if (hooksAttached) {
+    return;
+  }
+
   // Hash le password avant de sauvegarder
   UserSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
@@ -29,4 +36,6 @@ export function attachHooks() {
       next(error);
     }
   });
+
+  hooksAttached = true;
 }

@@ -22,9 +22,9 @@ export const MenuCategorySchema = new Schema<MenuCategoryDocument>(
     slug: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
+      // index defined explicitly below
     },
     description: {
       type: String,

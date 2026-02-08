@@ -37,7 +37,7 @@ export const AdditionalServiceSchema = new Schema<AdditionalServiceDocument>(
     isActive: {
       type: Boolean,
       default: true,
-      index: true,
+      // index defined explicitly below
     },
   },
   {

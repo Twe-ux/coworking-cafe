@@ -102,9 +102,7 @@ export const PaymentSchema = new Schema<PaymentDocument>(
     stripePaymentIntentId: {
       type: String,
       trim: true,
-      unique: true,
-      sparse: true,
-      index: true,
+      // unique sparse index defined explicitly below
     },
     stripeChargeId: { type: String, trim: true, sparse: true },
     stripeCustomerId: { type: String, trim: true, index: true },
