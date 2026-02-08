@@ -21,7 +21,7 @@ export const PasswordResetTokenSchema = new Schema<PasswordResetTokenDocument>(
     token: {
       type: String,
       required: [true, "Token is required"],
-      unique: true,
+      // unique index defined explicitly below
     },
     expiresAt: {
       type: Date,

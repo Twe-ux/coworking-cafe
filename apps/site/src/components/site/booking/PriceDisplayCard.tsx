@@ -1,0 +1,152 @@
+// ============================================================================
+// PriceDisplayCard Component
+// ============================================================================
+// Composant d'affichage du prix avec toggle TTC/HT et détails
+// ============================================================================
+
+import React, { useRef } from "react";
+import type { ReservationType } from "@/types/booking";
+
+/**
+ * Props du composant PriceDisplayCard
+ */
+interface PriceDisplayCardProps {
+  price: number;
+  duration: string;
+  reservationType: ReservationType;
+  numberOfPeople: number;
+  showTTC: boolean;
+  onToggleTTC: (showTTC: boolean) => void;
+  perPerson: boolean; // True si prix par personne
+  className?: string;
+}
+
+/**
+ * Card d'affichage du prix avec toggle TTC/HT
+ * Affiche le prix, la durée, et les détails de tarification
+ *
+ * @param price - Prix à afficher (déjà converti en TTC ou HT)
+ * @param duration - Durée formatée (ex: "2H30", "1 semaine")
+ * @param reservationType - Type de réservation
+ * @param numberOfPeople - Nombre de personnes
+ * @param showTTC - True pour afficher TTC, false pour HT
+ * @param onToggleTTC - Callback pour changer TTC/HT
+ * @param perPerson - True si le prix est par personne
+ * @param className - Classes CSS additionnelles
+ *
+ * @example
+ * ```tsx
+ * <PriceDisplayCard
+ *   price={45.50}
+ *   duration="2H30"
+ *   reservationType="hourly"
+ *   numberOfPeople={2}
+ *   showTTC={true}
+ *   onToggleTTC={(show) => setShowTTC(show)}
+ *   perPerson={true}
+ * />
+ * ```
+ */
+export function PriceDisplayCard({
+  price,
+  duration,
+  reservationType,
+  numberOfPeople,
+  showTTC,
+  onToggleTTC,
+  perPerson,
+  className = "",
+}: PriceDisplayCardProps) {
+  const priceSectionRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div
+      ref={priceSectionRef}
+      className={`p-3 p-md-4 border rounded d-flex flex-column justify-content-center align-items-center text-center ${className}`}
+      style={{ backgroundColor: "#f8f9fa" }}
+    >
+            {/* TTC/HT Switch - Centered */}
+            <div className="d-flex justify-content-center align-items-center mb-3 w-100">
+              <div className="d-flex align-items-center gap-2">
+                <span
+                  className={`tax-toggle ${showTTC ? "active" : ""}`}
+                  onClick={() => onToggleTTC(true)}
+                  style={{
+                    cursor: "pointer",
+                    fontSize: "0.75rem",
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && onToggleTTC(true)}
+                >
+                  TTC
+                </span>
+                <div className="form-check form-switch mb-0">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="taxSwitchPrice"
+                    checked={!showTTC}
+                    onChange={() => onToggleTTC(!showTTC)}
+                    style={{ cursor: "pointer" }}
+                    aria-label="Basculer entre TTC et HT"
+                  />
+                </div>
+                <span
+                  className={`tax-toggle ${!showTTC ? "active" : ""}`}
+                  onClick={() => onToggleTTC(false)}
+                  style={{
+                    cursor: "pointer",
+                    fontSize: "0.75rem",
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && onToggleTTC(false)}
+                >
+                  HT
+                </span>
+              </div>
+            </div>
+
+            {/* Duration (hidden for daily) */}
+            {reservationType !== "daily" && duration && (
+              <div className="mb-2">
+                <span
+                  className="text-muted"
+                  style={{ fontSize: "0.85rem" }}
+                >
+                  <i className="bi bi-clock me-2" aria-hidden="true" />
+                  {duration}
+                </span>
+              </div>
+            )}
+
+            {/* Price Display */}
+            <div className="price-display">
+              {price.toFixed(2)}€ {showTTC ? "TTC" : "HT"}
+            </div>
+
+            {/* Price Type Label */}
+            <p
+              className="text-muted mb-0 small mt-2"
+              style={{ fontSize: "0.75rem" }}
+            >
+              {perPerson ? "Prix total" : "Prix fixe"}
+              {perPerson && numberOfPeople > 1 && (
+                <span className="ms-1">
+                  ({numberOfPeople} personne{numberOfPeople > 1 ? "s" : ""})
+                </span>
+              )}
+            </p>
+    </div>
+  );
+}
+
+/**
+ * Retourne une référence pour scroll auto vers le prix
+ * Utilisé par les composants parents pour scroll vers la section prix
+ */
+export function usePriceSectionRef() {
+  return useRef<HTMLDivElement>(null);
+}

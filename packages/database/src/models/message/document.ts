@@ -51,13 +51,13 @@ export const MessageSchema = new Schema<MessageDocument>(
       type: Schema.Types.ObjectId,
       ref: 'Conversation',
       required: [true, 'Conversation reference is required'],
-      index: true,
+      // index defined explicitly below
     },
     sender: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Sender reference is required'],
-      index: true,
+      // index defined explicitly below
     },
     content: {
       type: String,

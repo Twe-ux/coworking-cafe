@@ -421,9 +421,88 @@ export function isValidBookingStatus(value: string): value is BookingStatus {
   return ["pending", "confirmed", "cancelled", "completed", "no-show"].includes(value);
 }
 
+/**
+ * Space Configuration
+ * Configuration complète d'un espace (pricing, capacité, types de réservation)
+ */
+export interface SpaceConfiguration {
+  spaceType: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  pricing: {
+    hourly: number;
+    daily: number;
+    weekly: number;
+    monthly: number;
+    perPerson: boolean;
+    maxHoursBeforeDaily?: number;
+    isDailyRateAvailable?: boolean;
+  };
+  availableReservationTypes: {
+    hourly: boolean;
+    daily: boolean;
+    weekly: boolean;
+    monthly: boolean;
+  };
+  requiresQuote: boolean;
+  minCapacity: number;
+  maxCapacity: number;
+  imageUrl?: string;
+  displayOrder?: number;
+  features?: string[];
+}
+
+/**
+ * Alias for SpaceConfiguration (backward compatibility)
+ */
+export type SpaceConfig = SpaceConfiguration;
+
+/**
+ * Global Hours
+ * Horaires d'ouverture globaux et fermetures exceptionnelles
+ */
+export interface GlobalHours {
+  defaultHours: {
+    [key: string]: {
+      isOpen: boolean;
+      openTime?: string;
+      closeTime?: string;
+    };
+  };
+  exceptionalClosures: Array<{
+    date: string;
+    reason?: string;
+    startTime?: string;
+    endTime?: string;
+    isFullDay: boolean;
+  }>;
+}
+
+/**
+ * Reservation Type Option
+ * Option de type de réservation avec label et icône
+ */
+export interface ReservationTypeOption {
+  id: ReservationType;
+  label: string;
+  icon: string;
+}
+
 // ============================================================================
 // Constants
 // ============================================================================
+
+/**
+ * Space Type Mapping
+ * Map URL slugs to database spaceType values
+ */
+export const SPACE_TYPE_MAPPING: Record<string, string> = {
+  "open-space": "open-space",
+  "meeting-room-glass": "salle-verriere",
+  "meeting-room-floor": "salle-etage",
+  "event-space": "evenementiel",
+};
 
 /**
  * Space Type Labels for display
@@ -454,6 +533,29 @@ export const RESERVATION_TYPE_LABELS: Record<ReservationType, string> = {
   weekly: "À la semaine",
   monthly: "Au mois",
 };
+
+/**
+ * All Reservation Types with icons
+ * Array complet des types de réservation pour affichage dans l'UI
+ */
+export const ALL_RESERVATION_TYPES: ReservationTypeOption[] = [
+  { id: "hourly", label: "À l'heure", icon: "bi-clock" },
+  { id: "daily", label: "À la journée", icon: "bi-calendar-day" },
+  { id: "weekly", label: "À la semaine", icon: "bi-calendar-week" },
+  { id: "monthly", label: "Au mois", icon: "bi-calendar-month" },
+];
+
+/**
+ * All Time Slots
+ * Tous les créneaux horaires disponibles (de 08:00 à 22:00 par tranches de 30min)
+ */
+export const ALL_TIME_SLOTS: string[] = [
+  "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
+  "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
+  "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
+  "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
+  "20:00", "20:30", "21:00", "21:30", "22:00",
+];
 
 /**
  * Booking Status Labels for display
