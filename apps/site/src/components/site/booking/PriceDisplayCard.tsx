@@ -64,7 +64,7 @@ export function PriceDisplayCard({
       <div className="row">
         <div className="col-12">
           <div
-            className="p-3 border rounded"
+            className="p-3 p-md-4 border rounded"
             style={{ backgroundColor: "#f8f9fa" }}
           >
             <div className="d-flex justify-content-between align-items-start mb-3">
@@ -129,14 +129,7 @@ export function PriceDisplayCard({
             )}
 
             {/* Price Display */}
-            <div
-              className="price-display"
-              style={{
-                fontSize: "2.25rem",
-                lineHeight: "1",
-                marginTop: reservationType === "daily" ? "1rem" : "0",
-              }}
-            >
+            <div className="price-display">
               {price.toFixed(2)}€ {showTTC ? "TTC" : "HT"}
             </div>
 
