@@ -305,6 +305,7 @@ export async function POST(
           cancellationFees: cancellationFee / 100,
           refundAmount: refundAmount / 100,
           confirmationNumber: booking.confirmationNumber,
+          isPending: wasPending, // ✅ Pass isPending flag for proper email template
         });
 
         logger.info("Cancellation email sent", {

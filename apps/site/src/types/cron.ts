@@ -270,6 +270,7 @@ export interface EmailWithFeesData extends BaseEmailData {
   confirmationNumber?: string;
   cancellationFees: number;
   refundAmount: number;
+  isPending?: boolean; // true = annulation avant validation admin (pas de frais)
 }
 
 // ============================================================================
