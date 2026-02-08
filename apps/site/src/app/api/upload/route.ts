@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "../../../lib/api-helpers";
+import { requireAuth, getErrorMessage } from "../../../lib/api-helpers";
 import cloudinary from "../../../lib/cloudinary";
 import { optimizeImage, shouldOptimize } from "../../../lib/image-optimizer";
 
@@ -96,9 +96,9 @@ export async function POST(request: NextRequest) {
       format: uploadResult.format,
       optimization: optimizationInfo, // Inclure les infos d'optimisation
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to upload image", details: error.message },
+      { error: "Failed to upload image", details: getErrorMessage(error) },
       { status: 500 },
     );
   }
@@ -124,9 +124,9 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({
       message: "Image deleted successfully",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to delete image", details: error.message },
+      { error: "Failed to delete image", details: getErrorMessage(error) },
       { status: 500 },
     );
   }

@@ -4,20 +4,9 @@
  */
 
 import { getSpaceDisplayName } from "./helpers";
+import type { ReservationRejectedData } from "@/types/cron";
 
-interface ReservationRejectedData {
-  name: string;
-  spaceName: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  numberOfPeople: number;
-  totalPrice: number;
-  confirmationNumber: string;
-  reason?: string; // Rejection reason from admin
-}
-
-export function generateReservationRejectedEmail(
+export function generateRejectionEmail(
   data: ReservationRejectedData
 ): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
@@ -26,10 +15,10 @@ export function generateReservationRejectedEmail(
       ? `${data.startTime} - ${data.endTime}`
       : "Journée complète";
 
-  const rejectionReason = data.reason
+  const rejectionReason = data.rejectionReason
     ? `<p style="margin: 20px 0; padding: 15px; background-color: #FEF2F2; border-radius: 8px; border-left: 4px solid #EF4444; color: #7F1D1D !important; line-height: 1.6;">
         <strong style="display: block; margin-bottom: 8px; color: #991B1B !important;">Raison du refus :</strong>
-        ${data.reason}
+        ${data.rejectionReason}
        </p>`
     : "";
 
@@ -80,13 +69,13 @@ export function generateReservationRejectedEmail(
       </p>
 
       ${
-        data.reason
+        data.rejectionReason
           ? `
       <!-- Reason Box -->
       <div class="reason-box" style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; border-radius: 8px; margin: 28px 0;">
         <p style="margin: 0 0 12px 0; font-weight: 700; color: #991B1B; font-size: 16px;">Raison du refus :</p>
         <p style="margin: 0; color: #991B1B; font-size: 15px; line-height: 1.7;">
-          ${data.reason}
+          ${data.rejectionReason}
         </p>
       </div>
       `

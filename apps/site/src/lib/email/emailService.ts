@@ -8,18 +8,21 @@
 
 import { sendEmail as smtpSendEmail } from '@coworking-cafe/email';
 
+// Import des types
+import type { BaseEmailData, EmailWithDepositData, EmailWithFeesData, ReminderEmailData } from '../../types/cron';
+
 // Import des templates
 import { generateConfirmationEmail } from './templates/confirmation';
 import { generateValidatedEmail } from './templates/adminValidation';
 import { generateReminderEmail } from './templates/reminder';
-import { generateAdminCancellationEmail } from './templates/adminCancellation';
+import { generateReservationCancelledEmail as generateAdminCancellationEmail } from './templates/adminCancellation';
 import { generateDepositHoldEmail } from './templates/depositHold';
-import { generateNoShowPenaltyEmail } from './templates/noShowPenalty';
+import { generateDepositCapturedEmail as generateNoShowPenaltyEmail } from './templates/noShowPenalty';
 import { generateDepositReleasedEmail } from './templates/depositReleased';
 import { generateCardSavedEmail } from './templates/cardSaved';
-import { generateClientCancellationEmail } from './templates/clientCancellation';
+import { generateCancellationEmail as generateClientCancellationEmail } from './templates/clientCancellation';
 import { generateRejectionEmail } from './templates/adminRejection';
-import { generateClientBookingConfirmationEmail } from './templates/clientBookingConfirmation';
+import { generateBookingInitialEmail as generateClientBookingConfirmationEmail } from './templates/clientBookingConfirmation';
 
 /**
  * Configuration emails
@@ -37,28 +40,8 @@ const EMAIL_CONFIG = {
   },
 };
 
-/**
- * Interface commune pour les données d'email
- */
-interface BaseEmailData {
-  name: string;
-  spaceName: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  numberOfPeople: number;
-  totalPrice: number;
-  confirmationNumber?: string;
-}
-
-interface EmailWithDepositData extends BaseEmailData {
-  depositAmount: number;
-}
-
-interface EmailWithFeesData extends BaseEmailData {
-  cancellationFees: number;
-  refundAmount: number;
-}
+// Types are imported from '../../types/cron' - see imports above
+// No need to redefine them here
 
 /**
  * Envoyer un email via SMTP
@@ -172,10 +155,10 @@ L'équipe CoworKing Café by Anticafé
  */
 export async function sendBookingReminder(
   to: string,
-  data: BaseEmailData
+  data: ReminderEmailData
 ): Promise<boolean> {
   const subject = '🔔 Rappel : Votre réservation demain - CoworKing Café';
-  const html = generateReminderEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateReminderEmail(data);
 
   const text = `
 Bonjour ${data.name},
@@ -184,9 +167,8 @@ Nous vous rappelons votre réservation demain !
 
 Détails :
 - Espace : ${data.spaceName}
-- Nombre de personnes : ${data.numberOfPeople}
 - Date : ${data.date}
-- Horaires : ${data.startTime} - ${data.endTime}
+- Horaires : ${data.time}
 
 Nous vous attendons avec impatience !
 
@@ -252,7 +234,16 @@ export async function sendDepositHoldConfirmation(
   data: EmailWithDepositData
 ): Promise<boolean> {
   const subject = '💳 Empreinte bancaire effectuée - CoworKing Café';
-  const html = generateDepositHoldEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateDepositHoldEmail({
+    name: data.name,
+    spaceName: data.spaceName,
+    date: data.date,
+    startTime: data.startTime,
+    endTime: data.endTime,
+    depositAmount: data.depositAmount,
+    totalPrice: data.totalPrice,
+    contactEmail: EMAIL_CONFIG.contact.email
+  });
 
   const text = `
 Bonjour ${data.name},
@@ -289,7 +280,7 @@ export async function sendDepositCaptured(
   data: EmailWithDepositData
 ): Promise<boolean> {
   const subject = '⚠️ Absence non signalée - Frais appliqués - CoworKing Café';
-  const html = generateNoShowPenaltyEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateNoShowPenaltyEmail(data);
 
   const text = `
 Bonjour ${data.name},
@@ -325,7 +316,13 @@ export async function sendDepositReleased(
   data: EmailWithDepositData
 ): Promise<boolean> {
   const subject = '✅ Empreinte bancaire annulée - CoworKing Café';
-  const html = generateDepositReleasedEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateDepositReleasedEmail({
+    name: data.name,
+    spaceName: data.spaceName,
+    date: data.date,
+    depositAmount: data.depositAmount,
+    contactEmail: EMAIL_CONFIG.contact.email
+  });
 
   const text = `
 Bonjour ${data.name},
@@ -361,15 +358,25 @@ L'équipe CoworKing Café by Anticafé
  */
 export async function sendCardSavedConfirmation(
   to: string,
-  data: BaseEmailData & { last4: string }
+  data: BaseEmailData & { depositAmount: number }
 ): Promise<boolean> {
   const subject = '💳 Carte bancaire enregistrée - CoworKing Café';
-  const html = generateCardSavedEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateCardSavedEmail({
+    name: data.name,
+    spaceName: data.spaceName,
+    date: data.date,
+    startTime: data.startTime,
+    endTime: data.endTime,
+    numberOfPeople: data.numberOfPeople,
+    totalPrice: data.totalPrice,
+    depositAmount: data.depositAmount,
+    contactEmail: EMAIL_CONFIG.contact.email
+  });
 
   const text = `
 Bonjour ${data.name},
 
-Votre carte bancaire se terminant par ${data.last4} a été enregistrée avec succès.
+Votre carte bancaire a été enregistrée avec succès.
 
 Elle sera utilisée pour le paiement de votre réservation :
 
@@ -403,7 +410,7 @@ export async function sendCancellationConfirmation(
   data: EmailWithFeesData
 ): Promise<boolean> {
   const subject = '❌ Annulation confirmée - CoworKing Café';
-  const html = generateClientCancellationEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateClientCancellationEmail(data);
 
   const text = `
 Bonjour ${data.name},
@@ -444,7 +451,7 @@ export async function sendReservationRejected(
   data: BaseEmailData & { reason?: string }
 ): Promise<boolean> {
   const subject = '❌ Réservation refusée - CoworKing Café';
-  const html = generateRejectionEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateRejectionEmail(data);
 
   const text = `
 Bonjour ${data.name},
@@ -483,7 +490,21 @@ export async function sendClientBookingConfirmation(
   data: BaseEmailData
 ): Promise<boolean> {
   const subject = '📝 Demande de réservation reçue - CoworKing Café';
-  const html = generateClientBookingConfirmationEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+
+  // Import the template function
+  const { generateBookingInitialEmail } = require('./templates/clientBookingConfirmation');
+
+  const html = generateBookingInitialEmail({
+    name: data.name,
+    spaceName: data.spaceName,
+    date: data.date,
+    time: `${data.startTime} - ${data.endTime}`,
+    price: data.totalPrice,
+    bookingId: '', // Not provided in BaseEmailData, will need to update if needed
+    requiresPayment: false,
+    numberOfPeople: data.numberOfPeople,
+    contactEmail: data.contactEmail,
+  });
 
   const text = `
 Bonjour ${data.name},
@@ -602,7 +623,7 @@ export async function sendBookingInitialEmail(
     depositAmount?: number;
     captureMethod?: 'manual' | 'automatic';
     additionalServices?: Array<{ name: string; quantity: number; price: number }>;
-    numberOfPeople?: number;
+    numberOfPeople: number;
   }
 ): Promise<boolean> {
   const subject = '⏳ Réservation en attente de validation - CoworKing Café';
@@ -622,7 +643,7 @@ Nous avons bien reçu votre demande de réservation.
 
 Détails :
 - Espace : ${data.spaceName}
-${data.numberOfPeople ? `- Nombre de personnes : ${data.numberOfPeople}` : ''}
+- Nombre de personnes : ${data.numberOfPeople}
 - Date : ${data.date}
 - Horaires : ${data.time}
 - Prix total : ${data.price.toFixed(2)}€

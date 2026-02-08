@@ -23,7 +23,14 @@ export async function GET(
 
     const { slug } = params;
 
-    const query: any = { slug, isDeleted: false };
+    interface ArticleFilter {
+      slug: string;
+      isDeleted: boolean;
+      status?: string;
+      publishedAt?: { $lte: Date };
+    }
+
+    const query: ArticleFilter = { slug, isDeleted: false };
 
     // Only show published articles to non-authenticated users
     const user = await getAuthUser();

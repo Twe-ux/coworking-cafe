@@ -5,13 +5,7 @@
  */
 
 import { getSpaceDisplayName } from "./helpers";
-
-interface DepositReleasedData {
-  name: string;
-  spaceName: string;
-  date: string;
-  depositAmount: number;
-}
+import type { DepositReleasedData } from "@/types/cron";
 
 export function generateDepositReleasedEmail(
   data: DepositReleasedData

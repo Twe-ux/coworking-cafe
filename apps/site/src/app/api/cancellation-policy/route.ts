@@ -50,7 +50,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Map to consistent structure
-    const tiers = policy.map((tier: any) => ({
+    interface CancellationTier {
+      daysBeforeBooking: number;
+      chargePercentage: number;
+    }
+
+    const tiers = (policy as CancellationTier[]).map((tier) => ({
       daysBeforeBooking: tier.daysBeforeBooking || 0,
       chargePercentage: tier.chargePercentage || 0,
     }));

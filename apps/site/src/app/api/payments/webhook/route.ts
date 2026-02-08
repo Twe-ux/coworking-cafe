@@ -95,7 +95,9 @@ export async function POST(request: NextRequest) {
 
     // Return 200 to acknowledge receipt of the event
     return NextResponse.json({ received: true });
-  } catch (error) {    return NextResponse.json(
+  } catch (error: unknown) {
+    console.error('[Webhook] Handler failed:', error);
+    return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }
     );
@@ -147,8 +149,11 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     if (booking) {
       booking.paymentStatus = 'paid';
       booking.status = 'confirmed';
-      await booking.save();    }
-  } catch (error) {    throw error;
+      await booking.save();
+    }
+  } catch (error: unknown) {
+    console.error('[Webhook] handlePaymentSuccess error:', error);
+    throw error;
   }
 }
 
@@ -177,7 +182,9 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
       booking.paymentStatus = 'failed';
       await booking.save();
     }
-  } catch (error) {    throw error;
+  } catch (error: unknown) {
+    console.error('[Webhook] handlePaymentFailure error:', error);
+    throw error;
   }
 }
 
@@ -196,7 +203,9 @@ async function handlePaymentProcessing(paymentIntent: Stripe.PaymentIntent) {
 
     payment.status = 'processing';
     await payment.save();
-  } catch (error) {    throw error;
+  } catch (error: unknown) {
+    console.error('[Webhook] handlePaymentProcessing error:', error);
+    throw error;
   }
 }
 
@@ -215,7 +224,9 @@ async function handlePaymentCanceled(paymentIntent: Stripe.PaymentIntent) {
 
     payment.status = 'cancelled';
     await payment.save();
-  } catch (error) {    throw error;
+  } catch (error: unknown) {
+    console.error('[Webhook] handlePaymentCanceled error:', error);
+    throw error;
   }
 }
 
@@ -250,9 +261,12 @@ async function handleRefund(charge: Stripe.Charge) {
       const booking = await Booking.findById(payment.booking);
       if (booking) {
         booking.paymentStatus = 'refunded';
-        await booking.save();      }
+        await booking.save();
+      }
     }
-  } catch (error) {    throw error;
+  } catch (error: unknown) {
+    console.error('[Webhook] handleRefund error:', error);
+    throw error;
   }
 }
 
@@ -287,8 +301,9 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
     if (metadata.additionalServices) {
       try {
         additionalServices = JSON.parse(metadata.additionalServices);
-      } catch (error) {
-    }
+      } catch (parseError) {
+        console.error('[Webhook] Failed to parse additionalServices:', parseError);
+      }
     }
 
     // Parse invoiceDetails if present
@@ -296,8 +311,9 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
     if (metadata.invoiceDetails) {
       try {
         invoiceDetails = JSON.parse(metadata.invoiceDetails);
-      } catch (error) {
-    }
+      } catch (parseError) {
+        console.error('[Webhook] Failed to parse invoiceDetails:', parseError);
+      }
     }
 
     // Calculate deposit amount from metadata
@@ -333,9 +349,12 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
         confirmationNumber,
         isPartialPrivatization: metadata.isPartialPrivatization === 'true',
         message: metadata.message || '',
-      });    } catch (createError: any) {
+      });
+    } catch (createError: unknown) {
       // Handle duplicate key error (E11000) - happens when webhook is called multiple times
-      if (createError.code === 11000 && createError.keyPattern?.stripePaymentIntentId) {        return;
+      if (createError && typeof createError === 'object' && 'code' in createError && createError.code === 11000) {
+        console.log('[Webhook] Duplicate booking detected (webhook called multiple times), skipping');
+        return;
       }
       // Re-throw other errors
       throw createError;
@@ -346,9 +365,17 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
       const spaceConfig = await SpaceConfiguration.findOne({ spaceType: metadata.spaceType });
 
       // Parse additional services for email if present
+      interface AdditionalService {
+        name?: string;
+        serviceName?: string;
+        quantity?: number;
+        unitPrice?: number;
+        price?: number;
+      }
+
       let emailServices: Array<{ name: string; quantity: number; price: number }> = [];
       if (additionalServices && Array.isArray(additionalServices)) {
-        emailServices = additionalServices.map((service: any) => ({
+        emailServices = (additionalServices as AdditionalService[]).map((service) => ({
           name: service.name || service.serviceName || 'Service',
           quantity: service.quantity || 1,
           price: service.unitPrice || service.price || 0,
@@ -375,7 +402,8 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
         additionalServices: emailServices.length > 0 ? emailServices : undefined,
         numberOfPeople: parseInt(metadata.numberOfPeople),
       });
-    } catch (emailError) {
+    } catch (emailError: unknown) {
+      console.error('[Webhook] Failed to send booking email:', emailError);
       // Don't fail the booking creation if email fails
     }
 
@@ -421,7 +449,8 @@ async function handlePaymentAuthorized(paymentIntent: Stripe.PaymentIntent) {
       // Don't fail the booking creation if notification fails
       console.error('[Webhook] Failed to send admin notification:', notifError);
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('[Webhook] handlePaymentAuthorized error:', error);
     throw error;
   }
 }
@@ -455,8 +484,9 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
     if (metadata.additionalServices) {
       try {
         additionalServices = JSON.parse(metadata.additionalServices);
-      } catch (error) {
-    }
+      } catch (parseError) {
+        console.error('[Webhook] Failed to parse additionalServices:', parseError);
+      }
     }
 
     // Parse invoiceDetails if present
@@ -464,8 +494,9 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
     if (metadata.invoiceDetails) {
       try {
         invoiceDetails = JSON.parse(metadata.invoiceDetails);
-      } catch (error) {
-    }
+      } catch (parseError) {
+        console.error('[Webhook] Failed to parse invoiceDetails:', parseError);
+      }
     }
 
     // Create reservation
@@ -509,9 +540,17 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
         }),
         startTime: metadata.startTime || '',
         endTime: metadata.endTime || '',
+        numberOfPeople: parseInt(metadata.numberOfPeople),
         totalPrice: parseFloat(metadata.totalPrice),
-      });    } catch (emailError) {      // Don't fail the booking creation if email fails
+        depositAmount: 0,
+        contactEmail: process.env.CONTACT_EMAIL || "contact@coworkingcafe.fr",
+      });
+    } catch (emailError: unknown) {
+      console.error('[Webhook] Failed to send card saved email:', emailError);
+      // Don't fail the booking creation if email fails
     }
-  } catch (error) {    throw error;
+  } catch (error: unknown) {
+    console.error('[Webhook] handleSetupIntentSucceeded error:', error);
+    throw error;
   }
 }

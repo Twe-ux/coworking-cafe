@@ -6,13 +6,7 @@
  */
 
 import { getSpaceDisplayName } from "./helpers";
-
-export interface ReminderEmailData {
-  name: string;
-  spaceName: string;
-  date: string;
-  time: string;
-}
+import type { ReminderEmailData } from "@/types/cron";
 
 export function generateReminderEmail(data: ReminderEmailData): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);

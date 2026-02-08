@@ -84,7 +84,19 @@ export default async function ClientDashboard({
   const currentMinute = now.getMinutes();
   const currentTimeInMinutes = currentHour * 60 + currentMinute;
 
-  const filteredUpcomingReservations = upcomingReservations.filter((reservation: any) => {
+  interface ReservationData {
+    _id: unknown;
+    date: Date;
+    startTime: string;
+    spaceType: string;
+    endTime: string;
+    numberOfPeople: number;
+    totalPrice: number;
+    status: string;
+    paymentStatus: string;
+  }
+
+  const filteredUpcomingReservations = upcomingReservations.filter((reservation) => {
     const reservationDate = new Date(reservation.date);
     reservationDate.setHours(0, 0, 0, 0);
     const isToday = reservationDate.getTime() === todayStart.getTime();
@@ -182,15 +194,15 @@ export default async function ClientDashboard({
               </div>
             </div>
 
-            {filteredUpcomingReservations.map((reservation: any) => (
+            {filteredUpcomingReservations.map((reservation) => (
               <UpcomingReservationCard
-                key={reservation._id.toString()}
+                key={String(reservation._id)}
                 reservation={{
-                  _id: reservation._id.toString(),
+                  _id: String(reservation._id),
                   spaceType: reservation.spaceType,
-                  date: reservation.date,
-                  startTime: reservation.startTime,
-                  endTime: reservation.endTime,
+                  date: new Date(reservation.date).toISOString().split('T')[0],
+                  startTime: reservation.startTime || "00:00",
+                  endTime: reservation.endTime || "00:00",
                   numberOfPeople: reservation.numberOfPeople,
                   totalPrice: reservation.totalPrice,
                   status: reservation.status,

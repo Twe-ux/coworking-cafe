@@ -19,9 +19,16 @@ interface HiboutikCustomerData {
   customers_misc?: string;
 }
 
+interface HiboutikCustomerResponse {
+  customer_id: number;
+  customers_email: string;
+  customers_first_name?: string;
+  customers_last_name?: string;
+}
+
 interface HiboutikResponse {
   success: boolean;
-  data?: any;
+  data?: HiboutikCustomerResponse;
   error?: string;
 }
 

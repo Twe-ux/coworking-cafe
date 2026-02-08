@@ -146,11 +146,11 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 },
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Mongoose validation errors
-    if (error?.name === "ValidationError") {
-      const validationErrors = Object.values(error.errors || {}).map(
-        (err: any) => err.message,
+    if (error && typeof error === 'object' && 'name' in error && error.name === "ValidationError") {
+      const validationErrors = Object.values((error as { errors?: Record<string, { message: string }> }).errors || {}).map(
+        (err) => err.message,
       );
       return NextResponse.json(
         {
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Duplicate key error
-    if (error?.code === 11000) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       return NextResponse.json(
         {
           success: false,
@@ -173,11 +173,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       {
         success: false,
         error: "Failed to create additional service",
-        details: error?.message || "Unknown error",
+        details: message,
       },
       { status: 500 },
     );

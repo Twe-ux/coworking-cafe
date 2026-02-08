@@ -101,3 +101,16 @@ export function calculateReadingTime(
   const minutes = Math.ceil(words / wordsPerMinute);
   return minutes;
 }
+
+/**
+ * Helper to extract error message from unknown error
+ */
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'An unexpected error occurred';
+}

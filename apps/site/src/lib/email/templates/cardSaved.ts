@@ -6,15 +6,7 @@
  */
 
 import { getSpaceDisplayName } from "./helpers";
-
-export interface CardSavedEmailData {
-  name: string;
-  spaceName: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  totalPrice: number;
-}
+import type { CardSavedEmailData } from "@/types/cron";
 
 export function generateCardSavedEmail(data: CardSavedEmailData): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);

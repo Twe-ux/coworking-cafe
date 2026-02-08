@@ -24,7 +24,13 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
 
     // Build search query
-    const searchQuery: any = {
+    interface UserFilter {
+      _id: { $ne: string };
+      isDeleted: { $ne: boolean };
+      $or?: Array<{ name?: { $regex: string; $options: string }; email?: { $regex: string; $options: string } }>;
+    }
+
+    const searchQuery: UserFilter = {
       _id: { $ne: currentUser.id }, // Exclude current user
       isDeleted: { $ne: true },
     };

@@ -85,7 +85,17 @@ export async function GET(request: NextRequest) {
 
     // Transform bookings to ensure space.name is always set
     // For new bookings that use spaceType, create a virtual space object with the French name
-    const transformedBookings = bookings.map((booking: any) => {
+    interface BookingWithSpace {
+      space?: {
+        name: string;
+        type: string;
+        location?: string;
+      };
+      spaceType?: string;
+      [key: string]: unknown;
+    }
+
+    const transformedBookings = (bookings as BookingWithSpace[]).map((booking) => {
       if (!booking.space && booking.spaceType) {
         return {
           ...booking,
@@ -291,19 +301,20 @@ export async function POST(request: NextRequest) {
           day: 'numeric'
         });
 
-        // Get space name
-        const spaceName = booking.space?.name || space.name;
+        // Get space name - booking.space is now populated
+        const populatedSpace = booking.space as unknown as { name: string };
+        const spaceName = populatedSpace?.name || space.name;
 
         // Send email using existing function
         await sendClientBookingConfirmation(userDoc.email, {
-          name: userDoc.givenName || userDoc.name || 'Client',
+          name: userDoc.givenName || (userDoc as { name?: string }).name || 'Client',
           spaceName,
           date: formattedDate,
           startTime,
           endTime,
           numberOfPeople,
           totalPrice,
-          confirmationNumber: booking._id.toString(),
+          contactEmail: process.env.CONTACT_EMAIL || "contact@coworkingcafe.fr",
         });
 
         console.log('✅ Booking confirmation email sent to:', userDoc.email);

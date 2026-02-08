@@ -13,7 +13,7 @@ import type {
   StripeSetupIntentMinimal,
   PopulatedBookingUser
 } from "../../../../types/cron";
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 
 /**
  * GET /api/cron/capture-deposits
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
     };
 
     for (const booking of bookings) {
-      const bookingId = (booking._id as ObjectId).toString();
+      const bookingId = (booking._id as unknown as Types.ObjectId).toString();
 
       try {
         // Get space configuration to calculate deposit amount

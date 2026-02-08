@@ -1,6 +1,6 @@
 import ArticleRevision from "../models/articleRevision";
 import type { ArticleDocument } from "@coworking-cafe/database";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 /**
  * Create a revision snapshot of an article before updating it
@@ -70,7 +70,7 @@ export async function restoreArticleRevision(
     article.featuredImage = revision.featuredImage;
     article.featuredImageAlt = revision.featuredImageAlt;
     if (revision.category) {
-      article.category = revision.category as unknown as ObjectId;
+      article.category = revision.category as unknown as mongoose.Types.ObjectId;
     }
     article.metaTitle = revision.metaTitle;
     article.metaDescription = revision.metaDescription;

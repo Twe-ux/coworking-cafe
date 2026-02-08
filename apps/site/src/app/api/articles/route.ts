@@ -40,7 +40,15 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get("sortOrder") === "asc" ? 1 : -1;
 
     // Build query
-    const query: any = { isDeleted: false };
+    interface ArticleFilter {
+      isDeleted: boolean;
+      status?: string;
+      category?: string;
+      publishedAt?: { $lte: Date };
+      $or?: Array<Record<string, { $regex: string; $options: string }>>;
+    }
+
+    const query: ArticleFilter = { isDeleted: false };
 
     // Only show published articles to non-authenticated users
     const user = await getAuthUser();
