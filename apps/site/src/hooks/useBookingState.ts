@@ -166,6 +166,40 @@ export function useBookingState({
     }
   }, [selectedDate, reservationType]);
 
+  // Auto-save to sessionStorage whenever data changes
+  useEffect(() => {
+    // Skip auto-save on initial mount (data is being restored)
+    const isInitialMount = !selectedDate && !startTime && !arrivalTime;
+    if (isInitialMount) return;
+
+    // Auto-save with current calculated price
+    const bookingData = {
+      spaceType,
+      reservationType,
+      date: selectedDate,
+      endDate: endDate || undefined,
+      startTime: reservationType === "hourly" ? startTime : arrivalTime,
+      endTime,
+      numberOfPeople,
+      basePrice: calculatedPrice,
+      duration,
+    };
+
+    console.log('[useBookingState] Auto-saving to sessionStorage:', bookingData);
+    sessionStorage.setItem("bookingData", JSON.stringify(bookingData));
+  }, [
+    spaceType,
+    reservationType,
+    selectedDate,
+    endDate,
+    startTime,
+    endTime,
+    arrivalTime,
+    numberOfPeople,
+    calculatedPrice,
+    duration,
+  ]);
+
   /**
    * Reset all state to initial values
    */
