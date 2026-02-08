@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
 import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface AdditionalService {
   service: string;
@@ -91,7 +91,7 @@ export default function ConfirmationPage({
       // Fetch space configuration
       if (bookingDetails.spaceType) {
         const spaceResponse = await fetch(
-          `/api/space-configurations/${bookingDetails.spaceType}`
+          `/api/space-configurations/${bookingDetails.spaceType}`,
         );
         const spaceData = await spaceResponse.json();
         if (spaceData.success) {
@@ -100,7 +100,8 @@ export default function ConfirmationPage({
       }
 
       setLoading(false);
-    } catch (err) {      setError("Une erreur est survenue lors du chargement de la réservation");
+    } catch (err) {
+      setError("Une erreur est survenue lors du chargement de la réservation");
       setLoading(false);
     }
   };
@@ -147,7 +148,7 @@ export default function ConfirmationPage({
       depositInCents = policy.fixedAmount;
     } else if (policy.percentage) {
       depositInCents = Math.round(
-        totalPriceInCents * (policy.percentage / 100)
+        totalPriceInCents * (policy.percentage / 100),
       );
     }
 
@@ -246,10 +247,10 @@ export default function ConfirmationPage({
 
                 {/* Navigation and Title */}
                 <div
-                  className="d-flex justify-content-between align-items-center mb-4 px-4 py-3 rounded"
+                  className="d-flex justify-content-between align-items-center mb-3 px-3 py-2 rounded"
                   style={{
                     backgroundColor: "#e8eae6",
-                    minHeight: "60px"
+                    minHeight: "50px",
                   }}
                 >
                   <button
@@ -259,12 +260,12 @@ export default function ConfirmationPage({
                       background: "none",
                       border: "none",
                       color: "#4a5568",
-                      fontSize: "1rem",
+                      fontSize: "0.875rem",
                       fontWeight: "500",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.5rem"
+                      gap: "0.5rem",
                     }}
                   >
                     <i className="bi bi-arrow-left"></i>
@@ -273,64 +274,66 @@ export default function ConfirmationPage({
                   <h1
                     className="m-0"
                     style={{
-                      fontSize: "1.125rem",
+                      fontSize: "0.95rem",
                       fontWeight: "600",
-                      color: "#4a5568"
+                      color: "#4a5568",
                     }}
                   >
                     Confirmation
                   </h1>
-                  <div style={{ width: "80px" }}></div>
+                  <div style={{ width: "70px" }}></div>
                 </div>
               </div>
               {/* Success Message */}
               {isConfirmed && (
-                <div className="booking-card mb-4 text-center">
-                  <div className="success-icon mb-3">
+                <div className="booking-card mb-3 text-center py-3">
+                  <div className="success-icon mb-2">
                     <i
                       className="bi bi-check-circle-fill text-success"
-                      style={{ fontSize: "4rem" }}
+                      style={{ fontSize: "3rem" }}
                     ></i>
                   </div>
                   <h2
-                    className="mb-3"
-                    style={{ fontSize: "1.5rem", fontWeight: "700" }}
+                    className="mb-2"
+                    style={{ fontSize: "1.25rem", fontWeight: "700" }}
                   >
                     Réservation confirmée !
                   </h2>
                   <p
                     className="text-muted mb-0"
-                    style={{ fontSize: "0.9375rem" }}
+                    style={{ fontSize: "0.875rem", lineHeight: "1.5" }}
                   >
                     {isPaid
-                      ? "Votre réservation a été confirmée avec succès. Un email de confirmation a été envoyé à votre adresse."
-                      : "Votre demande de réservation a été enregistrée. Vous recevrez une confirmation par email dans les plus brefs délais."}
+                      ? "Votre réservation a été confirmée avec succès. Un email de confirmation a été envoyé."
+                      : "Votre demande a été enregistrée. Vous recevrez une confirmation par email."}
                   </p>
                 </div>
               )}
 
-
               {/* Booking Details */}
-              <div className="booking-card mb-4">
-                <div className="d-flex align-items-center gap-2 mb-4">
+              <div className="booking-card mb-3">
+                <div className="d-flex align-items-center gap-2 mb-3">
                   <i
                     className="bi bi-receipt text-success"
-                    style={{ fontSize: "1.125rem" }}
+                    style={{ fontSize: "1rem" }}
                   ></i>
-                  <h2 className="h6 mb-0 fw-semibold">
+                  <h2
+                    className="mb-0 fw-semibold"
+                    style={{ fontSize: "0.9375rem" }}
+                  >
                     Détails de la réservation
                   </h2>
                 </div>
 
                 {/* Space Image */}
                 {spaceConfig?.imageUrl && (
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <img
                       src={spaceConfig.imageUrl}
                       alt={spaceConfig.name}
                       className="img-fluid rounded"
                       style={{
-                        maxHeight: "300px",
+                        maxHeight: "200px",
                         width: "100%",
                         objectFit: "cover",
                       }}
@@ -338,49 +341,60 @@ export default function ConfirmationPage({
                   </div>
                 )}
 
-                <div className="summary-row mb-3">
-                  <div className="summary-label">Espace</div>
+                <div className="summary-row mb-2">
+                  <div className="summary-label">ESPACE</div>
                   <div className="summary-value">
-                    <strong>{spaceConfig?.name || "Espace"}</strong>
-                    <span
-                      className="badge bg-success ms-2"
-                      style={{ fontSize: "0.75rem" }}
-                    >
+                    <strong style={{ fontSize: "0.9375rem" }}>
+                      {spaceConfig?.name || "Espace"}
+                    </strong>
+                    <span className="badge bg-success ms-2">
                       {getTypeLabel(booking.spaceType)}
                     </span>
                   </div>
                 </div>
 
-                <div className="summary-row mb-3">
-                  <div className="summary-label">Date</div>
+                <div className="summary-row mb-2">
+                  <div className="summary-label">DATE</div>
                   <div className="summary-value">
-                    <i className="bi bi-calendar me-2 text-success"></i>
+                    <i
+                      className="bi bi-calendar me-2 text-success"
+                      style={{ fontSize: "0.875rem" }}
+                    ></i>
                     {formatDate(booking.date)}
                   </div>
                 </div>
 
-                <div className="summary-row mb-3">
-                  <div className="summary-label">Horaire</div>
+                <div className="summary-row mb-2">
+                  <div className="summary-label">HORAIRE</div>
                   <div className="summary-value">
-                    <i className="bi bi-clock me-2 text-success"></i>
+                    <i
+                      className="bi bi-clock me-2 text-success"
+                      style={{ fontSize: "0.875rem" }}
+                    ></i>
                     {formatTime(booking.startTime)} -{" "}
                     {formatTime(booking.endTime)}
                   </div>
                 </div>
 
-                <div className="summary-row mb-3">
-                  <div className="summary-label">Personnes</div>
+                <div className="summary-row mb-2">
+                  <div className="summary-label">PERSONNES</div>
                   <div className="summary-value">
-                    <i className="bi bi-people me-2 text-success"></i>
+                    <i
+                      className="bi bi-people me-2 text-success"
+                      style={{ fontSize: "0.875rem" }}
+                    ></i>
                     {booking.numberOfPeople}{" "}
                     {booking.numberOfPeople > 1 ? "personnes" : "personne"}
                   </div>
                 </div>
 
                 {booking.specialRequests && (
-                  <div className="summary-row mb-3">
-                    <div className="summary-label">Demandes spéciales</div>
-                    <div className="summary-value">
+                  <div className="summary-row mb-2">
+                    <div className="summary-label">DEMANDES</div>
+                    <div
+                      className="summary-value"
+                      style={{ fontSize: "0.8125rem" }}
+                    >
                       {booking.specialRequests}
                     </div>
                   </div>
@@ -389,18 +403,24 @@ export default function ConfirmationPage({
                 {booking.additionalServices &&
                   booking.additionalServices.length > 0 && (
                     <>
-                      <div className="price-divider mb-4 mt-4"></div>
+                      <div className="price-divider my-2"></div>
 
-                      <div className="mb-4">
-                        <h6 className="mb-3 d-flex align-items-center gap-2">
-                          <i className="bi bi-bag-plus text-success"></i>
+                      <div className="mb-2">
+                        <h6
+                          className="mb-2 d-flex align-items-center gap-2"
+                          style={{ fontSize: "0.875rem" }}
+                        >
+                          <i
+                            className="bi bi-bag-plus text-success"
+                            style={{ fontSize: "0.875rem" }}
+                          ></i>
                           Services supplémentaires
                         </h6>
                         {booking.additionalServices.map((service, index) => (
-                          <div key={index} className="summary-row mb-2">
+                          <div key={index} className="summary-row mb-1">
                             <div
                               className="summary-label"
-                              style={{ fontSize: "0.875rem" }}
+                              style={{ fontSize: "0.8125rem" }}
                             >
                               {service.name}{" "}
                               <span className="text-muted">
@@ -409,25 +429,25 @@ export default function ConfirmationPage({
                             </div>
                             <div
                               className="summary-value"
-                              style={{ fontSize: "0.875rem" }}
+                              style={{ fontSize: "0.8125rem" }}
                             >
                               {service.totalPrice.toFixed(2)}€
                             </div>
                           </div>
                         ))}
                         <div
-                          className="summary-row mt-3 pt-3"
+                          className="summary-row mt-2 pt-2"
                           style={{ borderTop: "1px solid hsl(var(--border))" }}
                         >
                           <div
                             className="summary-label"
-                            style={{ fontWeight: "600" }}
+                            style={{ fontWeight: "600", fontSize: "0.8125rem" }}
                           >
                             Sous-total services
                           </div>
                           <div
                             className="summary-value"
-                            style={{ fontWeight: "600" }}
+                            style={{ fontWeight: "600", fontSize: "0.8125rem" }}
                           >
                             {booking.servicesPrice?.toFixed(2) || "0.00"}€
                           </div>
@@ -436,10 +456,10 @@ export default function ConfirmationPage({
                     </>
                   )}
 
-                <div className="price-divider mb-4"></div>
+                <div className="price-divider my-2"></div>
 
-                <div className="summary-row mb-3">
-                  <div className="summary-label">Statut</div>
+                <div className="summary-row mb-2">
+                  <div className="summary-label">STATUT</div>
                   <div className="summary-value">
                     <span className={`badge ${statusBadge.class}`}>
                       {statusBadge.label}
@@ -447,28 +467,25 @@ export default function ConfirmationPage({
                   </div>
                 </div>
 
-                <div className="summary-row mb-4">
-                  <div className="summary-label">Paiement</div>
+                <div className="summary-row mb-2">
+                  <div className="summary-label">PAIEMENT</div>
                   <div className="summary-value">
-                    <span className={`badge ${paymentBadge.class}`}>
-                      {paymentBadge.label}
+                    <span className={`badge bg-success text-white`}>
+                      Sur Place
                     </span>
                   </div>
                 </div>
 
-                <div className="price-divider mb-4"></div>
+                <div className="price-divider my-2"></div>
 
                 <div className="summary-row">
-                  <div
-                    className="summary-label"
-                    style={{ fontSize: "0.875rem", fontWeight: "700" }}
-                  >
-                    Total à payer
+                  <div className="summary-label" style={{ fontWeight: "700" }}>
+                    TOTAL À PAYER
                   </div>
                   <div className="summary-value">
                     <h4
                       className="text-success mb-0"
-                      style={{ fontSize: "1.5rem", fontWeight: "700" }}
+                      style={{ fontSize: "1.25rem", fontWeight: "700" }}
                     >
                       {booking.totalPrice.toFixed(2)}€
                     </h4>
@@ -480,38 +497,43 @@ export default function ConfirmationPage({
                   if (depositAmount && booking.requiresPayment) {
                     return (
                       <>
-                        <div className="price-divider mb-4 mt-4"></div>
+                        <div className="price-divider my-2"></div>
                         <div
-                          className="alert alert-warning border-0 mb-0"
+                          className="alert alert-warning border-0 mb-0 py-2"
                           style={{ backgroundColor: "rgba(255, 193, 7, 0.1)" }}
                         >
-                          <div className="d-flex align-items-center gap-2 mb-2">
-                            <i
-                              className="bi bi-credit-card-2-front"
-                              style={{ fontSize: "1.125rem", color: "#856404" }}
-                            ></i>
-                            <strong
+                          <div className="d-flex justify-content-between align-items-center mb-1">
+                            <div className="d-flex align-items-center gap-2">
+                              <i
+                                className="bi bi-credit-card-2-front"
+                                style={{
+                                  fontSize: "0.9375rem",
+                                  color: "#856404",
+                                }}
+                              ></i>
+                              <strong
+                                style={{
+                                  fontSize: "0.8125rem",
+                                  color: "#856404",
+                                }}
+                              >
+                                Empreinte bancaire
+                              </strong>
+                            </div>
+                            <h5
+                              className="mb-0"
                               style={{
-                                fontSize: "0.9375rem",
                                 color: "#856404",
+                                fontSize: "1.125rem",
+                                fontWeight: "700",
                               }}
                             >
-                              Empreinte bancaire
-                            </strong>
+                              {(depositAmount / 100).toFixed(2)}€
+                            </h5>
                           </div>
-                          <h5
-                            className="mb-2"
-                            style={{
-                              color: "#856404",
-                              fontSize: "1.25rem",
-                              fontWeight: "700",
-                            }}
-                          >
-                            {(depositAmount / 100).toFixed(2)}€
-                          </h5>
                           <small
-                            className="text-muted"
-                            style={{ fontSize: "0.8125rem" }}
+                            className="text-muted d-block"
+                            style={{ fontSize: "0.75rem", lineHeight: "1.4" }}
                           >
                             {booking.captureMethod === "manual"
                               ? "Montant autorisé sur votre carte (sera annulé si vous vous présentez)"
@@ -527,28 +549,31 @@ export default function ConfirmationPage({
 
               {/* Important Information */}
               <div
-                className="booking-card mb-4"
+                className="booking-card mb-3 py-3"
                 style={{ borderLeft: "4px solid #588983" }}
               >
-                <div className="d-flex align-items-center gap-2 mb-3">
+                <div className="d-flex align-items-center gap-2 mb-2">
                   <i
                     className="bi bi-info-circle text-success"
-                    style={{ fontSize: "1.125rem" }}
+                    style={{ fontSize: "0.9375rem" }}
                   ></i>
-                  <h6 className="mb-0 fw-semibold">Informations importantes</h6>
+                  <h6
+                    className="mb-0 fw-semibold"
+                    style={{ fontSize: "0.875rem" }}
+                  >
+                    Informations importantes
+                  </h6>
                 </div>
                 <ul
-                  className="mb-0"
-                  style={{ fontSize: "0.875rem", lineHeight: "1.8" }}
+                  className="mb-0 ps-3"
+                  style={{ fontSize: "0.8125rem", lineHeight: "1.6" }}
                 >
                   <li>
-                    Veuillez arriver 5 minutes avant l'heure de début de votre
+                    Veuillez arriver 5 minutes avant le début de votre
                     réservation
                   </li>
-                  <li>Présentez votre numéro de confirmation à la réception</li>
                   <li>
-                    En cas d'annulation, veuillez nous prévenir au moins 24
-                    heures à l'avance
+                    En cas d'annulation, veuillez nous prévenir à l'avance
                   </li>
                   <li>
                     Un email de confirmation a été envoyé avec tous les détails
@@ -557,13 +582,13 @@ export default function ConfirmationPage({
               </div>
 
               {session && session.user && (
-                <div className="d-flex justify-content-center mb-4">
+                <div className="d-flex justify-content-center mb-3">
                   <Link
                     href={`/${session.user.username}/reservations`}
                     className="btn btn-success"
                     style={{
-                      padding: "0.75rem 1.5rem",
-                      fontSize: "0.9375rem",
+                      padding: "0.625rem 1.25rem",
+                      fontSize: "0.875rem",
                       fontWeight: "600",
                     }}
                   >
@@ -577,7 +602,7 @@ export default function ConfirmationPage({
         </div>
       </section>
 
-      <div style={{ height: "9rem" }}></div>
+      <div style={{ height: "5rem" }}></div>
 
       <style jsx>{`
         .success-icon {
