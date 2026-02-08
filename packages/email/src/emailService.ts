@@ -59,14 +59,29 @@ export async function sendEmail(
   try {
     const transporter = createSMTPTransporter();
 
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER!;
+    const contactEmail = process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr';
+
     await transporter.sendMail({
       from: options.from || getEmailSender(senderType),
       to: options.to,
       subject: options.subject,
       html: options.html,
       text: options.text,
-      replyTo: options.replyTo,
+      replyTo: options.replyTo || contactEmail,
       attachments: options.attachments,
+      // ✅ Headers pour améliorer délivrabilité
+      headers: {
+        'X-Mailer': 'CoworKing Café Email Service',
+        'X-Priority': '3',
+        'List-Unsubscribe': `<mailto:${contactEmail}?subject=Unsubscribe>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+      // ✅ Envelope pour Return-Path
+      envelope: {
+        from: fromEmail,
+        to: options.to,
+      },
     });
 
     console.log(`✅ Email sent to ${options.to}`);
