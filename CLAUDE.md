@@ -1,95 +1,51 @@
 # CLAUDE.md - CoworKing Café Monorepo
 
-Instructions pour Claude Code lors du travail sur ce projet.
-
-## 📋 Contexte du projet
-
-Monorepo Next.js 14 contenant deux applications principales :
-
-- **apps/site** : Site public + Dashboard client (Bootstrap + SCSS)
-- **apps/admin** : Dashboard admin (Tailwind + shadcn/ui + PWA)
-- **packages/** : Code partagé (database, email, shared)
-
-**Répertoire du projet** : `/Users/twe/Developer/Thierry/coworking-cafe/`
+Instructions globales pour Claude Code sur ce projet.
 
 ---
 
-## 🎯 Objectifs du Projet
+## 📋 Vue d'Ensemble
 
-### apps/site - En Refactorisation 🚧
+Monorepo Next.js 14 avec **deux applications** :
 
-**Objectif** : Refactorisation complète du code migré pour respecter les standards de qualité
+| App | Description | Stack | Status |
+|-----|-------------|-------|--------|
+| **apps/site** | Site public + Dashboard client | Bootstrap + SCSS | 🚧 En refactorisation |
+| **apps/admin** | Dashboard admin (HR, Compta, Pointage) | Tailwind + shadcn/ui | ✅ Production Ready |
 
-- 🎯 Zéro `any` types
-- 🎯 Fichiers < 200 lignes
-- 🎯 Nommage BEM cohérent pour SCSS
-- 🎯 Composants réutilisables avec children
-- 🎯 Pas de duplication de code
-- 🎯 Dates en format string (YYYY-MM-DD, HH:mm)
-
-**Voir** : `/apps/site/CLAUDE.md` pour les détails
-
-### apps/admin - Production Ready ✅
-
-**Status** : Code propre et maintenable après refactoring complet
-
-- ✅ Sécurité : 100% des routes protégées
-- ✅ Types : 0 `any` types
-- ✅ Architecture : APIs consolidées, fichiers modulaires
-- ✅ Build réussi
-
-**Voir** : `/apps/admin/CLAUDE.md` pour les détails
+**Packages partagés** :
+- `@coworking-cafe/database` - MongoDB + Mongoose models
+- `@coworking-cafe/email` - Templates emails
+- `@coworking-cafe/shared` - Utilitaires communs
 
 ---
 
 ## 📚 Documentation par App
 
-**IMPORTANT : Consulter le CLAUDE.md spécifique à l'app sur laquelle tu travailles**
+### 🌐 Site Public + Dashboard Client
+→ **[apps/site/CLAUDE.md](./apps/site/CLAUDE.md)**
 
-### Pour travailler sur le Site Public / Dashboard Client
-→ **Lire** : `/apps/site/CLAUDE.md`
-- Stack : Bootstrap + SCSS
-- Architecture site public + dashboard
-- Conventions BEM modifiées
-- Workflow de refactorisation
+**Quand l'utiliser** :
+- Travailler sur pages publiques (Home, Blog, Contact)
+- Travailler sur Dashboard client (Réservations, Messages, Promo)
+- Intégrer Stripe, Booking, Features site
 
-### Pour travailler sur le Dashboard Admin
-→ **Lire** : `/apps/admin/CLAUDE.md`
-- Stack : Tailwind + shadcn/ui
-- Architecture HR + Comptabilité
-- Patterns de sécurité
-- Workflow de migration
+**Stack** : Bootstrap 5, SCSS, BEM modifié
 
-### Documentation Générale (si existante)
-- `docs/CONVENTIONS.md` - Conventions générales du monorepo
-- `docs/REFACTO_TEMPLATE.md` - Template de refactorisation
+### 🏢 Dashboard Admin
+→ **[apps/admin/CLAUDE.md](./apps/admin/CLAUDE.md)**
 
----
+**Quand l'utiliser** :
+- Travailler sur HR (Employés, Planning, Onboarding)
+- Travailler sur Pointage (Time tracking, Shifts)
+- Travailler sur Comptabilité (Caisse, CA, PDF)
+- Migrer modules depuis site vers admin
 
-## 🔧 Commandes
-
-```bash
-# Root
-pnpm install              # Installer toutes les dépendances
-pnpm dev                  # Lancer site + admin en parallèle
-pnpm build                # Builder toutes les apps
-
-# Site (Bootstrap + SCSS)
-pnpm --filter @coworking-cafe/site dev
-pnpm --filter @coworking-cafe/site build
-pnpm --filter @coworking-cafe/site type-check
-
-# Admin (Tailwind + shadcn/ui)
-pnpm --filter @coworking-cafe/admin dev
-pnpm --filter @coworking-cafe/admin build
-pnpm --filter @coworking-cafe/admin type-check
-```
+**Stack** : Tailwind CSS, shadcn/ui, PWA
 
 ---
 
-## ✅ Conventions Communes au Monorepo
-
-**Ces règles s'appliquent à TOUTES les apps du monorepo (site + admin)**
+## 🚨 Règles Globales (TOUTES les Apps)
 
 ### 1. TypeScript - ZÉRO `any`
 
@@ -97,299 +53,162 @@ pnpm --filter @coworking-cafe/admin type-check
 // ❌ INTERDIT
 function handleData(data: any) { }
 
-// ✅ CORRECT
-interface UserData {
-  id: string
-  name: string
-}
+// ✅ CORRECT - Toujours typer
+import type { UserData } from '@/types/user'
 function handleData(data: UserData) { }
 ```
 
-**Règles** :
-- ✅ Toujours typer paramètres et retours de fonction
-- ✅ Utiliser les types partagés des dossiers `/types/`
-- ✅ Interfaces pour objets, types pour unions
-- ❌ Jamais `as any` sans justification documentée
-- ❌ Jamais `@ts-ignore` ou `@ts-expect-error`
-
-### 2. Formats de Dates - TOUJOURS des Strings
+### 2. Dates - TOUJOURS Strings
 
 ```typescript
 // ❌ INTERDIT - Timestamps ISO
-{
-  date: new Date("2026-01-16T00:00:00.000Z")  // Bugs timezone
-}
+{ date: new Date().toISOString() }
 
-// ✅ CORRECT - Strings simples
-{
-  date: "2026-01-16",    // YYYY-MM-DD
-  time: "09:00"          // HH:mm
-}
+// ✅ CORRECT - Format simple
+{ date: "2026-01-16", time: "09:00" } // YYYY-MM-DD, HH:mm
 ```
 
-### 3. Taille des Fichiers
+### 3. Fichiers - Max 200 Lignes
 
-| Type | Max lignes | Si dépassé |
-|------|------------|------------|
-| Composants React | 200 | Extraire sous-composants |
-| Custom Hooks | 150 | Séparer en hooks spécialisés |
-| Pages Next.js | 150 | Logique → hooks, UI → composants |
-| API Routes | 200 | Extraire validation/logique |
+| Type | Max | Action |
+|------|-----|--------|
+| Composants | 200 | Extraire sous-composants/hooks |
+| Pages | 150 | Logique → hooks, UI → composants |
+| API Routes | 200 | Extraire validation |
 
-### 4. Composants Réutilisables
+### 4. Composants - Réutilisables
 
 ```tsx
 // ❌ MAUVAIS - Duplication
-<HeroOne />
-<HeroTwo />
+<HeroOne />, <HeroTwo />
 
-// ✅ BON - Composant flexible avec children
-<Hero variant="full" title="Titre">
+// ✅ BON - Flexible avec children
+<Hero variant="full">
   <CustomContent />
 </Hero>
 ```
 
-### 5. Nommage des Fichiers
-
-- **Composants** : `PascalCase.tsx` (BookingCard.tsx)
-- **Hooks** : `camelCase.ts` (useBookings.ts)
-- **Utils** : `kebab-case.ts` (format-date.ts)
-- **Types** : `camelCase.ts` (booking.ts)
-- **API routes** : `route.ts` (convention Next.js)
-
----
-
-## 📊 État d'avancement
-
-### ✅ apps/admin - Production Ready
-
-- [x] Structure complète (HR, Pointage, Comptabilité)
-- [x] Sécurité : 100% routes protégées avec `requireAuth()`
-- [x] Types : 0 `any` types
-- [x] Architecture : Fichiers < 200 lignes, models modulaires
-- [x] Build : Réussi (27/27 pages)
-- [x] Documentation : `/apps/admin/CLAUDE.md` complet
-
-### 🚧 apps/site - En Refactorisation
-
-- [x] Code migré depuis l'ancien projet
-- [x] Structure monorepo créée
-- [ ] **En cours** : Refactorisation pour respecter conventions
-  - [ ] Éliminer les `any` types
-  - [ ] Découper fichiers > 200 lignes
-  - [ ] Harmoniser nommage SCSS (BEM)
-  - [ ] Créer composants réutilisables
-  - [ ] Normaliser formats de dates (strings)
-
-### 📋 Packages Partagés
-
-- [x] `@coworking-cafe/database` - Connexion MongoDB + models Mongoose
-- [x] `@coworking-cafe/email` - Templates emails
-- [x] `@coworking-cafe/shared` - Utilitaires communs
-- [ ] Documentation packages à créer
-
----
-
-## 🔒 SÉCURITÉ - Règles Critiques (TOUT LE PROJET)
-
-**⚠️ JAMAIS DE SECRETS EN DUR DANS LES FICHIERS .md OU CODE**
-
-### Règles Strictes
+### 5. Sécurité - Jamais de Secrets
 
 ```typescript
-// ❌ INTERDIT - Secrets en dur dans le code
-const mongoUri = "mongodb+srv://admin:G4mgKEL...@cluster.mongodb.net/db"
-const stripeKey = "sk_live_51ABC..."
-const apiKey = "real-api-key-12345"
+// ❌ INTERDIT
+const mongoUri = "mongodb+srv://admin:PASSWORD@..."
 
-// ❌ INTERDIT - Secrets dans documentation (.md)
-/**
- * Exemple de configuration :
- * MONGODB_URI=mongodb+srv://admin:REAL_PASSWORD@cluster.mongodb.net/db
- * STRIPE_KEY=sk_live_REAL_KEY
- */
-
-// ✅ CORRECT - Variables d'environnement
+// ✅ CORRECT
 const mongoUri = process.env.MONGODB_URI!
-const stripeKey = process.env.STRIPE_SECRET_KEY!
-const apiKey = process.env.API_KEY!
-
-// ✅ CORRECT - Placeholders dans documentation
-/**
- * Exemple de configuration :
- * MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/DATABASE
- * STRIPE_KEY=sk_live_YOUR_KEY_HERE
- */
 ```
-
-### Checklist Sécurité
-
-**Avant CHAQUE commit** :
-- [ ] ✅ Aucun secret en dur dans le code
-- [ ] ✅ Placeholders génériques dans les .md (`PASSWORD`, `YOUR_SECRET`, `USERNAME`)
-- [ ] ✅ Fichiers .md uniquement dans `/docs/` (sauf README.md, CLAUDE.md)
-- [ ] ✅ `.env.local` dans `.gitignore` (jamais commité)
-- [ ] ✅ Pre-commit hook vérifie les secrets automatiquement
-
-**Si le pre-commit hook bloque** :
-```bash
-# 1. Vérifier le fichier
-git diff
-
-# 2. Remplacer secret par placeholder
-# Exemple: "password123" → "YOUR_PASSWORD"
-
-# 3. Recommiter
-git add .
-git commit -m "..."
-
-# ⚠️ JAMAIS utiliser --no-verify sauf si c'est vraiment un faux positif
-```
-
-### Où Mettre les .md
-
-| Fichier | Emplacement |
-|---------|-------------|
-| README.md | ✅ Racine du projet |
-| CLAUDE.md | ✅ Racine du projet |
-| CHANGELOG.md | ✅ Racine du projet (optionnel) |
-| **Tous les autres .md** | ✅ `/docs/` uniquement |
-
-### Exemples de Secrets à JAMAIS Committer
-
-- ❌ Passwords MongoDB/PostgreSQL
-- ❌ Clés API (Stripe, Resend, Cloudinary, etc.)
-- ❌ Tokens d'authentification
-- ❌ Secrets NextAuth/JWT
-- ❌ Clés privées (VAPID, SSH, etc.)
-- ❌ Webhooks secrets
-
-**Toujours utiliser** : `process.env.XXX` + `.env.local`
 
 ---
 
-## 🚨 Rappels Importants
+## 🔧 Commandes Monorepo
 
-1. **Lire le CLAUDE.md de l'app** avant de coder (`/apps/site/` ou `/apps/admin/`)
-2. **Respecter les conventions strictes** :
-   - ZÉRO `any` types
-   - Fichiers < 200 lignes
-   - Dates en format string (YYYY-MM-DD, HH:mm)
-   - Composants réutilisables avec children
-3. **Valider avec l'utilisateur** avant changements majeurs
-4. **Commits fréquents** avec messages descriptifs
-5. **Tests avant commit** :
-   ```bash
-   pnpm type-check  # Vérifier TypeScript
-   pnpm build       # Vérifier build
-   ```
+```bash
+# Installation & Build
+pnpm install                              # Tout installer
+pnpm build                                # Tout builder
+
+# Développement
+pnpm dev                                  # Site + Admin en parallèle
+
+# Apps individuelles
+pnpm --filter @coworking-cafe/site dev    # Site seulement
+pnpm --filter @coworking-cafe/admin dev   # Admin seulement
+
+# Type-check
+pnpm --filter @coworking-cafe/site type-check
+pnpm --filter @coworking-cafe/admin type-check
+```
+
+---
+
+## 📊 État d'Avancement
+
+### ✅ apps/admin - Production Ready
+- Sécurité : 100% routes protégées
+- Types : 0 `any`
+- Architecture : Fichiers modulaires < 200 lignes
+- Build : Réussi (27/27 pages)
+
+### 🚧 apps/site - En Refactorisation
+- Phase 1 : Élimination `any` types ✅
+- Phase 2 : Correction erreurs TypeScript ✅
+- Phase Email : Délivrabilité ✅
+- **En cours** : Refactorisation code (fichiers, composants, SCSS)
+
+---
+
+## ⏰ Cron Jobs (Vercel)
+
+**Configuration** : `apps/site/vercel.json`
+
+| Job | Horaire UTC | Endpoint |
+|-----|-------------|----------|
+| Rappels emails | 10:00 | `/api/cron/send-reminders` |
+| No-shows | 10:00 | `/api/cron/check-attendance` |
+| Rapport quotidien | 19:00 | `/api/cron/daily-report` |
+
+**Dashboard Vercel** : https://vercel.com/[projet]/settings/crons
 
 ---
 
 ## 💡 Workflow Recommandé
 
-### Travailler sur apps/site
+### Avant de Coder
 
-1. Lire `/apps/site/CLAUDE.md`
-2. Suivre le workflow de refactorisation (4 phases)
-3. Vérifier que le code respecte les conventions
-4. Tester responsive + build
-5. Commit
+1. **Identifier l'app** : Site ou Admin ?
+2. **Lire le CLAUDE.md** de l'app
+3. **Consulter la doc** dans `/apps/[app]/docs/`
+4. **Respecter les conventions** globales (ci-dessus)
 
-### Travailler sur apps/admin
+### Pendant le Développement
 
-1. Lire `/apps/admin/CLAUDE.md`
-2. Utiliser les helpers existants (`/lib/api/`)
-3. Utiliser les types partagés (`/types/`)
-4. Protéger toutes les routes avec `requireAuth()`
-5. Tester + build + commit
+- ✅ Zéro `any` types
+- ✅ Fichiers < 200 lignes
+- ✅ Dates en format string
+- ✅ Composants réutilisables
+- ✅ Tests manuels
 
-### Migrer un Module de Site vers Admin
+### Avant de Commit
 
-1. Analyser le module dans `/apps/site/`
-2. Suivre le workflow dans `/apps/admin/CLAUDE.md` section "Migration"
-3. Créer types → models → APIs → composants
-4. Respecter l'architecture modulaire
-5. Tester + documenter
+```bash
+# Type-check
+pnpm --filter @coworking-cafe/[app] type-check
+
+# Build
+pnpm --filter @coworking-cafe/[app] build
+
+# Commit si OK
+git add .
+git commit -m "feat: description"
+```
 
 ---
 
-## ⏰ Tâches Planifiées (Cron Jobs via Vercel)
+## 🚫 Règles de Sécurité Critiques
 
-**IMPORTANT** : Les tâches planifiées sont gérées via **Vercel Cron** (intégré au déploiement)
+### Secrets
 
-### Configuration
+- ❌ **JAMAIS** de secrets en dur dans code/.md
+- ✅ **TOUJOURS** utiliser `process.env.XXX`
+- ✅ Placeholders génériques dans docs (`USERNAME`, `PASSWORD`)
+- ✅ `.env.local` dans `.gitignore`
 
-**Fichier** : `apps/site/vercel.json`
+### Fichiers .md
 
-```json
-{
-  "crons": [
-    {
-      "path": "/api/cron/send-reminders",
-      "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron/check-attendance",
-      "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron/daily-report",
-      "schedule": "0 19 * * *"
-    }
-  ]
-}
-```
-
-### Liste des Cron Jobs Actifs
-
-| Job | Schedule | Endpoint | Description |
-|-----|----------|----------|-------------|
-| Send Reminders | 10:00 UTC | `/api/cron/send-reminders` | Rappels 24h avant |
-| Check Attendance | 10:00 UTC | `/api/cron/check-attendance` | No-shows J-1 |
-| Daily Report | 19:00 UTC | `/api/cron/daily-report` | Rapport admin |
-
-⚠️ **Horaires en UTC** : 10h00 UTC = 11h00/12h00 Paris selon saison
-
-### Monitoring
-
-- **Dashboard Vercel** : https://vercel.com/[projet]/settings/crons
-- **Logs** : https://vercel.com/[projet]/logs (filtrer `/api/cron/*`)
-
-### Ajouter un nouveau Cron Job
-
-1. **Créer l'endpoint** dans `apps/site/src/app/api/cron/[nom]/route.ts`
-2. **Sécuriser** avec `CRON_SECRET` header :
-   ```typescript
-   const authHeader = request.headers.get("authorization");
-   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-   }
-   ```
-3. **Ajouter dans `vercel.json`** :
-   ```json
-   {
-     "path": "/api/cron/nouveau-job",
-     "schedule": "0 12 * * *"
-   }
-   ```
-4. **Tester manuellement** :
-   ```bash
-   curl -X GET https://votre-app.vercel.app/api/cron/nouveau-job \
-     -H "Authorization: Bearer $CRON_SECRET"
-   ```
-5. **Déployer** sur Vercel (les crons s'activent automatiquement)
+| Fichier | Emplacement |
+|---------|-------------|
+| README.md, CLAUDE.md, CHANGELOG.md | ✅ Racine |
+| **Tous les autres .md** | ✅ `/docs/` uniquement |
 
 ---
 
 ## 🔗 Liens Rapides
 
-- **Projet** : `/Users/twe/Developer/Thierry/coworking-cafe/`
-- **Documentation site** : `/apps/site/CLAUDE.md`
-- **Documentation admin** : `/apps/admin/CLAUDE.md`
-- **Cron Jobs** : `apps/site/vercel.json` + [Vercel Dashboard](https://vercel.com)
-- **Conventions générales** : Ce fichier + `/docs/` (si existe)
+- **Site** : [apps/site/CLAUDE.md](./apps/site/CLAUDE.md)
+- **Admin** : [apps/admin/CLAUDE.md](./apps/admin/CLAUDE.md)
+- **Répertoire** : `/Users/twe/Developer/Thierry/coworking-cafe/`
 
 ---
 
-_Dernière mise à jour : 2026-01-26_
+**Dernière mise à jour** : 2026-02-08
+**Version** : 2.0

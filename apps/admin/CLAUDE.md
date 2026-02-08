@@ -1,1983 +1,199 @@
 # CLAUDE.md - Admin App Development Guide
 
 > **App** : `/apps/admin/` - Dashboard Admin du Coworking Café
-> **Date de création** : 2026-01-16
-> **Version** : 1.0
-> **Status** : ✅ Production Ready (après refactoring complet)
+> **Version** : 1.1
+> **Status** : ✅ Production Ready
 
 ---
 
-## 📋 Vue d'ensemble
+## 📋 Vue d'Ensemble
 
-Cette app Next.js 14 (App Router) est le **dashboard admin** pour gérer :
-- 👥 Ressources Humaines (employés, contrats, onboarding)
-- ⏰ Pointage et planning des équipes
-- 💰 Comptabilité (caisse, chiffre d'affaires)
-- 📊 Statistiques et analytics
+Dashboard Next.js 14 pour gérer :
+- 👥 **HR** : Employés, contrats, onboarding, disponibilités
+- ⏰ **Pointage** : Time tracking, shifts, planning
+- 💰 **Comptabilité** : Caisse, chiffre d'affaires, PDF
+- 📊 **Analytics** : Stats et rapports
 
-**Stack technique** :
-- Next.js 14 (App Router)
-- TypeScript (strict mode)
-- Tailwind CSS
-- shadcn/ui components
-- MongoDB + Mongoose
-- NextAuth.js
+**Stack** : Next.js 14 · TypeScript · Tailwind · shadcn/ui · MongoDB · NextAuth
 
 ---
 
 ## 🎯 Contexte Important
 
-### Historique du Refactoring (Janvier 2026)
+### Historique
 
-L'app a été **entièrement refactorisée** avec :
-- ✅ Sécurité : 100% des routes protégées
-- ✅ Types : 0 `any` types, interfaces partagées
-- ✅ Architecture : APIs consolidées, utilitaires créés
-- ✅ Code : Fichiers < 200 lignes, composants modulaires
+L'app a été **entièrement refactorisée** (Janvier 2026) :
+- ✅ Sécurité : 100% routes protégées
+- ✅ Types : 0 `any`, interfaces partagées
+- ✅ Architecture : APIs consolidées, fichiers < 200 lignes
+- ✅ Build : Réussi (27/27 pages)
 
-**Documentation complète** : `/apps/admin/docs/REFACTORING_SUMMARY.md`
+### Prochaine Étape
 
-### Prochaine Étape : Migration depuis `/apps/site/`
-
-Nous allons **migrer progressivement** des modules depuis `/apps/site/src/app/dashboard/` :
+Migration progressive de modules depuis `/apps/site/src/app/dashboard/` :
 - 📅 Booking (réservations, calendrier)
 - 💬 Messages (chat, notifications)
 - ⚙️ Settings (espaces, horaires)
 - 📊 Analytics avancées
 
-**⚠️ IMPORTANT** : Ce CLAUDE.md définit les règles pour que ces migrations se fassent **proprement**, sans tout refactoriser à chaque fois.
+**⚠️ IMPORTANT** : Migrations = **RÉÉCRITURE** propre, pas copier-coller !
 
 ---
 
-## 🏗️ Architecture & Structure
-
-### Structure des Dossiers
-
-```
-/apps/admin/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── (dashboard)/        # Layout dashboard
-│   │   │   ├── (admin)/        # Routes admin/dev
-│   │   │   │   ├── hr/         # Ressources Humaines
-│   │   │   │   └── accounting/ # Comptabilité
-│   │   │   └── (staff)/        # Routes staff
-│   │   ├── (errors)/           # Pages d'erreur (404, 403, 401, 500)
-│   │   ├── api/                # API Routes
-│   │   │   ├── hr/             # APIs HR
-│   │   │   ├── accounting/     # APIs Comptabilité
-│   │   │   └── auth/           # NextAuth
-│   │   └── login/              # Page de connexion
-│   ├── components/             # Composants React
-│   │   ├── ui/                 # shadcn/ui components
-│   │   ├── layout/             # Header, Sidebar, Nav
-│   │   ├── hr/                 # Composants HR
-│   │   ├── clocking/           # Pointage
-│   │   ├── schedule/           # Planning
-│   │   └── pdf/                # Génération PDF
-│   ├── lib/                    # Utilitaires
-│   │   ├── api/                # Helpers API (auth, response)
-│   │   ├── pdf/                # PDF generation
-│   │   └── utils/              # Utilitaires généraux
-│   ├── hooks/                  # Custom hooks
-│   ├── types/                  # Types TypeScript partagés
-│   │   ├── hr.ts               # Types RH (Employee, Shift, etc.)
-│   │   ├── timeEntry.ts        # Types pointage
-│   │   └── accounting.ts       # Types comptabilité
-│   └── models/                 # Mongoose models
-│       ├── employee/           # Model Employee (modular)
-│       ├── timeEntry/          # Model TimeEntry
-│       ├── shift/              # Model Shift
-│       └── cashEntry/          # Model CashEntry
-├── docs/                       # Documentation
-│   └── REFACTORING_SUMMARY.md  # Historique du refactoring
-├── TESTING_CHECKLIST.md        # Checklist de tests
-└── CLAUDE.md                   # Ce fichier !
-```
-
-### Organisation des Models (Pattern Mongoose)
-
-**Chaque model suit cette structure modulaire** :
-
-```
-/models/employee/
-├── index.ts        # Export principal, initialisation
-├── document.ts     # Interface + Schema Mongoose
-├── methods.ts      # Méthodes d'instance (.getFullName(), etc.)
-├── hooks.ts        # Pre/post hooks (pre save, etc.)
-└── virtuals.ts     # Propriétés virtuelles (.fullName, etc.)
-```
-
-**Pourquoi ?**
-- Fichiers < 200 lignes chacun
-- Séparation des responsabilités
-- Facile à maintenir et tester
-- Réutilisable dans plusieurs apps
-
----
-
-## ✅ Conventions de Code (STRICTES)
+## 🚨 Règles CRITIQUES (À Respecter Absolument)
 
 ### 1. TypeScript - ZÉRO `any`
 
 ```typescript
 // ❌ INTERDIT
-function handleData(data: any) {
-  // ...
-}
+function handleData(data: any) { }
 
 // ✅ CORRECT
-interface EmployeeData {
-  id: string
-  firstName: string
-  lastName: string
-}
-
-function handleData(data: EmployeeData) {
-  // ...
-}
+import type { Employee } from '@/types/hr'
+function handleData(data: Employee) { }
 ```
 
-**Règles** :
-- ✅ Toujours typer les paramètres de fonction
-- ✅ Toujours typer les retours de fonction
-- ✅ Utiliser les types partagés de `/types/`
-- ✅ Créer des interfaces plutôt que des types (sauf unions)
-- ❌ Jamais `as any` sans justification documentée
-- ❌ Jamais `@ts-ignore` ou `@ts-expect-error`
+### 2. Dates - TOUJOURS des Strings
 
-### 2. Formats de Dates et Heures
-
-**RÈGLE STRICTE** : Toujours utiliser des **strings** pour les dates/heures en API
-
-```typescript
-// ❌ INTERDIT - Timestamps ISO avec timezone
-{
-  date: new Date("2026-01-16T00:00:00.000Z"),  // ❌ Cause des bugs de timezone
-  clockIn: new Date("2026-01-16T09:00:00.000Z") // ❌
-}
-
-// ✅ CORRECT - Strings simples
-{
-  date: "2026-01-16",    // Format YYYY-MM-DD
-  clockIn: "09:00",      // Format HH:mm
-  clockOut: "17:30"      // Format HH:mm
-}
-```
-
-**Types à utiliser** :
-
-```typescript
-// /types/timeEntry.ts
-interface TimeEntry {
-  id: string
-  employeeId: string
-  date: string        // YYYY-MM-DD
-  clockIn: string     // HH:mm
-  clockOut?: string   // HH:mm | null
-  shiftNumber: 1 | 2
-  status: 'active' | 'completed'
-}
-```
-
-**Transformation Date ↔ String** :
-
-```typescript
-// Si besoin de manipuler comme Date (côté client)
-type TimeEntryWithDates = Omit<TimeEntry, 'date' | 'clockIn' | 'clockOut'> & {
-  date: Date
-  clockIn: Date
-  clockOut?: Date | null
-}
-
-// Transformer API string → Date (pour manipulation)
-function toDateObject(entry: TimeEntry): TimeEntryWithDates {
-  return {
-    ...entry,
-    date: new Date(entry.date),
-    clockIn: new Date(`${entry.date}T${entry.clockIn}`),
-    clockOut: entry.clockOut ? new Date(`${entry.date}T${entry.clockOut}`) : null,
-  }
-}
-```
-
-### 3. Taille des Fichiers
-
-| Type de fichier | Max lignes | Action si dépassé |
-|-----------------|------------|-------------------|
-| **Composants React** | 200 | Extraire sous-composants ou hooks |
-| **Custom Hooks** | 150 | Séparer en hooks spécialisés |
-| **Pages Next.js** | 150 | Logique → hooks, UI → composants |
-| **API Routes** | 200 | Extraire validation/logique en utils |
-| **Models Mongoose** | 150 | Utiliser structure modulaire (5 fichiers) |
-| **Utils/Helpers** | 200 | Découper par responsabilité |
-
-**Comment découper un gros composant :**
-
-```typescript
-// ❌ MAUVAIS - Tout dans un fichier (300 lignes)
-export function EmployeeList() {
-  // 50 lignes de logique
-  // 50 lignes de state
-  // 100 lignes de handlers
-  // 100 lignes de JSX
-}
-
-// ✅ BON - Découpage propre
-
-// hooks/useEmployeeList.ts (80 lignes)
-export function useEmployeeList() {
-  // Toute la logique ici
-  return { employees, loading, error, actions }
-}
-
-// components/EmployeeList.tsx (120 lignes)
-export function EmployeeList() {
-  const { employees, loading, error, actions } = useEmployeeList()
-
-  if (loading) return <EmployeeListSkeleton />
-  if (error) return <ErrorMessage error={error} />
-
-  return (
-    <div>
-      <EmployeeHeader actions={actions} />
-      <EmployeeTable employees={employees} />
-      <EmployeePagination />
-    </div>
-  )
-}
-```
-
-### 4. Nommage
-
-**Fichiers** :
-- Composants : `PascalCase.tsx` (EmployeeList.tsx)
-- Hooks : `camelCase.ts` (useEmployees.ts)
-- Utils : `kebab-case.ts` (format-date.ts)
-- Types : `camelCase.ts` (timeEntry.ts)
-- API routes : `route.ts` (convention Next.js)
-
-**Variables** :
-```typescript
-// ❌ INTERDIT - Noms génériques
-const data = await fetch(...)
-const result = handleStuff()
-const temp = employee
-
-// ✅ CORRECT - Noms descriptifs
-const employeesData = await fetch(...)
-const validationResult = handleValidation()
-const activeEmployee = employee
-```
-
-**Fonctions** :
 ```typescript
 // ❌ INTERDIT
-function process() {}
-function handle() {}
-function do() {}
+{ date: new Date().toISOString() }
 
-// ✅ CORRECT - Verbe + Nom
-function processEmployee() {}
-function handleSubmit() {}
-function validateForm() {}
-function fetchEmployees() {}
+// ✅ CORRECT
+{ date: "2026-01-16", time: "09:00" } // YYYY-MM-DD, HH:mm
 ```
 
-### 5. Composants Réutilisables
+### 3. Taille Fichiers - Max 200 Lignes
 
-**Principe** : Créer des composants **flexibles avec children** plutôt que des variantes
+| Type | Max | Action si dépassé |
+|------|-----|-------------------|
+| Composants React | 200 | Extraire hooks/sous-composants |
+| API Routes | 200 | Extraire validation/logique |
+| Models | 150 | Structure modulaire (5 fichiers) |
+
+### 4. Sécurité - Auth OBLIGATOIRE
 
 ```typescript
-// ❌ MAUVAIS - Duplication
-<HeroOne />
-<HeroTwo />
-<HeroThree />
-
-// ✅ BON - Composant flexible
-<Hero variant="full" title="Titre">
-  <CustomContent />
-</Hero>
-```
-
-**Pattern recommandé** :
-
-```typescript
-// components/ui/Card.tsx
-interface CardProps {
-  title?: string
-  variant?: 'default' | 'outlined' | 'filled'
-  children: React.ReactNode
-  className?: string
-}
-
-export function Card({ title, variant = 'default', children, className }: CardProps) {
-  return (
-    <div className={cn(cardVariants[variant], className)}>
-      {title && <h3>{title}</h3>}
-      {children}
-    </div>
-  )
-}
-```
-
----
-
-## 🔒 Sécurité & Authentification
-
-### Pattern d'Authentification (API Routes)
-
-**Utiliser TOUJOURS le helper `/lib/api/auth.ts`** :
-
-```typescript
-// /app/api/hr/employees/route.ts
-import { requireAuth } from '@/lib/api/auth'
-import { successResponse, errorResponse } from '@/lib/api/response'
-
-export async function GET(request: Request) {
-  // 1. Authentification OBLIGATOIRE
-  const authResult = await requireAuth(['dev', 'admin', 'staff'])
-  if (!authResult.authorized) {
-    return authResult.response // 401 ou 403
-  }
-
-  // 2. Logique métier
-  try {
-    const employees = await Employee.find({ isActive: true })
-    return successResponse(employees)
-  } catch (error) {
-    return errorResponse('Erreur serveur', error.message)
-  }
-}
-```
-
-### Niveaux de Permissions
-
-| Rôle | Accès | Usage |
-|------|-------|-------|
-| `dev` | Complet (admin + debug) | Développement |
-| `admin` | Gestion complète | Admin système |
-| `staff` | Lecture HR/Planning | Employé |
-
-**Configuration** :
-
-```typescript
-// Lecture seule (tous les rôles)
-requireAuth(['dev', 'admin', 'staff'])
-
-// Écriture (admin seulement)
-requireAuth(['dev', 'admin'])
-
-// Debug (dev seulement)
-requireAuth(['dev'])
-```
-
-### Distinction Rôles Système vs Rôles Métier
-
-**⚠️ IMPORTANT** : Ne pas confondre les deux types de rôles :
-
-#### 1. Rôles Système (Authentication NextAuth)
-Utilisés pour **l'authentification et les permissions d'accès** à l'application :
-- `dev` - Développeur (accès complet)
-- `admin` - Administrateur (gestion complète)
-- `staff` - Employé (lecture seulement)
-
-**Usage** : `requireAuth(['dev', 'admin', 'staff'])`
-
-#### 2. Rôles Métier RH (employeeRole)
-Utilisés pour **la fonction dans l'entreprise** (type d'employé) :
-- `Manager` - Responsable d'équipe
-- `Assistant manager` - Responsable adjoint
-- `Employé polyvalent` - Employé standard
-
-**Usage** : Champ `employeeRole` dans le type `Employee`
-
-**Exemple de confusion à éviter** :
-```typescript
-// ❌ MAUVAIS - Confondre rôle système et rôle métier
-requireAuth(['Manager']) // Manager n'est pas un rôle système
-
-// ✅ BON - Utiliser le bon rôle
-requireAuth(['dev', 'admin', 'staff']) // Rôles système
-employee.employeeRole === 'Manager' // Rôle métier
-```
-
-### Routes Publiques (Exceptions)
-
-Seules ces routes peuvent être **publiques** :
-- `/api/auth/[...nextauth]` - NextAuth endpoint
-- `/api/hr/employees/verify-pin` - Vérification PIN pour pointage
-- `/api/time-entries/clock-in` - Pointage entrée (avec PIN)
-- `/api/time-entries/clock-out` - Pointage sortie (avec PIN)
-
-**Toutes les autres routes DOIVENT être protégées !**
-
-### 🚨 RÈGLE CRITIQUE : Secrets et Documentation
-
-**⚠️ JAMAIS DE SECRETS EN DUR DANS LES FICHIERS .md OU CODE**
-
-```typescript
-// ❌ INTERDIT - Secrets en dur
-const mongoUri = "mongodb+srv://admin:G4mgKEL...@cluster.mongodb.net/db"
-const stripeKey = "sk_live_51ABC..."
-
-// ❌ INTERDIT - Dans documentation .md
-/**
- * Exemple :
- * MONGODB_URI=mongodb+srv://admin:REAL_PASSWORD@cluster.mongodb.net/db
- */
-
-// ✅ CORRECT - Variables d'environnement
-const mongoUri = process.env.MONGODB_URI!
-const stripeKey = process.env.STRIPE_SECRET_KEY!
-
-// ✅ CORRECT - Placeholders dans documentation
-/**
- * Exemple :
- * MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/DATABASE
- */
-```
-
-**Règles strictes** :
-- ✅ Toujours utiliser `process.env.XXX` pour les secrets
-- ✅ Fichiers .md dans `/docs/` uniquement (pas à la racine)
-- ✅ Placeholders génériques dans la documentation (`PASSWORD`, `YOUR_SECRET`, etc.)
-- ❌ JAMAIS de vrais credentials dans les .md
-- ❌ JAMAIS de secrets committés dans Git
-- ❌ JAMAIS de .md à la racine du projet (sauf README, CHANGELOG)
-
-**Checklist avant commit** :
-```bash
-# Vérifier qu'aucun secret n'est présent
-git diff | grep -i "password\|secret\|key" | grep -v "PASSWORD\|SECRET\|KEY"
-# → Ne doit rien afficher
-
-# Pre-commit hook détecte automatiquement les secrets
-git commit -m "..."
-# Si bloqué → Vérifier et supprimer les secrets
-```
-
----
-
-## 📦 Types Partagés (Single Source of Truth)
-
-### Utiliser les Types Partagés
-
-**RÈGLE** : Toujours importer depuis `/types/` plutôt que redéfinir localement
-
-```typescript
-// ❌ INTERDIT - Interface locale
-interface Employee {
-  id: string
-  firstName: string
-  lastName: string
-}
-
-// ✅ CORRECT - Import depuis types partagés
-import type { Employee } from '@/types/hr'
-```
-
-### Types Principaux
-
-**`/types/hr.ts`** :
-- `Employee` - Employé complet
-- `EmployeeFormData` - Formulaire création/édition
-- `Shift` - Créneau de travail
-- `AvailabilityDay` - Disponibilité par jour
-- `WeeklyAvailability` - Disponibilités hebdomadaires
-
-**`/types/timeEntry.ts`** :
-- `TimeEntry` - Entrée de pointage
-- `TimeEntryFilter` - Filtres pour recherche
-- `TimeEntryUpdate` - Données de mise à jour
-- `EmployeeTimeReport` - Rapport d'heures
-- `ApiResponse<T>` - Format de réponse API standardisé
-
-**`/types/accounting.ts`** :
-- `CashEntry` - Entrée de caisse
-- `CashEntryRow` - Ligne de caisse (pour tableau)
-- `TurnoverData` - Données de CA
-- `CashControlPDF` - Données pour PDF
-
-### Créer un Nouveau Type
-
-Si tu dois créer un nouveau type partagé :
-
-```typescript
-// 1. Ajouter dans /types/monModule.ts
-export interface MonNouveauType {
-  id: string
-  // ... champs
-}
-
-// 2. Exporter dans index (si nécessaire)
-// /types/index.ts
-export * from './monModule'
-
-// 3. Utiliser partout
-import type { MonNouveauType } from '@/types/monModule'
-```
-
----
-
-## 🌐 API Routes (Next.js)
-
-### Structure d'une Route API
-
-```typescript
-// /app/api/hr/employees/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/api/auth'
-import { successResponse, errorResponse } from '@/lib/api/response'
-import { connectMongoose } from '@/lib/mongodb'
-import { Employee } from '@/models/employee'
-import type { ApiResponse } from '@/types/timeEntry'
-
-// GET /api/hr/employees
-export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Employee[]>>> {
-  // 1. Auth
-  const authResult = await requireAuth(['dev', 'admin', 'staff'])
-  if (!authResult.authorized) {
-    return authResult.response
-  }
-
-  // 2. DB Connection
-  await connectMongoose()
-
-  // 3. Query params
-  const searchParams = request.nextUrl.searchParams
-  const status = searchParams.get('status')
-
-  // 4. Logic
-  try {
-    const filter = status ? { isActive: status === 'active' } : {}
-    const employees = await Employee.find(filter).sort({ lastName: 1 })
-
-    return successResponse(employees, 'Employés récupérés avec succès')
-  } catch (error) {
-    console.error('GET /api/hr/employees error:', error)
-    return errorResponse('Erreur lors de la récupération des employés', error.message)
-  }
-}
-
-// POST /api/hr/employees
-export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<Employee>>> {
-  // 1. Auth (écriture = admin/dev seulement)
-  const authResult = await requireAuth(['dev', 'admin'])
-  if (!authResult.authorized) {
-    return authResult.response
-  }
-
-  // 2. DB Connection
-  await connectMongoose()
-
-  // 3. Parse body
-  try {
-    const body = await request.json()
-
-    // 4. Validation
-    if (!body.firstName || !body.lastName || !body.email) {
-      return errorResponse('Données manquantes', 'firstName, lastName, email sont requis', 400)
-    }
-
-    // 5. Business logic
-    const employee = await Employee.create(body)
-
-    return successResponse(employee, 'Employé créé avec succès', 201)
-  } catch (error) {
-    console.error('POST /api/hr/employees error:', error)
-    return errorResponse('Erreur lors de la création de l\'employé', error.message)
-  }
-}
-```
-
-### Gestion d'Erreurs Standardisée
-
-```typescript
-// Toujours utiliser try/catch
-try {
-  // Logic
-} catch (error) {
-  // Log pour debug
-  console.error('[Route] Error:', error)
-
-  // Réponse utilisateur
-  return errorResponse(
-    'Message utilisateur friendly',
-    error.message, // Détails techniques
-    500 // Status code approprié
-  )
-}
-```
-
-### Status Codes Appropriés
-
-| Code | Usage | Exemple |
-|------|-------|---------|
-| 200 | GET réussi | Liste d'employés |
-| 201 | POST réussi (création) | Nouvel employé créé |
-| 204 | DELETE réussi | Employé supprimé |
-| 400 | Erreur validation | Champs manquants |
-| 401 | Non authentifié | Pas de session |
-| 403 | Permission refusée | Role insuffisant |
-| 404 | Ressource introuvable | Employé inexistant |
-| 500 | Erreur serveur | Erreur DB, etc. |
-
----
-
-## 🎨 Composants React
-
-### Pattern Skeleton Loading (OBLIGATOIRE)
-
-**RÈGLE** : Chaque page dashboard DOIT avoir un skeleton loader pendant le chargement.
-
-**Pourquoi ?**
-- Meilleure expérience utilisateur (UX)
-- Évite les pages vides pendant le chargement
-- Donne un feedback visuel immédiat
-
-**Structure recommandée** :
-
-```
-/app/(dashboard)/(admin)/ma-page/
-├── page.tsx                 # Server component avec auth
-├── MaPageClient.tsx         # Client component principal
-└── MaPageSkeleton.tsx       # Skeleton loader
-```
-
-**Exemple complet** :
-
-```typescript
-// MaPageSkeleton.tsx
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-
-export function MaPageSkeleton() {
-  return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-9 w-64" /> {/* Titre */}
-        <Skeleton className="h-10 w-[200px]" /> {/* Select/Button */}
-      </div>
-
-      {/* Stats Cards (si applicable) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-4 w-4 rounded-full" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-8 w-12" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Table/Content Card */}
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-6 w-24" />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Table rows ou autre contenu */}
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center gap-4 py-3">
-              <Skeleton className="h-6 w-20" />
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-4 w-48" />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-```
-
-```typescript
-// MaPageClient.tsx
-"use client";
-
-import { useState } from "react";
-import { MaPageSkeleton } from "./MaPageSkeleton";
-import { useMesData } from "@/hooks/useMesData";
-
-export function MaPageClient() {
-  const { data, loading, error } = useMesData();
-
-  // ✅ Afficher skeleton pendant chargement
-  if (loading) {
-    return <MaPageSkeleton />;
-  }
-
-  // ✅ Gérer les erreurs
-  if (error) {
-    return <div>Erreur: {error}</div>;
-  }
-
-  return (
-    <div className="space-y-6 p-6">
-      {/* Contenu de la page */}
-    </div>
-  );
-}
-```
-
-**Tailles de Skeleton courantes** :
-
-```typescript
-// Texte
-<Skeleton className="h-4 w-32" />   // Petit texte
-<Skeleton className="h-6 w-48" />   // Texte moyen
-<Skeleton className="h-9 w-64" />   // Titre (h1)
-
-// Boutons
-<Skeleton className="h-10 w-24" />  // Bouton standard
-
-// Cards stats
-<Skeleton className="h-8 w-12" />   // Chiffre stat
-
-// Icônes
-<Skeleton className="h-4 w-4 rounded-full" />
-```
-
-**Checklist Skeleton** :
-- [ ] Fichier `[PageName]Skeleton.tsx` créé
-- [ ] Import dans `[PageName]Client.tsx`
-- [ ] Condition `if (loading) return <Skeleton />`
-- [ ] Structure reflète la vraie page (même layout)
-- [ ] Animations fluides (shadcn Skeleton a déjà l'animation)
-
----
-
-### Pattern Page d'Index pour Sections avec Sous-menus (BONNE PRATIQUE)
-
-**RÈGLE** : Quand tu crées une section de menu avec des sous-menus, tu DOIS créer une page d'index qui liste les sous-menus disponibles.
-
-**Pourquoi ?**
-- Meilleure navigation pour l'utilisateur
-- Vue d'ensemble de la section
-- Accès rapide aux différentes pages
-- Cohérence dans l'application
-
-#### Choix de Présentation
-
-| Type de contenu | Présentation | Exemple |
-|-----------------|--------------|---------|
-| **Outils/Actions** | Liste verticale | Dev Tools, Settings |
-| **Modules métier** | Cards en grid | HR, Comptabilité, Menu |
-| **Données** | Table ou liste | Utilisateurs, Messages |
-
-#### Exemple 1: Page d'Index avec Liste (Dev Tools)
-
-```typescript
-// /app/admin/dev/page.tsx
-import { Terminal, Bell, Database, FileText } from "lucide-react";
-import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-export default function DevToolsPage() {
-  const tools = [
-    {
-      title: "Notifications",
-      description: "Tester et déboguer le système de notifications push",
-      icon: Bell,
-      href: "/admin/debug/notifications",
-    },
-    {
-      title: "Database",
-      description: "Explorer et gérer la base de données",
-      icon: Database,
-      href: "/dev/database",
-    },
-    {
-      title: "Logs",
-      description: "Consulter les logs de l'application",
-      icon: FileText,
-      href: "/dev/logs",
-    },
-  ];
-
-  return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Terminal className="w-8 h-8" />
-          Dev Tools
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Outils de développement et de débogage
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        {tools.map((tool) => (
-          <Link key={tool.href} href={tool.href}>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <tool.icon className="w-5 h-5" />
-                  {tool.title}
-                </CardTitle>
-                <CardDescription>{tool.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
-#### Exemple 2: Page d'Index avec Cards (HR)
-
-```typescript
-// /app/admin/hr/page.tsx
-import { Users, Calendar, Clock, CalendarDays } from "lucide-react";
-import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-export default function HRPage() {
-  const modules = [
-    {
-      title: "Employés",
-      description: "Gérer les employés et leurs contrats",
-      icon: Users,
-      href: "/admin/hr/employees",
-      stats: "12 employés actifs",
-    },
-    {
-      title: "Planning",
-      description: "Planifier les shifts et horaires",
-      icon: Calendar,
-      href: "/admin/hr/schedule",
-      stats: "Semaine en cours",
-    },
-    {
-      title: "Pointage Admin",
-      description: "Consulter et modifier les pointages",
-      icon: Clock,
-      href: "/admin/hr/clocking-admin",
-      stats: "Aujourd'hui",
-    },
-    {
-      title: "Disponibilités",
-      description: "Gérer les disponibilités des employés",
-      icon: CalendarDays,
-      href: "/admin/hr/availability",
-      stats: "À jour",
-    },
-  ];
-
-  return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold">Ressources Humaines</h1>
-        <p className="text-muted-foreground mt-2">
-          Gestion des employés, planning et pointage
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {modules.map((module) => (
-          <Link key={module.href} href={module.href}>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <module.icon className="w-8 h-8 text-primary" />
-                  <span className="text-xs text-muted-foreground">{module.stats}</span>
-                </div>
-                <CardTitle className="mt-4">{module.title}</CardTitle>
-                <CardDescription>{module.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
-#### Structure Recommandée
-
-```
-/app/admin/ma-section/
-├── page.tsx                 # ✅ Page d'index (liste ou cards)
-├── sous-menu-1/
-│   └── page.tsx
-├── sous-menu-2/
-│   └── page.tsx
-└── sous-menu-3/
-    └── page.tsx
-```
-
-#### Checklist Page d'Index
-
-Quand tu crées une section avec sous-menus :
-- [ ] Créer la page d'index à la racine de la section
-- [ ] Choisir le format adapté (liste ou cards)
-- [ ] Ajouter titre et description de la section
-- [ ] Lister tous les sous-menus avec liens
-- [ ] Ajouter icônes pour identification visuelle
-- [ ] Optionnel : Afficher des stats/badges si pertinent
-- [ ] Tester que tous les liens fonctionnent
-
----
-
-### Structure d'un Composant
-
-```typescript
-// components/hr/EmployeeCard.tsx
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { User, Mail, Phone } from 'lucide-react'
-import type { Employee } from '@/types/hr'
-
-/**
- * Card affichant les infos d'un employé
- *
- * @param employee - Employé à afficher
- * @param onEdit - Callback pour éditer
- * @param onDelete - Callback pour supprimer
- */
-interface EmployeeCardProps {
-  employee: Employee
-  onEdit?: (employee: Employee) => void
-  onDelete?: (employeeId: string) => void
-}
-
-export function EmployeeCard({ employee, onEdit, onDelete }: EmployeeCardProps) {
-  return (
-    <Card className="p-4">
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <h3 className="font-semibold text-lg">
-            {employee.firstName} {employee.lastName}
-          </h3>
-
-          <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-            <Mail className="w-4 h-4" />
-            <span>{employee.email}</span>
-          </div>
-
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Phone className="w-4 h-4" />
-            <span>{employee.phone}</span>
-          </div>
-        </div>
-
-        <div className="flex gap-2">
-          {onEdit && (
-            <Button variant="outline" size="sm" onClick={() => onEdit(employee)}>
-              Modifier
-            </Button>
-          )}
-          {onDelete && (
-            <Button variant="destructive" size="sm" onClick={() => onDelete(employee.id)}>
-              Supprimer
-            </Button>
-          )}
-        </div>
-      </div>
-    </Card>
-  )
-}
-```
-
-### Hooks Personnalisés
-
-**Extraire la logique dans des hooks custom** :
-
-```typescript
-// hooks/useEmployees.ts
-import { useState, useEffect } from 'react'
-import type { Employee } from '@/types/hr'
-
-interface UseEmployeesOptions {
-  status?: 'active' | 'inactive' | 'all'
-}
-
-interface UseEmployeesReturn {
-  employees: Employee[]
-  loading: boolean
-  error: string | null
-  refetch: () => Promise<void>
-}
-
-export function useEmployees(options: UseEmployeesOptions = {}): UseEmployeesReturn {
-  const [employees, setEmployees] = useState<Employee[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchEmployees = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      const params = new URLSearchParams()
-      if (options.status && options.status !== 'all') {
-        params.set('status', options.status)
-      }
-
-      const response = await fetch(`/api/hr/employees?${params}`)
-      const data = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur inconnue')
-      }
-
-      setEmployees(data.data || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchEmployees()
-  }, [options.status])
-
-  return {
-    employees,
-    loading,
-    error,
-    refetch: fetchEmployees,
-  }
-}
-```
-
----
-
-## 🔄 APIs Partagées entre Site et Admin - IMPORTANT
-
-### ⚠️ Comprendre la Structure de `/apps/site/`
-
-**ATTENTION** : `/apps/site/` contient **DEUX parties distinctes** :
-
-```
-/apps/site/
-├── src/app/(site)/              # 🌐 SITE PUBLIC (à refactoriser plus tard)
-│   ├── page.tsx                 # Home publique
-│   ├── booking/                 # Réservations publiques
-│   ├── spaces/                  # Pages espaces
-│   ├── blog/                    # Blog public
-│   └── contact/                 # Contact
-│
-└── src/app/dashboard/           # 👤 DASHBOARD CLIENT (à migrer puis supprimer)
-    ├── (admin)/                 # Routes admin (à migrer vers /apps/admin/)
-    ├── settings/                # Paramètres utilisateur
-    ├── messages/                # Messagerie
-    └── promo/                   # Module promo
-```
-
-**Les deux parties ont des appels API** qui peuvent être :
-- ✅ **Partagés** : Utilisés par le site public ET le dashboard
-- 🔵 **Dashboard uniquement** : Utilisés seulement par le dashboard (à migrer)
-- 🟢 **Site uniquement** : Utilisés seulement par le site public (à garder dans site)
-
----
-
-### 🎯 Règles pour les APIs et Models
-
-#### 1. APIs Partagées (Site Public + Dashboard)
-
-**Si une API/Model est utilisée par les DEUX parties** (site public ET dashboard) :
-
-**Option A** : Déplacer dans `packages/database` (préféré)
-```typescript
-// ✅ BON - API partagée dans packages/database
-// packages/database/src/models/booking/
-├── index.ts
-├── document.ts
-├── methods.ts
-└── types.ts
-
-// Utilisable depuis les deux apps
-import { Booking } from '@coworking-cafe/database'
-```
-
-**Option B** : Maintenir la compatibilité
-```typescript
-// ✅ BON - Garder l'API dans apps/site ET créer dans apps/admin
-// Les deux apps ont leur propre implémentation mais structure identique
-
-// apps/site/src/app/api/booking/route.ts
-export async function GET() { /* ... */ }
-
-// apps/admin/src/app/api/booking/route.ts
-export async function GET() { /* ... */ }
-
-// Même structure de réponse pour compatibilité
-interface BookingResponse {
-  id: string
-  date: string // YYYY-MM-DD
-  startTime: string // HH:mm
-  // ... même structure
-}
-```
-
-#### 2. APIs Dashboard Uniquement
-
-**Si une API est utilisée UNIQUEMENT par le dashboard** :
-
-```typescript
-// ✅ BON - Migrer directement dans apps/admin
-// apps/admin/src/app/api/hr/employees/route.ts
-// Plus besoin de garder dans apps/site
-
-// ❌ À SUPPRIMER après migration
-// apps/site/src/app/dashboard/(admin)/hr/... (sera supprimé à terme)
-```
-
-#### 3. APIs Site Public Uniquement
-
-**Si une API est utilisée UNIQUEMENT par le site public** :
-
-```typescript
-// ✅ BON - Garder dans apps/site
-// apps/site/src/app/api/contact/route.ts
-// apps/site/src/app/api/blog/route.ts
-
-// Ne PAS migrer vers apps/admin
-```
-
----
-
-### 🔧 Renommage de Models - Procédure Obligatoire
-
-**⚠️ CRITIQUE** : Quand tu renommes un model (ex: `PromoToken` → `PromoConfig`), tu DOIS mettre à jour **TOUTES** les références dans `apps/site`.
-
-#### Checklist Renommage
-
-```bash
-# Exemple : Renommer PromoToken → PromoConfig
-
-# ✅ 1. Identifier TOUS les fichiers qui utilisent le model
-grep -r "PromoToken" apps/site/src/
-
-# Résultats attendus :
-# apps/site/src/types/promo.ts
-# apps/site/src/app/api/promo/route.ts
-# apps/site/src/app/dashboard/promo/page.tsx
-# apps/site/src/components/promo/PromoCard.tsx
-
-# ✅ 2. Mettre à jour CHAQUE fichier trouvé
-
-# apps/site/src/types/promo.ts
-- export interface PromoToken {
-+ export interface PromoConfig {
-    id: string
-    token: string
-    // ...
-  }
-
-# apps/site/src/app/api/promo/route.ts
-- import { PromoToken } from '@/types/promo'
-+ import { PromoConfig } from '@/types/promo'
-
-- const promo: PromoToken = await getPromo()
-+ const promo: PromoConfig = await getPromo()
-
-# apps/site/src/app/dashboard/promo/page.tsx
-- import type { PromoToken } from '@/types/promo'
-+ import type { PromoConfig } from '@/types/promo'
-
-# apps/site/src/components/promo/PromoCard.tsx
-- interface PromoCardProps {
--   promo: PromoToken
-+ interface PromoCardProps {
-+   promo: PromoConfig
-  }
-
-# ✅ 3. Vérifier que tout compile
-cd apps/site
-pnpm type-check  # Aucune erreur TypeScript
-
-# ✅ 4. Tester visuellement
-pnpm dev
-# Tester les pages qui utilisent le model renommé
-```
-
-#### Zones à Vérifier Systématiquement
-
-Quand tu renommes un model, vérifie **TOUTES** ces zones dans `apps/site` :
-
-1. **Types** (`/types/`) :
-   ```typescript
-   // types/promo.ts
-   export interface PromoConfig { /* ... */ }
-   export type PromoStatus = 'active' | 'expired'
-   ```
-
-2. **API Routes** (`/app/api/`) :
-   ```typescript
-   // app/api/promo/route.ts
-   import { PromoConfig } from '@/types/promo'
-   ```
-
-3. **Pages** (`/app/(site)/` ET `/app/dashboard/`) :
-   ```typescript
-   // app/dashboard/promo/page.tsx
-   import type { PromoConfig } from '@/types/promo'
-   ```
-
-4. **Composants** (`/components/`) :
-   ```typescript
-   // components/promo/PromoCard.tsx
-   interface PromoCardProps {
-     promo: PromoConfig
-   }
-   ```
-
-5. **Hooks** (`/hooks/`) :
-   ```typescript
-   // hooks/usePromo.ts
-   const [promo, setPromo] = useState<PromoConfig | null>(null)
-   ```
-
-6. **Utils/Helpers** (`/lib/`) :
-   ```typescript
-   // lib/promo-utils.ts
-   export function formatPromo(promo: PromoConfig) { /* ... */ }
-   ```
-
----
-
-### 💾 Préservation de la Structure des Models
-
-**⚠️ IMPORTANT** : Préserver la structure/composition des models pour permettre l'import des données depuis la MongoDB d'origine.
-
-#### Pourquoi Préserver la Structure ?
-
-```typescript
-// ❌ MAUVAIS - Changer la structure casse l'import de données
-// MongoDB d'origine
-{
-  _id: ObjectId("..."),
-  token: "PROMO2024",
-  discountPercent: 20,
-  expiresAt: ISODate("2024-12-31")
-}
-
-// Nouveau model incompatible
-interface PromoConfig {
-  id: string
-  promoCode: string  // ❌ Renommé de "token" → casse l'import
-  discount: {        // ❌ Structure changée → casse l'import
-    type: 'percent'
-    value: number
-  }
-  validUntil: string // ❌ Renommé de "expiresAt" → casse l'import
-}
-
-// ✅ BON - Structure préservée + nouveaux champs optionnels
-interface PromoConfig {
-  id: string
-  token: string           // ✅ Même nom qu'avant
-  discountPercent: number // ✅ Même nom qu'avant
-  expiresAt: Date | string // ✅ Même nom qu'avant
-
-  // Nouveaux champs optionnels OK
-  description?: string
-  maxUses?: number
-  usedCount?: number
-}
-```
-
-#### Règles de Préservation
-
-1. **Noms de champs** : Garder les mêmes noms que dans la BD d'origine
-2. **Types de base** : Conserver les types compatibles (string, number, Date)
-3. **Champs optionnels** : OK d'ajouter des champs `?` optionnels
-4. **Validation** : Valider les données à l'import, pas changer la structure
-
-```typescript
-// ✅ BON - Préservation + extension
-interface Employee {
-  // Champs d'origine (préservés)
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-
-  // Nouveaux champs (optionnels)
-  employeeRole?: 'Manager' | 'Assistant manager' | 'Employé polyvalent'
-  contractType?: 'CDI' | 'CDD' | 'Stage' | 'Alternance'
-  onboardingCompleted?: boolean
-
-  // Transformation OK en méthodes/getters, pas dans le type de base
-  get fullName() { return `${this.firstName} ${this.lastName}` }
-}
-```
-
-#### Migration de Données avec Structure Préservée
-
-```typescript
-// Script de migration (si nécessaire)
-async function migratePromoData() {
-  // Connexion à la BD d'origine
-  const oldPromos = await OldDB.collection('promos').find().toArray()
-
-  // Import direct car structure préservée
-  for (const oldPromo of oldPromos) {
-    await PromoConfig.create({
-      id: oldPromo._id.toString(),
-      token: oldPromo.token,         // ✅ Même nom
-      discountPercent: oldPromo.discountPercent, // ✅ Même nom
-      expiresAt: oldPromo.expiresAt, // ✅ Même nom
-
-      // Nouveaux champs avec valeurs par défaut
-      description: oldPromo.description || '',
-      maxUses: oldPromo.maxUses || null,
-      usedCount: 0,
-    })
-  }
-}
-```
-
----
-
-### 🎨 Nettoyage des Assets (SCSS, Images, Fonts)
-
-**⚠️ IMPORTANT** : Toujours vérifier et nettoyer les assets dans `apps/site/src/assets/site/` après migration d'un module.
-
-#### Workflow de Vérification des Assets
-
-```bash
-# 1. Chercher tous les assets du module
-find apps/site/src/assets/site -name "*[module-name]*"
-
-# Exemple pour module promo :
-find apps/site/src/assets/site -name "*promo*"
-# Résultat : src/assets/site/scss/_components/_promo.scss
-```
-
-#### Pour Chaque Asset Trouvé
-
-```bash
-# 2. Vérifier s'il est utilisé par le site public
-grep -r "class-name\|file-reference" apps/site/src/app/\(site\)/
-
-# Exemple pour _promo.scss :
-grep -r "card-promo\|btn-scan" apps/site/src/app/\(site\)/
-# → Si résultats : CONSERVÉ (utilisé par pages publiques)
-# → Si vide : SUPPRIMER (uniquement dashboard)
-```
-
-#### Catégories d'Assets à Vérifier
-
-1. **SCSS** (`src/assets/site/scss/`)
-   ```bash
-   # Components
-   find src/assets/site/scss/_components -name "*[module]*"
-
-   # Pages
-   find src/assets/site/scss/_pages -name "*[module]*"
-   ```
-
-2. **Images** (`public/images/` ou `src/assets/site/images/`)
-   ```bash
-   find public/images -name "*[module]*"
-   ```
-
-3. **Fonts** (`src/assets/site/font/`)
-   ```bash
-   find src/assets/site/font -name "*[module]*"
-   ```
-
-#### Décision : Conserver ou Supprimer ?
-
-| Asset | Utilisé par Site Public ? | Utilisé par Dashboard ? | Action |
-|-------|---------------------------|-------------------------|--------|
-| `_promo.scss` | ✅ Oui (`/scan`, `/promo/[token]`) | ❌ Non | ✅ **CONSERVER** |
-| `_dashboard-promo.scss` | ❌ Non | ✅ Oui | ❌ **SUPPRIMER** |
-| `promo-icon.svg` | ✅ Oui | ✅ Oui | ✅ **CONSERVER** |
-| `admin-promo-bg.jpg` | ❌ Non | ✅ Oui | ❌ **SUPPRIMER** |
-
-**Règle** : Si l'asset est utilisé par **AU MOINS UNE** page publique → CONSERVER
-
-#### Exemple Complet : Module Promo
-
-```bash
-# 1. Chercher assets promo
-find src/assets/site -name "*promo*"
-# → src/assets/site/scss/_components/_promo.scss
-
-# 2. Vérifier usage
-grep -r "card-promo\|btn-scan" src/app/\(site\)/
-# → src/app/(site)/scan/page.tsx: className="btn btn-scan"
-# → src/app/(site)/promo/[token]/page.tsx: className="card-promo"
-
-# 3. Décision : CONSERVÉ ✅
-# Raison : Classes utilisées par pages publiques /scan et /promo/[token]
-
-# 4. Documenter dans MIGRATION_STATUS.md
-echo "Assets vérifiés : _promo.scss CONSERVÉ (site public)" >> docs/MIGRATION_STATUS.md
-```
-
----
-
-### 📋 Workflow de Migration d'un Module avec APIs Partagées
-
-#### Étape 1 : Analyser les APIs du Module
-
-```bash
-# Identifier les APIs utilisées par le module
-grep -r "fetch('/api" apps/site/src/app/dashboard/promo/
-grep -r "fetch('/api" apps/site/src/app/(site)/
-
-# Exemple de résultat :
-# apps/site/src/app/dashboard/promo/page.tsx: fetch('/api/promo/current')
-# apps/site/src/app/(site)/scan/page.tsx: fetch('/api/promo/current-token')
-```
-
-**Classification** :
-- `/api/promo/current` → Utilisé par dashboard ET site public → **API partagée**
-- `/api/promo/admin` → Utilisé par dashboard uniquement → **API à migrer**
-
-#### Étape 2 : Décider de la Stratégie
-
-**Pour APIs partagées** :
-
-```markdown
-## API: /api/promo/current-token
-
-**Utilisée par** :
-- Site public : /scan/page.tsx
-- Dashboard : /dashboard/promo/page.tsx
-
-**Décision** : Garder dans apps/site ET créer dans apps/admin avec structure identique
-
-**Structure de réponse à préserver** :
-```typescript
-interface PromoResponse {
-  success: boolean
-  data: {
-    token: string
-    discountPercent: number
-    expiresAt: string
-  }
-}
-```
-```
-
-#### Étape 3 : Migrer le Module
-
-```bash
-# 1. Créer le model dans apps/admin (structure préservée)
-mkdir -p apps/admin/src/models/promoConfig
-touch apps/admin/src/models/promoConfig/{index,document,methods}.ts
-
-# 2. Créer les types dans apps/admin (compatibles avec site)
-touch apps/admin/src/types/promo.ts
-
-# 3. Créer les APIs dans apps/admin
-mkdir -p apps/admin/src/app/api/promo
-touch apps/admin/src/app/api/promo/route.ts
-
-# 4. SI le model a été renommé → Mettre à jour apps/site
-# Voir "Checklist Renommage" ci-dessus
-
-# 5. Nettoyer les assets du module dans apps/site
-# Vérifier et supprimer assets non utilisés par site public
-find apps/site/src/assets/site -name "*[module]*"
-# Pour chaque asset trouvé :
-#   - Si utilisé par site public → CONSERVER
-#   - Si utilisé uniquement par dashboard → SUPPRIMER
-
-# 6. Vérifier que les deux apps compilent
-cd apps/site && pnpm type-check
-cd apps/admin && pnpm type-check
-```
-
-#### Étape 4 : Validation
-
-```bash
-# Test apps/admin
-cd apps/admin
-pnpm dev
-# Tester les pages du module migré
-
-# Test apps/site
-cd apps/site
-pnpm dev
-# Tester que les pages site public fonctionnent toujours
-# Tester que les pages dashboard fonctionnent toujours (si pas encore supprimées)
-```
-
----
-
-### ✅ Checklist Migration avec APIs Partagées
-
-Avant de commencer la migration d'un module :
-
-- [ ] J'ai identifié TOUTES les APIs utilisées par le module
-- [ ] J'ai classifié chaque API (partagée / dashboard only / site only)
-- [ ] Pour APIs partagées : J'ai décidé de la stratégie (packages/database ou compatibilité)
-- [ ] J'ai vérifié si le model existe déjà dans la BD d'origine
-- [ ] J'ai documenté la structure actuelle du model
-- [ ] Si renommage : J'ai une liste complète des fichiers à modifier dans apps/site
-- [ ] J'ai un plan de migration de données (si nécessaire)
-
-Pendant la migration :
-
-- [ ] Structure du model préservée (mêmes noms de champs)
-- [ ] Types compatibles entre apps/site et apps/admin
-- [ ] APIs partagées ont la même structure de réponse
-- [ ] Tous les imports mis à jour dans apps/site
-- [ ] Assets vérifiés dans `apps/site/src/assets/site/` (SCSS, images, fonts)
-- [ ] Assets dashboard supprimés, assets site public conservés
-- [ ] `pnpm type-check` passe dans apps/site
-- [ ] `pnpm type-check` passe dans apps/admin
-- [ ] Tests visuels site public (pages qui utilisent l'API)
-- [ ] Tests visuels admin (nouvelles pages migrées)
-
-Après la migration :
-
-- [ ] Documentation mise à jour (ce CLAUDE.md)
-- [ ] Commit avec message descriptif
-- [ ] Note dans apps/site/CLAUDE.md si APIs partagées
-- [ ] Planning de suppression du code dashboard dans apps/site (optionnel)
-
----
-
-## 🚀 Migration depuis `/apps/site/`
-
-### ⚠️ PHILOSOPHIE DE MIGRATION - IMPORTANT
-
-**Ce n'est PAS un copier-coller !**
-
-La migration d'un module de `/apps/site/` vers `/apps/admin/` est une **RÉÉCRITURE COMPLÈTE** avec les bonnes pratiques :
-
-```
-❌ MAUVAISE APPROCHE          ✅ BONNE APPROCHE
-────────────────────────      ────────────────────────
-1. Copier le code             1. ANALYSER le code source
-2. Coller dans admin          2. COMPRENDRE la logique métier
-3. Ajuster les imports        3. IDENTIFIER les problèmes
-                              4. RÉÉCRIRE proprement dans admin
-                              5. RESPECTER les conventions strictes
-```
-
-**Pourquoi réécrire ?**
-- 🎯 Éliminer les `any` types
-- 🎯 Découper les fichiers > 200 lignes
-- 🎯 Utiliser la structure modulaire (models, types, helpers)
-- 🎯 Appliquer les patterns de sécurité (`requireAuth()`)
-- 🎯 Normaliser les formats de dates (strings)
-- 🎯 Utiliser Tailwind + shadcn/ui au lieu de Bootstrap
-
-**Résultat attendu** : Code propre, maintenable, et conforme aux standards de `/apps/admin/`.
-
----
-
-### Workflow de Migration d'un Module
-
-Quand tu veux migrer un module de `/apps/site/src/app/dashboard/` vers `/apps/admin/` :
-
-#### 1. **Analyse** (30 min)
-
-```bash
-# Liste les fichiers du module
-ls -la /apps/site/src/app/dashboard/booking/
-
-# Analyse la structure
-# - Quelles pages ?
-# - Quels composants ?
-# - Quelles APIs ?
-# - Quels types ?
-# - Quelles dépendances ?
-```
-
-**Créer un document d'analyse** :
-
-```markdown
-## Module: Booking
-
-### Structure actuelle (/apps/site)
-- Pages: calendar, reservations, settings
-- Composants: 12 composants
-- APIs: /api/bookings (GET, POST, PUT, DELETE)
-- Types: booking.ts, reservation.ts
-- Hooks: useBookings.ts, useCalendar.ts
-
-### Stack technique
-- Framer Motion pour animations
-- FullCalendar pour calendrier
-- Recharts pour graphiques
-
-### Dépendances
-- Employee (déjà dans admin ✓)
-- Space (à migrer)
-- Tariff (à migrer)
-```
-
-#### 2. **Types d'abord** (1h)
-
-```typescript
-// 1. Créer /types/booking.ts dans /apps/admin/
-export interface Booking {
-  id: string
-  clientId: string
-  spaceId: string
-  startDate: string  // YYYY-MM-DD
-  endDate: string
-  startTime: string  // HH:mm
-  endTime: string    // HH:mm
-  status: 'pending' | 'confirmed' | 'cancelled'
-  // ...
-}
-
-// 2. Importer et adapter si besoin
-import type { Employee } from '@/types/hr'
-
-export interface BookingWithEmployee extends Booking {
-  employee: Pick<Employee, 'id' | 'firstName' | 'lastName'>
-}
-```
-
-#### 3. **Models Mongoose** (1-2h)
-
-```bash
-# Créer la structure modulaire
-mkdir -p src/models/booking
-touch src/models/booking/{index,document,methods,hooks,virtuals}.ts
-
-# Suivre le pattern établi (voir /models/employee/)
-```
-
-```typescript
-// document.ts
-import { Schema } from 'mongoose'
-import type { Booking } from '@/types/booking'
-
-export interface BookingDocument extends Document, Booking {
-  createdAt: Date
-  updatedAt: Date
-}
-
-export const BookingSchema = new Schema<BookingDocument>({
-  clientId: { type: String, required: true },
-  spaceId: { type: String, required: true },
-  startDate: { type: String, required: true }, // YYYY-MM-DD
-  endDate: { type: String, required: true },
-  startTime: { type: String, required: true }, // HH:mm
-  endTime: { type: String, required: true },
-  status: {
-    type: String,
-    enum: ['pending', 'confirmed', 'cancelled'],
-    default: 'pending'
-  },
-}, {
-  timestamps: true
-})
-```
-
-#### 4. **API Routes** (2-3h)
-
-```bash
-# Créer la structure
-mkdir -p src/app/api/booking
-touch src/app/api/booking/route.ts
-touch src/app/api/booking/[id]/route.ts
-```
-
-```typescript
-// route.ts - Suivre le pattern établi
-import { requireAuth } from '@/lib/api/auth'
-import { successResponse, errorResponse } from '@/lib/api/response'
-
+// ✅ TOUJOURS en première ligne
 export async function GET(request: NextRequest) {
   const authResult = await requireAuth(['dev', 'admin', 'staff'])
   if (!authResult.authorized) return authResult.response
-
-  // ... logique
-}
-```
-
-#### 5. **Composants** (3-4h)
-
-```bash
-# Créer la structure
-mkdir -p src/components/booking
-touch src/components/booking/{BookingCalendar,BookingList,BookingModal,BookingStats}.tsx
-```
-
-**Adapter le code** :
-- Remplacer `any` par types propres
-- Extraire hooks si > 100 lignes
-- Utiliser composants shadcn/ui
-- Respecter limite 200 lignes/fichier
-
-#### 6. **Hooks** (1h)
-
-```typescript
-// hooks/useBookings.ts
-export function useBookings(filters?: BookingFilters) {
-  // Pattern établi (voir useEmployees.ts)
-  return { bookings, loading, error, refetch }
-}
-```
-
-#### 7. **Pages** (2h)
-
-```bash
-# Créer les pages
-mkdir -p src/app/(dashboard)/(admin)/booking
-touch src/app/(dashboard)/(admin)/booking/page.tsx
-touch src/app/(dashboard)/(admin)/booking/calendar/page.tsx
-```
-
-#### 8. **Sidebar Navigation** (30min)
-
-**Ajouter un lien dans la sidebar** :
-
-```bash
-# Modifier le fichier de configuration sidebar
-# apps/admin/src/components/layout/app-sidebar.tsx
-```
-
-**Structure de la sidebar** :
-
-```typescript
-// apps/admin/src/components/layout/app-sidebar.tsx
-
-const navItems = [
-  {
-    title: "Dashboard",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Ressources Humaines",
-    icon: Users,
-    items: [
-      { title: "Employés", url: "/hr/employees" },
-      { title: "Planning", url: "/hr/schedule" },
-      { title: "Pointage", url: "/clocking" },
-    ],
-  },
-  {
-    title: "Comptabilité",
-    icon: DollarSign,
-    items: [
-      { title: "Caisse", url: "/accounting/cash-control" },
-    ],
-  },
-  // Nouvelle section Messages (exemple)
-  {
-    title: "Messages",
-    icon: Mail,
-    items: [
-      { title: "Contact", url: "/support/contact" },
-    ],
-  },
-]
-```
-
-**Étapes** :
-1. Ouvrir `/src/components/layout/app-sidebar.tsx`
-2. Ajouter la nouvelle section/item dans `navItems`
-3. Importer l'icône si nécessaire (depuis `lucide-react`)
-4. Vérifier que le lien fonctionne
-5. Tester la navigation
-
-**Permissions** :
-- Si la page nécessite des permissions spécifiques (dev/admin), ajouter dans la page :
-  ```typescript
-  // Vérification côté serveur dans la page
-  const session = await getServerSession(authOptions);
-  if (!session?.user || !["dev", "admin"].includes(session.user.role.name)) {
-    redirect("/403");
-  }
-  ```
-
-#### 8. **Tests** (1h)
-
-- Suivre `TESTING_CHECKLIST.md`
-- Ajouter tests spécifiques au module
-- Vérifier console (F12)
-
-#### 9. **Documentation** (30min)
-
-```markdown
-# Mettre à jour ce CLAUDE.md si besoin
-# Ajouter section "Module Booking" si patterns spécifiques
-```
-
-### Checklist Migration
-
-- [ ] Analyse complète du module source
-- [ ] Types créés dans `/types/`
-- [ ] Models Mongoose (structure modulaire)
-- [ ] API routes avec auth + response helpers
-- [ ] Composants < 200 lignes
-- [ ] Hooks custom pour logique
-- [ ] Pages Next.js < 150 lignes
-- [ ] Zero `any` types
-- [ ] Dates/heures en format string
-- [ ] Tests manuels (checklist)
-- [ ] Pas d'erreurs console
-- [ ] Build réussi
-- [ ] Documentation mise à jour
-
-**Temps estimé par module** : 1-2 jours
-
----
-
-## 🧪 Tests
-
-### Tests Manuels (OBLIGATOIRE)
-
-**Avant chaque commit important** :
-
-```bash
-# Lire la checklist
-open TESTING_CHECKLIST.md
-
-# Lancer le serveur
-pnpm dev
-
-# Tester au minimum (5 min) :
-# 1. Login
-# 2. Navigation dans le nouveau module
-# 3. Créer/Modifier/Supprimer un élément
-# 4. Vérifier console (F12) - pas d'erreurs
-# 5. Vérifier que les données se sauvent en BD
-```
-
-### Avant de Push
-
-```bash
-# Type check
-pnpm exec tsc --noEmit
-
-# Build
-pnpm build
-
-# Si succès → OK pour commit
-git add .
-git commit -m "feat(admin): add booking module"
-```
-
----
-
-## 🚫 Choses à ÉVITER Absolument
-
-### ❌ Anti-Patterns
-
-1. **Types `any`**
-```typescript
-// ❌ JAMAIS
-const data: any = await fetch(...)
-function process(item: any) {}
-```
-
-2. **Dates ISO avec timezone**
-```typescript
-// ❌ JAMAIS
-{ date: new Date().toISOString() } // 2026-01-16T00:00:00.000Z
-```
-
-3. **Fichiers monolithiques**
-```typescript
-// ❌ JAMAIS - 500 lignes dans un composant
-// Découper en sous-composants + hooks
-```
-
-4. **Duplication de code**
-```typescript
-// ❌ JAMAIS
-<HeroOne />
-<HeroTwo />
-<HeroThree />
-
-// ✅ TOUJOURS
-<Hero variant={variant} />
-```
-
-5. **APIs non protégées**
-```typescript
-// ❌ JAMAIS
-export async function GET() {
-  return NextResponse.json({ data: await getSensitiveData() })
-}
-
-// ✅ TOUJOURS
-export async function GET() {
-  const auth = await requireAuth(['admin'])
-  if (!auth.authorized) return auth.response
   // ...
 }
 ```
 
-6. **Interfaces locales dupliquées**
-```typescript
-// ❌ JAMAIS
-interface Employee { ... } // dans le composant
+### 5. Secrets - JAMAIS en Dur
 
-// ✅ TOUJOURS
-import type { Employee } from '@/types/hr'
+```typescript
+// ❌ INTERDIT
+const mongoUri = "mongodb+srv://admin:PASSWORD@..."
+
+// ✅ CORRECT
+const mongoUri = process.env.MONGODB_URI!
 ```
 
 ---
 
-## 📚 Ressources & Documentation
+## 📚 Documentation Détaillée
 
-### Documentation Interne
+**Toute la documentation est dans `/docs/`** :
 
-- **Refactoring complet** : `/docs/REFACTORING_SUMMARY.md`
-- **Tests manuels** : `/TESTING_CHECKLIST.md`
-- **Conventions monorepo** : `/CLAUDE.md` (root)
-- **Architecture** : `/docs/CONVENTIONS.md` (root)
+### 🏗️ Architecture & Structure
+→ **[ARCHITECTURE.md](./docs/guides/ARCHITECTURE.md)**
+- Structure des dossiers
+- Organisation des models (pattern modulaire)
+- Où placer les fichiers
+- Flux de données
 
-### Documentation Externe
+### ✅ Conventions de Code
+→ **[CONVENTIONS.md](./docs/guides/CONVENTIONS.md)**
+- TypeScript strict (zéro `any`)
+- Formats dates/heures (strings)
+- Taille des fichiers (limites)
+- Nommage (fichiers, variables, fonctions)
+- Composants réutilisables
+- Imports & gestion d'erreurs
 
-- [Next.js 14 App Router](https://nextjs.org/docs/app)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Mongoose Docs](https://mongoosejs.com/docs/)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [Tailwind CSS](https://tailwindcss.com/docs)
+### 🔒 Sécurité & Authentification
+→ **[SECURITY.md](./docs/guides/SECURITY.md)**
+- Pattern `requireAuth()` obligatoire
+- Rôles & permissions (dev/admin/staff)
+- Distinction rôles système vs métier
+- Routes publiques (exceptions)
+- Secrets (JAMAIS en dur)
+- Checklist sécurité
 
-### Exemples de Code
+### 🌐 API Routes
+→ **[API_GUIDE.md](./docs/guides/API_GUIDE.md)**
+- Structure d'une route API
+- Helpers (requireAuth, successResponse, errorResponse)
+- Status codes appropriés
+- Gestion d'erreurs
+- Query params & body parsing
+- Routes dynamiques ([id])
 
-**Bon exemple de composant** : `/components/hr/availability/AvailabilityCalendarTab.tsx`
-- Types importés
-- Hooks séparés
-- < 200 lignes
-- Props typées
+### 🎨 Composants React
+→ **[COMPONENTS_GUIDE.md](./docs/guides/COMPONENTS_GUIDE.md)**
+- Pattern Skeleton Loading (obligatoire)
+- Pattern Page d'Index (sections avec sous-menus)
+- Structure d'un composant
+- Hooks personnalisés
+- Checklist composant
 
-**Bon exemple d'API route** : `/app/api/hr/employees/route.ts`
-- Auth avec `requireAuth()`
-- Réponses avec helpers
-- Try/catch systématique
-- Types de retour
+### 🔄 Migration depuis /apps/site
+→ **[MIGRATION_GUIDE.md](./docs/guides/MIGRATION_GUIDE.md)**
+- Philosophie : réécriture, pas copier-coller
+- Workflow migration (8 étapes)
+- APIs partagées (site public + admin)
+- Renommage de models
+- Préservation structure models
+- Nettoyage assets (SCSS, images)
+- Checklist migration complète
 
-**Bon exemple de model** : `/models/employee/`
-- Structure modulaire (5 fichiers)
-- Chaque fichier < 150 lignes
-- Types partagés
-- Hooks et virtuals séparés
+### 📦 Types Partagés
+→ **[TYPES_GUIDE.md](./docs/guides/TYPES_GUIDE.md)**
+- Single Source of Truth (`/types/`)
+- Types principaux disponibles (hr, timeEntry, accounting)
+- Créer un nouveau type
+- Patterns utiles (Extend, Omit, Pick, Generics)
+- Conventions nommage
+- Type guards & validation
+
+### 🧪 Tests
+→ **[TESTING.md](./docs/guides/TESTING.md)**
+- Tests manuels obligatoires (checklist)
+- Vérifications techniques (TypeScript, build, console)
+- Tests par feature (auth, CRUD, UI/UX)
+- Tests d'intégration (scénarios)
+- Debugging (logs, DevTools, Network)
+- Checklist avant commit
+
+### 💡 Questions Fréquentes
+→ **[FAQ.md](./docs/guides/FAQ.md)**
+- Organisation & structure
+- TypeScript & types
+- Sécurité & auth
+- Dates & heures
+- Taille des fichiers
+- Composants & UI
+- API Routes
+- Migration
+- Debugging
+- Performance
+- Secrets
 
 ---
 
 ## 🎯 Checklist Avant de Coder
 
-Avant de commencer une nouvelle feature :
+**Avant de commencer une feature** :
 
 - [ ] J'ai lu ce CLAUDE.md
-- [ ] J'ai analysé le module source (si migration)
+- [ ] J'ai consulté la doc pertinente dans `/docs/`
 - [ ] Je connais les types à utiliser (`/types/`)
 - [ ] Je connais les helpers disponibles (`/lib/api/`)
-- [ ] Je sais où placer mes fichiers (structure ci-dessus)
-- [ ] Je respecterai les limites de lignes
+- [ ] Je sais où placer mes fichiers
+- [ ] Je respecterai les limites de lignes (200 max)
 - [ ] Je n'utiliserai pas `any`
 - [ ] J'utiliserai des strings pour dates/heures
 - [ ] Je protégerai mes APIs avec `requireAuth()`
@@ -1987,164 +203,137 @@ Avant de commencer une nouvelle feature :
 
 ## 💡 En Cas de Doute
 
-**Questions fréquentes** :
+**Questions rapides** :
 
-### "Où mettre ce nouveau fichier ?"
-→ Consulte la section "Architecture & Structure"
+| Question | Réponse |
+|----------|---------|
+| Où mettre ce fichier ? | → [ARCHITECTURE.md](./docs/guides/ARCHITECTURE.md) |
+| Comment typer ? | → [TYPES_GUIDE.md](./docs/guides/TYPES_GUIDE.md) |
+| Cette API doit être protégée ? | → OUI (sauf auth/verify-pin/clock-in/out) |
+| 300 lignes c'est grave ? | → OUI, découper ([CONVENTIONS.md](./docs/guides/CONVENTIONS.md)) |
+| Date ou string ? | → TOUJOURS string (YYYY-MM-DD, HH:mm) |
+| Comment migrer un module ? | → [MIGRATION_GUIDE.md](./docs/guides/MIGRATION_GUIDE.md) |
 
-### "Comment typer cette donnée ?"
-→ Regarde dans `/types/`, sinon crée un nouveau type partagé
-
-### "Cette API doit-elle être protégée ?"
-→ OUI, sauf si c'est auth/verify-pin/clock-in/clock-out
-
-### "Ce composant fait 300 lignes, c'est grave ?"
-→ OUI, découpe-le en sous-composants + hook
-
-### "Je peux utiliser `any` juste pour aller vite ?"
-→ NON, prends 2 minutes pour typer correctement
-
-### "Format Date ou string pour les dates ?"
-→ **TOUJOURS string** (YYYY-MM-DD, HH:mm)
+**Plus de réponses** : [FAQ.md](./docs/guides/FAQ.md)
 
 ---
 
-## 🚀 Prochaines Étapes - Modules à Migrer
+## ✅ Status Actuel
 
-**Modules prioritaires à migrer depuis `/apps/site/`** :
-
-### 1. 📅 Booking (Réservations + Calendrier)
-- **Priorité** : Haute 🔴
-- **Estimation** : 2 jours
-- **Complexité** : Moyenne
-- **Dépendances** :
-  - Space (espaces) - à créer
-  - Client (utilisateurs) - à créer
-  - Stripe (paiements) - déjà intégré
-- **Models à créer** :
-  - `Booking` (réservation)
-  - `Space` (espace coworking)
-  - `TimeSlot` (créneaux horaires)
-
-### 2. 💬 Messages (Messagerie Interne)
-- **Priorité** : Moyenne 🟡
-- **Estimation** : 3 jours
-- **Complexité** : Élevée
-- **Dépendances** :
-  - WebSockets (temps réel)
-  - Notifications push
-  - Employee (déjà créé ✅)
-  - Client (à créer)
-- **Models à créer** :
-  - `Message` (message)
-  - `Conversation` (conversation)
-  - `Notification` (notification)
-
-### 3. ⚙️ Settings (Espaces, Horaires, Configuration)
-- **Priorité** : Moyenne 🟡
-- **Estimation** : 1 jour
-- **Complexité** : Faible
-- **Dépendances** : Aucune
-- **Models à créer** :
-  - `Space` (si pas déjà créé avec Booking)
-  - `OpeningHours` (horaires d'ouverture)
-  - `Config` (configuration générale)
-
-### 4. 📊 Analytics Avancées
-- **Priorité** : Basse 🟢
-- **Estimation** : 2 jours
-- **Complexité** : Moyenne
-- **Dépendances** :
-  - Recharts (graphiques)
-  - APIs stats (déjà existantes)
-  - Tous les models existants (pour agréger les données)
-- **Models à créer** : Aucun (utilise les models existants)
-
----
-
-### 📋 Ordre de Migration Recommandé
-
-**Phase 1** : Booking (2 jours)
-- Crée les bases : Space, TimeSlot, Booking
-- Permet de gérer les réservations depuis admin
-
-**Phase 2** : Settings (1 jour)
-- Simplifie la configuration des espaces
-- Utilise les models créés en Phase 1
-
-**Phase 3** : Messages (3 jours)
-- Plus complexe, nécessite WebSockets
-- Peut attendre que les autres modules soient stables
-
-**Phase 4** : Analytics (2 jours)
-- En dernier, car utilise tous les autres models
-- Tableau de bord complet
-
-**Total estimé** : 8 jours de développement
-
----
-
-### 📊 Suivi de Migration
-
-**Consulter le fichier** : `/apps/admin/docs/MIGRATION_STATUS.md`
-
-Ce fichier contient :
-- ✅ Status de tous les modules (migrés / à faire)
-- 📋 Liste des APIs conservées dans apps/site (partagées avec site public)
-- 🗓️ Dates de migration et commits
-- 📝 Notes importantes par module
-- 🎯 Plan de suppression finale du dashboard site
-
----
-
-### ✅ Pour Chaque Module Migré
-
-- [ ] Suivre le workflow de migration (section ci-dessus)
-- [ ] Respecter TOUTES les conventions strictes
-- [ ] RÉÉCRIRE (pas copier-coller)
-- [ ] Tester manuellement (`TESTING_CHECKLIST.md`)
-- [ ] Build réussi (`pnpm build`)
-- [ ] Commit avec message descriptif
-- [ ] Mettre à jour ce CLAUDE.md si nouveaux patterns
-
----
-
-## ✅ Status Actuel de l'App
-
-**Version** : 1.0
+**Version** : 1.1
 **Status** : ✅ Production Ready
 
 ### Modules Implémentés
 
-- ✅ **Auth** - NextAuth avec rôles (dev, admin, staff)
-- ✅ **HR** - Gestion employés complète (CRUD, onboarding, disponibilités)
-- ✅ **Pointage** - Time tracking avec créneaux manuels
-- ✅ **Planning** - Calendrier des shifts mensuels
-- ✅ **Comptabilité** - Caisse + CA avec PDF
-- ✅ **Dashboard** - Stats et navigation
-- ✅ **Pages d'erreur** - 404, 403, 401, 500 (design fun)
+- ✅ Auth (NextAuth avec rôles)
+- ✅ HR (Employés, Planning, Disponibilités, Onboarding)
+- ✅ Pointage (Time tracking, Shifts manuels)
+- ✅ Comptabilité (Caisse, CA, PDF)
+- ✅ Dashboard (Stats, Navigation)
+- ✅ Pages d'erreur (404, 403, 401, 500)
 
-### Qualité du Code
+### Qualité
 
-- ✅ **Sécurité** : 100% des routes protégées
-- ✅ **Types** : 0 `any`, types partagés partout
-- ✅ **Architecture** : APIs consolidées, utilitaires créés
-- ✅ **Tests** : Checklist complète disponible
-- ✅ **Documentation** : Complète et à jour
-- ✅ **Build** : Réussi (27/27 pages)
+- ✅ Sécurité : 100% routes protégées
+- ✅ Types : 0 `any`, types partagés
+- ✅ Architecture : Fichiers < 200 lignes
+- ✅ Build : Réussi
+- ✅ Documentation : Complète
 
-### Dette Technique
+### À Migrer
 
-- ⚠️ 2 warnings Mongoose exports (non-bloquant)
-- ⚠️ Utilisation de `requireAuth` à généraliser (en cours)
-- 📋 Tests automatisés à créer (E2E avec Playwright)
+- [ ] Booking (réservations, calendrier) - 2 jours
+- [ ] Messages (chat, notifications) - 3 jours
+- [ ] Settings (espaces, horaires) - 1 jour
+- [ ] Analytics avancées - 2 jours
 
----
-
-**Dernière mise à jour** : 2026-01-16
-**Auteur** : Thierry + Claude (Opus 4.1)
-**Version** : 1.0
+**Suivi détaillé** : `/docs/MIGRATION_STATUS.md`
 
 ---
 
-*Ce document est LA référence pour développer dans `/apps/admin/`. Respecte ces conventions et le code restera maintenable ! 🚀*
+## 🚀 Workflow Recommandé
+
+### Nouvelle Feature
+
+```
+1. Lire ce CLAUDE.md
+2. Consulter docs/ pertinents
+3. Analyser code existant (patterns)
+4. Créer types → models → APIs → composants
+5. Tester manuellement (TESTING.md)
+6. Type-check + Build
+7. Commit
+```
+
+### Migration Module
+
+```
+1. Analyser module source (30 min)
+2. Classifier APIs (partagée/dashboard/site)
+3. Créer types (1h)
+4. Créer models (1-2h)
+5. Créer APIs (2-3h)
+6. Créer composants (3-4h)
+7. Créer hooks (1h)
+8. Créer pages (2h)
+9. Tests manuels (1h)
+10. Documentation (30 min)
+
+Total : 1-2 jours/module
+```
+
+**Guide complet** : [MIGRATION_GUIDE.md](./docs/guides/MIGRATION_GUIDE.md)
+
+---
+
+## 📖 Liens Rapides
+
+### Documentation
+- [ARCHITECTURE.md](./docs/guides/ARCHITECTURE.md) - Structure & organisation
+- [CONVENTIONS.md](./docs/guides/CONVENTIONS.md) - Règles de code
+- [SECURITY.md](./docs/guides/SECURITY.md) - Auth & sécurité
+- [API_GUIDE.md](./docs/guides/API_GUIDE.md) - Patterns API
+- [COMPONENTS_GUIDE.md](./docs/guides/COMPONENTS_GUIDE.md) - Composants React
+- [MIGRATION_GUIDE.md](./docs/guides/MIGRATION_GUIDE.md) - Migration depuis site
+- [TYPES_GUIDE.md](./docs/guides/TYPES_GUIDE.md) - Types partagés
+- [TESTING.md](./docs/guides/TESTING.md) - Tests manuels
+- [FAQ.md](./docs/guides/FAQ.md) - Questions fréquentes
+
+### Fichiers Importants
+- `/TESTING_CHECKLIST.md` - Checklist tests détaillée
+- `/docs/refactoring/REFACTORING_SUMMARY.txt` - Historique refactoring
+- `/docs/migration/MIGRATION_STATUS.md` - Suivi des migrations
+
+### Documentation Externe
+- [Next.js 14 App Router](https://nextjs.org/docs/app)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Mongoose Docs](https://mongoosejs.com/docs/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+
+---
+
+## 📝 Commandes Utiles
+
+```bash
+# Développement
+pnpm dev                      # Lancer serveur dev
+pnpm type-check               # Vérifier TypeScript
+pnpm build                    # Builder l'app
+
+# Tests
+pnpm exec tsc --noEmit        # Type check complet
+
+# Base de données (si besoin)
+# Voir /docs/ARCHITECTURE.md pour connexion MongoDB
+```
+
+---
+
+**Dernière mise à jour** : 2026-02-08
+**Auteur** : Thierry + Claude
+**Version** : 1.1
+
+---
+
+*Ce fichier est le point d'entrée de la documentation. Consulte `/docs/` pour les guides détaillés ! 🚀*
