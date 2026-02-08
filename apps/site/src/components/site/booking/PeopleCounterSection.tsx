@@ -61,59 +61,53 @@ export function PeopleCounterSection({
   };
 
   return (
-    <div className={className}>
-      <div className="row">
-        <div className="col-12">
-          <div
-            className="p-3 p-md-4 border rounded"
-            style={{ backgroundColor: "#f8f9fa" }}
-          >
-            <label
-              className="form-label fw-semibold mb-3 text-center d-block"
-              style={{ fontSize: "0.9rem" }}
-            >
-              Nombre de personnes
-            </label>
+    <div
+      className={`p-3 p-md-4 border rounded ${className}`}
+      style={{ backgroundColor: "#f8f9fa" }}
+    >
+      <label
+        className="form-label fw-semibold mb-3 text-center d-block"
+        style={{ fontSize: "0.9rem" }}
+      >
+        Nombre de personnes
+      </label>
 
-            <div className="people-counter mx-auto" style={{ maxWidth: "220px" }}>
-              {/* Bouton moins */}
-              <button
-                type="button"
-                className="counter-btn"
-                onClick={handleDecrement}
-                disabled={numberOfPeople <= minCapacity}
-                aria-label="Diminuer le nombre de personnes"
-              >
-                <i className="bi bi-dash" aria-hidden="true" />
-              </button>
+      <div className="people-counter mx-auto" style={{ maxWidth: "220px" }}>
+        {/* Bouton moins */}
+        <button
+          type="button"
+          className="counter-btn"
+          onClick={handleDecrement}
+          disabled={numberOfPeople <= minCapacity}
+          aria-label="Diminuer le nombre de personnes"
+        >
+          <i className="bi bi-dash" aria-hidden="true" />
+        </button>
 
-              {/* Affichage du nombre */}
-              <div className="counter-display">
-                <div className="counter-number">{numberOfPeople}</div>
-              </div>
-
-              {/* Bouton plus */}
-              <button
-                type="button"
-                className="counter-btn"
-                onClick={handleIncrement}
-                disabled={numberOfPeople >= maxCapacity}
-                aria-label="Augmenter le nombre de personnes"
-              >
-                <i className="bi bi-plus" aria-hidden="true" />
-              </button>
-            </div>
-
-            {/* Capacité min-max */}
-            <small
-              className="text-muted mt-3 d-block text-center"
-              style={{ fontSize: "0.75rem" }}
-            >
-              Capacité: {minCapacity}-{maxCapacity} pers.
-            </small>
-          </div>
+        {/* Affichage du nombre */}
+        <div className="counter-display">
+          <div className="counter-number">{numberOfPeople}</div>
         </div>
+
+        {/* Bouton plus */}
+        <button
+          type="button"
+          className="counter-btn"
+          onClick={handleIncrement}
+          disabled={numberOfPeople >= maxCapacity}
+          aria-label="Augmenter le nombre de personnes"
+        >
+          <i className="bi bi-plus" aria-hidden="true" />
+        </button>
       </div>
+
+      {/* Capacité min-max */}
+      <small
+        className="text-muted mt-3 d-block text-center"
+        style={{ fontSize: "0.75rem" }}
+      >
+        Capacité: {minCapacity}-{maxCapacity} pers.
+      </small>
     </div>
   );
 }

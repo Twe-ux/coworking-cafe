@@ -60,13 +60,11 @@ export function PriceDisplayCard({
   const priceSectionRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={priceSectionRef} className={className}>
-      <div className="row">
-        <div className="col-12">
-          <div
-            className="p-3 p-md-4 border rounded"
-            style={{ backgroundColor: "#f8f9fa" }}
-          >
+    <div
+      ref={priceSectionRef}
+      className={`p-3 p-md-4 border rounded ${className}`}
+      style={{ backgroundColor: "#f8f9fa" }}
+    >
             <div className="d-flex justify-content-between align-items-start mb-3">
               <div style={{ visibility: "hidden" }}>
                 {/* Spacer for alignment */}
@@ -145,9 +143,6 @@ export function PriceDisplayCard({
                 </span>
               )}
             </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
