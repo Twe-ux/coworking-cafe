@@ -9,9 +9,8 @@ interface PriceSummarySectionProps {
   };
   selectedServices: Map<string, { service: AdditionalService; quantity: number }>;
   showTTC: boolean;
-  onToggleTTC: () => void;
+  setShowTTC: (value: boolean) => void;
   convertPrice: (price: number, vatRate: number, isTTC: boolean) => number;
-  getTotalPrice: () => number;
 }
 
 // Helper component for TTC/HT toggle
@@ -189,9 +188,8 @@ export default function PriceSummarySection({
   bookingData,
   selectedServices,
   showTTC,
-  onToggleTTC,
+  setShowTTC,
   convertPrice,
-  getTotalPrice,
 }: PriceSummarySectionProps) {
   const isDailyRate = bookingData.isDailyRate === true;
 
@@ -221,9 +219,33 @@ export default function PriceSummarySection({
     return baseHT + servicesHT;
   };
 
+  const calculateTotalTTC = () => {
+    // Base price is already TTC
+    const baseTTC = bookingData.basePrice;
+
+    let servicesTTC = 0;
+    selectedServices.forEach((selected) => {
+      const service = selected.service;
+      const quantity = selected.quantity;
+      const displayPriceTTC =
+        isDailyRate && service.dailyPrice !== undefined
+          ? service.dailyPrice
+          : service.price;
+
+      if (service.priceUnit === "per-person") {
+        servicesTTC +=
+          displayPriceTTC * bookingData.numberOfPeople * quantity;
+      } else {
+        servicesTTC += displayPriceTTC * quantity;
+      }
+    });
+
+    return baseTTC + servicesTTC;
+  };
+
   return (
     <div className="price-breakdown">
-      <TaxToggle showTTC={showTTC} onToggle={onToggleTTC} />
+      <TaxToggle showTTC={showTTC} onToggle={() => setShowTTC(!showTTC)} />
       <PriceTableHeader />
 
       <BaseRateRow
@@ -302,8 +324,8 @@ export default function PriceSummarySection({
         <span>Total {showTTC ? "TTC" : "HT"}</span>
         <span className="total-price">
           {showTTC
-            ? getTotalPrice().toFixed(2)
-            : calculateTotalHT().toFixed(2)}
+            ? (calculateTotalTTC() || 0).toFixed(2)
+            : (calculateTotalHT() || 0).toFixed(2)}
           €
         </span>
       </div>
