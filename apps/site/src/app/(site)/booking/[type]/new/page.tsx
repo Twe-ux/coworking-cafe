@@ -222,8 +222,8 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
   const handleContinue = () => {
     if (!validation.canContinue) return;
 
-    // Save to sessionStorage
-    bookingState.saveToSessionStorage();
+    // Save to sessionStorage with calculated price from usePriceCalculation
+    bookingState.saveToSessionStorage(pricing.calculatedPrice, pricing.duration);
 
     // Navigate to details page
     router.push("/booking/details");

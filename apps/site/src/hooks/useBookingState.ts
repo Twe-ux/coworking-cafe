@@ -54,7 +54,7 @@ export interface BookingState {
 
   // Actions
   resetState: () => void;
-  saveToSessionStorage: () => void;
+  saveToSessionStorage: (overridePrice?: number, overrideDuration?: string) => void;
 }
 
 /**
@@ -186,7 +186,7 @@ export function useBookingState({
   /**
    * Save current state to sessionStorage
    */
-  const saveToSessionStorage = () => {
+  const saveToSessionStorage = (overridePrice?: number, overrideDuration?: string) => {
     const bookingData = {
       spaceType,
       reservationType,
@@ -195,10 +195,11 @@ export function useBookingState({
       startTime: reservationType === "hourly" ? startTime : arrivalTime,
       endTime,
       numberOfPeople,
-      basePrice: calculatedPrice,
-      duration,
+      basePrice: overridePrice !== undefined ? overridePrice : calculatedPrice,
+      duration: overrideDuration || duration,
     };
 
+    console.log('[useBookingState] Saving to sessionStorage:', bookingData);
     sessionStorage.setItem("bookingData", JSON.stringify(bookingData));
   };
 
