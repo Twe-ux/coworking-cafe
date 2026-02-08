@@ -48,6 +48,78 @@
 
 ---
 
+## 📧 PHASE EMAIL DELIVERABILITY COMPLÉTÉE (2026-02-08)
+
+**Problème Initial** : Emails de réservation arrivaient en spam sur Apple Mail
+
+### ✅ Configuration DNS Complétée
+
+| DNS Record | Status | Détails |
+|------------|--------|---------|
+| **SPF** | ✅ Configuré | `v=spf1 include:mx.ovh.com ~all` |
+| **DKIM** | ✅ Activé | Sélecteur: `ovhmo5009149-selector1` (2048 bits) |
+| **DMARC** | ✅ Propagé | `v=DMARC1; p=quarantine; rua=mailto:noreply@coworkingcafe.fr` |
+
+### ✅ Code Email Amélioré
+
+**Fichier** : `packages/email/src/emailService.ts`
+
+**Headers ajoutés** :
+- ✅ `List-Unsubscribe` (requis pour emails en masse)
+- ✅ `List-Unsubscribe-Post` (one-click)
+- ✅ `Return-Path` via envelope
+- ✅ `X-Mailer` identification
+- ✅ `X-Priority` (priorité normale)
+- ✅ `Reply-To` automatique vers CONTACT_EMAIL
+
+**Commit** :
+```
+feat(email): améliorer délivrabilité avec headers List-Unsubscribe et Return-Path
+```
+
+### ✅ Tests Validés
+
+**Mail-tester.com** : Score **10/10** 🎯
+- ✅ SPF: PASS
+- ✅ DKIM: PASS
+- ✅ List-Unsubscribe: Présent
+- ✅ Headers: Tous corrects
+- ✅ Contenu: OK
+
+### ⏳ Warming Up en Cours (7-14 jours)
+
+**Status** : Réputation du domaine en construction
+
+**Timeline** :
+- **Jours 1-3** : Spam normal (80%) - Configuration se propage ← **ACTUELLEMENT ICI**
+- **Jours 4-7** : Amélioration (50%) - Réputation se construit
+- **Jours 8-14** : Stabilisation (10-30%)
+- **Jours 15+** : Inbox direct (0-5%) ✅ Réputation établie
+
+**Actions clients recommandées** :
+- Marquer emails comme "Pas spam"
+- Ajouter `noreply@coworkingcafe.fr` aux contacts
+- Répondre aux emails si possible
+
+### 📋 Vérification DNS
+
+```bash
+# SPF
+dig coworkingcafe.fr TXT | grep spf
+
+# DKIM
+dig ovhmo5009149-selector1._domainkey.coworkingcafe.fr TXT
+
+# DMARC
+dig _dmarc.coworkingcafe.fr TXT
+```
+
+### 🎯 Résultat Attendu
+
+**D'ici 2 semaines** : Plus jamais d'emails en spam sur Apple Mail ! 🎉
+
+---
+
 ## 🚀 PROCHAINES ÉTAPES
 
 ### Phase 3 : Découpage Fichiers > 200 lignes (À planifier)
