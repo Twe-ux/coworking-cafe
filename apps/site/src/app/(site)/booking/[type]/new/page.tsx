@@ -312,21 +312,22 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
 
                   {/* People Counter & Price Display - Side by side on desktop */}
                   {pricing.calculatedPrice > 0 && (
-                    <div className="row g-3 mb-4">
+                    <div className="row g-3 mb-4 align-items-stretch">
                       {/* People Counter - Only for perPerson pricing */}
                       {spaceConfig?.pricing.perPerson && (
-                        <div className="col-md-6">
+                        <div className="col-md-6 d-flex">
                           <PeopleCounterSection
                             numberOfPeople={bookingState.numberOfPeople}
                             minCapacity={spaceConfig.minCapacity}
                             maxCapacity={spaceConfig.maxCapacity}
                             onChange={bookingState.setNumberOfPeople}
+                            className="w-100"
                           />
                         </div>
                       )}
 
                       {/* Price Display */}
-                      <div className={spaceConfig?.pricing.perPerson ? "col-md-6" : "col-12"}>
+                      <div className={`${spaceConfig?.pricing.perPerson ? "col-md-6" : "col-12"} d-flex`}>
                         <PriceDisplayCard
                           price={pricing.displayPrice}
                           duration={pricing.duration}
@@ -335,6 +336,7 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
                           showTTC={bookingState.showTTC}
                           onToggleTTC={bookingState.setShowTTC}
                           perPerson={spaceConfig?.pricing.perPerson || false}
+                          className="w-100"
                         />
                       </div>
                     </div>
