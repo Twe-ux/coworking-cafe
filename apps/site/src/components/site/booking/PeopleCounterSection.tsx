@@ -62,7 +62,7 @@ export function PeopleCounterSection({
 
   return (
     <div
-      className={`p-3 p-md-4 border rounded ${className}`}
+      className={`p-3 p-md-4 border rounded d-flex flex-column justify-content-center ${className}`}
       style={{ backgroundColor: "#f8f9fa" }}
     >
       <label
