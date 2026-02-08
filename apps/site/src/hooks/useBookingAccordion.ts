@@ -15,7 +15,7 @@ interface UseBookingAccordionReturn {
   dateSectionClosing: boolean;
   toggleDateSection: () => void;
   openDateSection: () => void;
-  closeDate Section: () => void;
+  closeDateSection: () => void;
 
   // Time section
   timeSectionOpen: boolean;
@@ -24,9 +24,9 @@ interface UseBookingAccordionReturn {
   closeTimeSection: () => void;
 
   // Refs for auto-scroll
-  timeSectionRef: React.RefObject<HTMLDivElement>;
-  priceSectionRef: React.RefObject<HTMLDivElement>;
-  bookingCardRef: React.RefObject<HTMLDivElement>;
+  timeSectionRef: React.RefObject<HTMLDivElement | null>;
+  priceSectionRef: React.RefObject<HTMLDivElement | null>;
+  bookingCardRef: React.RefObject<HTMLDivElement | null>;
 
   // Scroll actions
   scrollToTimeSection: () => void;
