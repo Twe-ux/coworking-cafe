@@ -172,8 +172,21 @@ export function useBookingState({
     const isInitialMount = !selectedDate && !startTime && !arrivalTime;
     if (isInitialMount) return;
 
-    // Auto-save with current calculated price
+    // Read existing data first to preserve contact form fields
+    let existingData = {};
+    try {
+      const stored = sessionStorage.getItem("bookingData");
+      if (stored) {
+        existingData = JSON.parse(stored);
+      }
+    } catch (error) {
+      console.error('[useBookingState] Auto-save: Failed to parse existing data:', error);
+    }
+
+    // Merge existing data with current booking data
     const bookingData = {
+      ...existingData, // Preserve contact form fields
+      // Update only booking fields
       spaceType,
       reservationType,
       date: selectedDate,
@@ -185,7 +198,7 @@ export function useBookingState({
       duration,
     };
 
-    console.log('[useBookingState] Auto-saving to sessionStorage:', bookingData);
+    console.log('[useBookingState] Auto-saving to sessionStorage (merged):', bookingData);
     sessionStorage.setItem("bookingData", JSON.stringify(bookingData));
   }, [
     spaceType,
@@ -219,9 +232,24 @@ export function useBookingState({
 
   /**
    * Save current state to sessionStorage
+   * IMPORTANT: Merge with existing data to preserve contact form fields
    */
   const saveToSessionStorage = (overridePrice?: number, overrideDuration?: string) => {
+    // Read existing data first to preserve contact form fields
+    let existingData = {};
+    try {
+      const stored = sessionStorage.getItem("bookingData");
+      if (stored) {
+        existingData = JSON.parse(stored);
+      }
+    } catch (error) {
+      console.error('[useBookingState] Failed to parse existing data:', error);
+    }
+
+    // Merge existing data with new booking data
     const bookingData = {
+      ...existingData, // Preserve all existing fields (contactName, contactEmail, etc.)
+      // Update only booking fields
       spaceType,
       reservationType,
       date: selectedDate,
@@ -233,7 +261,7 @@ export function useBookingState({
       duration: overrideDuration || duration,
     };
 
-    console.log('[useBookingState] Saving to sessionStorage:', bookingData);
+    console.log('[useBookingState] Saving to sessionStorage (merged):', bookingData);
     sessionStorage.setItem("bookingData", JSON.stringify(bookingData));
   };
 
