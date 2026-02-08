@@ -122,14 +122,45 @@ dig _dmarc.coworkingcafe.fr TXT
 
 ## 🚀 PROCHAINES ÉTAPES
 
-### Phase 3 : Découpage Fichiers > 200 lignes (À planifier)
-- Identifier fichiers trop longs
-- Extraire sous-composants et hooks
-- Respecter limites strictes
+### Phase 3 : Découpage Fichiers TypeScript > 200 lignes 📋
 
-### Phase 4 : SCSS BEM (À planifier)
-- Harmoniser nommage SCSS
-- Appliquer conventions BEM modifiées
+**Status** : Plan détaillé créé - **Prêt à démarrer**
+
+**Objectif** : Découper 19 fichiers TypeScript dépassant les limites de taille
+
+**Priorités** :
+- **P0 (6 fichiers)** : Critiques 800-1400 lignes (booking pages, details pages)
+- **P1 (7 fichiers)** : Importants 450-730 lignes (API routes, services)
+- **P2 (6 fichiers)** : Moins urgents 230-984 lignes (pages légales, profil)
+
+**Timeline estimée** : 3-4 jours (P0 + P1)
+
+**Plan complet** : Voir `/docs/REFACTO_PHASE3_PLAN.md`
+- Analyse détaillée fichier par fichier
+- Stratégie de découpage pour chaque fichier
+- Exemples de code avant/après
+- Checklist de validation
+
+### Phase 4 : Harmonisation SCSS avec BEM 🎨
+
+**Status** : Plan détaillé créé - **Prêt à démarrer**
+
+**Objectif** : Harmoniser 9 fichiers SCSS avec méthodologie BEM modifiée
+
+**Fichiers identifiés** :
+- **P0 (3 fichiers)** : Critiques 493-1408 lignes (_booking.scss, client-dashboard.scss, header.scss)
+- **P1 (3 fichiers)** : Importants 213-406 lignes (contact-form.scss, pricing.scss, blog-detail.scss)
+- **P2 (3 fichiers)** : Moins urgents 177-330 lignes (footer.scss, booking-success.scss, card.scss)
+
+**Timeline estimée** : 2-3 jours (P0 + P1)
+
+**Plan complet** : Voir `/docs/REFACTO_PHASE4_PLAN.md`
+- Convention BEM modifiée détaillée
+- Templates de migration
+- Exemples avant/après pour chaque fichier
+- Stratégie de test
+
+**Note** : Les deux phases peuvent être menées en parallèle ou séquentiellement selon préférence
 
 ### 🚨 RÈGLES STRICTES (comme apps/admin)
 
