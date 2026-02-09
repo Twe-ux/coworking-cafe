@@ -6,14 +6,15 @@
 
 import { getSpaceDisplayName } from "./helpers";
 
-interface ClientNoShowEmailData {
+export interface ClientNoShowEmailData {
   name: string;
   spaceName: string;
   date: string;
   startTime: string;
   endTime: string;
   numberOfPeople: number;
-  totalPrice: number;
+  depositAmount: number; // Montant empreinte en centimes
+  contactEmail: string;
 }
 
 export function generateClientNoShowEmail(data: ClientNoShowEmailData): string {
@@ -66,7 +67,7 @@ export function generateClientNoShowEmail(data: ClientNoShowEmailData): string {
         </div>
       </div>
 
-      <p style="margin: 0 0 24px 0; font-size: 16px;">Conformément à nos conditions d'utilisation, votre <strong>empreinte bancaire a été capturée</strong>. Le montant de <strong>${data.totalPrice.toFixed(2)}€</strong> sera débité de votre carte bancaire.</p>
+      <p style="margin: 0 0 24px 0; font-size: 16px;">Conformément à nos conditions d'utilisation, votre <strong>empreinte bancaire a été capturée</strong>. Le montant de <strong>${(data.depositAmount / 100).toFixed(2)}€</strong> sera débité de votre carte bancaire.</p>
 
       <!-- Détails de la réservation -->
       <div class="details-box" style="background: #f9fafb; padding: 24px; border-radius: 12px; margin: 28px 0; border: 1px solid #EF4444;">
@@ -103,7 +104,7 @@ export function generateClientNoShowEmail(data: ClientNoShowEmailData): string {
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 700; color: #111827; font-size: 16px;">Montant débité</td>
-              <td class="price-value" style="text-align: right; color: #EF4444; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)}€</td>
+              <td class="price-value" style="text-align: right; color: #EF4444; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${(data.depositAmount / 100).toFixed(2)}€</td>
             </tr>
           </table>
         </div>
@@ -112,11 +113,20 @@ export function generateClientNoShowEmail(data: ClientNoShowEmailData): string {
       <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">Si vous pensez qu'il s'agit d'une erreur ou si vous avez rencontré un problème vous empêchant de venir, veuillez nous contacter rapidement.</p>
 
       <!-- Contact -->
-      <div style="background: #fef2f2; border-left: 4px solid #EF4444; padding: 20px; border-radius: 8px; margin: 28px 0;">
-        <p style="margin: 0 0 12px 0; font-weight: 700; color: #991b1b !important; font-size: 16px;">📞 Besoin d'assistance ?</p>
-        <p style="margin: 0; font-size: 15px; color: #991b1b !important;">
-          Contactez-nous si vous avez des questions concernant cette transaction ou si vous souhaitez nous faire part d'un problème.
-        </p>
+      <div style="background: #fee2e2; border-left: 4px solid #EF4444; padding: 20px; border-radius: 8px; margin: 28px 0;">
+        <p style="margin: 0 0 12px 0; font-weight: 700; color: #991B1B !important; font-size: 16px;">📞 Pour toute question :</p>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%;">
+          <tr>
+            <td style="padding: 4px 0; font-size: 15px; color: #991B1B !important;">
+              <strong style="color: #991B1B !important;">Téléphone :</strong> <a href="tel:0987334519" style="color: #EF4444 !important; text-decoration: none;">09 87 33 45 19</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; font-size: 15px; color: #991B1B;">
+              <strong style="color: #991B1B !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #EF4444; text-decoration: none;">${data.contactEmail}</a>
+            </td>
+          </tr>
+        </table>
       </div>
 
       <p style="margin: 32px 0 0 0; font-size: 16px; line-height: 1.8;">

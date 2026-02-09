@@ -12,16 +12,9 @@ import { sendEmail as smtpSendEmail } from '@coworking-cafe/email';
 import type { BaseEmailData, EmailWithDepositData, EmailWithFeesData, ReminderEmailData } from '../../types/cron';
 
 // Import des templates
-import { generateConfirmationEmail } from './templates/confirmation';
-import { generateValidatedEmail } from './templates/adminValidation';
+import { generateBookingValidationEmail, generateReservationRejectedEmail, generateAdminCancelClientBookingEmail, generateClientNoShowEmail } from './templates';
 import { generateReminderEmail } from './templates/reminder';
-import { generateReservationCancelledEmail as generateAdminCancellationEmail } from './templates/adminCancellation';
-import { generateDepositHoldEmail } from './templates/depositHold';
-import { generateDepositCapturedEmail as generateNoShowPenaltyEmail } from './templates/noShowPenalty';
-import { generateDepositReleasedEmail } from './templates/depositReleased';
-import { generateCardSavedEmail } from './templates/cardSaved';
-import { generateCancellationEmail as generateClientCancellationEmail } from './templates/clientCancellation';
-import { generateRejectionEmail } from './templates/adminRejection';
+import { generateClientCancelBookingEmail } from './templates/clientCancelBooking';
 import { generateBookingInitialEmail as generateClientBookingConfirmationEmail } from './templates/clientBookingConfirmation';
 
 /**
@@ -75,38 +68,6 @@ async function sendEmailViaSMTP(
  * À : Client
  * Contenu : Récapitulatif de la réservation, empreinte bancaire si applicable
  */
-export async function sendBookingConfirmation(
-  to: string,
-  data: EmailWithDepositData
-): Promise<boolean> {
-  const subject = '✅ Réservation confirmée - CoworKing Café';
-  const html = generateConfirmationEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
-
-  const text = `
-Bonjour ${data.name},
-
-Nous avons bien reçu votre réservation.
-
-Détails :
-- Espace : ${data.spaceName}
-- Nombre de personnes : ${data.numberOfPeople}
-- Date : ${data.date}
-- Horaires : ${data.startTime} - ${data.endTime}
-- Prix total : ${data.totalPrice.toFixed(2)}€
-
-${data.depositAmount ? `Une empreinte bancaire de ${(data.depositAmount / 100).toFixed(2)}€ (70%) a été effectuée.` : ''}
-
-Pour toute question :
-Téléphone : ${EMAIL_CONFIG.contact.phone}
-Email : ${EMAIL_CONFIG.contact.email}
-
-À très bientôt,
-L'équipe CoworKing Café by Anticafé
-  `;
-
-  return sendEmailViaSMTP(to, subject, html, text);
-}
-
 /**
  * 2️⃣ EMAIL: Réservation validée par l'admin
  *
@@ -119,7 +80,7 @@ export async function sendReservationConfirmed(
   data: BaseEmailData
 ): Promise<boolean> {
   const subject = '🎉 Réservation validée - CoworKing Café';
-  const html = generateValidatedEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateBookingValidationEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email }, 'client');
 
   const text = `
 Bonjour ${data.name},
@@ -195,7 +156,7 @@ export async function sendReservationCancelled(
   data: BaseEmailData & { reason?: string }
 ): Promise<boolean> {
   const subject = '❌ Réservation annulée - CoworKing Café';
-  const html = generateAdminCancellationEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
+  const html = generateAdminCancelClientBookingEmail({ ...data, contactEmail: EMAIL_CONFIG.contact.email });
 
   const text = `
 Bonjour ${data.name},
@@ -223,52 +184,6 @@ L'équipe CoworKing Café by Anticafé
 }
 
 /**
- * 5️⃣ EMAIL: Confirmation d'empreinte bancaire
- *
- * Envoyé : Après autorisation de l'empreinte bancaire (hold)
- * À : Client
- * Contenu : Confirmation que l'empreinte a été effectuée, sera libérée après venue
- */
-export async function sendDepositHoldConfirmation(
-  to: string,
-  data: EmailWithDepositData
-): Promise<boolean> {
-  const subject = '💳 Empreinte bancaire effectuée - CoworKing Café';
-  const html = generateDepositHoldEmail({
-    name: data.name,
-    spaceName: data.spaceName,
-    date: data.date,
-    startTime: data.startTime,
-    endTime: data.endTime,
-    depositAmount: data.depositAmount,
-    totalPrice: data.totalPrice,
-    contactEmail: EMAIL_CONFIG.contact.email
-  });
-
-  const text = `
-Bonjour ${data.name},
-
-Une empreinte bancaire de ${(data.depositAmount / 100).toFixed(2)}€ a été effectuée sur votre carte.
-
-Cette empreinte sera automatiquement annulée lors de votre venue.
-
-Réservation :
-- Espace : ${data.spaceName}
-- Date : ${data.date}
-- Horaires : ${data.startTime} - ${data.endTime}
-
-Pour toute question :
-Téléphone : ${EMAIL_CONFIG.contact.phone}
-Email : ${EMAIL_CONFIG.contact.email}
-
-Cordialement,
-L'équipe CoworKing Café by Anticafé
-  `;
-
-  return sendEmailViaSMTP(to, subject, html, text);
-}
-
-/**
  * 6️⃣ EMAIL: Pénalité no-show (empreinte capturée)
  *
  * Envoyé : Après capture de l'empreinte bancaire (client ne s'est pas présenté)
@@ -280,7 +195,7 @@ export async function sendDepositCaptured(
   data: EmailWithDepositData
 ): Promise<boolean> {
   const subject = '⚠️ Absence non signalée - Frais appliqués - CoworKing Café';
-  const html = generateNoShowPenaltyEmail(data);
+  const html = generateClientNoShowEmail(data);
 
   const text = `
 Bonjour ${data.name},
@@ -305,100 +220,6 @@ L'équipe CoworKing Café by Anticafé
 }
 
 /**
- * 7️⃣ EMAIL: Empreinte bancaire libérée
- *
- * Envoyé : Après libération de l'empreinte bancaire (client s'est présenté)
- * À : Client
- * Contenu : Confirmation que l'empreinte a été annulée, aucun débit
- */
-export async function sendDepositReleased(
-  to: string,
-  data: EmailWithDepositData
-): Promise<boolean> {
-  const subject = '✅ Empreinte bancaire annulée - CoworKing Café';
-  const html = generateDepositReleasedEmail({
-    name: data.name,
-    spaceName: data.spaceName,
-    date: data.date,
-    depositAmount: data.depositAmount,
-    contactEmail: EMAIL_CONFIG.contact.email
-  });
-
-  const text = `
-Bonjour ${data.name},
-
-L'empreinte bancaire de ${(data.depositAmount / 100).toFixed(2)}€ a été annulée suite à votre venue.
-
-Aucun montant n'a été débité.
-
-Réservation :
-- Espace : ${data.spaceName}
-- Date : ${data.date}
-- Horaires : ${data.startTime} - ${data.endTime}
-
-Nous espérons vous revoir bientôt !
-
-Pour toute question :
-Téléphone : ${EMAIL_CONFIG.contact.phone}
-Email : ${EMAIL_CONFIG.contact.email}
-
-À bientôt,
-L'équipe CoworKing Café by Anticafé
-  `;
-
-  return sendEmailViaSMTP(to, subject, html, text);
-}
-
-/**
- * 8️⃣ EMAIL: Confirmation d'enregistrement de carte
- *
- * Envoyé : Après enregistrement d'une carte pour paiement ultérieur
- * À : Client
- * Contenu : Confirmation que la carte a été sauvegardée
- */
-export async function sendCardSavedConfirmation(
-  to: string,
-  data: BaseEmailData & { depositAmount: number }
-): Promise<boolean> {
-  const subject = '💳 Carte bancaire enregistrée - CoworKing Café';
-  const html = generateCardSavedEmail({
-    name: data.name,
-    spaceName: data.spaceName,
-    date: data.date,
-    startTime: data.startTime,
-    endTime: data.endTime,
-    numberOfPeople: data.numberOfPeople,
-    totalPrice: data.totalPrice,
-    depositAmount: data.depositAmount,
-    contactEmail: EMAIL_CONFIG.contact.email
-  });
-
-  const text = `
-Bonjour ${data.name},
-
-Votre carte bancaire a été enregistrée avec succès.
-
-Elle sera utilisée pour le paiement de votre réservation :
-
-- Espace : ${data.spaceName}
-- Date : ${data.date}
-- Horaires : ${data.startTime} - ${data.endTime}
-- Prix total : ${data.totalPrice.toFixed(2)}€
-
-Le paiement sera effectué automatiquement le jour de votre venue.
-
-Pour toute question :
-Téléphone : ${EMAIL_CONFIG.contact.phone}
-Email : ${EMAIL_CONFIG.contact.email}
-
-Cordialement,
-L'équipe CoworKing Café by Anticafé
-  `;
-
-  return sendEmailViaSMTP(to, subject, html, text);
-}
-
-/**
  * 9️⃣ EMAIL: Annulation par le client (avec frais)
  *
  * Envoyé : Après annulation de la réservation par le client
@@ -410,7 +231,7 @@ export async function sendCancellationConfirmation(
   data: EmailWithFeesData
 ): Promise<boolean> {
   const subject = '❌ Annulation confirmée - CoworKing Café';
-  const html = generateClientCancellationEmail(data);
+  const html = generateClientCancelBookingEmail(data);
 
   const text = `
 Bonjour ${data.name},
@@ -451,7 +272,7 @@ export async function sendReservationRejected(
   data: BaseEmailData & { reason?: string }
 ): Promise<boolean> {
   const subject = '❌ Réservation refusée - CoworKing Café';
-  const html = generateRejectionEmail(data);
+  const html = generateReservationRejectedEmail(data);
 
   const text = `
 Bonjour ${data.name},

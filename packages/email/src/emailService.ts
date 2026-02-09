@@ -80,7 +80,7 @@ export async function sendEmail(
       // ✅ Envelope pour Return-Path
       envelope: {
         from: fromEmail,
-        to: options.to,
+        to: Array.isArray(options.to) ? options.to : [options.to],
       },
     });
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Booking, SpaceConfiguration, User } from "@coworking-cafe/database";
-import { sendBookingInitialEmail, sendCardSavedConfirmation } from '@/lib/email/emailService';
+import { sendBookingInitialEmail } from '@/lib/email/emailService';
 import { getSpaceTypeName } from '@/lib/space-names';
 import { urlToDbSpaceType } from '@/lib/space-types';
 import mongoose from 'mongoose';

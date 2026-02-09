@@ -5,7 +5,7 @@
  * Pour modifier ce template, éditez directement ce fichier.
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName } from "@coworking-cafe/email";
 import type { ReminderEmailData } from "@/types/cron";
 
 export function generateReminderEmail(data: ReminderEmailData): string {

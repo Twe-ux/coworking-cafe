@@ -17,7 +17,9 @@ interface BookingModifiedEmailData {
   confirmationNumber?: string;
 }
 
-export function generateBookingModifiedEmail(data: BookingModifiedEmailData): string {
+export function generateBookingModifiedEmail(
+  data: BookingModifiedEmailData,
+): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
   return `
 <!DOCTYPE html>
@@ -117,17 +119,6 @@ export function generateBookingModifiedEmail(data: BookingModifiedEmailData): st
             </tr>
           </table>
         </div>
-
-        ${data.confirmationNumber ? `
-        <div style="padding: 16px 0 0 0; border-top: 1px solid #e5e7eb; margin-top: 16px;">
-          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-            <tr>
-              <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 14px;">Numéro de confirmation</td>
-              <td class="detail-value" style="text-align: right; color: #6b7280; font-size: 14px; font-weight: 600; font-family: monospace;">${data.confirmationNumber}</td>
-            </tr>
-          </table>
-        </div>
-        ` : ''}
       </div>
 
       <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">Si vous n'êtes pas à l'origine de cette modification ou si vous constatez une erreur, veuillez nous contacter immédiatement.</p>

@@ -1,14 +1,14 @@
 /**
- * Template email : Annulation de réservation (Réservation Admin)
+ * Template email : Admin annule une réservation admin (usage interne)
  * Couleur : ROUGE (#EF4444)
  *
- * Pour annulation de réservations créées par l'admin
- * (sans mention de libération d'empreinte bancaire)
+ * Envoyé quand l'admin annule une réservation créée par l'admin (usage interne).
+ * Sans mention de libération d'empreinte bancaire (pas de paiement).
  */
 
 import { getSpaceDisplayName } from "./helpers";
 
-interface AdminBookingCancellationData {
+export interface AdminCancelAdminBookingData {
   name: string;
   spaceName: string;
   date: string;
@@ -17,9 +17,10 @@ interface AdminBookingCancellationData {
   numberOfPeople: number;
   totalPrice: number;
   reason?: string;
+  contactEmail: string;
 }
 
-export function generateAdminBookingCancellationEmail(data: AdminBookingCancellationData): string {
+export function generateAdminCancelAdminBookingEmail(data: AdminCancelAdminBookingData): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
   const timeRange = data.startTime && data.endTime
     ? `${data.startTime} - ${data.endTime}`
@@ -154,7 +155,7 @@ export function generateAdminBookingCancellationEmail(data: AdminBookingCancella
           </tr>
           <tr>
             <td style="padding: 4px 0; font-size: 15px; color: #991B1D !important;">
-              <strong style="color: #991B1D !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #EF4444 !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+              <strong style="color: #991B1D !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #EF4444 !important; text-decoration: none;">${data.contactEmail}</a>
             </td>
           </tr>
         </table>

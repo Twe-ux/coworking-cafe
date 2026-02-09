@@ -1,13 +1,14 @@
 /**
- * Template email : Réservation annulée par l'administrateur
+ * Template email : Réservation client annulée par l'administrateur
  * Couleur : RED (#EF4444)
  *
- * Pour modifier ce template, éditez directement ce fichier.
+ * Envoyé quand l'admin annule une réservation client (avec paiement/empreinte).
+ * Inclut information de remboursement.
  */
 
 import { getSpaceDisplayName } from "./helpers";
 
-export interface ReservationCancelledEmailData {
+export interface AdminCancelClientBookingData {
   name: string;
   spaceName: string;
   date: string;
@@ -19,8 +20,8 @@ export interface ReservationCancelledEmailData {
   contactEmail: string;
 }
 
-export function generateReservationCancelledEmail(
-  data: ReservationCancelledEmailData
+export function generateAdminCancelClientBookingEmail(
+  data: AdminCancelClientBookingData
 ): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
   return `

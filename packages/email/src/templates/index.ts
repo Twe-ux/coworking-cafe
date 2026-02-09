@@ -2,24 +2,28 @@
  * Templates email : Export centralisé
  *
  * Nomenclature claire pour identifier rapidement l'origine des actions:
- * - admin* : Actions initiées par l'administrateur
+ * - adminXxx : Actions initiées par l'administrateur
+ * - clientXxx : Actions initiées par le client
  */
 
-// ============ Actions de l'admin ============
-export { generateValidatedEmail } from './adminValidation';
-export { generateReservationRejectedEmail } from './adminRejection';
+// ============ Actions Admin - Validation (UNIFIÉ) ============
+export { generateBookingValidationEmail, type BookingValidationEmailData, type BookingValidationVariant } from './bookingValidation';
 
-// ============ Réservations Admin (sans empreinte bancaire) ============
+// ============ Actions Admin - Validation (LEGACY - deprecated, use generateBookingValidationEmail) ============
+export { generateValidatedEmail, type ValidatedEmailData } from './adminValidation';
 export { generateAdminBookingValidationEmail } from './adminBookingValidation';
-export { generateAdminBookingRejectionEmail } from './adminBookingRejection';
-export { generateAdminBookingCancellationEmail } from './adminBookingCancellation';
 
-// ============ Réservations en attente ============
-export { generatePendingWithDepositEmail } from './pendingWithDeposit';
+// ============ Actions Admin - Rejection ============
+export { generateReservationRejectedEmail, type ReservationRejectedData } from './adminRejection';
+export { generateAdminBookingRejectionEmail } from './adminBookingRejection';
+
+// ============ Actions Admin - Cancellation ============
+export { generateAdminCancelClientBookingEmail, type AdminCancelClientBookingData } from './adminCancelClientBooking';
+export { generateAdminCancelAdminBookingEmail, type AdminCancelAdminBookingData } from './adminCancelAdminBooking';
 
 // ============ Confirmations de présence ============
 export { generateClientPresentEmail } from './clientPresent';
-export { generateClientNoShowEmail } from './clientNoShow';
+export { generateClientNoShowEmail, type ClientNoShowEmailData } from './clientNoShow';
 
 // ============ Modifications ============
 export { generateBookingModifiedEmail } from './bookingModified';

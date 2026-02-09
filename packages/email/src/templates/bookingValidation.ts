@@ -1,13 +1,15 @@
 /**
- * Template email : Réservation validée
+ * Template email : Réservation validée/confirmée
  * Couleur : VERT FONCÉ (#059669)
  *
- * Pour modifier ce template, éditez directement ce fichier.
+ * Template unifié pour validation de réservation CLIENT ou ADMIN
+ * - variant 'client' : Ton chaleureux, "validée"
+ * - variant 'admin' : Ton neutre, "confirmée"
  */
 
 import { getSpaceDisplayName } from "./helpers";
 
-interface ValidatedEmailData {
+export interface BookingValidationEmailData {
   name: string;
   spaceName: string;
   date: string;
@@ -19,8 +21,25 @@ interface ValidatedEmailData {
   contactEmail: string;
 }
 
-export function generateValidatedEmail(data: ValidatedEmailData): string {
+export type BookingValidationVariant = 'client' | 'admin';
+
+export function generateBookingValidationEmail(
+  data: BookingValidationEmailData,
+  variant: BookingValidationVariant = 'client'
+): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
+
+  // Wording adapté au variant
+  const title = variant === 'client' ? '🎉 Réservation validée !' : '✅ Réservation confirmée';
+  const subtitle = variant === 'client' ? 'Votre réservation est confirmée' : 'Tout est en ordre';
+  const mainMessage = variant === 'client'
+    ? 'Excellente nouvelle ! Votre réservation a été <strong>validée par notre équipe</strong>.'
+    : 'Votre réservation a été <strong>confirmée</strong>.';
+  const badge = variant === 'client' ? '✓ Réservation validée' : '✓ Réservation confirmée';
+  const closingMessage = variant === 'client'
+    ? 'Tout est prêt pour votre venue ! Nous sommes impatients de vous accueillir dans nos locaux.'
+    : 'Tout est prêt pour votre venue. Nous vous attendons.';
+
   return `
 <!DOCTYPE html>
 <html lang="fr">
@@ -52,30 +71,26 @@ export function generateValidatedEmail(data: ValidatedEmailData): string {
 
     <!-- Header VERT FONCÉ -->
     <div class="email-header" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 40px 24px; text-align: center;">
-      <h1 style="margin: 0 0 12px 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">🎉 Réservation validée !</h1>
-      <p style="margin: 0; font-size: 17px; opacity: 0.95; font-weight: 500;">Votre réservation est confirmée</p>
+      <h1 style="margin: 0 0 12px 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">${title}</h1>
+      <p style="margin: 0; font-size: 17px; opacity: 0.95; font-weight: 500;">${subtitle}</p>
     </div>
 
     <!-- Contenu -->
     <div class="email-content" style="padding: 36px 24px; line-height: 1.7; color: #1f2937;">
-      <p style="margin: 0 0 16px 0; font-size: 16px;">Bonjour <strong style="color: #059669;">${
-        data.name
-      }</strong>,</p>
+      <p style="margin: 0 0 16px 0; font-size: 16px;">Bonjour <strong style="color: #059669;">${data.name}</strong>,</p>
 
-      <p style="margin: 0 0 24px 0; font-size: 16px;">Excellente nouvelle ! Votre réservation a été <strong>validée par notre équipe</strong>.</p>
+      <p style="margin: 0 0 24px 0; font-size: 16px;">${mainMessage}</p>
 
       <!-- Success Badge -->
       <div style="text-align: center; margin: 28px 0;">
         <div class="success-badge" style="display: inline-block; background: #D1FAE5; color: #065F46; padding: 14px 28px; border-radius: 25px; font-weight: 700; font-size: 17px; letter-spacing: 0.3px;">
-          ✓ Réservation validée
+          ${badge}
         </div>
       </div>
 
       <!-- Détails de la réservation -->
       <div class="details-box" style="background: #f9fafb; padding: 24px; border-radius: 12px; margin: 28px 0; border: 1px solid #10B981;">
         <h3 style="margin: 0 0 20px 0; color: #059669; font-size: 19px; font-weight: 700; letter-spacing: -0.3px;">📋 Détails de votre réservation</h3>
-
-        
 
         <div class="detail-row" style="padding: 14px 0; border-bottom: 1px solid #e5e7eb;">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
@@ -90,9 +105,7 @@ export function generateValidatedEmail(data: ValidatedEmailData): string {
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Nombre de personnes</td>
-              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${
-                data.numberOfPeople
-              } ${data.numberOfPeople > 1 ? "personnes" : "personne"}</td>
+              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${data.numberOfPeople} ${data.numberOfPeople > 1 ? "personnes" : "personne"}</td>
             </tr>
           </table>
         </div>
@@ -101,9 +114,7 @@ export function generateValidatedEmail(data: ValidatedEmailData): string {
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Date</td>
-              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${
-                data.date
-              }</td>
+              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${data.date}</td>
             </tr>
           </table>
         </div>
@@ -112,9 +123,7 @@ export function generateValidatedEmail(data: ValidatedEmailData): string {
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Horaires</td>
-              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${
-                data.startTime
-              } - ${data.endTime}</td>
+              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${data.startTime} - ${data.endTime}</td>
             </tr>
           </table>
         </div>
@@ -123,15 +132,13 @@ export function generateValidatedEmail(data: ValidatedEmailData): string {
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 700; color: #111827; font-size: 16px;">Prix total</td>
-              <td class="price-value" style="text-align: right; color: #059669; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(
-                2
-              )}€</td>
+              <td class="price-value" style="text-align: right; color: #059669; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)}€</td>
             </tr>
           </table>
         </div>
       </div>
 
-      <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">Tout est prêt pour votre venue ! Nous sommes impatients de vous accueillir dans nos locaux.</p>
+      <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">${closingMessage}</p>
 
       <!-- Contact -->
       <div style="background: #f0fdf4; border-left: 4px solid #059669; padding: 20px; border-radius: 8px; margin: 28px 0;">

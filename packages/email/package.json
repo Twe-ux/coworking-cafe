@@ -6,9 +6,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
-    "type-check": "tsc --noEmit",
-    "test-smtp": "tsx src/test.ts",
-    "test-imap": "tsx src/test-imap.ts"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "dotenv": "^17.2.4",

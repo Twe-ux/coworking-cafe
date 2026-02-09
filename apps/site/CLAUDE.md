@@ -104,6 +104,31 @@ function handleData(data: BookingData) { }
 | Pages | 150 | Logique → hooks |
 | API Routes | 200 | Extraire validation |
 
+### 6. Remplacement de Logique - SUPPRIMER l'Ancien Code
+
+```typescript
+// ❌ INTERDIT - Garder l'ancienne implémentation
+// depositHold.ts (ancien système 7j)
+export function sendDepositHold() { ... }  // ← CODE MORT
+
+// ✅ CORRECT - Supprimer TOUT l'ancien système
+// 1. Supprimer fichiers obsolètes (depositHold.ts, cardSaved.ts)
+// 2. Supprimer fonctions (sendDepositHoldConfirmation)
+// 3. Supprimer exports (index.ts)
+// 4. Supprimer imports (emailService.ts)
+// 5. Supprimer routes/crons obsolètes (/api/cron/create-holds/)
+```
+
+**Checklist Remplacement** :
+- [ ] Fichiers obsolètes supprimés
+- [ ] Fonctions obsolètes supprimées
+- [ ] Exports retirés (index.ts)
+- [ ] Imports retirés
+- [ ] Routes/crons obsolètes supprimés
+- [ ] `pnpm type-check` réussi
+
+**Voir** : [~/.claude/CLAUDE.md](~/.claude/CLAUDE.md) section "REMPLACEMENT DE LOGIQUE EXISTANTE" pour détails complets
+
 ---
 
 ## 📚 Documentation Détaillée

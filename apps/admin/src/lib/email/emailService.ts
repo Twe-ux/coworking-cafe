@@ -3,7 +3,6 @@ import {
   generateClientPresentEmail,
   generateClientNoShowEmail,
   generateBookingModifiedEmail,
-  generatePendingWithDepositEmail,
 } from '@coworking-cafe/email';
 import { accountActivationEmail } from './templates/accountActivation';
 
@@ -133,46 +132,6 @@ export async function sendBookingModifiedEmail(
     numberOfPeople: bookingDetails.numberOfPeople,
     totalPrice: bookingDetails.totalPrice,
     confirmationNumber: bookingDetails.confirmationNumber,
-  });
-
-  const result = await sendEmail({
-    to: email,
-    subject,
-    html,
-  });
-
-  return result.success;
-}
-
-/**
- * Send pending with deposit email
- */
-export async function sendPendingWithDepositEmail(
-  email: string,
-  bookingDetails: {
-    name: string;
-    spaceName: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    numberOfPeople: number;
-    totalPrice: number;
-    depositAmount: number;
-    depositFileUrl: string;
-  }
-): Promise<boolean> {
-  const subject = '⏳ Réservation en attente - Acompte requis - CoworKing Café';
-
-  const html = generatePendingWithDepositEmail({
-    name: bookingDetails.name,
-    spaceName: bookingDetails.spaceName,
-    date: bookingDetails.date,
-    startTime: bookingDetails.startTime,
-    endTime: bookingDetails.endTime,
-    numberOfPeople: bookingDetails.numberOfPeople,
-    totalPrice: bookingDetails.totalPrice,
-    depositAmount: bookingDetails.depositAmount,
-    depositFileUrl: bookingDetails.depositFileUrl,
   });
 
   const result = await sendEmail({

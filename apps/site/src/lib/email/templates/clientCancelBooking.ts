@@ -1,13 +1,14 @@
 /**
- * Template email : Annulation de réservation
+ * Template email : Client annule sa réservation
  * Couleur : ROUGE (#EF4444)
  *
- * Pour modifier ce template, éditez directement ce fichier.
+ * Envoyé quand un client annule sa propre réservation.
+ * Gère les frais d'annulation et remboursements selon les conditions.
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName } from "@coworking-cafe/email";
 
-interface CancellationEmailData {
+export interface ClientCancelBookingData {
   name: string;
   spaceName: string;
   date: string;
@@ -20,7 +21,7 @@ interface CancellationEmailData {
   isPending?: boolean; // true = annulation avant validation admin
 }
 
-export function generateCancellationEmail(data: CancellationEmailData): string {
+export function generateClientCancelBookingEmail(data: ClientCancelBookingData): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
   const totalAmount = data.cancellationFees + data.refundAmount;
 
@@ -75,7 +76,7 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
         <p style="margin: 0 0 12px 0; font-weight: 700; color: #065F46; font-size: 16px;">✅ Empreinte bancaire annulée</p>
         <p style="margin: 0; color: #065F46; font-size: 15px; line-height: 1.7;">
           L'empreinte bancaire de <strong>${totalAmount.toFixed(
-            2
+            2,
           )}€</strong> effectuée sur votre carte a été annulée. Aucun montant ne sera prélevé.
         </p>
       </div>
@@ -89,7 +90,7 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
           <p style="margin: 0 0 12px 0; font-weight: 700; color: #92400E; font-size: 16px;">⚠️ Frais d'annulation appliqués</p>
           <p style="margin: 0; color: #92400E; font-size: 15px; line-height: 1.7;">
             Des frais d'annulation de <strong>${data.cancellationFees.toFixed(
-              2
+              2,
             )}€</strong> ont été prélevés sur l'empreinte bancaire conformément à nos conditions d'annulation.
           </p>
         </div>`
@@ -104,7 +105,7 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
           <p style="margin: 0 0 12px 0; font-weight: 700; color: #065F46; font-size: 16px;">✅ Annulation de l'empreinte</p>
           <p style="margin: 0; color: #065F46; font-size: 15px; line-height: 1.7;">
             Le montant de <strong>${data.refundAmount.toFixed(
-              2
+              2,
             )}€</strong> de l'empreinte bancaire ne sera pas prélevé. L'empreinte sera automatiquement annulée.
           </p>
         </div>
@@ -157,7 +158,7 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Frais d'annulation</td>
               <td class="detail-value" style="text-align: right; color: #EF4444 !important; font-size: 15px; font-weight: 500;">${data.cancellationFees.toFixed(
-                2
+                2,
               )}€</td>
             </tr>
           </table>
@@ -185,12 +186,12 @@ export function generateCancellationEmail(data: CancellationEmailData): string {
         </div>
         `
             : `
-        <div style="padding: 16px 0 0 0; background: #fef2f2;">
+        <div style="padding: 16px 0 0 0">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 700; color: #991B1B; font-size: 16px; padding: 16px 0;">Montant prélevé</td>
               <td class="price-value" style="text-align: right; color: #EF4444; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; padding: 16px 0;">${data.cancellationFees.toFixed(
-                2
+                2,
               )}€</td>
             </tr>
           </table>

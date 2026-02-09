@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
-import { generateValidatedEmail, generateReservationRejectedEmail } from "@coworking-cafe/email"
+import { generateReservationRejectedEmail } from "@coworking-cafe/email"
 import { sendEmail, sendBookingModifiedEmail } from "@/lib/email/emailService"
 import type { Booking as BookingType, BookingStatus, ReservationType, CaptureMethod } from "@/types/booking"
 import { Types } from "mongoose"
@@ -198,32 +198,27 @@ export async function PATCH(
         numberOfPeople: booking.numberOfPeople || 1,
         totalPrice: booking.totalPrice || 0,
         confirmationNumber: params.id,
+        contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
       }
 
       if (body.status === "confirmed") {
-        // Send confirmation email - choisir template selon isAdminBooking
-        if (booking.isAdminBooking) {
-          const { generateAdminBookingValidationEmail } = await import('@coworking-cafe/email')
-          const html = generateAdminBookingValidationEmail(emailData)
-          await sendEmail({
-            to: clientEmail,
-            subject: "✅ Réservation confirmée - CoworKing Café",
-            html,
-          })
-        } else {
-          const html = generateValidatedEmail(emailData)
-          await sendEmail({
-            to: clientEmail,
-            subject: "✅ Réservation confirmée - CoworKing Café by Anticafé",
-            html,
-          })
-        }
+        // Send confirmation email - choisir variant selon isAdminBooking
+        const { generateBookingValidationEmail } = await import('@coworking-cafe/email')
+        const variant = booking.isAdminBooking ? 'admin' : 'client'
+        const html = generateBookingValidationEmail(emailData, variant)
+
+        await sendEmail({
+          to: clientEmail,
+          subject: booking.isAdminBooking ? "✅ Réservation confirmée - CoworKing Café" : "🎉 Réservation validée - CoworKing Café",
+          html,
+        })
+
         console.log(`✉️ Email de confirmation envoyé à ${clientEmail}`)
       } else if (body.status === "cancelled") {
         // Send rejection/cancellation email with reason - choisir template selon isAdminBooking
         if (booking.isAdminBooking) {
-          const { generateAdminBookingCancellationEmail } = await import('@coworking-cafe/email')
-          const html = generateAdminBookingCancellationEmail({
+          const { generateAdminCancelAdminBookingEmail } = await import('@coworking-cafe/email')
+          const html = generateAdminCancelAdminBookingEmail({
             ...emailData,
             reason: body.cancelReason,
           })
@@ -235,7 +230,7 @@ export async function PATCH(
         } else {
           const html = generateReservationRejectedEmail({
             ...emailData,
-            reason: body.cancelReason,
+            rejectionReason: body.cancelReason,
           })
           await sendEmail({
             to: clientEmail,

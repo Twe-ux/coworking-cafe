@@ -5,7 +5,7 @@
 
 import { getSpaceDisplayName } from "./helpers";
 
-interface ReservationRejectedData {
+export interface ReservationRejectedData {
   name: string;
   spaceName: string;
   date: string;
@@ -14,7 +14,8 @@ interface ReservationRejectedData {
   numberOfPeople: number;
   totalPrice: number;
   confirmationNumber?: string;
-  reason?: string; // Rejection reason from admin
+  rejectionReason?: string; // Rejection reason from admin
+  contactEmail: string;
 }
 
 export function generateReservationRejectedEmail(
@@ -73,13 +74,13 @@ export function generateReservationRejectedEmail(
       </p>
 
       ${
-        data.reason
+        data.rejectionReason
           ? `
       <!-- Reason Box -->
       <div class="reason-box" style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; border-radius: 8px; margin: 28px 0;">
         <p style="margin: 0 0 12px 0; font-weight: 700; color: #991B1B; font-size: 16px;">Raison du refus :</p>
         <p style="margin: 0; color: #991B1B; font-size: 15px; line-height: 1.7;">
-          ${data.reason}
+          ${data.rejectionReason}
         </p>
       </div>
       `
@@ -173,7 +174,7 @@ export function generateReservationRejectedEmail(
           </tr>
           <tr>
             <td style="padding: 4px 0; font-size: 15px; color: #991B1D !important;">
-              <strong style="color: #991B1D !important;">Email :</strong> <a href="mailto:strasbourg@coworkingcafe.fr" style="color: #EF4444 !important; text-decoration: none;">strasbourg@coworkingcafe.fr</a>
+              <strong style="color: #991B1D !important;">Email :</strong> <a href="mailto:${data.contactEmail}" style="color: #EF4444 !important; text-decoration: none;">${data.contactEmail}</a>
             </td>
           </tr>
         </table>

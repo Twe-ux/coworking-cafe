@@ -71,7 +71,8 @@ export async function PUT(
       endTime: booking.endTime || '',
       numberOfPeople: booking.numberOfPeople,
       totalPrice: booking.totalPrice,
-      reason: reason || undefined,
+      rejectionReason: reason || undefined,
+      contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
     }
 
     // Envoyer l'email de refus

@@ -5,7 +5,7 @@
  * Pour modifier ce template, éditez directement ce fichier.
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName } from "@coworking-cafe/email";
 
 export interface BookingInitialEmailData {
   name: string;

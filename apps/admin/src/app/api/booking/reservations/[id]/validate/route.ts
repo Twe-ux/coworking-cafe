@@ -54,32 +54,22 @@ export async function PUT(
       numberOfPeople: booking.numberOfPeople,
       totalPrice: booking.totalPrice,
       confirmationNumber: booking._id.toString(),
+      contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
     }
 
     // Envoyer l'email de confirmation
     try {
       const { sendEmail } = await import('@/lib/email/emailService')
+      const { generateBookingValidationEmail } = await import('@coworking-cafe/email')
 
-      // Choisir le template selon isAdminBooking
-      if (booking.isAdminBooking) {
-        // Template admin : pas de mention d'empreinte bancaire
-        const { generateAdminBookingValidationEmail } = await import('@coworking-cafe/email')
+      // Choisir le variant selon isAdminBooking
+      const variant = booking.isAdminBooking ? 'admin' : 'client'
 
-        await sendEmail({
-          to: user.email || booking.contactEmail || '',
-          subject: '✅ Réservation confirmée - CoworKing Café',
-          html: generateAdminBookingValidationEmail(emailData),
-        })
-      } else {
-        // Template classique : avec mention d'empreinte bancaire
-        const { generateValidatedEmail } = await import('@coworking-cafe/email')
-
-        await sendEmail({
-          to: user.email || booking.contactEmail || '',
-          subject: '✅ Réservation confirmée - CoworKing Café',
-          html: generateValidatedEmail(emailData),
-        })
-      }
+      await sendEmail({
+        to: user.email || booking.contactEmail || '',
+        subject: booking.isAdminBooking ? '✅ Réservation confirmée - CoworKing Café' : '🎉 Réservation validée - CoworKing Café',
+        html: generateBookingValidationEmail(emailData, variant),
+      })
 
       console.log('✅ Email de validation envoyé:', user.email || booking.contactEmail)
     } catch (emailError) {

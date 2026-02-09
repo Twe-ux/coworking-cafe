@@ -2,28 +2,39 @@
  * Templates email : Export centralisé
  *
  * Nomenclature claire pour identifier rapidement l'origine des actions:
- * - client* : Actions initiées par le client
- * - admin* : Actions initiées par l'administrateur (depuis package partagé)
- * - noShow* : Cas de non-présentation
+ * - clientXxx : Actions initiées par le client
+ * - adminXxx : Actions initiées par l'administrateur
+ * - noShowXxx : Cas de non-présentation
  */
 
-// ============ Actions du client ============
+// ============ Helpers (depuis package partagé) ============
+export { getSpaceDisplayName } from '@coworking-cafe/email';
+
+// ============ Actions Client ============
 export { generateBookingInitialEmail, generateBookingInitialEmail as generateClientBookingConfirmationEmail } from './clientBookingConfirmation';
-export { generateCancellationEmail, generateCancellationEmail as generateClientCancellationEmail } from './clientCancellation';
+export { generateClientCancelBookingEmail } from './clientCancelBooking';
 
-// ============ Actions de l'admin (depuis package partagé) ============
-export { generateValidatedEmail, generateReservationRejectedEmail } from '@coworking-cafe/email';
-export { generateReservationCancelledEmail as generateAdminCancellationEmail } from './adminCancellation';
-export { generateRejectionEmail } from './adminRejection';
-
-// ============ Cas spécial: No-show ============
-export { generateDepositCapturedEmail, generateDepositCapturedEmail as generateNoShowPenaltyEmail } from './noShowPenalty';
+// ============ Actions Admin (depuis package partagé) ============
+export {
+  // Validation (UNIFIÉ)
+  generateBookingValidationEmail,
+  // Validation (LEGACY - deprecated, use generateBookingValidationEmail)
+  generateValidatedEmail,
+  generateAdminBookingValidationEmail,
+  // Rejection
+  generateReservationRejectedEmail,
+  generateAdminBookingRejectionEmail,
+  // Cancellation
+  generateAdminCancelClientBookingEmail,
+  generateAdminCancelAdminBookingEmail,
+  // Présence/absence
+  generateClientPresentEmail,
+  generateClientNoShowEmail,
+  // Modifications
+  generateBookingModifiedEmail,
+} from '@coworking-cafe/email';
 
 // ============ Autres templates ============
-export { generateConfirmationEmail } from './confirmation';
-export { generateDepositHoldEmail } from './depositHold';
-export { generateDepositReleasedEmail } from './depositReleased';
-export { generateCardSavedEmail } from './cardSaved';
 export { generateReminderEmail } from './reminder';
 
 // ============ Auth templates ============

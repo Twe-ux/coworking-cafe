@@ -353,49 +353,25 @@ export async function POST(request: NextRequest) {
           endTime: booking.endTime || '',
           numberOfPeople: booking.numberOfPeople,
           totalPrice: booking.totalPrice,
+          confirmationNumber: booking._id.toString(),
+          contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
         }
 
         if (booking.status === 'confirmed') {
           const { sendEmail } = await import('@/lib/email/emailService')
+          const { generateBookingValidationEmail } = await import('@coworking-cafe/email')
 
-          // Choisir le template selon isAdminBooking
-          if (booking.isAdminBooking) {
-            // Template admin : pas de mention d'empreinte bancaire
-            const { generateAdminBookingValidationEmail } = await import('@coworking-cafe/email')
+          // Choisir le variant selon isAdminBooking
+          const variant = booking.isAdminBooking ? 'admin' : 'client'
 
-            await sendEmail({
-              to: user?.email || booking.contactEmail || '',
-              subject: '✅ Réservation confirmée - CoworKing Café',
-              html: generateAdminBookingValidationEmail({
-                ...emailData,
-                confirmationNumber: booking._id.toString(),
-              }),
-            })
-          } else {
-            // Template classique : avec mention d'empreinte bancaire
-            const { generateValidatedEmail } = await import('@coworking-cafe/email')
-
-            await sendEmail({
-              to: user?.email || booking.contactEmail || '',
-              subject: '✅ Réservation confirmée - CoworKing Café',
-              html: generateValidatedEmail({
-                ...emailData,
-                confirmationNumber: booking._id.toString(),
-              }),
-            })
-          }
-        } else if (booking.status === 'pending' && booking.depositRequired) {
-          // Email "en attente avec acompte"
-          const { sendPendingWithDepositEmail } = await import('@/lib/email/emailService')
-
-          await sendPendingWithDepositEmail(
-            user?.email || booking.contactEmail || '',
-            {
+          await sendEmail({
+            to: user?.email || booking.contactEmail || '',
+            subject: booking.isAdminBooking ? '✅ Réservation confirmée - CoworKing Café' : '🎉 Réservation validée - CoworKing Café',
+            html: generateBookingValidationEmail({
               ...emailData,
-              depositAmount: booking.depositAmount || 0,
-              depositFileUrl: booking.depositFileUrl || '',
-            }
-          )
+              confirmationNumber: booking._id.toString(),
+            }, variant),
+          })
         }
       } catch (emailError: unknown) {
         if (emailError instanceof Error) {

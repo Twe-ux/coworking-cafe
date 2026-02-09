@@ -111,6 +111,7 @@ export async function POST(
       numberOfPeople: populatedBooking.numberOfPeople,
       totalPrice: populatedBooking.totalPrice,
       reason: reason || undefined,
+      contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
     };
 
     // Envoyer l'email d'annulation
@@ -124,12 +125,12 @@ export async function POST(
         // Choisir le template selon isAdminBooking
         if (populatedBooking.isAdminBooking) {
           // Template admin : pas de mention de libération d'empreinte bancaire
-          const { generateAdminBookingCancellationEmail } = await import('@coworking-cafe/email');
+          const { generateAdminCancelAdminBookingEmail } = await import('@coworking-cafe/email');
 
           await sendEmail({
             to: recipientEmail,
             subject: '❌ Réservation annulée - CoworKing Café',
-            html: generateAdminBookingCancellationEmail(emailData),
+            html: generateAdminCancelAdminBookingEmail(emailData),
           });
         } else {
           // Template classique : avec mention de libération d'empreinte bancaire

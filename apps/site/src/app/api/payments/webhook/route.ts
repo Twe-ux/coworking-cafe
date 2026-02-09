@@ -4,7 +4,7 @@ import { Payment, Booking, SpaceConfiguration } from "@coworking-cafe/database";
 import { verifyWebhookSignature, stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
 import type { CardBrand } from '@coworking-cafe/database';
-import { sendBookingInitialEmail, sendCardSavedConfirmation } from '@/lib/email/emailService';
+import { sendBookingInitialEmail } from '@/lib/email/emailService';
 import { getSpaceTypeName } from '@/lib/space-names';
 
 // Force dynamic rendering
@@ -525,30 +525,7 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
       isPartialPrivatization: metadata.isPartialPrivatization === 'true',
       message: metadata.message || '',
     });
-    // Send card saved email to customer
-    try {
-      const spaceConfig = await SpaceConfiguration.findOne({ spaceType: metadata.spaceType });
-
-      await sendCardSavedConfirmation(metadata.contactEmail, {
-        name: metadata.contactName,
-        spaceName: spaceConfig?.name || getSpaceTypeName(metadata.spaceType),
-        date: new Date(metadata.date).toLocaleDateString('fr-FR', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
-        startTime: metadata.startTime || '',
-        endTime: metadata.endTime || '',
-        numberOfPeople: parseInt(metadata.numberOfPeople),
-        totalPrice: parseFloat(metadata.totalPrice),
-        depositAmount: 0,
-        contactEmail: process.env.CONTACT_EMAIL || "contact@coworkingcafe.fr",
-      });
-    } catch (emailError: unknown) {
-      console.error('[Webhook] Failed to send card saved email:', emailError);
-      // Don't fail the booking creation if email fails
-    }
+    // Email de confirmation initial déjà envoyé lors de la création de la réservation
   } catch (error: unknown) {
     console.error('[Webhook] handleSetupIntentSucceeded error:', error);
     throw error;
