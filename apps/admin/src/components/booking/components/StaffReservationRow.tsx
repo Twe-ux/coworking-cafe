@@ -49,8 +49,8 @@ export function StaffReservationRow({
     if (reservation.reservationType === "weekly") return "weekly";
     if (reservation.reservationType === "monthly") return "monthly";
 
-    // Si endTime vide, absent, ou seulement des espaces → forfait jour
-    if (!reservation.endTime || reservation.endTime.trim() === "") return "daily";
+    // Si endTime vide ou absent → forfait jour
+    if (!reservation.endTime || reservation.endTime === "") return "daily";
 
     // Si pas de startTime → forfait jour
     if (!reservation.startTime) return "daily";

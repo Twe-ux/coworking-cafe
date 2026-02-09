@@ -63,30 +63,15 @@ export function AdminReservationRow({
 
   // Déterminer le type de réservation basé sur la durée réelle
   const getReservationType = (): "hourly" | "daily" | "weekly" | "monthly" => {
-    // Debug
-    console.log('🔍 Booking:', {
-      id: booking._id,
-      startTime: booking.startTime,
-      endTime: booking.endTime,
-      endTimeType: typeof booking.endTime,
-      reservationType: booking.reservationType
-    });
-
     // Si reservationType existe et est weekly/monthly, le garder
     if (booking.reservationType === "weekly") return "weekly";
     if (booking.reservationType === "monthly") return "monthly";
 
-    // Si endTime vide, absent, ou seulement des espaces → forfait jour
-    if (!booking.endTime || booking.endTime.trim() === "") {
-      console.log('✅ Détecté comme daily (endTime vide)');
-      return "daily";
-    }
+    // Si endTime vide ou absent → forfait jour
+    if (!booking.endTime || booking.endTime === "") return "daily";
 
     // Si pas de startTime → forfait jour
-    if (!booking.startTime) {
-      console.log('✅ Détecté comme daily (pas de startTime)');
-      return "daily";
-    }
+    if (!booking.startTime) return "daily";
 
     // Calculer durée si les deux horaires existent
     const [sH, sM] = booking.startTime.split(":").map(Number);
@@ -94,9 +79,7 @@ export function AdminReservationRow({
     const hours = eH - sH + (eM - sM) / 60;
 
     // Si plus de 5h → forfait jour, sinon → horaire
-    const result = hours > 5 ? "daily" : "hourly";
-    console.log(`✅ Détecté comme ${result} (durée: ${hours}h)`);
-    return result;
+    return hours > 5 ? "daily" : "hourly";
   };
 
   const reservationType = getReservationType();
