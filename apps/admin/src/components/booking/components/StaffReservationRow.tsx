@@ -49,14 +49,18 @@ export function StaffReservationRow({
     if (reservation.reservationType === "weekly") return "weekly";
     if (reservation.reservationType === "monthly") return "monthly";
 
-    // Sinon, déduire entre hourly et daily basé sur les horaires
-    if (!reservation.startTime || !reservation.endTime) return "daily";
+    // Si endTime vide ou absent → forfait jour
+    if (!reservation.endTime || reservation.endTime === "") return "daily";
 
+    // Si pas de startTime → forfait jour
+    if (!reservation.startTime) return "daily";
+
+    // Calculer durée si les deux horaires existent
     const [sH, sM] = reservation.startTime.split(":").map(Number);
     const [eH, eM] = reservation.endTime.split(":").map(Number);
     const hours = eH - sH + (eM - sM) / 60;
 
-    // Si plus de 5h, considérer comme journée
+    // Si plus de 5h → forfait jour, sinon → horaire
     return hours > 5 ? "daily" : "hourly";
   };
 
