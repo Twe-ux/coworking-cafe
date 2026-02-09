@@ -108,67 +108,85 @@ export function AdminReservationRow({
     <div
       className={`border rounded-lg border-l-4 ${borderClass} py-2.5 px-3 hover:bg-muted/50 transition-colors`}
     >
-      <div className="flex items-center gap-3">
-        <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            {isTomorrow && (
-              <Badge
-                variant="outline"
-                className="text-xs bg-blue-50 text-blue-700 border-blue-300"
-              >
-                Demain
-              </Badge>
-            )}
-            <span className="font-medium text-sm truncate">
-              {capitalize(booking.spaceName)}
-            </span>
-            <span className="text-xs text-muted-foreground">·</span>
-            <span className="text-sm font-semibold truncate">
-              {displayName}
-            </span>
-            {booking.notes && (
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="text-red-500 hover:text-red-600 transition-colors cursor-pointer">
-                      <MessageSquareMore className="h-4 w-4" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs border-red-500 border">
-                    <p className="text-base whitespace-pre-wrap">
-                      {booking.notes}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
+      <div className="flex items-center gap-2 text-sm">
+        {/* Badge Demain */}
+        {isTomorrow && (
+          <Badge
+            variant="outline"
+            className="text-xs bg-blue-50 text-blue-700 border-blue-300 flex-shrink-0"
+          >
+            Demain
+          </Badge>
+        )}
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            {booking.startTime && booking.endTime ? (
-              <>
-                <Clock className="h-3 w-3" />
-                <span>
-                  {booking.startTime} - {booking.endTime}
-                </span>
-              </>
-            ) : (
-              <span>Journée complète</span>
-            )}
-            <span>·</span>
-            <Badge
-              variant="outline"
-              className={`text-xs h-5 px-1.5 ${getReservationTypeBadgeClass(reservationType)}`}
-            >
-              {getReservationTypeLabel(reservationType)}
-            </Badge>
-            <span>·</span>
-            <Users className="h-3 w-3" />
-            <span>{booking.numberOfPeople} pers.</span>
-            {renderPriceInfo()}
-          </div>
-        </div>
+        {/* Espace */}
+        <span className="font-medium truncate min-w-[120px]">
+          {capitalize(booking.spaceName)}
+        </span>
+        <span className="text-xs text-muted-foreground">·</span>
 
+        {/* Client */}
+        <span className="font-semibold text-blue-600 truncate min-w-[140px]">
+          {displayName}
+        </span>
+
+        {/* Notes icon */}
+        {booking.notes && (
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="text-red-500 hover:text-red-600 transition-colors cursor-pointer flex-shrink-0">
+                  <MessageSquareMore className="h-4 w-4" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs border-red-500 border">
+                <p className="text-base whitespace-pre-wrap">
+                  {booking.notes}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        <span className="text-xs text-muted-foreground">·</span>
+
+        {/* Horaires */}
+        {booking.startTime && booking.endTime ? (
+          <>
+            <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+            <span className="text-xs whitespace-nowrap">
+              {booking.startTime} - {booking.endTime}
+            </span>
+          </>
+        ) : (
+          <span className="text-xs whitespace-nowrap">Journée complète</span>
+        )}
+
+        <span className="text-xs text-muted-foreground">·</span>
+
+        {/* Badge Type */}
+        <Badge
+          variant="outline"
+          className={`text-xs h-5 px-1.5 flex-shrink-0 ${getReservationTypeBadgeClass(reservationType)}`}
+        >
+          {getReservationTypeLabel(reservationType)}
+        </Badge>
+
+        <span className="text-xs text-muted-foreground">·</span>
+
+        {/* Personnes */}
+        <Users className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+        <span className="text-xs whitespace-nowrap">
+          {booking.numberOfPeople} pers.
+        </span>
+
+        {/* Prix */}
+        {renderPriceInfo()}
+
+        {/* Spacer pour pousser les boutons à droite */}
+        <div className="flex-1" />
+
+        {/* Boutons actions */}
         {booking.status === "confirmed" && (
           <div className="flex gap-1 flex-shrink-0">
             <Button
