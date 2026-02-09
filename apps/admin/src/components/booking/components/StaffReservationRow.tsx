@@ -43,6 +43,25 @@ export function StaffReservationRow({
 }: StaffReservationRowProps) {
   const spaceType = getSpaceType(reservation.spaceName);
 
+  // Déterminer le type de réservation basé sur la durée réelle
+  const getReservationType = (): "hourly" | "daily" | "weekly" | "monthly" => {
+    // Si reservationType existe et est weekly/monthly, le garder
+    if (reservation.reservationType === "weekly") return "weekly";
+    if (reservation.reservationType === "monthly") return "monthly";
+
+    // Sinon, déduire entre hourly et daily basé sur les horaires
+    if (!reservation.startTime || !reservation.endTime) return "daily";
+
+    const [sH, sM] = reservation.startTime.split(":").map(Number);
+    const [eH, eM] = reservation.endTime.split(":").map(Number);
+    const hours = eH - sH + (eM - sM) / 60;
+
+    // Si plus de 5h, considérer comme journée
+    return hours > 5 ? "daily" : "hourly";
+  };
+
+  const reservationType = getReservationType();
+
   const renderPriceInfo = () => {
     // Afficher "Sur facture" UNIQUEMENT si c'est une réservation admin ET invoiceOption
     if (reservation.isAdminBooking && reservation.invoiceOption) {
@@ -126,20 +145,16 @@ export function StaffReservationRow({
             ) : (
               <span>Journée complète</span>
             )}
-            {reservation.reservationType && (
-              <>
-                <span>·</span>
-                <Badge
-                  variant="outline"
-                  className="text-xs h-5 px-1.5"
-                >
-                  {reservation.reservationType === "hourly" && "À l'heure"}
-                  {reservation.reservationType === "daily" && "À la journée"}
-                  {reservation.reservationType === "weekly" && "À la semaine"}
-                  {reservation.reservationType === "monthly" && "Au mois"}
-                </Badge>
-              </>
-            )}
+            <span>·</span>
+            <Badge
+              variant="outline"
+              className="text-xs h-5 px-1.5"
+            >
+              {reservationType === "hourly" && "À l'heure"}
+              {reservationType === "daily" && "À la journée"}
+              {reservationType === "weekly" && "À la semaine"}
+              {reservationType === "monthly" && "Au mois"}
+            </Badge>
             <span>·</span>
             <Users className="h-3 w-3" />
             <span>{reservation.numberOfPeople} pers.</span>
