@@ -81,7 +81,7 @@ export async function sendClientNoShowEmail(
     startTime: string;
     endTime: string;
     numberOfPeople: number;
-    totalPrice: number;
+    depositAmount: number; // Montant empreinte en centimes
   }
 ): Promise<boolean> {
   const subject = '❌ Absence constatée - CoworKing Café by Anticafé';
@@ -93,7 +93,8 @@ export async function sendClientNoShowEmail(
     startTime: bookingDetails.startTime,
     endTime: bookingDetails.endTime,
     numberOfPeople: bookingDetails.numberOfPeople,
-    totalPrice: bookingDetails.totalPrice,
+    depositAmount: bookingDetails.depositAmount,
+    contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
   });
 
   const result = await sendEmail({

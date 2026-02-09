@@ -86,6 +86,15 @@ export function SpaceDialogContent({
               },
             }))
           }
+          onPerPersonChange={(value) =>
+            setFormData((prev) => ({
+              ...prev,
+              pricing: {
+                ...prev.pricing,
+                perPerson: value,
+              },
+            }))
+          }
         />
 
         <FeaturesSection

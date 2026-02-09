@@ -30,6 +30,7 @@ interface BookingDocument {
   endTime?: string;
   numberOfPeople?: number;
   totalPrice?: number;
+  depositAmount?: number;
   status: BookingStatus;
   cancelledAt?: string;
   cancelReason?: string;
@@ -126,7 +127,7 @@ export async function POST(
             startTime: booking.startTime || '09:00',
             endTime: booking.endTime || '18:00',
             numberOfPeople: booking.numberOfPeople || 1,
-            totalPrice: booking.totalPrice || 0,
+            depositAmount: booking.depositAmount || 0,
           }
         );
       }
