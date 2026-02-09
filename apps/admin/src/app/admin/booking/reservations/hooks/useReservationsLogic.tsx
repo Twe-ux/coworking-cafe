@@ -14,6 +14,8 @@ export function useReservationsLogic() {
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">(
     "pending",
   );
+  const [nameFilter, setNameFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
   const [quickCancelDialogOpen, setQuickCancelDialogOpen] = useState(false);
@@ -44,9 +46,30 @@ export function useReservationsLogic() {
   }, [allBookings]);
 
   const bookings = useMemo(() => {
-    if (statusFilter === "all") return allBookings;
-    return allBookings.filter((b) => b.status === statusFilter);
-  }, [allBookings, statusFilter]);
+    let filtered = allBookings;
+
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((b) => b.status === statusFilter);
+    }
+
+    // Filter by name (clientName or clientCompany)
+    if (nameFilter.trim()) {
+      const searchTerm = nameFilter.toLowerCase().trim();
+      filtered = filtered.filter((b) => {
+        const name = (b.clientName || "").toLowerCase();
+        const company = (b.clientCompany || "").toLowerCase();
+        return name.includes(searchTerm) || company.includes(searchTerm);
+      });
+    }
+
+    // Filter by date (startDate)
+    if (dateFilter.trim()) {
+      filtered = filtered.filter((b) => b.startDate === dateFilter);
+    }
+
+    return filtered;
+  }, [allBookings, statusFilter, nameFilter, dateFilter]);
 
   const handleRowClick = (booking: Booking) => {
     setDetailBooking(booking);
@@ -131,6 +154,10 @@ export function useReservationsLogic() {
     setMessage,
     statusFilter,
     setStatusFilter,
+    nameFilter,
+    setNameFilter,
+    dateFilter,
+    setDateFilter,
     detailModalOpen,
     setDetailModalOpen,
     detailBooking,

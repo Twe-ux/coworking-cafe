@@ -17,6 +17,10 @@ export function ReservationsClient() {
     setMessage,
     statusFilter,
     setStatusFilter,
+    nameFilter,
+    setNameFilter,
+    dateFilter,
+    setDateFilter,
     detailModalOpen,
     setDetailModalOpen,
     detailBooking,
@@ -103,6 +107,10 @@ export function ReservationsClient() {
         stats={stats}
         statusFilter={statusFilter}
         onFilterChange={setStatusFilter}
+        nameFilter={nameFilter}
+        setNameFilter={setNameFilter}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
       />
 
       <ReservationsTable
