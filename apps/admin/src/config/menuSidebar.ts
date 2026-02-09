@@ -144,6 +144,10 @@ export function getAdminMenu(
           title: "Fond de caisse",
           url: "/admin/accounting/cash-register",
         },
+        {
+          title: "Empreintes capturées",
+          url: "/admin/accounting/captured-deposits",
+        },
         // {
         //   title: "Chiffre d'affaires",
         //   url: "/admin/accounting/turnover",

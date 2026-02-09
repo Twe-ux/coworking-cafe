@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calculator, Coins } from "lucide-react";
+import { Calculator, Coins, CreditCard } from "lucide-react";
 import Link from "next/link";
 
 export default function AccountingPage() {
@@ -32,6 +32,19 @@ export default function AccountingPage() {
               <span className="text-lg font-semibold">Fond de Caisse</span>
               <span className="text-sm text-muted-foreground">
                 Historique et récapitulatif mensuel
+              </span>
+            </Button>
+          </Link>
+
+          <Link href="/admin/accounting/captured-deposits">
+            <Button
+              variant="outline"
+              className="h-32 w-full flex flex-col gap-2 hover:bg-accent"
+            >
+              <CreditCard className="h-8 w-8 text-primary" />
+              <span className="text-lg font-semibold">Empreintes Capturées</span>
+              <span className="text-sm text-muted-foreground">
+                Suivi des no-show et annulations
               </span>
             </Button>
           </Link>

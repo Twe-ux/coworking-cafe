@@ -74,3 +74,18 @@ export interface CashEntryRow {
   depenses?: DepenseItem[]
   [key: string]: unknown
 }
+
+/**
+ * Empreinte bancaire capturée (no-show ou annulation client)
+ */
+export interface CapturedDeposit {
+  _id: string
+  userName: string
+  userEmail: string
+  companyName?: string
+  bookingDate: string
+  cancelledAt: string
+  depositAmount: number
+  cancelReason: string
+  spaceType: string
+}
