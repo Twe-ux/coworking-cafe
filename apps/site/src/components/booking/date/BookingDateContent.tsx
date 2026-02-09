@@ -6,7 +6,7 @@
 // ============================================================================
 
 import { forwardRef } from "react";
-import BookingProgressBar from "@/components/site/booking/BookingProgressBar";
+import { DateHeader } from "./DateHeader";
 import { BookingErrorDisplay } from "@/components/site/booking/BookingErrorDisplay";
 import { ReservationTypeSelector } from "@/components/site/booking/ReservationTypeSelector";
 import { DateSelectionSection } from "@/components/site/booking/DateSelectionSection";
@@ -81,6 +81,7 @@ export interface BookingDateContentProps {
     handleStartTimeSelection: (time: string) => void;
     handleContinue: () => void;
     handleResetTimeSelections: () => void;
+    handleStepClick: (step: number) => void;
   };
 }
 
@@ -106,20 +107,13 @@ export const BookingDateContent = forwardRef<HTMLDivElement, BookingDateContentP
   ) {
     return (
       <div className="booking-card" style={{ padding: "1.25rem" }} ref={accordion.bookingCardRef}>
-        {/* Progress Bar */}
-        <BookingProgressBar
+        {/* Header with Progress Bar and Back Button */}
+        <DateHeader
           currentStep={2}
-          customLabels={{
-            step1: spaceInfo.subtitle,
-            step2: bookingState.selectedDate
-              ? new Date(bookingState.selectedDate).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "short",
-                })
-              : "Date",
-            step3: "Détails",
-            step4: "Paiement",
-          }}
+          spaceSubtitle={spaceInfo.subtitle}
+          selectedDate={bookingState.selectedDate}
+          onStepClick={handlers.handleStepClick}
+          onBack={() => handlers.handleStepClick(1)}
         />
 
         {/* Loading State */}
@@ -186,6 +180,7 @@ export const BookingDateContent = forwardRef<HTMLDivElement, BookingDateContentP
                       minCapacity={spaceConfig.minCapacity}
                       maxCapacity={spaceConfig.maxCapacity}
                       onChange={bookingState.setNumberOfPeople}
+                      pricingTiers={spaceConfig.pricing.tiers}
                       className="w-100"
                     />
                   </div>

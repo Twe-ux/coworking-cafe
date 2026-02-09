@@ -38,6 +38,7 @@ export interface UseBookingHandlersReturn {
   handleStartTimeSelection: (time: string) => void;
   handleContinue: () => void;
   handleResetTimeSelections: () => void;
+  handleStepClick: (step: number) => void;
 }
 
 /**
@@ -107,10 +108,21 @@ export function useBookingHandlers({
     bookingState.setArrivalTime("");
   };
 
+  const handleStepClick = (step: number) => {
+    // Only allow navigating to completed steps
+    if (step === 1) {
+      // Return to space selection
+      router.push("/booking");
+    }
+    // Steps 2, 3, 4 are not clickable from step 2 (current page)
+    // User must use Continue button to progress forward
+  };
+
   return {
     handleDateChange,
     handleStartTimeSelection,
     handleContinue,
     handleResetTimeSelections,
+    handleStepClick,
   };
 }

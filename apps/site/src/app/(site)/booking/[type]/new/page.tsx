@@ -87,7 +87,7 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
   });
 
   // 🎯 Handlers
-  const { handleDateChange, handleStartTimeSelection, handleContinue, handleResetTimeSelections } =
+  const { handleDateChange, handleStartTimeSelection, handleContinue, handleResetTimeSelections, handleStepClick } =
     useBookingHandlers({
       bookingState,
       accordion,
@@ -146,6 +146,7 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
                 handleStartTimeSelection,
                 handleContinue,
                 handleResetTimeSelections,
+                handleStepClick,
               }}
             />
           </div>

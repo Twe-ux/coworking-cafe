@@ -425,6 +425,19 @@ export function isValidBookingStatus(value: string): value is BookingStatus {
  * Space Configuration
  * Configuration complète d'un espace (pricing, capacité, types de réservation)
  */
+/**
+ * Pricing Tier
+ * Palier de tarification basé sur le nombre de personnes
+ */
+export interface PricingTier {
+  minPeople: number;
+  maxPeople: number;
+  hourlyRate: number;
+  dailyRate: number;
+  extraPersonHourly?: number;
+  extraPersonDaily?: number;
+}
+
 export interface SpaceConfiguration {
   spaceType: string;
   name: string;
@@ -438,6 +451,7 @@ export interface SpaceConfiguration {
     perPerson: boolean;
     maxHoursBeforeDaily?: number;
     isDailyRateAvailable?: boolean;
+    tiers?: PricingTier[];
   };
   availableReservationTypes: {
     hourly: boolean;

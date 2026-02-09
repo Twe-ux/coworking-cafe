@@ -2,9 +2,11 @@
 // PeopleCounterSection Component
 // ============================================================================
 // Compteur de personnes pour la réservation
+// Supporte l'affichage intelligent des tiers de pricing
 // ============================================================================
 
 import React from "react";
+import type { PricingTier } from "@/types/booking";
 
 /**
  * Props du composant PeopleCounterSection
@@ -14,6 +16,8 @@ interface PeopleCounterSectionProps {
   minCapacity: number;
   maxCapacity: number;
   onChange: (count: number) => void;
+  /** Tiers de pricing pour affichage intelligent (optionnel) */
+  pricingTiers?: PricingTier[];
   className?: string;
 }
 
@@ -42,22 +46,66 @@ export function PeopleCounterSection({
   minCapacity,
   maxCapacity,
   onChange,
+  pricingTiers,
   className = "",
 }: PeopleCounterSectionProps) {
   /**
-   * Décrémente le nombre de personnes (min = minCapacity)
+   * Trouve le tier actif basé sur le nombre de personnes
+   */
+  const findActiveTier = (count: number): PricingTier | null => {
+    if (!pricingTiers || pricingTiers.length === 0) return null;
+
+    const sortedTiers = [...pricingTiers].sort((a, b) => a.minPeople - b.minPeople);
+
+    for (const tier of sortedTiers) {
+      if (count >= tier.minPeople && count <= tier.maxPeople) {
+        return tier;
+      }
+    }
+    return null;
+  };
+
+  const activeTier = findActiveTier(numberOfPeople);
+  const isInTierRange = activeTier !== null;
+
+  /**
+   * Décrémente le nombre de personnes
+   * Si on est au-dessus d'un tier, revenir au maxPeople du tier
+   * Sinon, décrémenter normalement
    */
   const handleDecrement = () => {
+    if (pricingTiers && pricingTiers.length > 0) {
+      const sortedTiers = [...pricingTiers].sort((a, b) => a.minPeople - b.minPeople);
+
+      // Si on est juste au-dessus d'un tier, revenir au maxPeople du tier
+      for (const tier of sortedTiers) {
+        if (numberOfPeople === tier.maxPeople + 1) {
+          onChange(tier.maxPeople);
+          return;
+        }
+      }
+    }
+
+    // Sinon, décrémenter normalement
     const newValue = Math.max(minCapacity, numberOfPeople - 1);
     onChange(newValue);
   };
 
   /**
-   * Incrémente le nombre de personnes (max = maxCapacity)
+   * Incrémente le nombre de personnes
+   * Si on est dans un tier, sauter directement à maxPeople + 1
+   * Sinon, incrémenter normalement
    */
   const handleIncrement = () => {
-    const newValue = Math.min(maxCapacity, numberOfPeople + 1);
-    onChange(newValue);
+    if (isInTierRange && activeTier) {
+      // Sauter directement au-dessus du tier
+      const newValue = Math.min(maxCapacity, activeTier.maxPeople + 1);
+      onChange(newValue);
+    } else {
+      // Incrémenter normalement
+      const newValue = Math.min(maxCapacity, numberOfPeople + 1);
+      onChange(newValue);
+    }
   };
 
   return (
@@ -78,15 +126,22 @@ export function PeopleCounterSection({
           type="button"
           className="counter-btn"
           onClick={handleDecrement}
-          disabled={numberOfPeople <= minCapacity}
+          disabled={
+            numberOfPeople <= minCapacity ||
+            (isInTierRange && activeTier && activeTier.minPeople === minCapacity)
+          }
           aria-label="Diminuer le nombre de personnes"
         >
           <i className="bi bi-dash" aria-hidden="true" />
         </button>
 
-        {/* Affichage du nombre */}
+        {/* Affichage du nombre ou range */}
         <div className="counter-display">
-          <div className="counter-number">{numberOfPeople}</div>
+          <div className="counter-number">
+            {isInTierRange && activeTier
+              ? `${activeTier.minPeople}-${activeTier.maxPeople}`
+              : numberOfPeople}
+          </div>
         </div>
 
         {/* Bouton plus */}
@@ -101,13 +156,17 @@ export function PeopleCounterSection({
         </button>
       </div>
 
-      {/* Capacité min-max */}
-      <small
-        className="text-muted mt-3 d-block text-center"
-        style={{ fontSize: "0.75rem" }}
-      >
-        Capacité: {minCapacity}-{maxCapacity} pers.
-      </small>
+      {/* Capacité et info sur les tiers */}
+      <div className="mt-3 text-center">
+        <small className="text-muted d-block" style={{ fontSize: "0.75rem" }}>
+          Capacité: {minCapacity}-{maxCapacity} pers.
+        </small>
+        {isInTierRange && activeTier && (
+          <small className="text-primary d-block mt-1" style={{ fontSize: "0.7rem", fontWeight: 500 }}>
+            Prix unique jusqu'à {activeTier.maxPeople} pers.
+          </small>
+        )}
+      </div>
     </div>
   );
 }
