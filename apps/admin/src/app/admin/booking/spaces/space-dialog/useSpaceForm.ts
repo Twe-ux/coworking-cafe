@@ -37,6 +37,12 @@ export function useSpaceForm({
         maxCapacity: space.maxCapacity,
         pricing: space.pricing,
         availableReservationTypes: space.availableReservationTypes,
+        depositPolicy: space.depositPolicy || {
+          enabled: false,
+          percentage: undefined,
+          fixedAmount: undefined,
+          minimumAmount: undefined,
+        },
         requiresQuote: space.requiresQuote,
         isActive: space.isActive,
         displayOrder: space.displayOrder,

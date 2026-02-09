@@ -52,6 +52,12 @@ export function getDefaultFormData() {
       weekly: false,
       monthly: false,
     },
+    depositPolicy: {
+      enabled: false,
+      percentage: undefined,
+      fixedAmount: undefined,
+      minimumAmount: undefined,
+    },
     requiresQuote: false,
     isActive: true,
     displayOrder: 0,

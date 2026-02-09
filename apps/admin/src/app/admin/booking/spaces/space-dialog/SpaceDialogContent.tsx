@@ -8,6 +8,7 @@ import { BasicInfoSection } from "./BasicInfoSection"
 import { CapacitySection } from "./CapacitySection"
 import { ReservationTypesSection } from "./ReservationTypesSection"
 import { PricingSection } from "./PricingSection"
+import { DepositPolicySection } from "./DepositPolicySection"
 import { FeaturesSection } from "./FeaturesSection"
 import { SettingsSection } from "./SettingsSection"
 
@@ -92,6 +93,46 @@ export function SpaceDialogContent({
               pricing: {
                 ...prev.pricing,
                 perPerson: value,
+              },
+            }))
+          }
+        />
+
+        <DepositPolicySection
+          formData={formData}
+          onDepositEnabledChange={(enabled) =>
+            setFormData((prev) => ({
+              ...prev,
+              depositPolicy: {
+                ...prev.depositPolicy,
+                enabled,
+              },
+            }))
+          }
+          onDepositPercentageChange={(value) =>
+            setFormData((prev) => ({
+              ...prev,
+              depositPolicy: {
+                ...prev.depositPolicy,
+                percentage: value,
+              },
+            }))
+          }
+          onDepositFixedAmountChange={(value) =>
+            setFormData((prev) => ({
+              ...prev,
+              depositPolicy: {
+                ...prev.depositPolicy,
+                fixedAmount: value,
+              },
+            }))
+          }
+          onDepositMinimumAmountChange={(value) =>
+            setFormData((prev) => ({
+              ...prev,
+              depositPolicy: {
+                ...prev.depositPolicy,
+                minimumAmount: value,
               },
             }))
           }

@@ -20,6 +20,12 @@ export interface SpaceFormData {
     weekly: boolean
     monthly: boolean
   }
+  depositPolicy: {
+    enabled: boolean
+    percentage?: number
+    fixedAmount?: number
+    minimumAmount?: number
+  }
   requiresQuote: boolean
   isActive: boolean
   displayOrder: number
