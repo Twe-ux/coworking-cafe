@@ -144,6 +144,20 @@ export function AdminReservationRow({
             ) : (
               <span>Journée complète</span>
             )}
+            {booking.reservationType && (
+              <>
+                <span>·</span>
+                <Badge
+                  variant="outline"
+                  className="text-xs h-5 px-1.5"
+                >
+                  {booking.reservationType === "hourly" && "À l'heure"}
+                  {booking.reservationType === "daily" && "À la journée"}
+                  {booking.reservationType === "weekly" && "À la semaine"}
+                  {booking.reservationType === "monthly" && "Au mois"}
+                </Badge>
+              </>
+            )}
             <span>·</span>
             <Users className="h-3 w-3" />
             <span>{booking.numberOfPeople} pers.</span>

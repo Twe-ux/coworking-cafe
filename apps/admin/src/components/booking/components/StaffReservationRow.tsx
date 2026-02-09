@@ -126,6 +126,20 @@ export function StaffReservationRow({
             ) : (
               <span>Journée complète</span>
             )}
+            {reservation.reservationType && (
+              <>
+                <span>·</span>
+                <Badge
+                  variant="outline"
+                  className="text-xs h-5 px-1.5"
+                >
+                  {reservation.reservationType === "hourly" && "À l'heure"}
+                  {reservation.reservationType === "daily" && "À la journée"}
+                  {reservation.reservationType === "weekly" && "À la semaine"}
+                  {reservation.reservationType === "monthly" && "Au mois"}
+                </Badge>
+              </>
+            )}
             <span>·</span>
             <Users className="h-3 w-3" />
             <span>{reservation.numberOfPeople} pers.</span>
