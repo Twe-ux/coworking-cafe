@@ -107,11 +107,16 @@ export function calculateDuration(startTime: string, endTime: string): number {
 
 /**
  * Détermine le type de réservation selon la durée
+ * - endTime vide ou absent : "daily" (forfait jour)
  * - 1h à 5h : "hourly"
  * - > 5h : "daily"
  */
 export function getCalculatedReservationType(startTime?: string, endTime?: string): string {
-  if (!startTime || !endTime) return 'hourly';
+  // Si endTime vide ou absent → forfait jour
+  if (!endTime || endTime.trim() === '') return 'daily';
+
+  // Si pas de startTime → forfait jour
+  if (!startTime) return 'daily';
 
   const duration = calculateDuration(startTime, endTime);
 
