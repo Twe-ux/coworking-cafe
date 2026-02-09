@@ -15,6 +15,11 @@ import {
   UserX,
   Users,
 } from "lucide-react";
+import {
+  getCalculatedReservationType,
+  getReservationTypeLabel,
+  getReservationTypeBadgeClass,
+} from "@/app/admin/booking/reservations/utils";
 
 interface AdminReservationRowProps {
   booking: Booking;
@@ -61,28 +66,11 @@ export function AdminReservationRow({
 }: AdminReservationRowProps) {
   const spaceType = getSpaceType(booking.spaceName);
 
-  // Déterminer le type de réservation basé sur la durée réelle
-  const getReservationType = (): "hourly" | "daily" | "weekly" | "monthly" => {
-    // Si reservationType existe et est weekly/monthly, le garder
-    if (booking.reservationType === "weekly") return "weekly";
-    if (booking.reservationType === "monthly") return "monthly";
-
-    // Si endTime vide ou absent → forfait jour
-    if (!booking.endTime || booking.endTime === "") return "daily";
-
-    // Si pas de startTime → forfait jour
-    if (!booking.startTime) return "daily";
-
-    // Calculer durée si les deux horaires existent
-    const [sH, sM] = booking.startTime.split(":").map(Number);
-    const [eH, eM] = booking.endTime.split(":").map(Number);
-    const hours = eH - sH + (eM - sM) / 60;
-
-    // Si plus de 5h → forfait jour, sinon → horaire
-    return hours > 5 ? "daily" : "hourly";
-  };
-
-  const reservationType = getReservationType();
+  // Utiliser la fonction utilitaire pour déterminer le type
+  const reservationType = getCalculatedReservationType(
+    booking.startTime,
+    booking.endTime
+  );
 
   const renderPriceInfo = () => {
     // Afficher "Sur facture" UNIQUEMENT si c'est une réservation admin ET invoiceOption
@@ -170,12 +158,9 @@ export function AdminReservationRow({
             <span>·</span>
             <Badge
               variant="outline"
-              className="text-xs h-5 px-1.5"
+              className={`text-xs h-5 px-1.5 ${getReservationTypeBadgeClass(reservationType)}`}
             >
-              {reservationType === "hourly" && "À l'heure"}
-              {reservationType === "daily" && "À la journée"}
-              {reservationType === "weekly" && "À la semaine"}
-              {reservationType === "monthly" && "Au mois"}
+              {getReservationTypeLabel(reservationType)}
             </Badge>
             <span>·</span>
             <Users className="h-3 w-3" />
