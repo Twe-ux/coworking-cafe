@@ -69,7 +69,8 @@ export function AdminReservationRow({
   // Utiliser la fonction utilitaire pour déterminer le type
   const reservationType = getCalculatedReservationType(
     booking.startTime,
-    booking.endTime
+    booking.endTime,
+    booking.reservationType
   );
 
   const renderPriceInfo = () => {

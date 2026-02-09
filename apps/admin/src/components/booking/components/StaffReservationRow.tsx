@@ -51,7 +51,8 @@ export function StaffReservationRow({
   // Utiliser la fonction utilitaire pour déterminer le type
   const reservationType = getCalculatedReservationType(
     reservation.startTime,
-    reservation.endTime
+    reservation.endTime,
+    reservation.reservationType
   );
 
   const renderPriceInfo = () => {

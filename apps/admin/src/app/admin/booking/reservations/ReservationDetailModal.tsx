@@ -110,6 +110,7 @@ export function ReservationDetailModal({
                     getCalculatedReservationType(
                       booking.startTime,
                       booking.endTime,
+                      booking.reservationType,
                     ),
                   )}
                 >
@@ -117,6 +118,7 @@ export function ReservationDetailModal({
                     getCalculatedReservationType(
                       booking.startTime,
                       booking.endTime,
+                      booking.reservationType,
                     ),
                   )}
                 </Badge>

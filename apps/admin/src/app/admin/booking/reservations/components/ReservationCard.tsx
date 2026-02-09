@@ -84,6 +84,7 @@ export function ReservationCard({
                   getCalculatedReservationType(
                     booking.startTime,
                     booking.endTime,
+                    booking.reservationType,
                   ),
                 )}
               >
@@ -91,6 +92,7 @@ export function ReservationCard({
                   getCalculatedReservationType(
                     booking.startTime,
                     booking.endTime,
+                    booking.reservationType,
                   ),
                 )}
               </Badge>
