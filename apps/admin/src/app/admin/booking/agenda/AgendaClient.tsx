@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { MonthlyCalendar } from "@/components/shared/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Plus,
+  ListFilter,
 } from "lucide-react";
 import { ReservationDialog } from "../reservations/reservation-dialog";
 import { EditBookingDialog } from "../reservations/EditBookingDialog";
@@ -438,14 +440,17 @@ export function AgendaClient() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <CalendarIcon className="w-8 h-8" />
           Agenda
         </h1>
-        {/* <p className="text-muted-foreground mt-2">
-          Vue calendrier mensuel des réservations
-        </p> */}
+        <Link href="/admin/booking/reservations">
+          <Button variant="outline">
+            <ListFilter className="w-4 h-4 mr-2" />
+            Voir les réservations
+          </Button>
+        </Link>
       </div>
 
       <ReservationDialog
