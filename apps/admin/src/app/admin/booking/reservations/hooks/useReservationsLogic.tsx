@@ -95,9 +95,9 @@ export function useReservationsLogic() {
     }
   };
 
-  const handleCancel = async (bookingId: string, reason: string) => {
+  const handleCancel = async (bookingId: string, reason: string, skipCapture?: boolean) => {
     try {
-      await cancelBooking.mutateAsync({ bookingId, reason });
+      await cancelBooking.mutateAsync({ bookingId, reason, skipCapture });
       setMessage({ type: "success", text: "Réservation annulée" });
       setDetailModalOpen(false);
     } catch (error) {

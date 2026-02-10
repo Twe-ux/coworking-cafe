@@ -198,11 +198,19 @@ export function useCancelBooking() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ bookingId, reason }: { bookingId: string; reason: string }) => {
-      const response = await fetch(`/api/booking/reservations/${bookingId}`, {
-        method: "PATCH",
+    mutationFn: async ({
+      bookingId,
+      reason,
+      skipCapture
+    }: {
+      bookingId: string;
+      reason: string;
+      skipCapture?: boolean;
+    }) => {
+      const response = await fetch(`/api/booking/reservations/${bookingId}/cancel`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "cancelled", cancelReason: reason }),
+        body: JSON.stringify({ reason, skipCapture }),
       })
 
       const data: ApiResponse<Booking> = await response.json()

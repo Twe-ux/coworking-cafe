@@ -56,7 +56,7 @@ export async function POST(
 
     const { id } = params;
     const body = await request.json();
-    const { reason } = body;
+    const { reason, skipCapture } = body; // skipCapture: admin chooses not to capture deposit
 
     // Find the booking
     const booking = await Booking.findById(id);
@@ -106,8 +106,13 @@ export async function POST(
     // Determine cancellation charge percentage
     let chargePercentage = 100; // Default to full charge
 
+    // IMPORTANT: Admin can choose to skip capture (skipCapture = true)
+    if (skipCapture === true) {
+      chargePercentage = 0;
+      console.log(`[Cancel] Admin chose to skip capture - no fee`);
+    }
     // IMPORTANT: Pending bookings (not yet validated by admin) can be cancelled without fees
-    if (booking.status === "pending") {
+    else if (booking.status === "pending") {
       chargePercentage = 0;
       console.log(`[Cancel] Pending booking - no cancellation fee`);
     } else {
@@ -124,7 +129,7 @@ export async function POST(
       }
     }
 
-    console.log(`[Cancel] Days until booking: ${daysUntilBooking}, Charge: ${chargePercentage}%`);
+    console.log(`[Cancel] Days until booking: ${daysUntilBooking}, Charge: ${chargePercentage}%, Skip: ${skipCapture}`);
 
     // Handle Stripe payment
     const { stripe } = await import('@coworking-cafe/database');
