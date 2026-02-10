@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StyledAlert } from "@/components/ui/styled-alert";
 import { ReservationCard } from "./ReservationCard";
@@ -38,6 +39,20 @@ export function ReservationsTable({
     return date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   };
 
+  // Auto-scroll to today's bookings when "all months" is selected
+  const todayRef = useRef<HTMLDivElement>(null);
+  const today = new Date().toISOString().split('T')[0];
+  const todayIndex = bookings.findIndex(b => b.startDate === today);
+
+  useEffect(() => {
+    if (monthFilter === "all" && todayIndex >= 0 && todayRef.current) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        todayRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  }, [monthFilter, todayIndex]);
+
   if (bookings.length === 0) {
     return (
       <StyledAlert variant="info">Aucune réservation trouvée.</StyledAlert>
@@ -68,22 +83,32 @@ export function ReservationsTable({
       <CardContent className="space-y-3 p-0">
         {bookings.map((booking, index) => {
           const showDateSeparator = booking.startDate !== lastDate;
+          const isToday = booking.startDate === today;
+          const isFirstToday = index === todayIndex;
           lastDate = booking.startDate;
 
+          // Format date label
+          const dateLabel = isToday
+            ? "📍 Aujourd'hui"
+            : new Date(booking.startDate).toLocaleDateString("fr-FR", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              });
+
           return (
-            <div key={booking._id}>
+            <div
+              key={booking._id}
+              ref={isFirstToday ? todayRef : null}
+            >
               {showDateSeparator && index > 0 && (
-                <div className="flex items-center gap-4 my-4">
-                  <div className="flex-1 border-t border-border"></div>
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {new Date(booking.startDate).toLocaleDateString("fr-FR", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
+                <div className={`flex items-center gap-4 my-4 ${isToday ? 'py-2' : ''}`}>
+                  <div className={`flex-1 border-t ${isToday ? 'border-primary' : 'border-border'}`}></div>
+                  <span className={`text-sm font-medium ${isToday ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
+                    {dateLabel}
                   </span>
-                  <div className="flex-1 border-t border-border"></div>
+                  <div className={`flex-1 border-t ${isToday ? 'border-primary' : 'border-border'}`}></div>
                 </div>
               )}
               <ReservationCard

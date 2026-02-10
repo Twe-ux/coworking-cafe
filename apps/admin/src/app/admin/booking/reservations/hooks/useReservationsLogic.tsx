@@ -82,29 +82,49 @@ export function useReservationsLogic() {
       filtered = filtered.filter((b) => b.startDate.startsWith(monthFilter));
     }
 
-    // Sort by date and time (most recent first)
-    return filtered.sort((a, b) => {
-      // Compare dates
-      const dateA = new Date(a.startDate).getTime();
-      const dateB = new Date(b.startDate).getTime();
+    // Sort by date and time
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
-      if (dateA !== dateB) {
-        return dateB - dateA; // Descending order (most recent first)
-      }
-
-      // If same date, sort by start time
-      // Handle empty startTime (weekly/monthly packages)
-      if (!a.startTime && !b.startTime) return 0; // Both empty, maintain order
-      if (!a.startTime) return 1; // a empty, put after b
-      if (!b.startTime) return -1; // b empty, put after a
+    // Helper to sort by time within same date
+    const sortByTime = (a: typeof filtered[0], b: typeof filtered[0], ascending = true) => {
+      if (!a.startTime && !b.startTime) return 0;
+      if (!a.startTime) return 1;
+      if (!b.startTime) return -1;
 
       const timeA = a.startTime.split(':').map(Number);
       const timeB = b.startTime.split(':').map(Number);
       const minutesA = timeA[0] * 60 + (timeA[1] || 0);
       const minutesB = timeB[0] * 60 + (timeB[1] || 0);
 
-      return minutesB - minutesA; // Descending order (latest time first)
-    });
+      return ascending ? minutesA - minutesB : minutesB - minutesA;
+    };
+
+    if (monthFilter === "all") {
+      // Special sorting for "all months": today first, then future, then past
+      const todayBookings = filtered.filter(b => b.startDate === today);
+      const futureBookings = filtered.filter(b => b.startDate > today);
+      const pastBookings = filtered.filter(b => b.startDate < today);
+
+      // Sort each group
+      todayBookings.sort((a, b) => sortByTime(a, b, true)); // Ascending time
+      futureBookings.sort((a, b) => {
+        if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate); // Ascending date
+        return sortByTime(a, b, true); // Ascending time
+      });
+      pastBookings.sort((a, b) => {
+        if (a.startDate !== b.startDate) return b.startDate.localeCompare(a.startDate); // Descending date
+        return sortByTime(a, b, false); // Descending time
+      });
+
+      return [...todayBookings, ...futureBookings, ...pastBookings];
+    } else {
+      // Simple chronological sorting for specific month (1st to last)
+      return filtered.sort((a, b) => {
+        if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate); // Ascending
+        return sortByTime(a, b, true); // Ascending time
+      });
+    }
+  }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter]);
   }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter]);
 
   const handleRowClick = (booking: Booking) => {
