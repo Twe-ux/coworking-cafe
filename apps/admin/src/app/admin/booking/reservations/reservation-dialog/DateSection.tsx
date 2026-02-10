@@ -39,23 +39,29 @@ export function DateSection({
         : undefined;
 
   const handleDateRangeSelect = (range: DateRange | undefined) => {
+    console.log("🗓️ DateSection - handleDateRangeSelect:", range);
+
     if (range?.from) {
       const fromString = format(range.from, "yyyy-MM-dd");
+      console.log("🗓️ DateSection - Setting startDate:", fromString);
       onStartDateChange(fromString);
 
       // Si "to" existe, utiliser cette date, sinon utiliser "from" (même jour)
       if (range.to) {
         const toString = format(range.to, "yyyy-MM-dd");
+        console.log("🗓️ DateSection - Setting endDate (range):", toString);
         onEndDateChange(toString);
         // Fermer le popover après sélection complète
         setOpen(false);
       } else {
-        // Si seulement "from" est sélectionné, mettre endDate = startDate et fermer
+        // Si seulement "from" est sélectionné, mettre startDate = endDate = même date
+        console.log("🗓️ DateSection - Setting endDate (single day):", fromString);
         onEndDateChange(fromString);
         setOpen(false);
       }
     } else {
       // Reset si aucune date sélectionnée
+      console.log("🗓️ DateSection - Resetting dates");
       onStartDateChange("");
       onEndDateChange("");
     }

@@ -24,7 +24,11 @@ export function ReservationDialogSections({
   onFormDataChange,
 }: ReservationDialogSectionsProps) {
   const updateFormData = (updates: Partial<ReservationFormData>) => {
-    onFormDataChange({ ...formData, ...updates });
+    console.log("📝 ReservationDialogSections - updateFormData called with:", updates);
+    console.log("📝 Current formData before update:", { startDate: formData.startDate, endDate: formData.endDate });
+    const newFormData = { ...formData, ...updates };
+    console.log("📝 New formData after merge:", { startDate: newFormData.startDate, endDate: newFormData.endDate });
+    onFormDataChange(newFormData);
   };
 
   return (
