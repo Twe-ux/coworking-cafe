@@ -19,9 +19,7 @@ export function useReservationsLogic() {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
   const [quickCancelDialogOpen, setQuickCancelDialogOpen] = useState(false);
-  const [quickCancelBookingId, setQuickCancelBookingId] = useState<
-    string | null
-  >(null);
+  const [quickCancelBooking, setQuickCancelBooking] = useState<Booking | null>(null);
   const [quickCancelReason, setQuickCancelReason] = useState("");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editBooking, setEditBooking] = useState<Booking | null>(null);
@@ -112,26 +110,30 @@ export function useReservationsLogic() {
   };
 
   const handleQuickCancelClick = (bookingId: string) => {
-    setQuickCancelBookingId(bookingId);
-    setQuickCancelReason("");
-    setQuickCancelDialogOpen(true);
+    const booking = allBookings.find(b => b._id === bookingId);
+    if (booking) {
+      setQuickCancelBooking(booking);
+      setQuickCancelReason("");
+      setQuickCancelDialogOpen(true);
+    }
   };
 
-  const handleQuickCancelConfirm = async () => {
-    if (quickCancelBookingId) {
+  const handleQuickCancelConfirm = async (skipCapture: boolean) => {
+    if (quickCancelBooking?._id) {
       await handleCancel(
-        quickCancelBookingId,
+        quickCancelBooking._id,
         quickCancelReason || "Annulée par l'administrateur",
+        skipCapture,
       );
       setQuickCancelDialogOpen(false);
-      setQuickCancelBookingId(null);
+      setQuickCancelBooking(null);
       setQuickCancelReason("");
     }
   };
 
   const handleQuickCancelClose = () => {
     setQuickCancelDialogOpen(false);
-    setQuickCancelBookingId(null);
+    setQuickCancelBooking(null);
     setQuickCancelReason("");
   };
 
@@ -162,6 +164,7 @@ export function useReservationsLogic() {
     setDetailModalOpen,
     detailBooking,
     quickCancelDialogOpen,
+    quickCancelBooking,
     quickCancelReason,
     setQuickCancelReason,
     editDialogOpen,

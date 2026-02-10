@@ -25,6 +25,7 @@ export function ReservationsClient() {
     setDetailModalOpen,
     detailBooking,
     quickCancelDialogOpen,
+    quickCancelBooking,
     quickCancelReason,
     setQuickCancelReason,
     editDialogOpen,
@@ -86,6 +87,8 @@ export function ReservationsClient() {
         onReasonChange={setQuickCancelReason}
         onConfirm={handleQuickCancelConfirm}
         isCancelling={cancelBooking.isPending}
+        bookingId={quickCancelBooking?._id || null}
+        bookingStatus={quickCancelBooking?.status}
       />
 
       <EditBookingDialog
