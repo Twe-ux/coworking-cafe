@@ -171,7 +171,10 @@ export function ReservationsTabs({
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-2">
+            {/* Espace vide pour alignement */}
+            <div className="hidden md:block"></div>
+
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium">Filtres</CardTitle>
               </CardHeader>
@@ -256,7 +259,10 @@ export function ReservationsTabs({
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-2">
+            {/* Espace vide pour alignement */}
+            <div className="hidden md:block"></div>
+
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium">Filtres</CardTitle>
               </CardHeader>
@@ -325,31 +331,33 @@ export function ReservationsTabs({
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-3">
+            {/* Espaces vides pour alignement */}
+            <div className="hidden md:block"></div>
+            <div className="hidden md:block"></div>
+
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium">Filtres</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-                    <Input
-                      type="text"
-                      placeholder="Nom/Entreprise"
-                      value={nameFilter}
-                      onChange={(e) => setNameFilter(e.target.value)}
-                      className="h-8 pl-7 text-xs"
-                    />
-                  </div>
-                  <div className="relative">
-                    <CalendarIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-                    <Input
-                      type="date"
-                      value={dateFilter}
-                      onChange={(e) => setDateFilter(e.target.value)}
-                      className="h-8 pl-7 text-xs"
-                    />
-                  </div>
+                <div className="relative">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Nom/Entreprise"
+                    value={nameFilter}
+                    onChange={(e) => setNameFilter(e.target.value)}
+                    className="h-8 pl-7 text-xs"
+                  />
+                </div>
+                <div className="relative">
+                  <CalendarIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                  <Input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="h-8 pl-7 text-xs"
+                  />
                 </div>
                 {(nameFilter || dateFilter) && (
                   <button
@@ -358,7 +366,7 @@ export function ReservationsTabs({
                       setNameFilter("");
                       setDateFilter("");
                     }}
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium w-full text-center"
+                    className="text-xs text-blue-600 hover:text-blue-700 font-medium w-full text-center pt-1"
                   >
                     Effacer
                   </button>
