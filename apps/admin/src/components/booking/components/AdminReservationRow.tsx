@@ -1,3 +1,5 @@
+import { getCalculatedReservationType } from "@/app/admin/booking/reservations/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -5,7 +7,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 import type { Booking } from "@/types/booking";
 import {
   Clock,
@@ -15,11 +16,6 @@ import {
   UserX,
   Users,
 } from "lucide-react";
-import {
-  getCalculatedReservationType,
-  getReservationTypeLabel,
-  getReservationTypeBadgeClass,
-} from "@/app/admin/booking/reservations/utils";
 
 interface AdminReservationRowProps {
   booking: Booking;
@@ -70,7 +66,7 @@ export function AdminReservationRow({
   const reservationType = getCalculatedReservationType(
     booking.startTime,
     booking.endTime,
-    booking.reservationType
+    booking.reservationType,
   );
 
   const renderPriceInfo = () => {
@@ -160,15 +156,10 @@ export function AdminReservationRow({
               <span className="whitespace-nowrap">Journée complète</span>
             )}
             <span className="flex-shrink-0">·</span>
-            <Badge
-              variant="outline"
-              className={`text-xs h-5 px-1.5 flex-shrink-0 ${getReservationTypeBadgeClass(reservationType)}`}
-            >
-              {getReservationTypeLabel(reservationType)}
-            </Badge>
-            <span className="flex-shrink-0">·</span>
             <Users className="h-3 w-3 flex-shrink-0" />
-            <span className="whitespace-nowrap">{booking.numberOfPeople} pers.</span>
+            <span className="whitespace-nowrap">
+              {booking.numberOfPeople} pers.
+            </span>
             {renderPriceInfo()}
           </div>
         </div>
