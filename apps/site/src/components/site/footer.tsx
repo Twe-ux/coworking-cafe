@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProtectedEmail from "../common/ProtectedEmail";
@@ -132,10 +133,14 @@ const Footer = () => {
                 href={"/"}
                 className="d-flex align-items-center footer__logo"
               >
-                <img
+                <Image
                   src="/images/logo-circle-white.png"
-                  alt="img"
+                  alt="CoworKing Café by Anticafé Strasbourg - Logo"
+                  width={300}
+                  height={300}
+                  loading="lazy"
                   className="logo"
+                  style={{ width: 'auto', height: 'auto', maxWidth: '300px' }}
                 />
               </Link>
             </div>
@@ -177,7 +182,13 @@ const Footer = () => {
               <h3 className="footer__info_group">Nous contacter</h3>
               <ul className="footer__info_contact">
                 <li>
-                  <img src="/icons/Frame5.svg" alt="img" />
+                  <Image
+                    src="/icons/Frame5.svg"
+                    alt="Icône email"
+                    width={20}
+                    height={20}
+                    loading="lazy"
+                  />
                   <p>
                     <ProtectedEmail
                       user="strasbourg"
@@ -186,11 +197,23 @@ const Footer = () => {
                   </p>
                 </li>
                 <li>
-                  <img src="/icons/Frame6.svg" alt="img" />
+                  <Image
+                    src="/icons/Frame6.svg"
+                    alt="Icône téléphone"
+                    width={20}
+                    height={20}
+                    loading="lazy"
+                  />
                   <p>09 87 33 45 19</p>
                 </li>
                 <li>
-                  <img src="/icons/Frame7.svg" alt="img" />
+                  <Image
+                    src="/icons/Frame7.svg"
+                    alt="Icône horaires"
+                    width={20}
+                    height={20}
+                    loading="lazy"
+                  />
                   <p>L-V: 09h-20h | S-D & JF: 10h-20h</p>
                 </li>
               </ul>

@@ -151,7 +151,7 @@ const BlogSidebar = ({
                       : article.title}
                   </Link>
                   <p className="d-flex gap-2">
-                    <img src="/icons/clender.svg" alt="img" />
+                    <img src="/icons/clender.svg" alt="Icône calendrier" />
                     <span>
                       {new Date(
                         article.publishedAt || article.createdAt,

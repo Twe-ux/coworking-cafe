@@ -13,7 +13,11 @@ const ProjectCard = ({
 }: ProjectCardProps) => {
   return (
     <div className={`projects__2_card ${className}`}>
-      <img src={imgSrc} alt={title} className="w-100" />
+      <img
+        src={imgSrc}
+        alt={`${title} - CoworKing Café Anticafé Strasbourg`}
+        className="w-100"
+      />
     </div>
   );
 };

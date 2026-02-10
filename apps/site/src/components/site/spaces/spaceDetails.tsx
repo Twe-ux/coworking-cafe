@@ -2,6 +2,7 @@
 
 import { SpacesDetailsProps } from "../../../db/spaces/spacesData";
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import Link from "next/link";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -38,7 +39,13 @@ const SpaceDetails = ({
                 <p className="para2">{subDescription}</p>
                 <Link href={url} className="common__btn">
                   <span>Réserver</span>
-                  <img src="/icons/arrow-up-rignt-black.svg" alt="img" />
+                  <Image
+                    src="/icons/arrow-up-rignt-black.svg"
+                    alt="Icône lien externe"
+                    width={20}
+                    height={20}
+                    loading="lazy"
+                  />
                 </Link>
               </div>
             </SlideUp>
@@ -59,9 +66,13 @@ const SpaceDetails = ({
                 >
                   {validImages.map((item) => (
                     <SwiperSlide key={item.id}>
-                      <img
+                      <Image
                         src={item.img}
-                        alt={`${title} - image ${item.id}`}
+                        alt={`${title} - CoworKing Café Anticafé Strasbourg`}
+                        width={800}
+                        height={600}
+                        loading="lazy"
+                        quality={85}
                         className="spaces__carousel_img"
                       />
                     </SwiperSlide>

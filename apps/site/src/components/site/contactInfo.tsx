@@ -1,5 +1,6 @@
 "use client";
 import SlideUp from "../../utils/animations/slideUp";
+import Image from "next/image";
 import ProtectedEmail from "../common/ProtectedEmail";
 import { useState } from "react";
 
@@ -159,14 +160,26 @@ const ContactInfo = () => {
               </p>
               <ul>
                 <li>
-                  <img src="/icons/phone.svg" alt="img" />
+                  <Image
+                    src="/icons/phone.svg"
+                    alt="Icône téléphone"
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                  />
                   <div>
                     <b>Applez nous:</b>
                     <p>09 87 33 45 19</p>
                   </div>
                 </li>
                 <li>
-                  <img src="/icons/email1.svg" alt="img" />
+                  <Image
+                    src="/icons/email1.svg"
+                    alt="Icône email"
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                  />
                   <div>
                     <b>Envoyer un message:</b>
                     <p>
@@ -179,7 +192,13 @@ const ContactInfo = () => {
                   </div>
                 </li>
                 <li>
-                  <img src="/icons/location.svg" alt="img" />
+                  <Image
+                    src="/icons/location.svg"
+                    alt="Icône localisation"
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                  />
                   <div className="d-flex flex-column gap-4 " id="emplacement">
                     <div>
                       <b>Emplacement:</b>
@@ -310,7 +329,13 @@ const ContactInfo = () => {
                     >
                       {loading ? "Envoi en cours..." : "Envoyez votre message"}
                       {!loading && (
-                        <img src="/icons/arrow-up-right.svg" alt="img" />
+                        <Image
+                          src="/icons/arrow-up-right.svg"
+                          alt="Icône lien externe"
+                          width={16}
+                          height={16}
+                          loading="lazy"
+                        />
                       )}
                     </button>
                   </div>

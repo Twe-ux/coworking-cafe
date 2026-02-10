@@ -1,4 +1,5 @@
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -21,7 +22,13 @@ const HeroTwo = () => {
               <SlideUp className="buttons d-sm-flex align-items-center">
                 <Link href={"/services"} className="common__btn buttons_file">
                   <span>View Our Service</span>
-                  <img src="/icons/arrow-up-rignt-black.svg" alt="img" />
+                  <Image
+                    src="/icons/arrow-up-rignt-black.svg"
+                    alt="Icône lien externe"
+                    width={20}
+                    height={20}
+                    loading="lazy"
+                  />
                 </Link>
               </SlideUp>
               <SlideUp className="banner__content_number banner2__number d-flex justify-content-between">

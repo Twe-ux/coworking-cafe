@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface BlogCardProps {
@@ -13,7 +14,15 @@ const BlogCard = ({ imgSrc, title, slug }: BlogCardProps) => {
   return (
     <div className="blogs__wapper_card">
       <Link href={`/blog/${slug}`}>
-        <img src={imgSrc} alt={title} className="card__thumb" />
+        <Image
+          src={imgSrc}
+          alt={`${title} - CoworKing Café Anticafé Strasbourg`}
+          width={600}
+          height={400}
+          loading="lazy"
+          quality={85}
+          className="card__thumb"
+        />
       </Link>
       <div>
         <Link href={`/blog/${slug}`} className="card__title t__28">

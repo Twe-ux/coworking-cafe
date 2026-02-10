@@ -1,5 +1,6 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -47,9 +48,17 @@ const Header = () => {
           <div className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center gap-4">
               <Link href="/" className="header__bottom_logo">
-                <img src="/images/logo-black.svg" alt="img" className="" />
+                <Image
+                  src="/images/logo-black.svg"
+                  alt="CoworKing Café by Anticafé Strasbourg - Logo"
+                  width={180}
+                  height={60}
+                  priority
+                  className=""
+                  style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
+                />
               </Link>
-              <h1 className="hidden">CoworKing Café</h1>
+              <h1 className="sr-only">CoworKing Café by Anticafé Strasbourg</h1>
             </div>
 
             <Navbar
@@ -66,7 +75,13 @@ const Header = () => {
               <div className="d-xl-block d-none">
                 <Link href="/booking" className="common__btn">
                   <span>Réserver</span>
-                  <img src="/icons/arrow-up-right.svg" alt="img" />
+                  <Image
+                    src="/icons/arrow-up-right.svg"
+                    alt="Icône lien externe"
+                    width={16}
+                    height={16}
+                    priority
+                  />
                 </Link>
               </div>
               <div className="user-menu-wrapper position-relative">

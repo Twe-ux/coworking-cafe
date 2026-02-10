@@ -30,7 +30,7 @@ const TakeAway = () => {
           {/* PAGE 2 PDF: Image comptoir (boissons à emporter) */}
           <img
             src="/images/takeAway/coworking-cafe-strasbourg-take-away-boissons-a-emporter.webp"
-            alt="Comptoir Take Away Anticafé Strasbourg"
+            alt="Comptoir Take Away boissons à emporter - CoworKing Café Anticafé Strasbourg"
             className="w-100 thumb__img"
           />
 
@@ -61,13 +61,13 @@ const TakeAway = () => {
             <div className="d-flex gap-4">
               <img
                 src="/images/takeAway/menu/carte-boissons-coffeeshop-strasbourg-coworking-cafe.webp"
-                alt="Hot Drinks"
+                alt="Carte boissons chaudes - CoworKing Café Anticafé Strasbourg"
                 className="d-block w-46 rounded-3"
               />
 
               <img
                 src="/images/takeAway/menu/menu-boissons-coworking-cafe-strasbourg.webp"
-                alt="Cold Drinks"
+                alt="Menu boissons froides - CoworKing Café Anticafé Strasbourg"
                 className=" w-52 rounded-3"
               />
             </div>
@@ -83,7 +83,7 @@ const TakeAway = () => {
             <div className="col-lg-6">
               <img
                 src="/images/takeAway/coworking-cafe-strasbourg-epicerie-encas-snacks.webp"
-                alt="Encas sucrés et pizzas"
+                alt="Épicerie encas sucrés et snacks - CoworKing Café Anticafé Strasbourg"
                 className="w-100 rounded"
               />
             </div>
@@ -137,7 +137,7 @@ const TakeAway = () => {
             <div className="col-lg-6">
               <img
                 src="/images/takeAway/coworking-cafe-strasbourg-billie-cup-ecologie-gobelets-reutilisables.webp"
-                alt="Gobelets réutilisables Billie"
+                alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
                 className="w-100 rounded"
               />
             </div>

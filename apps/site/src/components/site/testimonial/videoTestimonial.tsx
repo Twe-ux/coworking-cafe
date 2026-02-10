@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState } from "react";
 // @ts-ignore - react-modal-video types not available
 import ModalVideo from "react-modal-video";
@@ -14,13 +15,23 @@ const VideoTestimonial = () => {
         </h1>
 
         <div className="position-relative">
-          <img
+          <Image
             src="/images/testimonail/anticafé-strasbourg.webp"
-            alt="anticafé-strasbourg"
+            alt="Vidéo présentation Anticafé CoworKing Café Strasbourg"
+            width={1200}
+            height={675}
+            loading="lazy"
+            quality={85}
             className="video_thumb"
           />
           <div onClick={() => setOpen(true)} className="video_icon video-play">
-            <img src="/images/testimonail/Frame_20.svg" alt="bouton play" />
+            <Image
+              src="/images/testimonail/Frame_20.svg"
+              alt="bouton play"
+              width={80}
+              height={80}
+              loading="lazy"
+            />
           </div>
         </div>
       </div>

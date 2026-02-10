@@ -67,13 +67,13 @@ const HeroOne = () => {
             <div className="banner__right">
               <img
                 src="/images/banner/logo-circle-white.png"
-                alt="img"
+                alt="CoworKing Café by Anticafé Strasbourg - Logo circulaire"
                 className="logo__circle"
               />
               <div>
                 <img
                   src="/images/banner/coworking-café.webp"
-                  alt="coworking-café"
+                  alt="Espace de coworking avec boissons à volonté - CoworKing Café Strasbourg"
                   className="bg__img"
                 />
               </div>

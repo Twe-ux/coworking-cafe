@@ -1,27 +1,50 @@
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const BlogArticle = () => {
   return (
     <article>
-      <img
+      <Image
         src="/images/blogs/blog-1.png"
-        alt="img"
+        alt="Article blog CoworKing Café Anticafé Strasbourg"
+        width={1200}
+        height={800}
+        loading="lazy"
+        quality={85}
         className="w-100 thumb__img"
       />
       <div className="first__para">
         <ul className="d-flex flex-wrap gap-4">
           <li>
-            <img src="/icons/user-black.svg" alt="img" />
+            <Image
+              src="/icons/user-black.svg"
+              alt="Icône utilisateur"
+              width={16}
+              height={16}
+              loading="lazy"
+            />
             <span>William Dalton</span>
           </li>
           <li>
-            <img src="/icons/comments-black.svg" alt="img" />
+            <Image
+              src="/icons/comments-black.svg"
+              alt="Icône commentaires"
+              width={16}
+              height={16}
+              loading="lazy"
+            />
             <span>04 Comments</span>
           </li>
           <li>
-            <img src="/icons/clender.svg" alt="img" />
+            <Image
+              src="/icons/clender.svg"
+              alt="Icône calendrier"
+              width={16}
+              height={16}
+              loading="lazy"
+            />
             <span>12, January 2025</span>
           </li>
         </ul>
@@ -58,16 +81,38 @@ const BlogArticle = () => {
       </SlideUp>
       <div className="row img__gallery">
         <div className="col-md-6">
-          <img src="/images/blogs/blog-5.png" alt="img" className="w-100" />
+          <Image
+            src="/images/blogs/blog-5.png"
+            alt="Galerie blog CoworKing Café Anticafé Strasbourg"
+            width={1200}
+            height={800}
+            loading="lazy"
+            quality={85}
+            className="w-100"
+          />
         </div>
         <div className="col-md-6 mt-4 mt-md-0">
           <div className="position-relative">
-            <img src="/images/blogs/blog-4.png" alt="img" className="w-100" />
+            <Image
+              src="/images/blogs/blog-4.png"
+              alt="Galerie blog CoworKing Café Anticafé Strasbourg"
+              width={600}
+              height={400}
+              loading="lazy"
+              quality={85}
+              className="w-100"
+            />
             <a
               href="https://youtu.be/UVLRVzrOKZk"
               className="video_icon video-play"
             >
-              <img src="/icons/Frame_20.svg" alt="img" />
+              <Image
+                src="/icons/Frame_20.svg"
+                alt="Icône lecture vidéo"
+                width={64}
+                height={64}
+                loading="lazy"
+              />
             </a>
           </div>
         </div>

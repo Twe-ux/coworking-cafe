@@ -9,7 +9,10 @@ import PathNameLoad from "../../utils/pathNameLoad";
 import { PWAStyles } from "../../components/layout/PWAStyles";
 import { ReactNode } from "react";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  metadataBase: new URL('https://coworkingcafe.fr'),
   title: "CoworKing Café by Anticafé",
   description:
     "CoworKing Café by Anticafé à Strasbourg : espace coworking chaleureux avec Wi-Fi rapide, cafés de qualité et ambiance idéale pour travailler.",

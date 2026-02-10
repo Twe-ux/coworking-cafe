@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 /**
@@ -24,11 +25,12 @@ export function LoadingLogo() {
   }, []);
 
   return (
-    <img
+    <Image
       src={isDark ? "/images/logo_white.svg" : "/images/logo-black.svg"}
       alt="CoworKing Café"
       width={200}
       height={200}
+      priority
       className="loading-logo"
       style={{
         objectFit: "contain",

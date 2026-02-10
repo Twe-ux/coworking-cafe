@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import React from "react";
 import { testimonialsTwoData } from "../../../db/testimonialsTwoData";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -13,9 +14,13 @@ const TestimonialTwo = () => {
       <div className="container">
         <div className="row">
           <SlideUp className="col-lg-6">
-            <img
+            <Image
               src="/images/testimonail/Group.png"
-              alt="img"
+              alt="Témoignages clients CoworKing Café Anticafé Strasbourg"
+              width={600}
+              height={600}
+              loading="lazy"
+              quality={85}
               className="w-100"
             />
           </SlideUp>
@@ -62,9 +67,12 @@ const TestimonialTwo = () => {
                         <p className="review">{testimonial.review}</p>
                         <div className="d-flex justify-content-between">
                           <div className="d-flex gap-4 reviewer__info">
-                            <img
+                            <Image
                               src={testimonial.imgSrc}
                               alt={testimonial.reviewerName}
+                              width={60}
+                              height={60}
+                              loading="lazy"
                             />
                             <div>
                               <p>{testimonial.reviewerName}</p>
@@ -72,9 +80,12 @@ const TestimonialTwo = () => {
                             </div>
                           </div>
                           <div>
-                            <img
+                            <Image
                               src={testimonial.quotesImgSrc}
                               alt="quotes"
+                              width={40}
+                              height={40}
+                              loading="lazy"
                               className="quotes"
                             />
                           </div>

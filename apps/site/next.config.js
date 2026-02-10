@@ -69,6 +69,24 @@ const nextConfig = {
       },
     ];
   },
+
+  // Redirects - Old domain to new domain (301 permanent)
+  async redirects() {
+    return [
+      // Redirect ALL traffic from old domain to new domain
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'new.coworkingcafe.fr',
+          },
+        ],
+        destination: 'https://coworkingcafe.fr/:path*',
+        permanent: true, // 301 redirect
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from 'react';
 
 interface PartnerProps {
@@ -12,7 +13,15 @@ const Partner = ({data, className = ''}: PartnerProps) => {
                 <div className="partner__content">
                     {data.map((logoSrc, index) => (
                         <div className="slide" key={index}>
-                            <img src={logoSrc} alt={`Partner logo ${index + 1}`} className="partner__logo" />
+                            <Image
+                                src={logoSrc}
+                                alt={`Partenaire CoworKing Café Anticafé Strasbourg ${index + 1}`}
+                                width={120}
+                                height={60}
+                                loading="lazy"
+                                quality={85}
+                                className="partner__logo"
+                            />
                         </div>
                     ))}
                 </div>

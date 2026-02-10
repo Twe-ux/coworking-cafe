@@ -1,5 +1,51 @@
+import type { Metadata } from 'next';
+import Image from "next/image";
 import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
+
+export const metadata: Metadata = {
+  title: 'Offres Étudiants - Happy Hours & Weekend | CoworKing Café Strasbourg',
+  description: 'Tarifs spéciaux étudiants : Happy Hours 12€ les 3h (17h-20h) du lundi au vendredi, Happy Weekend 24€/jour sur présentation de ta carte étudiante.',
+
+  keywords: [
+    'anticafé strasbourg',
+    'coworking strasbourg',
+    'espace de travail strasbourg',
+    'cafe coworking strasbourg',
+    'coworking etudiant strasbourg',
+    'tarif etudiant coworking',
+    'espace travail etudiant strasbourg',
+    'happy hours etudiant strasbourg',
+    'reviser strasbourg',
+    'bu alternative strasbourg',
+  ],
+
+  openGraph: {
+    title: 'Offres Étudiants - Happy Hours & Weekend à Strasbourg',
+    description: 'Tarifs ultra avantageux pour les étudiants : 12€ les 3h en semaine (17h-20h) et 24€/jour le weekend. Wifi rapide, boissons à volonté.',
+    url: 'https://coworkingcafe.fr/student-offers',
+    type: 'website',
+    images: [
+      {
+        url: '/images/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'CoworKing Café Strasbourg - Offres Étudiants'
+      }
+    ],
+  },
+
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Offres Étudiants - Happy Hours & Weekend à Strasbourg',
+    description: 'Tarifs ultra avantageux pour les étudiants : 12€ les 3h en semaine (17h-20h) et 24€/jour le weekend. Wifi rapide, boissons à volonté.',
+    images: ['/images/og-default.jpg'],
+  },
+
+  alternates: {
+    canonical: 'https://coworkingcafe.fr/student-offers',
+  },
+};
 
 const StudentsOffersPage = () => {
   return (
@@ -142,9 +188,13 @@ const StudentsOffersPage = () => {
                       </div>
                     </SlideUp>
                     <div className="students__carousel mt-4">
-                      <img
+                      <Image
                         src="/images/offersStudents/offres-etudiants-weekend-coworking-strasbourg.webp"
-                        alt={`"Happy Weekend, 🎓 spécial étudiants" - image ${"happy-weekend"}`}
+                        alt="Happy Weekend spécial étudiants - CoworKing Café Anticafé Strasbourg"
+                        width={800}
+                        height={600}
+                        loading="lazy"
+                        quality={85}
                         className="students__carousel_img"
                       />
                     </div>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface SpaceCardProps {
@@ -18,7 +19,14 @@ const SpaceCard = ({
   return (
     <div className={`service__card services__2_card ${className}`}>
       <Link href={link}>
-        <img src={imgSrc} alt={title} />
+        <Image
+          src={imgSrc}
+          alt={`${title} - Espace CoworKing Café Anticafé Strasbourg`}
+          width={600}
+          height={400}
+          loading="lazy"
+          quality={85}
+        />
         <h3 className="t__28">{title}</h3>
         <p>{description}</p>
         <div className="d-flex align-items-center">

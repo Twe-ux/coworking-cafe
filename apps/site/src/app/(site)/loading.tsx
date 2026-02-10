@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 /**
  * Loading UI shown during page transitions
  * Full-screen loader with logo
@@ -18,11 +20,12 @@ export default function Loading() {
         zIndex: 9999,
       }}
     >
-      <img
+      <Image
         src="/images/logo_white.svg"
         alt="Loading..."
         width={200}
         height={200}
+        priority
         style={{
           objectFit: 'contain',
           animation: 'pulse 1.5s ease-in-out infinite',

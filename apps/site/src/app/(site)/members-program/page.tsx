@@ -1,7 +1,53 @@
+import type { Metadata } from 'next';
+import Image from "next/image";
 import Link from "next/link";
 import MembersProgram from "../../../components/site/membersProgram/membersProgram";
 import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
+
+export const metadata: Metadata = {
+  title: 'Programme Membre Fidélité | CoworKing Café Strasbourg',
+  description: 'Rejoignez notre programme de fidélité : cumulez des points à chaque visite et débloquez des récompenses (heures offertes, pizzas, boissons, goodies exclusifs).',
+
+  keywords: [
+    'anticafé strasbourg',
+    'coworking strasbourg',
+    'espace de travail strasbourg',
+    'cafe coworking strasbourg',
+    'programme fidelite coworking strasbourg',
+    'points fidelite anticafe',
+    'recompenses coworking',
+    'membre coworking strasbourg',
+    'avantages coworking cafe',
+    'carte membre coworking',
+  ],
+
+  openGraph: {
+    title: 'Programme Membre Fidélité CoworKing Café',
+    description: 'Cumulez des points à chaque visite et débloquez des récompenses : heures offertes, pizzas, boissons premium, goodies exclusifs.',
+    url: 'https://coworkingcafe.fr/members-program',
+    type: 'website',
+    images: [
+      {
+        url: '/images/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'CoworKing Café Strasbourg - Programme Membre'
+      }
+    ],
+  },
+
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Programme Membre Fidélité CoworKing Café',
+    description: 'Cumulez des points à chaque visite et débloquez des récompenses : heures offertes, pizzas, boissons premium, goodies exclusifs.',
+    images: ['/images/og-default.jpg'],
+  },
+
+  alternates: {
+    canonical: 'https://coworkingcafe.fr/members-program',
+  },
+};
 
 export default function MembersProgramPage() {
   return (
@@ -14,9 +60,13 @@ export default function MembersProgramPage() {
             <h2 className="text-black title mb-4 t_32">Vos récompenses</h2>
             <div className="row  align-items-center">
               <div className="col-md-5">
-                <img
+                <Image
                   src="/images/membersPrograms/programme-membre-fidelite-coworkingcafe-strasbourg.webp"
-                  alt="img"
+                  alt="Programme membre fidélité CoworKing Café Anticafé Strasbourg - Récompenses et avantages"
+                  width={480}
+                  height={600}
+                  loading="lazy"
+                  quality={85}
                   className="w-100 rounded-3"
                 />
               </div>

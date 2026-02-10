@@ -1,4 +1,5 @@
 import { menuData, MenuItem } from "../../../db/menuData";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -67,7 +68,13 @@ const Navbar = ({ activeNavbar, onClose }: NavbarProps) => {
               onClick={onClose}
             >
               <span>Réserver</span>
-              <img src="/icons/arrow-up-right.svg" alt="img" />
+              <Image
+                src="/icons/arrow-up-right.svg"
+                alt="Icône lien externe"
+                width={16}
+                height={16}
+                loading="lazy"
+              />
             </Link>
           </li>
         </ul>

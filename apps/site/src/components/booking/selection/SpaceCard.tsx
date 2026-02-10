@@ -5,6 +5,7 @@
 // Created: 2026-02-08
 // ============================================================================
 
+import Image from "next/image";
 import Link from "next/link";
 import type { SpaceCardProps } from "./types";
 
@@ -25,9 +26,13 @@ export default function SpaceCard({
           {/* Image Container */}
           <div className="card-image-container">
             {space.image ? (
-              <img
+              <Image
                 src={space.image}
-                alt={space.title}
+                alt={`${space.title} - Espace CoworKing Café Anticafé Strasbourg`}
+                width={600}
+                height={400}
+                loading="lazy"
+                quality={85}
                 className="space-image"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";

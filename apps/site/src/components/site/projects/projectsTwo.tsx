@@ -3,6 +3,7 @@ import { projectsTwoData } from "../../../db/projectsTwoData";
 import ProjectCard from "./projectCard";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import Link from "next/link";
 
 const ProjectsTwo = () => {
@@ -15,7 +16,13 @@ const ProjectsTwo = () => {
             campaign across various
           </h1>
           <Link href="/projects" className="circle circle__black mt-4 mt-lg-0">
-            <img src="/icons/arrow-up-rignt-black.svg" alt="img" />
+            <Image
+              src="/icons/arrow-up-rignt-black.svg"
+              alt="Icône lien externe"
+              width={20}
+              height={20}
+              loading="lazy"
+            />
             <span>View All Projects</span>
           </Link>
         </SlideDown>

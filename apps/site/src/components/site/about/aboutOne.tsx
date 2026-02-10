@@ -1,6 +1,7 @@
 import { partnerOneLogos } from "../../../db/partnerOneLogos";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import Link from "next/link";
 import Partner from "../partner";
 
@@ -47,9 +48,13 @@ const AboutOne = () => {
           <div className="col-xl-4 col-lg-6">
             <SlideUp delay={2}>
               <div className="about__wapper_center">
-                <img
+                <Image
                   src="/images/about/open-space-strasbourg.webp"
-                  alt="open-space-strasbourg"
+                  alt="Espace de travail open space - CoworKing Café Anticafé Strasbourg"
+                  width={800}
+                  height={600}
+                  loading="lazy"
+                  quality={85}
                 />
               </div>
             </SlideUp>

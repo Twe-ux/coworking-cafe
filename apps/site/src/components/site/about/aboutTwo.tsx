@@ -1,6 +1,7 @@
 import { partnerTwoLogos } from "../../../db/partnerOneLogos";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import Link from "next/link";
 import Partner from "../partner";
 
@@ -23,9 +24,12 @@ const AboutTwo = () => {
                 className="about__title_shap"
                 style={{ width: "100%", height: "100%", position: "relative" }}
               >
-                <img
+                <Image
                   src="/images/banner/Shape.svg"
-                  alt="img"
+                  alt="Forme décorative"
+                  width={100}
+                  height={100}
+                  loading="lazy"
                   className="w-100"
                 />
               </div>
@@ -36,7 +40,14 @@ const AboutTwo = () => {
           <div className="col-lg-6">
             <SlideUp>
               <div className="about__wapper_center">
-                <img src="/images/about/OBJECTS1.png" alt="img" />
+                <Image
+                  src="/images/about/OBJECTS1.png"
+                  alt="Illustration services digitaux"
+                  width={600}
+                  height={600}
+                  loading="lazy"
+                  quality={85}
+                />
               </div>
             </SlideUp>
           </div>
@@ -47,7 +58,13 @@ const AboutTwo = () => {
                   href="/about"
                   className="circle circle__black about__2_circle"
                 >
-                  <img src="/icons/arrow-up-rignt-black.svg" alt="img" />
+                  <Image
+                    src="/icons/arrow-up-rignt-black.svg"
+                    alt="Icône lien externe"
+                    width={20}
+                    height={20}
+                    loading="lazy"
+                  />
                   <span>More About Us</span>
                 </Link>
                 <p className="one">
