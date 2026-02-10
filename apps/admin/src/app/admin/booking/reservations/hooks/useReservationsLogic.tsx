@@ -16,6 +16,7 @@ export function useReservationsLogic() {
   );
   const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
   const [quickCancelDialogOpen, setQuickCancelDialogOpen] = useState(false);
@@ -66,8 +67,30 @@ export function useReservationsLogic() {
       filtered = filtered.filter((b) => b.startDate === dateFilter);
     }
 
-    return filtered;
-  }, [allBookings, statusFilter, nameFilter, dateFilter]);
+    // Filter by month (YYYY-MM format)
+    if (monthFilter.trim()) {
+      filtered = filtered.filter((b) => b.startDate.startsWith(monthFilter));
+    }
+
+    // Sort by date and time (most recent first)
+    return filtered.sort((a, b) => {
+      // Compare dates
+      const dateA = new Date(a.startDate).getTime();
+      const dateB = new Date(b.startDate).getTime();
+
+      if (dateA !== dateB) {
+        return dateB - dateA; // Descending order (most recent first)
+      }
+
+      // If same date, sort by start time
+      const timeA = a.startTime.split(':').map(Number);
+      const timeB = b.startTime.split(':').map(Number);
+      const minutesA = timeA[0] * 60 + timeA[1];
+      const minutesB = timeB[0] * 60 + timeB[1];
+
+      return minutesB - minutesA; // Descending order (latest time first)
+    });
+  }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter]);
 
   const handleRowClick = (booking: Booking) => {
     setDetailBooking(booking);
@@ -160,6 +183,8 @@ export function useReservationsLogic() {
     setNameFilter,
     dateFilter,
     setDateFilter,
+    monthFilter,
+    setMonthFilter,
     detailModalOpen,
     setDetailModalOpen,
     detailBooking,

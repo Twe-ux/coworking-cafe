@@ -21,6 +21,8 @@ export function ReservationsClient() {
     setNameFilter,
     dateFilter,
     setDateFilter,
+    monthFilter,
+    setMonthFilter,
     detailModalOpen,
     setDetailModalOpen,
     detailBooking,
@@ -124,6 +126,8 @@ export function ReservationsClient() {
         onCancel={handleQuickCancelClick}
         isConfirming={confirmBooking.isPending}
         isCancelling={cancelBooking.isPending}
+        monthFilter={monthFilter}
+        setMonthFilter={setMonthFilter}
       />
 
       <ReservationDialog
