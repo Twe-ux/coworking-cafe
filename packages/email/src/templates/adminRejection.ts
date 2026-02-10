@@ -16,6 +16,11 @@ export interface ReservationRejectedData {
   confirmationNumber?: string;
   rejectionReason?: string; // Rejection reason from admin
   contactEmail: string;
+  // Cancellation fees (optional - for confirmed booking cancellations)
+  cancellationFees?: number;  // Montant des frais d'annulation
+  refundAmount?: number;      // Montant libéré
+  chargePercentage?: number;  // Pourcentage de charge (0, 50, 100)
+  daysUntilBooking?: number;  // Jours avant la réservation
 }
 
 export function generateReservationRejectedEmail(
@@ -145,7 +150,53 @@ export function generateReservationRejectedEmail(
         </div>
       </div>
 
-      <!-- Refund info box -->
+      <!-- Payment info box (fees or refund) -->
+      ${
+        data.chargePercentage !== undefined && data.chargePercentage > 0
+          ? `
+      <!-- Frais d'annulation -->
+      <div style="background-color: #fff7ed; border-radius: 8px; padding: 20px; margin: 28px 0; border-left: 4px solid #f97316;">
+        <p style="margin: 0 0 16px 0; font-weight: 700; color: #9a3412; font-size: 16px;">
+          💳 Frais d'annulation appliqués
+        </p>
+        <p style="margin: 0 0 16px 0; color: #9a3412; font-size: 15px; line-height: 1.7;">
+          Selon nos conditions d'annulation, des frais s'appliquent car votre annulation intervient à moins de ${data.daysUntilBooking || 0} jours de la réservation.
+        </p>
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 16px; border-top: 2px solid #f97316; padding-top: 16px;">
+          <tr>
+            <td style="padding: 8px 0; font-weight: 600; color: #9a3412; font-size: 15px;">
+              Frais d'annulation (${data.chargePercentage}%)
+            </td>
+            <td style="text-align: right; font-weight: 700; color: #dc2626; font-size: 16px;">
+              ${data.cancellationFees?.toFixed(2) || '0.00'} €
+            </td>
+          </tr>
+          ${
+            data.refundAmount !== undefined && data.refundAmount > 0
+              ? `
+          <tr>
+            <td style="padding: 8px 0; font-weight: 600; color: #065f46; font-size: 15px;">
+              Montant libéré
+            </td>
+            <td style="text-align: right; font-weight: 700; color: #059669; font-size: 16px;">
+              ${data.refundAmount.toFixed(2)} €
+            </td>
+          </tr>
+              `
+              : ""
+          }
+        </table>
+        <p style="margin: 16px 0 0 0; color: #9a3412; font-size: 14px; font-style: italic;">
+          ${
+            data.chargePercentage === 100
+              ? "L'intégralité de l'empreinte bancaire a été capturée."
+              : `${data.cancellationFees?.toFixed(2) || '0.00'} € ont été prélevés et ${data.refundAmount?.toFixed(2) || '0.00'} € ont été libérés.`
+          }
+        </p>
+      </div>
+          `
+          : `
+      <!-- Empreinte libérée -->
       <div class="refund-box" style="background-color: #ecfdf5; border-radius: 8px; padding: 20px; margin: 28px 0; border-left: 4px solid #10b981;">
         <p style="margin: 0 0 12px 0; font-weight: 700; color: #065f46; font-size: 16px;">
           💳 Empreinte bancaire libérée
@@ -154,6 +205,8 @@ export function generateReservationRejectedEmail(
           L'empreinte bancaire qui avait été effectuée a été automatiquement libérée. Aucun montant ne sera prélevé sur votre carte.
         </p>
       </div>
+          `
+      }
 
       <p style="margin: 28px 0 16px 0; font-size: 16px; line-height: 1.7;">
         Si vous souhaitez effectuer une nouvelle réservation pour une autre date ou obtenir plus d'informations, n'hésitez pas à nous contacter ou à consulter notre site web.
