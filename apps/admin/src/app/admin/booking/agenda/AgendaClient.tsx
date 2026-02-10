@@ -82,6 +82,7 @@ export function AgendaClient() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<"present" | "noshow" | null>(null);
+  const [pendingIsAdminBooking, setPendingIsAdminBooking] = useState<boolean>(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteBookingId, setDeleteBookingId] = useState<string | null>(null);
 
@@ -225,14 +226,18 @@ export function AgendaClient() {
   };
 
   const handleMarkPresent = (bookingId: string) => {
+    const booking = bookings.find((b) => b._id === bookingId);
     setPendingBookingId(bookingId);
     setPendingAction("present");
+    setPendingIsAdminBooking(booking?.isAdminBooking || false);
     setConfirmDialogOpen(true);
   };
 
   const handleMarkNoShow = (bookingId: string) => {
+    const booking = bookings.find((b) => b._id === bookingId);
     setPendingBookingId(bookingId);
     setPendingAction("noshow");
+    setPendingIsAdminBooking(booking?.isAdminBooking || false);
     setConfirmDialogOpen(true);
   };
 
@@ -256,11 +261,17 @@ export function AgendaClient() {
       const data = await response.json();
 
       if (data.success) {
+        const successMessage = pendingIsAdminBooking
+          ? isPresent
+            ? "Client marqué comme présent"
+            : "Client marqué comme no-show"
+          : isPresent
+            ? "Client marqué comme présent - Empreinte bancaire libérée"
+            : "Client marqué comme no-show - Empreinte bancaire capturée";
+
         setMessage({
           type: "success",
-          text: isPresent
-            ? "Client marqué comme présent - Empreinte bancaire libérée"
-            : "Client marqué comme no-show - Empreinte bancaire capturée",
+          text: successMessage,
         });
         fetchBookings();
         setDayModalOpen(false);
@@ -507,6 +518,7 @@ export function AgendaClient() {
         onConfirm={confirmActionHandler}
         action={pendingAction || "present"}
         isProcessing={isMarkingPresent || isMarkingNoShow}
+        isAdminBooking={pendingIsAdminBooking}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => !open && cancelDeleteHandler()}>

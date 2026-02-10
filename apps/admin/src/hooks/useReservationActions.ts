@@ -6,8 +6,9 @@ interface UseReservationActionsReturn {
   dialogOpen: boolean;
   pendingBookingId: string | null;
   pendingAction: "present" | "noshow" | null;
-  handleMarkPresent: (bookingId: string) => void;
-  handleMarkNoShow: (bookingId: string) => void;
+  pendingIsAdminBooking: boolean;
+  handleMarkPresent: (bookingId: string, isAdminBooking?: boolean) => void;
+  handleMarkNoShow: (bookingId: string, isAdminBooking?: boolean) => void;
   confirmAction: () => Promise<void>;
   cancelAction: () => void;
 }
@@ -26,18 +27,21 @@ export function useReservationActions(
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<"present" | "noshow" | null>(null);
+  const [pendingIsAdminBooking, setPendingIsAdminBooking] = useState<boolean>(false);
 
-  const handleMarkPresent = (bookingId: string) => {
+  const handleMarkPresent = (bookingId: string, isAdminBooking?: boolean) => {
     if (processingId) return;
     setPendingBookingId(bookingId);
     setPendingAction("present");
+    setPendingIsAdminBooking(isAdminBooking || false);
     setDialogOpen(true);
   };
 
-  const handleMarkNoShow = (bookingId: string) => {
+  const handleMarkNoShow = (bookingId: string, isAdminBooking?: boolean) => {
     if (processingId) return;
     setPendingBookingId(bookingId);
     setPendingAction("noshow");
+    setPendingIsAdminBooking(isAdminBooking || false);
     setDialogOpen(true);
   };
 
@@ -80,6 +84,7 @@ export function useReservationActions(
     setDialogOpen(false);
     setPendingBookingId(null);
     setPendingAction(null);
+    setPendingIsAdminBooking(false);
   };
 
   return {
@@ -88,6 +93,7 @@ export function useReservationActions(
     dialogOpen,
     pendingBookingId,
     pendingAction,
+    pendingIsAdminBooking,
     handleMarkPresent,
     handleMarkNoShow,
     confirmAction,

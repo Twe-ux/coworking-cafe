@@ -110,30 +110,33 @@ export async function POST(
     }
 
     // Send no-show email to client
-    try {
-      const user = booking.user;
-      const space = booking.space;
-      const bookingDate = booking.date instanceof Date
-        ? booking.date.toISOString().split('T')[0]
-        : String(booking.date);
+    // Skip email for admin bookings (no bank deposit)
+    if (!bookingDoc.isAdminBooking) {
+      try {
+        const user = booking.user;
+        const space = booking.space;
+        const bookingDate = booking.date instanceof Date
+          ? booking.date.toISOString().split('T')[0]
+          : String(booking.date);
 
-      if (user && user.email) {
-        await sendClientNoShowEmail(
-          user.email,
-          {
-            name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client',
-            spaceName: space?.name || 'Espace',
-            date: bookingDate,
-            startTime: booking.startTime || '09:00',
-            endTime: booking.endTime || '18:00',
-            numberOfPeople: booking.numberOfPeople || 1,
-            depositAmount: booking.depositAmount || 0,
-          }
-        );
+        if (user && user.email) {
+          await sendClientNoShowEmail(
+            user.email,
+            {
+              name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client',
+              spaceName: space?.name || 'Espace',
+              date: bookingDate,
+              startTime: booking.startTime || '09:00',
+              endTime: booking.endTime || '18:00',
+              numberOfPeople: booking.numberOfPeople || 1,
+              depositAmount: booking.depositAmount || 0,
+            }
+          );
+        }
+      } catch (emailError) {
+        console.error("[API] Error sending no-show email:", emailError);
+        // Don't fail the request if email fails
       }
-    } catch (emailError) {
-      console.error("[API] Error sending no-show email:", emailError);
-      // Don't fail the request if email fails
     }
 
     return successResponse(
@@ -142,7 +145,9 @@ export async function POST(
         status: booking.status,
         cancelReason: booking.cancelReason,
       },
-      "Client marqué comme no-show - Empreinte bancaire capturée"
+      bookingDoc.isAdminBooking
+        ? "Client marqué comme no-show"
+        : "Client marqué comme no-show - Empreinte bancaire capturée"
     );
   } catch (error) {
     console.error("[API] Mark no-show error:", error);

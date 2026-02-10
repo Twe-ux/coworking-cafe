@@ -18,6 +18,7 @@ interface ConfirmActionDialogProps {
   onConfirm: () => void;
   action: "present" | "noshow";
   isProcessing?: boolean;
+  isAdminBooking?: boolean;
 }
 
 /**
@@ -30,14 +31,16 @@ export function ConfirmActionDialog({
   onConfirm,
   action,
   isProcessing = false,
+  isAdminBooking = false,
 }: ConfirmActionDialogProps) {
   const config = {
     present: {
       icon: CheckCircle2,
       iconColor: "text-green-600",
       title: "Confirmer la présence du client",
-      description:
-        "Cela libérera l'empreinte bancaire et enverra un email de confirmation au client.",
+      description: isAdminBooking
+        ? "Le statut de la réservation sera mis à jour et un email de confirmation sera envoyé au client."
+        : "Cela libérera l'empreinte bancaire et enverra un email de confirmation au client.",
       actionLabel: "Confirmer la présence",
       actionClass: "bg-green-600 hover:bg-green-700",
     },
@@ -45,8 +48,9 @@ export function ConfirmActionDialog({
       icon: XCircle,
       iconColor: "text-orange-600",
       title: "Marquer comme no-show",
-      description:
-        "Cela capturera l'empreinte bancaire et enverra un email d'information au client.",
+      description: isAdminBooking
+        ? "Le statut de la réservation sera mis à jour et un email d'information sera envoyé au client."
+        : "Cela capturera l'empreinte bancaire et enverra un email d'information au client.",
       actionLabel: "Marquer comme no-show",
       actionClass: "bg-orange-600 hover:bg-orange-700",
     },

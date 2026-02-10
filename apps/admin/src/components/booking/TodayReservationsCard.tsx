@@ -50,6 +50,7 @@ export function TodayReservationsCard({
     actionType,
     dialogOpen,
     pendingAction,
+    pendingIsAdminBooking,
     handleMarkPresent,
     handleMarkNoShow,
     confirmAction,
@@ -132,8 +133,8 @@ export function TodayReservationsCard({
                       displayName={displayName}
                       isProcessing={isProcessing}
                       actionType={actionType}
-                      onMarkPresent={handleMarkPresent}
-                      onMarkNoShow={handleMarkNoShow}
+                      onMarkPresent={(id) => handleMarkPresent(id, booking.isAdminBooking)}
+                      onMarkNoShow={(id) => handleMarkNoShow(id, booking.isAdminBooking)}
                       processingDisabled={processingId !== null}
                     />
                   );
@@ -225,6 +226,7 @@ export function TodayReservationsCard({
         onConfirm={confirmAction}
         action={pendingAction || "present"}
         isProcessing={processingId !== null}
+        isAdminBooking={pendingIsAdminBooking}
       />
     </Card>
   );

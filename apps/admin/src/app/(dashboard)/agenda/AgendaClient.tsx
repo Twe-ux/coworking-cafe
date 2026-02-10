@@ -54,6 +54,7 @@ export function AgendaClient() {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<"present" | "noshow" | null>(null);
+  const [pendingIsAdminBooking, setPendingIsAdminBooking] = useState<boolean>(false);
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -97,14 +98,18 @@ export function AgendaClient() {
   };
 
   const handleMarkPresent = (bookingId: string) => {
+    const booking = bookings.find((b) => b._id === bookingId);
     setPendingBookingId(bookingId);
     setPendingAction("present");
+    setPendingIsAdminBooking(booking?.isAdminBooking || false);
     setConfirmDialogOpen(true);
   };
 
   const handleMarkNoShow = (bookingId: string) => {
+    const booking = bookings.find((b) => b._id === bookingId);
     setPendingBookingId(bookingId);
     setPendingAction("noshow");
+    setPendingIsAdminBooking(booking?.isAdminBooking || false);
     setConfirmDialogOpen(true);
   };
 
@@ -157,6 +162,7 @@ export function AgendaClient() {
     setConfirmDialogOpen(false);
     setPendingBookingId(null);
     setPendingAction(null);
+    setPendingIsAdminBooking(false);
   };
 
   const renderCell = (date: Date, dayBookings: Booking[]) => {
@@ -255,6 +261,7 @@ export function AgendaClient() {
         onConfirm={confirmActionHandler}
         action={pendingAction || "present"}
         isProcessing={isMarkingPresent || isMarkingNoShow}
+        isAdminBooking={pendingIsAdminBooking}
       />
     </div>
   );

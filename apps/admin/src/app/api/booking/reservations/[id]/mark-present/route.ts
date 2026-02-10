@@ -123,33 +123,36 @@ export async function POST(
     }
 
     // Send email to client confirming presence and card hold release
-    try {
-      const bookingDate = booking.date instanceof Date
-        ? booking.date.toISOString().split('T')[0]
-        : String(booking.date);
+    // Skip email for admin bookings (no bank deposit)
+    if (!bookingDoc.isAdminBooking) {
+      try {
+        const bookingDate = booking.date instanceof Date
+          ? booking.date.toISOString().split('T')[0]
+          : String(booking.date);
 
-      // Check if user is populated and has email
-      if (isPopulatedUser(booking.user) && booking.user.email) {
-        const user = booking.user;
-        const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client';
-        const spaceName = isPopulatedSpace(booking.space) ? booking.space.name : 'Espace';
+        // Check if user is populated and has email
+        if (isPopulatedUser(booking.user) && booking.user.email) {
+          const user = booking.user;
+          const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client';
+          const spaceName = isPopulatedSpace(booking.space) ? booking.space.name : 'Espace';
 
-        await sendClientPresentEmail(
-          user.email,
-          {
-            name: userName,
-            spaceName,
-            date: bookingDate,
-            startTime: booking.startTime || '09:00',
-            endTime: booking.endTime || '18:00',
-            numberOfPeople: booking.numberOfPeople || 1,
-            totalPrice: booking.totalPrice || 0,
-          }
-        );
+          await sendClientPresentEmail(
+            user.email,
+            {
+              name: userName,
+              spaceName,
+              date: bookingDate,
+              startTime: booking.startTime || '09:00',
+              endTime: booking.endTime || '18:00',
+              numberOfPeople: booking.numberOfPeople || 1,
+              totalPrice: booking.totalPrice || 0,
+            }
+          );
+        }
+      } catch (emailError) {
+        console.error("[API] Error sending present email:", emailError);
+        // Don't fail the request if email fails
       }
-    } catch (emailError) {
-      console.error("[API] Error sending present email:", emailError);
-      // Don't fail the request if email fails
     }
 
     return successResponse(
@@ -157,7 +160,9 @@ export async function POST(
         _id: booking._id,
         status: booking.status,
       },
-      "Client marqué comme présent - Empreinte bancaire libérée"
+      bookingDoc.isAdminBooking
+        ? "Client marqué comme présent"
+        : "Client marqué comme présent - Empreinte bancaire libérée"
     );
   } catch (error) {
     console.error("[API] Mark present error:", error);
