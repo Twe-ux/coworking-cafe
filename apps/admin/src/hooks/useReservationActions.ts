@@ -3,8 +3,13 @@ import { useState } from "react";
 interface UseReservationActionsReturn {
   processingId: string | null;
   actionType: "present" | "noshow" | null;
-  handleMarkPresent: (bookingId: string) => Promise<void>;
-  handleMarkNoShow: (bookingId: string) => Promise<void>;
+  dialogOpen: boolean;
+  pendingBookingId: string | null;
+  pendingAction: "present" | "noshow" | null;
+  handleMarkPresent: (bookingId: string) => void;
+  handleMarkNoShow: (bookingId: string) => void;
+  confirmAction: () => Promise<void>;
+  cancelAction: () => void;
 }
 
 interface UseReservationActionsOptions {
@@ -18,83 +23,74 @@ export function useReservationActions(
   const [actionType, setActionType] = useState<"present" | "noshow" | null>(
     null
   );
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<"present" | "noshow" | null>(null);
 
-  const handleMarkPresent = async (bookingId: string) => {
+  const handleMarkPresent = (bookingId: string) => {
     if (processingId) return;
+    setPendingBookingId(bookingId);
+    setPendingAction("present");
+    setDialogOpen(true);
+  };
 
-    if (
-      !confirm(
-        "Confirmer la présence du client ? Cela libérera l'empreinte bancaire et enverra un email de confirmation."
-      )
-    )
-      return;
+  const handleMarkNoShow = (bookingId: string) => {
+    if (processingId) return;
+    setPendingBookingId(bookingId);
+    setPendingAction("noshow");
+    setDialogOpen(true);
+  };
+
+  const confirmAction = async () => {
+    if (!pendingBookingId || !pendingAction) return;
 
     try {
-      setProcessingId(bookingId);
-      setActionType("present");
+      setProcessingId(pendingBookingId);
+      setActionType(pendingAction);
+
+      const endpoint = pendingAction === "present" ? "mark-present" : "mark-noshow";
       const response = await fetch(
-        `/api/booking/reservations/${bookingId}/mark-present`,
+        `/api/booking/reservations/${pendingBookingId}/${endpoint}`,
         {
           method: "POST",
-          credentials: "include" // Include cookies for authentication
+          credentials: "include"
         }
       );
       const data = await response.json();
-      console.log("[useReservationActions] Mark present response:", data);
+      console.log(`[useReservationActions] ${endpoint} response:`, data);
+
       if (data.success) {
         console.log("[useReservationActions] Calling onSuccess callback");
         options?.onSuccess?.();
+        setDialogOpen(false);
       } else {
-        console.error("[useReservationActions] Mark present failed:", data);
+        console.error(`[useReservationActions] ${endpoint} failed:`, data);
       }
     } catch (error) {
-      console.error("[useReservationActions] Mark present error:", error);
+      console.error(`[useReservationActions] ${pendingAction} error:`, error);
     } finally {
       setProcessingId(null);
       setActionType(null);
+      setPendingBookingId(null);
+      setPendingAction(null);
     }
   };
 
-  const handleMarkNoShow = async (bookingId: string) => {
-    if (processingId) return;
-
-    if (
-      !confirm(
-        "Marquer comme no-show ? Cela capturera l'empreinte bancaire et enverra un email au client."
-      )
-    )
-      return;
-
-    try {
-      setProcessingId(bookingId);
-      setActionType("noshow");
-      const response = await fetch(
-        `/api/booking/reservations/${bookingId}/mark-noshow`,
-        {
-          method: "POST",
-          credentials: "include" // Include cookies for authentication
-        }
-      );
-      const data = await response.json();
-      console.log("[useReservationActions] Mark no-show response:", data);
-      if (data.success) {
-        console.log("[useReservationActions] Calling onSuccess callback");
-        options?.onSuccess?.();
-      } else {
-        console.error("[useReservationActions] Mark no-show failed:", data);
-      }
-    } catch (error) {
-      console.error("[useReservationActions] Mark no-show error:", error);
-    } finally {
-      setProcessingId(null);
-      setActionType(null);
-    }
+  const cancelAction = () => {
+    setDialogOpen(false);
+    setPendingBookingId(null);
+    setPendingAction(null);
   };
 
   return {
     processingId,
     actionType,
+    dialogOpen,
+    pendingBookingId,
+    pendingAction,
     handleMarkPresent,
     handleMarkNoShow,
+    confirmAction,
+    cancelAction,
   };
 }

@@ -10,6 +10,7 @@ import { EmptyReservationsState } from "./components/EmptyReservationsState";
 import { ReservationsLoadingSkeleton } from "./components/ReservationsLoadingSkeleton";
 import { ReservationsErrorState } from "./components/ReservationsErrorState";
 import { SPACE_TYPE_COLORS, getSpaceType } from "./components/utils";
+import { ConfirmActionDialog } from "./ConfirmActionDialog";
 
 interface TodayReservationsCardProps {
   /**
@@ -44,10 +45,18 @@ export function TodayReservationsCard({
   const { reservations, isLoading, error, refetch, isAdminOrDev } =
     useTodayReservations();
 
-  const { processingId, actionType, handleMarkPresent, handleMarkNoShow } =
-    useReservationActions({
-      onSuccess: refetch,
-    });
+  const {
+    processingId,
+    actionType,
+    dialogOpen,
+    pendingAction,
+    handleMarkPresent,
+    handleMarkNoShow,
+    confirmAction,
+    cancelAction,
+  } = useReservationActions({
+    onSuccess: refetch,
+  });
 
   // Get today's date (YYYY-MM-DD)
   const today = new Date().toISOString().split("T")[0];
@@ -209,6 +218,14 @@ export function TodayReservationsCard({
           </div>
         )}
       </CardContent>
+
+      <ConfirmActionDialog
+        open={dialogOpen}
+        onOpenChange={(open) => !open && cancelAction()}
+        onConfirm={confirmAction}
+        action={pendingAction || "present"}
+        isProcessing={processingId !== null}
+      />
     </Card>
   );
 }

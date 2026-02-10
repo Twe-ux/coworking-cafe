@@ -10,6 +10,7 @@ import {
 import { AgendaDayModal } from "./AgendaDayModal";
 import { AgendaPageSkeleton } from "./AgendaPageSkeleton";
 import type { Booking } from "@/types/booking";
+import { ConfirmActionDialog } from "@/components/booking/ConfirmActionDialog";
 
 const spaceTypeColors: Record<string, string> = {
   "open-space": "bg-blue-500",
@@ -50,6 +51,9 @@ export function AgendaClient() {
   const [dayModalBookings, setDayModalBookings] = useState<Booking[]>([]);
   const [isMarkingPresent, setIsMarkingPresent] = useState(false);
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<"present" | "noshow" | null>(null);
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -92,57 +96,32 @@ export function AgendaClient() {
     setDayModalOpen(true);
   };
 
-  const handleMarkPresent = async (bookingId: string) => {
-    if (
-      !confirm(
-        "Confirmer la présence du client ? Cela libérera l'empreinte bancaire et enverra un email de confirmation.",
-      )
-    )
-      return;
-
-    try {
-      setIsMarkingPresent(true);
-      const response = await fetch(
-        `/api/booking/reservations/${bookingId}/mark-present`,
-        { method: "POST" },
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({
-          type: "success",
-          text: "Client marqué comme présent",
-        });
-        fetchBookings();
-        setDayModalOpen(false);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.error || "Erreur lors de la confirmation",
-        });
-      }
-    } catch {
-      setMessage({
-        type: "error",
-        text: "Erreur lors de la confirmation de présence",
-      });
-    } finally {
-      setIsMarkingPresent(false);
-    }
+  const handleMarkPresent = (bookingId: string) => {
+    setPendingBookingId(bookingId);
+    setPendingAction("present");
+    setConfirmDialogOpen(true);
   };
 
-  const handleMarkNoShow = async (bookingId: string) => {
-    if (
-      !confirm(
-        "Marquer comme no-show ? Cela capturera l'empreinte bancaire et enverra un email au client.",
-      )
-    )
-      return;
+  const handleMarkNoShow = (bookingId: string) => {
+    setPendingBookingId(bookingId);
+    setPendingAction("noshow");
+    setConfirmDialogOpen(true);
+  };
+
+  const confirmActionHandler = async () => {
+    if (!pendingBookingId || !pendingAction) return;
 
     try {
-      setIsMarkingNoShow(true);
+      const isPresent = pendingAction === "present";
+      if (isPresent) {
+        setIsMarkingPresent(true);
+      } else {
+        setIsMarkingNoShow(true);
+      }
+
+      const endpoint = isPresent ? "mark-present" : "mark-noshow";
       const response = await fetch(
-        `/api/booking/reservations/${bookingId}/mark-noshow`,
+        `/api/booking/reservations/${pendingBookingId}/${endpoint}`,
         { method: "POST" },
       );
       const data = await response.json();
@@ -150,10 +129,11 @@ export function AgendaClient() {
       if (data.success) {
         setMessage({
           type: "success",
-          text: "Client marqué comme no-show",
+          text: isPresent ? "Client marqué comme présent" : "Client marqué comme no-show",
         });
         fetchBookings();
         setDayModalOpen(false);
+        setConfirmDialogOpen(false);
       } else {
         setMessage({
           type: "error",
@@ -163,11 +143,20 @@ export function AgendaClient() {
     } catch {
       setMessage({
         type: "error",
-        text: "Erreur lors du traitement du no-show",
+        text: "Erreur lors du traitement",
       });
     } finally {
+      setIsMarkingPresent(false);
       setIsMarkingNoShow(false);
+      setPendingBookingId(null);
+      setPendingAction(null);
     }
+  };
+
+  const cancelActionHandler = () => {
+    setConfirmDialogOpen(false);
+    setPendingBookingId(null);
+    setPendingAction(null);
   };
 
   const renderCell = (date: Date, dayBookings: Booking[]) => {
@@ -258,6 +247,14 @@ export function AgendaClient() {
             ))}
           </div>
         }
+      />
+
+      <ConfirmActionDialog
+        open={confirmDialogOpen}
+        onOpenChange={(open) => !open && cancelActionHandler()}
+        onConfirm={confirmActionHandler}
+        action={pendingAction || "present"}
+        isProcessing={isMarkingPresent || isMarkingNoShow}
       />
     </div>
   );

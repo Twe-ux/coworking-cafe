@@ -16,6 +16,18 @@ import { EditBookingDialog } from "../reservations/EditBookingDialog";
 import { DayBookingsModal } from "./DayBookingsModal";
 import { useSession } from "next-auth/react";
 import type { Booking, BookingStatus } from "@/types/booking";
+import { ConfirmActionDialog } from "@/components/booking/ConfirmActionDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Trash2, Loader2 } from "lucide-react";
 
 const spaceTypeColors: Record<string, string> = {
   "open-space": "bg-blue-500",
@@ -67,6 +79,11 @@ export function AgendaClient() {
   const [isMarkingPresent, setIsMarkingPresent] = useState(false);
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<"present" | "noshow" | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteBookingId, setDeleteBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBookings();
@@ -207,22 +224,33 @@ export function AgendaClient() {
     setDialogOpen(true);
   };
 
-  const handleMarkPresent = async (bookingId: string) => {
-    if (
-      !confirm(
-        "Confirmer la présence du client ? Cela libérera l'empreinte bancaire et enverra un email de confirmation."
-      )
-    ) {
-      return;
-    }
+  const handleMarkPresent = (bookingId: string) => {
+    setPendingBookingId(bookingId);
+    setPendingAction("present");
+    setConfirmDialogOpen(true);
+  };
+
+  const handleMarkNoShow = (bookingId: string) => {
+    setPendingBookingId(bookingId);
+    setPendingAction("noshow");
+    setConfirmDialogOpen(true);
+  };
+
+  const confirmActionHandler = async () => {
+    if (!pendingBookingId || !pendingAction) return;
 
     try {
-      setIsMarkingPresent(true);
+      const isPresent = pendingAction === "present";
+      if (isPresent) {
+        setIsMarkingPresent(true);
+      } else {
+        setIsMarkingNoShow(true);
+      }
+
+      const endpoint = isPresent ? "mark-present" : "mark-noshow";
       const response = await fetch(
-        `/api/booking/reservations/${bookingId}/mark-present`,
-        {
-          method: "POST",
-        }
+        `/api/booking/reservations/${pendingBookingId}/${endpoint}`,
+        { method: "POST" }
       );
 
       const data = await response.json();
@@ -230,77 +258,49 @@ export function AgendaClient() {
       if (data.success) {
         setMessage({
           type: "success",
-          text: "Client marqué comme présent - Empreinte bancaire libérée",
+          text: isPresent
+            ? "Client marqué comme présent - Empreinte bancaire libérée"
+            : "Client marqué comme no-show - Empreinte bancaire capturée",
         });
         fetchBookings();
         setDayModalOpen(false);
+        setConfirmDialogOpen(false);
       } else {
         setMessage({
           type: "error",
-          text: data.error || "Erreur lors de la confirmation de présence",
+          text: data.error || "Erreur lors du traitement",
         });
       }
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Erreur lors de la confirmation de présence",
+        text: "Erreur lors du traitement",
       });
     } finally {
       setIsMarkingPresent(false);
-    }
-  };
-
-  const handleMarkNoShow = async (bookingId: string) => {
-    if (
-      !confirm(
-        "Marquer comme no-show ? Cela capturera l'empreinte bancaire et enverra un email au client."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setIsMarkingNoShow(true);
-      const response = await fetch(
-        `/api/booking/reservations/${bookingId}/mark-noshow`,
-        {
-          method: "POST",
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({
-          type: "success",
-          text: "Client marqué comme no-show - Empreinte bancaire capturée",
-        });
-        fetchBookings();
-        setDayModalOpen(false);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.error || "Erreur lors du traitement du no-show",
-        });
-      }
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: "Erreur lors du traitement du no-show",
-      });
-    } finally {
       setIsMarkingNoShow(false);
+      setPendingBookingId(null);
+      setPendingAction(null);
     }
   };
 
-  const handleDelete = async (bookingId: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?")) {
-      return;
-    }
+  const cancelActionHandler = () => {
+    setConfirmDialogOpen(false);
+    setPendingBookingId(null);
+    setPendingAction(null);
+  };
+
+  const handleDelete = (bookingId: string) => {
+    setDeleteBookingId(bookingId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteHandler = async () => {
+    if (!deleteBookingId) return;
 
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/booking/reservations/${bookingId}`, {
+      const response = await fetch(`/api/booking/reservations/${deleteBookingId}`, {
         method: "DELETE",
       });
 
@@ -313,6 +313,7 @@ export function AgendaClient() {
         });
         fetchBookings();
         setDayModalOpen(false);
+        setDeleteDialogOpen(false);
       } else {
         setMessage({
           type: "error",
@@ -326,7 +327,13 @@ export function AgendaClient() {
       });
     } finally {
       setIsDeleting(false);
+      setDeleteBookingId(null);
     }
+  };
+
+  const cancelDeleteHandler = () => {
+    setDeleteDialogOpen(false);
+    setDeleteBookingId(null);
   };
 
   const getSpaceType = (spaceName?: string): string => {
@@ -493,6 +500,42 @@ export function AgendaClient() {
           </Button>
         }
       />
+
+      <ConfirmActionDialog
+        open={confirmDialogOpen}
+        onOpenChange={(open) => !open && cancelActionHandler()}
+        onConfirm={confirmActionHandler}
+        action={pendingAction || "present"}
+        isProcessing={isMarkingPresent || isMarkingNoShow}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => !open && cancelDeleteHandler()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <Trash2 className="h-6 w-6 text-red-600" />
+              <AlertDialogTitle>Supprimer la réservation</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-base">
+              Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDeleteHandler();
+              }}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

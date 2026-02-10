@@ -8,6 +8,7 @@ import {
   Check,
   X,
   Pencil,
+  Loader2,
 } from "lucide-react";
 import type { Booking } from "@/types/booking";
 import {
@@ -140,16 +141,21 @@ export function ReservationCard({
                     size="icon"
                     className="h-8 w-8 border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
                     onClick={() => booking._id && onConfirm(booking._id)}
-                    disabled={isConfirming}
+                    disabled={isConfirming || isCancelling}
                     title="Valider"
                   >
-                    <Check className="h-4 w-4" />
+                    {isConfirming ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
                     className="h-8 w-8 border-blue-500 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
                     onClick={() => onEdit(booking)}
+                    disabled={isConfirming || isCancelling}
                     title="Modifier"
                   >
                     <Pencil className="h-4 w-4" />
@@ -159,10 +165,14 @@ export function ReservationCard({
                     size="icon"
                     className="h-8 w-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
                     onClick={() => booking._id && onCancel(booking._id)}
-                    disabled={isCancelling}
+                    disabled={isConfirming || isCancelling}
                     title="Annuler"
                   >
-                    <X className="h-4 w-4" />
+                    {isCancelling ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <X className="h-4 w-4" />
+                    )}
                   </Button>
                 </>
               )}
@@ -173,6 +183,7 @@ export function ReservationCard({
                     size="icon"
                     className="h-8 w-8 border-blue-500 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
                     onClick={() => onEdit(booking)}
+                    disabled={isCancelling}
                     title="Modifier"
                   >
                     <Pencil className="h-4 w-4" />
@@ -185,7 +196,11 @@ export function ReservationCard({
                     disabled={isCancelling}
                     title="Annuler"
                   >
-                    <X className="h-4 w-4" />
+                    {isCancelling ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <X className="h-4 w-4" />
+                    )}
                   </Button>
                 </>
               )}

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { formatPrice } from "../utils";
 
@@ -179,7 +179,7 @@ export function QuickCancelDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isCancelling}>
             Annuler
           </Button>
           <Button
@@ -187,6 +187,7 @@ export function QuickCancelDialog({
             onClick={handleConfirm}
             disabled={isCancelling}
           >
+            {isCancelling && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             {isCancelling ? "Annulation..." : "Confirmer l'annulation"}
           </Button>
         </DialogFooter>
