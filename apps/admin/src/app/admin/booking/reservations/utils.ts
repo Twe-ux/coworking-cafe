@@ -9,6 +9,7 @@ export function getStatusLabel(status: BookingStatus): string {
     confirmed: "Confirmée",
     cancelled: "Annulée",
     completed: "Terminée",
+    "no-show": "No-show",
   }
   return labels[status]
 }
@@ -28,6 +29,7 @@ export function getStatusVariant(
     confirmed: "success", // Vert
     cancelled: "destructive", // Rouge
     completed: "outline", // Gris
+    "no-show": "destructive", // Rouge
   }
   return variants[status]
 }
@@ -41,6 +43,7 @@ export function getStatusBadgeClass(status: BookingStatus): string {
     confirmed: "bg-green-50 text-green-700 border-green-200 hover:bg-green-50",
     cancelled: "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
     completed: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
+    "no-show": "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
   }
   return classes[status]
 }

@@ -66,8 +66,9 @@ export interface SpaceConfigurationFormData extends Omit<SpaceConfiguration, '_i
 export type BookingStatus =
   | "pending"      // En attente de confirmation
   | "confirmed"    // Confirmée
-  | "cancelled"    // Annulée
-  | "completed"    // Terminée
+  | "cancelled"    // Annulée (par client ou admin)
+  | "completed"    // Terminée (client présent)
+  | "no-show"      // Client absent (no-show)
 
 export type ReservationType = "hourly" | "daily" | "weekly" | "monthly"
 

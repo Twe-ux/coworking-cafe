@@ -1,6 +1,6 @@
 import { ObjectId, Schema, Types, Document } from "mongoose";
 
-export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
+export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed" | "no-show";
 export type ReservationType = "hourly" | "daily" | "weekly" | "monthly";
 
 export interface AdditionalServiceItem {
@@ -128,7 +128,7 @@ export const BookingSchema = new Schema<BookingDocument>(
       type: String,
       required: true,
       enum: {
-        values: ["pending", "confirmed", "cancelled", "completed"],
+        values: ["pending", "confirmed", "cancelled", "completed", "no-show"],
         message: "{VALUE} is not a valid status",
       },
       default: "pending",

@@ -78,8 +78,8 @@ export async function POST(
       );
     }
 
-    // Update status to cancelled with no-show reason
-    booking.status = "cancelled";
+    // Update status to no-show
+    booking.status = "no-show";
     booking.cancelledAt = new Date().toISOString();
     booking.cancelReason = "No-show - Client ne s'est pas présenté";
     await booking.save();

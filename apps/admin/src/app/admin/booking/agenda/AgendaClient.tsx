@@ -55,6 +55,7 @@ const statusLabels: Record<BookingStatus, string> = {
   confirmed: "Confirmée",
   cancelled: "Annulée",
   completed: "Terminée",
+  "no-show": "No-show",
 };
 
 export function AgendaClient() {
