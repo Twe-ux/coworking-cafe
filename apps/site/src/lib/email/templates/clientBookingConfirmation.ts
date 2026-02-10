@@ -5,7 +5,7 @@
  * Pour modifier ce template, éditez directement ce fichier.
  */
 
-import { getSpaceDisplayName } from "@coworking-cafe/email";
+import { getSpaceDisplayName, getPriceDisclaimerNote } from "@coworking-cafe/email";
 
 export interface BookingInitialEmailData {
   name: string;
@@ -133,7 +133,7 @@ export function generateBookingInitialEmail(
               <td class="detail-label" style="font-weight: 700; color: #F59E0B; font-size: 16px; padding: 16px 0;">Prix total</td>
               <td class="price-value" style="text-align: right; color: #F59E0B; font-weight: 700; font-size: 22px; letter-spacing: -0.5px; padding: 16px 0;">${data.price.toFixed(
                 2
-              )}€</td>
+              )}€*</td>
             </tr>
           </table>
         </div>
@@ -153,6 +153,9 @@ export function generateBookingInitialEmail(
             : ""
         }
       </div>
+
+      <!-- Price disclaimer -->
+      ${getPriceDisclaimerNote()}
 
       ${
         data.depositAmount

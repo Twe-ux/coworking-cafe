@@ -29,4 +29,4 @@ export { generateClientNoShowEmail, type ClientNoShowEmailData } from './clientN
 export { generateBookingModifiedEmail } from './bookingModified';
 
 // ============ Helpers ============
-export { getSpaceDisplayName } from './helpers';
+export { getSpaceDisplayName, getPriceDisclaimerNote } from './helpers';
