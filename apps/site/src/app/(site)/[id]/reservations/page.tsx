@@ -140,7 +140,18 @@ export default function ReservationsPage() {
       // Trier par date (les plus proches en premier)
       const dateA = new Date(a.date).getTime();
       const dateB = new Date(b.date).getTime();
-      return dateA - dateB;
+
+      if (dateA !== dateB) {
+        return dateA - dateB; // Tri par date
+      }
+
+      // Si même date, trier par heure de début (startTime)
+      const timeA = a.startTime.split(':').map(Number);
+      const timeB = b.startTime.split(':').map(Number);
+      const minutesA = timeA[0] * 60 + timeA[1];
+      const minutesB = timeB[0] * 60 + timeB[1];
+
+      return minutesA - minutesB; // Tri par heure
     });
 
   if (status === "loading" || loading) {
