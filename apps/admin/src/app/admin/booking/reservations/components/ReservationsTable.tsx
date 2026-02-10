@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { StyledAlert } from "@/components/ui/styled-alert";
 import { ReservationCard } from "./ReservationCard";
 import type { Booking } from "@/types/booking";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MapPin } from "lucide-react";
 
 interface ReservationsTableProps {
   bookings: Booking[];
@@ -13,11 +13,7 @@ interface ReservationsTableProps {
   onCancel: (bookingId: string) => void;
   isConfirming: boolean;
   isCancelling: boolean;
-  monthFilter: string;
-  setMonthFilter: (value: string) => void;
   sortOrder: "smart" | "asc" | "desc";
-  setSortOrder: (value: "smart" | "asc" | "desc") => void;
-  availableMonths: string[];
 }
 
 export function ReservationsTable({
@@ -28,20 +24,8 @@ export function ReservationsTable({
   onCancel,
   isConfirming,
   isCancelling,
-  monthFilter,
-  setMonthFilter,
   sortOrder,
-  setSortOrder,
-  availableMonths,
 }: ReservationsTableProps) {
-
-  // Format month for display
-  const formatMonth = (monthStr: string) => {
-    if (!monthStr || monthStr === "all") return "Tous les mois";
-    const [year, month] = monthStr.split("-");
-    const date = new Date(parseInt(year), parseInt(month) - 1);
-    return date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-  };
 
   // Auto-scroll to today's bookings when "smart" sort is selected
   const todayRef = useRef<HTMLDivElement>(null);
@@ -67,36 +51,7 @@ export function ReservationsTable({
   let lastDate = "";
 
   return (
-    <>
-      <CardHeader className="px-0 flex flex-row items-center justify-between">
-        <CardTitle>Liste des réservations ({bookings.length})</CardTitle>
-        <div className="flex gap-2">
-          <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as "smart" | "asc" | "desc")}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="smart">📍 Aujourd'hui en premier</SelectItem>
-              <SelectItem value="desc">⬇️ Plus récent en haut</SelectItem>
-              <SelectItem value="asc">⬆️ Plus ancien en haut</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={monthFilter} onValueChange={setMonthFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Tous les mois" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les mois</SelectItem>
-              {availableMonths.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {formatMonth(month)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3 p-0">
+    <CardContent className="space-y-3 p-0">
         {bookings.map((booking, index) => {
           const showDateSeparator = booking.startDate !== lastDate;
           const isToday = booking.startDate === today;
@@ -104,8 +59,8 @@ export function ReservationsTable({
           lastDate = booking.startDate;
 
           // Format date label
-          const dateLabel = (isToday && sortOrder === "smart")
-            ? "📍 Aujourd'hui"
+          const dateLabel = isToday
+            ? null // Will use icon instead
             : new Date(booking.startDate).toLocaleDateString("fr-FR", {
                 weekday: "long",
                 day: "numeric",
@@ -118,12 +73,19 @@ export function ReservationsTable({
               key={booking._id}
               ref={isFirstToday ? todayRef : null}
             >
-              {showDateSeparator && index > 0 && (
-                <div className={`flex items-center gap-4 my-4 ${isToday ? 'py-2' : ''}`}>
+              {showDateSeparator && (
+                <div className={`flex items-center gap-4 ${index === 0 ? 'mb-4' : 'my-4'} ${isToday ? 'py-2' : ''}`}>
                   <div className={`flex-1 border-t ${isToday ? 'border-primary' : 'border-border'}`}></div>
-                  <span className={`text-sm font-medium ${isToday ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
-                    {dateLabel}
-                  </span>
+                  {isToday ? (
+                    <div className="flex items-center gap-2 text-sm font-bold text-primary">
+                      <MapPin className="h-4 w-4" />
+                      <span>Aujourd'hui</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {dateLabel}
+                    </span>
+                  )}
                   <div className={`flex-1 border-t ${isToday ? 'border-primary' : 'border-border'}`}></div>
                 </div>
               )}
@@ -139,7 +101,6 @@ export function ReservationsTable({
             </div>
           );
         })}
-      </CardContent>
-    </>
+    </CardContent>
   );
 }

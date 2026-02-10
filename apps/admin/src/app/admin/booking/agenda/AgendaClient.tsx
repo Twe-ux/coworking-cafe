@@ -58,6 +58,22 @@ const statusLabels: Record<BookingStatus, string> = {
   "no-show": "No-show",
 };
 
+// Sort bookings by time (ascending)
+const sortBookingsByTime = (bookings: Booking[]): Booking[] => {
+  return [...bookings].sort((a, b) => {
+    if (!a.startTime && !b.startTime) return 0;
+    if (!a.startTime) return 1;
+    if (!b.startTime) return -1;
+
+    const timeA = a.startTime.split(':').map(Number);
+    const timeB = b.startTime.split(':').map(Number);
+    const minutesA = timeA[0] * 60 + (timeA[1] || 0);
+    const minutesB = timeB[0] * 60 + (timeB[1] || 0);
+
+    return minutesA - minutesB;
+  });
+};
+
 export function AgendaClient() {
   const { data: session } = useSession();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -125,9 +141,12 @@ export function AgendaClient() {
     // Filter out cancelled bookings for display
     const activeBookings = dayBookings.filter((b) => b.status !== "cancelled");
 
+    // Sort by time before passing to modal
+    const sortedBookings = sortBookingsByTime(activeBookings);
+
     // Always open day modal (even if empty)
     setDayModalDate(date);
-    setDayModalBookings(activeBookings);
+    setDayModalBookings(sortedBookings);
     setDayModalOpen(true);
   };
 
@@ -365,9 +384,12 @@ export function AgendaClient() {
       return null;
     }
 
+    // Sort by time (ascending)
+    const sortedBookings = sortBookingsByTime(activeBookings);
+
     return (
       <div className="h-[88px] overflow-hidden px-1 space-y-1">
-        {activeBookings.slice(0, 3).map((booking) => {
+        {sortedBookings.slice(0, 3).map((booking) => {
           const spaceType = getSpaceType(booking.spaceName);
           const spaceColor = spaceTypeColors[spaceType];
           const borderColor = spaceTypeBorderColors[spaceType];

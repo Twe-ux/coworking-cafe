@@ -8,12 +8,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import type { Booking } from "@/types/booking";
 import {
   Calendar,
@@ -26,8 +28,8 @@ import {
   UserX,
   X,
 } from "lucide-react";
-import { useState } from "react";
-import { formatTimeDisplay } from "../reservations/utils";
+import { useMemo, useState } from "react";
+import { formatTimeDisplay, getStatusBadgeClass, getStatusLabel } from "../reservations/utils";
 
 function capitalize(name?: string): string {
   if (!name) return "";
@@ -78,6 +80,7 @@ export function DayBookingsModal({
     string | null
   >(null);
   const [cancelReason, setCancelReason] = useState("");
+  const [activeTab, setActiveTab] = useState("ongoing");
 
   // Handle both Date objects and string dates
   const dateObj =
@@ -88,15 +91,40 @@ export function DayBookingsModal({
     month: "long",
   });
 
-  // Separate bookings by status
-  const pendingBookings = bookings.filter((b) => b.status === "pending");
-  const confirmedBookings = bookings.filter((b) => b.status === "confirmed");
-
   // Check if user has full permissions (dev/admin/manager)
   const hasFullPermissions = ["dev", "admin", "manager"].includes(userRole);
 
-  // Staff can only see confirmed bookings and mark presence
-  const visibleBookings = hasFullPermissions ? bookings : confirmedBookings;
+  // Sort by time within same date
+  const sortByTime = (a: Booking, b: Booking) => {
+    if (!a.startTime && !b.startTime) return 0;
+    if (!a.startTime) return 1;
+    if (!b.startTime) return -1;
+
+    const timeA = a.startTime.split(':').map(Number);
+    const timeB = b.startTime.split(':').map(Number);
+    const minutesA = timeA[0] * 60 + (timeA[1] || 0);
+    const minutesB = timeB[0] * 60 + (timeB[1] || 0);
+
+    return minutesA - minutesB;
+  };
+
+  // Separate bookings by tab
+  const ongoingBookings = useMemo(() => {
+    const filtered = bookings.filter(
+      (b) => b.status === "pending" || b.status === "confirmed"
+    );
+    return hasFullPermissions ? filtered.sort(sortByTime) : filtered.filter((b) => b.status === "confirmed").sort(sortByTime);
+  }, [bookings, hasFullPermissions]);
+
+  const historyBookings = useMemo(() => {
+    return bookings
+      .filter((b) => b.status === "completed" || b.status === "no-show")
+      .sort(sortByTime);
+  }, [bookings]);
+
+  // Separate ongoing bookings by status for section display
+  const pendingBookings = ongoingBookings.filter((b) => b.status === "pending");
+  const confirmedBookings = ongoingBookings.filter((b) => b.status === "confirmed");
 
   const handleCancelClick = (bookingId: string) => {
     setSelectedBookingForCancel(bookingId);
@@ -121,7 +149,7 @@ export function DayBookingsModal({
     setSelectedBookingForCancel(null);
   };
 
-  const renderBookingCard = (booking: Booking, isPending: boolean) => {
+  const renderBookingCard = (booking: Booking, isPending: boolean, showStatusBadge = false) => {
     const spaceTypeColors: Record<string, string> = {
       "open-space": "bg-blue-500",
       "salle-verriere": "bg-green-500",
@@ -158,6 +186,11 @@ export function DayBookingsModal({
               <span className="text-sm font-semibold">
                 {booking.clientCompany || booking.clientName}
               </span>
+              {showStatusBadge && (
+                <Badge variant="outline" className={getStatusBadgeClass(booking.status)}>
+                  {getStatusLabel(booking.status)}
+                </Badge>
+              )}
               {booking.notes && (
                 <TooltipProvider delayDuration={0}>
                   <Tooltip>
@@ -304,71 +337,112 @@ export function DayBookingsModal({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            {visibleBookings.length === 0 ? (
+          <div className="py-4">
+            {bookings.length === 0 ? (
               <div className="py-12 text-center text-muted-foreground">
                 <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="text-sm">Aucune réservation pour ce jour</p>
-                <Button onClick={onCreate} className="mt-4" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nouvelle réservation
-                </Button>
+                {hasFullPermissions && (
+                  <Button onClick={onCreate} className="mt-4" size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nouvelle réservation
+                  </Button>
+                )}
               </div>
             ) : (
-              <>
-                {/* Pending bookings section */}
-                {hasFullPermissions && pendingBookings.length > 0 && (
-                  <Card className="border-orange-200">
-                    <CardContent className="p-0">
-                      <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border-b border-orange-200">
-                        <div className="h-2 w-2 rounded-full bg-orange-500" />
-                        <h3 className="text-sm font-semibold text-orange-700">
-                          En attente ({pendingBookings.length})
-                        </h3>
-                      </div>
-                      <div>
-                        {pendingBookings.map((booking) =>
-                          renderBookingCard(booking, true),
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="ongoing">
+                    En cours ({ongoingBookings.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="history">
+                    Historique ({historyBookings.length})
+                  </TabsTrigger>
+                </TabsList>
 
-                {/* Confirmed bookings section */}
-                {confirmedBookings.length > 0 && (
-                  <Card className="border-green-300">
-                    <CardContent className="p-0">
-                      <div className="flex items-center gap-2 px-3 py-2 bg-green-100 border-b rounded-t-2xl border-green-300">
-                        <div className="h-2 w-2 rounded-full bg-green-500" />
-                        <h3 className="text-sm font-semibold text-green-700">
-                          Confirmées ({confirmedBookings.length})
-                        </h3>
-                      </div>
-                      <div>
-                        {confirmedBookings.map((booking) =>
-                          renderBookingCard(booking, false),
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                {/* Onglet En cours */}
+                <TabsContent value="ongoing" className="mt-4 space-y-4">
+                  {ongoingBookings.length === 0 ? (
+                    <div className="py-8 text-center text-muted-foreground">
+                      <p className="text-sm">Aucune réservation en cours</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Pending bookings section */}
+                      {hasFullPermissions && pendingBookings.length > 0 && (
+                        <Card className="border-orange-200">
+                          <CardContent className="p-0">
+                            <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border-b border-orange-200">
+                              <div className="h-2 w-2 rounded-full bg-orange-500" />
+                              <h3 className="text-sm font-semibold text-orange-700">
+                                En attente ({pendingBookings.length})
+                              </h3>
+                            </div>
+                            <div>
+                              {pendingBookings.map((booking) =>
+                                renderBookingCard(booking, true, false),
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
 
-                {/* Button to add new booking */}
-                {hasFullPermissions && (
-                  <div className="flex justify-center pt-2">
-                    <Button
-                      onClick={onCreate}
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Ajouter une réservation
-                    </Button>
-                  </div>
-                )}
-              </>
+                      {/* Confirmed bookings section */}
+                      {confirmedBookings.length > 0 && (
+                        <Card className="border-green-300">
+                          <CardContent className="p-0">
+                            <div className="flex items-center gap-2 px-3 py-2 bg-green-100 border-b rounded-t-2xl border-green-300">
+                              <div className="h-2 w-2 rounded-full bg-green-500" />
+                              <h3 className="text-sm font-semibold text-green-700">
+                                Confirmées ({confirmedBookings.length})
+                              </h3>
+                            </div>
+                            <div>
+                              {confirmedBookings.map((booking) =>
+                                renderBookingCard(booking, false, false),
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </>
+                  )}
+
+                  {/* Button to add new booking */}
+                  {hasFullPermissions && (
+                    <div className="flex justify-center pt-2">
+                      <Button
+                        onClick={onCreate}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Ajouter une réservation
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* Onglet Historique */}
+                <TabsContent value="history" className="mt-4 space-y-4">
+                  {historyBookings.length === 0 ? (
+                    <div className="py-8 text-center text-muted-foreground">
+                      <p className="text-sm">Aucune réservation dans l'historique</p>
+                    </div>
+                  ) : (
+                    <Card>
+                      <CardContent className="p-0">
+                        <div>
+                          {historyBookings.map((booking) =>
+                            renderBookingCard(booking, false, true),
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+              </Tabs>
             )}
           </div>
         </DialogContent>
