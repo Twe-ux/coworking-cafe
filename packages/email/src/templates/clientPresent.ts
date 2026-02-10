@@ -4,7 +4,7 @@
  * Envoyé quand le client se présente le jour J
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName, getPriceDisclaimerNote } from "./helpers";
 
 interface ClientPresentEmailData {
   name: string;
@@ -103,11 +103,14 @@ export function generateClientPresentEmail(data: ClientPresentEmailData): string
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 700; color: #111827; font-size: 16px;">Montant réglé</td>
-              <td class="price-value" style="text-align: right; color: #10B981; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)}€</td>
+              <td class="price-value" style="text-align: right; color: #10B981; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)}€*</td>
             </tr>
           </table>
         </div>
       </div>
+
+      <!-- Price disclaimer -->
+      ${getPriceDisclaimerNote()}
 
       <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">Nous espérons vous avoir offert un moment agréable et productif. Au plaisir de vous revoir bientôt !</p>
 

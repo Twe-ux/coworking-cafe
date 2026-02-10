@@ -6,7 +6,7 @@
  * Sans mention de libération d'empreinte bancaire (pas de paiement).
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName, getPriceDisclaimerNote } from "./helpers";
 
 export interface AdminCancelAdminBookingData {
   name: string;
@@ -130,11 +130,14 @@ export function generateAdminCancelAdminBookingEmail(data: AdminCancelAdminBooki
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #111827; font-size: 17px; width: 40%;">Prix total</td>
-              <td class="price-value" style="text-align: right; color: #991B1B; font-weight: 700; font-size: 24px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)} €</td>
+              <td class="price-value" style="text-align: right; color: #991B1B; font-weight: 700; font-size: 24px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)} €*</td>
             </tr>
           </table>
         </div>
       </div>
+
+      <!-- Price disclaimer -->
+      ${getPriceDisclaimerNote()}
 
       <p style="margin: 28px 0 16px 0; font-size: 16px; line-height: 1.7;">
         Si vous souhaitez effectuer une nouvelle réservation pour une autre date ou obtenir plus d'informations, n'hésitez pas à nous contacter ou à consulter notre site web.

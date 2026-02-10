@@ -6,7 +6,7 @@
  * Inclut information de remboursement.
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName, getPriceDisclaimerNote } from "./helpers";
 
 export interface AdminCancelClientBookingData {
   name: string;
@@ -146,11 +146,14 @@ export function generateAdminCancelClientBookingEmail(
               <td class="detail-label" style="font-weight: 700; color: #111827; font-size: 16px;">Montant</td>
               <td class="price-value" style="text-align: right; color: #111827; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(
                 2
-              )}€</td>
+              )}€*</td>
             </tr>
           </table>
         </div>
       </div>
+
+      <!-- Price disclaimer -->
+      ${getPriceDisclaimerNote()}
 
       <!-- Info Remboursement -->
       <div class="info-box" style="background: #EFF6FF; border-left: 4px solid #3B82F6; padding: 20px; border-radius: 8px; margin: 28px 0;">

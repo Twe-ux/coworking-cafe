@@ -24,3 +24,17 @@ export function getSpaceDisplayName(spaceName: string): string {
   // Return as-is if not found
   return spaceName
 }
+
+/**
+ * Generate price disclaimer note (asterisk explanation)
+ * To be displayed below total price in all booking emails
+ */
+export function getPriceDisclaimerNote(): string {
+  return `
+    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 24px 0;">
+      <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+        <strong style="color: #92400e;">* Prix indicatif</strong> – Le montant final sera calculé en fonction du temps réellement passé sur place et des éventuels produits additionnels consommés. Le règlement s'effectuera sur place.
+      </p>
+    </div>
+  `;
+}

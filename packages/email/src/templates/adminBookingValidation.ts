@@ -5,7 +5,7 @@
  * Pour réservations créées par l'admin (sans empreinte bancaire)
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName, getPriceDisclaimerNote } from "./helpers";
 
 interface AdminBookingValidationData {
   name: string;
@@ -112,11 +112,14 @@ export function generateAdminBookingValidationEmail(data: AdminBookingValidation
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #111827; font-size: 17px; width: 40%;">Prix total</td>
-              <td class="price-value" style="text-align: right; color: #059669; font-weight: 700; font-size: 24px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)}€</td>
+              <td class="price-value" style="text-align: right; color: #059669; font-weight: 700; font-size: 24px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)}€*</td>
             </tr>
           </table>
         </div>
       </div>
+
+      <!-- Price disclaimer -->
+      ${getPriceDisclaimerNote()}
 
       <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">Tout est prêt pour votre venue ! Nous sommes impatients de vous accueillir dans nos locaux.</p>
 

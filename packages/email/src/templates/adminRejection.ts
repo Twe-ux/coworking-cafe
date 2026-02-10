@@ -3,7 +3,7 @@
  * Red theme (#EF4444) to indicate rejection
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName, getPriceDisclaimerNote } from "./helpers";
 
 export interface ReservationRejectedData {
   name: string;
@@ -144,11 +144,14 @@ export function generateReservationRejectedEmail(
               <td class="detail-label" style="font-weight: 700; color: #7F1D1D; font-size: 16px;">Montant</td>
               <td class="price-value" style="text-align: right; color: #991B1B; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(
                 2
-              )} €</td>
+              )} €*</td>
             </tr>
           </table>
         </div>
       </div>
+
+      <!-- Price disclaimer -->
+      ${getPriceDisclaimerNote()}
 
       <!-- Payment info box (fees or refund) -->
       ${

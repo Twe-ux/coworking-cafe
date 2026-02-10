@@ -4,7 +4,7 @@
  * Envoyé quand le client ne s'est pas présenté le jour J
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName, getPriceDisclaimerNote } from "./helpers";
 
 export interface ClientNoShowEmailData {
   name: string;

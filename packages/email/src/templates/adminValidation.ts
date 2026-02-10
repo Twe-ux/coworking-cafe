@@ -5,7 +5,7 @@
  * Pour modifier ce template, éditez directement ce fichier.
  */
 
-import { getSpaceDisplayName } from "./helpers";
+import { getSpaceDisplayName, getPriceDisclaimerNote } from "./helpers";
 
 export interface ValidatedEmailData {
   name: string;
@@ -125,11 +125,14 @@ export function generateValidatedEmail(data: ValidatedEmailData): string {
               <td class="detail-label" style="font-weight: 700; color: #111827; font-size: 16px;">Prix total</td>
               <td class="price-value" style="text-align: right; color: #059669; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(
                 2
-              )}€</td>
+              )}€*</td>
             </tr>
           </table>
         </div>
       </div>
+
+      <!-- Price disclaimer -->
+      ${getPriceDisclaimerNote()}
 
       <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">Tout est prêt pour votre venue ! Nous sommes impatients de vous accueillir dans nos locaux.</p>
 
