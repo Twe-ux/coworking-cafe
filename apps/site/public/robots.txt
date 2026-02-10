@@ -1,0 +1,54 @@
+# robots.txt - CoworKing Café by Anticafé Strasbourg
+# https://www.coworkingcafe.fr/robots.txt
+
+# Allow all search engines (default)
+User-agent: *
+Allow: /
+
+# Disallow sensitive/private paths
+Disallow: /api/
+Disallow: /auth/
+Disallow: /_next/
+Disallow: /admin/
+
+# Disallow user-specific dashboards (dynamic routes with usernames)
+Disallow: /*/profile
+Disallow: /*/reservations
+Disallow: /*/settings
+
+# Disallow booking flow (reduce crawl budget on transactional pages)
+Disallow: /booking/details
+Disallow: /booking/summary
+
+# Allow public pages explicitly (SEO-important)
+Allow: /
+Allow: /concept
+Allow: /spaces
+Allow: /pricing
+Allow: /members-program
+Allow: /student-offers
+Allow: /boissons
+Allow: /food
+Allow: /take-away
+Allow: /contact
+Allow: /blog
+Allow: /blog/*
+Allow: /history
+Allow: /manifest
+
+# Sitemap location (critical for indexing)
+Sitemap: https://www.coworkingcafe.fr/sitemap.xml
+
+# Crawl-delay for specific bots (optional, prevents server overload)
+# User-agent: Bingbot
+# Crawl-delay: 1
+
+# User-agent: Googlebot
+# Crawl-delay: 0
+
+# Block bad bots (optional, add if you see suspicious traffic)
+# User-agent: AhrefsBot
+# Disallow: /
+
+# User-agent: SemrushBot
+# Disallow: /
