@@ -72,27 +72,29 @@ export function ReservationDetailModal({
   const [cancellationFees, setCancellationFees] = useState<CancellationFees | null>(null);
   const [loadingFees, setLoadingFees] = useState(false);
 
-  if (!booking) return null;
-
   // Calculate cancellation fees when cancel dialog opens
   useEffect(() => {
-    if (showCancelDialog && booking._id && booking.status === "confirmed") {
+    if (showCancelDialog && booking?._id && booking?.status === "confirmed") {
+      console.log('[ReservationDetailModal] Fetching cancellation fees for booking:', booking._id);
       setLoadingFees(true);
       fetch(`/api/booking/reservations/${booking._id}/calculate-cancellation-fees`)
         .then((res) => res.json())
         .then((data) => {
+          console.log('[ReservationDetailModal] Cancellation fees response:', data);
           if (data.success && data.data) {
             setCancellationFees(data.data);
           }
         })
         .catch((error) => {
-          console.error("Error calculating fees:", error);
+          console.error("[ReservationDetailModal] Error calculating fees:", error);
         })
         .finally(() => {
           setLoadingFees(false);
         });
     }
-  }, [showCancelDialog, booking._id, booking.status]);
+  }, [showCancelDialog, booking?._id, booking?.status]);
+
+  if (!booking) return null;
 
   const handleCancelClick = () => {
     setShowCancelDialog(true);
