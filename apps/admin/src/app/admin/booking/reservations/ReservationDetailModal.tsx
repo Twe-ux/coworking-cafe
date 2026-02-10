@@ -19,6 +19,7 @@ import {
   Check,
   Clock,
   CreditCard,
+  Loader2,
   Mail,
   Phone,
   Users,
@@ -278,20 +279,28 @@ export function ReservationDetailModal({
                     size="sm"
                     className="border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
                     onClick={() => booking._id && onConfirm(booking._id)}
-                    disabled={isConfirming}
+                    disabled={isConfirming || isCancelling}
                   >
-                    <Check className="h-4 w-4 mr-1" />
-                    Valider
+                    {isConfirming ? (
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4 mr-1" />
+                    )}
+                    {isConfirming ? "Validation..." : "Valider"}
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     className="border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
                     onClick={handleCancelClick}
-                    disabled={isCancelling}
+                    disabled={isConfirming || isCancelling}
                   >
-                    <X className="h-4 w-4 mr-1" />
-                    Refuser
+                    {isCancelling ? (
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    ) : (
+                      <X className="h-4 w-4 mr-1" />
+                    )}
+                    {isCancelling ? "Refus..." : "Refuser"}
                   </Button>
                 </>
               )}
@@ -303,8 +312,12 @@ export function ReservationDetailModal({
                   onClick={handleCancelClick}
                   disabled={isCancelling}
                 >
-                  <X className="h-4 w-4 mr-1" />
-                  Annuler
+                  {isCancelling ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <X className="h-4 w-4 mr-1" />
+                  )}
+                  {isCancelling ? "Annulation..." : "Annuler"}
                 </Button>
               )}
             </div>
@@ -432,7 +445,7 @@ export function ReservationDetailModal({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={handleCancelDialogClose}>
+            <Button variant="outline" onClick={handleCancelDialogClose} disabled={isCancelling}>
               Retour
             </Button>
             <Button
@@ -440,7 +453,8 @@ export function ReservationDetailModal({
               onClick={handleCancelConfirm}
               disabled={isCancelling}
             >
-              {isCancelling ? "En cours..." : "Confirmer l'annulation"}
+              {isCancelling && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {isCancelling ? "Annulation..." : "Confirmer l'annulation"}
             </Button>
           </DialogFooter>
         </DialogContent>

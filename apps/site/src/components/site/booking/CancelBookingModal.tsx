@@ -400,37 +400,43 @@ export default function CancelBookingModal({
         )}
       </Modal.Body>
 
-      {!success && (
-        <Modal.Footer className="border-0">
-          <Button variant="secondary" onClick={onHide} disabled={loading}>
-            Retour
+      <Modal.Footer className="border-0">
+        {!success ? (
+          <>
+            <Button variant="secondary" onClick={onHide} disabled={loading}>
+              Retour
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleCancel}
+              disabled={loading || loadingPreview || !preview}
+            >
+              {loading ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Annulation...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-x-circle me-2"></i>
+                  Confirmer l'annulation
+                </>
+              )}
+            </Button>
+          </>
+        ) : (
+          <Button variant="primary" onClick={onHide}>
+            Fermer
           </Button>
-          <Button
-            variant="danger"
-            onClick={handleCancel}
-            disabled={loading || loadingPreview || !preview}
-          >
-            {loading ? (
-              <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                  className="me-2"
-                />
-                Annulation...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-x-circle me-2"></i>
-                Confirmer l'annulation
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      )}
+        )}
+      </Modal.Footer>
     </Modal>
   );
 }
