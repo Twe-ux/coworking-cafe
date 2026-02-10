@@ -1,74 +1,84 @@
-import type { Metadata } from "next"
-import { Montserrat, Merriweather, Source_Code_Pro } from "next/font/google"
-import { Providers } from "@/components/providers"
-import { PWADetector } from "@/components/PWADetector"
-import "./globals.css"
+import { Providers } from "@/components/providers";
+import { PWADetector } from "@/components/PWADetector";
+import { Analytics } from "@vercel/analytics/next";
+import type { Metadata } from "next";
+import { Merriweather, Montserrat, Source_Code_Pro } from "next/font/google";
+import "./globals.css";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-sans",
-})
+});
 
 const merriweather = Merriweather({
   subsets: ["latin"],
   weight: ["300", "400", "700", "900"],
   variable: "--font-serif",
-})
+});
 
 const sourceCodePro = Source_Code_Pro({
   subsets: ["latin"],
   variable: "--font-mono",
-})
+});
 
 export const metadata: Metadata = {
   title: "CoworKing Café Admin",
   description: "Administration CoworKing Café",
   applicationName: "CoworKing Café Admin",
   // PWA Configuration
-  manifest: '/manifest.webmanifest',
-  themeColor: '#000000',
+  manifest: "/manifest.webmanifest",
+  themeColor: "#000000",
   viewport: {
-    width: 'device-width',
+    width: "device-width",
     initialScale: 1,
     maximumScale: 1,
     userScalable: false,
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'CoworKing Café Admin',
+    statusBarStyle: "black-translucent",
+    title: "CoworKing Café Admin",
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: '32x32' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
-      { url: '/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      {
+        url: "/web-app-manifest-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: "/web-app-manifest-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
   other: {
-    'apple-mobile-web-app-capable': 'yes',
-    'mobile-web-app-capable': 'yes',
+    "apple-mobile-web-app-capable": "yes",
+    "mobile-web-app-capable": "yes",
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="fr">
-      <body className={`${montserrat.variable} ${merriweather.variable} ${sourceCodePro.variable} font-sans antialiased`}>
+      <Analytics />
+      <body
+        className={`${montserrat.variable} ${merriweather.variable} ${sourceCodePro.variable} font-sans antialiased`}
+      >
         <PWADetector />
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
-  )
+  );
 }

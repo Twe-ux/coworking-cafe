@@ -1,8 +1,9 @@
 import "@/assets/site/font/bootstrap-font/bootstrap-icons.min.css";
 import "@/assets/site/font/font-awsome/css-js/all.min.css";
 import "@/assets/site/scss/main.scss";
-import { PWARegister } from "@/components/PWARegister";
 import { DynamicThemeColor } from "@/components/DynamicThemeColor";
+import { PWARegister } from "@/components/PWARegister";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { ReduxProvider } from "../components/providers/ReduxProvider";
 
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <head>
+        <Analytics />
         <meta name="theme-color" content="#142220" />
         <style>{`
           /* PWA mode: extend body background behind status bar */
