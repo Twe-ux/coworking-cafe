@@ -17,6 +17,7 @@ export function useReservationsLogic() {
   const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [monthFilter, setMonthFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState<"smart" | "asc" | "desc">("smart");
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
   const [quickCancelDialogOpen, setQuickCancelDialogOpen] = useState(false);
@@ -99,8 +100,9 @@ export function useReservationsLogic() {
       return ascending ? minutesA - minutesB : minutesB - minutesA;
     };
 
-    if (monthFilter === "all") {
-      // Special sorting for "all months": today first, then future, then past
+    // Sort based on selected order
+    if (sortOrder === "smart") {
+      // Smart sorting: today first, then future, then past
       const todayBookings = filtered.filter(b => b.startDate === today);
       const futureBookings = filtered.filter(b => b.startDate > today);
       const pastBookings = filtered.filter(b => b.startDate < today);
@@ -117,14 +119,20 @@ export function useReservationsLogic() {
       });
 
       return [...todayBookings, ...futureBookings, ...pastBookings];
+    } else if (sortOrder === "desc") {
+      // Descending: most recent first
+      return filtered.sort((a, b) => {
+        if (a.startDate !== b.startDate) return b.startDate.localeCompare(a.startDate); // Descending
+        return sortByTime(a, b, false); // Descending time
+      });
     } else {
-      // Simple chronological sorting for specific month (1st to last)
+      // Ascending: oldest first
       return filtered.sort((a, b) => {
         if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate); // Ascending
         return sortByTime(a, b, true); // Ascending time
       });
     }
-  }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter]);
+  }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter, sortOrder]);
   }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter]);
 
   const handleRowClick = (booking: Booking) => {
@@ -220,6 +228,8 @@ export function useReservationsLogic() {
     setDateFilter,
     monthFilter,
     setMonthFilter,
+    sortOrder,
+    setSortOrder,
     detailModalOpen,
     setDetailModalOpen,
     detailBooking,

@@ -23,6 +23,8 @@ export function ReservationsClient() {
     setDateFilter,
     monthFilter,
     setMonthFilter,
+    sortOrder,
+    setSortOrder,
     detailModalOpen,
     setDetailModalOpen,
     detailBooking,
@@ -129,6 +131,8 @@ export function ReservationsClient() {
         isCancelling={cancelBooking.isPending}
         monthFilter={monthFilter}
         setMonthFilter={setMonthFilter}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
         availableMonths={availableMonths}
       />
 

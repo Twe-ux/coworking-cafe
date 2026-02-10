@@ -15,6 +15,8 @@ interface ReservationsTableProps {
   isCancelling: boolean;
   monthFilter: string;
   setMonthFilter: (value: string) => void;
+  sortOrder: "smart" | "asc" | "desc";
+  setSortOrder: (value: "smart" | "asc" | "desc") => void;
   availableMonths: string[];
 }
 
@@ -28,6 +30,8 @@ export function ReservationsTable({
   isCancelling,
   monthFilter,
   setMonthFilter,
+  sortOrder,
+  setSortOrder,
   availableMonths,
 }: ReservationsTableProps) {
 
@@ -39,19 +43,19 @@ export function ReservationsTable({
     return date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   };
 
-  // Auto-scroll to today's bookings when "all months" is selected
+  // Auto-scroll to today's bookings when "smart" sort is selected
   const todayRef = useRef<HTMLDivElement>(null);
   const today = new Date().toISOString().split('T')[0];
   const todayIndex = bookings.findIndex(b => b.startDate === today);
 
   useEffect(() => {
-    if (monthFilter === "all" && todayIndex >= 0 && todayRef.current) {
+    if (sortOrder === "smart" && todayIndex >= 0 && todayRef.current) {
       // Small delay to ensure DOM is ready
       setTimeout(() => {
         todayRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 100);
     }
-  }, [monthFilter, todayIndex]);
+  }, [sortOrder, todayIndex]);
 
   if (bookings.length === 0) {
     return (
@@ -66,19 +70,31 @@ export function ReservationsTable({
     <>
       <CardHeader className="px-0 flex flex-row items-center justify-between">
         <CardTitle>Liste des réservations ({bookings.length})</CardTitle>
-        <Select value={monthFilter} onValueChange={setMonthFilter}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Tous les mois" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les mois</SelectItem>
-            {availableMonths.map((month) => (
-              <SelectItem key={month} value={month}>
-                {formatMonth(month)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as "smart" | "asc" | "desc")}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="smart">📍 Aujourd'hui en premier</SelectItem>
+              <SelectItem value="desc">⬇️ Plus récent en haut</SelectItem>
+              <SelectItem value="asc">⬆️ Plus ancien en haut</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={monthFilter} onValueChange={setMonthFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Tous les mois" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les mois</SelectItem>
+              {availableMonths.map((month) => (
+                <SelectItem key={month} value={month}>
+                  {formatMonth(month)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3 p-0">
         {bookings.map((booking, index) => {
@@ -88,7 +104,7 @@ export function ReservationsTable({
           lastDate = booking.startDate;
 
           // Format date label
-          const dateLabel = isToday
+          const dateLabel = (isToday && sortOrder === "smart")
             ? "📍 Aujourd'hui"
             : new Date(booking.startDate).toLocaleDateString("fr-FR", {
                 weekday: "long",
