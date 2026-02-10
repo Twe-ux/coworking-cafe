@@ -1,7 +1,9 @@
 import ConceptDetails from "../../../components/site/concept/conceptDetails";
 import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import { Metadata } from "next";
+import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
 
 export const metadata: Metadata = {
   title: "Concept | CoworKing Café by Anticafé",
@@ -16,12 +18,20 @@ export const metadata: Metadata = {
 const Concept = () => {
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://coworkingcafe.fr" },
+        { name: "Notre Concept", url: "https://coworkingcafe.fr/concept" }
+      ]} />
       <PageTitle title={"Café Coworking"} />
       <article className="concept py__130">
         <div className="container">
-          <img
+          <Image
             src="/images/concept/anticafe-strasbourg.webp"
-            alt="anticafe-strasbourg"
+            alt="Espace coworking Anticafé Strasbourg - Ambiance conviviale et boissons à volonté"
+            width={1200}
+            height={800}
+            loading="lazy"
+            quality={85}
             className="w-100 thumb__img"
           />
           <div className="first__para pt__60">
@@ -125,9 +135,13 @@ const Concept = () => {
           <div className="second__para pt__60">
             <div className="row justify-content-between align-items-center">
               <SlideUp className="col-md-6">
-                <img
+                <Image
                   src="/images/concept/cafe-coworking-strasbourg.webp"
-                  alt="cafe-coworking-strasbourg"
+                  alt="Café coworking Strasbourg - Espace de travail convivial avec boissons"
+                  width={800}
+                  height={533}
+                  loading="lazy"
+                  quality={85}
                   className="w-100 thumb__img"
                 />
               </SlideUp>

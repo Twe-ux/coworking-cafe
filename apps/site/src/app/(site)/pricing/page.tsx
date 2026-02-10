@@ -1,11 +1,60 @@
+import type { Metadata } from 'next';
 import ProtectedEmail from "../../../components/common/ProtectedEmail";
 import PageTitle from "../../../components/site/PageTitle";
 import PricingMeetingRoom from "../../../components/site/pricing/pricingMeetingRoom";
 import PricingOpenSpace from "../../../components/site/pricing/pricingOpenSpace";
+import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
+
+export const metadata: Metadata = {
+  title: 'Tarifs Coworking & Salles de Réunion | CoworKing Café Strasbourg',
+  description: 'Découvrez nos tarifs flexibles pour le coworking à Strasbourg : à l\'heure, à la journée ou au mois. Location de salles de réunion équipées. Tarifs étudiants disponibles.',
+
+  keywords: [
+    'anticafé strasbourg',
+    'coworking strasbourg',
+    'espace de travail strasbourg',
+    'cafe coworking strasbourg',
+    'tarifs coworking strasbourg',
+    'prix coworking strasbourg',
+    'salle reunion strasbourg',
+    'espace de travail strasbourg tarif',
+    'coworking pas cher strasbourg',
+  ],
+
+  openGraph: {
+    title: 'Tarifs Coworking & Salles de Réunion à Strasbourg',
+    description: 'Tarifs flexibles pour le coworking : à l\'heure, à la journée ou au mois. Location de salles de réunion équipées à Strasbourg.',
+    url: 'https://coworkingcafe.fr/pricing',
+    type: 'website',
+    images: [
+      {
+        url: '/images/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'CoworKing Café Strasbourg - Tarifs'
+      }
+    ],
+  },
+
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tarifs Coworking & Salles de Réunion à Strasbourg',
+    description: 'Tarifs flexibles pour le coworking : à l\'heure, à la journée ou au mois. Location de salles de réunion équipées à Strasbourg.',
+    images: ['/images/og-default.jpg'],
+  },
+
+  alternates: {
+    canonical: 'https://coworkingcafe.fr/pricing',
+  },
+};
 
 const Pricing = () => {
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://coworkingcafe.fr" },
+        { name: "Nos Tarifs", url: "https://coworkingcafe.fr/pricing" }
+      ]} />
       <PageTitle title={"Nos tarifs"} />
       <section className="pricing py__130" id="pricing">
         <div className="container">

@@ -6,6 +6,7 @@ import PageTitle from "../../../components/site/PageTitle";
 import { useGetArticlesQuery } from "../../../store/api/blogApi";
 import SlideDown from "../../../utils/animations/slideDown";
 import { useState } from "react";
+import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
 
 const Blog = () => {
   const [page, setPage] = useState(1);
@@ -33,6 +34,10 @@ const Blog = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://coworkingcafe.fr" },
+        { name: "Le Mag'", url: "https://coworkingcafe.fr/blog" }
+      ]} />
       <PageTitle title={"Le Mag'"} />
       <section className="all__blog py__130">
         <div className="container">

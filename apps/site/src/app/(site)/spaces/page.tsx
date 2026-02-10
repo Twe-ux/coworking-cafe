@@ -1,6 +1,7 @@
 import PageTitle from "../../../components/site/PageTitle";
 import Spaces from "../../../components/site/spaces/spaces";
 import { Metadata } from "next";
+import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
 
 export const metadata: Metadata = {
   title: "Espaces | CoworKing Café by Anticafé",
@@ -15,6 +16,10 @@ export const metadata: Metadata = {
 const SpacesPage = () => {
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://coworkingcafe.fr" },
+        { name: "Nos Espaces", url: "https://coworkingcafe.fr/spaces" }
+      ]} />
       <PageTitle title={"Espaces"} />
       <Spaces />
     </>

@@ -1,16 +1,65 @@
+import type { Metadata } from 'next';
 import ProjectsHistory from "../../../components/site/history/projectsHistory";
 import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
+import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
+
+export const metadata: Metadata = {
+  title: 'Notre Histoire - CoworKing Café by Anticafé Strasbourg',
+  description: 'Découvrez l\'histoire de CoworKing Café by Anticafé à Strasbourg : de 2017 à aujourd\'hui, un parcours entrepreneurial humain au service du coworking local.',
+
+  keywords: [
+    'anticafé strasbourg',
+    'coworking strasbourg',
+    'espace de travail strasbourg',
+    'cafe coworking strasbourg',
+    'histoire coworking strasbourg',
+    'anticafe strasbourg histoire',
+    'creation coworking cafe',
+    'entrepreneurs strasbourg',
+    'coworking local strasbourg',
+  ],
+
+  openGraph: {
+    title: 'Notre Histoire - CoworKing Café by Anticafé',
+    description: 'De 2017 à aujourd\'hui : découvrez le parcours de Christèle et Thierry, créateurs du CoworKing Café à Strasbourg.',
+    url: 'https://coworkingcafe.fr/history',
+    type: 'website',
+    images: [
+      {
+        url: '/images/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'CoworKing Café Strasbourg - Notre Histoire'
+      }
+    ],
+  },
+
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Notre Histoire - CoworKing Café by Anticafé',
+    description: 'De 2017 à aujourd\'hui : découvrez le parcours de Christèle et Thierry, créateurs du CoworKing Café à Strasbourg.',
+    images: ['/images/og-default.jpg'],
+  },
+
+  alternates: {
+    canonical: 'https://coworkingcafe.fr/history',
+  },
+};
 
 export default function historyPage() {
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://coworkingcafe.fr" },
+        { name: "Notre Histoire", url: "https://coworkingcafe.fr/history" }
+      ]} />
       <PageTitle title={"Notre histoire"} />
       <article className="service__details py__90">
         <div className="container">
           <img
             src="/images/history/histoire-coworking-strasbourg.webp"
-            alt="img"
+            alt="Histoire CoworKing Café by Anticafé Strasbourg - Christèle et Thierry fondateurs"
             className="w-100 thumb__img rounded-3"
           />
           <div className="first__para pt__60">
@@ -98,7 +147,7 @@ export default function historyPage() {
               <SlideUp className="col-md-6">
                 <img
                   src="/images/history/histoire-anticafe-strasbourg.webp"
-                  alt="img"
+                  alt="Espace coworking convivial avec clients - CoworKing Café Anticafé Strasbourg"
                   className="w-100 rounded-3"
                 />
               </SlideUp>
