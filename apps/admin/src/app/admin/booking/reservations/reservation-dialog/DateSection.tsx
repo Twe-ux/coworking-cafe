@@ -19,8 +19,7 @@ import type { DateRange } from "react-day-picker";
 export function DateSection({
   startDate,
   endDate,
-  onStartDateChange,
-  onEndDateChange,
+  onDatesChange,
   error,
 }: DateSectionProps) {
   const [open, setOpen] = useState(false);
@@ -43,27 +42,23 @@ export function DateSection({
 
     if (range?.from) {
       const fromString = format(range.from, "yyyy-MM-dd");
-      console.log("🗓️ DateSection - Setting startDate:", fromString);
-      onStartDateChange(fromString);
 
       // Si "to" existe, utiliser cette date, sinon utiliser "from" (même jour)
       if (range.to) {
         const toString = format(range.to, "yyyy-MM-dd");
-        console.log("🗓️ DateSection - Setting endDate (range):", toString);
-        onEndDateChange(toString);
-        // Fermer le popover après sélection complète
+        console.log("🗓️ DateSection - Setting dates (range):", fromString, "to", toString);
+        onDatesChange(fromString, toString);
         setOpen(false);
       } else {
-        // Si seulement "from" est sélectionné, mettre startDate = endDate = même date
-        console.log("🗓️ DateSection - Setting endDate (single day):", fromString);
-        onEndDateChange(fromString);
+        // Si seulement "from" est sélectionné, startDate = endDate = même date
+        console.log("🗓️ DateSection - Setting dates (single day):", fromString);
+        onDatesChange(fromString, fromString);
         setOpen(false);
       }
     } else {
       // Reset si aucune date sélectionnée
       console.log("🗓️ DateSection - Resetting dates");
-      onStartDateChange("");
-      onEndDateChange("");
+      onDatesChange("", "");
     }
   };
 

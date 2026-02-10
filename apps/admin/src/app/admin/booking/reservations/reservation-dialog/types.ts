@@ -71,8 +71,7 @@ export interface SpaceSectionProps {
 export interface DateSectionProps {
   startDate: string
   endDate: string
-  onStartDateChange: (date: string) => void
-  onEndDateChange: (date: string) => void
+  onDatesChange: (startDate: string, endDate: string) => void
   error?: string
 }
 

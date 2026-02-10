@@ -56,10 +56,9 @@ export function ReservationDialogSections({
         <DateSection
           startDate={formData.startDate}
           endDate={formData.endDate}
-          onStartDateChange={(date: string) =>
-            updateFormData({ startDate: date })
+          onDatesChange={(startDate: string, endDate: string) =>
+            updateFormData({ startDate, endDate })
           }
-          onEndDateChange={(date: string) => updateFormData({ endDate: date })}
         />
 
         {/* Times */}
