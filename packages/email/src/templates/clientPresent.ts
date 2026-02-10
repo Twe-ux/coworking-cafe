@@ -4,7 +4,7 @@
  * Envoyé quand le client se présente le jour J
  */
 
-import { getSpaceDisplayName, getPriceDisclaimerNote } from "./helpers";
+import { getSpaceDisplayName } from "./helpers";
 
 interface ClientPresentEmailData {
   name: string;
@@ -16,7 +16,9 @@ interface ClientPresentEmailData {
   totalPrice: number;
 }
 
-export function generateClientPresentEmail(data: ClientPresentEmailData): string {
+export function generateClientPresentEmail(
+  data: ClientPresentEmailData,
+): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
   return `
 <!DOCTYPE html>
@@ -40,7 +42,7 @@ export function generateClientPresentEmail(data: ClientPresentEmailData): string
       .price-value { color: #10b981 !important; }
       .footer { background: #111827 !important; color: #9ca3af !important; }
       .footer p { color: #9ca3af !important; }
-      .success-badge { background: #065f46 !important; color: #d1fae5 !important; }
+      .success-badge { background: #065f46 !important; color: #ffffff !important; }
     }
   </style>
 </head>
@@ -90,7 +92,7 @@ export function generateClientPresentEmail(data: ClientPresentEmailData): string
           </table>
         </div>
 
-        <div class="detail-row" style="padding: 14px 0; border-bottom: 1px solid #e5e7eb;">
+        <div style="padding: 16px 0 0 0;">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Horaires</td>
@@ -98,19 +100,9 @@ export function generateClientPresentEmail(data: ClientPresentEmailData): string
             </tr>
           </table>
         </div>
-
-        <div style="padding: 16px 0 0 0;">
-          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-            <tr>
-              <td class="detail-label" style="font-weight: 700; color: #111827; font-size: 16px;">Montant réglé</td>
-              <td class="price-value" style="text-align: right; color: #10B981; font-weight: 700; font-size: 22px; letter-spacing: -0.5px;">${data.totalPrice.toFixed(2)}€*</td>
-            </tr>
-          </table>
-        </div>
       </div>
 
-      <!-- Price disclaimer -->
-      ${getPriceDisclaimerNote()}
+    
 
       <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">Nous espérons vous avoir offert un moment agréable et productif. Au plaisir de vous revoir bientôt !</p>
 
