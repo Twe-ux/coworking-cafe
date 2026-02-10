@@ -133,7 +133,6 @@ export function useReservationsLogic() {
       });
     }
   }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter, sortOrder]);
-  }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter]);
 
   const handleRowClick = (booking: Booking) => {
     setDetailBooking(booking);
