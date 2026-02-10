@@ -58,6 +58,20 @@ export function ReservationsTabs({
     return { pending, confirmed, completed, noShow, cancelled };
   }, [bookings, today]);
 
+  // Sort by time within same date
+  const sortByTime = (a: Booking, b: Booking, ascending = true) => {
+    if (!a.startTime && !b.startTime) return 0;
+    if (!a.startTime) return 1;
+    if (!b.startTime) return -1;
+
+    const timeA = a.startTime.split(':').map(Number);
+    const timeB = b.startTime.split(':').map(Number);
+    const minutesA = timeA[0] * 60 + (timeA[1] || 0);
+    const minutesB = timeB[0] * 60 + (timeB[1] || 0);
+
+    return ascending ? minutesA - minutesB : minutesB - minutesA;
+  };
+
   // Filter bookings by tab and status
   const getFilteredBookings = () => {
     let filtered = bookings;
@@ -97,7 +111,23 @@ export function ReservationsTabs({
       filtered = filtered.filter((b) => b.startDate === dateFilter);
     }
 
-    return filtered;
+    // Smart sorting: today first, then future, then past
+    const todayBookings = filtered.filter(b => b.startDate === today);
+    const futureBookings = filtered.filter(b => b.startDate > today);
+    const pastBookings = filtered.filter(b => b.startDate < today);
+
+    // Sort each group
+    todayBookings.sort((a, b) => sortByTime(a, b, true)); // Ascending time
+    futureBookings.sort((a, b) => {
+      if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate); // Ascending date
+      return sortByTime(a, b, true); // Ascending time
+    });
+    pastBookings.sort((a, b) => {
+      if (a.startDate !== b.startDate) return b.startDate.localeCompare(a.startDate); // Descending date
+      return sortByTime(a, b, false); // Descending time
+    });
+
+    return [...todayBookings, ...futureBookings, ...pastBookings];
   };
 
   const filteredBookings = getFilteredBookings();
