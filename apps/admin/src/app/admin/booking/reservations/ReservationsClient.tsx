@@ -6,8 +6,7 @@ import { ReservationDetailModal } from "./ReservationDetailModal";
 import { ReservationDialog } from "./reservation-dialog";
 import { EditBookingDialog } from "./EditBookingDialog";
 import { ReservationsHeader } from "./components/ReservationsHeader";
-import { ReservationsStats } from "./components/ReservationsStats";
-import { ReservationsTable } from "./components/ReservationsTable";
+import { ReservationsTabs } from "./components/ReservationsTabs";
 import { QuickCancelDialog } from "./components/QuickCancelDialog";
 import { useReservationsLogic } from "./hooks/useReservationsLogic";
 
@@ -15,12 +14,6 @@ export function ReservationsClient() {
   const {
     message,
     setMessage,
-    statusFilter,
-    setStatusFilter,
-    nameFilter,
-    setNameFilter,
-    dateFilter,
-    setDateFilter,
     monthFilter,
     setMonthFilter,
     sortOrder,
@@ -37,8 +30,7 @@ export function ReservationsClient() {
     editBooking,
     createDialogOpen,
     setCreateDialogOpen,
-    bookings,
-    stats,
+    allBookings,
     availableMonths,
     loading,
     error,
@@ -111,18 +103,8 @@ export function ReservationsClient() {
         </StyledAlert>
       )}
 
-      <ReservationsStats
-        stats={stats}
-        statusFilter={statusFilter}
-        onFilterChange={setStatusFilter}
-        nameFilter={nameFilter}
-        setNameFilter={setNameFilter}
-        dateFilter={dateFilter}
-        setDateFilter={setDateFilter}
-      />
-
-      <ReservationsTable
-        bookings={bookings}
+      <ReservationsTabs
+        bookings={allBookings}
         onRowClick={handleRowClick}
         onConfirm={handleConfirm}
         onEdit={handleEditClick}

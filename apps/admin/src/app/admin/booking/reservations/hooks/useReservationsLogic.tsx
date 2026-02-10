@@ -11,11 +11,6 @@ export function useReservationsLogic() {
     type: "success" | "error";
     text: string;
   } | null>(null);
-  const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">(
-    "pending",
-  );
-  const [nameFilter, setNameFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
   const [monthFilter, setMonthFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState<"smart" | "asc" | "desc">("smart");
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -36,15 +31,6 @@ export function useReservationsLogic() {
   const confirmBooking = useConfirmBooking();
   const cancelBooking = useCancelBooking();
 
-  const stats = useMemo(() => {
-    return {
-      total: allBookings.length,
-      pending: allBookings.filter((b) => b.status === "pending").length,
-      confirmed: allBookings.filter((b) => b.status === "confirmed").length,
-      cancelled: allBookings.filter((b) => b.status === "cancelled").length,
-    };
-  }, [allBookings]);
-
   const availableMonths = useMemo(() => {
     return Array.from(
       new Set(
@@ -54,85 +40,6 @@ export function useReservationsLogic() {
       )
     ).sort((a, b) => b.localeCompare(a)); // Descending order
   }, [allBookings]);
-
-  const bookings = useMemo(() => {
-    let filtered = allBookings;
-
-    // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((b) => b.status === statusFilter);
-    }
-
-    // Filter by name (clientName or clientCompany)
-    if (nameFilter.trim()) {
-      const searchTerm = nameFilter.toLowerCase().trim();
-      filtered = filtered.filter((b) => {
-        const name = (b.clientName || "").toLowerCase();
-        const company = (b.clientCompany || "").toLowerCase();
-        return name.includes(searchTerm) || company.includes(searchTerm);
-      });
-    }
-
-    // Filter by date (startDate)
-    if (dateFilter.trim()) {
-      filtered = filtered.filter((b) => b.startDate === dateFilter);
-    }
-
-    // Filter by month (YYYY-MM format)
-    if (monthFilter !== "all" && monthFilter.trim()) {
-      filtered = filtered.filter((b) => b.startDate.startsWith(monthFilter));
-    }
-
-    // Sort by date and time
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-
-    // Helper to sort by time within same date
-    const sortByTime = (a: typeof filtered[0], b: typeof filtered[0], ascending = true) => {
-      if (!a.startTime && !b.startTime) return 0;
-      if (!a.startTime) return 1;
-      if (!b.startTime) return -1;
-
-      const timeA = a.startTime.split(':').map(Number);
-      const timeB = b.startTime.split(':').map(Number);
-      const minutesA = timeA[0] * 60 + (timeA[1] || 0);
-      const minutesB = timeB[0] * 60 + (timeB[1] || 0);
-
-      return ascending ? minutesA - minutesB : minutesB - minutesA;
-    };
-
-    // Sort based on selected order
-    if (sortOrder === "smart") {
-      // Smart sorting: today first, then future, then past
-      const todayBookings = filtered.filter(b => b.startDate === today);
-      const futureBookings = filtered.filter(b => b.startDate > today);
-      const pastBookings = filtered.filter(b => b.startDate < today);
-
-      // Sort each group
-      todayBookings.sort((a, b) => sortByTime(a, b, true)); // Ascending time
-      futureBookings.sort((a, b) => {
-        if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate); // Ascending date
-        return sortByTime(a, b, true); // Ascending time
-      });
-      pastBookings.sort((a, b) => {
-        if (a.startDate !== b.startDate) return b.startDate.localeCompare(a.startDate); // Descending date
-        return sortByTime(a, b, false); // Descending time
-      });
-
-      return [...todayBookings, ...futureBookings, ...pastBookings];
-    } else if (sortOrder === "desc") {
-      // Descending: most recent first
-      return filtered.sort((a, b) => {
-        if (a.startDate !== b.startDate) return b.startDate.localeCompare(a.startDate); // Descending
-        return sortByTime(a, b, false); // Descending time
-      });
-    } else {
-      // Ascending: oldest first
-      return filtered.sort((a, b) => {
-        if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate); // Ascending
-        return sortByTime(a, b, true); // Ascending time
-      });
-    }
-  }, [allBookings, statusFilter, nameFilter, dateFilter, monthFilter, sortOrder]);
 
   const handleRowClick = (booking: Booking) => {
     setDetailBooking(booking);
@@ -219,12 +126,6 @@ export function useReservationsLogic() {
     // State
     message,
     setMessage,
-    statusFilter,
-    setStatusFilter,
-    nameFilter,
-    setNameFilter,
-    dateFilter,
-    setDateFilter,
     monthFilter,
     setMonthFilter,
     sortOrder,
@@ -244,8 +145,6 @@ export function useReservationsLogic() {
 
     // Data
     allBookings,
-    bookings,
-    stats,
     availableMonths,
     loading,
     error,
