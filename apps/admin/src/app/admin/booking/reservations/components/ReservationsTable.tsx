@@ -14,6 +14,7 @@ interface ReservationsTableProps {
   isCancelling: boolean;
   monthFilter: string;
   setMonthFilter: (value: string) => void;
+  availableMonths: string[];
 }
 
 export function ReservationsTable({
@@ -26,15 +27,12 @@ export function ReservationsTable({
   isCancelling,
   monthFilter,
   setMonthFilter,
+  availableMonths,
 }: ReservationsTableProps) {
-  // Generate list of available months from bookings
-  const availableMonths = Array.from(
-    new Set(bookings.map((b) => b.startDate.substring(0, 7)))
-  ).sort((a, b) => b.localeCompare(a)); // Descending order
 
   // Format month for display
   const formatMonth = (monthStr: string) => {
-    if (!monthStr) return "Tous les mois";
+    if (!monthStr || monthStr === "all") return "Tous les mois";
     const [year, month] = monthStr.split("-");
     const date = new Date(parseInt(year), parseInt(month) - 1);
     return date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
@@ -58,7 +56,7 @@ export function ReservationsTable({
             <SelectValue placeholder="Tous les mois" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tous les mois</SelectItem>
+            <SelectItem value="all">Tous les mois</SelectItem>
             {availableMonths.map((month) => (
               <SelectItem key={month} value={month}>
                 {formatMonth(month)}

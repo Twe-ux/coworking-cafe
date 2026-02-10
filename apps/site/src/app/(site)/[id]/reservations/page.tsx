@@ -146,10 +146,15 @@ export default function ReservationsPage() {
       }
 
       // Si même date, trier par heure de début (startTime)
+      // Gérer les horaires vides (forfaits semaine/mensuel)
+      if (!a.startTime && !b.startTime) return 0; // Les deux vides, maintenir ordre
+      if (!a.startTime) return 1; // a vide, mettre après b
+      if (!b.startTime) return -1; // b vide, mettre après a
+
       const timeA = a.startTime.split(':').map(Number);
       const timeB = b.startTime.split(':').map(Number);
-      const minutesA = timeA[0] * 60 + timeA[1];
-      const minutesB = timeB[0] * 60 + timeB[1];
+      const minutesA = timeA[0] * 60 + (timeA[1] || 0);
+      const minutesB = timeB[0] * 60 + (timeB[1] || 0);
 
       return minutesA - minutesB; // Tri par heure
     });

@@ -16,7 +16,7 @@ export function useReservationsLogic() {
   );
   const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
-  const [monthFilter, setMonthFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("all");
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
   const [quickCancelDialogOpen, setQuickCancelDialogOpen] = useState(false);
@@ -44,6 +44,16 @@ export function useReservationsLogic() {
     };
   }, [allBookings]);
 
+  const availableMonths = useMemo(() => {
+    return Array.from(
+      new Set(
+        allBookings
+          .map((b) => b.startDate?.substring(0, 7) || "")
+          .filter((month) => month.length === 7) // Filter valid YYYY-MM format only
+      )
+    ).sort((a, b) => b.localeCompare(a)); // Descending order
+  }, [allBookings]);
+
   const bookings = useMemo(() => {
     let filtered = allBookings;
 
@@ -68,7 +78,7 @@ export function useReservationsLogic() {
     }
 
     // Filter by month (YYYY-MM format)
-    if (monthFilter.trim()) {
+    if (monthFilter !== "all" && monthFilter.trim()) {
       filtered = filtered.filter((b) => b.startDate.startsWith(monthFilter));
     }
 
@@ -83,10 +93,15 @@ export function useReservationsLogic() {
       }
 
       // If same date, sort by start time
+      // Handle empty startTime (weekly/monthly packages)
+      if (!a.startTime && !b.startTime) return 0; // Both empty, maintain order
+      if (!a.startTime) return 1; // a empty, put after b
+      if (!b.startTime) return -1; // b empty, put after a
+
       const timeA = a.startTime.split(':').map(Number);
       const timeB = b.startTime.split(':').map(Number);
-      const minutesA = timeA[0] * 60 + timeA[1];
-      const minutesB = timeB[0] * 60 + timeB[1];
+      const minutesA = timeA[0] * 60 + (timeA[1] || 0);
+      const minutesB = timeB[0] * 60 + (timeB[1] || 0);
 
       return minutesB - minutesA; // Descending order (latest time first)
     });
@@ -202,6 +217,7 @@ export function useReservationsLogic() {
     allBookings,
     bookings,
     stats,
+    availableMonths,
     loading,
     error,
 

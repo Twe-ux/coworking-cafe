@@ -37,6 +37,7 @@ export function ReservationsClient() {
     setCreateDialogOpen,
     bookings,
     stats,
+    availableMonths,
     loading,
     error,
     handleRowClick,
@@ -128,6 +129,7 @@ export function ReservationsClient() {
         isCancelling={cancelBooking.isPending}
         monthFilter={monthFilter}
         setMonthFilter={setMonthFilter}
+        availableMonths={availableMonths}
       />
 
       <ReservationDialog
