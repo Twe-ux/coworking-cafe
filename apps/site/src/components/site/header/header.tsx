@@ -46,7 +46,28 @@ const Header = () => {
       <div className="header__bottom">
         <div className="container">
           <div className="d-flex align-items-center justify-content-between">
-            <div className="d-flex align-items-center gap-4">
+            {/* Left: Burger + Brand (mobile/tablet) */}
+            <div className="d-flex d-xl-none align-items-center gap-3">
+              <div
+                className="menu__icon"
+                onClick={() => setActiveNavebar(!activeNavbar)}
+              >
+                <i className="bi bi-list" />
+              </div>
+              <Link href="/" className="header__bottom_brand">
+                <Image
+                  src="/images/logo-black.svg"
+                  alt="CoworKing Café"
+                  width={42}
+                  height={42}
+                  priority
+                />
+                <span className="header__bottom_brand-name">COWORKING CAFÉ</span>
+              </Link>
+            </div>
+
+            {/* Left: Logo (desktop only) */}
+            <div className="d-none d-xl-flex align-items-center gap-4">
               <Link href="/" className="header__bottom_logo">
                 <Image
                   src="/images/logo-black.svg"
@@ -54,25 +75,29 @@ const Header = () => {
                   width={180}
                   height={60}
                   priority
-                  className=""
                   style={{ width: 'auto', height: 'auto', maxWidth: '100%' }}
                 />
               </Link>
-              <h1 className="sr-only">CoworKing Café by Anticafé Strasbourg</h1>
             </div>
 
+            <h1 className="sr-only">CoworKing Café by Anticafé Strasbourg</h1>
+
+            {/* Navbar (desktop: inline flex, mobile: absolute slide panel) */}
             <Navbar
               activeNavbar={activeNavbar}
               onClose={() => setActiveNavebar(false)}
             />
 
+            {/* Right: Action buttons */}
             <div className="d-flex align-items-center gap-3">
-              <div className="d-xl-block d-none">
+              {/* Contact - tablet + desktop (≥768px) */}
+              <div className="d-none d-md-block">
                 <Link href={"/contact#contact"} className="common__btn">
                   <span>Contact</span>
                 </Link>
               </div>
-              <div className="d-xl-block d-none">
+              {/* Réserver - tablet + desktop (≥768px) */}
+              <div className="d-none d-md-block">
                 <Link href="/booking" className="common__btn">
                   <span>Réserver</span>
                   <Image
@@ -84,6 +109,7 @@ const Header = () => {
                   />
                 </Link>
               </div>
+              {/* User menu - always visible */}
               <div className="user-menu-wrapper position-relative">
                 {session ? (
                   <>
@@ -92,7 +118,6 @@ const Header = () => {
                       onClick={() => setShowUserMenu(!showUserMenu)}
                     >
                       <i className="bi bi-person-circle"></i>
-                      {/* <span className="d-none d-md-inline">Mon compte</span> */}
                     </button>
                     {showUserMenu && (
                       <div className="user-menu-dropdown">
@@ -123,19 +148,12 @@ const Header = () => {
                 ) : (
                   <Link
                     href="/auth/login"
-                    className="user-menu-btn d-flex align-items-center gap-2 "
+                    className="user-menu-btn d-flex align-items-center gap-2"
                   >
                     <i className="bi bi-person-circle"></i>
-                    {/* <span className="d-none d-md-inline">Connexion</span> */}
                   </Link>
                 )}
               </div>
-            </div>
-            <div
-              className="menu__icon d-block d-xl-none"
-              onClick={() => setActiveNavebar(!activeNavbar)}
-            >
-              <i className="bi bi-list" />
             </div>
           </div>
         </div>
