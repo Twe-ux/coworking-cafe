@@ -2,7 +2,7 @@
 
 > **Dernière mise à jour** : 2026-02-10
 > **Status** : 🚧 En cours
-> **Objectif** : Optimiser le référencement du site www.coworkingcafe.fr
+> **Objectif** : Optimiser le référencement du site coworkingcafe.fr
 > **Focus actuel** : Google My Business + Nettoyage ancien référencement
 
 ---
@@ -28,7 +28,7 @@
 **Status** : ✅ Complété le 2026-02-09
 
 **Actions réalisées** :
-- Sitemap soumis : `https://www.coworkingcafe.fr/sitemap.xml`
+- Sitemap soumis : `https://coworkingcafe.fr/sitemap.xml`
 - 21 URLs détectées (15 pages + 6 articles blog)
 
 ---
@@ -38,12 +38,12 @@
 **Status** : ✅ Complété le 2026-02-09
 
 **URLs indexées** :
-- ✅ `https://www.coworkingcafe.fr/`
-- ✅ `https://www.coworkingcafe.fr/booking`
-- ✅ `https://www.coworkingcafe.fr/pricing`
-- ✅ `https://www.coworkingcafe.fr/spaces`
-- ✅ `https://www.coworkingcafe.fr/contact`
-- ✅ `https://www.coworkingcafe.fr/blog`
+- ✅ `https://coworkingcafe.fr/`
+- ✅ `https://coworkingcafe.fr/booking`
+- ✅ `https://coworkingcafe.fr/pricing`
+- ✅ `https://coworkingcafe.fr/spaces`
+- ✅ `https://coworkingcafe.fr/contact`
+- ✅ `https://coworkingcafe.fr/blog`
 
 ---
 
@@ -55,24 +55,24 @@
 
 #### Jour 2 (à faire demain) - Pages Commerciales
 
-- [ ] `https://www.coworkingcafe.fr/members-program`
-- [ ] `https://www.coworkingcafe.fr/student-offers`
-- [ ] `https://www.coworkingcafe.fr/concept`
-- [ ] `https://www.coworkingcafe.fr/take-away`
-- [ ] `https://www.coworkingcafe.fr/boissons`
-- [ ] `https://www.coworkingcafe.fr/food`
+- [ ] `https://coworkingcafe.fr/members-program`
+- [ ] `https://coworkingcafe.fr/student-offers`
+- [ ] `https://coworkingcafe.fr/concept`
+- [ ] `https://coworkingcafe.fr/take-away`
+- [ ] `https://coworkingcafe.fr/boissons`
+- [ ] `https://coworkingcafe.fr/food`
 
 #### Jour 3 - Pages Légales + Histoire
 
-- [ ] `https://www.coworkingcafe.fr/history`
-- [ ] `https://www.coworkingcafe.fr/manifest`
-- [ ] `https://www.coworkingcafe.fr/cgu`
-- [ ] `https://www.coworkingcafe.fr/confidentiality`
-- [ ] `https://www.coworkingcafe.fr/mentions-legales`
+- [ ] `https://coworkingcafe.fr/history`
+- [ ] `https://coworkingcafe.fr/manifest`
+- [ ] `https://coworkingcafe.fr/cgu`
+- [ ] `https://coworkingcafe.fr/confidentiality`
+- [ ] `https://coworkingcafe.fr/mentions-legales`
 
 #### Jour 4 - Articles Blog
 
-**Récupérer URLs** : https://www.coworkingcafe.fr/sitemap.xml
+**Récupérer URLs** : https://coworkingcafe.fr/sitemap.xml
 
 - [ ] Article 1 : `/blog/[slug-1]`
 - [ ] Article 2 : `/blog/[slug-2]`
@@ -94,11 +94,11 @@
 
 **Status** : ⏳ À faire
 
-**Objectif** : Transférer le "jus SEO" de `new.coworkingcafe.fr` vers `www.coworkingcafe.fr`
+**Objectif** : Transférer le "jus SEO" de `new.coworkingcafe.fr` vers `coworkingcafe.fr`
 
 **Prérequis** :
 - [ ] Accès à la propriété `new.coworkingcafe.fr` dans Search Console
-- [ ] Accès à la propriété `www.coworkingcafe.fr` dans Search Console
+- [ ] Accès à la propriété `coworkingcafe.fr` dans Search Console
 
 **Étapes** :
 1. [ ] Aller sur https://search.google.com/search-console
@@ -107,7 +107,7 @@
 4. [ ] Cliquer sur **Changement d'adresse**
 5. [ ] Suivre l'assistant :
    - Ancien site : `new.coworkingcafe.fr`
-   - Nouveau site : `www.coworkingcafe.fr`
+   - Nouveau site : `coworkingcafe.fr`
    - ✅ Redirections 301 actives
    - ✅ Sitemap du nouveau site soumis
 6. [ ] Valider le changement
@@ -126,7 +126,7 @@
 
 **Étapes** :
 1. [ ] Aller sur https://search.google.com/search-console
-2. [ ] Sélectionner `www.coworkingcafe.fr`
+2. [ ] Sélectionner `coworkingcafe.fr`
 3. [ ] Menu → **Paramètres** (icône engrenage)
 4. [ ] **Utilisateurs et autorisations**
 5. [ ] Vérifier email ajouté
@@ -168,7 +168,7 @@
 **Méthode 2 : Google Search Console**
 
 1. [ ] Aller sur https://search.google.com/search-console
-2. [ ] Sélectionner propriété : `www.coworkingcafe.fr`
+2. [ ] Sélectionner propriété : `coworkingcafe.fr`
 3. [ ] Menu → **Performances**
 4. [ ] Filtrer derniers 28 jours
 5. [ ] Onglet **Pages**
@@ -190,7 +190,7 @@
 **Pour chaque URL avec ancien contenu** :
 
 1. [ ] Google Search Console → **Inspection d'URL**
-2. [ ] Coller l'URL : `https://www.coworkingcafe.fr/[page]`
+2. [ ] Coller l'URL : `https://coworkingcafe.fr/[page]`
 3. [ ] Attendre l'analyse
 4. [ ] Vérifier les données explorées :
    - [ ] Cliquer sur **"Afficher la page explorée"**
@@ -238,13 +238,13 @@ curl -I https://coworkingcafe.fr/ancienne-page
 
 # Doit retourner :
 HTTP/2 301
-Location: https://www.coworkingcafe.fr/nouvelle-page
+Location: https://coworkingcafe.fr/nouvelle-page
 ```
 
 **Vérifier redirections actuelles** :
 
-- [ ] Domaine racine : `coworkingcafe.fr` → `www.coworkingcafe.fr`
-- [ ] Ancien domaine : `new.coworkingcafe.fr` → `www.coworkingcafe.fr` ✅
+- [ ] Domaine racine : `coworkingcafe.fr` → `coworkingcafe.fr`
+- [ ] Ancien domaine : `new.coworkingcafe.fr` → `coworkingcafe.fr` ✅
 
 **Si besoin de redirection supplémentaire** :
 
@@ -268,7 +268,7 @@ async redirects() {
 **Méthode 1 : Test des Résultats Riches**
 
 1. [ ] Aller sur https://search.google.com/test/rich-results
-2. [ ] Tester : `https://www.coworkingcafe.fr/`
+2. [ ] Tester : `https://coworkingcafe.fr/`
 3. [ ] Vérifier que les **nouvelles données** sont détectées :
    - Title actuel
    - Description actuelle
@@ -278,7 +278,7 @@ async redirects() {
 
 **Méthode 2 : Cache Google**
 
-1. [ ] Chercher sur Google : `cache:www.coworkingcafe.fr`
+1. [ ] Chercher sur Google : `cache:coworkingcafe.fr`
 2. [ ] Vérifier date du cache en haut de page
 3. [ ] Si cache > 7 jours → Google n'a pas réexploré
 4. [ ] Solution : Demander réindexation (Étape 2)
@@ -401,7 +401,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '[Titre]',
     description: '[Description]',
-    url: 'https://www.coworkingcafe.fr/[page]',
+    url: 'https://coworkingcafe.fr/[page]',
     siteName: 'CoworKing Café Strasbourg',
     locale: 'fr_FR',
     type: 'website',
@@ -412,7 +412,7 @@ export const metadata: Metadata = {
     description: '[Description]',
   },
   alternates: {
-    canonical: 'https://www.coworkingcafe.fr/[page]',
+    canonical: 'https://coworkingcafe.fr/[page]',
   },
 };
 ```
@@ -441,7 +441,7 @@ export const metadata: Metadata = {
    - [ ] Nom exact : "CoworKing Café by Anticafé" ✅
    - [ ] Adresse : 1 rue de la Division Leclerc, 67000 Strasbourg ✅
    - [ ] Téléphone : 09 87 33 45 19 ✅
-   - [ ] Site web : https://www.coworkingcafe.fr ✅
+   - [ ] Site web : https://coworkingcafe.fr ✅
    - [ ] Horaires : L-V 09h-20h, S-D 10h-20h ✅
 
 4. [ ] **Vérifier la description** (250 mots max)
@@ -659,7 +659,7 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: 'https://www.coworkingcafe.fr/images/og-image.jpg',
+        url: 'https://coworkingcafe.fr/images/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'CoworKing Café by Anticafé Strasbourg - Espace coworking avec boissons illimitées',
@@ -683,10 +683,10 @@ export const metadata: Metadata = {
 
 ```typescript
 "image": [
-  "https://www.coworkingcafe.fr/images/logo-circle.png",
-  "https://www.coworkingcafe.fr/images/cafe-facade.jpg", // Photo façade
-  "https://www.coworkingcafe.fr/images/cafe-interieur.jpg", // Photo intérieur
-  "https://www.coworkingcafe.fr/images/cafe-bar.jpg", // Photo bar
+  "https://coworkingcafe.fr/images/logo-circle.png",
+  "https://coworkingcafe.fr/images/cafe-facade.jpg", // Photo façade
+  "https://coworkingcafe.fr/images/cafe-interieur.jpg", // Photo intérieur
+  "https://coworkingcafe.fr/images/cafe-bar.jpg", // Photo bar
 ]
 ```
 
@@ -927,7 +927,7 @@ import Image from 'next/image';
 #### Étape 1 : Audit Initial
 
 1. [ ] Tester sur https://pagespeed.web.dev/
-   - URL : `https://www.coworkingcafe.fr/`
+   - URL : `https://coworkingcafe.fr/`
    - Noter scores Mobile + Desktop
 
 **Scores actuels** :
@@ -1007,7 +1007,7 @@ import Image from 'next/image';
 - **Nom** : CoworKing Café by Anticafé
 - **Adresse** : 1 rue de la Division Leclerc, 67000 Strasbourg
 - **Téléphone** : 09 87 33 45 19
-- **Site** : https://www.coworkingcafe.fr
+- **Site** : https://coworkingcafe.fr
 
 **Important** : Utiliser EXACTEMENT les mêmes infos partout !
 
@@ -1072,8 +1072,8 @@ import Image from 'next/image';
 
 #### Vendredi : Quick Checks
 
-1. [ ] Sitemap accessible : https://www.coworkingcafe.fr/sitemap.xml
-2. [ ] Robots.txt correct : https://www.coworkingcafe.fr/robots.txt
+1. [ ] Sitemap accessible : https://coworkingcafe.fr/sitemap.xml
+2. [ ] Robots.txt correct : https://coworkingcafe.fr/robots.txt
 3. [ ] Site accessible (pas de 500)
 4. [ ] Test rapide PageSpeed : https://pagespeed.web.dev/
 
