@@ -19,6 +19,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://www.coworkingcafe.fr/sitemap.xml",
+    sitemap: "https://coworkingcafe.fr/sitemap.xml",
   };
 }
