@@ -87,7 +87,7 @@ export default async function HomeBlogSSR({ className = "" }: HomeBlogSSRProps) 
         </div>
 
         {/* Link to all articles */}
-        <div className="text-center mt-5">
+        <div className="text-center mt-5 mb-5">
           <Link href="/blog" className="common__btn">
             <span>Voir tous les articles</span>
           </Link>

@@ -128,7 +128,7 @@ export default async function RelatedArticles({ currentSlug }: RelatedArticlesPr
             </div>
           ))}
         </div>
-        <div className="text-center mt-4">
+        <div className="text-center mt-4 mb-5">
           <Link href="/blog" className="common__btn">
             <span>Voir tous les articles</span>
           </Link>
