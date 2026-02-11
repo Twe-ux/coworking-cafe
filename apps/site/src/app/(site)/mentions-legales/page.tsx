@@ -169,18 +169,18 @@ export default function MentionsLegalesPage() {
                         }}
                       >
                         <h4 className="h6 fw-semibold mb-2">
-                          Northflank (Hébergement web)
+                          Vercel (Hébergement web)
                         </h4>
-                        <p className="mb-1 small">88 Wood St</p>
-                        <p className="mb-1 small">London EC2V 7RS</p>
+                        <p className="mb-1 small">440 N Barranca Ave #4133</p>
+                        <p className="mb-1 small">Covina, CA 91723, USA</p>
                         <p className="mb-0 small">
                           <a
-                            href="https://northflank.com"
+                            href="https://vercel.com"
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{ color: "#417972" }}
                           >
-                            www.northflank.com
+                            www.vercel.com
                           </a>
                         </p>
                       </div>

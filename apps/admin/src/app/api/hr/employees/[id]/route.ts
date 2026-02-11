@@ -267,10 +267,20 @@ export async function PUT(
     }
 
     if (err.code === 11000) {
+      const duplicateErr = err as MongooseError & { keyPattern?: Record<string, number> }
+      const field = Object.keys(duplicateErr.keyPattern || {})[0]
+      const fieldNames: Record<string, string> = {
+        email: 'cet email',
+        socialSecurityNumber: 'ce numero de securite sociale',
+        clockingCode: 'ce code de pointage',
+      }
+      const fieldName = fieldNames[field] || 'ces informations'
+
       return NextResponse.json(
         {
           success: false,
-          error: 'Un employe avec ces informations existe deja',
+          error: `Un employe avec ${fieldName} existe deja`,
+          field,
         },
         { status: 409 }
       )

@@ -366,9 +366,28 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
 );
 
 // Indexes
-EmployeeSchema.index({ email: 1 }, { unique: true, sparse: true });
-EmployeeSchema.index({ socialSecurityNumber: 1 }, { unique: true, sparse: true });
-EmployeeSchema.index({ clockingCode: 1 }, { unique: true, sparse: true });
+// Unique indexes exclude drafts and soft-deleted employees
+// so they don't block creation of new employees with the same values.
+// NOTE: If deploying to an existing DB, drop the old sparse indexes first:
+//   db.employees.dropIndex("email_1")
+//   db.employees.dropIndex("socialSecurityNumber_1")
+//   db.employees.dropIndex("clockingCode_1")
+const uniqueFilter = {
+  isDraft: { $ne: true },
+  deletedAt: null,
+};
+EmployeeSchema.index(
+  { email: 1 },
+  { unique: true, partialFilterExpression: { email: { $exists: true, $ne: null }, ...uniqueFilter } }
+);
+EmployeeSchema.index(
+  { socialSecurityNumber: 1 },
+  { unique: true, partialFilterExpression: { socialSecurityNumber: { $exists: true, $ne: null }, ...uniqueFilter } }
+);
+EmployeeSchema.index(
+  { clockingCode: 1 },
+  { unique: true, partialFilterExpression: { clockingCode: { $exists: true, $ne: null }, ...uniqueFilter } }
+);
 EmployeeSchema.index({ isActive: 1 });
 EmployeeSchema.index({ isDraft: 1, createdBy: 1 });
 EmployeeSchema.index({ deletedAt: 1 });

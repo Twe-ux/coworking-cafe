@@ -10,15 +10,22 @@ interface SendEmailParams {
   to: string;
   subject: string;
   html: string;
+  text?: string;
+  attachments?: Array<{
+    filename: string;
+    content?: string | Buffer;
+    path?: string;
+  }>;
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailParams) {
+export async function sendEmail({ to, subject, html, text, attachments }: SendEmailParams) {
   try {
     await smtpSendEmail({
       to,
       subject,
       html,
-      text: '', // Texte brut optionnel
+      text: text || '',
+      attachments,
     });
 
     return {

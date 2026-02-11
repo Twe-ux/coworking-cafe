@@ -471,7 +471,7 @@ export default function ConfidentialityPage() {
                       sécurisés
                     </li>
                     <li className="mb-2">
-                      <strong>Resend</strong> - Envoi d&apos;emails
+                      <strong>OVH SMTP</strong> - Envoi d&apos;emails
                       transactionnels
                     </li>
                     <li className="mb-2">
@@ -479,7 +479,7 @@ export default function ConfidentialityPage() {
                       données
                     </li>
                     <li className="mb-2">
-                      <strong>Northflank</strong> - Hébergement de la plateforme
+                      <strong>Vercel</strong> - Hébergement de la plateforme
                       web
                     </li>
                   </ul>

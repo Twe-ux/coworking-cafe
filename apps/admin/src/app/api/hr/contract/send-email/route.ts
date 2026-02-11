@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { sendEmail } from '@coworking-cafe/email'
+import { sendEmail } from '@/lib/email/emailService'
 import { requireAuth } from '@/lib/api/auth'
 import { successResponse, errorResponse } from '@/lib/api/response'
 import { connectMongoose } from '@/lib/mongodb'
@@ -74,42 +74,41 @@ export async function POST(
     const pdfArrayBuffer = await pdfFile.arrayBuffer()
     const pdfBuffer = Buffer.from(pdfArrayBuffer)
 
-    // 7. Send email with SMTP (strasbourg@coworkingcafe.fr)
-    try {
-      await sendEmail({
-        to: recipientEmail,
-        subject: `Contrat de travail CDI - ${employeeData.firstName} ${employeeData.lastName}`,
-        html: generateEmailHTML(employeeData),
-        text: `Bonjour,\n\nVeuillez trouver ci-joint votre contrat de travail CDI.\n\nCordialement,\nL'équipe CoworKing Café`,
-        attachments: [
-          {
-            filename: pdfFile.name,
-            content: pdfBuffer,
-          },
-        ],
-      });
-
-      // 8. Update employee onboarding status
-      await Employee.findByIdAndUpdate(employeeId, {
-        $set: {
-          'onboardingStatus.contractSent': true,
-          'onboardingStatus.contractSentAt': new Date(),
-          'onboardingStatus.contractSentTo': recipientEmail,
+    // 7. Send email via admin email service
+    const emailResult = await sendEmail({
+      to: recipientEmail,
+      subject: `Contrat de travail CDI - ${employeeData.firstName} ${employeeData.lastName}`,
+      html: generateEmailHTML(employeeData),
+      text: `Bonjour,\n\nVeuillez trouver ci-joint votre contrat de travail CDI.\n\nCordialement,\nL'équipe CoworKing Café`,
+      attachments: [
+        {
+          filename: pdfFile.name,
+          content: pdfBuffer,
         },
-      })
+      ],
+    });
 
-      // 9. Return success
-      return successResponse(
-        { emailId: 'smtp-sent' },
-        `Email envoyé avec succès à ${recipientEmail}`
-      )
-    } catch (emailError) {
-      console.error('Email sending error:', emailError)
+    if (!emailResult.success) {
       return errorResponse(
         "Erreur lors de l'envoi de l'email",
-        emailError instanceof Error ? emailError.message : 'Erreur inconnue'
+        emailResult.error || 'Erreur inconnue'
       )
     }
+
+    // 8. Update employee onboarding status
+    await Employee.findByIdAndUpdate(employeeId, {
+      $set: {
+        'onboardingStatus.contractSent': true,
+        'onboardingStatus.contractSentAt': new Date(),
+        'onboardingStatus.contractSentTo': recipientEmail,
+      },
+    })
+
+    // 9. Return success
+    return successResponse(
+      { emailId: 'smtp-sent' },
+      `Email envoyé avec succès à ${recipientEmail}`
+    )
   } catch (error) {
     console.error('POST /api/hr/contract/send-email error:', error)
     return errorResponse(
