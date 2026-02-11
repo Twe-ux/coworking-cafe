@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     description: "Découvrez CoworKing Café by Anticafé à Strasbourg.",
     type: "website",
   },
+  alternates: {
+    canonical: "https://coworkingcafe.fr/take-away",
+  },
 };
 
 const TakeAway = () => {

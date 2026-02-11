@@ -7,11 +7,14 @@ import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
 
 export const metadata: Metadata = {
   title: "Concept | CoworKing Café by Anticafé",
-  description: `Découvrez CoworKing Café by Anticafé à Strasbourg : un espace chaleureux né du concept Anticafé, où l’on paie au temps et où l’on travaille comme à la maison, mais en mieux. Parfait pour freelances, étudiants, voyageurs et télétravailleurs.`,
+  description: `Découvrez CoworKing Café by Anticafé à Strasbourg : un espace chaleureux né du concept Anticafé, où l'on paie au temps et où l'on travaille comme à la maison, mais en mieux. Parfait pour freelances, étudiants, voyageurs et télétravailleurs.`,
   openGraph: {
     title: "Concept - CoworKing Café by Anticafé",
     description: "Découvrez CoworKing Café by Anticafé à Strasbourg.",
     type: "website",
+  },
+  alternates: {
+    canonical: "https://coworkingcafe.fr/concept",
   },
 };
 
