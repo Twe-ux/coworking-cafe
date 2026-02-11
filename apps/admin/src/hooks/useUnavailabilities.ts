@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { IUnavailabilityWithEmployee, UnavailabilityStatus } from '@/types/unavailability';
 
 interface UseUnavailabilitiesOptions {
@@ -48,8 +48,16 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
   const [unavailabilities, setUnavailabilities] = useState<IUnavailabilityWithEmployee[]>([]);
   const [loading, setLoading] = useState(autoFetch);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchUnavailabilities = useCallback(async () => {
+    // Cancel any in-flight request to prevent stale data from overwriting
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       setLoading(true);
       setError(null);
@@ -60,7 +68,9 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
       if (startDate) params.set('startDate', startDate);
       if (endDate) params.set('endDate', endDate);
 
-      const response = await fetch(`/api/unavailability?${params}`);
+      const response = await fetch(`/api/unavailability?${params}`, {
+        signal: controller.signal,
+      });
       const data = await response.json();
 
       if (!data.success) {
@@ -69,11 +79,15 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
 
       setUnavailabilities(data.data || []);
     } catch (err) {
+      // Ignore abort errors (expected when switching months fast)
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMessage);
       console.error('❌ Erreur useUnavailabilities:', err);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, [employeeId, status, startDate, endDate]);
 

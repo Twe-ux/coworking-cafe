@@ -14,6 +14,7 @@ export interface TaskDocument extends Document {
   createdBy: Types.ObjectId;               // Référence User (qui a créé)
   completedBy?: Types.ObjectId;            // Référence User (qui a complété)
   completedAt?: Date;                      // Date/heure de complétion
+  recurringTaskId?: Types.ObjectId;        // Ref RecurringTask template (if generated)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -67,6 +68,10 @@ export const TaskSchema = new Schema<TaskDocument>(
     completedAt: {
       type: Date,
     },
+    recurringTaskId: {
+      type: Schema.Types.ObjectId,
+      ref: 'RecurringTask',
+    },
   },
   {
     timestamps: true, // Ajoute createdAt et updatedAt automatiquement
@@ -77,3 +82,4 @@ export const TaskSchema = new Schema<TaskDocument>(
 TaskSchema.index({ status: 1, priority: -1, dueDate: 1 });
 TaskSchema.index({ createdBy: 1 });
 TaskSchema.index({ completedBy: 1 });
+TaskSchema.index({ recurringTaskId: 1, status: 1 });

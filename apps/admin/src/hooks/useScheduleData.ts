@@ -192,10 +192,11 @@ export function useScheduleData(): UseScheduleDataReturn {
 
   // Critical loading state: only show skeleton if shifts, employees or unavailabilities
   // are loading AND we don't have any cached data yet (initial load)
+  // Guard each with .length === 0 to prevent skeleton flash on month change refetches
   const isInitialLoading =
     (isLoadingShifts && shifts.length === 0) ||
     (isLoadingEmployees && employees.length === 0) ||
-    isLoadingUnavailabilities;
+    (isLoadingUnavailabilities && unavailabilities.length === 0);
 
   // Background loading: data is being refetched but we have cached data
   const isRefetching = isLoadingShifts || isLoadingEmployees || isLoadingTimeEntries || isLoadingUnavailabilities;

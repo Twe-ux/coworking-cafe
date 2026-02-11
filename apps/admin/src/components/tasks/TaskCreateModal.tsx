@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -20,85 +21,109 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { TaskCreateData, TaskPriority } from "@/types/task";
-import { TASK_PRIORITY_LABELS } from "@/types/task";
+import { cn } from "@/lib/utils";
+import type {
+  TaskCreateData,
+  TaskPriority,
+  RecurringTaskCreateData,
+  RecurrenceType,
+} from "@/types/task";
+import { TASK_PRIORITY_LABELS, WEEKDAY_LABELS } from "@/types/task";
 
 interface TaskCreateModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: TaskCreateData) => Promise<void>;
+  onSubmitRecurring?: (data: RecurringTaskCreateData) => Promise<void>;
 }
 
 export function TaskCreateModal({
   open,
   onOpenChange,
   onSubmit,
+  onSubmitRecurring,
 }: TaskCreateModalProps) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<TaskCreateData>({
-    title: "",
-    description: "",
-    priority: "medium",
-    dueDate: "",
-  });
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<TaskPriority>("medium");
+  const [dueDate, setDueDate] = useState("");
+  const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>("weekly");
+  const [recurrenceDays, setRecurrenceDays] = useState<number[]>([]);
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setPriority("medium");
+    setDueDate("");
+    setIsRecurring(false);
+    setRecurrenceType("weekly");
+    setRecurrenceDays([]);
+  };
+
+  const toggleDay = (day: number) => {
+    setRecurrenceDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.title.trim()) {
-      return;
-    }
+    if (!title.trim()) return;
 
     setLoading(true);
-
     try {
-      await onSubmit({
-        title: formData.title.trim(),
-        description: formData.description?.trim() || undefined,
-        priority: formData.priority,
-        dueDate: formData.dueDate || undefined,
-      });
-
-      // Réinitialiser le formulaire
-      setFormData({
-        title: "",
-        description: "",
-        priority: "medium",
-        dueDate: "",
-      });
-
+      if (isRecurring && onSubmitRecurring) {
+        if (recurrenceDays.length === 0) return;
+        await onSubmitRecurring({
+          title: title.trim(),
+          description: description.trim() || undefined,
+          priority,
+          recurrenceType,
+          recurrenceDays,
+        });
+      } else {
+        await onSubmit({
+          title: title.trim(),
+          description: description.trim() || undefined,
+          priority,
+          dueDate: dueDate || undefined,
+        });
+      }
+      resetForm();
       onOpenChange(false);
     } catch (error) {
-      console.error("Erreur création tâche:", error);
+      console.error("Erreur creation tache:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const monthDays = Array.from({ length: 31 }, (_, i) => i + 1);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Créer une tâche</DialogTitle>
+          <DialogTitle>Creer une tache</DialogTitle>
           <DialogDescription>
-            Ajoutez une nouvelle tâche pour l'équipe
+            Ajoutez une nouvelle tache pour l&apos;equipe
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
-            {/* Titre */}
+            {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title">
                 Titre <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="title"
-                placeholder="Titre de la tâche"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
+                placeholder="Titre de la tache"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 maxLength={100}
                 required
               />
@@ -109,23 +134,19 @@ export function TaskCreateModal({
               <Label htmlFor="description">Description (optionnel)</Label>
               <Textarea
                 id="description"
-                placeholder="Description détaillée..."
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                rows={3}
+                placeholder="Description detaillee..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
               />
             </div>
 
-            {/* Priorité */}
+            {/* Priority */}
             <div className="space-y-2">
-              <Label htmlFor="priority">Priorité</Label>
+              <Label>Priorite</Label>
               <Select
-                value={formData.priority}
-                onValueChange={(value: TaskPriority) =>
-                  setFormData({ ...formData, priority: value })
-                }
+                value={priority}
+                onValueChange={(v: TaskPriority) => setPriority(v)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -153,18 +174,104 @@ export function TaskCreateModal({
               </Select>
             </div>
 
-            {/* Date d'échéance */}
-            <div className="space-y-2">
-              <Label htmlFor="dueDate">Date d'échéance (optionnel)</Label>
-              <Input
-                id="dueDate"
-                type="date"
-                value={formData.dueDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, dueDate: e.target.value })
-                }
-              />
-            </div>
+            {/* Recurring toggle */}
+            {onSubmitRecurring && (
+              <div className="flex items-center gap-3 pt-2">
+                <Switch
+                  checked={isRecurring}
+                  onCheckedChange={setIsRecurring}
+                  id="recurring"
+                />
+                <Label htmlFor="recurring" className="cursor-pointer">
+                  Tache recurrente
+                </Label>
+              </div>
+            )}
+
+            {isRecurring ? (
+              <>
+                {/* Recurrence type */}
+                <div className="space-y-2">
+                  <Label>Frequence</Label>
+                  <Select
+                    value={recurrenceType}
+                    onValueChange={(v: RecurrenceType) => {
+                      setRecurrenceType(v);
+                      setRecurrenceDays([]);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">Hebdomadaire</SelectItem>
+                      <SelectItem value="monthly">Mensuel</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Day picker */}
+                <div className="space-y-2">
+                  <Label>
+                    {recurrenceType === "weekly" ? "Jours de la semaine" : "Jours du mois"}
+                    <span className="text-red-500"> *</span>
+                  </Label>
+
+                  {recurrenceType === "weekly" ? (
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3, 4, 5, 6, 0].map((day) => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => toggleDay(day)}
+                          className={cn(
+                            "w-10 h-10 rounded-lg text-xs font-medium border transition-colors",
+                            recurrenceDays.includes(day)
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background hover:bg-muted border-input",
+                          )}
+                        >
+                          {WEEKDAY_LABELS[day]}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-7 gap-1">
+                      {monthDays.map((day) => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => toggleDay(day)}
+                          className={cn(
+                            "h-8 rounded text-xs font-medium border transition-colors",
+                            recurrenceDays.includes(day)
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background hover:bg-muted border-input",
+                          )}
+                        >
+                          {day}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {recurrenceDays.length === 0 && (
+                    <p className="text-xs text-red-500">Selectionnez au moins un jour</p>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* Due date (only for non-recurring) */
+              <div className="space-y-2">
+                <Label htmlFor="dueDate">Date d&apos;echeance (optionnel)</Label>
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+              </div>
+            )}
           </div>
 
           <DialogFooter>
@@ -176,8 +283,11 @@ export function TaskCreateModal({
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Création..." : "Créer"}
+            <Button
+              type="submit"
+              disabled={loading || (isRecurring && recurrenceDays.length === 0)}
+            >
+              {loading ? "Creation..." : "Creer"}
             </Button>
           </DialogFooter>
         </form>

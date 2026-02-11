@@ -1,7 +1,7 @@
 /**
  * Schedule day cell component
  * Renders shift buttons organized by morning/afternoon for each employee
- * Shows unavailabilities with employee color when employee is unavailable
+ * Shows unavailabilities in red when employee is unavailable
  * Empty slots are clickable to create new shifts
  */
 
@@ -103,13 +103,12 @@ export function ScheduleDayCell({
         // Check if employee is unavailable on this date
         const isUnavailable = isEmployeeUnavailable(dateStr, employee.id);
 
-        // If unavailable, show "INDISPO" badge with employee color
+        // If unavailable, show "INDISPO" badge in red
         if (isUnavailable) {
           return (
             <div key={employee.id} className="grid min-h-4 grid-cols-2 gap-2">
               <div
-                className="col-span-2 rounded px-1 py-0.5 text-center text-xs font-bold text-white"
-                style={{ backgroundColor: employee.color || "#9CA3AF" }}
+                className="col-span-2 rounded bg-red-500 px-1 py-0.5 text-center text-xs font-bold text-white"
                 title={`${employee.firstName} est indisponible ce jour`}
               >
                 INDISPO

@@ -61,6 +61,8 @@ export type { AdditionalServiceDocument } from './additionalService';
 // ===== Tasks =====
 export { Task } from './task';
 export type { TaskDocument } from './task';
+export { RecurringTask } from './recurringTask';
+export type { RecurringTaskDocument } from './recurringTask';
 
 // ===== Cash Register =====
 export { CashRegister } from './cashRegister';

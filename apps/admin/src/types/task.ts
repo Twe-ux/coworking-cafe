@@ -2,23 +2,12 @@
  * Types pour les tâches (todo list)
  */
 
-/**
- * Priorité de la tâche
- * - high: Rouge (urgent)
- * - medium: Orange (normal)
- * - low: Vert (faible)
- */
 export type TaskPriority = "high" | "medium" | "low";
-
-/**
- * Statut de la tâche
- * - pending: À faire
- * - completed: Terminée
- */
 export type TaskStatus = "pending" | "completed";
+export type RecurrenceType = "weekly" | "monthly";
 
 /**
- * Tâche complète
+ * Task instance
  */
 export interface Task {
   id: string;
@@ -26,47 +15,36 @@ export interface Task {
   description?: string;
   priority: TaskPriority;
   status: TaskStatus;
-  dueDate?: string; // YYYY-MM-DD
-  createdBy: string; // User ID
-  completedBy?: string; // User ID
-  completedAt?: string; // ISO string
-  createdAt: string; // ISO string
-  updatedAt: string; // ISO string
+  dueDate?: string;
+  createdBy: string;
+  completedBy?: string;
+  completedAt?: string;
+  recurringTaskId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-/**
- * Données pour créer une tâche
- */
 export interface TaskCreateData {
   title: string;
   description?: string;
   priority: TaskPriority;
-  dueDate?: string; // YYYY-MM-DD
+  dueDate?: string;
 }
 
-/**
- * Données pour mettre à jour une tâche
- */
 export interface TaskUpdateData {
   title?: string;
   description?: string;
   priority?: TaskPriority;
-  dueDate?: string; // YYYY-MM-DD
+  dueDate?: string;
   status?: TaskStatus;
 }
 
-/**
- * Filtres pour rechercher des tâches
- */
 export interface TaskFilters {
   status?: TaskStatus;
   priority?: TaskPriority;
   createdBy?: string;
 }
 
-/**
- * Tâche avec infos utilisateur (pour affichage)
- */
 export interface TaskWithUser extends Task {
   createdByUser?: {
     id: string;
@@ -81,19 +59,59 @@ export interface TaskWithUser extends Task {
 }
 
 /**
- * Couleurs de bordure par priorité (pour UI)
+ * Recurring task template
  */
-export const TASK_PRIORITY_COLORS: Record<TaskPriority, string> = {
-  high: "border-red-500", // Rouge
-  medium: "border-orange-500", // Orange
-  low: "border-green-500", // Vert
-};
+export interface RecurringTask {
+  id: string;
+  title: string;
+  description?: string;
+  priority: TaskPriority;
+  recurrenceType: RecurrenceType;
+  recurrenceDays: number[];
+  active: boolean;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RecurringTaskCreateData {
+  title: string;
+  description?: string;
+  priority: TaskPriority;
+  recurrenceType: RecurrenceType;
+  recurrenceDays: number[];
+}
+
+export interface RecurringTaskUpdateData {
+  title?: string;
+  description?: string;
+  priority?: TaskPriority;
+  recurrenceType?: RecurrenceType;
+  recurrenceDays?: number[];
+  active?: boolean;
+}
 
 /**
- * Labels de priorité (pour affichage)
+ * UI constants
  */
+export const TASK_PRIORITY_COLORS: Record<TaskPriority, string> = {
+  high: "border-red-500",
+  medium: "border-orange-500",
+  low: "border-green-500",
+};
+
 export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
   high: "Urgent",
   medium: "Normal",
   low: "Faible",
+};
+
+export const WEEKDAY_LABELS: Record<number, string> = {
+  0: "Dim",
+  1: "Lun",
+  2: "Mar",
+  3: "Mer",
+  4: "Jeu",
+  5: "Ven",
+  6: "Sam",
 };

@@ -45,6 +45,7 @@ export async function GET(
       createdBy: task.createdBy.toString(),
       completedBy: task.completedBy?.toString(),
       completedAt: task.completedAt?.toISOString(),
+      recurringTaskId: task.recurringTaskId?.toString(),
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),
     }));
@@ -135,6 +136,7 @@ export async function POST(
       status: task.status,
       dueDate: task.dueDate,
       createdBy: task.createdBy.toString(),
+      recurringTaskId: task.recurringTaskId?.toString(),
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),
     };

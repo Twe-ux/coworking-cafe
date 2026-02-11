@@ -5,6 +5,24 @@ import { connectMongoose } from '@/lib/mongodb';
 import { Task } from '@coworking-cafe/database';
 import type { ApiResponse } from '@/types/timeEntry';
 import type { Task as TaskType, TaskUpdateData } from '@/types/task';
+import type { TaskDocument } from '@coworking-cafe/database';
+
+function formatTask(task: TaskDocument): TaskType {
+  return {
+    id: task._id.toString(),
+    title: task.title,
+    description: task.description,
+    priority: task.priority,
+    status: task.status,
+    dueDate: task.dueDate,
+    createdBy: task.createdBy.toString(),
+    completedBy: task.completedBy?.toString(),
+    completedAt: task.completedAt?.toISOString(),
+    recurringTaskId: task.recurringTaskId?.toString(),
+    createdAt: task.createdAt.toISOString(),
+    updatedAt: task.updatedAt.toISOString(),
+  };
+}
 
 /**
  * PATCH /api/tasks/[id] - Mettre à jour une tâche
@@ -76,6 +94,15 @@ export async function PATCH(
 
     // Si on marque comme complétée
     if (body.status === 'completed' && task.status !== 'completed') {
+      // Recurring task: delete instance instead of completing
+      if (task.recurringTaskId) {
+        await Task.findByIdAndDelete(task._id);
+        return successResponse(
+          { ...formatTask(task), status: 'completed' } as TaskType,
+          'Tache recurrente completee'
+        );
+      }
+
       task.status = 'completed';
       // completedBy reste undefined si pas d'auth (utilisateur non connecté)
       task.completedBy = undefined;
@@ -92,22 +119,7 @@ export async function PATCH(
     // Sauvegarder
     await task.save();
 
-    // Formater la réponse
-    const taskFormatted: TaskType = {
-      id: task._id.toString(),
-      title: task.title,
-      description: task.description,
-      priority: task.priority,
-      status: task.status,
-      dueDate: task.dueDate,
-      createdBy: task.createdBy.toString(),
-      completedBy: task.completedBy?.toString(),
-      completedAt: task.completedAt?.toISOString(),
-      createdAt: task.createdAt.toISOString(),
-      updatedAt: task.updatedAt.toISOString(),
-    };
-
-    return successResponse(taskFormatted, 'Tâche mise à jour avec succès');
+    return successResponse(formatTask(task), 'Tâche mise à jour avec succès');
   } catch (error) {
     console.error('PATCH /api/tasks/[id] error:', error);
     return errorResponse(

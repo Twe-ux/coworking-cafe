@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type {
   Task,
   TaskCreateData,
@@ -17,10 +17,14 @@ interface UseTasksReturn {
   toggleTaskStatus: (task: Task) => Promise<Task | null>;
 }
 
+// Sync recurring tasks once per page load (shared across hook instances)
+let syncDone = false;
+
 export function useTasks(filters?: TaskFilters): UseTasksReturn {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const syncTriggered = useRef(false);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -56,7 +60,20 @@ export function useTasks(filters?: TaskFilters): UseTasksReturn {
   }, [filters?.status, filters?.priority, filters?.createdBy]);
 
   useEffect(() => {
-    fetchTasks();
+    const init = async () => {
+      // Sync recurring tasks once per page load
+      if (!syncDone && !syncTriggered.current) {
+        syncTriggered.current = true;
+        syncDone = true;
+        try {
+          await fetch('/api/tasks/recurring/sync', { method: 'POST' });
+        } catch {
+          // Sync failure is non-blocking
+        }
+      }
+      await fetchTasks();
+    };
+    init();
   }, [fetchTasks]);
 
   const createTask = async (data: TaskCreateData): Promise<Task | null> => {
