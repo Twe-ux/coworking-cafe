@@ -58,22 +58,20 @@ export async function generateMetadata({
       publishedTime: article.createdAt,
       modifiedTime: article.updatedAt,
       authors: ["CoworKing Café"],
-      images: article.image
-        ? [
-            {
-              url: article.image,
-              width: 1200,
-              height: 630,
-              alt: article.title,
-            },
-          ]
-        : undefined,
+      images: [
+        {
+          url: article.image || "/images/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: article.image ? [article.image] : undefined,
+      images: [article.image || "/images/og-image.png"],
     },
     alternates: {
       canonical: `https://coworkingcafe.fr/blog/${params.slug}`,

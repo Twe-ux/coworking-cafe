@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/images/og-default.jpg',
+        url: '/images/og-image.png',
         width: 1200,
         height: 630,
         alt: 'CoworKing Café Strasbourg - Notre Histoire'
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Notre Histoire - CoworKing Café by Anticafé',
     description: 'De 2017 à aujourd\'hui : découvrez le parcours de Christèle et Thierry, créateurs du CoworKing Café à Strasbourg.',
-    images: ['/images/og-default.jpg'],
+    images: ['/images/og-image.png'],
   },
 
   alternates: {

@@ -21,12 +21,21 @@ export const metadata: Metadata = {
     siteName: "CoworKing Café Strasbourg",
     locale: "fr_FR",
     type: "website",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CoworKing Café - CGU",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "CGU | CoworKing Café Strasbourg",
     description:
       "Conditions générales d'utilisation de l'espace de coworking",
+    images: ["/images/og-image.png"],
   },
   alternates: {
     canonical: "https://coworkingcafe.fr/cgu",

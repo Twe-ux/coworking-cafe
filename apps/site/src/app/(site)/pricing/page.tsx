@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/images/og-default.jpg',
+        url: '/images/og-image.png',
         width: 1200,
         height: 630,
         alt: 'CoworKing Café Strasbourg - Tarifs'
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Tarifs Coworking & Salles de Réunion à Strasbourg',
     description: 'Tarifs flexibles pour le coworking : à l\'heure, à la journée ou au mois. Location de salles de réunion équipées à Strasbourg.',
-    images: ['/images/og-default.jpg'],
+    images: ['/images/og-image.png'],
   },
 
   alternates: {

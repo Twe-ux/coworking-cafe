@@ -20,12 +20,21 @@ export const metadata: Metadata = {
     siteName: "CoworKing Café Strasbourg",
     locale: "fr_FR",
     type: "website",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CoworKing Café - Notre Manifeste",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Notre Manifeste | CoworKing Café Strasbourg",
     description:
       "Le café motive, l'humain relie, vous faites le reste. Découvrez notre philosophie du coworking.",
+    images: ["/images/og-image.png"],
   },
   alternates: {
     canonical: "https://coworkingcafe.fr/manifest",

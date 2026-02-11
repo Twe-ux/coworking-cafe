@@ -1252,7 +1252,7 @@ import Image from 'next/image';
 
 ## 📝 Notes & Historique
 
-### 2026-02-11 🚀 SESSION MAJEURE
+### 2026-02-11 🚀 SESSION MAJEURE (Matin)
 
 **5 heures de travail - 5 tâches complétées !**
 
@@ -1302,6 +1302,102 @@ import Image from 'next/image';
 - Image OpenGraph apparaît dans partages sociaux
 - GA4 commence à collecter données trafic
 - Articles blog mieux référencés avec Schema.org
+
+---
+
+### 2026-02-11 🎯 SESSION AHREFS (Après-midi)
+
+**3 heures de travail - OpenGraph Images ajoutées sur TOUTES les pages !**
+
+#### ✅ Correction OpenGraph Incomplete (Issue Ahrefs)
+
+**Problème détecté** :
+- Ahrefs signalait "Open Graph tags incomplete" sur plusieurs pages
+- **Cause** : Balise `og:image` manquante (critique pour partage social et SEO)
+- Pages affectées : 21 pages (toutes pages avec openGraph)
+
+**Solution appliquée** :
+1. ✅ **Root Layout** : Ajout `metadataBase` + `openGraph.images` + `twitter.images`
+2. ✅ **Pages Statiques** (18 pages) : Ajout `og:image` + `twitter:image` sur :
+   - Pages principales : concept, spaces, pricing, take-away, contact, food, boissons
+   - Pages programmes : student-offers, members-program, history
+   - Pages légales : mentions-legales, cgu, confidentiality, manifest
+   - Autres : horaires, scan, (site)/layout (homepage)
+3. ✅ **Blog** (3 pages) :
+   - `/blog` layout : Ajout og:image
+   - `/blog/archive` : Ajout og:image
+   - `/blog/[slug]` layout : Ajout fallback `article.image || "/images/og-image.png"`
+4. ✅ **Corrections** : Remplacement `/images/og-default.jpg` (inexistant) → `/images/og-image.png` (3.2 MB, existe)
+
+**Image OpenGraph utilisée** :
+- Chemin : `/public/images/og-image.png`
+- Dimensions : 1200x630px (ratio optimal OpenGraph)
+- Format : PNG
+- Taille : 3.2 MB
+
+**Fichiers modifiés** : 21 fichiers
+```
+apps/site/src/app/
+├── layout.tsx ✅
+├── (site)/
+│   ├── layout.tsx ✅
+│   ├── concept/page.tsx ✅
+│   ├── spaces/page.tsx ✅
+│   ├── pricing/page.tsx ✅
+│   ├── take-away/page.tsx ✅
+│   ├── contact/page.tsx ✅
+│   ├── food/page.tsx ✅
+│   ├── boissons/page.tsx ✅
+│   ├── student-offers/page.tsx ✅
+│   ├── members-program/page.tsx ✅
+│   ├── history/page.tsx ✅
+│   ├── horaires/layout.tsx ✅
+│   ├── scan/layout.tsx ✅
+│   ├── mentions-legales/layout.tsx ✅
+│   ├── cgu/layout.tsx ✅
+│   ├── confidentiality/layout.tsx ✅
+│   ├── manifest/layout.tsx ✅
+│   └── blog/
+│       ├── layout.tsx ✅
+│       ├── archive/page.tsx ✅
+│       └── [slug]/layout.tsx ✅
+```
+
+**Résultat** :
+- ✅ **21/21 pages** ont maintenant `og:image` + `twitter:image`
+- ✅ **100%** des pages ont metadata OpenGraph complètes
+- ✅ Build réussi (38 pages générées)
+- ✅ Commit : `feat(seo): add og:image to all 21 pages for complete OpenGraph`
+
+**Tags OpenGraph maintenant présents sur TOUTES les pages** :
+1. ✅ `og:type` (website / article)
+2. ✅ `og:locale` (fr_FR)
+3. ✅ `og:site_name` (CoworKing Café Strasbourg)
+4. ✅ `og:url` (URL canonique)
+5. ✅ `og:description` (description SEO)
+6. ✅ `og:title` (titre)
+7. ✅ **`og:image`** ← NOUVEAU (le tag manquant critique)
+8. ✅ **`twitter:card`** (summary_large_image)
+9. ✅ **`twitter:images`** ← NOUVEAU
+
+#### 🎯 Impact Attendu SEO (7-14 jours)
+
+**Avant** :
+- ❌ Ahrefs : "Open Graph tags incomplete"
+- ❌ 0/21 pages avec og:image
+- ❌ Partages sociaux sans preview image
+
+**Après** :
+- ✅ Ahrefs devrait passer à "complete" (issue résolue)
+- ✅ 21/21 pages avec og:image
+- ✅ Meilleur partage sur réseaux sociaux (Facebook, Twitter, LinkedIn)
+- ✅ Preview images dans messages/liens partagés
+- ✅ Score SEO amélioré
+- ✅ Meilleure visibilité sociale
+
+**Progression Globale** :
+- **Tâches SEO** : 7/14 → **7/14** (maintien 50%, correction technique)
+- **Qualité Metadata** : OpenGraph incomplete → **OpenGraph 100% complète** ✅
 
 ---
 

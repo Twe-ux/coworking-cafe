@@ -10,6 +10,18 @@ export const metadata: Metadata = {
     title: "Espaces - CoworKing Café by Anticafé",
     description: "Découvrez nos espaces de travail à Strasbourg.",
     type: "website",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CoworKing Café - Nos Espaces",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og-image.png"],
   },
   alternates: {
     canonical: "https://coworkingcafe.fr/spaces",

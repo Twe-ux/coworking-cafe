@@ -7,6 +7,26 @@ import PageTitle from "../../../../components/site/PageTitle";
 export const metadata: Metadata = {
   title: "Archive des articles | Blog CoworKing Café",
   description: "Retrouvez tous nos articles sur le coworking, la productivité et le télétravail à Strasbourg.",
+  openGraph: {
+    title: "Archive des articles - Blog CoworKing Café",
+    description: "Tous nos articles sur le coworking, la productivité et le télétravail à Strasbourg.",
+    url: "https://coworkingcafe.fr/blog/archive",
+    type: "website",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CoworKing Café - Archive Blog",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Archive des articles - Blog CoworKing Café",
+    description: "Tous nos articles sur le coworking, la productivité et le télétravail à Strasbourg.",
+    images: ["/images/og-image.png"],
+  },
   alternates: {
     canonical: "https://coworkingcafe.fr/blog/archive",
   },

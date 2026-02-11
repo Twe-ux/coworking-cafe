@@ -9,6 +9,7 @@ import { ReduxProvider } from "../components/providers/ReduxProvider";
 
 export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
+  metadataBase: new URL("https://coworkingcafe.fr"),
   // themeColor managed dynamically by DynamicThemeColor component
   viewport: {
     width: "device-width",
@@ -19,6 +20,23 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent", // Status bar translucent on colored background
     title: "CoworKing Café",
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "CoworKing Café by Anticafé",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CoworKing Café by Anticafé - Espace de coworking à Strasbourg",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/images/og-image.png"],
   },
 };
 

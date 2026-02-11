@@ -20,11 +20,20 @@ export const metadata: Metadata = {
     siteName: "CoworKing Café Strasbourg",
     locale: "fr_FR",
     type: "website",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CoworKing Café - Politique de Confidentialité",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Politique de Confidentialité RGPD | CoworKing Café",
     description: "Protection totale de vos données personnelles - Conforme RGPD",
+    images: ["/images/og-image.png"],
   },
   alternates: {
     canonical: "https://coworkingcafe.fr/confidentiality",
