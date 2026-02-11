@@ -74,7 +74,7 @@ export function useScheduleData(): UseScheduleDataReturn {
     status: "approved",
   });
 
-  // 🚀 PREFETCH: Preload next month's shifts in background for instant navigation
+  // 🚀 PREFETCH: Preload next month's shifts + unavailabilities for instant navigation
   useEffect(() => {
     const prefetchNextMonth = async () => {
       // Calculate next month
@@ -85,41 +85,72 @@ export function useScheduleData(): UseScheduleDataReturn {
       const { startDate: nextStartDate, endDate: nextEndDate } =
         getCalendarDateRange(nextMonth);
 
-      // Prefetch shifts for next month (silent background fetch)
-      await queryClient.prefetchQuery({
-        queryKey: [
-          "shifts",
-          "list",
-          {
-            startDate: formatDateToYMD(nextStartDate),
-            endDate: formatDateToYMD(nextEndDate),
-            active: true,
+      const nextStartStr = formatDateToYMD(nextStartDate);
+      const nextEndStr = formatDateToYMD(nextEndDate);
+
+      // Prefetch shifts + unavailabilities in parallel
+      await Promise.all([
+        queryClient.prefetchQuery({
+          queryKey: [
+            "shifts",
+            "list",
+            {
+              startDate: nextStartStr,
+              endDate: nextEndStr,
+              active: true,
+            },
+          ],
+          queryFn: async () => {
+            const params = new URLSearchParams({
+              startDate: nextStartStr,
+              endDate: nextEndStr,
+              active: "true",
+            });
+
+            const response = await fetch(`/api/shifts?${params.toString()}`);
+            const result = await response.json();
+
+            if (!result.success) {
+              throw new Error(result.error || "Error prefetching shifts");
+            }
+
+            return result.data.map((shift: Shift) => ({
+              ...shift,
+              date:
+                typeof shift.date === "string"
+                  ? shift.date.split("T")[0]
+                  : shift.date,
+            }));
           },
-        ],
-        queryFn: async () => {
-          const params = new URLSearchParams({
-            startDate: formatDateToYMD(nextStartDate),
-            endDate: formatDateToYMD(nextEndDate),
-            active: "true",
-          });
+        }),
+        queryClient.prefetchQuery({
+          queryKey: [
+            "unavailabilities",
+            "list",
+            {
+              startDate: nextStartStr,
+              endDate: nextEndStr,
+              status: "approved",
+            },
+          ],
+          queryFn: async () => {
+            const params = new URLSearchParams({
+              startDate: nextStartStr,
+              endDate: nextEndStr,
+              status: "approved",
+            });
 
-          const response = await fetch(`/api/shifts?${params.toString()}`);
-          const result = await response.json();
+            const response = await fetch(`/api/unavailability?${params.toString()}`);
+            const result = await response.json();
 
-          if (!result.success) {
-            throw new Error(result.error || "Error prefetching shifts");
-          }
+            if (!result.success) {
+              throw new Error(result.error || "Error prefetching unavailabilities");
+            }
 
-          return result.data.map((shift: Shift) => ({
-            ...shift,
-            date:
-              typeof shift.date === "string"
-                ? shift.date.split("T")[0]
-                : shift.date,
-          }));
-        },
-        // No staleTime override - uses global config (5min dev / 24h prod)
-      });
+            return result.data || [];
+          },
+        }),
+      ]);
     };
 
     // Small delay to avoid prefetching during initial load

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { IUnavailabilityWithEmployee, UnavailabilityStatus } from '@/types/unavailability';
 
 interface UseUnavailabilitiesOptions {
@@ -36,6 +37,38 @@ interface UpdateUnavailabilityData {
   reason?: string;
 }
 
+/**
+ * Query key factory for unavailabilities
+ */
+const unavailabilityKeys = {
+  all: ['unavailabilities'] as const,
+  lists: () => [...unavailabilityKeys.all, 'list'] as const,
+  list: (filters: Omit<UseUnavailabilitiesOptions, 'autoFetch'>) =>
+    [...unavailabilityKeys.lists(), filters] as const,
+};
+
+/**
+ * Fetch unavailabilities from API
+ */
+async function fetchUnavailabilities(
+  options: Omit<UseUnavailabilitiesOptions, 'autoFetch'>
+): Promise<IUnavailabilityWithEmployee[]> {
+  const params = new URLSearchParams();
+  if (options.employeeId) params.set('employeeId', options.employeeId);
+  if (options.status) params.set('status', options.status);
+  if (options.startDate) params.set('startDate', options.startDate);
+  if (options.endDate) params.set('endDate', options.endDate);
+
+  const response = await fetch(`/api/unavailability?${params}`);
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || 'Erreur inconnue');
+  }
+
+  return data.data || [];
+}
+
 export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): UseUnavailabilitiesReturn {
   const {
     employeeId,
@@ -45,59 +78,33 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
     autoFetch = true,
   } = options;
 
-  const [unavailabilities, setUnavailabilities] = useState<IUnavailabilityWithEmployee[]>([]);
-  const [loading, setLoading] = useState(autoFetch);
-  const [error, setError] = useState<string | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const queryClient = useQueryClient();
+  const filters = { employeeId, status, startDate, endDate };
 
-  const fetchUnavailabilities = useCallback(async () => {
-    // Cancel any in-flight request to prevent stale data from overwriting
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+  const {
+    data: unavailabilities = [],
+    isLoading,
+    error,
+    refetch: rqRefetch,
+  } = useQuery({
+    queryKey: unavailabilityKeys.list(filters),
+    queryFn: () => fetchUnavailabilities(filters),
+    enabled: autoFetch,
+  });
 
-    try {
-      setLoading(true);
-      setError(null);
+  const invalidate = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: unavailabilityKeys.lists() });
+  }, [queryClient]);
 
-      const params = new URLSearchParams();
-      if (employeeId) params.set('employeeId', employeeId);
-      if (status) params.set('status', status);
-      if (startDate) params.set('startDate', startDate);
-      if (endDate) params.set('endDate', endDate);
-
-      const response = await fetch(`/api/unavailability?${params}`, {
-        signal: controller.signal,
-      });
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur inconnue');
-      }
-
-      setUnavailabilities(data.data || []);
-    } catch (err) {
-      // Ignore abort errors (expected when switching months fast)
-      if (err instanceof DOMException && err.name === 'AbortError') return;
-      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
-      setError(errorMessage);
-      console.error('❌ Erreur useUnavailabilities:', err);
-    } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
-    }
-  }, [employeeId, status, startDate, endDate]);
+  const refetch = useCallback(async () => {
+    await rqRefetch();
+  }, [rqRefetch]);
 
   const createUnavailability = useCallback(async (data: CreateUnavailabilityData) => {
     try {
       const response = await fetch('/api/unavailability', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
@@ -107,21 +114,19 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
         return { success: false, error: result.error };
       }
 
-      await fetchUnavailabilities();
+      invalidate();
       return { success: true };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       return { success: false, error: errorMessage };
     }
-  }, [fetchUnavailabilities]);
+  }, [invalidate]);
 
   const updateUnavailability = useCallback(async (id: string, data: UpdateUnavailabilityData) => {
     try {
       const response = await fetch(`/api/unavailability/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
@@ -131,13 +136,13 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
         return { success: false, error: result.error };
       }
 
-      await fetchUnavailabilities();
+      invalidate();
       return { success: true };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       return { success: false, error: errorMessage };
     }
-  }, [fetchUnavailabilities]);
+  }, [invalidate]);
 
   const deleteUnavailability = useCallback(async (id: string) => {
     try {
@@ -151,25 +156,19 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
         return { success: false, error: result.error };
       }
 
-      await fetchUnavailabilities();
+      invalidate();
       return { success: true };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       return { success: false, error: errorMessage };
     }
-  }, [fetchUnavailabilities]);
-
-  useEffect(() => {
-    if (autoFetch) {
-      fetchUnavailabilities();
-    }
-  }, [autoFetch, fetchUnavailabilities]);
+  }, [invalidate]);
 
   return {
     unavailabilities,
-    loading,
-    error,
-    refetch: fetchUnavailabilities,
+    loading: isLoading,
+    error: error ? (error instanceof Error ? error.message : String(error)) : null,
+    refetch,
     createUnavailability,
     updateUnavailability,
     deleteUnavailability,
