@@ -70,10 +70,10 @@ const nextConfig = {
     ];
   },
 
-  // Redirects - Old domain to new domain (301 permanent)
+  // Redirects - Canonical URL enforcement (301 permanent)
   async redirects() {
     return [
-      // Redirect ALL traffic from old domain to new domain
+      // 1. Redirect old domain to www subdomain
       {
         source: '/:path*',
         has: [
@@ -82,7 +82,19 @@ const nextConfig = {
             value: 'new.coworkingcafe.fr',
           },
         ],
-        destination: 'https://coworkingcafe.fr/:path*',
+        destination: 'https://www.coworkingcafe.fr/:path*',
+        permanent: true, // 301 redirect
+      },
+      // 2. Redirect apex domain to www subdomain (canonical URL)
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'coworkingcafe.fr',
+          },
+        ],
+        destination: 'https://www.coworkingcafe.fr/:path*',
         permanent: true, // 301 redirect
       },
     ];
