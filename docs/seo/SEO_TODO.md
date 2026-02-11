@@ -101,21 +101,21 @@
 
 **Prérequis** :
 
-- [ ] Accès à la propriété `new.coworkingcafe.fr` dans Search Console
-- [ ] Accès à la propriété `coworkingcafe.fr` dans Search Console
+- ✅ Accès à la propriété `new.coworkingcafe.fr` dans Search Console
+- ✅ Accès à la propriété `coworkingcafe.fr` dans Search Console
 
 **Étapes** :
 
-1. [ ] Aller sur https://search.google.com/search-console
-2. [ ] Sélectionner `new.coworkingcafe.fr`
-3. [ ] Menu → **Paramètres** (icône engrenage)
-4. [ ] Cliquer sur **Changement d'adresse**
-5. [ ] Suivre l'assistant :
+1. ✅ Aller sur https://search.google.com/search-console
+2. ✅ Sélectionner `new.coworkingcafe.fr`
+3. ✅ Menu → **Paramètres** (icône engrenage)
+4. ✅ Cliquer sur **Changement d'adresse**
+5. ✅ Suivre l'assistant :
    - Ancien site : `new.coworkingcafe.fr`
    - Nouveau site : `coworkingcafe.fr`
    - ✅ Redirections 301 actives
    - ✅ Sitemap du nouveau site soumis
-6. [ ] Valider le changement
+6. ✅ Valider le changement
 
 **Note** : Si pas d'accès à `new.coworkingcafe.fr`, cette étape n'est pas bloquante (les 301 redirects suffisent).
 
