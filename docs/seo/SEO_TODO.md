@@ -9,15 +9,15 @@
 
 ## 📊 Vue d'Ensemble
 
-| Phase | Tâches | Complétées | Statut |
-|-------|--------|------------|--------|
-| **Google Search Console** | 4 | 2/4 | 🟡 En cours |
-| **Google My Business + Image** | 1 | 0/1 | ⚪ À faire |
-| **Metadata & Contenu** | 2 | 0/2 | ⚪ À faire |
-| **Performance Technique** | 2 | 0/2 | ⚪ À faire |
-| **Off-Page SEO** | 2 | 0/2 | ⚪ À faire |
-| **Analytics & Monitoring** | 2 | 0/2 | ⚪ À faire |
-| **TOTAL** | **14** | **2/14** | **14%** |
+| Phase                          | Tâches | Complétées | Statut      |
+| ------------------------------ | ------ | ---------- | ----------- |
+| **Google Search Console**      | 4      | 2/4        | 🟡 En cours |
+| **Google My Business + Image** | 1      | 0/1        | ⚪ À faire  |
+| **Metadata & Contenu**         | 2      | 0/2        | ⚪ À faire  |
+| **Performance Technique**      | 2      | 0/2        | ⚪ À faire  |
+| **Off-Page SEO**               | 2      | 0/2        | ⚪ À faire  |
+| **Analytics & Monitoring**     | 2      | 0/2        | ⚪ À faire  |
+| **TOTAL**                      | **14** | **2/14**   | **14%**     |
 
 ---
 
@@ -28,6 +28,7 @@
 **Status** : ✅ Complété le 2026-02-09
 
 **Actions réalisées** :
+
 - Sitemap soumis : `https://coworkingcafe.fr/sitemap.xml`
 - 21 URLs détectées (15 pages + 6 articles blog)
 
@@ -38,12 +39,13 @@
 **Status** : ✅ Complété le 2026-02-09
 
 **URLs indexées** :
+
 - ✅ `https://coworkingcafe.fr/`
 - ✅ `https://coworkingcafe.fr/booking`
 - ✅ `https://coworkingcafe.fr/pricing`
 - ✅ `https://coworkingcafe.fr/spaces`
 - ✅ `https://coworkingcafe.fr/contact`
-- ✅ `https://coworkingcafe.fr/blog`
+- [ ] `https://coworkingcafe.fr/blog`
 
 ---
 
@@ -82,6 +84,7 @@
 - [ ] Article 6 : `/blog/[slug-6]`
 
 **Procédure** :
+
 1. Google Search Console → Inspection d'URL
 2. Coller URL → Demander l'indexation
 3. Répéter pour chaque URL (max 10/jour)
@@ -97,10 +100,12 @@
 **Objectif** : Transférer le "jus SEO" de `new.coworkingcafe.fr` vers `coworkingcafe.fr`
 
 **Prérequis** :
+
 - [ ] Accès à la propriété `new.coworkingcafe.fr` dans Search Console
 - [ ] Accès à la propriété `coworkingcafe.fr` dans Search Console
 
 **Étapes** :
+
 1. [ ] Aller sur https://search.google.com/search-console
 2. [ ] Sélectionner `new.coworkingcafe.fr`
 3. [ ] Menu → **Paramètres** (icône engrenage)
@@ -125,6 +130,7 @@
 **Temps estimé** : 5 minutes
 
 **Étapes** :
+
 1. [ ] Aller sur https://search.google.com/search-console
 2. [ ] Sélectionner `coworkingcafe.fr`
 3. [ ] Menu → **Paramètres** (icône engrenage)
@@ -176,6 +182,7 @@
 7. [ ] Vérifier dans Google si titres/descriptions sont à jour
 
 **Pages à vérifier en priorité** :
+
 - [ ] Homepage `/`
 - [ ] `/concept`
 - [ ] `/spaces`
@@ -202,6 +209,7 @@
 **⚠️ Quota** : 10 demandes/jour max
 
 **Ordre de priorité** :
+
 1. Homepage `/`
 2. Pages principales (`/concept`, `/spaces`, `/pricing`)
 3. Pages secondaires
@@ -300,14 +308,17 @@ async redirects() {
 **Monitoring hebdomadaire** :
 
 **Semaine 1** :
+
 - [ ] Vérifier 3-4 URLs dans Google : `site:coworkingcafe.fr`
 - [ ] Noter si titres/descriptions mis à jour
 
 **Semaine 2** :
+
 - [ ] Vérifier toutes les pages prioritaires
 - [ ] Si toujours ancien → Redemander indexation
 
 **Semaine 3** :
+
 - [ ] Si ENCORE ancien après 2 demandes :
   - Vérifier que le nouveau contenu est bien dans le HTML source
   - Vérifier robots.txt ne bloque pas Google
@@ -346,12 +357,14 @@ site:coworkingcafe.fr
 **Résultat Attendu** :
 
 **Avant** :
+
 ```
 Titre : "Cow-or-King Café by Anticafé - le meilleur café coworking..."
 Description : Anciennes infos obsolètes
 ```
 
 **Après (1-2 semaines)** :
+
 ```
 Titre : "CoworKing Café Strasbourg | Espace Coworking avec Boissons Illimitées"
 Description : "Espace de coworking à Strasbourg centre. Anticafé avec 60 places, +40 boissons..."
@@ -379,6 +392,7 @@ Image : Photo du café (si GMB optimisé)
 **Temps estimé** : 2-3 heures
 
 **Pages concernées** :
+
 - [ ] `/manifest/page.tsx`
 - [ ] `/confidentiality/page.tsx`
 - [ ] `/cgu/page.tsx`
@@ -388,31 +402,31 @@ Image : Photo du café (si GMB optimisé)
 **Pour chaque page, ajouter** :
 
 ```typescript
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: '[Titre] | CoworKing Café Strasbourg',
-  description: '[Description 150-160 caractères avec mots-clés]',
+  title: "[Titre] | CoworKing Café Strasbourg",
+  description: "[Description 150-160 caractères avec mots-clés]",
   keywords: [
-    'anticafé strasbourg',
-    'coworking strasbourg',
+    "anticafé strasbourg",
+    "coworking strasbourg",
     // ... mots-clés pertinents
   ],
   openGraph: {
-    title: '[Titre]',
-    description: '[Description]',
-    url: 'https://coworkingcafe.fr/[page]',
-    siteName: 'CoworKing Café Strasbourg',
-    locale: 'fr_FR',
-    type: 'website',
+    title: "[Titre]",
+    description: "[Description]",
+    url: "https://coworkingcafe.fr/[page]",
+    siteName: "CoworKing Café Strasbourg",
+    locale: "fr_FR",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    title: '[Titre]',
-    description: '[Description]',
+    card: "summary_large_image",
+    title: "[Titre]",
+    description: "[Description]",
   },
   alternates: {
-    canonical: 'https://coworkingcafe.fr/[page]',
+    canonical: "https://coworkingcafe.fr/[page]",
   },
 };
 ```
@@ -471,6 +485,7 @@ export const metadata: Metadata = {
 ##### Photos Obligatoires (Si pas déjà fait)
 
 **1. Logo (Carré)**
+
 - [ ] Dimensions : 1200x1200px minimum
 - [ ] Format : JPG ou PNG
 - [ ] Fond : Transparent ou blanc
@@ -478,6 +493,7 @@ export const metadata: Metadata = {
 - [ ] Action : **Upload + Définir comme "Logo"**
 
 **2. Photo de Couverture (Paysage) ⭐**
+
 - [ ] Dimensions : 1600x900px minimum (ratio 16:9)
 - [ ] Contenu : Vue d'ensemble du café/espace coworking
 - [ ] Éclairage : Naturel, lumineux
@@ -487,6 +503,7 @@ export const metadata: Metadata = {
 **⚠️ Cette photo a le PLUS de chances d'apparaître dans Google !**
 
 **3. Photos Intérieures (Min 8-10 photos)**
+
 - [ ] Open space - vue d'ensemble
 - [ ] Postes de travail individuels
 - [ ] Tables de collaboration
@@ -497,12 +514,14 @@ export const metadata: Metadata = {
 - [ ] Cuisine / espace repas
 
 **4. Photos Extérieures (Min 2 photos)**
+
 - [ ] Façade du bâtiment (jour)
 - [ ] Entrée du café
 - [ ] Enseigne / logo visible
 - [ ] Rue / localisation (si reconnaissable)
 
 **5. Photos Ambiance (Min 3-5 photos)**
+
 - [ ] Clients au travail (avec autorisation)
 - [ ] Événements / rencontres
 - [ ] Équipe / staff
@@ -511,6 +530,7 @@ export const metadata: Metadata = {
 ##### Checklist Qualité Photos
 
 **Pour CHAQUE photo** :
+
 - [ ] Résolution : Min 1200px largeur
 - [ ] Poids : < 5 MB par photo
 - [ ] Format : JPG (compression 85-90%)
@@ -577,6 +597,7 @@ export const metadata: Metadata = {
 **Fréquence** : 1-2 posts par mois minimum
 
 **Types de posts** :
+
 - [ ] **Événements** : "Soirée networking le [date]"
 - [ ] **Promotions** : "Offre étudiants -20% ce mois-ci"
 - [ ] **Nouveautés** : "Nouvelle salle de réunion disponible"
@@ -584,6 +605,7 @@ export const metadata: Metadata = {
 - [ ] **Actualités** : "Horaires spéciaux pendant les vacances"
 
 **Format post** :
+
 - Texte court (100-200 mots)
 - 1 photo de qualité
 - CTA (Call-to-Action) : "Réservez maintenant", "En savoir plus"
@@ -596,6 +618,7 @@ export const metadata: Metadata = {
 **Important** : Les avis influencent le classement GMB
 
 **Actions** :
+
 1. [ ] **Répondre à TOUS les avis** (positifs et négatifs)
    - Positifs : Remerciement personnalisé
    - Négatifs : Excuse + solution proposée
@@ -614,12 +637,14 @@ export const metadata: Metadata = {
 **⚠️ CRITIQUE** : Les informations doivent être IDENTIQUES partout
 
 **Vérifier sur** :
+
 - [ ] Google My Business
 - [ ] Site web (footer)
 - [ ] Annuaires (PagesJaunes, Yelp, etc.)
 - [ ] Réseaux sociaux (Facebook, Instagram)
 
 **Format à utiliser PARTOUT** :
+
 ```
 Nom : CoworKing Café by Anticafé
 Adresse : 1 rue de la Division Leclerc, 67000 Strasbourg
@@ -659,10 +684,10 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: 'https://coworkingcafe.fr/images/og-image.jpg',
+        url: "https://coworkingcafe.fr/images/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: 'CoworKing Café by Anticafé Strasbourg - Espace coworking avec boissons illimitées',
+        alt: "CoworKing Café by Anticafé Strasbourg - Espace coworking avec boissons illimitées",
       },
     ],
   },
@@ -670,6 +695,7 @@ export const metadata: Metadata = {
 ```
 
 **Action** :
+
 - [ ] Créer image 1200x630px (même style que photo couverture GMB)
 - [ ] Placer dans `/apps/site/public/images/og-image.jpg`
 - [ ] Compresser < 500 KB
@@ -691,6 +717,7 @@ export const metadata: Metadata = {
 ```
 
 **Action** :
+
 - [ ] Ajouter 3-5 images dans le schema (mêmes photos que GMB)
 - [ ] Tester : https://search.google.com/test/rich-results
 
@@ -699,16 +726,19 @@ export const metadata: Metadata = {
 **Résultat Attendu** :
 
 ### Court Terme (1-2 semaines)
+
 - [ ] GMB optimisé avec 15-20 photos
 - [ ] Photo de couverture définie
 - [ ] Attributs et services complétés
 
 ### Moyen Terme (2-6 semaines)
+
 - [ ] **Image apparaît dans résultats Google** 🎯
 - [ ] Position 1-3 sur "coworking strasbourg" dans Google Maps
 - [ ] +50-100 clics/mois via GMB
 
 ### Long Terme (2-3 mois)
+
 - [ ] Knowledge Panel complet avec image
 - [ ] 50+ avis positifs
 - [ ] +100-200 visites/mois via GMB
@@ -749,6 +779,7 @@ import Script from 'next/script';
 ```
 
 5. [ ] Ajouter dans `.env.local` :
+
 ```
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
@@ -779,6 +810,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 4. [ ] Pages vues > 3
 
 **Résultat attendu** :
+
 - Données trafic en temps réel
 - Taux de conversion réservations
 - Sources de trafic identifiées
@@ -802,6 +834,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
    - Keywords pertinents
 
 2. [ ] **Schema.org Article**
+
 ```typescript
 {
   "@context": "https://schema.org",
@@ -830,6 +863,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
    - Ancres descriptives
 
 **Checklist par article** :
+
 - [ ] Article 1 : [slug] - Metadata + Schema + Images + Links
 - [ ] Article 2 : [slug] - Metadata + Schema + Images + Links
 - [ ] Article 3 : [slug] - Metadata + Schema + Images + Links
@@ -840,6 +874,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 #### Phase 2 : Plan Éditorial (1 article/semaine)
 
 **Mots-clés longue traîne à cibler** :
+
 - [ ] "meilleur espace coworking strasbourg centre"
 - [ ] "café coworking boissons illimitées strasbourg"
 - [ ] "coworking étudiant strasbourg pas cher"
@@ -848,6 +883,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 - [ ] "coworking journée strasbourg"
 
 **Structure article type** :
+
 - Title H1 avec mot-clé principal
 - Introduction (200 mots) avec question
 - 3-4 sections H2 (500-800 mots chacune)
@@ -890,6 +926,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 - [ ] Pages blog `/blog/[slug]`
 
 **Code type** :
+
 ```typescript
 // Avant
 <img src="/images/photo.jpg" alt="Description SEO" />
@@ -907,6 +944,7 @@ import Image from 'next/image';
 ```
 
 **Bénéfices attendus** :
+
 - ✅ Lazy loading automatique
 - ✅ Formats modernes (WebP/AVIF)
 - ✅ Responsive images
@@ -931,19 +969,22 @@ import Image from 'next/image';
    - Noter scores Mobile + Desktop
 
 **Scores actuels** :
-- Mobile : __/100
-- Desktop : __/100
-- LCP : __s
-- FID : __ms
-- CLS : __
+
+- Mobile : \_\_/100
+- Desktop : \_\_/100
+- LCP : \_\_s
+- FID : \_\_ms
+- CLS : \_\_
 
 #### Étape 2 : Optimisations LCP (< 2.5s)
 
 - [ ] Précharger fonts critiques :
+
 ```typescript
 // app/layout.tsx
 <link rel="preload" href="/fonts/font.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 ```
+
 - [ ] Précharger hero image
 - [ ] Utiliser `priority` sur image hero
 
@@ -969,9 +1010,9 @@ import Image from 'next/image';
 
 ```scss
 @font-face {
-  font-family: 'Main';
+  font-family: "Main";
   font-display: swap; // Évite FOIT
-  src: url('/fonts/main.woff2') format('woff2');
+  src: url("/fonts/main.woff2") format("woff2");
 }
 ```
 
@@ -995,6 +1036,7 @@ import Image from 'next/image';
 #### Phase 1 : Annuaires Locaux (Rapide)
 
 **Annuaires à soumettre** :
+
 - [ ] PagesJaunes.fr
 - [ ] Yelp.fr
 - [ ] LaFourchette.com (si restauration)
@@ -1004,6 +1046,7 @@ import Image from 'next/image';
 - [ ] Hoodspot.fr
 
 **⚠️ Informations NAP cohérentes** (cruciales) :
+
 - **Nom** : CoworKing Café by Anticafé
 - **Adresse** : 1 rue de la Division Leclerc, 67000 Strasbourg
 - **Téléphone** : 09 87 33 45 19
@@ -1014,6 +1057,7 @@ import Image from 'next/image';
 #### Phase 2 : Partenariats Locaux
 
 **Blogs/Médias Strasbourg à contacter** :
+
 - [ ] Blog "Strasbourg Curieux"
 - [ ] DNA (Dernières Nouvelles d'Alsace)
 - [ ] Rue89 Strasbourg
@@ -1021,6 +1065,7 @@ import Image from 'next/image';
 - [ ] Blogs coworking/entrepreneur
 
 **Proposition d'articles** :
+
 - [ ] "Comment choisir son espace coworking à Strasbourg"
 - [ ] "Le guide du coworking pour étudiants"
 - [ ] "Travailler dans un café vs coworking"
@@ -1033,6 +1078,7 @@ import Image from 'next/image';
 - [ ] French Tech Alsace
 
 **Résultat attendu** :
+
 - 10-15 backlinks qualité dans 3 mois
 - DA +5 points en 6 mois
 - +50 visites référents/mois
@@ -1085,10 +1131,11 @@ import Image from 'next/image';
 - [ ] Analyse concurrence
 
 **KPIs à suivre** :
-- Pages indexées : __/21
-- Position "coworking strasbourg" : __
-- Trafic organique : __ visites/mois
-- Core Web Vitals score : __/100
+
+- Pages indexées : \_\_/21
+- Position "coworking strasbourg" : \_\_
+- Trafic organique : \_\_ visites/mois
+- Core Web Vitals score : \_\_/100
 
 ---
 
@@ -1096,38 +1143,39 @@ import Image from 'next/image';
 
 ### Court Terme (1 mois)
 
-| Métrique | Objectif |
-|----------|----------|
-| Pages indexées | 21/21 |
-| Sitemap soumis | ✅ |
-| Google My Business | ✅ Créé |
-| Analytics configuré | ✅ |
+| Métrique            | Objectif |
+| ------------------- | -------- |
+| Pages indexées      | 21/21    |
+| Sitemap soumis      | ✅       |
+| Google My Business  | ✅ Créé  |
+| Analytics configuré | ✅       |
 
 ### Moyen Terme (3 mois)
 
-| Métrique | Objectif |
-|----------|----------|
-| Position "coworking strasbourg" | Top 10-20 |
-| Trafic organique | 100-200 visites/mois |
-| Core Web Vitals | 80+ score |
-| Backlinks | 10-15 liens qualité |
+| Métrique                        | Objectif             |
+| ------------------------------- | -------------------- |
+| Position "coworking strasbourg" | Top 10-20            |
+| Trafic organique                | 100-200 visites/mois |
+| Core Web Vitals                 | 80+ score            |
+| Backlinks                       | 10-15 liens qualité  |
 
 ### Long Terme (6 mois)
 
-| Métrique | Objectif |
-|----------|----------|
-| Position "coworking strasbourg" | Top 5-10 |
-| Trafic organique | 300-500 visites/mois |
-| Core Web Vitals | 90+ score |
-| Backlinks | 20-30 liens qualité |
-| Articles blog | 15-20 articles |
-| DA (Domain Authority) | +10 points |
+| Métrique                        | Objectif             |
+| ------------------------------- | -------------------- |
+| Position "coworking strasbourg" | Top 5-10             |
+| Trafic organique                | 300-500 visites/mois |
+| Core Web Vitals                 | 90+ score            |
+| Backlinks                       | 20-30 liens qualité  |
+| Articles blog                   | 15-20 articles       |
+| DA (Domain Authority)           | +10 points           |
 
 ---
 
 ## 🛠️ Outils Utilisés
 
 ### Gratuits
+
 - ✅ Google Search Console (performances, couverture)
 - ✅ Google Analytics 4 (trafic, conversions)
 - ✅ Google My Business (recherches locales)
@@ -1135,6 +1183,7 @@ import Image from 'next/image';
 - ✅ Schema.org Validator (structured data)
 
 ### Payants (optionnels)
+
 - Ahrefs (backlinks, mots-clés)
 - SEMrush (audit SEO complet)
 - Screaming Frog (crawl technique)
@@ -1144,6 +1193,7 @@ import Image from 'next/image';
 ## 📝 Notes & Historique
 
 ### 2026-02-10
+
 - ✅ Section **Google My Business** détaillée ajoutée (optimisation GMB existant)
 - ✅ Section **Nettoyage ancien référencement** ajoutée (coworkingcafe.fr avec anciennes infos)
 - ✅ Instructions complètes pour **afficher image dans Google** (Rich Snippet)
@@ -1151,6 +1201,7 @@ import Image from 'next/image';
 - 📝 TODO mise à jour : 13 tâches (vs 11 avant)
 
 ### 2026-02-09
+
 - ✅ robots.txt optimisé et déployé (robots.ts)
 - ✅ Sitemap soumis (21 URLs)
 - ✅ 6 pages prioritaires indexées
@@ -1158,6 +1209,7 @@ import Image from 'next/image';
 - ✅ TODO SEO créée (682 lignes → 1160+ lignes)
 
 ### [Date]
+
 - [Actions réalisées]
 
 ---
