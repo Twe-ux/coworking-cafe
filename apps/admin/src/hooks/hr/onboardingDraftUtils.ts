@@ -1,4 +1,5 @@
 import type { OnboardingData, OnboardingStep, Availability } from '@/types/onboarding'
+import type { PlaceOfBirth } from '@/types/hr'
 
 /**
  * Draft data structure from API
@@ -8,7 +9,7 @@ export interface DraftData {
   firstName?: string
   lastName?: string
   dateOfBirth?: string
-  placeOfBirth?: string
+  placeOfBirth?: PlaceOfBirth | string
   nationality?: string
   address?: { street: string; postalCode: string; city: string }
   phone?: string
@@ -61,7 +62,11 @@ export function transformDraftToOnboardingData(draft: DraftData): OnboardingData
       firstName: draft.firstName,
       lastName: draft.lastName || '',
       dateOfBirth: draft.dateOfBirth || '',
-      placeOfBirth: draft.placeOfBirth ? { city: draft.placeOfBirth, department: '', country: 'France' } : undefined,
+      placeOfBirth: draft.placeOfBirth
+        ? (typeof draft.placeOfBirth === 'string'
+          ? { city: draft.placeOfBirth, department: '', country: 'France' }
+          : draft.placeOfBirth)
+        : undefined,
       nationality: draft.nationality,
       address: draft.address || { street: '', postalCode: '', city: '' },
       phone: draft.phone || '',
