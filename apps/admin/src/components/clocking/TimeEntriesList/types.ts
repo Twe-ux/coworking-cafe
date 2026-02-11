@@ -17,6 +17,7 @@ export interface GroupedTimeEntry {
   employeeId: string
   employee: Employee | EmployeeInfo
   date: string
+  rawDate: string // YYYY-MM-DD format for API calls
   dateObj: Date
   morningShift?: TimeEntry
   afternoonShift?: TimeEntry

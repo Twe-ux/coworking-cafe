@@ -30,7 +30,8 @@ interface TimeEntryShiftCellProps {
   onCellSave: () => void
   onKeyDown: (e: React.KeyboardEvent) => void
   onDeleteShift: (shiftId: string) => void
-  onJustificationRead?: () => void // Callback to refresh list after marking as read
+  onJustificationRead?: () => void
+  onEmptyClick?: () => void
 }
 
 function formatTime(time: string | null | undefined): string {
@@ -50,13 +51,22 @@ export function TimeEntryShiftCell({
   onKeyDown,
   onDeleteShift,
   onJustificationRead,
+  onEmptyClick,
 }: TimeEntryShiftCellProps) {
   const [showJustificationDialog, setShowJustificationDialog] = useState(false)
   const [isMarkingRead, setIsMarkingRead] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   if (!shift) {
-    return <div className="text-center text-gray-400">--</div>
+    return (
+      <button
+        className="w-full cursor-pointer rounded py-2 text-center text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
+        onClick={onEmptyClick}
+        title="Cliquer pour ajouter un shift"
+      >
+        --
+      </button>
+    )
   }
 
   const hasError = shift.hasError === true

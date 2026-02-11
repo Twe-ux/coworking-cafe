@@ -19,6 +19,8 @@ interface UseShiftFormProps {
   onClose: () => void
   open: boolean
   shiftTypes: Record<string, ShiftTypeConfig>
+  defaultEmployeeId?: string
+  defaultShiftType?: 'morning' | 'afternoon'
 }
 
 interface UseShiftFormReturn {
@@ -49,6 +51,8 @@ export function useShiftForm({
   onClose,
   open,
   shiftTypes,
+  defaultEmployeeId,
+  defaultShiftType,
 }: UseShiftFormProps): UseShiftFormReturn {
   const isEditing = !!existingShift
 
@@ -69,18 +73,26 @@ export function useShiftForm({
   // Reset form when modal opens/closes or shift changes
   useEffect(() => {
     if (open) {
-      const defaultEmployeeId = existingShift?.employeeId || persistentEmployeeId || ''
+      // Priority: existingShift > defaultEmployeeId > persistentEmployeeId
+      const employeeId = existingShift?.employeeId || defaultEmployeeId || persistentEmployeeId || ''
+
+      // Use defaultShiftType to set appropriate times
+      const shiftType = existingShift?.type || defaultShiftType || 'morning'
+      const typeConfig = shiftTypes[shiftType]
+      const startTime = existingShift?.startTime || typeConfig?.defaultStart || '09:00'
+      const endTime = existingShift?.endTime || typeConfig?.defaultEnd || '17:00'
+
       setFormData({
-        employeeId: defaultEmployeeId,
+        employeeId,
         date: existingShift?.date || selectedDate,
-        startTime: existingShift?.startTime || '09:00',
-        endTime: existingShift?.endTime || '17:00',
-        type: existingShift?.type || 'morning',
+        startTime,
+        endTime,
+        type: shiftType,
         location: existingShift?.location || '',
       })
       setErrors({})
     }
-  }, [open, existingShift, selectedDate, persistentEmployeeId])
+  }, [open, existingShift, selectedDate, persistentEmployeeId, defaultEmployeeId, defaultShiftType, shiftTypes])
 
   const handleEmployeeSelect = useCallback((employeeId: string) => {
     savePersistentEmployeeId(employeeId)

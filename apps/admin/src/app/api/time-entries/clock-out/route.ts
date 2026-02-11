@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectToDatabase } from '@/lib/mongodb'
+import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import TimeEntry from '@/models/timeEntry'
 import Shift from '@/models/shift'
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await connectToDatabase()
+    await connectMongoose()
 
     // ⚡ Paralléliser la vérification de l'employé et la recherche du time entry
     const [employee, timeEntry] = await Promise.all([

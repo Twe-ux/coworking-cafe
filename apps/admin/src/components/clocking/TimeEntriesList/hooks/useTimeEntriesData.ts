@@ -5,6 +5,7 @@ import type {
   GroupedTimeEntry,
   TimeEntriesFilters,
 } from '../types'
+import { isShiftBeforeCutoff } from '@/lib/schedule/utils'
 
 interface UseTimeEntriesDataOptions {
   employees: Employee[]
@@ -62,6 +63,7 @@ export function useTimeEntriesData({
             employeeId: entry.employeeId,
             employee,
             date: dateObj.toLocaleDateString('fr-FR'),
+            rawDate: entry.date,
             dateObj,
             totalHours: 0,
             hasActiveShift: false,
@@ -73,15 +75,28 @@ export function useTimeEntriesData({
         const group = grouped.get(dateKey)!
         group.allShifts.push(entry)
 
-        // Sort shifts by time and assign to morning/afternoon
-        const sortedShifts = group.allShifts.sort((a, b) => {
+        // Assign to Shift 1 / Shift 2 columns
+        // 1 shift: cutoff determines column (before 14:30 → Shift 1, after → Shift 2)
+        // 2 shifts: chronological order (first → Shift 1, second → Shift 2)
+        const sorted = [...group.allShifts].sort((a, b) => {
           const [aH, aM] = a.clockIn.split(':').map(Number)
           const [bH, bM] = b.clockIn.split(':').map(Number)
           return aH * 60 + aM - (bH * 60 + bM)
         })
 
-        if (sortedShifts.length >= 1) group.morningShift = sortedShifts[0]
-        if (sortedShifts.length >= 2) group.afternoonShift = sortedShifts[1]
+        group.morningShift = undefined
+        group.afternoonShift = undefined
+
+        if (sorted.length === 1) {
+          if (isShiftBeforeCutoff(sorted[0].clockIn)) {
+            group.morningShift = sorted[0]
+          } else {
+            group.afternoonShift = sorted[0]
+          }
+        } else if (sorted.length >= 2) {
+          group.morningShift = sorted[0]
+          group.afternoonShift = sorted[1]
+        }
 
         group.totalHours = group.allShifts.reduce(
           (total, shift) => total + (shift.totalHours || 0),

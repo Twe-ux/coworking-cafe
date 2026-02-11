@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
-import { connectToDatabase } from '@/lib/mongodb'
+import { connectMongoose } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
 import type { ApiResponse, DailyTimeReport, TimeTrackingStats, EmployeeTimeReport } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       }, { status: 403 })
     }
 
-    await connectToDatabase()
+    await connectMongoose()
 
     const { searchParams } = new URL(request.url)
     const reportType = searchParams.get('type') || 'daily'

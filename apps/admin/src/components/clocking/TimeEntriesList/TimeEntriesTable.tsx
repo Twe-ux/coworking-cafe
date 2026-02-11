@@ -26,6 +26,7 @@ interface TimeEntriesTableProps {
   onKeyDown: (e: React.KeyboardEvent) => void
   onDeleteShift: (shiftId: string) => void
   onJustificationRead?: () => void
+  onEmptySlotClick?: (employeeId: string, date: string, period: 'morning' | 'afternoon') => void
 }
 
 export function TimeEntriesTable({
@@ -40,6 +41,7 @@ export function TimeEntriesTable({
   onKeyDown,
   onDeleteShift,
   onJustificationRead,
+  onEmptySlotClick,
 }: TimeEntriesTableProps) {
   if (isLoading) {
     return (
@@ -96,6 +98,7 @@ export function TimeEntriesTable({
                 onKeyDown={onKeyDown}
                 onDeleteShift={onDeleteShift}
                 onJustificationRead={onJustificationRead}
+                onEmptySlotClick={onEmptySlotClick}
               />
             ))}
             {groupedEntries.length > 0 && (

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
-import { connectToDatabase } from '@/lib/mongodb'
+import { connectMongoose } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
 import type {
   TimeEntryFilter,
@@ -11,6 +11,7 @@ import type {
 } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
 import type { Types } from 'mongoose'
+import { isShiftBeforeCutoff } from '@/lib/schedule/utils'
 
 // Interfaces pour les documents MongoDB populés
 interface PopulatedEmployee {
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
       console.log('🔍 DEBUG API time-entries - Accès public (pas de session)')
     }
 
-    await connectToDatabase()
+    await connectMongoose()
 
     // Extraction des paramètres de recherche
     const { searchParams } = new URL(request.url)
@@ -308,7 +309,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await connectToDatabase()
+    await connectMongoose()
 
     // Créer les données du time entry
     // date format: "YYYY-MM-DD"
@@ -322,11 +323,27 @@ export async function POST(request: NextRequest) {
       clockOut?: string
     }
 
+    // Determine shiftNumber: explicit > cutoff-based > fallback if taken
+    const entryDate = date || new Date().toISOString().split('T')[0]
+    let finalShiftNumber: 1 | 2 = shiftNumber || (isShiftBeforeCutoff(clockIn) ? 1 : 2)
+
+    if (!shiftNumber) {
+      const conflicting = await TimeEntry.exists({
+        employeeId,
+        date: entryDate,
+        shiftNumber: finalShiftNumber,
+        isActive: true,
+      })
+      if (conflicting) {
+        finalShiftNumber = finalShiftNumber === 1 ? 2 : 1
+      }
+    }
+
     const timeEntryData: TimeEntryData = {
       employeeId,
-      date: date || new Date().toISOString().split('T')[0], // Use string format
+      date: entryDate,
       clockIn, // Already in "HH:mm" format
-      shiftNumber: shiftNumber || 1,
+      shiftNumber: finalShiftNumber,
       status: clockOut ? 'completed' : 'active',
     }
 

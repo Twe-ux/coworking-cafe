@@ -16,6 +16,7 @@ interface TimeEntryRowProps {
   onKeyDown: (e: React.KeyboardEvent) => void
   onDeleteShift: (shiftId: string) => void
   onJustificationRead?: () => void
+  onEmptySlotClick?: (employeeId: string, date: string, period: 'morning' | 'afternoon') => void
 }
 
 function formatHours(hours?: number): string {
@@ -36,6 +37,7 @@ export function TimeEntryRow({
   onKeyDown,
   onDeleteShift,
   onJustificationRead,
+  onEmptySlotClick,
 }: TimeEntryRowProps) {
   // Check if any shift has unread justification
   const hasUnreadJustification =
@@ -106,6 +108,7 @@ export function TimeEntryRow({
           onKeyDown={onKeyDown}
           onDeleteShift={onDeleteShift}
           onJustificationRead={onJustificationRead}
+          onEmptyClick={() => onEmptySlotClick?.(group.employeeId, group.rawDate, 'morning')}
         />
       </TableCell>
       <TableCell className="text-center">
@@ -121,6 +124,7 @@ export function TimeEntryRow({
           onKeyDown={onKeyDown}
           onDeleteShift={onDeleteShift}
           onJustificationRead={onJustificationRead}
+          onEmptyClick={() => onEmptySlotClick?.(group.employeeId, group.rawDate, 'afternoon')}
         />
       </TableCell>
       <TableCell className="text-center">

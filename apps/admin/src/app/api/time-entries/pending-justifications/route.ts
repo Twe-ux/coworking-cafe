@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth'
 import { successResponse, errorResponse } from '@/lib/api/response'
-import { connectToDatabase } from '@/lib/mongodb'
+import { connectMongoose } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
 import type { ApiResponse } from '@/types/timeEntry'
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
   }
 
   try {
-    await connectToDatabase()
+    await connectMongoose()
 
     // Compter les pointages avec isOutOfSchedule = true
     const count = await TimeEntry.countDocuments({

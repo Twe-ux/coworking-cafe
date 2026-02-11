@@ -18,7 +18,7 @@ interface PopulatedEmployee {
   firstName: string
   lastName: string
   fullName: string
-  role: string
+  employeeRole: string
   color: string
 }
 
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         firstName: populatedAvailability.employeeId.firstName,
         lastName: populatedAvailability.employeeId.lastName,
         fullName: populatedAvailability.employeeId.fullName,
-        role: populatedAvailability.employeeId.role,
+        role: populatedAvailability.employeeId.employeeRole,
         color: populatedAvailability.employeeId.color,
       },
       dayOfWeek: populatedAvailability.dayOfWeek,
@@ -251,7 +251,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         firstName: populatedUpdatedAvailability.employeeId.firstName,
         lastName: populatedUpdatedAvailability.employeeId.lastName,
         fullName: populatedUpdatedAvailability.employeeId.fullName,
-        role: populatedUpdatedAvailability.employeeId.role,
+        role: populatedUpdatedAvailability.employeeId.employeeRole,
         color: populatedUpdatedAvailability.employeeId.color,
       },
       dayOfWeek: populatedUpdatedAvailability.dayOfWeek,

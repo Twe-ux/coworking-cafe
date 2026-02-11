@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
-import { connectToDatabase } from '@/lib/mongodb'
+import { connectMongoose } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
 import { mapTimeEntryToApi, type MappedTimeEntry } from '@/lib/mappers'
 import type { TimeEntryUpdate, ApiResponse } from '@/types/timeEntry'
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    await connectToDatabase()
+    await connectMongoose()
 
     const timeEntry = await TimeEntry.findOne({
       _id: params.id,
@@ -144,7 +144,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const updates = (await request.json()) as TimeEntryUpdate
 
-    await connectToDatabase()
+    await connectMongoose()
 
     const timeEntry = await TimeEntry.findOne({
       _id: params.id,
@@ -302,7 +302,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    await connectToDatabase()
+    await connectMongoose()
 
     const timeEntry = await TimeEntry.findOne({
       _id: params.id,

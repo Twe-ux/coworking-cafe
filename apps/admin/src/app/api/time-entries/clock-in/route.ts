@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectToDatabase } from '@/lib/mongodb'
+import { connectMongoose } from '@/lib/mongodb'
 import Employee from '@/models/employee'
 import TimeEntry from '@/models/timeEntry'
 import Shift from '@/models/shift'
@@ -15,6 +15,7 @@ import { logPINAttempt } from '@/lib/security/pin-logger'
 import { validateRequest } from '@/lib/api/validation'
 import { clockInSchema } from '@/lib/validations/timeEntry'
 import { isClockInWithinSchedule } from '@/lib/utils/schedule-checker'
+import { isShiftBeforeCutoff } from '@/lib/schedule/utils'
 
 /**
  * POST /api/time-entries/clock-in - Débuter un nouveau shift
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await connectToDatabase()
+    await connectMongoose()
 
     // ⚡ Paralléliser les requêtes MongoDB pour améliorer les performances
     const today = new Date()
@@ -228,12 +229,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Determine shiftNumber based on clockIn time, with fallback for legacy data
+    const calculatedShiftNumber: 1 | 2 = isShiftBeforeCutoff(clockInTimeStr) ? 1 : 2
+    const conflicting = await TimeEntry.exists({
+      employeeId: body.employeeId,
+      date: todayStr,
+      shiftNumber: calculatedShiftNumber,
+      isActive: true,
+    })
+    const finalShiftNumber: 1 | 2 = conflicting
+      ? (calculatedShiftNumber === 1 ? 2 : 1)
+      : calculatedShiftNumber
+
     const timeEntryData = {
       employeeId: body.employeeId,
       date: todayStr,
       clockIn: clockInTimeStr,
       status: 'active' as const,
-      shiftNumber: (totalShifts + 1) as 1 | 2,
+      shiftNumber: finalShiftNumber,
       isOutOfSchedule,
       justificationNote: body.justificationNote ? `[Arrivée] ${body.justificationNote}` : undefined,
     }

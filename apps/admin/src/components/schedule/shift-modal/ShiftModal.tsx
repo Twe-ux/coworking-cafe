@@ -34,6 +34,8 @@ export function ShiftModal({
   employees,
   selectedDate,
   existingShift,
+  defaultEmployeeId,
+  defaultShiftType,
 }: ShiftModalProps) {
   // Hooks for state management
   const { shiftTypes, saveShiftType, deleteShiftType, updateShiftType } = useShiftTypes()
@@ -60,6 +62,8 @@ export function ShiftModal({
     onClose,
     open,
     shiftTypes,
+    defaultEmployeeId,
+    defaultShiftType,
   })
 
   // Local UI state

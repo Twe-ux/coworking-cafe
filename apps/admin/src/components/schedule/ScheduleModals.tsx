@@ -18,6 +18,8 @@ interface ScheduleModalState {
   isOpen: boolean;
   selectedDate: string; // YYYY-MM-DD format (always string, never Date)
   selectedShift: Shift | null;
+  defaultEmployeeId?: string;
+  defaultShiftType?: "morning" | "afternoon";
 }
 
 interface DayShiftsModalState {
@@ -78,6 +80,8 @@ export function ScheduleModals({
         employees={employees}
         selectedDate={scheduleModal.selectedDate}
         existingShift={scheduleModal.selectedShift}
+        defaultEmployeeId={scheduleModal.defaultEmployeeId}
+        defaultShiftType={scheduleModal.defaultShiftType}
       />
     </>
   );

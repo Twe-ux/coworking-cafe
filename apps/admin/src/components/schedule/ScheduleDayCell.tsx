@@ -1,7 +1,8 @@
 /**
  * Schedule day cell component
  * Renders shift buttons organized by morning/afternoon for each employee
- * Shows unavailabilities in red when employee is unavailable
+ * Shows unavailabilities with employee color when employee is unavailable
+ * Empty slots are clickable to create new shifts
  */
 
 import type { Employee } from "@/types/hr";
@@ -25,6 +26,7 @@ interface ScheduleDayCellProps {
   ) => EmployeeShiftPosition[];
   isEmployeeUnavailable: (dateStr: string, employeeId: string) => boolean;
   onShiftClick: (shift: Shift, e: React.MouseEvent) => void;
+  onEmptySlotClick?: (date: Date, employeeId: string, period: "morning" | "afternoon") => void;
 }
 
 interface ShiftButtonProps {
@@ -49,12 +51,24 @@ function ShiftButton({ shift, employee, onShiftClick }: ShiftButtonProps) {
 interface TimeSlotColumnProps {
   shifts: Shift[];
   employee: Employee;
+  date: Date;
+  period: "morning" | "afternoon";
   onShiftClick: (shift: Shift, e: React.MouseEvent) => void;
+  onEmptySlotClick?: (date: Date, employeeId: string, period: "morning" | "afternoon") => void;
 }
 
-function TimeSlotColumn({ shifts, employee, onShiftClick }: TimeSlotColumnProps) {
+function TimeSlotColumn({ shifts, employee, date, period, onShiftClick, onEmptySlotClick }: TimeSlotColumnProps) {
   if (shifts.length === 0) {
-    return <div className="h-5 py-0.5"></div>;
+    return (
+      <button
+        className="h-5 w-full rounded py-0.5 transition-colors hover:bg-gray-100"
+        onClick={(e) => {
+          e.stopPropagation();
+          onEmptySlotClick?.(date, employee.id, period);
+        }}
+        title={`Ajouter un créneau ${period === "morning" ? "matin" : "après-midi"} pour ${employee.firstName}`}
+      />
+    );
   }
 
   return (
@@ -78,6 +92,7 @@ export function ScheduleDayCell({
   getShiftsPositionedByEmployee,
   isEmployeeUnavailable,
   onShiftClick,
+  onEmptySlotClick,
 }: ScheduleDayCellProps) {
   const positionedShifts = getShiftsPositionedByEmployee(date, dayShifts);
   const dateStr = formatDateToYMD(date);
@@ -88,12 +103,13 @@ export function ScheduleDayCell({
         // Check if employee is unavailable on this date
         const isUnavailable = isEmployeeUnavailable(dateStr, employee.id);
 
-        // If unavailable, show red "INDISPO" badge instead of shifts
+        // If unavailable, show "INDISPO" badge with employee color
         if (isUnavailable) {
           return (
-            <div key={employee.id} className="grid min-h-4 grid-cols-1">
+            <div key={employee.id} className="grid min-h-4 grid-cols-2 gap-2">
               <div
-                className="rounded bg-red-600 px-1 py-0.5 text-center text-xs font-bold text-white"
+                className="col-span-2 rounded px-1 py-0.5 text-center text-xs font-bold text-white"
+                style={{ backgroundColor: employee.color || "#9CA3AF" }}
                 title={`${employee.firstName} est indisponible ce jour`}
               >
                 INDISPO
@@ -116,7 +132,10 @@ export function ScheduleDayCell({
               <TimeSlotColumn
                 shifts={morningShifts}
                 employee={employee}
+                date={date}
+                period="morning"
                 onShiftClick={onShiftClick}
+                onEmptySlotClick={onEmptySlotClick}
               />
             </div>
 
@@ -125,7 +144,10 @@ export function ScheduleDayCell({
               <TimeSlotColumn
                 shifts={afternoonShifts}
                 employee={employee}
+                date={date}
+                period="afternoon"
                 onShiftClick={onShiftClick}
+                onEmptySlotClick={onEmptySlotClick}
               />
             </div>
           </div>

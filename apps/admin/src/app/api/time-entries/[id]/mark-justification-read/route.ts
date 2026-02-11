@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
-import { connectToDatabase } from '@/lib/mongodb'
+import { connectMongoose } from '@/lib/mongodb'
 import TimeEntry from '@/models/timeEntry'
 import type { ApiResponse, TimeEntry as TimeEntryType } from '@/types/timeEntry'
 import { TIME_ENTRY_ERRORS } from '@/types/timeEntry'
@@ -65,7 +65,7 @@ export async function PUT(
       )
     }
 
-    await connectToDatabase()
+    await connectMongoose()
 
     // Find time entry
     const timeEntry = await TimeEntry.findById(params.id).populate('employeeId', 'firstName lastName employeeRole')

@@ -38,6 +38,7 @@ export interface UseSchedulePageReturn {
   // Actions
   setCurrentDate: (date: Date) => void;
   handleCellClick: ReturnType<typeof useScheduleModals>["handleCellClick"];
+  handleEmptySlotClick: ReturnType<typeof useScheduleModals>["handleEmptySlotClick"];
   handleShiftClick: ReturnType<typeof useScheduleModals>["handleShiftClick"];
   handleEditShiftFromDay: ReturnType<typeof useScheduleModals>["handleEditShiftFromDay"];
   handleAddShiftFromDay: ReturnType<typeof useScheduleModals>["handleAddShiftFromDay"];
@@ -81,6 +82,7 @@ export function useSchedulePage(): UseSchedulePageReturn {
     scheduleModal,
     dayShiftsModal,
     handleCellClick,
+    handleEmptySlotClick,
     handleShiftClick,
     handleEditShiftFromDay,
     handleAddShiftFromDay,
@@ -146,6 +148,7 @@ export function useSchedulePage(): UseSchedulePageReturn {
     // Actions
     setCurrentDate,
     handleCellClick,
+    handleEmptySlotClick,
     handleShiftClick,
     handleEditShiftFromDay,
     handleAddShiftFromDay,

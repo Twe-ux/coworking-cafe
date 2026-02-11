@@ -22,6 +22,8 @@ export interface ShiftModalProps {
   employees: Employee[]
   selectedDate: string // YYYY-MM-DD format (always string, never Date)
   existingShift?: Shift | null
+  defaultEmployeeId?: string
+  defaultShiftType?: 'morning' | 'afternoon'
 }
 
 export interface ShiftFormData {

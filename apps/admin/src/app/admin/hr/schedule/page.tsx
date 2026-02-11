@@ -41,6 +41,7 @@ export default function SchedulePage() {
     // Actions
     setCurrentDate,
     handleCellClick,
+    handleEmptySlotClick,
     handleShiftClick,
     handleEditShiftFromDay,
     handleAddShiftFromDay,
@@ -71,6 +72,7 @@ export default function SchedulePage() {
       getShiftsPositionedByEmployee={getShiftsPositionedByEmployee}
       isEmployeeUnavailable={isEmployeeUnavailable}
       onShiftClick={handleShiftClick}
+      onEmptySlotClick={handleEmptySlotClick}
     />
   );
 

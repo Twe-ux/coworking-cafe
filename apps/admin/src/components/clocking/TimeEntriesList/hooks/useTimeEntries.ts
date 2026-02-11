@@ -115,6 +115,20 @@ export function useTimeEntries({ employees, currentDate }: UseTimeEntriesOptions
     })
   }, [])
 
+  // Open add shift dialog pre-filled for a specific empty slot
+  const handleEmptySlotClick = useCallback(
+    (employeeId: string, date: string, period: 'morning' | 'afternoon') => {
+      setNewShift({
+        employeeId,
+        date,
+        clockIn: period === 'morning' ? '09:30' : '14:30',
+        clockOut: '',
+      })
+      setShowAddShiftDialog(true)
+    },
+    []
+  )
+
   return {
     // Data
     timeEntries,
@@ -145,6 +159,9 @@ export function useTimeEntries({ employees, currentDate }: UseTimeEntriesOptions
     isCreatingShift,
     handleCreateShift,
     handleCancelAddShift,
+
+    // Empty slot
+    handleEmptySlotClick,
 
     // Actions
     handleDeleteShift,

@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Filter } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Filter } from 'lucide-react'
 import type { Employee } from '@/hooks/useEmployees'
 import type { TimeEntriesFilters as FiltersType } from './types'
 
@@ -20,6 +20,10 @@ interface TimeEntriesFiltersProps {
   availableDates: string[]
   onFilterChange: (key: string, value: string) => void
   onClearFilters: () => void
+  currentDate?: Date
+  onPreviousMonth?: () => void
+  onNextMonth?: () => void
+  onToday?: () => void
 }
 
 export function TimeEntriesFilters({
@@ -28,14 +32,37 @@ export function TimeEntriesFilters({
   availableDates,
   onFilterChange,
   onClearFilters,
+  currentDate,
+  onPreviousMonth,
+  onNextMonth,
+  onToday,
 }: TimeEntriesFiltersProps) {
+  const monthLabel = currentDate
+    ? currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+    : ''
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Filter className="h-4 w-4" />
-          Filtres
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Filter className="h-4 w-4" />
+            Filtres
+          </CardTitle>
+          {currentDate && (
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={onPreviousMonth}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={onToday} className="min-w-[160px] capitalize">
+                {monthLabel}
+              </Button>
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={onNextMonth}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="flex justify-between">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

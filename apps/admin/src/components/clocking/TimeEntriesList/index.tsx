@@ -1,7 +1,8 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Clock, Download, Plus } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Download, Plus } from 'lucide-react'
 import type { Employee } from '@/hooks/useEmployees'
 import { useTimeEntries } from './hooks/useTimeEntries'
 import { TimeEntriesFilters } from './TimeEntriesFilters'
@@ -12,12 +13,18 @@ interface TimeEntriesListProps {
   employees: Employee[]
   currentDate: Date
   className?: string
+  onPreviousMonth?: () => void
+  onNextMonth?: () => void
+  onToday?: () => void
 }
 
 export default function TimeEntriesList({
   employees,
   currentDate,
   className = '',
+  onPreviousMonth,
+  onNextMonth,
+  onToday,
 }: TimeEntriesListProps) {
   const {
     groupedEntries,
@@ -42,6 +49,7 @@ export default function TimeEntriesList({
     handleCreateShift,
     handleCancelAddShift,
     handleDeleteShift,
+    handleEmptySlotClick,
     fetchTimeEntries,
   } = useTimeEntries({ employees, currentDate })
 
@@ -52,38 +60,38 @@ export default function TimeEntriesList({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-gray-900">
-            Historique des Pointages
-          </h2>
+      {/* Filters (3/4) + Action buttons (1/4) */}
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <TimeEntriesFilters
+            filters={filters}
+            availableEmployees={availableEmployees}
+            availableDates={availableDates}
+            onFilterChange={handleFilterChange}
+            onClearFilters={clearFilters}
+            currentDate={currentDate}
+            onPreviousMonth={onPreviousMonth}
+            onNextMonth={onNextMonth}
+            onToday={onToday}
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => setShowAddShiftDialog(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Ajouter un shift
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Exporter
-          </Button>
-        </div>
+        <Card className="w-[400px] shrink-0">
+          <CardContent className="flex h-full flex-col justify-center gap-3 p-5">
+            <Button
+              className="w-[250px] mx-auto"
+              variant="default"
+              onClick={() => setShowAddShiftDialog(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Ajouter un shift
+            </Button>
+            <Button className="w-[250px] mx-auto" variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Exporter
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Filters */}
-      <TimeEntriesFilters
-        filters={filters}
-        availableEmployees={availableEmployees}
-        availableDates={availableDates}
-        onFilterChange={handleFilterChange}
-        onClearFilters={clearFilters}
-      />
 
       {/* Table */}
       <TimeEntriesTable
@@ -98,22 +106,16 @@ export default function TimeEntriesList({
         onKeyDown={handleKeyDown}
         onDeleteShift={handleDeleteShift}
         onJustificationRead={fetchTimeEntries}
+        onEmptySlotClick={handleEmptySlotClick}
       />
 
-      {/* Instructions and Summary */}
+      {/* Instructions */}
       {groupedEntries.length > 0 && (
-        <div className="mt-6 space-y-2">
-          <div className="flex justify-center">
-            <p className="rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-600">
-              Cliquez sur les heures ou dates pour les modifier directement
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <p className="text-sm text-gray-600">
-              {groupedEntries.length} journee{groupedEntries.length > 1 ? 's' : ''}{' '}
-              de travail affichee{groupedEntries.length > 1 ? 's' : ''}
-            </p>
-          </div>
+        <div className="flex justify-center">
+          <p className="text-sm text-gray-600">
+            {groupedEntries.length} journee{groupedEntries.length > 1 ? 's' : ''}{' '}
+            de travail affichee{groupedEntries.length > 1 ? 's' : ''}
+          </p>
         </div>
       )}
 

@@ -21,6 +21,8 @@ interface ScheduleModalState {
   isOpen: boolean;
   selectedDate: string; // YYYY-MM-DD format (always string, never Date)
   selectedShift: Shift | null;
+  defaultEmployeeId?: string;
+  defaultShiftType?: "morning" | "afternoon";
 }
 
 interface DayShiftsModalState {
@@ -50,6 +52,7 @@ export interface UseScheduleModalsReturn {
 
   // Handlers
   handleCellClick: (date: Date, dayShifts: Shift[]) => void;
+  handleEmptySlotClick: (date: Date, employeeId: string, period: "morning" | "afternoon") => void;
   handleShiftClick: (shift: Shift, e: React.MouseEvent) => void;
   handleEditShiftFromDay: (shift: Shift) => void;
   handleAddShiftFromDay: () => void;
@@ -101,6 +104,20 @@ export function useScheduleModals({
       });
     }
   }, []);
+
+  const handleEmptySlotClick = useCallback(
+    (date: Date, employeeId: string, period: "morning" | "afternoon") => {
+      const dateStr = formatDateToYMD(date);
+      setScheduleModal({
+        isOpen: true,
+        selectedDate: dateStr,
+        selectedShift: null,
+        defaultEmployeeId: employeeId,
+        defaultShiftType: period,
+      });
+    },
+    []
+  );
 
   const handleShiftClick = useCallback((shift: Shift, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -184,6 +201,7 @@ export function useScheduleModals({
     scheduleModal,
     dayShiftsModal,
     handleCellClick,
+    handleEmptySlotClick,
     handleShiftClick,
     handleEditShiftFromDay,
     handleAddShiftFromDay,

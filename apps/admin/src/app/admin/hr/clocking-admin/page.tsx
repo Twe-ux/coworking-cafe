@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import TimeEntriesList from "@/components/clocking/TimeEntriesList";
 import { ClockingAdminPageSkeleton } from "./ClockingAdminPageSkeleton";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Calendar, ChevronLeft, ChevronRight, Info } from "lucide-react";
+import { Calendar, CalendarDays, Info } from "lucide-react";
 import type { Employee } from "@/types/hr";
 
 export default function ClockingAdminPage() {
@@ -15,7 +16,6 @@ export default function ClockingAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch active employees
   const fetchEmployees = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -23,7 +23,6 @@ export default function ClockingAdminPage() {
       const result = await response.json();
 
       if (result.success) {
-        // Filtrer pour masquer le compte Admin Dev (compte technique pour tests)
         const filteredEmployees = (result.data || []).filter((emp: Employee) => {
           return emp.email !== "dev@coworkingcafe.com" &&
                  !(emp.firstName === "Admin" && emp.lastName === "Dev");
@@ -44,25 +43,25 @@ export default function ClockingAdminPage() {
     fetchEmployees();
   }, [fetchEmployees]);
 
-  const handlePreviousMonth = () => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      newDate.setMonth(newDate.getMonth() - 1);
-      return newDate;
+  const handlePreviousMonth = useCallback(() => {
+    setCurrentDate((prev) => {
+      const d = new Date(prev);
+      d.setMonth(d.getMonth() - 1);
+      return d;
     });
-  };
+  }, []);
 
-  const handleNextMonth = () => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      newDate.setMonth(newDate.getMonth() + 1);
-      return newDate;
+  const handleNextMonth = useCallback(() => {
+    setCurrentDate((prev) => {
+      const d = new Date(prev);
+      d.setMonth(d.getMonth() + 1);
+      return d;
     });
-  };
+  }, []);
 
-  const handleToday = () => {
+  const handleToday = useCallback(() => {
     setCurrentDate(new Date());
-  };
+  }, []);
 
   if (isLoading) {
     return <ClockingAdminPageSkeleton />;
@@ -82,34 +81,23 @@ export default function ClockingAdminPage() {
             Visualisez et gérez les pointages de tous les employés
           </p>
         </div>
-
-        {/* Date Navigation */}
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={handlePreviousMonth}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={handleToday}
-            className="min-w-[200px]"
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            {currentDate.toLocaleDateString("fr-FR", {
-              month: "long",
-              year: "numeric",
-            })}
-          </Button>
-
-          <Button variant="outline" size="icon" onClick={handleNextMonth}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        <Button variant="outline" asChild>
+          <Link href="/admin/hr/schedule">
+            <CalendarDays className="mr-2 h-4 w-4" />
+            Planning
+          </Link>
+        </Button>
       </div>
 
       {/* Time Entries List */}
       {employees.length > 0 ? (
-        <TimeEntriesList employees={employees} currentDate={currentDate} />
+        <TimeEntriesList
+          employees={employees}
+          currentDate={currentDate}
+          onPreviousMonth={handlePreviousMonth}
+          onNextMonth={handleNextMonth}
+          onToday={handleToday}
+        />
       ) : (
         <div className="flex h-[400px] items-center justify-center rounded-lg border">
           <div className="text-center text-muted-foreground">

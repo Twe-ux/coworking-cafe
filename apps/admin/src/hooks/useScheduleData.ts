@@ -8,7 +8,7 @@ import type { Employee } from "@/types/hr";
 import type { Shift } from "@/types/shift";
 import type { TimeEntry, ApiResponse } from "@/types/timeEntry";
 import type { IUnavailabilityWithEmployee } from "@/types/unavailability";
-import { getCalendarDateRange } from "@/lib/schedule/utils";
+import { getCalendarDateRange, formatDateToYMD } from "@/lib/schedule/utils";
 
 interface UseScheduleDataReturn {
   // Data
@@ -62,15 +62,15 @@ export function useScheduleData(): UseScheduleDataReturn {
     deleteShift,
     refreshShifts,
   } = useShiftsQuery({
-    startDate: calendarStartDate.toISOString().split("T")[0],
-    endDate: calendarEndDate.toISOString().split("T")[0],
+    startDate: formatDateToYMD(calendarStartDate),
+    endDate: formatDateToYMD(calendarEndDate),
     active: true,
   });
 
   // Fetch unavailabilities (approved only) for current month
-  const { unavailabilities } = useUnavailabilities({
-    startDate: calendarStartDate.toISOString().split("T")[0],
-    endDate: calendarEndDate.toISOString().split("T")[0],
+  const { unavailabilities, loading: isLoadingUnavailabilities } = useUnavailabilities({
+    startDate: formatDateToYMD(calendarStartDate),
+    endDate: formatDateToYMD(calendarEndDate),
     status: "approved",
   });
 
@@ -91,15 +91,15 @@ export function useScheduleData(): UseScheduleDataReturn {
           "shifts",
           "list",
           {
-            startDate: nextStartDate.toISOString().split("T")[0],
-            endDate: nextEndDate.toISOString().split("T")[0],
+            startDate: formatDateToYMD(nextStartDate),
+            endDate: formatDateToYMD(nextEndDate),
             active: true,
           },
         ],
         queryFn: async () => {
           const params = new URLSearchParams({
-            startDate: nextStartDate.toISOString().split("T")[0],
-            endDate: nextEndDate.toISOString().split("T")[0],
+            startDate: formatDateToYMD(nextStartDate),
+            endDate: formatDateToYMD(nextEndDate),
             active: "true",
           });
 
@@ -159,8 +159,9 @@ export function useScheduleData(): UseScheduleDataReturn {
 
       const { startDate, endDate } = getCalendarDateRange(currentDate);
       const params = new URLSearchParams();
-      params.append("startDate", startDate.toISOString().split("T")[0]);
-      params.append("endDate", endDate.toISOString().split("T")[0]);
+      params.append("startDate", formatDateToYMD(startDate));
+      params.append("endDate", formatDateToYMD(endDate));
+      params.append("limit", "100");
 
       const response = await fetch(`/api/time-entries?${params.toString()}`);
       const result: ApiResponse<TimeEntry[]> = await response.json();
@@ -189,14 +190,15 @@ export function useScheduleData(): UseScheduleDataReturn {
   // ✅ SUPPRIMÉ : useEffect redondant qui causait une double récupération des shifts
   // useShifts gère déjà le fetch automatiquement quand les options changent
 
-  // Critical loading state: only show skeleton if shifts or employees are loading
-  // AND we don't have any cached data yet (initial load)
+  // Critical loading state: only show skeleton if shifts, employees or unavailabilities
+  // are loading AND we don't have any cached data yet (initial load)
   const isInitialLoading =
     (isLoadingShifts && shifts.length === 0) ||
-    (isLoadingEmployees && employees.length === 0);
+    (isLoadingEmployees && employees.length === 0) ||
+    isLoadingUnavailabilities;
 
   // Background loading: data is being refetched but we have cached data
-  const isRefetching = isLoadingShifts || isLoadingEmployees || isLoadingTimeEntries;
+  const isRefetching = isLoadingShifts || isLoadingEmployees || isLoadingTimeEntries || isLoadingUnavailabilities;
 
   return {
     currentDate,
