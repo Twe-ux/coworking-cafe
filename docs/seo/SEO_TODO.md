@@ -17,7 +17,7 @@
 | **Performance Technique** | 2 | 0/2 | ⚪ À faire |
 | **Off-Page SEO** | 2 | 0/2 | ⚪ À faire |
 | **Analytics & Monitoring** | 2 | 0/2 | ⚪ À faire |
-| **TOTAL** | **13** | **2/13** | **15%** |
+| **TOTAL** | **14** | **2/14** | **14%** |
 
 ---
 
@@ -423,7 +423,7 @@ export const metadata: Metadata = {
 
 ---
 
-### 🏢 7. Optimiser Google My Business Existant ⭐ PRIORITÉ
+### 🏢 8. Optimiser Google My Business Existant ⭐ PRIORITÉ
 
 **Status** : ⏳ À faire
 
@@ -716,7 +716,7 @@ export const metadata: Metadata = {
 
 ---
 
-### 📊 8. Configurer Google Analytics 4 et Tag Manager
+### 📊 9. Configurer Google Analytics 4 et Tag Manager
 
 **Status** : ⏳ À faire
 
@@ -786,7 +786,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 
 ---
 
-### 📰 9. Optimiser Contenu Blog pour SEO
+### 📰 10. Optimiser Contenu Blog pour SEO
 
 **Status** : ⏳ À faire
 
@@ -862,7 +862,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 
 ## 🚀 PRIORITÉ BASSE (1-3 Mois)
 
-### 🖼️ 10. Optimiser Images - Migration Next.js Image
+### 🖼️ 11. Optimiser Images - Migration Next.js Image
 
 **Status** : ⏳ À faire
 
@@ -916,7 +916,7 @@ import Image from 'next/image';
 
 ---
 
-### ⚡ 11. Optimiser Core Web Vitals
+### ⚡ 12. Optimiser Core Web Vitals
 
 **Status** : ⏳ À faire
 
@@ -984,7 +984,7 @@ import Image from 'next/image';
 
 ---
 
-### 🔗 12. Obtenir Backlinks et Citations Locales
+### 🔗 13. Obtenir Backlinks et Citations Locales
 
 **Status** : ⏳ À faire
 
@@ -1041,7 +1041,7 @@ import Image from 'next/image';
 
 ## 🔄 ROUTINE CONTINUE
 
-### 📅 13. Monitoring Hebdomadaire SEO
+### 📅 14. Monitoring Hebdomadaire SEO
 
 **Status** : ⏳ À mettre en place
 
