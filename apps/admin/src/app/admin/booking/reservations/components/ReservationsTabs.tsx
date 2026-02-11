@@ -154,6 +154,13 @@ export function ReservationsTabs({
       filtered = filtered.filter((b) => b.startDate === dateFilter);
     }
 
+    // Apply month filter
+    if (monthFilter !== "all") {
+      filtered = filtered.filter(
+        (b) => b.startDate?.substring(0, 7) === monthFilter,
+      );
+    }
+
     // Apply sorting based on sortOrder
     if (sortOrder === "smart") {
       // Smart sorting: today first, then future, then past
