@@ -7,6 +7,7 @@ import Header from "../../components/site/header/header";
 import ScrollToTop from "../../components/site/ui/ScrollToTop";
 import PathNameLoad from "../../utils/pathNameLoad";
 import { PWAStyles } from "../../components/layout/PWAStyles";
+import GoogleAnalytics from "../../components/analytics/GoogleAnalytics";
 import { ReactNode } from "react";
 
 import type { Metadata } from "next";
@@ -58,6 +59,7 @@ export const metadata: Metadata = {
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <SiteProvidersWrapper>
+      <GoogleAnalytics />
       <PWAStyles />
       <Bootstrap />
       <PathNameLoad />
