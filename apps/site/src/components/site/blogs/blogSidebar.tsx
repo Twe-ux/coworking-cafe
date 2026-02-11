@@ -173,6 +173,16 @@ const BlogSidebar = ({
         </ul>
       </div>
       {/* -- latest post */}
+
+      {/* -- Archives */}
+      <div className="archives pt__60">
+        <h5 className="t__22">Archives</h5>
+        <Link href="/blog/archive" className="btn btn-outline-dark w-100 mt-3">
+          <i className="bi bi-archive me-2"></i>
+          Voir toutes les archives
+        </Link>
+      </div>
+      {/* -- Archives */}
     </aside>
   );
 };
