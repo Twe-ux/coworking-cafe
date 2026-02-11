@@ -232,6 +232,9 @@ const Footer = () => {
                 <li>
                   <Link href={"/pricing"}>Tarifs</Link>
                 </li>
+                <li>
+                  <Link href={"/blog"}>Le Mag&apos;</Link>
+                </li>
               </ul>
             </div>
           </div>
