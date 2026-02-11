@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { StyledAlert } from "@/components/ui/styled-alert";
 import { ReservationsSkeleton } from "./ReservationsSkeleton";
 import { ReservationDetailModal } from "./ReservationDetailModal";
@@ -9,8 +10,15 @@ import { ReservationsHeader } from "./components/ReservationsHeader";
 import { ReservationsTabs } from "./components/ReservationsTabs";
 import { QuickCancelDialog } from "./components/QuickCancelDialog";
 import { useReservationsLogic } from "./hooks/useReservationsLogic";
+import { markBadgeSeen } from "@/lib/utils/badge-seen";
+import { triggerSidebarRefresh } from "@/lib/events/sidebar-refresh";
 
 export function ReservationsClient() {
+  // Mark bookings as seen when page loads → clears sidebar badge
+  useEffect(() => {
+    markBadgeSeen("bookings");
+    triggerSidebarRefresh();
+  }, []);
   const {
     message,
     setMessage,

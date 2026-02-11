@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { onSidebarRefresh } from "@/lib/events/sidebar-refresh";
+import { getBadgeSeenAt } from "@/lib/utils/badge-seen";
 
 interface SidebarCounts {
   pendingBookings: number;
@@ -53,7 +54,14 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
     try {
       setError(null);
 
-      const response = await fetch("/api/sidebar-counts");
+      const params = new URLSearchParams();
+      const bookingsSeenAt = getBadgeSeenAt("bookings");
+      if (bookingsSeenAt) params.set("bookingsSeenAt", bookingsSeenAt);
+
+      const url = params.toString()
+        ? `/api/sidebar-counts?${params}`
+        : "/api/sidebar-counts";
+      const response = await fetch(url);
 
       if (response.status === 401) {
         setCounts(DEFAULT_COUNTS);

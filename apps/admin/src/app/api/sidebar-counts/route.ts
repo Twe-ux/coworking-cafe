@@ -34,12 +34,21 @@ export async function GET(
     // Connect both drivers in parallel
     await Promise.all([connectMongoose(), connectDB()]);
 
+    // Optional: only count bookings created after this timestamp (for "last seen" badge)
+    const { searchParams } = new URL(request.url);
+    const bookingsSeenAt = searchParams.get("bookingsSeenAt");
+
+    const bookingsQuery: Record<string, unknown> = { status: "pending" };
+    if (bookingsSeenAt) {
+      bookingsQuery.createdAt = { $gt: new Date(bookingsSeenAt) };
+    }
+
     // Run all 4 count queries in parallel
     const [unreadMessages, pendingUnavailabilities, pendingBookings, pendingJustifications] =
       await Promise.all([
         ContactMail.countDocuments({ status: "unread" }),
         Unavailability.countDocuments({ status: "pending" }),
-        Booking.countDocuments({ status: "pending" }),
+        Booking.countDocuments(bookingsQuery),
         TimeEntry.countDocuments({
           isOutOfSchedule: true,
           justificationRead: { $ne: true }, // Only count unread justifications
