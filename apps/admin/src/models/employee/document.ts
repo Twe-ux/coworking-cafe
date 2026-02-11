@@ -366,27 +366,21 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
 );
 
 // Indexes
-// Unique indexes exclude drafts and soft-deleted employees
-// so they don't block creation of new employees with the same values.
-// NOTE: If deploying to an existing DB, drop the old sparse indexes first:
-//   db.employees.dropIndex("email_1")
-//   db.employees.dropIndex("socialSecurityNumber_1")
-//   db.employees.dropIndex("clockingCode_1")
-const uniqueFilter = {
-  isDraft: { $ne: true },
-  deletedAt: null,
-};
+// Unique indexes use partialFilterExpression to exclude drafts.
+// $type: "string" replaces sparse (excludes null/undefined values).
+// isDraft: false excludes drafts from uniqueness enforcement.
+// Compatible with MongoDB M0 (no $ne/$not operators).
 EmployeeSchema.index(
   { email: 1 },
-  { unique: true, partialFilterExpression: { email: { $exists: true, $ne: null }, ...uniqueFilter } }
+  { unique: true, partialFilterExpression: { email: { $type: 'string' }, isDraft: { $eq: false } } }
 );
 EmployeeSchema.index(
   { socialSecurityNumber: 1 },
-  { unique: true, partialFilterExpression: { socialSecurityNumber: { $exists: true, $ne: null }, ...uniqueFilter } }
+  { unique: true, partialFilterExpression: { socialSecurityNumber: { $type: 'string' }, isDraft: { $eq: false } } }
 );
 EmployeeSchema.index(
   { clockingCode: 1 },
-  { unique: true, partialFilterExpression: { clockingCode: { $exists: true, $ne: null }, ...uniqueFilter } }
+  { unique: true, partialFilterExpression: { clockingCode: { $type: 'string' }, isDraft: { $eq: false } } }
 );
 EmployeeSchema.index({ isActive: 1 });
 EmployeeSchema.index({ isDraft: 1, createdBy: 1 });
