@@ -2,18 +2,17 @@ import { QueryClient } from "@tanstack/react-query";
 
 /**
  * Configuration globale du QueryClient pour React Query
- * - Cache de 5min en dev, 24h en prod
+ * - staleTime: 5min (refresh automatique des données)
+ * - gcTime: 30min (garbage collection du cache)
+ * - Refetch au focus de la fenêtre (données fraîches)
  * - Retry automatique sur erreur (3 tentatives)
- * - Pas de refetch au focus de la fenêtre
  */
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: process.env.NODE_ENV === "development"
-        ? 5 * 60 * 1000 // 5 minutes en dev
-        : 24 * 60 * 60 * 1000, // 24 heures en prod
-      gcTime: 24 * 60 * 60 * 1000, // 24h (anciennement cacheTime)
-      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 30 * 60 * 1000, // 30 minutes
+      refetchOnWindowFocus: true,
       retry: 3,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },

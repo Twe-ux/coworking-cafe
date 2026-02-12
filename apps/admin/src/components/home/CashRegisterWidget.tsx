@@ -8,34 +8,28 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import type {
-  CashCountDetails,
-  CashRegisterEntry,
-  EmployeeInfo,
-} from "@/types/cashRegister";
+import { useCashRegister } from "@/hooks/useCashRegister";
+import type { AdminUser } from "@/hooks/useCashRegister";
+import type { CashCountDetails } from "@/types/cashRegister";
 import { formatCurrency } from "@/types/cashRegister";
 import { Coins, History } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-interface AdminUser {
-  _id: string;
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import { useState } from "react";
 
 /**
  * Widget Fond de Caisse pour le dashboard staff
  * Version compacte optimisée avec confirmation employé/admin
  */
 export function CashRegisterWidget() {
-  const [lastEntry, setLastEntry] = useState<CashRegisterEntry | null>(null);
-  const [clockedEmployees, setClockedEmployees] = useState<EmployeeInfo[]>([]);
-  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const {
+    lastEntry,
+    clockedEmployees,
+    adminUsers,
+    isLoading,
+    refetch,
+  } = useCashRegister();
+
   const [amount, setAmount] = useState<string>("");
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -49,57 +43,6 @@ export function CashRegisterWidget() {
   const [wasWarningConfirmed, setWasWarningConfirmed] = useState(false);
   const [notesModalOpen, setNotesModalOpen] = useState(false);
   const [additionalNotes, setAdditionalNotes] = useState("");
-
-  useEffect(() => {
-    // Fetch initial
-    fetchData();
-
-    // ✅ Polling automatique toutes les 30 secondes
-    const pollInterval = setInterval(() => {
-      fetchData();
-    }, 30000); // 30 secondes
-
-    // ✅ Refetch quand l'utilisateur revient sur l'onglet
-    const handleFocus = () => {
-      fetchData();
-    };
-
-    window.addEventListener('focus', handleFocus);
-
-    // Cleanup
-    return () => {
-      clearInterval(pollInterval);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-
-      const lastEntryResponse = await fetch("/api/cash-register/list?limit=1");
-      const lastEntryResult = await lastEntryResponse.json();
-      if (lastEntryResult.success && lastEntryResult.data.entries.length > 0) {
-        setLastEntry(lastEntryResult.data.entries[0]);
-      }
-
-      const employeesResponse = await fetch("/api/hr/employees/clocked");
-      const employeesResult = await employeesResponse.json();
-      if (employeesResult.success) {
-        setClockedEmployees(employeesResult.data || []);
-      }
-
-      const adminsResponse = await fetch("/api/admins");
-      const adminsResult = await adminsResponse.json();
-      if (adminsResult.success) {
-        setAdminUsers(adminsResult.data || []);
-      }
-    } catch (err) {
-      console.error("Error fetching cash register data:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleTotalCalculated = (total: number, details: CashCountDetails) => {
     setAmount(total.toString());
@@ -232,7 +175,7 @@ export function CashRegisterWidget() {
         setAdminPin("");
         setWasWarningConfirmed(false);
         setAdditionalNotes("");
-        fetchData();
+        refetch();
 
         setTimeout(() => setSuccess(false), 3000);
       } else {
@@ -272,7 +215,7 @@ export function CashRegisterWidget() {
 
       <CardContent className="space-y-2">
         {/* Dernière saisie */}
-        {loading ? (
+        {isLoading ? (
           <p className="text-xs text-muted-foreground">Chargement...</p>
         ) : lastEntry ? (
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
