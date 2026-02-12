@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Menu from "../../../components/site/menu/menu";
 import PageTitle from "../../../components/site/PageTitle";
 
+export const revalidate = 3600; // ISR: revalidate every hour
+
 export const metadata: Metadata = {
   title: 'Nos Produits Alimentaires - Snacks & Repas | CoworKing Café',
   description: 'Découvrez notre sélection de produits alimentaires à la carte : pizzas, sandwiches, salades, encas sucrés. Parfait pour travailler sans interruption.',
@@ -45,7 +47,23 @@ export const metadata: Metadata = {
   },
 };
 
-const FoodPage = () => {
+async function getMenu(type: string) {
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const res = await fetch(`${baseUrl}/api/drinks?type=${type}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.menu || [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function FoodPage() {
+  const menu = await getMenu("food");
+
   return (
     <>
       <PageTitle title={"Nos Produits Alimentaires"} />
@@ -53,9 +71,8 @@ const FoodPage = () => {
         type="food"
         title="Nos Produits Alimentaires"
         subtitle="Découvrez notre sélection de produits alimentaires, disponibles à la carte."
+        initialMenu={menu}
       />
     </>
   );
-};
-
-export default FoodPage;
+}

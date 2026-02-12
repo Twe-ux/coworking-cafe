@@ -23,17 +23,21 @@ interface MenuProps {
   type?: "drink" | "food" | "grocery" | "goodies";
   title?: string;
   subtitle?: string;
+  initialMenu?: MenuCategory[];
 }
 
 const Menu = ({
   type = "drink",
   title = "Nos Boissons",
   subtitle = "Découvrez notre sélection de boissons, toutes incluses dans votre forfait temps.",
+  initialMenu,
 }: MenuProps) => {
-  const [menu, setMenu] = useState<MenuCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [menu, setMenu] = useState<MenuCategory[]>(initialMenu || []);
+  const [loading, setLoading] = useState(!initialMenu);
 
   useEffect(() => {
+    if (initialMenu) return;
+
     const fetchMenu = async () => {
       try {
         const res = await fetch(`/api/drinks?type=${type}`);
@@ -42,13 +46,14 @@ const Menu = ({
           setMenu(data.menu);
         }
       } catch (error) {
+        // Silently handle fetch error
       } finally {
         setLoading(false);
       }
     };
 
     fetchMenu();
-  }, [type]);
+  }, [type, initialMenu]);
 
   if (loading) {
     return (

@@ -8,9 +8,10 @@ interface BlogCardProps {
   title: string;
   slug: string;
   id?: number;
+  priority?: boolean;
 }
 
-const BlogCard = ({ imgSrc, title, slug }: BlogCardProps) => {
+const BlogCard = ({ imgSrc, title, slug, priority }: BlogCardProps) => {
   return (
     <div className="blogs__wapper_card">
       <Link href={`/blog/${slug}`}>
@@ -19,7 +20,7 @@ const BlogCard = ({ imgSrc, title, slug }: BlogCardProps) => {
           alt={`${title} - CoworKing Café Anticafé Strasbourg`}
           width={600}
           height={400}
-          loading="lazy"
+          {...(priority ? { priority: true } : { loading: "lazy" as const })}
           quality={85}
           className="card__thumb"
         />
