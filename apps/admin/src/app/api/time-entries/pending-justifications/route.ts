@@ -22,9 +22,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
   try {
     await connectMongoose()
 
-    // Compter les pointages avec isOutOfSchedule = true
+    // Compter les pointages avec isOutOfSchedule = true et non lus
     const count = await TimeEntry.countDocuments({
       isOutOfSchedule: true,
+      justificationRead: { $ne: true },
       isActive: true,
     })
 

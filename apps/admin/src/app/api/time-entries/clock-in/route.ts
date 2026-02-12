@@ -16,6 +16,7 @@ import { validateRequest } from '@/lib/api/validation'
 import { clockInSchema } from '@/lib/validations/timeEntry'
 import { isClockInWithinSchedule } from '@/lib/utils/schedule-checker'
 import { isShiftBeforeCutoff } from '@/lib/schedule/utils'
+import { sendNewJustificationNotification } from '@/lib/push-notifications'
 
 /**
  * POST /api/time-entries/clock-in - Débuter un nouveau shift
@@ -253,6 +254,22 @@ export async function POST(request: NextRequest) {
 
     const newTimeEntry = new TimeEntry(timeEntryData)
     await newTimeEntry.save()
+
+    // Send push notification for out-of-schedule clock-in
+    if (isOutOfSchedule) {
+      const pendingCount = await TimeEntry.countDocuments({
+        isOutOfSchedule: true,
+        justificationRead: { $ne: true },
+        isActive: true,
+      })
+      sendNewJustificationNotification({
+        id: newTimeEntry._id.toString(),
+        employeeName: `${employee.firstName} ${employee.lastName}`,
+        clockTime: clockInTimeStr,
+        type: 'clock-in',
+        pendingCount,
+      }).catch((err) => console.error('[Push] Justification notification error:', err))
+    }
 
     // ✅ PIN valide et shift créé : Réinitialiser le compteur de tentatives
     resetAttempts(clientIP, body.employeeId)

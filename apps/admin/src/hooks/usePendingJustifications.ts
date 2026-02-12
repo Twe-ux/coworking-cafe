@@ -1,15 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { onSidebarRefresh } from '@/lib/events/sidebar-refresh'
 
 /**
  * Hook pour récupérer le nombre de pointages avec justification en attente
  * Utilisé pour afficher les badges d'alerte dans la sidebar et clocking-admin
+ *
+ * Refreshes on:
+ * - Initial mount
+ * - Every 30 seconds (polling)
+ * - Sidebar refresh events (instant update after mark-as-read)
  */
 export function usePendingJustifications() {
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchCount = async () => {
+  const fetchCount = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -33,16 +39,20 @@ export function usePendingJustifications() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
+  // Initial fetch + polling every 30s
   useEffect(() => {
     fetchCount()
 
-    // Rafraîchir toutes les 30 secondes
     const interval = setInterval(fetchCount, 30000)
-
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchCount])
+
+  // Instant refresh on sidebar-refresh events (e.g. after marking justification as read)
+  useEffect(() => {
+    return onSidebarRefresh(fetchCount)
+  }, [fetchCount])
 
   return {
     count,

@@ -1,5 +1,5 @@
-import webPush from 'web-push';
-import { PushSubscription } from '@/models/pushSubscription';
+import webPush from "web-push";
+import { PushSubscription } from "@/models/pushSubscription";
 
 /**
  * Configuration de web-push avec les clés VAPID
@@ -9,10 +9,13 @@ import { PushSubscription } from '@/models/pushSubscription';
 function initializeWebPush() {
   const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-  const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:admin@coworkingcafe.com';
+  const vapidSubject =
+    process.env.VAPID_SUBJECT || "mailto:admin@coworkingcafe.com";
 
   if (!vapidPublicKey || !vapidPrivateKey) {
-    console.warn('[Push] VAPID keys not configured. Generate them with: npx web-push generate-vapid-keys');
+    console.warn(
+      "[Push] VAPID keys not configured. Generate them with: npx web-push generate-vapid-keys",
+    );
     return false;
   }
 
@@ -23,41 +26,53 @@ function initializeWebPush() {
 /**
  * Types de notifications supportés
  */
-export type NotificationType = 'contact' | 'messenger' | 'support' | 'system' | 'booking';
+export type NotificationType =
+  | "contact"
+  | "messenger"
+  | "support"
+  | "system"
+  | "booking"
+  | "justification";
 
 /**
  * Configuration des types de notifications
  */
 export const NOTIFICATION_CONFIGS = {
   contact: {
-    icon: '/web-app-manifest-512x512.png',
-    badge: '/web-app-manifest-192x192.png',
-    tag: 'contact-message',
-    url: '/admin/messages/contact',
+    icon: "/web-app-manifest-512x512.png",
+    badge: "/web-app-manifest-192x192.png",
+    tag: "contact-message",
+    url: "/admin/messages/contact",
   },
   messenger: {
-    icon: '/web-app-manifest-512x512.png',
-    badge: '/web-app-manifest-192x192.png',
-    tag: 'messenger-message',
-    url: '/admin/messages/messenger',
+    icon: "/web-app-manifest-512x512.png",
+    badge: "/web-app-manifest-192x192.png",
+    tag: "messenger-message",
+    url: "/admin/messages/messenger",
   },
   support: {
-    icon: '/web-app-manifest-512x512.png',
-    badge: '/web-app-manifest-192x192.png',
-    tag: 'support-message',
-    url: '/admin/messages/support',
+    icon: "/web-app-manifest-512x512.png",
+    badge: "/web-app-manifest-192x192.png",
+    tag: "support-message",
+    url: "/admin/messages/support",
   },
   system: {
-    icon: '/web-app-manifest-512x512.png',
-    badge: '/web-app-manifest-192x192.png',
-    tag: 'system-notification',
-    url: '/admin',
+    icon: "/web-app-manifest-512x512.png",
+    badge: "/web-app-manifest-192x192.png",
+    tag: "system-notification",
+    url: "/admin",
   },
   booking: {
-    icon: '/web-app-manifest-512x512.png',
-    badge: '/web-app-manifest-192x192.png',
-    tag: 'booking-notification',
-    url: '/admin/booking/reservations',
+    icon: "/web-app-manifest-512x512.png",
+    badge: "/web-app-manifest-192x192.png",
+    tag: "booking-notification",
+    url: "/admin/booking/reservations",
+  },
+  justification: {
+    icon: "/web-app-manifest-512x512.png",
+    badge: "/web-app-manifest-192x192.png",
+    tag: "justification-notification",
+    url: "/admin/hr/clocking-admin",
   },
 } as const;
 
@@ -90,24 +105,29 @@ export async function sendPushNotification(data: NotificationData): Promise<{
     const initialized = initializeWebPush();
 
     if (!initialized) {
-      console.warn('[Push] Skipping push notification (VAPID not configured)');
-      return { success: false, sent: 0, failed: 0, errors: ['VAPID not configured'] };
+      console.warn("[Push] Skipping push notification (VAPID not configured)");
+      return {
+        success: false,
+        sent: 0,
+        failed: 0,
+        errors: ["VAPID not configured"],
+      };
     }
 
     // Récupérer toutes les subscriptions
     const subscriptions = await PushSubscription.find({});
 
     if (subscriptions.length === 0) {
-      console.log('[Push] No subscriptions found');
+      console.log("[Push] No subscriptions found");
       return { success: true, sent: 0, failed: 0, errors: [] };
     }
 
     const payload = JSON.stringify({
       title: data.title,
       body: data.body,
-      icon: data.icon || '/web-app-manifest-192x192.png',
-      badge: data.badge || '/favicon-96x96.png',
-      tag: data.tag || 'notification',
+      icon: data.icon || "/web-app-manifest-192x192.png",
+      badge: data.badge || "/favicon-96x96.png",
+      tag: data.tag || "notification",
       url: data.url,
       requireInteraction: data.requireInteraction || false,
       messageId: data.messageId,
@@ -130,25 +150,31 @@ export async function sendPushNotification(data: NotificationData): Promise<{
                 auth: sub.keys.auth,
               },
             },
-            payload
+            payload,
           );
 
           sent++;
-          console.log('[Push] Notification sent to:', sub.endpoint);
+          console.log("[Push] Notification sent to:", sub.endpoint);
         } catch (error) {
           failed++;
 
           // Si l'erreur est 410 (Gone), supprimer la subscription invalide
-          if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 410) {
-            console.log('[Push] Subscription expired, deleting:', sub.endpoint);
+          if (
+            error &&
+            typeof error === "object" &&
+            "statusCode" in error &&
+            error.statusCode === 410
+          ) {
+            console.log("[Push] Subscription expired, deleting:", sub.endpoint);
             await PushSubscription.deleteOne({ endpoint: sub.endpoint });
           } else {
-            console.error('[Push] Error sending to:', sub.endpoint, error);
-            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.error("[Push] Error sending to:", sub.endpoint, error);
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
             errors.push(`${sub.endpoint}: ${errorMessage}`);
           }
         }
-      })
+      }),
     );
 
     console.log(`[Push] Sent: ${sent}, Failed: ${failed}`);
@@ -160,7 +186,7 @@ export async function sendPushNotification(data: NotificationData): Promise<{
       errors,
     };
   } catch (error) {
-    console.error('[Push] sendPushNotification error:', error);
+    console.error("[Push] sendPushNotification error:", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       success: false,
@@ -177,12 +203,11 @@ export async function sendPushNotification(data: NotificationData): Promise<{
 async function sendTypedNotification(
   type: NotificationType,
   data: {
-    title: string;
     body: string;
     messageId: string;
     unreadCount: number;
     requireInteraction?: boolean;
-  }
+  },
 ): Promise<{
   success: boolean;
   sent: number;
@@ -193,12 +218,12 @@ async function sendTypedNotification(
 
   console.log(`[Push] Sending ${type} notification:`, {
     messageId: data.messageId,
-    title: data.title,
+    body: data.body,
     unreadCount: data.unreadCount,
   });
 
   return await sendPushNotification({
-    title: data.title,
+    title: "CoworKing Café",
     body: data.body,
     icon: config.icon,
     badge: config.badge,
@@ -221,27 +246,17 @@ export async function sendNewContactNotification(contactData: {
   message: string;
   unreadCount: number;
 }): Promise<void> {
-  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+  const body = `${contactData.name} - ${contactData.subject}: ${contactData.message}`;
+  const truncatedBody =
+    body.length > 120 ? body.substring(0, 117) + "..." : body;
 
-  // Construire le titre en respectant la limite iOS de 30 caractères
-  const title = `${contactData.name} - ${contactData.subject}`;
-  const truncatedTitle = title.length > 30
-    ? title.substring(0, 27) + '...'
-    : title;
-
-  // Limiter le message à 120 caractères pour iOS
-  const truncatedMessage = contactData.message.length > 120
-    ? contactData.message.substring(0, 117) + '...'
-    : contactData.message;
-
-  const result = await sendTypedNotification('contact', {
-    title: truncatedTitle,
-    body: truncatedMessage,
+  const result = await sendTypedNotification("contact", {
+    body: truncatedBody,
     messageId: contactData.id,
     unreadCount: contactData.unreadCount,
   });
 
-  console.log('[Push] Contact notification result:', result);
+  console.log("[Push] Contact notification result:", result);
 }
 
 /**
@@ -253,25 +268,17 @@ export async function sendNewMessengerNotification(messengerData: {
   message: string;
   unreadCount: number;
 }): Promise<void> {
-  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+  const body = `Message de ${messengerData.senderName}: ${messengerData.message}`;
+  const truncatedBody =
+    body.length > 120 ? body.substring(0, 117) + "..." : body;
 
-  const title = `Message de ${messengerData.senderName}`;
-  const truncatedTitle = title.length > 30
-    ? title.substring(0, 27) + '...'
-    : title;
-
-  const truncatedMessage = messengerData.message.length > 120
-    ? messengerData.message.substring(0, 117) + '...'
-    : messengerData.message;
-
-  const result = await sendTypedNotification('messenger', {
-    title: truncatedTitle,
-    body: truncatedMessage,
+  const result = await sendTypedNotification("messenger", {
+    body: truncatedBody,
     messageId: messengerData.id,
     unreadCount: messengerData.unreadCount,
   });
 
-  console.log('[Push] Messenger notification result:', result);
+  console.log("[Push] Messenger notification result:", result);
 }
 
 /**
@@ -284,25 +291,17 @@ export async function sendNewSupportNotification(supportData: {
   message: string;
   unreadCount: number;
 }): Promise<void> {
-  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+  const body = `Support - ${supportData.userName}: ${supportData.subject}`;
+  const truncatedBody =
+    body.length > 120 ? body.substring(0, 117) + "..." : body;
 
-  const title = `Support - ${supportData.userName}: ${supportData.subject}`;
-  const truncatedTitle = title.length > 30
-    ? title.substring(0, 27) + '...'
-    : title;
-
-  const truncatedMessage = supportData.message.length > 120
-    ? supportData.message.substring(0, 117) + '...'
-    : supportData.message;
-
-  const result = await sendTypedNotification('support', {
-    title: truncatedTitle,
-    body: truncatedMessage,
+  const result = await sendTypedNotification("support", {
+    body: truncatedBody,
     messageId: supportData.id,
     unreadCount: supportData.unreadCount,
   });
 
-  console.log('[Push] Support notification result:', result);
+  console.log("[Push] Support notification result:", result);
 }
 
 /**
@@ -313,25 +312,18 @@ export async function sendSystemNotification(systemData: {
   title: string;
   message: string;
 }): Promise<void> {
-  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+  const body = `${systemData.title} - ${systemData.message}`;
+  const truncatedBody =
+    body.length > 120 ? body.substring(0, 117) + "..." : body;
 
-  const truncatedTitle = systemData.title.length > 30
-    ? systemData.title.substring(0, 27) + '...'
-    : systemData.title;
-
-  const truncatedMessage = systemData.message.length > 120
-    ? systemData.message.substring(0, 117) + '...'
-    : systemData.message;
-
-  const result = await sendTypedNotification('system', {
-    title: truncatedTitle,
-    body: truncatedMessage,
+  const result = await sendTypedNotification("system", {
+    body: truncatedBody,
     messageId: systemData.id,
     unreadCount: 0,
     requireInteraction: false,
   });
 
-  console.log('[Push] System notification result:', result);
+  console.log("[Push] System notification result:", result);
 }
 
 /**
@@ -345,26 +337,41 @@ export async function sendNewBookingNotification(bookingData: {
   time: string;
   pendingCount: number;
 }): Promise<void> {
-  // iOS limite : Titre max 30 caractères, Message max 120 caractères
+  const body = `Nouvelle réservation - ${bookingData.clientName}, ${bookingData.spaceName} le ${bookingData.date} à ${bookingData.time}`;
+  const truncatedBody =
+    body.length > 120 ? body.substring(0, 117) + "..." : body;
 
-  const title = `🗓️ Nouvelle réservation`;
-  const body = `${bookingData.clientName} - ${bookingData.spaceName} le ${bookingData.date} à ${bookingData.time}`;
-
-  const truncatedTitle = title.length > 30
-    ? title.substring(0, 27) + '...'
-    : title;
-
-  const truncatedBody = body.length > 120
-    ? body.substring(0, 117) + '...'
-    : body;
-
-  const result = await sendTypedNotification('booking', {
-    title: truncatedTitle,
+  const result = await sendTypedNotification("booking", {
     body: truncatedBody,
     messageId: bookingData.id,
     unreadCount: bookingData.pendingCount,
     requireInteraction: true,
   });
 
-  console.log('[Push] Booking notification result:', result);
+  console.log("[Push] Booking notification result:", result);
+}
+
+/**
+ * Envoie une notification pour un nouveau pointage hors planning avec justification
+ */
+export async function sendNewJustificationNotification(data: {
+  id: string;
+  employeeName: string;
+  clockTime: string;
+  type: "clock-in" | "clock-out";
+  pendingCount: number;
+}): Promise<void> {
+  const direction = data.type === "clock-in" ? "Arrivée" : "Départ";
+  const body = `Pointage hors planning - ${data.employeeName}, ${direction} à ${data.clockTime}`;
+  const truncatedBody =
+    body.length > 120 ? body.substring(0, 117) + "..." : body;
+
+  const result = await sendTypedNotification("justification", {
+    body: truncatedBody,
+    messageId: data.id,
+    unreadCount: data.pendingCount,
+    requireInteraction: true,
+  });
+
+  console.log("[Push] Justification notification result:", result);
 }

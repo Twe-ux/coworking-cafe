@@ -15,6 +15,7 @@ import { logPINAttempt } from '@/lib/security/pin-logger'
 import { validateRequest } from '@/lib/api/validation'
 import { clockOutSchema } from '@/lib/validations/timeEntry'
 import { isClockInWithinSchedule, isClockOutWithinSchedule } from '@/lib/utils/schedule-checker'
+import { sendNewJustificationNotification } from '@/lib/push-notifications'
 
 /**
  * POST /api/time-entries/clock-out - Terminer un shift actif
@@ -285,6 +286,22 @@ export async function POST(request: NextRequest) {
     }
 
     await timeEntry.save()
+
+    // Send push notification for out-of-schedule clock-out
+    if (isOutOfScheduleClockOut && body.justificationNote) {
+      const pendingCount = await TimeEntry.countDocuments({
+        isOutOfSchedule: true,
+        justificationRead: { $ne: true },
+        isActive: true,
+      })
+      sendNewJustificationNotification({
+        id: timeEntry._id.toString(),
+        employeeName: `${employee.firstName} ${employee.lastName}`,
+        clockTime: clockOutTimeStr,
+        type: 'clock-out',
+        pendingCount,
+      }).catch((err) => console.error('[Push] Justification notification error:', err))
+    }
 
     // ✅ PIN valide : Réinitialiser le compteur de tentatives
     resetAttempts(clientIP, body.employeeId)

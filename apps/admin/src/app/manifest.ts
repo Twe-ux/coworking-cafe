@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Coworking Café - Admin",
-    short_name: "CWC Admin",
+    name: "CoworKing Café",
+    short_name: "CoworKing Café",
     description: "Dashboard administrateur du Coworking Café",
     start_url: "/",
     scope: "/",

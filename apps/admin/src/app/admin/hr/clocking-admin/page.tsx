@@ -7,7 +7,8 @@ import { ClockingAdminPageSkeleton } from "./ClockingAdminPageSkeleton";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Calendar, CalendarDays, Info } from "lucide-react";
+import { AlertTriangle, Calendar, CalendarDays, Info } from "lucide-react";
+import { usePendingJustifications } from "@/hooks/usePendingJustifications";
 import type { Employee } from "@/types/hr";
 
 export default function ClockingAdminPage() {
@@ -15,6 +16,7 @@ export default function ClockingAdminPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { count: pendingJustifications } = usePendingJustifications();
 
   const fetchEmployees = useCallback(async () => {
     try {
@@ -88,6 +90,17 @@ export default function ClockingAdminPage() {
           </Link>
         </Button>
       </div>
+
+      {/* Pending justifications banner */}
+      {pendingJustifications > 0 && (
+        <Alert variant="warning">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>{pendingJustifications}</strong> justification{pendingJustifications > 1 ? "s" : ""} en attente de lecture.
+            Cliquez sur l'icône <strong>message</strong> (orange) d'un pointage pour la consulter.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Time Entries List */}
       {employees.length > 0 ? (
