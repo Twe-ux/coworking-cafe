@@ -4,6 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import {
+  IconBoxArrowRight,
+  IconList,
+  IconPersonCircle,
+  IconSpeedometer,
+} from "@/components/icons/CriticalIcons";
 import Navbar from "./navbar";
 import TopHeader from "./topHeader";
 
@@ -52,7 +58,7 @@ const Header = () => {
                 className="menu__icon"
                 onClick={() => setActiveNavebar(!activeNavbar)}
               >
-                <i className="bi bi-list" />
+                <IconList size={24} />
               </div>
               <Link href="/" className="header__bottom_brand">
                 <Image
@@ -117,7 +123,7 @@ const Header = () => {
                       className="user-menu-btn user-menu-btn--connected d-flex align-items-center gap-2"
                       onClick={() => setShowUserMenu(!showUserMenu)}
                     >
-                      <i className="bi bi-person-circle"></i>
+                      <IconPersonCircle size={20} />
                     </button>
                     {showUserMenu && (
                       <div className="user-menu-dropdown">
@@ -132,14 +138,14 @@ const Header = () => {
                           className="user-menu-item"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          <i className="bi bi-speedometer2"></i>
+                          <IconSpeedometer size={16} />
                           <span>Dashboard</span>
                         </Link>
                         <button
                           className="user-menu-item"
                           onClick={() => signOut({ callbackUrl: "/" })}
                         >
-                          <i className="bi bi-box-arrow-right"></i>
+                          <IconBoxArrowRight size={16} />
                           <span>Déconnexion</span>
                         </button>
                       </div>
@@ -150,7 +156,7 @@ const Header = () => {
                     href="/auth/login"
                     className="user-menu-btn d-flex align-items-center gap-2"
                   >
-                    <i className="bi bi-person-circle"></i>
+                    <IconPersonCircle size={20} />
                   </Link>
                 )}
               </div>

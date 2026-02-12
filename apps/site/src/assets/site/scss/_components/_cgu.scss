@@ -4,6 +4,12 @@
   line-height: 1.8;
   color: #212529;
 
+  // Sidebar navigation links
+  .hover-link:hover {
+    color: #417972 !important;
+    transition: color 0.2s ease;
+  }
+
   .ml-email {
     color: #417972;
     text-decoration: underline;

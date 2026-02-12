@@ -1,13 +1,8 @@
-"use client";
-
 import ProtectedEmail from "../../../components/common/ProtectedEmail";
+import ScrollToTopButton from "../../../components/common/ScrollToTopButton";
 
 export default function ConfidentialityPage() {
   const lastUpdate = "1 décembre 2025";
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
   return (
     <main className="bg-white pb__180">
@@ -880,26 +875,7 @@ export default function ConfidentialityPage() {
       </div>
 
       {/* Scroll to top button */}
-      <button
-        onClick={scrollToTop}
-        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4"
-        style={{
-          width: "50px",
-          height: "50px",
-          backgroundColor: "#417972",
-          borderColor: "#417972",
-        }}
-        aria-label="Retour en haut"
-      >
-        ↑
-      </button>
-
-      <style jsx>{`
-        .hover-link:hover {
-          color: #417972 !important;
-          transition: color 0.2s ease;
-        }
-      `}</style>
+      <ScrollToTopButton />
     </main>
   );
 }

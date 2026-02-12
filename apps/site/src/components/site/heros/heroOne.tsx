@@ -1,3 +1,4 @@
+import { IconArrowRight } from "@/components/icons/CriticalIcons";
 import SlideUp from "../../../utils/animations/slideUp";
 import Link from "next/link";
 
@@ -34,14 +35,14 @@ const HeroOne = () => {
                   className="common__btn buttons_file"
                 >
                   <span>Voir les espaces</span>
-                  <i className="fa-solid fa-arrow-right"></i>
+                  <IconArrowRight size={14} />
                 </Link>
                 <Link
                   href={"/pricing#pricing"}
                   className="common__btn buttons_outline mt-4 mt-sm-0"
                 >
                   <span>Nos tarifs</span>
-                  <i className="fa-solid fa-arrow-right"></i>
+                  <IconArrowRight size={14} />
                 </Link>
               </SlideUp>
               <SlideUp

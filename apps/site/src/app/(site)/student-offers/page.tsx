@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Image from "next/image";
 import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
+import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
+import { StudentOfferSchema } from "../../../components/seo/schemas";
 
 export const metadata: Metadata = {
   title: 'Offres Étudiants - Happy Hours & Weekend | CoworKing Café Strasbourg',
@@ -50,6 +52,11 @@ export const metadata: Metadata = {
 const StudentsOffersPage = () => {
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://coworkingcafe.fr" },
+        { name: "Offres Étudiants", url: "https://coworkingcafe.fr/student-offers" }
+      ]} />
+      <StudentOfferSchema />
       <PageTitle title="Offres étudiantes" />
 
       <section className="students students__2" id="student-offers">

@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 import { fetchAllPublishedArticles } from "@/lib/blog-helpers";
 
-// Revalidate sitemap every hour to include new blog articles
-export const revalidate = 3600; // 1 hour (in seconds)
+// Revalidate sitemap every 6 hours (blog articles don't change that often)
+export const revalidate = 21600; // 6 hours (in seconds)
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://coworkingcafe.fr";
@@ -58,10 +58,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/booking`,
+      lastModified: new Date("2026-02-10"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/contact`,
       lastModified: new Date("2026-01-10"),
       changeFrequency: "yearly",
       priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/food`,
+      lastModified: new Date("2026-01-25"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/menu`,
+      lastModified: new Date("2026-01-25"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/horaires`,
+      lastModified: new Date("2026-01-20"),
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/take-away`,

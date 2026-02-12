@@ -3,7 +3,7 @@
 
   &__title {
     // margin-bottom: 10px;
-    font-family: "Kanit";
+    font-family: var(--font-kanit), "Kanit", sans-serif;
     font-size: 30px;
     font-weight: 700;
     margin-bottom: 1.5rem;

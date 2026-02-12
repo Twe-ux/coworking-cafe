@@ -4,6 +4,7 @@ import Link from "next/link";
 import MembersProgram from "../../../components/site/membersProgram/membersProgram";
 import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
+import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
 
 export const metadata: Metadata = {
   title: 'Programme Membre Fidélité | CoworKing Café Strasbourg',
@@ -52,6 +53,10 @@ export const metadata: Metadata = {
 export default function MembersProgramPage() {
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Accueil", url: "https://coworkingcafe.fr" },
+        { name: "Programme Membre", url: "https://coworkingcafe.fr/members-program" }
+      ]} />
       <PageTitle title="Programme membre" />
       <MembersProgram />
       <article className="member__details py__90">

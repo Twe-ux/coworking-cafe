@@ -97,7 +97,7 @@
         font-size: 20px;
         font-weight: 500px;
         color: var(--grayWhite-clr);
-        font-family: Kanit;
+        font-family: var(--font-kanit), "Kanit", sans-serif;
       }
       small {
         color: var(--pra-clr);

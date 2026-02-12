@@ -1,5 +1,10 @@
-import ProtectedEmail from "../../common/ProtectedEmail";
+import {
+  IconClock,
+  IconFacebook,
+  IconInstagram,
+} from "@/components/icons/CriticalIcons";
 import Link from "next/link";
+import ProtectedEmail from "../../common/ProtectedEmail";
 
 const TopHeader = () => {
   return (
@@ -8,7 +13,7 @@ const TopHeader = () => {
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center header__top_left">
             <p className="d-flex align-items-center time">
-              <i className="bi bi-clock" />
+              <IconClock size={14} />
               <span> &nbsp; Horaires :</span>
             </p>
             <p className="gap-2 d-flex align-items-center">
@@ -31,12 +36,12 @@ const TopHeader = () => {
             <ul className="d-flex align-items-center icons">
               <li>
                 <Link href="https://www.facebook.com/coworkingbyanticafeStrasbourg">
-                  <i className="fa-brands fa-facebook-f" />
+                  <IconFacebook size={14} />
                 </Link>
               </li>
               <li>
                 <Link href="https://www.instagram.com/coworking_anticafe">
-                  <i className="fa-brands fa-instagram" />
+                  <IconInstagram size={14} />
                 </Link>
               </li>
             </ul>

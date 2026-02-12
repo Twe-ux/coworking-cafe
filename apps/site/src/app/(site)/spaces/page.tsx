@@ -2,6 +2,7 @@ import PageTitle from "../../../components/site/PageTitle";
 import Spaces from "../../../components/site/spaces/spaces";
 import { Metadata } from "next";
 import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
+import { ServiceSchema, spacesServices } from "../../../components/seo/schemas";
 
 export const metadata: Metadata = {
   title: "Espaces | CoworKing Café by Anticafé",
@@ -35,6 +36,7 @@ const SpacesPage = () => {
         { name: "Accueil", url: "https://coworkingcafe.fr" },
         { name: "Nos Espaces", url: "https://coworkingcafe.fr/spaces" }
       ]} />
+      <ServiceSchema services={spacesServices} />
       <PageTitle title={"Espaces"} />
       <Spaces />
     </>

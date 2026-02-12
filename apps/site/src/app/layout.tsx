@@ -5,12 +5,27 @@ import { DynamicThemeColor } from "@/components/DynamicThemeColor";
 import { PWARegister } from "@/components/PWARegister";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
+import { Kanit, Poppins } from "next/font/google";
 import { ReduxProvider } from "../components/providers/ReduxProvider";
+
+const kanit = Kanit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-kanit",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-poppins",
+});
 
 export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   metadataBase: new URL("https://coworkingcafe.fr"),
-  // themeColor managed dynamically by DynamicThemeColor component
+  themeColor: "#142220",
   viewport: {
     width: "device-width",
     initialScale: 1,
@@ -46,10 +61,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
-      <head>
-        <Analytics />
-        <meta name="theme-color" content="#142220" />
+    <html lang="fr" className={`${kanit.variable} ${poppins.variable}`}>
+      <body>
         <style>{`
           /* PWA mode: extend body background behind status bar */
           @media (display-mode: standalone) {
@@ -58,11 +71,10 @@ export default function RootLayout({
             }
           }
         `}</style>
-      </head>
-      <body>
         <PWARegister />
         <DynamicThemeColor />
         <ReduxProvider>{children}</ReduxProvider>
+        <Analytics />
       </body>
     </html>
   );

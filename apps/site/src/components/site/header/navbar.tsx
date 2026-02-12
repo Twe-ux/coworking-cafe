@@ -1,3 +1,4 @@
+import { IconChevronDown } from "@/components/icons/CriticalIcons";
 import { menuData, MenuItem } from "../../../db/menuData";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,7 +39,7 @@ const Navbar = ({ activeNavbar, onClose }: NavbarProps) => {
                 <Link href={item.link} onClick={onClose}>
                   {item.title}
                 </Link>
-                {item?.submenu && <i className="bi bi-chevron-down" />}
+                {item?.submenu && <IconChevronDown size={12} />}
               </span>
               {item?.submenu && (
                 <ul

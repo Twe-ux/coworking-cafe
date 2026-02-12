@@ -4,6 +4,7 @@ import PageTitle from "../../../components/site/PageTitle";
 import PricingMeetingRoom from "../../../components/site/pricing/pricingMeetingRoom";
 import PricingOpenSpace from "../../../components/site/pricing/pricingOpenSpace";
 import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
+import { FAQPageSchema, pricingFAQs, OfferSchema, pricingOffers } from "../../../components/seo/schemas";
 
 export const metadata: Metadata = {
   title: 'Tarifs Coworking & Salles de Réunion | CoworKing Café Strasbourg',
@@ -55,6 +56,8 @@ const Pricing = () => {
         { name: "Accueil", url: "https://coworkingcafe.fr" },
         { name: "Nos Tarifs", url: "https://coworkingcafe.fr/pricing" }
       ]} />
+      <FAQPageSchema faqs={pricingFAQs} />
+      <OfferSchema offers={pricingOffers} />
       <PageTitle title={"Nos tarifs"} />
       <section className="pricing py__130" id="pricing">
         <div className="container">

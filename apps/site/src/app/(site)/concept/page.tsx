@@ -4,6 +4,7 @@ import SlideUp from "../../../utils/animations/slideUp";
 import Image from "next/image";
 import { Metadata } from "next";
 import { BreadcrumbSchema } from "../../../components/seo/BreadcrumbSchema";
+import { FAQPageSchema, conceptFAQs } from "../../../components/seo/schemas";
 
 export const metadata: Metadata = {
   title: "Concept | CoworKing Café by Anticafé",
@@ -37,6 +38,7 @@ const Concept = () => {
         { name: "Accueil", url: "https://coworkingcafe.fr" },
         { name: "Notre Concept", url: "https://coworkingcafe.fr/concept" }
       ]} />
+      <FAQPageSchema faqs={conceptFAQs} />
       <PageTitle title={"Café Coworking"} />
       <article className="concept py__130">
         <div className="container">

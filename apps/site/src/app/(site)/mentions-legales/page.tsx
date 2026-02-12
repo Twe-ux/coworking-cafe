@@ -1,5 +1,3 @@
-"use client";
-
 import ProtectedEmail from "../../../components/common/ProtectedEmail";
 
 export default function MentionsLegalesPage() {
@@ -705,12 +703,6 @@ export default function MentionsLegalesPage() {
         </div>
       </div>
 
-      <style jsx>{`
-        .hover-link:hover {
-          color: #417972 !important;
-          transition: color 0.2s ease;
-        }
-      `}</style>
     </main>
   );
 }

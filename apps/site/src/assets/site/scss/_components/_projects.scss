@@ -76,7 +76,7 @@
       }
 
       .prj__title {
-        font-family: Kanit;
+        font-family: var(--font-kanit), "Kanit", sans-serif;
         color: var(--grayWhite-clr);
         margin-top: 20px;
 

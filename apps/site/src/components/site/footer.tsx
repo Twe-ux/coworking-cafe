@@ -1,5 +1,6 @@
 "use client";
 
+import { IconFacebook, IconInstagram } from "@/components/icons/CriticalIcons";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -151,7 +152,7 @@ const Footer = () => {
                     "https://www.facebook.com/coworkingbyanticafeStrasbourg/"
                   }
                 >
-                  <i className="fa-brands fa-facebook-f" />
+                  <IconFacebook size={14} />
                 </Link>
               </li>
 
@@ -159,7 +160,7 @@ const Footer = () => {
                 <Link
                   href={"https://www.instagram.com/coworking_anticafe/?hl=fr"}
                 >
-                  <i className="fa-brands fa-instagram" />
+                  <IconInstagram size={14} />
                 </Link>
               </li>
             </ul>
