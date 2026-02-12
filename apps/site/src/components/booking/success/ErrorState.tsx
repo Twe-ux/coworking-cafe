@@ -11,10 +11,6 @@ export default function ErrorState({
   onRetry,
   onBack,
 }: ErrorStateProps) {
-  const isDevelopment =
-    typeof window !== "undefined" &&
-    window.location.hostname === "localhost";
-
   return (
     <>
       <div className="mb-4">
@@ -50,35 +46,6 @@ export default function ErrorState({
           Retour aux réservations
         </button>
       </div>
-
-      {isDevelopment && paymentIntentId && (
-        <div
-          className="alert alert-info mt-4 text-start"
-          style={{ fontSize: "0.875rem" }}
-        >
-          <strong>
-            <i className="bi bi-code-square me-2"></i>
-            Mode développement
-          </strong>
-          <p className="mb-2 mt-2">
-            En développement local, les webhooks Stripe ne sont
-            pas déclenchés automatiquement. Le système a tenté de
-            déclencher le webhook automatiquement.
-          </p>
-          <p className="mb-0">
-            Si cela ne fonctionne pas, utilisez la commande
-            suivante dans un terminal :
-          </p>
-          <pre
-            className="mt-2 mb-0 p-2 bg-light rounded"
-            style={{ fontSize: "0.75rem" }}
-          >
-            {`curl -X POST http://localhost:3000/api/payments/test-webhook \\
-  -H "Content-Type: application/json" \\
-  -d '{"paymentIntentId": "${paymentIntentId}"}'`}
-          </pre>
-        </div>
-      )}
     </>
   );
 }

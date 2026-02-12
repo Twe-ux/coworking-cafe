@@ -60,7 +60,7 @@ export async function generateMetadata({
       authors: ["CoworKing Café"],
       images: [
         {
-          url: article.image || "/images/og-image.png",
+          url: article.image || "/images/og-image.webp",
           width: 1200,
           height: 630,
           alt: article.title,
@@ -71,7 +71,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [article.image || "/images/og-image.png"],
+      images: [article.image || "/images/og-image.webp"],
     },
     alternates: {
       canonical: `https://coworkingcafe.fr/blog/${params.slug}`,
@@ -109,7 +109,7 @@ async function BlogArticleSchema({ slug }: { slug: string }) {
       article.excerpt ||
       article.content?.substring(0, 200) ||
       "Article du blog CoworKing Café",
-    image: article.image || "https://coworkingcafe.fr/images/og-image.png",
+    image: article.image || "https://coworkingcafe.fr/images/og-image.webp",
     datePublished: article.createdAt,
     dateModified: article.updatedAt || article.createdAt,
     author: {

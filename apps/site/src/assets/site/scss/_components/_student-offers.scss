@@ -1,25 +1,35 @@
+// Import responsive mixins (mobile-first)
+@import "../_abstracts/responsive";
+
 .students {
   background-color: var(--main-clr);
 
   &__title {
-    @include breakpoint(lg) {
-      gap: 2rem !important;
-    }
-    @include breakpoint(md) {
+    // Mobile-first: base gap (mobile)
+    gap: 1rem !important;
+    @include respond-above(md) {
       gap: 1rem !important;
     }
+    @include respond-above(lg) {
+      gap: 2rem !important;
+    }
+
     .title {
       max-width: 850px;
     }
 
     p {
-      font-size: 20px;
+      // Mobile-first: base font-size (mobile)
+      font-size: 15px;
       text-align: justify;
-      @include breakpoint(lg) {
+      @include respond-above(md) {
+        font-size: 15px;
+      }
+      @include respond-above(lg) {
         font-size: 17px;
       }
-      @include breakpoint(md) {
-        font-size: 15px;
+      @include respond-above(xl) {
+        font-size: 20px;
       }
     }
 
@@ -35,25 +45,43 @@
       div {
         @include justify();
         color: var(--grayWhite-clr);
-        padding: 54px 0;
+        // Mobile-first: column layout (mobile)
+        flex-direction: column;
+        align-items: start;
+        gap: 15px;
+        padding: 40px 0;
         border-bottom: 1px solid #e3ece71f;
-        gap: 30px;
+
+        @include respond-above(md) {
+          flex-direction: row;
+          align-items: center;
+          gap: 30px;
+          padding: 54px 0;
+        }
+
         &:last-child {
           padding: 0px;
           padding-top: 54px;
           border-bottom: none;
         }
-        @include breakpoint(md) {
-          flex-direction: column;
-          align-items: start;
-          gap: 15px;
-          padding: 40px 0;
-        }
+
         .service__name {
           @include flex();
           gap: 4px;
           max-width: 515px;
           width: 100%;
+          // Mobile-first: base font-size (mobile)
+          font-size: 25px;
+          font-weight: 600;
+          transition: all 0.5s ease-in-out;
+
+          @include respond-above(md) {
+            font-size: 30px;
+          }
+          @include respond-above(xl) {
+            font-size: 42px;
+          }
+
           sup {
             font-size: 16px;
             font-weight: 600;
@@ -61,33 +89,27 @@
             display: block;
             color: var(--btn-clr);
           }
-          font-size: 42px;
-          font-weight: 600;
-          transition: all 0.5s ease-in-out;
-          @include breakpoint(xl) {
-            font-size: 30px;
-          }
-          @include breakpoint(md) {
-            font-size: 25px;
-          }
         }
         .describe {
           max-width: 501px;
           color: var(--grayWhite-clr);
         }
         .icon {
-          min-width: 66px;
-          min-height: 66px;
+          // Mobile-first: base size (mobile)
+          min-width: 56px;
+          min-height: 56px;
           border-radius: 50%;
           border: 1px solid var(--btn-clr);
           @include center();
           transition: all 0.5s ease-in-out;
+
+          @include respond-above(lg) {
+            min-width: 66px;
+            min-height: 66px;
+          }
+
           .black {
             display: none;
-          }
-          @include breakpoint(lg) {
-            min-width: 56px;
-            min-height: 56px;
           }
         }
         &:hover {
@@ -122,9 +144,6 @@
     background-color: #fff;
     border-radius: 10px;
     transition: all 0.5s;
-    @include breakpoint(md) {
-      padding: 30px;
-    }
 
     p {
       text-align: justify;
@@ -132,11 +151,13 @@
 
     img {
       width: 100%;
-      height: 200px;
+      // Mobile-first: base height (mobile)
+      height: 175px;
       object-fit: cover;
       border-radius: 10px;
-      @include breakpoint(lg) {
-        height: 175px;
+
+      @include respond-above(lg) {
+        height: 200px;
       }
     }
     .fa-arrow-right {
@@ -158,11 +179,8 @@
     }
     h3 {
       color: var(--secondary-clr);
-      margin-top: 15px;
+      margin-top: 20px;
       display: block;
-      @include breakpoint(sm) {
-        margin-top: 20px;
-      }
     }
     p {
       transition: all 0.5s;
@@ -170,10 +188,6 @@
       font-weight: 500;
       margin-top: 20px;
       margin-bottom: 25px;
-      @include breakpoint(sm) {
-        margin-top: 20px;
-        margin-bottom: 25px;
-      }
     }
     a {
       transition: all 0.5s;
@@ -186,28 +200,36 @@
   }
 
   & .counter {
-    padding: 70px;
+    // Mobile-first: base padding (mobile)
+    padding: 20px;
     background-color: #588983;
     border-radius: 10px;
     width: 100%;
-    transform: translateY(50%);
+    transform: translateY(40%);
     display: flex;
     justify-content: space-between;
-    @include breakpoint(lg) {
-      flex-wrap: wrap;
-      padding: 50px;
-    }
-    @include breakpoint(md) {
+
+    @include respond-above(md) {
       padding: 40px;
       transform: translateY(40%);
     }
-    @include breakpoint(sm) {
-      padding: 20px;
+    @include respond-above(lg) {
+      flex-wrap: wrap;
+      padding: 50px;
+      transform: translateY(50%);
     }
+    @include respond-above(xl) {
+      flex-wrap: nowrap;
+      padding: 70px;
+    }
+
     &__box {
       margin-bottom: 25px;
-      @include breakpoint(lg) {
+      @include respond-above(lg) {
         width: 50%;
+      }
+      @include respond-above(xl) {
+        width: auto;
       }
       &:hover {
         .counter__number {
@@ -221,20 +243,22 @@
       -webkit-text-stroke-color: var(--grayWhite-clr);
       color: transparent;
       font-weight: 700;
-      font-size: 80px;
-      line-height: 90px;
-      margin-bottom: 28px;
+      // Mobile-first: base font-size (mobile)
+      font-size: 40px;
+      line-height: 55px;
+      margin-bottom: 0px;
       transition: all 0.5s;
-      @include breakpoint(xl) {
-        font-size: 60px;
-      }
-      @include breakpoint(lg) {
+
+      @include respond-above(lg) {
         margin-bottom: 5px;
       }
-      @include breakpoint(md) {
-        font-size: 40px;
-        margin-bottom: 0px;
-        line-height: 55px;
+      @include respond-above(xl) {
+        font-size: 60px;
+        line-height: 90px;
+        margin-bottom: 28px;
+      }
+      @include respond-above(xxl) {
+        font-size: 80px;
       }
     }
 
@@ -246,15 +270,17 @@
 
 // ---------------- students_2 for home page 2 and it exteds home page one service code
 .students__2 {
-  padding-bottom: 300px;
-  @include breakpoint(xl) {
-    padding-bottom: 266px;
-  }
-  @include breakpoint(lg) {
+  // Mobile-first: base padding (mobile)
+  padding-bottom: 240px;
+
+  @include respond-above(lg) {
     padding-bottom: 320px;
   }
-  @include breakpoint(sm) {
-    padding-bottom: 240px;
+  @include respond-above(xl) {
+    padding-bottom: 266px;
+  }
+  @include respond-above(xxl) {
+    padding-bottom: 300px;
   }
 
   &_wapper {
@@ -277,39 +303,48 @@
       }
     }
     .two {
-      transform: translateY(50px);
-      @include breakpoint(xl) {
-        transform: translateY(0px);
+      // Mobile-first: no transform (mobile)
+      transform: translateY(0px);
+      @include respond-above(xl) {
+        transform: translateY(50px);
       }
     }
     .three {
-      transform: translateY(100px);
-      @include breakpoint(xl) {
-        transform: translateY(0px);
+      // Mobile-first: no transform (mobile)
+      transform: translateY(0px);
+      @include respond-above(xl) {
+        transform: translateY(100px);
       }
     }
     .video {
-      transform: translateY(15%);
-      @include breakpoint(lg) {
-        transform: translateY(100px);
-      }
-      @include breakpoint(md) {
+      // Mobile-first: base transform (mobile)
+      transform: translateY(90px);
+      @include respond-above(md) {
         transform: translateY(90px);
       }
-      // @include breakpoint(sm) {
-      //   transform: translateY(90px);
-      // }
+      @include respond-above(lg) {
+        transform: translateY(100px);
+      }
+      @include respond-above(xl) {
+        transform: translateY(15%);
+      }
     }
   }
 
   &_row {
-    margin-top: 130px;
-    @include breakpoint(xl) {
-      margin-top: 30px;
-    }
-    @include breakpoint(md) {
+    // Mobile-first: base margin (mobile)
+    margin-top: 0px;
+
+    @include respond-above(md) {
       margin-top: 0px;
     }
+    @include respond-above(xl) {
+      margin-top: 30px;
+    }
+    @include respond-above(xxl) {
+      margin-top: 130px;
+    }
+
     p {
       color: var(--grayWhite-clr);
     }
@@ -348,18 +383,20 @@
   }
   .p {
     position: absolute;
-    margin: 85px 0 0 25px;
-    font-size: 20px;
+    // Mobile-first: base font-size (mobile)
+    margin: 85px 0 0 15px;
+    font-size: 12px;
     font-style: italic;
 
-    @include breakpoint(md) {
-      margin: 85px 0 0 15px;
-      font-size: 12px;
+    @include respond-above(md) {
+      margin: 85px 0 0 25px;
+      font-size: 20px;
     }
   }
 
   .counter {
-    padding: 30px 80px;
+    // Mobile-first: base padding (mobile)
+    padding: 20px;
     background-color: #588983;
     border-radius: 10px;
     width: 100%;
@@ -367,27 +404,27 @@
     justify-content: space-between;
     // margin-top: 130px;
 
-    @include breakpoint(lg) {
+    @include respond-above(md) {
+      padding: 30px;
+    }
+    @include respond-above(lg) {
       flex-wrap: wrap;
       padding: 40px;
       // margin-top: 110px;
     }
-
-    @include breakpoint(md) {
-      padding: 30px;
-      // margin-top: 100px;
-    }
-
-    @include breakpoint(sm) {
-      padding: 20px;
-      // margin-top: 90px;
+    @include respond-above(xl) {
+      flex-wrap: nowrap;
+      padding: 30px 80px;
     }
 
     &__box {
       margin-bottom: 0px;
 
-      @include breakpoint(lg) {
+      @include respond-above(lg) {
         width: 50%;
+      }
+      @include respond-above(xl) {
+        width: auto;
       }
 
       &:hover {
@@ -404,19 +441,22 @@
       -webkit-text-stroke-color: var(--grayWhite-clr);
       color: transparent;
       font-weight: 700;
-      font-size: 50px;
-      line-height: 60px;
+      // Mobile-first: base font-size (mobile)
+      font-size: 40px;
+      line-height: 55px;
       margin-bottom: 0px;
       transition: all 0.5s;
 
-      @include breakpoint(xl) {
-        font-size: 60px;
-      }
-
-      @include breakpoint(md) {
+      @include respond-above(md) {
         font-size: 40px;
-        margin-bottom: 0px;
         line-height: 55px;
+      }
+      @include respond-above(xl) {
+        font-size: 60px;
+        line-height: 60px;
+      }
+      @include respond-above(xxl) {
+        font-size: 50px;
       }
     }
     sup {
@@ -425,19 +465,22 @@
       color: transparent;
       font-weight: 700;
       // vertical-align: super;
-      font-size: 30px;
-      line-height: 60px;
+      // Mobile-first: base font-size (mobile)
+      font-size: 20px;
+      line-height: 55px;
       margin-bottom: 0px;
       transition: all 0.5s;
 
-      @include breakpoint(xl) {
-        font-size: 40px;
-      }
-
-      @include breakpoint(md) {
+      @include respond-above(md) {
         font-size: 20px;
-        margin-bottom: 0px;
         line-height: 55px;
+      }
+      @include respond-above(xl) {
+        font-size: 40px;
+        line-height: 60px;
+      }
+      @include respond-above(xxl) {
+        font-size: 30px;
       }
     }
 
@@ -484,15 +527,15 @@
 // Carrousel styles
 .students__carousel {
   position: relative;
-  max-width: 600px;
+  // Mobile-first: base max-width (mobile)
+  max-width: 100%;
   margin: 0 auto;
 
-  @include breakpoint(lg) {
+  @include respond-above(lg) {
     max-width: 500px;
   }
-
-  @include breakpoint(md) {
-    max-width: 100%;
+  @include respond-above(xl) {
+    max-width: 600px;
   }
 
   .students-swiper {
@@ -509,30 +552,33 @@
     // Navigation buttons
     .swiper-button-prev,
     .swiper-button-next {
-      width: 50px;
-      height: 50px;
+      // Mobile-first: base size (mobile)
+      width: 40px;
+      height: 40px;
       background-color: rgba(255, 255, 255, 0.9);
       border-radius: 50%;
       transition: all 0.3s ease;
 
+      @include respond-above(md) {
+        width: 50px;
+        height: 50px;
+      }
+
       &:after {
-        font-size: 20px;
+        // Mobile-first: base font-size (mobile)
+        font-size: 16px;
         font-weight: bold;
         color: var(--main-clr);
+
+        @include respond-above(md) {
+          font-size: 20px;
+        }
       }
 
       &:hover {
         background-color: var(--btn-clr);
         &:after {
           color: var(--secondary-clr);
-        }
-      }
-
-      @include breakpoint(md) {
-        width: 40px;
-        height: 40px;
-        &:after {
-          font-size: 16px;
         }
       }
     }
@@ -559,21 +605,20 @@
 
   &_img {
     width: 100%;
-    height: 500px;
+    // Mobile-first: base height (mobile)
+    height: 300px;
     object-fit: cover;
     display: block;
     border-radius: 10px;
 
-    @include breakpoint(lg) {
-      height: 400px;
-    }
-
-    @include breakpoint(md) {
+    @include respond-above(md) {
       height: 350px;
     }
-
-    @include breakpoint(sm) {
-      height: 300px;
+    @include respond-above(lg) {
+      height: 400px;
+    }
+    @include respond-above(xl) {
+      height: 500px;
     }
   }
 }

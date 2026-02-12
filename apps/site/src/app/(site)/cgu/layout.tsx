@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/og-image.png",
+        url: "/images/og-image.webp",
         width: 1200,
         height: 630,
         alt: "CoworKing Café - CGU",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: "CGU | CoworKing Café Strasbourg",
     description:
       "Conditions générales d'utilisation de l'espace de coworking",
-    images: ["/images/og-image.png"],
+    images: ["/images/og-image.webp"],
   },
   alternates: {
     canonical: "https://coworkingcafe.fr/cgu",

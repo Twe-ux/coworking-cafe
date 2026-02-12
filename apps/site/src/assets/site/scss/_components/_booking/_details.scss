@@ -1,0 +1,201 @@
+// ================================
+// Booking Details Form Page
+// ================================
+
+// Import responsive mixins (mobile-first)
+@import "../../_abstracts/responsive";
+
+.booking-details-page {
+  background-color: hsl(var(--background));
+  min-height: 115vh;
+  padding: var(--spacing-6) 0 15rem !important;
+
+  @include respond-above(md) {
+    padding: var(--spacing-10) 0 12.5rem 0 !important;
+  }
+
+  // Stat cards (for contact info, account info, etc.)
+  .stat-card {
+    @include card;
+    padding: var(--spacing-5);
+    @include transition-all;
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    h2.h6 {
+      color: hsl(var(--foreground));
+      font-size: 0.9375rem;
+    }
+
+    i.text-primary {
+      font-size: 1.125rem;
+    }
+  }
+
+  // Filter buttons for service categories
+  .filter-btn {
+    @include btn-outline;
+    @include btn-sm;
+    font-size: 0.8125rem;
+
+    &:hover {
+      @include btn-ghost;
+    }
+  }
+}
+
+// People counter
+.people-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-6) var(--spacing-4);
+  border-radius: var(--radius-lg);
+
+  @include respond-above(md) {
+    padding: var(--spacing-6);
+  }
+}
+
+.counter-btn {
+  @include btn-outline;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 1.25rem;
+
+  &:hover:not(:disabled) {
+    @include btn-primary;
+  }
+
+  @include respond-above(md) {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+.counter-display {
+  text-align: center;
+  min-width: 120px;
+}
+
+.counter-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  line-height: 1;
+  margin-bottom: var(--spacing-2);
+
+  @include respond-above(md) {
+    font-size: 2.25rem;
+  }
+}
+
+.counter-label {
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+// Booking Accordion Sections
+.booking-section {
+  @include card;
+  margin-bottom: var(--spacing-4);
+  overflow: hidden;
+  @include transition-all;
+}
+
+.booking-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3) var(--spacing-4);
+  cursor: pointer;
+  background-color: hsl(var(--muted));
+  @include transition-all;
+
+  &:hover {
+    background-color: hsl(var(--muted) / 0.8);
+  }
+
+  &.active {
+    background-color: hsl(var(--accent));
+    border-bottom: 1px solid hsl(var(--border));
+  }
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+
+  i {
+    font-size: 1rem;
+    color: hsl(var(--primary));
+  }
+
+  span {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: hsl(var(--foreground));
+  }
+}
+
+.section-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+
+  .section-value {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  i {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    transition: transform 0.2s ease;
+  }
+
+  &.expanded i {
+    transform: rotate(180deg);
+  }
+}
+
+.booking-section-content {
+  padding: var(--spacing-4);
+  border-top: 1px solid hsl(var(--border));
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.closing {
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 2000px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 2000px;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+}

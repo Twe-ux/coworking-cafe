@@ -1,0 +1,272 @@
+// ================================
+// Booking Date Selection Page
+// ================================
+
+// Import responsive mixins (mobile-first)
+@import "../../_abstracts/responsive";
+
+.booking-date-page {
+  background-color: hsl(var(--background));
+  min-height: 95vh;
+  // Mobile-first: base padding (mobile)
+  padding: var(--spacing-6) 0 12rem !important;
+
+  @include respond-above(sm) {
+    padding: var(--spacing-6) 0 10rem !important;
+  }
+
+  @include respond-above(lg) {
+    padding: var(--spacing-6) 0 12rem !important;
+  }
+}
+
+.selected-space-badge {
+  @include badge-secondary;
+  display: inline-block;
+  padding: var(--spacing-2) var(--spacing-6);
+  margin-top: var(--spacing-4);
+}
+
+// Reservation type selection
+.reservation-types-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-4);
+
+  @include respond-above(md) {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+.reservation-type-btn {
+  @include btn-outline;
+  @include btn-lg;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-6) var(--spacing-4);
+  height: auto;
+
+  i {
+    font-size: 1.5rem;
+  }
+
+  &.active {
+    @include btn-primary;
+  }
+}
+
+// Time slots grid
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: var(--spacing-2);
+  max-height: 300px;
+  overflow-y: auto;
+  padding: var(--spacing-2);
+
+  @include respond-above(md) {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+}
+
+.time-slot-btn {
+  @include btn-outline;
+  @include btn-sm;
+  font-size: 0.8125rem;
+
+  &.active {
+    @include btn-primary;
+  }
+
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// Price summary animation
+.price-summary {
+  background-color: hsl(var(--muted));
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+  text-align: center;
+  animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.price-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: var(--spacing-2) 0;
+
+  @include respond-above(md) {
+    font-size: 2.25rem;
+  }
+}
+
+// Custom DatePicker - shadcn style
+.custom-datepicker {
+  @include card;
+  padding: var(--spacing-4);
+  background: hsl(var(--card));
+
+  @include respond-below(sm) {
+    padding: var(--spacing-3);
+  }
+}
+
+.datepicker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-3);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.datepicker-month-year {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: hsl(var(--foreground));
+  letter-spacing: 0.3px;
+}
+
+.datepicker-nav-btn {
+  @include btn-ghost;
+  @include btn-sm;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  padding: 0;
+
+  i {
+    font-size: 0.8125rem;
+  }
+}
+
+.datepicker-days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--spacing-1);
+  margin-bottom: var(--spacing-2);
+
+  @include respond-below(sm) {
+    gap: 2px;
+    margin-bottom: var(--spacing-1);
+  }
+}
+
+.datepicker-day-name {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+  padding: var(--spacing-2) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+
+  @include respond-below(sm) {
+    font-size: 0.625rem;
+    padding: 6px 0;
+    letter-spacing: 0;
+  }
+}
+
+.datepicker-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--spacing-1);
+
+  @include respond-below(sm) {
+    gap: 2px;
+  }
+}
+
+.datepicker-day {
+  aspect-ratio: 1;
+  min-height: 38px;
+  width: 100%;
+  @include btn-ghost;
+  @include btn-sm;
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @include respond-below(sm) {
+    min-height: 32px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+  }
+
+  &:hover:not(.disabled):not(.empty) {
+    background-color: hsl(var(--accent));
+  }
+
+  &.empty {
+    border: none;
+    background: transparent;
+    cursor: default;
+  }
+
+  &.selected {
+    @include btn-primary;
+    font-weight: 700;
+  }
+
+  &.in-range {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+
+  &.today {
+    border: 2px solid hsl(var(--ring));
+    font-weight: 700;
+
+    @include respond-below(sm) {
+      border-width: 1px;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    background-color: transparent;
+  }
+}
+
+.datepicker-period-info {
+  margin-top: var(--spacing-3);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid hsl(var(--border));
+  font-size: 0.75rem;
+  color: hsl(var(--primary));
+  text-align: center;
+  background-color: hsl(var(--muted));
+  padding: var(--spacing-3);
+  border-radius: var(--radius);
+
+  strong {
+    display: block;
+    margin-bottom: var(--spacing-1);
+    font-weight: 700;
+  }
+}

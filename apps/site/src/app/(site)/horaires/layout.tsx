@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/images/og-image.png',
+        url: '/images/og-image.webp',
         width: 1200,
         height: 630,
         alt: 'CoworKing Café Strasbourg - Horaires'
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Horaires d\'Ouverture CoworKing Café Strasbourg',
     description: 'Consultez nos horaires d\'ouverture : ouvert 6 jours sur 7 pour vous accueillir dans notre espace coworking chaleureux.',
-    images: ['/images/og-image.png'],
+    images: ['/images/og-image.webp'],
   },
 
   alternates: {

@@ -1,0 +1,252 @@
+// ================================
+// Booking Selection Page
+// ================================
+
+// Import responsive mixins (mobile-first)
+@import "../../_abstracts/responsive";
+
+.booking-selection {
+  background-color: hsl(var(--background));
+  min-height: calc(100vh - 120px);
+  padding-bottom: 15rem !important;
+
+  @include respond-above(sm) {
+    padding-bottom: 18rem !important;
+    min-height: calc(100vh - 150px);
+  }
+
+  @include respond-above(lg) {
+    padding-bottom: 20rem !important;
+    min-height: calc(100vh - 200px);
+  }
+
+  // Padding left/right for mobile only
+  .row.g-4 {
+    padding-left: var(--spacing-8);
+    padding-right: var(--spacing-8);
+
+    @include respond-above(md) {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+}
+
+// Space cards
+.space-card {
+  @include card;
+  @include transition-all;
+  cursor: pointer;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: hsl(var(--ring) / 0.5);
+    transform: translateY(-4px);
+
+    .space-image {
+      transform: scale(1.05);
+    }
+
+    .card-overlay {
+      opacity: 1;
+    }
+  }
+}
+
+.card-image-container {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary) / 0.8) 100%
+  );
+  flex-shrink: 0;
+
+  @include respond-above(md) {
+    height: 180px;
+  }
+}
+
+.space-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  @include transition-all;
+}
+
+.space-icon-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--primary-foreground));
+  font-size: 2.5rem;
+
+  @include respond-above(md) {
+    font-size: 3rem;
+  }
+}
+
+.card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: hsl(var(--primary) / 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.overlay-content {
+  color: hsl(var(--primary-foreground));
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 600;
+
+  i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: var(--spacing-2);
+  }
+}
+
+// Card content
+.card-content {
+  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin-bottom: var(--spacing-1);
+
+  @include respond-above(md) {
+    font-size: 1.25rem;
+  }
+}
+
+.card-subtitle {
+  font-size: 0.8125rem;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 0;
+}
+
+.card-description {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  margin: var(--spacing-3) 0;
+  line-height: 1.5;
+  flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.card-meta {
+  border-top: 1px solid hsl(var(--border));
+  padding-top: var(--spacing-3);
+  margin-top: var(--spacing-3);
+}
+
+.meta-item {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.8125rem;
+  margin-bottom: var(--spacing-2);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+// Price badges
+.price-badge {
+  @include badge-primary;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: 0.8125rem;
+}
+
+.price-badge-hourly {
+  @include badge-secondary;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+.price-badge-daily {
+  @include badge-primary;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #588983;
+  color: white;
+}
+
+.p-19 {
+  padding: 19px 0;
+}
+
+.price-badge-quote {
+  @include badge-primary;
+  padding: var(--spacing-2) var(--spacing-6);
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #588983;
+  color: white;
+  min-height: 30px;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.capacity-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+
+  i {
+    color: #588983;
+  }
+}
+
+.pricing-badges {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+// Features list
+.features-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  min-height: 32px;
+  flex-shrink: 0;
+}
+
+.feature-badge {
+  @include badge-secondary;
+  font-size: 0.75rem;
+}

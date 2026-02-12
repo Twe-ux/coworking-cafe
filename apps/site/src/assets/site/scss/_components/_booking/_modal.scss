@@ -1,0 +1,241 @@
+// ================================
+// Services Modal Styling
+// ================================
+
+// Import responsive mixins (mobile-first)
+@import "../../_abstracts/responsive";
+
+.modal {
+  &.show {
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-dialog {
+    @include respond-above(sm) {
+      max-width: 540px;
+    }
+  }
+
+  .modal-content {
+    @include card;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: none;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #588983 0%, hsl(var(--primary)) 100%);
+    color: hsl(var(--primary-foreground));
+    border-bottom: none;
+    padding: var(--spacing-5);
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: hsl(var(--primary-foreground));
+    }
+
+    .btn-close {
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
+      @include transition-all;
+
+      &:hover {
+        opacity: 1;
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .modal-body {
+    padding: var(--spacing-5);
+    max-height: 60vh;
+    overflow-y: auto;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: hsl(var(--muted));
+      border-radius: var(--radius);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #588983;
+      border-radius: var(--radius);
+
+      &:hover {
+        background: hsl(var(--primary));
+      }
+    }
+  }
+
+  .modal-footer {
+    background-color: hsl(var(--muted) / 0.3);
+    border-top: 1px solid hsl(var(--border));
+    padding: var(--spacing-4) var(--spacing-5);
+
+    .btn-secondary {
+      @include btn-outline;
+      background-color: transparent;
+      border-color: hsl(var(--border));
+
+      &:hover {
+        background-color: hsl(var(--accent));
+        border-color: hsl(var(--ring));
+      }
+    }
+  }
+}
+
+// Service items in modal
+.services-list {
+  .service-item {
+    @include card;
+    padding: var(--spacing-4);
+    margin-bottom: var(--spacing-3);
+    border-width: 2px;
+    @include transition-all;
+    cursor: pointer;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:hover {
+      border-color: hsl(var(--ring) / 0.5);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &.border-success {
+      border-color: #588983 !important;
+      background: linear-gradient(
+        135deg,
+        rgba(88, 137, 131, 0.05) 0%,
+        rgba(88, 137, 131, 0.02) 100%
+      );
+      box-shadow: 0 0 0 3px rgba(88, 137, 131, 0.1);
+    }
+
+    // Custom checkbox styling
+    .form-check-input {
+      width: 20px;
+      height: 20px;
+      border: 2px solid hsl(var(--border));
+      border-radius: var(--radius);
+      cursor: pointer;
+      @include transition-all;
+      @include focus-ring;
+
+      &:hover {
+        border-color: #588983;
+      }
+
+      &:checked {
+        background-color: #588983;
+        border-color: #588983;
+        box-shadow: 0 2px 4px rgba(88, 137, 131, 0.3);
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(88, 137, 131, 0.2);
+      }
+    }
+
+    label {
+      cursor: pointer;
+      user-select: none;
+
+      .fw-semibold {
+        color: hsl(var(--foreground));
+        font-size: 0.9375rem;
+        font-weight: 600;
+      }
+
+      .text-muted {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.8125rem;
+        line-height: 1.4;
+      }
+
+      .text-nowrap {
+        color: hsl(var(--foreground));
+        font-weight: 700;
+
+        .text-success {
+          color: #588983 !important;
+          font-weight: 500;
+        }
+      }
+    }
+
+    // Quantity controls in modal
+    .d-flex.align-items-center.mt-2 {
+      background-color: hsl(var(--muted) / 0.3);
+      padding: var(--spacing-3);
+      border-radius: var(--radius-md);
+      border: 1px solid hsl(var(--border) / 0.5);
+
+      label {
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        margin-bottom: 0;
+      }
+    }
+
+    .btn-group {
+      display: flex;
+      gap: var(--spacing-3);
+      box-shadow: none;
+
+      .btn-outline-secondary {
+        border: 2px solid hsl(var(--border));
+        border-radius: var(--radius-md);
+        color: hsl(var(--foreground));
+        font-weight: 600;
+        font-size: 1.125rem;
+        padding: 0.375rem 0.75rem;
+        min-width: 38px;
+        @include transition-all;
+        background-color: hsl(var(--background));
+        box-shadow: var(--shadow-sm);
+
+        &:not(:disabled):hover {
+          background-color: #588983;
+          border-color: #588983;
+          color: hsl(var(--primary-foreground));
+          transform: scale(1.05);
+        }
+
+        &:not(:disabled):active {
+          transform: scale(0.95);
+        }
+
+        &:disabled {
+          background-color: hsl(var(--muted));
+          color: hsl(var(--muted-foreground));
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        &:focus {
+          box-shadow: none;
+          outline: none;
+        }
+
+        // Middle button (quantity display)
+        &:nth-child(2) {
+          font-weight: 700;
+          color: #3d6661;
+          min-width: 50px;
+          background-color: hsl(var(--background));
+          border-color: hsl(var(--border));
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,158 @@
+// ================================
+// Responsive Mixins - Bootstrap 5 Compliant
+// Mobile-First Approach
+// ================================
+
+// Bootstrap 5 Standard Breakpoints
+// https://getbootstrap.com/docs/5.3/layout/breakpoints/
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+) !default;
+
+// ================================
+// Main Mixin: respond-above
+// Usage: @include respond-above(md) { ... }
+// ================================
+// Applies styles for screens ABOVE the specified breakpoint (mobile-first)
+//
+// Example:
+// .element {
+//   font-size: 14px;              // Base (mobile)
+//   @include respond-above(md) {
+//     font-size: 18px;            // Tablets and above (≥768px)
+//   }
+// }
+
+@mixin respond-above($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $value: map-get($breakpoints, $breakpoint);
+
+    @if $value == 0 {
+      // xs breakpoint doesn't need media query (it's the base)
+      @content;
+    } @else {
+      @media (min-width: $value) {
+        @content;
+      }
+    }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map. Available: xs, sm, md, lg, xl, xxl.";
+  }
+}
+
+// ================================
+// Secondary Mixin: respond-below
+// Usage: @include respond-below(md) { ... }
+// ================================
+// Applies styles for screens BELOW the specified breakpoint
+// Use sparingly - prefer mobile-first approach with respond-above
+//
+// Example:
+// .element {
+//   display: flex;
+//   @include respond-below(md) {
+//     display: block;            // Only for mobile (<768px)
+//   }
+// }
+
+@mixin respond-below($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $value: map-get($breakpoints, $breakpoint);
+
+    @if $value == 0 {
+      @warn "Cannot use respond-below with xs breakpoint (it's already the base).";
+    } @else {
+      @media (max-width: ($value - 1px)) {
+        @content;
+      }
+    }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map. Available: xs, sm, md, lg, xl, xxl.";
+  }
+}
+
+// ================================
+// Range Mixin: respond-between
+// Usage: @include respond-between(sm, lg) { ... }
+// ================================
+// Applies styles between two breakpoints
+//
+// Example:
+// .element {
+//   @include respond-between(sm, lg) {
+//     padding: 20px;            // Only for tablets (576px - 991px)
+//   }
+// }
+
+@mixin respond-between($lower, $upper) {
+  @if map-has-key($breakpoints, $lower) and map-has-key($breakpoints, $upper) {
+    $min: map-get($breakpoints, $lower);
+    $max: map-get($breakpoints, $upper) - 1px;
+
+    @if $min >= $max {
+      @warn "Lower breakpoint must be smaller than upper breakpoint.";
+    } @else {
+      @media (min-width: $min) and (max-width: $max) {
+        @content;
+      }
+    }
+  } @else {
+    @warn "One or both breakpoints not found. Available: xs, sm, md, lg, xl, xxl.";
+  }
+}
+
+// ================================
+// Utility: get-breakpoint-value
+// ================================
+// Returns the pixel value of a breakpoint
+//
+// Example:
+// $md-width: get-breakpoint-value(md); // Returns 768px
+
+@function get-breakpoint-value($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @return map-get($breakpoints, $breakpoint);
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map.";
+    @return null;
+  }
+}
+
+// ================================
+// Quick Reference
+// ================================
+// Breakpoint | Min width | Devices
+// -----------|-----------|------------------
+// xs         | 0         | Phones (<576px)
+// sm         | 576px     | Phones (landscape)
+// md         | 768px     | Tablets
+// lg         | 992px     | Desktops
+// xl         | 1200px    | Large desktops
+// xxl        | 1400px    | Extra large desktops
+//
+// ================================
+// Migration Guide (Desktop-First → Mobile-First)
+// ================================
+//
+// OLD (Desktop-First):
+// .element {
+//   font-size: 20px;
+//   @include breakpoint(md) {  // max-width: 768px
+//     font-size: 15px;
+//   }
+// }
+//
+// NEW (Mobile-First):
+// .element {
+//   font-size: 15px;           // Base (mobile)
+//   @include respond-above(md) {
+//     font-size: 20px;         // Desktop
+//   }
+// }
+//
+// ================================

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/images/og-image.png',
+        url: '/images/og-image.webp',
         width: 1200,
         height: 630,
         alt: 'CoworKing Café Strasbourg - Programme Membre'
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Programme Membre Fidélité CoworKing Café',
     description: 'Cumulez des points à chaque visite et débloquez des récompenses : heures offertes, pizzas, boissons premium, goodies exclusifs.',
-    images: ['/images/og-image.png'],
+    images: ['/images/og-image.webp'],
   },
 
   alternates: {

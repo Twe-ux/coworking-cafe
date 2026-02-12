@@ -1,0 +1,300 @@
+// ================================
+// Booking Summary Page
+// ================================
+
+// Import responsive mixins (mobile-first)
+@import "../../_abstracts/responsive";
+
+.booking-summary-page {
+  background-color: hsl(var(--background));
+  min-height: 120vh;
+  padding: var(--spacing-6) 0 15rem !important;
+
+  @include respond-above(sm) {
+    padding: var(--spacing-6) 0 18rem !important;
+  }
+
+  @include respond-above(md) {
+    padding: var(--spacing-10) 0 20rem !important;
+  }
+
+  // Force equal height columns
+  .row.g-3 {
+    @include respond-above(lg) {
+      > [class*="col-"] {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+// Summary section layout
+.summary-section {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.summary-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-2);
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  @include transition-all;
+
+  @include respond-above(md) {
+    gap: var(--spacing-4);
+  }
+}
+
+.summary-label {
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  min-width: 90px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+
+  @include respond-above(md) {
+    min-width: 120px;
+  }
+}
+
+.summary-value {
+  text-align: right;
+  color: hsl(var(--foreground));
+  flex: 1;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+
+  small {
+    display: block;
+    margin-top: var(--spacing-1);
+    color: hsl(var(--muted-foreground));
+    font-weight: 400;
+    font-size: 0.8125rem;
+  }
+}
+
+// Services list
+.services-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.service-item {
+  @include card;
+  padding: var(--spacing-4);
+  @include transition-all;
+
+  &.selected {
+    border-color: hsl(var(--ring));
+    background: hsl(var(--accent));
+  }
+}
+
+.service-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+
+  input[type="checkbox"] {
+    margin-top: var(--spacing-1);
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    @include focus-ring;
+  }
+
+  label {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    cursor: pointer;
+    margin: 0;
+  }
+}
+
+.service-name {
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-bottom: var(--spacing-1);
+  font-size: 0.875rem;
+}
+
+.service-description {
+  font-size: 0.8125rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.service-price {
+  font-weight: 600;
+  color: hsl(var(--primary));
+  white-space: nowrap;
+  margin-left: var(--spacing-4);
+  font-size: 0.875rem;
+}
+
+.service-quantity {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-3);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid hsl(var(--border));
+
+  button {
+    @include btn-outline;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 0.875rem;
+
+    &:hover:not(:disabled) {
+      @include btn-primary;
+    }
+  }
+
+  span {
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
+  }
+}
+
+// Price breakdown
+.price-breakdown {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted) / 0.5) 100%
+  );
+  padding: var(--spacing-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2);
+  font-size: 0.875rem;
+  @include transition-all;
+
+  &:last-of-type:not(.total-row) {
+    margin-bottom: 0;
+  }
+
+  &.small {
+    font-size: 0.8125rem;
+    color: hsl(var(--muted-foreground));
+    padding: var(--spacing-1) 0;
+
+    span:last-child {
+      font-weight: 500;
+    }
+  }
+
+  &.total-row {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    margin-top: var(--spacing-3);
+    padding-top: var(--spacing-4);
+    border-top: 2px solid hsl(var(--primary) / 0.2);
+
+    @include respond-above(md) {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+.price-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--border)),
+    transparent
+  );
+  margin: var(--spacing-1) 0;
+}
+
+.total-price {
+  color: #588983;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+
+  @include respond-above(md) {
+    font-size: 1.75rem;
+  }
+}
+
+// Service item cards in summary
+.service-item-card {
+  @include transition-all;
+  border-color: hsl(var(--border) / 0.6) !important;
+
+  &:hover {
+    border-color: hsl(var(--ring) / 0.4) !important;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-ghost {
+    color: hsl(var(--muted-foreground));
+
+    &:hover {
+      color: hsl(var(--destructive));
+      background-color: hsl(var(--destructive) / 0.1);
+    }
+  }
+
+  .btn-outline-secondary {
+    @include btn-outline;
+    border-radius: var(--radius);
+
+    &:disabled {
+      opacity: 0.3;
+    }
+  }
+}
+
+// Actions section
+.actions-section {
+  .btn-success {
+    @include btn-primary;
+    @include transition-all;
+    box-shadow: var(--shadow-sm);
+
+    &:hover:not(:disabled) {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+}
+
+.btn-outline-success {
+  @include btn-outline;
+  @include btn-lg;
+  width: 100%;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background-color: hsl(var(--accent));
+  }
+}

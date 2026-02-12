@@ -89,23 +89,28 @@ export function TimeEntryShiftCell({
         headers: { 'Content-Type': 'application/json' },
       })
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        toast.error(errorData?.error || `Erreur ${response.status}`, { id: 'mark-read' })
+        return
+      }
+
       const result = await response.json()
 
       if (result.success) {
         toast.success('Justification marquée comme lue', { id: 'mark-read' })
         setShowJustificationDialog(false)
 
-        // Refresh list
-        if (onJustificationRead) {
-          onJustificationRead()
-        }
-
-        // Trigger sidebar badge refresh
+        // Refresh list and sidebar badge
         triggerSidebarRefresh()
+        if (onJustificationRead) {
+          await onJustificationRead()
+        }
       } else {
         toast.error(result.error || 'Erreur lors du marquage', { id: 'mark-read' })
       }
     } catch (error) {
+      console.error('Error marking justification as read:', error)
       toast.error('Erreur de connexion', { id: 'mark-read' })
     } finally {
       setIsMarkingRead(false)

@@ -3,6 +3,7 @@
 
 @import "./_abstracts/_variables";
 @import "./_abstracts/_maxin";
+@import "./_abstracts/responsive"; // Mobile-first responsive mixins (Bootstrap 5 compliant)
 
 // shadcn/ui Design System
 @import "./config/_shadcn-variables";

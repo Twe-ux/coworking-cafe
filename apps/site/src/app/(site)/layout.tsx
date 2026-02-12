@@ -37,9 +37,9 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/og-image.png",
-        width: 2400,
-        height: 1262,
+        url: "/images/og-image.webp",
+        width: 1200,
+        height: 630,
         alt: "CoworKing Café Strasbourg - Espace de coworking avec boissons illimitées",
       },
     ],
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: "CoworKing Café Strasbourg | Coworking + Boissons Illimitées",
     description:
       "Espace de coworking au cœur de Strasbourg. +40 boissons illimitées, Wi-Fi rapide. Réservez votre place !",
-    images: ["/images/og-image.png"],
+    images: ["/images/og-image.webp"],
   },
   alternates: {
     canonical: "https://coworkingcafe.fr",

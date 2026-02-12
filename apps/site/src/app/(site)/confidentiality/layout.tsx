@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/og-image.png",
+        url: "/images/og-image.webp",
         width: 1200,
         height: 630,
         alt: "CoworKing Café - Politique de Confidentialité",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Politique de Confidentialité RGPD | CoworKing Café",
     description: "Protection totale de vos données personnelles - Conforme RGPD",
-    images: ["/images/og-image.png"],
+    images: ["/images/og-image.webp"],
   },
   alternates: {
     canonical: "https://coworkingcafe.fr/confidentiality",

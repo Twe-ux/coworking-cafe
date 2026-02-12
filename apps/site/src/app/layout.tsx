@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     siteName: "CoworKing Café by Anticafé",
     images: [
       {
-        url: "/images/og-image.png",
+        url: "/images/og-image.webp",
         width: 1200,
         height: 630,
         alt: "CoworKing Café by Anticafé - Espace de coworking à Strasbourg",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/images/og-image.png"],
+    images: ["/images/og-image.webp"],
   },
 };
 

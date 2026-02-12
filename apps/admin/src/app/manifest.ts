@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "CoworKing Café",
     short_name: "CoworKing Café",
     description: "Dashboard administrateur du Coworking Café",
-    start_url: "/",
+    start_url: "/admin",
     scope: "/",
     display: "standalone",
     background_color: "#ffffff",

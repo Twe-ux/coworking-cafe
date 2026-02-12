@@ -9,14 +9,13 @@ success/
 ├── SuccessPageContent.tsx      # Composant principal (68 lignes)
 ├── LoadingState.tsx            # État de chargement (38 lignes)
 ├── SuccessState.tsx            # État de succès (51 lignes)
-├── ErrorState.tsx              # État d'erreur (84 lignes)
-├── useBookingPolling.ts        # Hook de polling (166 lignes)
-├── webhookUtils.ts             # Utilitaires webhook (19 lignes)
+├── ErrorState.tsx              # État d'erreur (55 lignes)
+├── useBookingPolling.ts        # Hook de polling (160 lignes)
 ├── autoLoginUtils.ts           # Utilitaires auto-login (54 lignes)
 └── index.ts                    # Exports
 ```
 
-**Total** : 480 lignes (vs 362 lignes monolithiques avant)
+**Total** : 426 lignes (vs 362 lignes monolithiques avant)
 
 ## 🎯 Objectif de la Refactorisation
 
@@ -133,15 +132,6 @@ const {
 
 ## 🛠️ Utilitaires
 
-### webhookUtils.ts
-
-Déclenche manuellement le webhook Stripe en développement.
-
-**Fonction** :
-```typescript
-async function triggerTestWebhook(paymentIntentId: string): Promise<void>
-```
-
 ### autoLoginUtils.ts
 
 Gère l'auto-login après paiement pour nouveaux comptes.
@@ -167,7 +157,7 @@ async function attemptAutoLogin(
                     ↓
 2. SuccessPageContent → useBookingPolling
                     ↓
-3. initializePolling → triggerTestWebhook (dev only)
+3. initializePolling → pollForBooking
                     ↓
 4. pollForBooking → /api/bookings/by-intent (x5)
                     ↓

@@ -4,6 +4,7 @@
 
 @import "../config/shadcn-variables";
 @import "../config/shadcn-mixins";
+@import "../_abstracts/responsive"; // Mobile-first responsive mixins
 
 .dashboard-container {
   padding: var(--spacing-0);
@@ -263,8 +264,8 @@
   }
 }
 
-// Responsive
-@media (max-width: 768px) {
+// Responsive (mobile-first approach)
+@include respond-below(md) {
   .section-header {
     flex-direction: column;
     align-items: flex-start;

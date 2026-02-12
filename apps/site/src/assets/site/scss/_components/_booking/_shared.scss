@@ -1,0 +1,134 @@
+// ================================
+// Booking Shared Components
+// ================================
+
+// Override text-success to use site green color
+.text-success {
+  color: #588983 !important;
+}
+
+// Custom Breadcrumb - Shared across all booking pages
+.custom-breadcrumb {
+  padding: var(--spacing-3) 0;
+  margin-bottom: var(--spacing-2);
+
+  .breadcrumb-link {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    padding: 0;
+    @include transition-all;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+
+    i {
+      margin-right: 0;
+    }
+
+    &:hover {
+      color: hsl(var(--foreground));
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+
+  .breadcrumb-current {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: hsl(var(--foreground));
+  }
+}
+
+// Shared booking card styling
+.booking-card {
+  @include card;
+  margin-bottom: var(--spacing-5);
+  padding: var(--spacing-4);
+  box-shadow: var(--shadow-sm);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (min-width: 768px) {
+    padding: var(--spacing-6);
+  }
+
+  @media (min-width: 992px) {
+    padding: var(--spacing-8);
+  }
+}
+
+// Sticky card for summary sections
+.sticky-card {
+  position: static;
+  top: 20px;
+
+  @media (min-width: 992px) {
+    position: sticky;
+  }
+}
+
+// Button success styling
+.btn-success {
+  @include btn-primary;
+  @include btn-lg;
+  width: 100%;
+  font-weight: 600;
+}
+
+// Form elements
+.form-label {
+  font-weight: 500;
+  color: hsl(var(--foreground));
+  margin-bottom: var(--spacing-2);
+  font-size: 0.875rem;
+}
+
+.form-control,
+.form-control-lg {
+  @include input;
+  height: 2.75rem;
+
+  &.form-control-lg {
+    height: 3rem;
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+}
+
+// TTC/HT Toggle Switch
+.tax-toggle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  @include transition-all;
+
+  &.active {
+    color: #588983;
+    font-weight: 600;
+  }
+
+  &:hover {
+    color: #588983;
+  }
+}
+
+.form-check-input {
+  &:checked {
+    background-color: #588983;
+    border-color: #588983;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(88, 137, 131, 0.25);
+    border-color: #588983;
+  }
+}

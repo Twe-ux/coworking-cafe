@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/images/og-image.png',
+        url: '/images/og-image.webp',
         width: 1200,
         height: 630,
         alt: 'CoworKing Café Strasbourg - Nos Produits Alimentaires'
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Nos Produits Alimentaires - Snacks & Repas',
     description: 'Pizzas, sandwiches, salades, encas sucrés : notre sélection de produits alimentaires disponibles à la carte.',
-    images: ['/images/og-image.png'],
+    images: ['/images/og-image.webp'],
   },
 
   alternates: {

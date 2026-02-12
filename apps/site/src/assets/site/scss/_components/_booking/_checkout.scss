@@ -1,0 +1,103 @@
+// ================================
+// Checkout & Confirmation Pages
+// ================================
+
+// Import responsive mixins (mobile-first)
+@import "../../_abstracts/responsive";
+
+.checkout-page,
+.confirmation-page {
+  background-color: hsl(var(--background));
+  min-height: 100vh;
+  padding: var(--spacing-4) 0 8rem !important;
+
+  @include respond-above(sm) {
+    padding: var(--spacing-5) 0 10rem !important;
+  }
+
+  @include respond-above(md) {
+    padding: var(--spacing-10) 0 12rem !important;
+  }
+
+  .text-success {
+    color: #588983 !important;
+  }
+
+  .bg-success {
+    background-color: #588983 !important;
+  }
+
+  .spinner-border.text-success {
+    color: #588983 !important;
+  }
+}
+
+// Compact spacing for mobile on confirmation page
+.confirmation-page {
+  // Reduce margins between summary rows in mobile
+  .summary-row {
+    margin-bottom: var(--spacing-2) !important;
+    align-items: flex-start;
+
+    @include respond-above(md) {
+      margin-bottom: var(--spacing-3);
+      align-items: center;
+    }
+  }
+
+  // Compact booking card padding in mobile
+  .booking-card {
+    padding: var(--spacing-4);
+
+    @include respond-above(md) {
+      padding: var(--spacing-6);
+    }
+  }
+
+  // Reduce success icon size in mobile
+  .success-icon i {
+    font-size: 3rem !important;
+
+    @include respond-above(md) {
+      font-size: 4rem !important;
+    }
+  }
+
+  // Compact labels and values
+  .summary-label {
+    font-size: 0.6875rem;
+    margin-bottom: 0.25rem;
+
+    @include respond-above(md) {
+      font-size: 0.75rem;
+    }
+  }
+
+  .summary-value {
+    font-size: 0.875rem;
+
+    @include respond-above(md) {
+      font-size: 0.9375rem;
+    }
+  }
+
+  // Reduce divider margins
+  .price-divider {
+    margin: var(--spacing-2) 0 !important;
+
+    @include respond-above(md) {
+      margin: var(--spacing-3) 0 !important;
+    }
+  }
+
+  // Compact badge spacing
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+
+    @include respond-above(md) {
+      font-size: 0.75rem;
+      padding: 0.375rem 0.75rem;
+    }
+  }
+}

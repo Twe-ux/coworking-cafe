@@ -1,0 +1,17 @@
+// ================================
+// Booking Module - Index
+// ================================
+// Modular architecture for booking flow styles
+// Each file is < 300 lines and focused on a single responsibility
+
+@import "../../config/shadcn-variables";
+@import "../../config/shadcn-mixins";
+
+// Import modular booking styles
+@import "shared";      // Shared components (breadcrumb, cards, forms)
+@import "selection";   // Space selection page
+@import "date";        // Date/time selection page
+@import "details";     // Details form page
+@import "summary";     // Summary page
+@import "checkout";    // Checkout & confirmation pages
+@import "modal";       // Services modal
