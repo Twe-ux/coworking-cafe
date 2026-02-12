@@ -6,11 +6,14 @@ import { MenuItem, MenuCategory } from "@coworking-cafe/database";
 
 // Revalidate cache every hour (more stable than unstable_cache on Vercel)
 export const revalidate = 3600; // 1 hour
+
+// Mark as dynamic to avoid build-time error with searchParams
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // Get type from query params (drink or food)
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get("type") || "drink";
+    const type = request.nextUrl.searchParams.get("type") || "drink";
 
     await connectDB();
 

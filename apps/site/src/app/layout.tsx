@@ -4,7 +4,7 @@ import "@/assets/site/scss/main.scss";
 import { DynamicThemeColor } from "@/components/DynamicThemeColor";
 import { PWARegister } from "@/components/PWARegister";
 import { Analytics } from "@vercel/analytics/next";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Kanit, Poppins } from "next/font/google";
 import { ReduxProvider } from "../components/providers/ReduxProvider";
 
@@ -22,15 +22,16 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#142220",
+};
+
 export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   metadataBase: new URL("https://coworkingcafe.fr"),
-  themeColor: "#142220",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent", // Status bar translucent on colored background
