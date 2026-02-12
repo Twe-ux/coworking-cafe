@@ -1,6 +1,17 @@
 "use client";
 
-import MarkdownRenderer from "./MarkdownRenderer";
+import dynamic from "next/dynamic";
+
+const MarkdownRenderer = dynamic(() => import("./MarkdownRenderer"), {
+  ssr: false,
+  loading: () => (
+    <div className="text-center py-4">
+      <div className="spinner-border spinner-border-sm" role="status">
+        <span className="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  ),
+});
 import type { Article } from "../../../store/api/blogApi";
 import {
   useIsArticleLikedQuery,

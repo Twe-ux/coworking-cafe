@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
     name: "CoworKing Café",
-    short_name: "CoworKing Café",
+    short_name: "",
     description: "Dashboard administrateur du Coworking Café",
     start_url: "/admin",
     scope: "/",

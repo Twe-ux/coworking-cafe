@@ -4,8 +4,13 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import "../client-dashboard.scss";
-import CancelBookingModal from "@/components/site/booking/CancelBookingModal";
+
+const CancelBookingModal = dynamic(
+  () => import("@/components/site/booking/CancelBookingModal"),
+  { ssr: false }
+);
 
 interface Reservation {
   _id: string;

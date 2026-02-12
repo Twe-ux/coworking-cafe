@@ -1,8 +1,13 @@
 'use client';
 
 import { Elements } from '@stripe/react-stripe-js';
-import { Stripe } from '@stripe/stripe-js';
-import CheckoutForm from '@/components/site/booking/CheckoutForm';
+import type { Stripe } from '@stripe/stripe-js';
+import dynamic from 'next/dynamic';
+
+const CheckoutForm = dynamic(
+  () => import('@/components/site/booking/CheckoutForm'),
+  { ssr: false }
+);
 
 interface PaymentInfoProps {
   stripePromise: Promise<Stripe | null> | null;

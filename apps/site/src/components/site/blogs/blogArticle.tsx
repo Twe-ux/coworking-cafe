@@ -7,7 +7,7 @@ const BlogArticle = () => {
   return (
     <article>
       <Image
-        src="/images/blogs/blog-1.png"
+        src="/images/blogs/blog-1.webp"
         alt="Article blog CoworKing Café Anticafé Strasbourg"
         width={1200}
         height={800}
@@ -82,7 +82,7 @@ const BlogArticle = () => {
       <div className="row img__gallery">
         <div className="col-md-6">
           <Image
-            src="/images/blogs/blog-5.png"
+            src="/images/blogs/blog-5.webp"
             alt="Galerie blog CoworKing Café Anticafé Strasbourg"
             width={1200}
             height={800}
@@ -94,7 +94,7 @@ const BlogArticle = () => {
         <div className="col-md-6 mt-4 mt-md-0">
           <div className="position-relative">
             <Image
-              src="/images/blogs/blog-4.png"
+              src="/images/blogs/blog-4.webp"
               alt="Galerie blog CoworKing Café Anticafé Strasbourg"
               width={600}
               height={400}

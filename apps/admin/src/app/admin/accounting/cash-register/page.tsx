@@ -8,9 +8,6 @@ export default function CashRegisterAdminPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">💰 Suivi Fond de Caisse</h1>
-        <p className="text-muted-foreground mt-2">
-          Récapitulatif des saisies staff
-        </p>
       </div>
 
       {/* Historique */}

@@ -139,7 +139,7 @@ const BlogSidebar = ({
               <li key={article._id}>
                 <Link href={`/blog/${article.slug}`}>
                   <img
-                    src={article.featuredImage || "/images/blogs/blog-1.png"}
+                    src={article.featuredImage || "/images/blogs/blog-1.webp"}
                     alt={article.title}
                     className="thumb__img"
                   />

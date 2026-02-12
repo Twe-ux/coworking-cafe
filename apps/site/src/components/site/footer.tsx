@@ -134,7 +134,7 @@ const Footer = () => {
                 className="d-flex align-items-center footer__logo"
               >
                 <Image
-                  src="/images/logo-circle-white.png"
+                  src="/images/logo-circle-white.webp"
                   alt="CoworKing Café by Anticafé Strasbourg - Logo"
                   width={300}
                   height={300}

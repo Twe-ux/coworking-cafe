@@ -8,7 +8,6 @@ export default function CashRegisterStaffPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">💰 Fond de Caisse</h1>
-        <p className="text-muted-foreground mt-2">Historique des saisies</p>
       </div>
 
       {/* Historique */}

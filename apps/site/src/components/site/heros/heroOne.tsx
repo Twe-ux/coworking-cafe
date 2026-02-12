@@ -66,7 +66,7 @@ const HeroOne = () => {
           <div className="col-lg-3">
             <div className="banner__right">
               <img
-                src="/images/banner/logo-circle-white.png"
+                src="/images/banner/logo-circle-white.webp"
                 alt="CoworKing Café by Anticafé Strasbourg - Logo circulaire"
                 className="logo__circle"
               />

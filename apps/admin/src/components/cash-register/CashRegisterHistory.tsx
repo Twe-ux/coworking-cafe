@@ -41,7 +41,7 @@ interface CashRegisterHistoryProps {
  */
 export function CashRegisterHistory({
   showDetailsColumn = false,
-  title = "Liste des Saisies",
+  title = "Résumé Mensuel",
   description,
 }: CashRegisterHistoryProps) {
   const [entries, setEntries] = useState<CashRegisterEntry[]>([]);
@@ -60,7 +60,7 @@ export function CashRegisterHistory({
 
     try {
       const response = await fetch(
-        `/api/cash-register/list?month=${selectedMonth}`
+        `/api/cash-register/list?month=${selectedMonth}`,
       );
       const result = await response.json();
 
@@ -85,7 +85,10 @@ export function CashRegisterHistory({
     if (!notes) return "-";
 
     // Enlever "Saisie rapide depuis le dashboard" en début de note
-    let cleaned = notes.replace(/^Saisie rapide depuis le dashboard\s*-?\s*/i, "");
+    let cleaned = notes.replace(
+      /^Saisie rapide depuis le dashboard\s*-?\s*/i,
+      "",
+    );
 
     // Si la note ne contient que cette phrase, retourner "-"
     if (!cleaned.trim()) return "-";
@@ -95,34 +98,6 @@ export function CashRegisterHistory({
 
   return (
     <div className="space-y-6">
-      {/* Stats Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Résumé Mensuel</CardTitle>
-          <CardDescription>{formatMonthDisplay(selectedMonth)}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Nombre de saisies</p>
-              <p className="text-2xl font-bold">{entries.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total mensuel</p>
-              <p className="text-2xl font-bold">{formatCurrency(monthlyTotal)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Moyenne</p>
-              <p className="text-2xl font-bold">
-                {entries.length > 0
-                  ? formatCurrency(monthlyTotal / entries.length)
-                  : "0 €"}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Table */}
       <Card>
         <CardHeader>
@@ -156,7 +131,9 @@ export function CashRegisterHistory({
             </div>
           ) : entries.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">Aucune saisie pour ce mois</p>
+              <p className="text-muted-foreground">
+                Aucune saisie pour ce mois
+              </p>
             </div>
           ) : (
             <Table>
@@ -183,7 +160,9 @@ export function CashRegisterHistory({
                     <TableCell>{entry.countedBy.name}</TableCell>
                     {showDetailsColumn && (
                       <TableCell className="text-sm text-muted-foreground">
-                        {entry.countDetails ? "Comptage détaillé" : "Saisie directe"}
+                        {entry.countDetails
+                          ? "Comptage détaillé"
+                          : "Saisie directe"}
                       </TableCell>
                     )}
                     <TableCell className="text-sm">

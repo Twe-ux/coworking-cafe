@@ -60,7 +60,7 @@ const Home = () => {
     "description": "Espace de coworking chaleureux au cœur de Strasbourg. WiFi rapide, café et boissons à volonté, salles de réunion privatisables.",
 
     "url": "https://coworkingcafe.fr",
-    "logo": "https://coworkingcafe.fr/images/logo-circle-white.png",
+    "logo": "https://coworkingcafe.fr/images/logo-circle-white.webp",
     "image": [
       "https://coworkingcafe.fr/images/banner/coworking-café.webp",
       "https://coworkingcafe.fr/images/spaces/open-space-strasbourg.webp"

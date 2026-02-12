@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import CancelBookingModal from "../booking/CancelBookingModal";
+import dynamic from "next/dynamic";
+
+const CancelBookingModal = dynamic(
+  () => import("../booking/CancelBookingModal"),
+  { ssr: false }
+);
 
 interface BookingData {
   _id: string;

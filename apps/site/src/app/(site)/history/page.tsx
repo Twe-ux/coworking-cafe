@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import ProjectsHistory from "../../../components/site/history/projectsHistory";
 import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
@@ -57,10 +58,13 @@ export default function historyPage() {
       <PageTitle title={"Notre histoire"} />
       <article className="service__details py__90">
         <div className="container">
-          <img
+          <Image
             src="/images/history/histoire-coworking-strasbourg.webp"
+            width={1920}
+            height={1280}
             alt="Histoire CoworKing Café by Anticafé Strasbourg - Christèle et Thierry fondateurs"
             className="w-100 thumb__img rounded-3"
+            style={{ height: 'auto' }}
           />
           <div className="first__para pt__60">
             <SlideUp>
@@ -145,10 +149,13 @@ export default function historyPage() {
 
             <div className="row align-items-center mt__40">
               <SlideUp className="col-md-6">
-                <img
+                <Image
                   src="/images/history/histoire-anticafe-strasbourg.webp"
+                  width={1920}
+                  height={1280}
                   alt="Espace coworking convivial avec clients - CoworKing Café Anticafé Strasbourg"
                   className="w-100 rounded-3"
+                  style={{ height: 'auto' }}
                 />
               </SlideUp>
 

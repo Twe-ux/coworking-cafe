@@ -1,7 +1,12 @@
 "use client";
 
 import InfoEmpreinte from "@/components/site/booking/InfoEmpreinte";
-import PaymentFormContent from "@/components/site/booking/PaymentFormContent";
+import dynamic from "next/dynamic";
+
+const PaymentFormContent = dynamic(
+  () => import("@/components/site/booking/PaymentFormContent"),
+  { ssr: false }
+);
 import CancellationPolicyDisplay from "@/components/site/booking/CancellationPolicyDisplay";
 import TermsCheckbox from "./TermsCheckbox";
 import { Elements } from "@stripe/react-stripe-js";

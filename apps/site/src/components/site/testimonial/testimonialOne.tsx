@@ -7,7 +7,12 @@ import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import VideoTestimonial from "./videoTestimonial";
+import dynamic from "next/dynamic";
+
+const VideoTestimonial = dynamic(() => import("./videoTestimonial"), {
+  ssr: false,
+  loading: () => <div style={{ height: "400px" }} />,
+});
 
 const TestimonialOne = () => {
   const swiperRef = useRef<SwiperType | null>(null);

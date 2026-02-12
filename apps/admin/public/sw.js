@@ -77,8 +77,8 @@ self.addEventListener('push', (event) => {
   console.log('[Service Worker] Push data:', event.data ? event.data.text() : 'no data');
 
   const defaultData = {
-    title: 'Nouveau message',
-    body: 'Vous avez reçu un nouveau message de contact',
+    title: 'CoworKing Café',
+    body: 'Vous avez reçu un nouveau message',
     icon: '/web-app-manifest-512x512.png',
     badge: '/web-app-manifest-192x192.png',
     tag: 'contact-message',
@@ -96,6 +96,9 @@ self.addEventListener('push', (event) => {
     console.error('[Service Worker] Failed to parse push data:', e);
   }
 
+  // Utiliser le titre par défaut si le titre est vide
+  const notificationTitle = data.title || defaultData.title;
+
   const notificationOptions = {
     body: data.body,
     icon: data.icon || defaultData.icon,
@@ -112,7 +115,7 @@ self.addEventListener('push', (event) => {
 
   console.log('[Service Worker] Showing notification with options:', notificationOptions);
 
-  const promiseChain = self.registration.showNotification(data.title, notificationOptions)
+  const promiseChain = self.registration.showNotification(notificationTitle, notificationOptions)
     .then(() => {
       console.log('[Service Worker] Notification shown successfully');
 

@@ -223,7 +223,7 @@ async function sendTypedNotification(
   });
 
   return await sendPushNotification({
-    title: "CoworKing Café",
+    title: "",
     body: data.body,
     icon: config.icon,
     badge: config.badge,

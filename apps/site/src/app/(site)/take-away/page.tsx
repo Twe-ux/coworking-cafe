@@ -7,6 +7,7 @@
  * Pour appliquer: Copier le contenu dans page.tsx
  */
 
+import Image from "next/image";
 import PageTitle from "../../../components/site/PageTitle";
 import SlideUp from "../../../utils/animations/slideUp";
 import { Metadata } from "next";
@@ -43,10 +44,13 @@ const TakeAway = () => {
       <article className="concept py__130">
         <div className="container pb__130 pb-md-5 mb-md-5">
           {/* PAGE 2 PDF: Image comptoir (boissons à emporter) */}
-          <img
+          <Image
             src="/images/takeAway/coworking-cafe-strasbourg-take-away-boissons-a-emporter.webp"
+            width={1096}
+            height={350}
             alt="Comptoir Take Away boissons à emporter - CoworKing Café Anticafé Strasbourg"
             className="w-100 thumb__img"
+            style={{ height: 'auto' }}
           />
 
           <div className="first__para pt__60">
@@ -74,16 +78,22 @@ const TakeAway = () => {
 
             {/* PAGE 3 PDF: Carrousel des 5 catégories de boissons - Images uniformes */}
             <div className="d-flex gap-4">
-              <img
+              <Image
                 src="/images/takeAway/menu/carte-boissons-coffeeshop-strasbourg-coworking-cafe.webp"
+                width={1375}
+                height={1238}
                 alt="Carte boissons chaudes - CoworKing Café Anticafé Strasbourg"
                 className="d-block w-46 rounded-3"
+                style={{ height: 'auto' }}
               />
 
-              <img
+              <Image
                 src="/images/takeAway/menu/menu-boissons-coworking-cafe-strasbourg.webp"
+                width={1200}
+                height={833}
                 alt="Menu boissons froides - CoworKing Café Anticafé Strasbourg"
-                className=" w-52 rounded-3"
+                className="w-52 rounded-3"
+                style={{ height: 'auto' }}
               />
             </div>
 
@@ -96,10 +106,13 @@ const TakeAway = () => {
           {/* PAGE 4 PDF: Encas/Pizzas - Image gauche, Texte droite */}
           <div className="row align-items-center g-4 pt__50">
             <div className="col-lg-6">
-              <img
+              <Image
                 src="/images/takeAway/coworking-cafe-strasbourg-epicerie-encas-snacks.webp"
+                width={648}
+                height={648}
                 alt="Épicerie encas sucrés et snacks - CoworKing Café Anticafé Strasbourg"
                 className="w-100 rounded"
+                style={{ height: 'auto' }}
               />
             </div>
             <div className="col-lg-6">
@@ -150,10 +163,13 @@ const TakeAway = () => {
               </p>
             </div>
             <div className="col-lg-6">
-              <img
+              <Image
                 src="/images/takeAway/coworking-cafe-strasbourg-billie-cup-ecologie-gobelets-reutilisables.webp"
+                width={850}
+                height={568}
                 alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
                 className="w-100 rounded"
+                style={{ height: 'auto' }}
               />
             </div>
           </div>
