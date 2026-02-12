@@ -40,6 +40,8 @@ export function useDashboardData() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboard-data"],
     queryFn: fetchDashboardData,
+    refetchInterval: 5 * 60 * 1000,
+    refetchIntervalInBackground: false,
   });
 
   return {

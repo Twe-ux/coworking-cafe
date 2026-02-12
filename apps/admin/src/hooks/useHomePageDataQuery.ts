@@ -60,7 +60,9 @@ export function useHomePageDataQuery() {
     // Query key includes today's date = auto-refresh daily
     queryKey: ["homePage", today],
     queryFn: fetchHomePageData,
-    // Uses global config: 5min dev / 24h prod
+    // Auto-refresh every 5 minutes when tab is active
+    refetchInterval: 5 * 60 * 1000,
+    refetchIntervalInBackground: false,
   });
 
   return {
