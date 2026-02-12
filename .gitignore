@@ -66,4 +66,5 @@ check-*.js
 # Northflank secrets documentation (contains example credentials)
 NORTHFLANK_SECRETS_GUIDE.md
 
-mongodb.md *.backup
+mongodb.md 
+*.backup

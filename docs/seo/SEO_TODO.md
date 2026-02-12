@@ -9,14 +9,14 @@
 
 ## 📊 Vue d'Ensemble
 
-| Phase                          | Tâches | Complétées | Statut       |
-| ------------------------------ | ------ | ---------- | ------------ |
-| **Google Search Console**      | 4      | 3/4        | 🟡 En cours  |
-| **Google My Business + Image** | 1      | 1/1        | ✅ Complété  |
-| **Metadata & Contenu**         | 2      | 2/2        | ✅ Complété  |
-| **Performance Technique**      | 2      | 0/2        | ⚪ À faire   |
-| **Off-Page SEO**               | 2      | 0/2        | ⚪ À faire   |
-| **Analytics & Monitoring**     | 2      | 1/2        | 🟡 En cours  |
+| Phase                          | Tâches | Complétées | Statut      |
+| ------------------------------ | ------ | ---------- | ----------- |
+| **Google Search Console**      | 4      | 3/4        | 🟡 En cours |
+| **Google My Business + Image** | 1      | 1/1        | ✅ Complété |
+| **Metadata & Contenu**         | 2      | 2/2        | ✅ Complété |
+| **Performance Technique**      | 2      | 0/2        | ⚪ À faire  |
+| **Off-Page SEO**               | 2      | 0/2        | ⚪ À faire  |
+| **Analytics & Monitoring**     | 2      | 1/2        | 🟡 En cours |
 | **TOTAL**                      | **14** | **7/14**   | **50%** 🎉  |
 
 ---
@@ -45,7 +45,7 @@
 - ✅ `https://coworkingcafe.fr/pricing`
 - ✅ `https://coworkingcafe.fr/spaces`
 - ✅ `https://coworkingcafe.fr/contact`
-- [ ] `https://coworkingcafe.fr/blog`
+- ✅ `https://coworkingcafe.fr/blog`
 
 ---
 
@@ -57,19 +57,19 @@
 
 #### Jour 2 (à faire demain) - Pages Commerciales
 
-- [ ] `https://coworkingcafe.fr/members-program`
-- [ ] `https://coworkingcafe.fr/student-offers`
-- [ ] `https://coworkingcafe.fr/concept`
-- [ ] `https://coworkingcafe.fr/take-away`
-- [ ] `https://coworkingcafe.fr/boissons`
+- ✅ `https://coworkingcafe.fr/members-program`
+- ✅ `https://coworkingcafe.fr/student-offers`
+- ✅ `https://coworkingcafe.fr/concept`
+- ✅ `https://coworkingcafe.fr/take-away`
+- ✅ `https://coworkingcafe.fr/boissons`
 - [ ] `https://coworkingcafe.fr/food`
 
 #### Jour 3 - Pages Légales + Histoire
 
-- [ ] `https://coworkingcafe.fr/history`
-- [ ] `https://coworkingcafe.fr/manifest`
-- [ ] `https://coworkingcafe.fr/cgu`
-- [ ] `https://coworkingcafe.fr/confidentiality`
+- ✅ `https://coworkingcafe.fr/history`
+- ✅ `https://coworkingcafe.fr/manifest`
+- ✅ `https://coworkingcafe.fr/cgu`
+- ✅ `https://coworkingcafe.fr/confidentiality`
 - [ ] `https://coworkingcafe.fr/mentions-legales`
 
 #### Jour 4 - Articles Blog
@@ -768,6 +768,7 @@ export const metadata: Metadata = {
 7. ✅ Déployé en production
 
 **⚠️ Action manuelle requise** :
+
 - [ ] Ajouter `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-TVP44WVY9M` dans Vercel Dashboard
 
 **Code implémenté** :
@@ -874,9 +875,9 @@ export async function generateMetadata({ params }): Promise<Metadata> {
       type: "article",
       publishedTime: article.createdAt,
       modifiedTime: article.updatedAt,
-      authors: ["CoworKing Café"]
+      authors: ["CoworKing Café"],
     },
-    alternates: { canonical: `https://coworkingcafe.fr/blog/${params.slug}` }
+    alternates: { canonical: `https://coworkingcafe.fr/blog/${params.slug}` },
   };
 }
 ```
@@ -1257,22 +1258,26 @@ import Image from 'next/image';
 **5 heures de travail - 5 tâches complétées !**
 
 #### ✅ Tâche 7 : Metadata Pages Manquantes (2h)
+
 - Créé/enrichi 6 layouts avec metadata complète
 - Pages : manifest, confidentiality, cgu, mentions-legales, scan, promo/[token]
 - OpenGraph + Twitter Cards + Canonical URLs sur toutes les pages
 - Protection SEO : noindex sur pages promo temporaires
 
 #### ✅ Image OpenGraph Site (1h30)
+
 - Image créée : 2402x1266px PNG (logo blanc sur fond vert)
 - Intégrée dans layout principal avec metadata OpenGraph + Twitter
 - Chemin : `/public/images/og-image.png`
 - Déployée en production
 
 #### ✅ Tâche 4 : Améliorer Metadata Homepage
+
 - Schema.org LocalBusiness déjà présent ✅
 - OpenGraph image ajoutée ✅
 
 #### ✅ Tâche 9 : Google Analytics 4 - Phase 1 (1h30)
+
 - Propriété GA4 créée avec Measurement ID : `G-TVP44WVY9M`
 - Composant `GoogleAnalytics.tsx` créé avec Next.js Script
 - Intégré dans layout site avec stratégie `afterInteractive`
@@ -1281,6 +1286,7 @@ import Image from 'next/image';
 - ⚠️ **Action requise** : Ajouter var env dans Vercel Dashboard
 
 #### ✅ Tâche 10 : Blog SEO - Phase 1 (1h30)
+
 - Layout dynamique créé : `/blog/[slug]/layout.tsx`
 - `generateMetadata()` pour metadata dynamique par article
 - Schema.org Article avec JSON-LD automatique
@@ -1289,6 +1295,7 @@ import Image from 'next/image';
 - ✅ **6 articles optimisés automatiquement**
 
 #### 📊 Impact Global
+
 - **Progression** : 2/14 → 7/14 tâches (14% → **50%** 🎉)
 - **Google Search Console** : 2/4 → 3/4 (50% → 75%)
 - **GMB + Image** : 0/1 → 1/1 (0% → 100% ✅)
@@ -1298,6 +1305,7 @@ import Image from 'next/image';
 - **Build** : ✅ Réussi sans erreur
 
 #### 🎯 Résultats Attendus (7-14 jours)
+
 - Google indexe nouvelles metadata sur 11 pages
 - Image OpenGraph apparaît dans partages sociaux
 - GA4 commence à collecter données trafic
@@ -1312,11 +1320,13 @@ import Image from 'next/image';
 #### ✅ Correction OpenGraph Incomplete (Issue Ahrefs)
 
 **Problème détecté** :
+
 - Ahrefs signalait "Open Graph tags incomplete" sur plusieurs pages
 - **Cause** : Balise `og:image` manquante (critique pour partage social et SEO)
 - Pages affectées : 21 pages (toutes pages avec openGraph)
 
 **Solution appliquée** :
+
 1. ✅ **Root Layout** : Ajout `metadataBase` + `openGraph.images` + `twitter.images`
 2. ✅ **Pages Statiques** (18 pages) : Ajout `og:image` + `twitter:image` sur :
    - Pages principales : concept, spaces, pricing, take-away, contact, food, boissons
@@ -1330,12 +1340,14 @@ import Image from 'next/image';
 4. ✅ **Corrections** : Remplacement `/images/og-default.jpg` (inexistant) → `/images/og-image.png` (3.2 MB, existe)
 
 **Image OpenGraph utilisée** :
+
 - Chemin : `/public/images/og-image.png`
 - Dimensions : 1200x630px (ratio optimal OpenGraph)
 - Format : PNG
 - Taille : 3.2 MB
 
 **Fichiers modifiés** : 21 fichiers
+
 ```
 apps/site/src/app/
 ├── layout.tsx ✅
@@ -1364,12 +1376,14 @@ apps/site/src/app/
 ```
 
 **Résultat** :
+
 - ✅ **21/21 pages** ont maintenant `og:image` + `twitter:image`
 - ✅ **100%** des pages ont metadata OpenGraph complètes
 - ✅ Build réussi (38 pages générées)
 - ✅ Commit : `feat(seo): add og:image to all 21 pages for complete OpenGraph`
 
 **Tags OpenGraph maintenant présents sur TOUTES les pages** :
+
 1. ✅ `og:type` (website / article)
 2. ✅ `og:locale` (fr_FR)
 3. ✅ `og:site_name` (CoworKing Café Strasbourg)
@@ -1383,11 +1397,13 @@ apps/site/src/app/
 #### 🎯 Impact Attendu SEO (7-14 jours)
 
 **Avant** :
+
 - ❌ Ahrefs : "Open Graph tags incomplete"
 - ❌ 0/21 pages avec og:image
 - ❌ Partages sociaux sans preview image
 
 **Après** :
+
 - ✅ Ahrefs devrait passer à "complete" (issue résolue)
 - ✅ 21/21 pages avec og:image
 - ✅ Meilleur partage sur réseaux sociaux (Facebook, Twitter, LinkedIn)
@@ -1396,6 +1412,7 @@ apps/site/src/app/
 - ✅ Meilleure visibilité sociale
 
 **Progression Globale** :
+
 - **Tâches SEO** : 7/14 → **7/14** (maintien 50%, correction technique)
 - **Qualité Metadata** : OpenGraph incomplete → **OpenGraph 100% complète** ✅
 
