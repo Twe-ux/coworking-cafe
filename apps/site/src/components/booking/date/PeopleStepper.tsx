@@ -48,7 +48,7 @@ export function PeopleStepper({
     <div className={`card h-100 ${className}`}>
       <div className="card-body d-flex flex-column">
         <h6 className="card-title mb-3">
-          <i className="bi bi-people me-2" />
+          <span className="me-2">👥</span>
           Nombre de personnes
         </h6>
 
@@ -60,8 +60,9 @@ export function PeopleStepper({
             onClick={handleDecrement}
             disabled={!canDecrement}
             aria-label="Diminuer le nombre de personnes"
+            style={{ fontSize: '1.5rem', width: '45px', height: '45px' }}
           >
-            <i className="bi bi-dash-lg" />
+            −
           </button>
 
           <div className="mx-4 text-center">
@@ -77,8 +78,9 @@ export function PeopleStepper({
             onClick={handleIncrement}
             disabled={!canIncrement}
             aria-label="Augmenter le nombre de personnes"
+            style={{ fontSize: '1.5rem', width: '45px', height: '45px' }}
           >
-            <i className="bi bi-plus-lg" />
+            +
           </button>
         </div>
 
