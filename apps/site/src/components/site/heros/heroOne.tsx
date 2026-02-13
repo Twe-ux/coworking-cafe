@@ -70,11 +70,11 @@ const HeroOne = () => {
               <Image
                 src="/images/banner/logo-circle-white.webp"
                 alt="CoworKing Café by Anticafé Strasbourg - Logo circulaire"
-                width={120}
-                height={120}
+                width={250}
+                height={250}
                 className="logo__circle"
                 priority
-                sizes="120px"
+                sizes="250px"
               />
               <div>
                 <Image
