@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Icon } from "@/components/common/Icon";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -38,7 +39,7 @@ export default function ScrollToTop() {
       className={`scroll-to-top ${isVisible ? "scroll-to-top--visible" : ""}`}
       aria-label="Retour en haut"
     >
-      <i className="bi bi-arrow-up"></i>
+      <Icon name="arrow-up" size={24} />
     </button>
   );
 }

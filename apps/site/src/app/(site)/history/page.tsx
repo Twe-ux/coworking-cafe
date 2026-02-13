@@ -58,15 +58,16 @@ export default function historyPage() {
       <PageTitle title={"Notre histoire"} />
       <article className="service__details py__90">
         <div className="container">
-          <Image
-            src="/images/history/histoire-coworking-strasbourg.webp"
-            width={1920}
-            height={1280}
-            alt="Histoire CoworKing Café by Anticafé Strasbourg - Christèle et Thierry fondateurs"
-            className="w-100 thumb__img rounded-3"
-            style={{ height: 'auto' }}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1140px"
-          />
+          <div className="position-relative" style={{ width: '100%', height: 'auto', aspectRatio: '3/2' }}>
+            <Image
+              src="/images/history/histoire-coworking-strasbourg.webp"
+              fill
+              alt="Histoire CoworKing Café by Anticafé Strasbourg - Christèle et Thierry fondateurs"
+              className="thumb__img rounded-3"
+              style={{ objectFit: 'cover' }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1140px"
+            />
+          </div>
           <div className="first__para pt__60">
             <SlideUp>
               <h2 className="t__54">
@@ -150,15 +151,16 @@ export default function historyPage() {
 
             <div className="row align-items-center mt__40">
               <SlideUp className="col-md-6">
-                <Image
-                  src="/images/history/histoire-anticafe-strasbourg.webp"
-                  width={1920}
-                  height={1280}
-                  alt="Espace coworking convivial avec clients - CoworKing Café Anticafé Strasbourg"
-                  className="w-100 rounded-3"
-                  style={{ height: 'auto' }}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                <div className="position-relative" style={{ width: '100%', aspectRatio: '3/2' }}>
+                  <Image
+                    src="/images/history/histoire-anticafe-strasbourg.webp"
+                    fill
+                    alt="Espace coworking convivial avec clients - CoworKing Café Anticafé Strasbourg"
+                    className="rounded-3"
+                    style={{ objectFit: 'cover' }}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
               </SlideUp>
 
               <SlideUp className="col-md-5 mt-4 mt-md-0">
