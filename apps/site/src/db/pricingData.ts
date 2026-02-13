@@ -104,8 +104,7 @@ prorata.`,
     duration: "par jour",
     features: [
       "petite salle de réunion",
-      `capacité : 4 personnes
-      (+1 avec un supplément tarifaire)`,
+      "capacité : 4 personnes (+1 avec un supplément tarifaire)",
       "wifi très haut débit",
       "boissons à volonté",
       "écran lcd pour projeter",
@@ -120,9 +119,8 @@ prorata.`,
     priceHT: "50€",
     duration: "par heure",
     features: [
-      "salle de réunion + salon d’accueil",
-      `capacité : 10 personnes
-      (+5 avec un supplément tarifaire)`,
+      "salle de réunion + salon d'accueil",
+      "capacité : 10 personnes (+5 avec un supplément tarifaire)",
       "wifi très haut débit",
       "boissons à volonté",
       "vidéoprojecteur et système son",
@@ -137,9 +135,8 @@ prorata.`,
     priceHT: "250€",
     duration: "par jour",
     features: [
-      "salle de réunion + salon d’accueil",
-      `capacité : 10 personnes
-      (+5 avec un supplément tarifaire)`,
+      "salle de réunion + salon d'accueil",
+      "capacité : 10 personnes (+5 avec un supplément tarifaire)",
       "wifi très haut débit",
       "boissons à volonté",
       "vidéoprojecteur et système son",
