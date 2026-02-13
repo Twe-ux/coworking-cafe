@@ -14,16 +14,18 @@ const ProjectCard = ({
 }: ProjectCardProps) => {
   return (
     <div className={`projects__2_card ${className}`}>
-      <Image
-        src={imgSrc}
-        alt={`${title} - CoworKing Café Anticafé Strasbourg`}
-        width={600}
-        height={400}
-        loading="lazy"
-        quality={85}
-        className="w-100"
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      />
+      <div className="position-relative w-100" style={{ aspectRatio: '1/1' }}>
+        <Image
+          src={imgSrc}
+          alt={`${title} - CoworKing Café Anticafé Strasbourg`}
+          fill
+          loading="lazy"
+          quality={85}
+          style={{ objectFit: 'cover' }}
+          className="rounded-3"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+        />
+      </div>
     </div>
   );
 };
