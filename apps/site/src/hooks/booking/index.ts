@@ -11,3 +11,7 @@ export { useBookingHandlers } from "./useBookingHandlers";
 export type { UseBookingHandlersParams, UseBookingHandlersReturn } from "./useBookingHandlers";
 
 export { useBookingDetailsPage } from "./useBookingDetailsPage";
+
+export { useBookingPricing } from "./useBookingPricing";
+export { useBookingConfig } from "./useBookingConfig";
+export { useBookingPayment } from "./useBookingPayment";

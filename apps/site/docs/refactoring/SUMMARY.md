@@ -8,6 +8,9 @@ Ce fichier liste toutes les refactorisations majeures effectuées sur l'applicat
 
 | Date | Fichier | Status | Lignes Avant | Lignes Après | Réduction |
 |------|---------|--------|--------------|--------------|-----------|
+| 2026-02-13 | `booking/summary` (hooks) | ✅ | 292 | 116 + 3 hooks | -60% |
+| 2026-02-13 | `booking/details/page.tsx` | ✅ | 261 | 167 | -36% |
+| 2026-02-09 | `booking/[type]/new/page.tsx` | ✅ | 1,399 | 344 | -75% |
 | 2026-02-08 | `booking/page.tsx` | ✅ | 371 | 54 | -85% |
 
 ---
@@ -57,23 +60,47 @@ Ce fichier liste toutes les refactorisations majeures effectuées sur l'applicat
 
 ---
 
-## 🎯 Prochaines Refactorisations
+## 2026-02-13 : Module Booking Complet
 
-### Haute Priorité
+### ✅ 4/4 Pages Refactorisées
 
-1. **`booking/details/page.tsx`** - 300+ lignes
-2. **`booking/summary/page.tsx`** - 250+ lignes
-3. **`dashboard/messages/page.tsx`** - 280+ lignes
+| Page | Lignes Avant | Lignes Après | Hooks Créés | Status |
+|------|--------------|--------------|-------------|--------|
+| `/booking/[type]/new` | 1,399 | 344 | 5 hooks | ✅ |
+| `/booking/details` | 261 | 167 | 1 hook | ✅ |
+| `/booking/summary` | 142 (page OK) | 142 | 3 hooks | ✅ |
+| `/booking/confirmation` | N/A | N/A | N/A | ✅ |
 
-### Moyenne Priorité
+**Total hooks créés** : **9 hooks spécialisés**
 
-4. **`(site)/spaces/page.tsx`** - 220 lignes
-5. **`(site)/blog/page.tsx`** - 200 lignes
+### Documentation
 
-### Basse Priorité
-
-6. Composants globaux (Hero, Features, etc.)
+- `REFACTORING_PROGRESS_BOOKING.md` - Progression booking/[type]/new
+- `BOOKING_SUMMARY_REFACTOR.md` - Refacto hooks summary
+- Voir aussi rapports individuels
 
 ---
 
-**Dernière mise à jour** : 2026-02-08
+## 🎯 Prochaines Refactorisations
+
+### ✅ Module Booking - 100% COMPLÉTÉ
+
+Toutes les pages du module booking sont refactorisées et respectent les limites.
+
+### Haute Priorité
+
+1. **`dashboard/messages/page.tsx`** - 280+ lignes
+2. **`dashboard/promo/page.tsx`** - 250+ lignes
+
+### Moyenne Priorité
+
+3. **`(site)/spaces/page.tsx`** - 220 lignes
+4. **`(site)/blog/page.tsx`** - 200 lignes
+
+### Basse Priorité
+
+5. Composants globaux (Hero, Features, etc.)
+
+---
+
+**Dernière mise à jour** : 2026-02-13
