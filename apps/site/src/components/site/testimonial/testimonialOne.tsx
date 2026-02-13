@@ -134,7 +134,12 @@ const TestimonialOne = () => {
                     </div>
                   </div>
                   <div>
-                    <img src={testimonial.quoteImage} alt="quote" />
+                    <img
+                      src={testimonial.quoteImage}
+                      alt="quote"
+                      width="60"
+                      height="60"
+                    />
                   </div>
                 </div>
               </SwiperSlide>
