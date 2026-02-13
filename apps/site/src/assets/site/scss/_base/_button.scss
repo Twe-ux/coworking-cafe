@@ -16,7 +16,8 @@
   &:hover {
     opacity: 0.9;
   }
-  i {
+  i,
+  svg {
     transform: rotate(-45deg);
     margin-left: 6px;
     font-size: 18px;
@@ -42,7 +43,8 @@
   &:hover {
     opacity: 0.9;
   }
-  i {
+  i,
+  svg {
     transform: rotate(-45deg);
     margin-left: 6px;
     font-size: 18px;
