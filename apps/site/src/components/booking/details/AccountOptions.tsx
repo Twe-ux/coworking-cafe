@@ -1,9 +1,9 @@
 interface AccountOptionsProps {
   contactForm: {
-    createAccount: boolean;
-    password: string;
-    confirmPassword: string;
-    subscribeNewsletter: boolean;
+    createAccount?: boolean;
+    password?: string;
+    confirmPassword?: string;
+    subscribeNewsletter?: boolean;
   };
   updateContactField: (field: string, value: string | boolean) => void;
   showPassword: boolean;
@@ -35,7 +35,7 @@ export default function AccountOptions({
                 type="checkbox"
                 className="form-check-input"
                 id="createAccount"
-                checked={contactForm.createAccount}
+                checked={contactForm.createAccount || false}
                 onChange={(e) => updateContactField("createAccount", e.target.checked)}
               />
               <label
@@ -97,9 +97,9 @@ export default function AccountOptions({
                       type={showPassword ? "text" : "password"}
                       className="form-control"
                       placeholder="Minimum 8 caractères"
-                      value={contactForm.password}
+                      value={contactForm.password || ""}
                       onChange={(e) => updateContactField("password", e.target.value)}
-                      required={contactForm.createAccount}
+                      required={!!contactForm.createAccount}
                       style={{ paddingRight: "2.5rem" }}
                     />
                     <button
@@ -125,9 +125,9 @@ export default function AccountOptions({
                       type={showConfirmPassword ? "text" : "password"}
                       className="form-control"
                       placeholder="Retapez votre mot de passe"
-                      value={contactForm.confirmPassword}
+                      value={contactForm.confirmPassword || ""}
                       onChange={(e) => updateContactField("confirmPassword", e.target.value)}
-                      required={contactForm.createAccount}
+                      required={!!contactForm.createAccount}
                       style={{ paddingRight: "2.5rem" }}
                     />
                     <button
@@ -162,7 +162,7 @@ export default function AccountOptions({
                 type="checkbox"
                 className="form-check-input"
                 id="newsletter"
-                checked={contactForm.subscribeNewsletter}
+                checked={contactForm.subscribeNewsletter || false}
                 onChange={(e) => updateContactField("subscribeNewsletter", e.target.checked)}
               />
               <label

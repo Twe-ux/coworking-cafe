@@ -4,7 +4,7 @@ interface PriceSummarySectionProps {
   bookingData: {
     basePrice: number;
     numberOfPeople: number;
-    reservationType: "hourly" | "daily";
+    reservationType: "hourly" | "daily" | "weekly" | "monthly";
     isDailyRate?: boolean;
   };
   selectedServices: Map<string, { service: AdditionalService; quantity: number }>;
@@ -133,7 +133,7 @@ function BaseRateRow({
 }: {
   basePrice: number;
   numberOfPeople: number;
-  reservationType: "hourly" | "daily";
+  reservationType: "hourly" | "daily" | "weekly" | "monthly";
   showTTC: boolean;
   convertPrice: (price: number, vatRate: number, isTTC: boolean) => number;
 }) {

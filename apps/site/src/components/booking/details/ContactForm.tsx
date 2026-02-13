@@ -4,7 +4,7 @@ interface ContactFormProps {
     contactName: string;
     contactEmail: string;
     contactPhone: string;
-    contactCompanyName: string;
+    contactCompanyName?: string;
   };
   updateContactField: (field: string, value: string) => void;
 }
@@ -75,7 +75,7 @@ export default function ContactForm({
                   type="text"
                   className="form-control"
                   placeholder="Nom de votre société"
-                  value={contactForm.contactCompanyName}
+                  value={contactForm.contactCompanyName || ""}
                   onChange={(e) => updateContactField("contactCompanyName", e.target.value)}
                 />
               </div>
@@ -132,7 +132,7 @@ export default function ContactForm({
                   type="text"
                   className="form-control"
                   placeholder="Nom de votre société"
-                  value={contactForm.contactCompanyName}
+                  value={contactForm.contactCompanyName || ""}
                   onChange={(e) => updateContactField("contactCompanyName", e.target.value)}
                 />
               </div>

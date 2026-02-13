@@ -70,11 +70,13 @@
 - ✅ `https://coworkingcafe.fr/manifest`
 - ✅ `https://coworkingcafe.fr/cgu`
 - ✅ `https://coworkingcafe.fr/confidentiality`
-- [ ] `https://coworkingcafe.fr/mentions-legales`
+- ✅ `https://coworkingcafe.fr/mentions-legales`
 
 #### Jour 4 - Articles Blog
 
 **Récupérer URLs** : https://coworkingcafe.fr/sitemap.xml
+
+- ✅ `https://coworkingcafe.fr/blog/archive`
 
 - [ ] Article 1 : `/blog/[slug-1]`
 - [ ] Article 2 : `/blog/[slug-2]`

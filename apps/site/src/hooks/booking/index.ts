@@ -9,3 +9,5 @@ export type { UseTimeSlotsParams, UseTimeSlotsReturn } from "./useTimeSlots";
 
 export { useBookingHandlers } from "./useBookingHandlers";
 export type { UseBookingHandlersParams, UseBookingHandlersReturn } from "./useBookingHandlers";
+
+export { useBookingDetailsPage } from "./useBookingDetailsPage";
