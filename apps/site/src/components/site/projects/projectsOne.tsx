@@ -1,6 +1,7 @@
 import { projectsOneData } from "../../../db/projectsOneData";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -38,9 +39,25 @@ const ProjectsOne: React.FC<ProjectsOneProps> = ({ isProjectUseCaseShow }) => {
                 <SlideUp delay={id} key={id} className="projects__wapper_card">
                   <Link href={`/spaces#${link}`}>
                     <div className="d-flex flex-column gap-5">
-                      <img src={imgSrc} alt="photos des salles de réunion" />
+                      <Image
+                        src={imgSrc}
+                        alt={`${title} - CoworKing Café Anticafé Strasbourg`}
+                        width={600}
+                        height={400}
+                        loading="lazy"
+                        quality={85}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
                       {imgSrc2 && (
-                        <img src={imgSrc2} alt="photos des salles de réunion" />
+                        <Image
+                          src={imgSrc2}
+                          alt={`${title} - CoworKing Café Anticafé Strasbourg`}
+                          width={600}
+                          height={400}
+                          loading="lazy"
+                          quality={85}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
                       )}
                     </div>
                   </Link>

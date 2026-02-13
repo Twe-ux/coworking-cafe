@@ -4,7 +4,6 @@
 // Composant de sélection du type de réservation (hourly/daily/weekly/monthly)
 // ============================================================================
 
-import React from "react";
 import type { ReservationType, ReservationTypeOption } from "@/types/booking";
 
 /**

@@ -1,5 +1,6 @@
 import { IconArrowRight } from "@/components/icons/CriticalIcons";
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import Link from "next/link";
 
 const HeroOne = () => {
@@ -66,16 +67,25 @@ const HeroOne = () => {
           </div>
           <div className="col-lg-3">
             <div className="banner__right">
-              <img
+              <Image
                 src="/images/banner/logo-circle-white.webp"
                 alt="CoworKing Café by Anticafé Strasbourg - Logo circulaire"
+                width={120}
+                height={120}
                 className="logo__circle"
+                priority
+                sizes="120px"
               />
               <div>
-                <img
+                <Image
                   src="/images/banner/coworking-café.webp"
                   alt="Espace de coworking avec boissons à volonté - CoworKing Café Strasbourg"
+                  width={800}
+                  height={600}
                   className="bg__img"
+                  priority
+                  sizes="(max-width: 991px) 100vw, 25vw"
+                  quality={85}
                 />
               </div>
             </div>

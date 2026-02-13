@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import RelatedArticles from "../../../../components/site/blogs/RelatedArticles";
 
 // Fetch article data for metadata

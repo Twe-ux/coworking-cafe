@@ -1,7 +1,6 @@
 import SlideUp from "../../../utils/animations/slideUp";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
 const BlogArticle = () => {
   return (
@@ -14,6 +13,7 @@ const BlogArticle = () => {
         loading="lazy"
         quality={85}
         className="w-100 thumb__img"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 800px"
       />
       <div className="first__para">
         <ul className="d-flex flex-wrap gap-4">
@@ -89,6 +89,7 @@ const BlogArticle = () => {
             loading="lazy"
             quality={85}
             className="w-100"
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
         <div className="col-md-6 mt-4 mt-md-0">
@@ -101,6 +102,7 @@ const BlogArticle = () => {
               loading="lazy"
               quality={85}
               className="w-100"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             <a
               href="https://youtu.be/UVLRVzrOKZk"

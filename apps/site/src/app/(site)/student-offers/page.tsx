@@ -120,12 +120,15 @@ const StudentsOffersPage = () => {
                       </div>
                     </SlideUp>
                     <div className="students__carousel mt-4">
-                      <img
-                        src={
-                          "/images/offersStudents/offres-étudiants-happy-hours-coworking-strasbourg.webp"
-                        }
-                        alt={`"Happy Hours , 🎓 spécial étudiants" - image ${"happy-hours"}`}
+                      <Image
+                        src="/images/offersStudents/offres-étudiants-happy-hours-coworking-strasbourg.webp"
+                        alt="Happy Hours spécial étudiants - CoworKing Café Anticafé Strasbourg"
+                        width={800}
+                        height={600}
+                        loading="lazy"
+                        quality={85}
                         className="students__carousel_img"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 50vw"
                       />
                     </div>
                   </div>
@@ -203,6 +206,7 @@ const StudentsOffersPage = () => {
                         loading="lazy"
                         quality={85}
                         className="students__carousel_img"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 50vw"
                       />
                     </div>
                   </div>

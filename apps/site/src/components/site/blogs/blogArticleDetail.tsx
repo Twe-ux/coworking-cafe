@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import dynamic from "next/dynamic";
 
 const MarkdownRenderer = dynamic(() => import("./MarkdownRenderer"), {
@@ -190,10 +191,15 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
 
       <article>
         {article.featuredImage && (
-        <img
+        <Image
           src={article.featuredImage}
           alt={article.title}
+          width={1200}
+          height={630}
+          priority
+          quality={85}
           className="w-100 thumb__img"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 800px"
         />
       )}
       <div className="first__para ">

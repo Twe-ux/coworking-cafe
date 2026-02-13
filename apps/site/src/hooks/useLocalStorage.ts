@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export default function useLocalStorage<T>(key: string, initialValue: T, override: boolean = false) {
   const [storedValue, setStoredValue] = useState<T>(() => {

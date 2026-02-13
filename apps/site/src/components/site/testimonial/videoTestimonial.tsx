@@ -23,6 +23,7 @@ const VideoTestimonial = () => {
             loading="lazy"
             quality={85}
             className="video_thumb"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1100px"
           />
           <div onClick={() => setOpen(true)} className="video_icon video-play">
             <Image

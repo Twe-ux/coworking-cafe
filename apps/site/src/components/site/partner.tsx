@@ -1,5 +1,4 @@
 import Image from "next/image";
-import React from 'react';
 
 interface PartnerProps {
     data: string[];
@@ -21,6 +20,7 @@ const Partner = ({data, className = ''}: PartnerProps) => {
                                 loading="lazy"
                                 quality={85}
                                 className="partner__logo"
+                                sizes="120px"
                             />
                         </div>
                     ))}

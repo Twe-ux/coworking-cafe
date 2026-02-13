@@ -5,7 +5,6 @@
 // Supporte l'affichage intelligent des tiers de pricing
 // ============================================================================
 
-import React from "react";
 import type { PricingTier } from "@/types/booking";
 
 /**

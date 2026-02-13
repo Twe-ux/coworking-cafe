@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/mongodb';
 import { Booking } from "@coworking-cafe/database";
 import { Payment } from "@coworking-cafe/database";
 import { getAuthUser, handleApiError } from '@/lib/api-helpers';
-import { createPaymentIntent, createSetupIntent, formatAmountForStripe, getOrCreateStripeCustomer } from '@/lib/stripe';
+import { createPaymentIntent, formatAmountForStripe, getOrCreateStripeCustomer } from '@/lib/stripe';
 import { urlToDbSpaceType } from '@/lib/space-types';
 import mongoose from 'mongoose';
 import { SpaceConfiguration } from "@coworking-cafe/database";

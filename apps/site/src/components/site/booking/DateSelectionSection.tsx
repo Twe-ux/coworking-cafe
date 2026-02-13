@@ -4,7 +4,6 @@
 // Section accordion pour la sélection de date avec CustomDatePicker
 // ============================================================================
 
-import React from "react";
 import CustomDatePicker from "./CustomDatePicker";
 import type { ReservationType } from "@/types/booking";
 

@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { redirect, notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { options } from "@/lib/auth-options";
 import Link from "next/link";
 import "./client-dashboard.scss";

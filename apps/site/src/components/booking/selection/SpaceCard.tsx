@@ -34,6 +34,7 @@ export default function SpaceCard({
                 loading="lazy"
                 quality={85}
                 className="space-image"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                   e.currentTarget.nextElementSibling?.classList.remove(

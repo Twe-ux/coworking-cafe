@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Booking, Space, User } from "@coworking-cafe/database";
-import { getAuthUser, requireAuth, handleApiError } from '@/lib/api-helpers';
+import { requireAuth, handleApiError } from '@/lib/api-helpers';
 import { getSpaceTypeName } from '@/lib/space-names';
 import mongoose from 'mongoose';
 import { sendClientBookingConfirmation } from '@/lib/email/emailService';

@@ -65,6 +65,7 @@ export default function historyPage() {
             alt="Histoire CoworKing Café by Anticafé Strasbourg - Christèle et Thierry fondateurs"
             className="w-100 thumb__img rounded-3"
             style={{ height: 'auto' }}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1140px"
           />
           <div className="first__para pt__60">
             <SlideUp>
@@ -156,6 +157,7 @@ export default function historyPage() {
                   alt="Espace coworking convivial avec clients - CoworKing Café Anticafé Strasbourg"
                   className="w-100 rounded-3"
                   style={{ height: 'auto' }}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </SlideUp>
 

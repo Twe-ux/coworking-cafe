@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import connectDB from "./mongodb";
 import { User } from "@coworking-cafe/database";
 import { Role } from '@coworking-cafe/database';
-import { Permission } from '@coworking-cafe/database';
 import type { UserDocument } from "@coworking-cafe/database";
 import type { RoleDocument } from "@coworking-cafe/database";
 import type { PermissionDocument } from "@coworking-cafe/database";

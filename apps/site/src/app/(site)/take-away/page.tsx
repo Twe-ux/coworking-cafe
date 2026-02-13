@@ -51,6 +51,7 @@ const TakeAway = () => {
             alt="Comptoir Take Away boissons à emporter - CoworKing Café Anticafé Strasbourg"
             className="w-100 thumb__img"
             style={{ height: 'auto' }}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1140px"
           />
 
           <div className="first__para pt__60">
@@ -85,6 +86,7 @@ const TakeAway = () => {
                 alt="Carte boissons chaudes - CoworKing Café Anticafé Strasbourg"
                 className="d-block w-46 rounded-3"
                 style={{ height: 'auto' }}
+                sizes="(max-width: 768px) 100vw, 46vw"
               />
 
               <Image
@@ -94,6 +96,7 @@ const TakeAway = () => {
                 alt="Menu boissons froides - CoworKing Café Anticafé Strasbourg"
                 className="w-52 rounded-3"
                 style={{ height: 'auto' }}
+                sizes="(max-width: 768px) 100vw, 52vw"
               />
             </div>
 
@@ -113,6 +116,7 @@ const TakeAway = () => {
                 alt="Épicerie encas sucrés et snacks - CoworKing Café Anticafé Strasbourg"
                 className="w-100 rounded"
                 style={{ height: 'auto' }}
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
             <div className="col-lg-6">
@@ -170,6 +174,7 @@ const TakeAway = () => {
                 alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
                 className="w-100 rounded"
                 style={{ height: 'auto' }}
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
           </div>

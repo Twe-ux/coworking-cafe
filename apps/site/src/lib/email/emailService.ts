@@ -15,7 +15,6 @@ import type { BaseEmailData, EmailWithDepositData, EmailWithFeesData, ReminderEm
 import { generateBookingValidationEmail, generateReservationRejectedEmail, generateAdminCancelClientBookingEmail, generateClientNoShowEmail } from './templates';
 import { generateReminderEmail } from './templates/reminder';
 import { generateClientCancelBookingEmail } from './templates/clientCancelBooking';
-import { generateBookingInitialEmail as generateClientBookingConfirmationEmail } from './templates/clientBookingConfirmation';
 
 /**
  * Configuration emails

@@ -8,7 +8,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Images configuration
+  // Images configuration - responsive srcset optimization
   images: {
     remotePatterns: [
       {
@@ -17,6 +17,10 @@ const nextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
+    // Device breakpoints for srcset (used with sizes attribute)
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    // Smaller image sizes for fixed-width images (icons, thumbnails)
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
   // SCSS configuration

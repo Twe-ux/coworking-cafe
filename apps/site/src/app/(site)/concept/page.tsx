@@ -50,6 +50,7 @@ const Concept = () => {
             loading="lazy"
             quality={85}
             className="w-100 thumb__img"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1140px"
           />
           <div className="first__para pt__60">
             <SlideUp>
@@ -160,6 +161,7 @@ const Concept = () => {
                   loading="lazy"
                   quality={85}
                   className="w-100 thumb__img"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </SlideUp>
               <SlideUp className="col-md-5 mt-4 mt-md-0">

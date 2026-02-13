@@ -142,6 +142,7 @@ const Footer = () => {
                   loading="lazy"
                   className="logo"
                   style={{ width: 'auto', height: 'auto', maxWidth: '300px' }}
+                  sizes="300px"
                 />
               </Link>
             </div>

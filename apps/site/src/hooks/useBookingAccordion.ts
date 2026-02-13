@@ -4,7 +4,7 @@
 // Hook personnalisé pour gérer les accordions et l'auto-scroll
 // ============================================================================
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 
 /**
  * Return type du hook useBookingAccordion

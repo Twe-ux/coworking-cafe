@@ -4,6 +4,7 @@ import {
   useGetArticlesQuery,
   useGetCategoriesQuery,
 } from "../../../store/api/blogApi";
+import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -138,10 +139,15 @@ const BlogSidebar = ({
             latestPosts.articles.map((article) => (
               <li key={article._id}>
                 <Link href={`/blog/${article.slug}`}>
-                  <img
+                  <Image
                     src={article.featuredImage || "/images/blogs/blog-1.webp"}
                     alt={article.title}
+                    width={120}
+                    height={80}
+                    loading="lazy"
+                    quality={85}
                     className="thumb__img"
+                    sizes="120px"
                   />
                 </Link>
                 <div>
@@ -151,7 +157,7 @@ const BlogSidebar = ({
                       : article.title}
                   </Link>
                   <p className="d-flex gap-2">
-                    <img src="/icons/clender.svg" alt="Icône calendrier" />
+                    <Image src="/icons/clender.svg" alt="Icône calendrier" width={16} height={16} />
                     <span>
                       {new Date(
                         article.publishedAt || article.createdAt,

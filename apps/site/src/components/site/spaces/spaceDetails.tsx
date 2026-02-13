@@ -74,6 +74,7 @@ const SpaceDetails = ({
                         loading="lazy"
                         quality={85}
                         className="spaces__carousel_img"
+                        sizes="(max-width: 991px) 100vw, 50vw"
                       />
                     </SwiperSlide>
                   ))}

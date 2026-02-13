@@ -55,6 +55,7 @@ const AboutOne = () => {
                   height={600}
                   loading="lazy"
                   quality={85}
+                  sizes="(max-width: 991px) 100vw, 33vw"
                 />
               </div>
             </SlideUp>

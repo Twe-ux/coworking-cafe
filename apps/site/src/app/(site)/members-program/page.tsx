@@ -73,6 +73,7 @@ export default function MembersProgramPage() {
                   loading="lazy"
                   quality={85}
                   className="w-100 rounded-3"
+                  sizes="(max-width: 768px) 100vw, 42vw"
                 />
               </div>
               <SlideUp className="col-md-6 mt-4 mt-md-0">

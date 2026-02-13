@@ -1,4 +1,3 @@
-import React from "react";
 import { projectsTwoData } from "../../../db/projectsTwoData";
 import ProjectCard from "./projectCard";
 import SlideDown from "../../../utils/animations/slideDown";

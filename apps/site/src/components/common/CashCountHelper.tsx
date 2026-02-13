@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { EURO_BILLS, EURO_COINS, calculateTotalFromDetails, formatCurrency, getEmptyCountDetails } from '@/types/cashRegister';
+import { calculateTotalFromDetails, formatCurrency, getEmptyCountDetails } from '@/types/cashRegister';
 import type { CashCountDetails } from '@/types/cashRegister';
 
 interface CashCountHelperProps {

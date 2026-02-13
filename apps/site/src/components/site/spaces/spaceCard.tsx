@@ -26,6 +26,7 @@ const SpaceCard = ({
           height={400}
           loading="lazy"
           quality={85}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <h3 className="t__28">{title}</h3>
         <p>{description}</p>

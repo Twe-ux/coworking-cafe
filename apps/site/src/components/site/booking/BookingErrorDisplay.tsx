@@ -4,8 +4,6 @@
 // Composant pour afficher les erreurs et messages dans le processus de booking
 // ============================================================================
 
-import React from "react";
-
 /**
  * Props du composant BookingErrorDisplay
  */

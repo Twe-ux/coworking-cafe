@@ -5,7 +5,7 @@ import BlogSidebar from "../../../../../components/site/blogs/blogSidebar";
 import PageTitle from "../../../../../components/site/PageTitle";
 import { useGetArticlesQuery, useGetCategoriesQuery } from "../../../../../store/api/blogApi";
 import SlideDown from "../../../../../utils/animations/slideDown";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 
 const BlogCategory = () => {

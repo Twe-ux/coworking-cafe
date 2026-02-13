@@ -2,6 +2,7 @@
 import { testimonialsOneData } from "../../../db/testimonialsOneData";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
@@ -124,9 +125,13 @@ const TestimonialOne = () => {
                 <p className="review">{testimonial.review}</p>
                 <div className="d-flex justify-content-between">
                   <div className="d-flex gap-4 reviewer__info">
-                    <img
+                    <Image
                       src={testimonial.reviewer.image}
                       alt={testimonial.reviewer.name}
+                      width={60}
+                      height={60}
+                      loading="lazy"
+                      sizes="60px"
                     />
                     <div>
                       <p>{testimonial.reviewer.name}</p>
@@ -134,11 +139,13 @@ const TestimonialOne = () => {
                     </div>
                   </div>
                   <div>
-                    <img
+                    <Image
                       src={testimonial.quoteImage}
                       alt="quote"
-                      width="60"
-                      height="60"
+                      width={60}
+                      height={60}
+                      loading="lazy"
+                      sizes="60px"
                     />
                   </div>
                 </div>

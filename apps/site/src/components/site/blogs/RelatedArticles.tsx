@@ -112,6 +112,7 @@ export default async function RelatedArticles({ currentSlug }: RelatedArticlesPr
                     loading="lazy"
                     quality={85}
                     className="card__thumb"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </Link>
                 <div>
