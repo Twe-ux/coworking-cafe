@@ -47,7 +47,7 @@ export default function AdditionalServicesSection({
   return (
     <div className="mb-4">
       <div className="d-flex align-items-center gap-2 mb-3">
-        <i className="bi bi-plus-circle text-success"></i>
+        <span style={{ fontSize: '1.25rem', color: 'var(--bs-success)' }}>➕</span>
         <label className="form-label mb-0 fw-semibold">
           Services supplémentaires{" "}
           <span className="text-muted fw-normal">(optionnel)</span>
@@ -110,11 +110,11 @@ export default function AdditionalServicesSection({
                         onClick={() => onUpdateQuantity(service._id, quantity - 1)}
                         disabled={quantity <= 1}
                         style={{
-                          fontSize: "0.75rem",
+                          fontSize: "1.25rem",
                           padding: "0.25rem 0.5rem",
                         }}
                       >
-                        <i className="bi bi-dash"></i>
+                        −
                       </button>
                       <button
                         type="button"
@@ -133,11 +133,11 @@ export default function AdditionalServicesSection({
                         className="btn btn-outline-secondary"
                         onClick={() => onUpdateQuantity(service._id, quantity + 1)}
                         style={{
-                          fontSize: "0.75rem",
+                          fontSize: "1.25rem",
                           padding: "0.25rem 0.5rem",
                         }}
                       >
-                        <i className="bi bi-plus"></i>
+                        +
                       </button>
                     </div>
                     <div
@@ -156,9 +156,9 @@ export default function AdditionalServicesSection({
                     type="button"
                     className="btn btn-sm btn-link text-danger p-0"
                     onClick={() => onToggleService(service)}
-                    style={{ fontSize: "0.9rem" }}
+                    style={{ fontSize: "1.1rem" }}
                   >
-                    <i className="bi bi-trash"></i>
+                    🗑️
                   </button>
                 </div>
               </div>

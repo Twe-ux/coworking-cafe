@@ -1,5 +1,7 @@
 'use client';
 
+import { Icon } from "@/components/common/Icon";
+
 interface BookingProgressBarProps {
   currentStep: 1 | 2 | 3 | 4;
   customLabels?: {
@@ -53,7 +55,7 @@ export default function BookingProgressBar({ currentStep, customLabels, onStepCl
               <div className="step-circle-wrapper d-flex justify-content-center mb-2">
                 <div className="step-circle">
                   {step.number < currentStep ? (
-                    <i className="bi bi-check"></i>
+                    <Icon name="check" size={16} />
                   ) : (
                     step.number
                   )}

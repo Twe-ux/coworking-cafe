@@ -130,8 +130,9 @@ export function PeopleCounterSection({
             (isInTierRange && activeTier && activeTier.minPeople === minCapacity)
           }
           aria-label="Diminuer le nombre de personnes"
+          style={{ fontSize: '1.5rem' }}
         >
-          <i className="bi bi-dash" aria-hidden="true" />
+          −
         </button>
 
         {/* Affichage du nombre ou range */}
@@ -150,8 +151,9 @@ export function PeopleCounterSection({
           onClick={handleIncrement}
           disabled={numberOfPeople >= maxCapacity}
           aria-label="Augmenter le nombre de personnes"
+          style={{ fontSize: '1.5rem' }}
         >
-          <i className="bi bi-plus" aria-hidden="true" />
+          +
         </button>
       </div>
 
