@@ -4,6 +4,7 @@ import {
   useGetArticlesQuery,
   useGetCategoriesQuery,
 } from "../../../store/api/blogApi";
+import { Icon } from "@/components/common/Icon";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -77,7 +78,7 @@ const BlogSidebar = ({
                 pointerEvents: "none",
               }}
             >
-              <i className="fa-solid fa-magnifying-glass" />
+              <Icon name="search" />
             </span>
           </form>
         </div>

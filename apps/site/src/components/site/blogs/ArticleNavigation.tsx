@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/common/Icon";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -67,10 +68,12 @@ const ArticleNavigation = ({ currentArticleId }: ArticleNavigationProps) => {
               }}
             >
               <div className="d-flex align-items-center">
-                <i
-                  className="fa-solid fa-chevron-left me-3"
-                  style={{ color: "#142220", fontSize: "20px" }}
-                ></i>
+                <Icon
+                  name="chevron-left"
+                  size={20}
+                  className="me-3"
+                  style={{ color: "#142220" }}
+                />
                 <div>
                   <small className="d-block" style={{ color: "#6e6f75" }}>
                     Article précédent
@@ -120,10 +123,12 @@ const ArticleNavigation = ({ currentArticleId }: ArticleNavigationProps) => {
                       : nextArticle.title}
                   </strong>
                 </div>
-                <i
-                  className="fa-solid fa-chevron-right ms-3"
-                  style={{ color: "#142220", fontSize: "20px" }}
-                ></i>
+                <Icon
+                  name="chevron-right"
+                  size={20}
+                  className="ms-3"
+                  style={{ color: "#142220" }}
+                />
               </div>
             </Link>
           ) : (
@@ -157,7 +162,7 @@ const ArticleNavigation = ({ currentArticleId }: ArticleNavigationProps) => {
             e.currentTarget.style.color = "#142220";
           }}
         >
-          <i className="fa-solid fa-arrow-left me-2"></i>
+          <Icon name="arrow-left" className="me-2" />
           Retour au blog
         </Link>
       </div>

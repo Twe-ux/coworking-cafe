@@ -1,7 +1,7 @@
-import "@/assets/site/font/bootstrap-font/bootstrap-icons.min.css";
-import "@/assets/site/font/font-awsome/css-js/all.min.css";
-import "@/assets/site/scss/main.scss";
+import "@/assets/site/scss/critical.scss";
 import { DynamicThemeColor } from "@/components/DynamicThemeColor";
+import { DeferredBootstrapIcons } from "@/components/common/DeferredBootstrapIcons";
+import { DeferredStyles } from "@/components/common/DeferredStyles";
 import { PWARegister } from "@/components/PWARegister";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
@@ -74,6 +74,8 @@ export default function RootLayout({
         `}</style>
         <PWARegister />
         <DynamicThemeColor />
+        <DeferredBootstrapIcons />
+        <DeferredStyles />
         <ReduxProvider>{children}</ReduxProvider>
         <Analytics />
       </body>

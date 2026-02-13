@@ -1,0 +1,77 @@
+// ============================================
+// CRITICAL CSS - Loaded as render-blocking
+// Homepage + Global layout only
+// ============================================
+// This file contains only the CSS needed for:
+// - Bootstrap core (variables, grid, utilities)
+// - Global layout (header, footer)
+// - Homepage sections (banner, about, projects, testimonial, blogs)
+// - Base typography and buttons
+//
+// Page-specific styles are in deferred.scss (loaded async)
+
+// 1. Bootstrap 5 - Configuration (required)
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+// 2. Bootstrap - Layout & base
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/images";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+
+// 3. Bootstrap - Components (used globally)
+@import "bootstrap/scss/tables";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/nav";
+@import "bootstrap/scss/card";
+@import "bootstrap/scss/badge";
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/spinners";
+@import "bootstrap/scss/offcanvas";
+
+// 4. Bootstrap - Helpers & Utilities API
+@import "bootstrap/scss/helpers";
+@import "bootstrap/scss/utilities/api";
+
+// 5. Third-party
+@import "react-modal-video/scss/modal-video.scss";
+
+// 6. Project abstracts (variables, mixins)
+@import "./_abstracts/_variables";
+@import "./_abstracts/_maxin";
+@import "./_abstracts/responsive";
+
+// 7. shadcn/ui Design System
+@import "./config/_shadcn-variables";
+@import "./config/_shadcn-mixins";
+
+// 8. Base styles (typography, buttons, utilities)
+@import "./_base/_typography";
+@import "./_base/_button";
+@import "./_base/_utilities";
+
+// 9. Global layout components (visible on every page)
+@import "./_components/_header";
+@import "./_components/_footer";
+
+// 10. Homepage sections
+@import "./_components/_banner";
+@import "./_components/_banner2";
+@import "./_components/_about";
+@import "./_components/_services";
+@import "./_components/_spaces";
+@import "./_components/_projects";
+@import "./_components/_testimonial";
+@import "./_components/_blogs";

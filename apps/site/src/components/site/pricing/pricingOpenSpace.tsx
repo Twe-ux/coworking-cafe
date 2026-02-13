@@ -1,5 +1,6 @@
 import { pricingDataOpenSpace } from "../../../db/pricingData";
 import SlideUp from "../../../utils/animations/slideUp";
+import { Icon } from "@/components/common/Icon";
 import Link from "next/link";
 
 const PricingOpenSpace = () => {
@@ -34,7 +35,7 @@ const PricingOpenSpace = () => {
               <p>{plan.condition}</p>
               <Link href={"/booking"} className="common__btn">
                 <span>Réserver</span>
-                <i className="fa-solid fa-arrow-right"></i>
+                <Icon name="arrow-right" />
               </Link>
             </div>
           </SlideUp>

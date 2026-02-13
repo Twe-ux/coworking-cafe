@@ -1,6 +1,7 @@
 import { conceptData } from "../../../db/concept/conceptData";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import { Icon } from "@/components/common/Icon";
 import Link from "next/link";
 
 const ConceptDetails = () => {
@@ -13,14 +14,14 @@ const ConceptDetails = () => {
           <div className="d-flex gap-3">
             <Link href={"/spaces#spaces"} className="common__btn mt-4 mt-lg-0">
               <span>Nos espaces</span>
-              <i className="fa-solid fa-arrow-right"></i>
+              <Icon name="arrow-right" />
             </Link>
             <Link
               href={"/pricing#pricing"}
               className="common__btn mt-4 mt-lg-0"
             >
               <span>Nos tarifs</span>
-              <i className="fa-solid fa-arrow-right"></i>
+              <Icon name="arrow-right" />
             </Link>
           </div>
         </SlideDown>

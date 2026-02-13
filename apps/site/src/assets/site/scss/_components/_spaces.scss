@@ -151,9 +151,10 @@
         height: 200px;
       }
     }
-    .fa-arrow-right {
+    svg {
       transform: rotate(-45deg);
-      font-size: 18px;
+      width: 18px;
+      height: 18px;
       margin-left: 4px;
     }
     &:hover {

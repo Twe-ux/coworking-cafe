@@ -1,4 +1,5 @@
 import SlideUp from "../../../utils/animations/slideUp";
+import { Icon } from "@/components/common/Icon";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -145,22 +146,22 @@ const BlogArticle = () => {
           <ul className="d-flex justify-content-center gap-3">
             <li>
               <Link href="#">
-                <i className="fa-brands fa-facebook-f" />
+                <Icon name="facebook" />
               </Link>
             </li>
             <li>
               <Link href="#">
-                <i className="fa-brands fa-pinterest-p" />
+                <Icon name="pinterest" />
               </Link>
             </li>
             <li>
               <Link href="#">
-                <i className="fa-brands fa-instagram" />
+                <Icon name="instagram" />
               </Link>
             </li>
             <li>
               <Link href="#">
-                <i className="fa-brands fa-twitter" />
+                <Icon name="twitter" />
               </Link>
             </li>
           </ul>

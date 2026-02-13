@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/common/Icon";
 import { useState, FormEvent } from "react";
 
 export default function SubscribeForm() {
@@ -89,14 +90,14 @@ export default function SubscribeForm() {
             {loading ? (
               <>
                 <span>Inscription...</span>
-                <i className="fa-solid fa-spinner fa-spin ms-2"></i>
+                <Icon name="spinner" className="icon-spin ms-2" />
               </>
             ) : success ? (
               <span>Inscrit ✓</span>
             ) : (
               <>
                 <span>Inscris toi</span>
-                <i className="fa-solid fa-arrow-right ms-2"></i>
+                <Icon name="arrow-right" className="ms-2" />
               </>
             )}
           </button>
@@ -106,7 +107,7 @@ export default function SubscribeForm() {
         {error && (
           <div className="mt-3 text-center">
             <div className="alert alert-danger d-inline-block" role="alert">
-              <i className="fa-solid fa-circle-exclamation me-2"></i>
+              <Icon name="circle-exclamation" className="me-2" />
               {error}
             </div>
           </div>
@@ -116,7 +117,7 @@ export default function SubscribeForm() {
         {success && (
           <div className="mt-3 text-center">
             <div className="alert alert-success d-inline-block" role="alert">
-              <i className="fa-solid fa-circle-check me-2"></i>
+              <Icon name="circle-check" className="me-2" />
               Inscription réussie ! Merci de t'être abonné(e) à notre newsletter.
             </div>
           </div>

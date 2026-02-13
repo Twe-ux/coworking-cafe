@@ -1,3 +1,4 @@
+import { Icon } from "@/components/common/Icon";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -32,7 +33,7 @@ const SpaceCard = ({
         <p>{description}</p>
         <div className="d-flex align-items-center">
           <span>Plus de détails</span>
-          <i className="fa-solid fa-arrow-right"></i>
+          <Icon name="arrow-right" />
         </div>
       </Link>
     </div>

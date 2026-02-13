@@ -1,6 +1,7 @@
 import { projectsOneData } from "../../../db/projectsOneData";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import { Icon } from "@/components/common/Icon";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -19,7 +20,7 @@ const ProjectsOne: React.FC<ProjectsOneProps> = ({ isProjectUseCaseShow }) => {
             Des espaces pour favoriser votre créativité et votre productivité !
           </h1>
           <Link href="/spaces#spaces" className="circle mt-5 mt-lg-0">
-            <i className="fa-solid fa-arrow-right"></i>
+            <Icon name="arrow-right" />
             <span>En savoir plus</span>
           </Link>
         </SlideDown>
@@ -73,7 +74,7 @@ const ProjectsOne: React.FC<ProjectsOneProps> = ({ isProjectUseCaseShow }) => {
                         href={`/spaces#${link}`}
                         className="projects__wapper_card_circle mt-3"
                       >
-                        <i className="fa-solid fa-arrow-right"></i>
+                        <Icon name="arrow-right" />
                       </Link>
                     </div>
 

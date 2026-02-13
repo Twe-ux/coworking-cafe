@@ -1,0 +1,64 @@
+// ============================================
+// DEFERRED CSS - Loaded asynchronously
+// Page-specific styles only
+// ============================================
+// This file is dynamically imported after initial render.
+// It contains styles for secondary pages (booking, dashboard,
+// legal pages, contact, etc.) that are NOT needed for homepage.
+//
+// Bootstrap variables/mixins must be included here because
+// this file is compiled independently from critical.scss.
+
+// 1. Bootstrap 5 - Configuration (required for compilation)
+// These only define variables/mixins, they emit NO CSS output
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+// 2. Project abstracts (required for compilation)
+@import "./_abstracts/_variables";
+@import "./_abstracts/_maxin";
+@import "./_abstracts/responsive";
+
+// 3. shadcn/ui Design System (required for compilation)
+@import "./config/_shadcn-variables";
+@import "./config/_shadcn-mixins";
+
+// ============================================
+// Page-specific components
+// ============================================
+
+// Legal & info pages
+@import "./_components/_mentions-legales";
+@import "./_components/_cgu";
+@import "./_components/_confidentialite";
+
+// Marketing pages
+@import "./_components/_members-program";
+@import "./_components/_student-offers";
+@import "./_components/_history";
+@import "./_components/_take-away";
+@import "./_components/_manifest";
+
+// Content pages
+@import "./_components/_pageHeader";
+@import "./_components/_concept";
+@import "./_components/_project_details";
+@import "./_components/blog_details";
+@import "./_components/_contact";
+@import "./_components/_faq";
+@import "./_components/_pricing";
+@import "./_components/_menu";
+
+// Interactive features
+@import "./_components/scan";
+@import "./_components/promo";
+
+// Booking module
+@import "./_components/_booking";
+
+// Cash register
+@import "./_components/_cash-register";

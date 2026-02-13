@@ -1,6 +1,7 @@
 import { partnerOneLogos } from "../../../db/partnerOneLogos";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import { Icon } from "@/components/common/Icon";
 import Image from "next/image";
 import Link from "next/link";
 import Partner from "../partner";
@@ -39,7 +40,7 @@ const AboutOne = () => {
                   comme à la maison, mais en mieux.
                 </p>
                 <Link href="/concept#concept" className="circle">
-                  <i className="fa-solid fa-arrow-right"></i>
+                  <Icon name="arrow-right" />
                   <span>En savoir plus</span>
                 </Link>
               </div>
@@ -64,7 +65,7 @@ const AboutOne = () => {
             <SlideUp delay={3}>
               <ul className="about__wapper_right">
                 <li>
-                  {/* <i className="fa-solid fa-check"></i> */}
+                  {/* <Icon name="check" /> */}
                   <span className="">
                     <p className="bold">☕️ Tout compris :</p>
                     <p>
@@ -74,21 +75,21 @@ const AboutOne = () => {
                   </span>
                 </li>
                 <li>
-                  {/* <i className="fa-solid fa-check"></i> */}
+                  {/* <Icon name="check" /> */}
                   <span className="">
                     <p className="bold">⏱️ Payer le temps :</p>
                     <p>6€/heure, 29€/jour ou abonnements semaine et mois</p>
                   </span>
                 </li>
                 <li>
-                  {/* <i className="fa-solid fa-check"></i> */}
+                  {/* <Icon name="check" /> */}
                   <span className="">
                     <p className="bold">🌼 Ambiance feel good : </p>
                     <p>design chaleureux, calme et échanges naturels</p>
                   </span>
                 </li>
                 <li>
-                  {/* <i className="fa-solid fa-check"></i> */}
+                  {/* <Icon name="check" /> */}
                   <span className="">
                     <p className="bold">🎉 Ouvert & flexible :</p>
                     <p>

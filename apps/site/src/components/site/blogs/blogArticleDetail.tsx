@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/common/Icon";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
@@ -125,10 +126,11 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
               </div>
               <div className="modal-body text-center px-4 pb-4">
                 <div className="mb-4">
-                  <i
-                    className="fa-regular fa-heart"
-                    style={{ fontSize: "48px", color: "#417972" }}
-                  ></i>
+                  <Icon
+                    name="heart-outline"
+                    size={48}
+                    style={{ color: "#417972" }}
+                  />
                 </div>
                 <h5 className="mb-3" style={{ color: "#142220" }}>
                   Connectez-vous pour liker cet article
@@ -223,7 +225,7 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
         {/* Stats */}
         <div className="d-flex gap-4 my-4 align-items-center">
           <p className="mb-0">
-            <i className="fa-solid fa-eye me-2"></i>
+            <Icon name="eye" className="me-2" />
             <span>{article.viewCount} vues</span>
           </p>
           <button
@@ -245,13 +247,13 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
                 : "J'aime cet article"
             }
           >
-            <i className={`fa-${isLiked ? "solid" : "regular"} fa-heart`}></i>
+            <Icon name={isLiked ? "heart" : "heart-outline"} />
             <span>
               {likeCount} {likeCount === 1 ? "like" : "likes"}
             </span>
           </button>
           {/* <p className="mb-0">
-            <i className="fa-solid fa-clock me-2"></i>
+            <Icon name="clock" className="me-2" />
             <span>{article.readingTime} min de lecture</span>
           </p> */}
         </div>
@@ -269,7 +271,7 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
                 )}`}
                 target="_blank"
               >
-                <i className="fa-brands fa-facebook-f" />
+                <Icon name="facebook" />
               </Link>
             </li>
             <li>
@@ -279,12 +281,12 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
                 )}&description=${encodeURIComponent(article.title)}`}
                 target="_blank"
               >
-                <i className="fa-brands fa-pinterest-p" />
+                <Icon name="pinterest" />
               </Link>
             </li>
             <li>
               <Link href={`https://www.instagram.com/`} target="_blank">
-                <i className="fa-brands fa-instagram" />
+                <Icon name="instagram" />
               </Link>
             </li>
             <li>
@@ -294,7 +296,7 @@ const BlogArticleDetail = ({ article }: BlogArticleDetailProps) => {
                 )}&text=${encodeURIComponent(article.title)}`}
                 target="_blank"
               >
-                <i className="fa-brands fa-twitter" />
+                <Icon name="twitter" />
               </Link>
             </li>
           </ul>

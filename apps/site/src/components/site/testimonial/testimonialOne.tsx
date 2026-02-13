@@ -2,6 +2,7 @@
 import { testimonialsOneData } from "../../../db/testimonialsOneData";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
+import { Icon } from "@/components/common/Icon";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { Swiper as SwiperType } from "swiper";
@@ -154,11 +155,11 @@ const TestimonialOne = () => {
             <div className="d-flex justify-content-center gap-3 mt-4">
               <div className="d-flex justify-content-between w-380">
                 <div className="prev-slide slide__nav">
-                  <i className="fa-solid fa-arrow-left"></i>
+                  <Icon name="arrow-left" />
                 </div>
                 <div className="testimonial-pagination d-flex gap-3"></div>
                 <div className="next-slide slide__nav">
-                  <i className="fa-solid fa-arrow-right"></i>
+                  <Icon name="arrow-right" />
                 </div>
               </div>
             </div>
