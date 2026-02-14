@@ -1,6 +1,5 @@
 "use client";
 
-import logoCircle from "@/../public/logo/logo-circle.webp";
 import {
   Card,
   CardContent,
@@ -117,7 +116,7 @@ export function PINLoginForm({
           <CardHeader className="text-center">
             <a href="/" className="flex justify-center mb-4">
               <Image
-                src={logoCircle}
+                src="/images/logo-circle.webp"
                 alt="CoworKing Café Logo"
                 width={100}
                 height={100}
@@ -138,7 +137,7 @@ export function PINLoginForm({
         <div className="text-center mb-4">
           <a href="/" className="flex justify-center mb-4">
             <Image
-              src={logoCircle}
+              src="/images/logo-circle.webp"
               alt="CoworKing Café Logo"
               width={100}
               height={100}
@@ -163,7 +162,7 @@ export function PINLoginForm({
         <CardHeader className="text-center">
           <a href="/" className="flex justify-center mb-4">
             <Image
-              src={logoCircle}
+              src="/images/logo-circle.webp"
               alt="CoworKing Café Logo"
               width={100}
               height={100}
