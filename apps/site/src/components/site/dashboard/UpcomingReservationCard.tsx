@@ -19,6 +19,7 @@ interface BookingData {
   totalPrice: number;
   status: string;
   paymentStatus: string;
+  reservationType?: 'hourly' | 'daily' | 'weekly' | 'monthly';
 }
 
 interface Props {
@@ -102,7 +103,9 @@ export default function UpcomingReservationCard({
                   <div className="info-item mb-0">
                     <i className="bi bi-clock"></i>
                     <span>
-                      {reservation.startTime} - {reservation.endTime}
+                      {reservation.reservationType === 'daily' || !reservation.endTime
+                        ? `Journée complète à partir de ${reservation.startTime}`
+                        : `${reservation.startTime} - ${reservation.endTime}`}
                     </span>
                   </div>
                 </div>

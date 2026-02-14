@@ -24,6 +24,7 @@ interface Reservation {
   servicesPrice: number;
   status: string;
   paymentStatus: string;
+  reservationType?: 'hourly' | 'daily' | 'weekly' | 'monthly';
   additionalServices?: Array<{
     name: string;
     quantity: number;
@@ -303,7 +304,9 @@ export default function ReservationsPage() {
                                 <div className="info-item mb-0">
                                   <i className="bi bi-clock"></i>
                                   <span>
-                                    {reservation.startTime} - {reservation.endTime}
+                                    {reservation.reservationType === 'daily' || !reservation.endTime
+                                      ? `Journée complète à partir de ${reservation.startTime}`
+                                      : `${reservation.startTime} - ${reservation.endTime}`}
                                   </span>
                                 </div>
                               </div>

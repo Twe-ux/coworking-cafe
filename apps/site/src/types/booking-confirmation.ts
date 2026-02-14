@@ -19,6 +19,7 @@ export interface Booking {
   status: string;
   paymentStatus: string;
   requiresPayment: boolean;
+  reservationType?: 'hourly' | 'daily' | 'weekly' | 'monthly';
   confirmationNumber?: string;
   specialRequests?: string;
   additionalServices?: AdditionalService[];

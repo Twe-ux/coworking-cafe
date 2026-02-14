@@ -78,10 +78,10 @@ export default function BookingSummary({ booking, spaceConfig }: BookingSummaryP
       </div>
 
       <div className="summary-row mb-3">
-        <div className="summary-label">{booking.reservationType === 'daily' ? 'Arrivée' : 'Horaire'}</div>
+        <div className="summary-label">{booking.reservationType === 'daily' || !booking.endTime ? 'Arrivée' : 'Horaire'}</div>
         <div className="summary-value">
           <i className="bi bi-clock me-2 text-success"></i>
-          {booking.reservationType === 'daily'
+          {booking.reservationType === 'daily' || !booking.endTime
             ? `Journée complète à partir de ${formatTime(booking.startTime)}`
             : `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`}
         </div>

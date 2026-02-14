@@ -58,9 +58,9 @@ export default function BookingSummaryCard({ bookingData }: BookingSummaryCardPr
         />
 
         <SummaryRow
-          label={bookingData.reservationType === "daily" ? "Arrivée" : "Horaires"}
+          label={bookingData.reservationType === "daily" || !bookingData.endTime ? "Arrivée" : "Horaires"}
           value={
-            bookingData.reservationType === "daily"
+            bookingData.reservationType === "daily" || !bookingData.endTime
               ? `Journée complète à partir de ${bookingData.startTime}`
               : `${bookingData.startTime} - ${bookingData.endTime}`
           }

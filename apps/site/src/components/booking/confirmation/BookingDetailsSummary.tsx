@@ -68,13 +68,15 @@ export default function BookingDetailsSummary({
       </div>
 
       <div className="summary-row mb-2">
-        <div className="summary-label">HORAIRE</div>
+        <div className="summary-label">{booking.reservationType === 'daily' || !booking.endTime ? 'ARRIVÉE' : 'HORAIRE'}</div>
         <div className="summary-value">
           <i
             className="bi bi-clock me-2 text-success"
             style={{ fontSize: "0.875rem" }}
           ></i>
-          {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+          {booking.reservationType === 'daily' || !booking.endTime
+            ? `Journée complète à partir de ${formatTime(booking.startTime)}`
+            : `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`}
         </div>
       </div>
 
