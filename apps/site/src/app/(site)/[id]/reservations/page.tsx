@@ -186,7 +186,7 @@ export default function ReservationsPage() {
     <section className="client-dashboard py__90">
       <div className="container pb__130">
         {/* Breadcrumb */}
-        <div className="custom-breadcrumb mb-4">
+        <div className="custom-breadcrumb-dashboard mb-4">
           <Link href={`/${userPath}`} className="breadcrumb-link">
             <i className="bi bi-house-door"></i>
             <span>Dashboard</span>
