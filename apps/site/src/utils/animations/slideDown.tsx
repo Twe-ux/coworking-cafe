@@ -42,9 +42,9 @@ const SlideDown: React.FC<SlideDownProps> = ({ children, delay = 1, className })
     }
   }, [MotionDiv])
 
-  // Before motion loads, render placeholder to prevent flash
+  // Before motion loads, render children immediately for better FCP
   if (!MotionDiv) {
-    return <div ref={placeholderRef} className={className} style={{ minHeight: '1px' }} />
+    return <div ref={placeholderRef} className={className}>{children}</div>
   }
 
   const slideDownVariants = {
