@@ -42,10 +42,10 @@
 
 - ✅ `https://coworkingcafe.fr/`
 - ✅ `https://coworkingcafe.fr/booking`
-- ✅ `https://coworkingcafe.fr/pricing`
-- ✅ `https://coworkingcafe.fr/spaces`
 - ✅ `https://coworkingcafe.fr/contact`
 - ✅ `https://coworkingcafe.fr/blog`
+- ✅ `https://coworkingcafe.fr/pricing`
+- ✅ `https://coworkingcafe.fr/spaces`
 
 ---
 
@@ -68,9 +68,9 @@
 
 - ✅ `https://coworkingcafe.fr/history`
 - ✅ `https://coworkingcafe.fr/manifest`
+- ✅ `https://coworkingcafe.fr/mentions-legales`
 - ✅ `https://coworkingcafe.fr/cgu`
 - ✅ `https://coworkingcafe.fr/confidentiality`
-- ✅ `https://coworkingcafe.fr/mentions-legales`
 
 #### Jour 4 - Articles Blog
 
@@ -78,12 +78,12 @@
 
 - ✅ `https://coworkingcafe.fr/blog/archive`
 
-- [ ] Article 1 : `/blog/[slug-1]`
-- [ ] Article 2 : `/blog/[slug-2]`
-- [ ] Article 3 : `/blog/[slug-3]`
-- [ ] Article 4 : `/blog/[slug-4]`
-- [ ] Article 5 : `/blog/[slug-5]`
-- [ ] Article 6 : `/blog/[slug-6]`
+- ✅ Article 1 : `/blog/[slug-1]`
+- ✅ Article 2 : `/blog/[slug-2]`
+- ✅ Article 3 : `/blog/[slug-3]`
+- ✅ Article 4 : `/blog/[slug-4]`
+- ✅ Article 5 : `/blog/[slug-5]`
+- ✅ Article 6 : `/blog/[slug-6]`
 
 **Procédure** :
 

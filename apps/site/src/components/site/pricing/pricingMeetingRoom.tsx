@@ -16,7 +16,7 @@ const PricingMeetingRoom = () => {
           >
             <div className="pricing__band">
               <h3>{plan.space}</h3>
-              <div className="pricing__card">
+              <div className="pricing__card meeeting-room">
                 <div className="text-center pricing__card_title">
                   <h6>{plan.title}</h6>
                   <div className="d-flex justify-content-center">

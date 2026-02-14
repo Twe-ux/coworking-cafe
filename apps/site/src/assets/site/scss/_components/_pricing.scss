@@ -44,10 +44,10 @@
     background-color: white;
     padding: 35px;
     transition: all 0.5s;
-    height: 680px;
+    height: 720px;
 
     @include breakpoint(xxl) {
-      height: 610px !important;
+      height: 680px !important;
       padding: 18px !important;
     }
 

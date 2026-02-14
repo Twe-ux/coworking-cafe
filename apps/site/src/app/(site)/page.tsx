@@ -1,12 +1,15 @@
+import type { Metadata } from "next";
 import AboutOne from "../../components/site/about/aboutOne";
 import HomeBlogSSR from "../../components/site/blogs/HomeBlogSSR";
 import HeroOne from "../../components/site/heros/heroOne";
 import ProjectsOne from "../../components/site/projects/projectsOne";
 import TestimonialOne from "../../components/site/testimonial/testimonialOne";
-import type { Metadata } from "next";
+import Error from "../error";
+import NotFound from "../not-found";
 
 export const metadata: Metadata = {
-  title: "CoworKing Café Strasbourg | Espace Coworking avec Boissons Illimitées",
+  title:
+    "CoworKing Café Strasbourg | Espace Coworking avec Boissons Illimitées",
   description:
     "Espace de coworking au cœur de Strasbourg. +40 boissons illimitées, Wi-Fi rapide, salles de réunion privatisables. Réservation en ligne. Le café motive • L'humain relie.",
   keywords: [
@@ -53,78 +56,79 @@ const Home = () => {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "@id": "https://coworkingcafe.fr/#organization",
-    "name": "CoworKing Café by Anticafé",
-    "alternateName": "Anticafé Strasbourg",
-    "legalName": "CoworKing Café by Anticafé",
+    name: "CoworKing Café by Anticafé",
+    alternateName: "Anticafé Strasbourg",
+    legalName: "CoworKing Café by Anticafé",
 
-    "description": "Espace de coworking chaleureux au cœur de Strasbourg. WiFi rapide, café et boissons à volonté, salles de réunion privatisables.",
+    description:
+      "Espace de coworking chaleureux au cœur de Strasbourg. WiFi rapide, café et boissons à volonté, salles de réunion privatisables.",
 
-    "url": "https://coworkingcafe.fr",
-    "logo": "https://coworkingcafe.fr/images/logo-circle-white.webp",
-    "image": [
+    url: "https://coworkingcafe.fr",
+    logo: "https://coworkingcafe.fr/images/logo-circle-white.webp",
+    image: [
       "https://coworkingcafe.fr/images/banner/coworking-café.webp",
-      "https://coworkingcafe.fr/images/spaces/open-space-strasbourg.webp"
+      "https://coworkingcafe.fr/images/spaces/open-space-strasbourg.webp",
     ],
 
-    "telephone": "+33987334519",
-    "email": "strasbourg@coworkingcafe.fr",
+    telephone: "+33987334519",
+    email: "strasbourg@coworkingcafe.fr",
 
-    "address": {
+    address: {
       "@type": "PostalAddress",
-      "streetAddress": "1 rue de la Division Leclerc",
-      "addressLocality": "Strasbourg",
-      "addressRegion": "Grand Est",
-      "postalCode": "67000",
-      "addressCountry": "FR"
+      streetAddress: "1 rue de la Division Leclerc",
+      addressLocality: "Strasbourg",
+      addressRegion: "Grand Est",
+      postalCode: "67000",
+      addressCountry: "FR",
     },
 
-    "geo": {
+    geo: {
       "@type": "GeoCoordinates",
-      "latitude": "48.5839",
-      "longitude": "7.7455"
+      latitude: "48.5839",
+      longitude: "7.7455",
     },
 
-    "openingHoursSpecification": [
+    openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        "opens": "09:00",
-        "closes": "20:00"
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "09:00",
+        closes: "20:00",
       },
       {
         "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Saturday", "Sunday"],
-        "opens": "10:00",
-        "closes": "20:00"
-      }
+        dayOfWeek: ["Saturday", "Sunday"],
+        opens: "10:00",
+        closes: "20:00",
+      },
     ],
 
-    "priceRange": "€€",
+    priceRange: "€€",
 
-    "servesCuisine": ["Café", "Snacks"],
+    servesCuisine: ["Café", "Snacks"],
 
-    "amenityFeature": [
+    amenityFeature: [
       {
         "@type": "LocationFeatureSpecification",
-        "name": "WiFi gratuit",
-        "value": true
+        name: "WiFi gratuit",
+        value: true,
       },
       {
         "@type": "LocationFeatureSpecification",
-        "name": "Prises électriques",
-        "value": true
+        name: "Prises électriques",
+        value: true,
       },
       {
         "@type": "LocationFeatureSpecification",
-        "name": "Salle de réunion",
-        "value": true
-      }
+        name: "Salle de réunion",
+        value: true,
+      },
     ],
 
-    "sameAs": [
+    sameAs: [
       "https://www.facebook.com/coworkingbyanticafeStrasbourg/",
-      "https://www.instagram.com/coworking_anticafe/?hl=fr"
-    ]
+      "https://www.instagram.com/coworking_anticafe/?hl=fr",
+    ],
   };
 
   return (
@@ -132,7 +136,7 @@ const Home = () => {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(localBusinessSchema)
+          __html: JSON.stringify(localBusinessSchema),
         }}
       />
       <HeroOne />
