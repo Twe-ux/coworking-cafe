@@ -19,11 +19,18 @@ export interface ClientCancelBookingData {
   cancellationFees: number;
   refundAmount: number;
   isPending?: boolean; // true = annulation avant validation admin
+  reservationType?: 'hourly' | 'daily' | 'weekly' | 'monthly';
 }
 
 export function generateClientCancelBookingEmail(data: ClientCancelBookingData): string {
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
   const totalAmount = data.cancellationFees + data.refundAmount;
+
+  // Format time display based on reservation type
+  const timeLabel = data.reservationType === 'daily' ? 'Arrivée' : 'Horaires';
+  const timeValue = data.reservationType === 'daily'
+    ? `Journée complète à partir de ${data.startTime}`
+    : `${data.startTime} - ${data.endTime}`;
 
   return `
 <!DOCTYPE html>
@@ -142,10 +149,8 @@ export function generateClientCancelBookingEmail(data: ClientCancelBookingData):
         <div class="detail-row" style="padding: 14px 0; border-bottom: 1px solid #e5e7eb;">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
-              <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Horaires</td>
-              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${
-                data.startTime
-              } - ${data.endTime}</td>
+              <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">${timeLabel}</td>
+              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${timeValue}</td>
             </tr>
           </table>
         </div>

@@ -11,6 +11,7 @@ interface Booking {
   status: string;
   paymentStatus: string;
   requiresPayment: boolean;
+  reservationType?: 'hourly' | 'daily' | 'weekly' | 'monthly';
 }
 
 interface SpaceConfig {
@@ -77,10 +78,12 @@ export default function BookingSummary({ booking, spaceConfig }: BookingSummaryP
       </div>
 
       <div className="summary-row mb-3">
-        <div className="summary-label">Horaire</div>
+        <div className="summary-label">{booking.reservationType === 'daily' ? 'Arrivée' : 'Horaire'}</div>
         <div className="summary-value">
           <i className="bi bi-clock me-2 text-success"></i>
-          {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+          {booking.reservationType === 'daily'
+            ? `Journée complète à partir de ${formatTime(booking.startTime)}`
+            : `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`}
         </div>
       </div>
 

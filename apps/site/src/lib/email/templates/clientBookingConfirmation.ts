@@ -12,6 +12,7 @@ export interface BookingInitialEmailData {
   spaceName: string;
   date: string;
   time: string;
+  reservationType?: "hourly" | "daily" | "weekly" | "monthly";
   price: number;
   bookingId: string;
   requiresPayment: boolean;
@@ -37,6 +38,12 @@ export function generateBookingInitialEmail(
       ? Math.round((data.depositAmount / 100 / data.price) * 100)
       : 0;
   const displaySpaceName = getSpaceDisplayName(data.spaceName);
+
+  // Format time display based on reservation type
+  const timeLabel = data.reservationType === "daily" ? "Arrivée" : "Horaires";
+  const timeValue = data.reservationType === "daily"
+    ? `Journée complète à partir de ${data.time}`
+    : data.time;
 
   return `
 <!DOCTYPE html>
@@ -120,10 +127,8 @@ export function generateBookingInitialEmail(
         <div class="detail-row" style="padding: 14px 0; border-bottom: 1px solid #e5e7eb;">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
-              <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Horaires</td>
-              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${
-                data.time
-              }</td>
+              <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">${timeLabel}</td>
+              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${timeValue}</td>
             </tr>
           </table>
         </div>

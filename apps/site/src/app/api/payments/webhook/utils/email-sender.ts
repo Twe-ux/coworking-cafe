@@ -19,6 +19,7 @@ interface EmailData {
     price: number;
   }>;
   numberOfPeople: number;
+  reservationType?: 'hourly' | 'daily' | 'weekly' | 'monthly';
 }
 
 /**
@@ -40,10 +41,15 @@ export async function sendBookingConfirmationEmail(
       day: 'numeric',
     });
 
-    const timeRange =
-      data.startTime && data.endTime
+    // Format time based on reservation type
+    let timeRange: string;
+    if (data.reservationType === 'daily') {
+      timeRange = data.startTime ? `Journée complète à partir de ${data.startTime}` : 'Journée complète';
+    } else {
+      timeRange = data.startTime && data.endTime
         ? `${data.startTime} - ${data.endTime}`
         : 'Journée complète';
+    }
 
     await sendBookingInitialEmail(data.contactEmail, {
       name: data.contactName,
@@ -57,6 +63,7 @@ export async function sendBookingConfirmationEmail(
       captureMethod: data.captureMethod,
       additionalServices: data.additionalServices,
       numberOfPeople: data.numberOfPeople,
+      reservationType: data.reservationType,
     });
 
     console.log('[EmailSender] Booking confirmation sent to', data.contactEmail);

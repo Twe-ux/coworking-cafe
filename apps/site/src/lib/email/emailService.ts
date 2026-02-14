@@ -444,6 +444,7 @@ export async function sendBookingInitialEmail(
     captureMethod?: 'manual' | 'automatic';
     additionalServices?: Array<{ name: string; quantity: number; price: number }>;
     numberOfPeople: number;
+    reservationType?: 'hourly' | 'daily' | 'weekly' | 'monthly';
   }
 ): Promise<boolean> {
   const subject = '⏳ Réservation en attente de validation - CoworKing Café';
@@ -454,6 +455,7 @@ export async function sendBookingInitialEmail(
   const html = generateBookingInitialEmail({
     ...data,
     contactEmail: EMAIL_CONFIG.contact.email,
+    reservationType: data.reservationType,
   });
 
   const text = `

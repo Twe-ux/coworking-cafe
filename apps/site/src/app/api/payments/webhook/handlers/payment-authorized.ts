@@ -95,6 +95,7 @@ export async function handlePaymentAuthorized(
     captureMethod: (metadata.captureMethod || 'manual') as 'manual' | 'automatic',
     additionalServices: emailServices.length > 0 ? emailServices : undefined,
     numberOfPeople: parseInt(metadata.numberOfPeople),
+    reservationType: metadata.reservationType as 'hourly' | 'daily' | 'weekly' | 'monthly' | undefined,
   });
 
   // Send admin notification (non-blocking)

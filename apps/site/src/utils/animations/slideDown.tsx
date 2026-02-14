@@ -21,14 +21,10 @@ const SlideDown: React.FC<SlideDownProps> = ({ children, delay = 1, className })
   const [MotionDiv, setMotionDiv] = useState<MotionDivType | null>(cachedMotionDiv)
 
   useEffect(() => {
-    // Track if element was visible before motion loads (prevents content flash)
-    const el = placeholderRef.current
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      wasVisibleRef.current = rect.top < window.innerHeight && rect.bottom > 0
+    if (cachedMotionDiv) {
+      setMotionDiv(cachedMotionDiv)
+      return
     }
-
-    if (cachedMotionDiv) return
 
     import('motion/react-client').then(mod => {
       const component = mod.div as MotionDivType
@@ -36,6 +32,15 @@ const SlideDown: React.FC<SlideDownProps> = ({ children, delay = 1, className })
       setMotionDiv(() => component)
     })
   }, [])
+
+  useEffect(() => {
+    // Track if element was visible before motion loads (prevents content flash)
+    const el = placeholderRef.current
+    if (el && !MotionDiv) {
+      const rect = el.getBoundingClientRect()
+      wasVisibleRef.current = rect.top < window.innerHeight && rect.bottom > 0
+    }
+  }, [MotionDiv])
 
   // Before motion loads, render children immediately for better FCP
   if (!MotionDiv) {
