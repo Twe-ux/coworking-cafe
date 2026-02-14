@@ -190,7 +190,7 @@ export default function ReservationsPage() {
       <section className="client-dashboard py__130">
         <div className="container">
           <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
+            <div className="spinner-border text-success" role="status">
               <span className="visually-hidden">Chargement...</span>
             </div>
           </div>

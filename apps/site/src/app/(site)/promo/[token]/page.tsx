@@ -83,7 +83,7 @@ export default function PromoPage() {
       <section className="py__130">
         <div className="container ">
           <div className="text-center">
-            <div className="spinner-border text-primary" role="status">
+            <div className="spinner-border text-success" role="status">
               <span className="visually-hidden">Chargement...</span>
             </div>
           </div>

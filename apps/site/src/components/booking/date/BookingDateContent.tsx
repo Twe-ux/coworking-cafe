@@ -122,7 +122,7 @@ export const BookingDateContent = forwardRef<HTMLDivElement, BookingDateContentP
         {/* Loading State */}
         {loading && (
           <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
+            <div className="spinner-border text-success" role="status">
               <span className="visually-hidden">Chargement...</span>
             </div>
           </div>

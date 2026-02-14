@@ -11,7 +11,7 @@ export default function LoginPage() {
             <div className="row justify-content-center">
               <div className="col-lg-6 col-md-8">
                 <div className="auth-card text-center">
-                  <div className="spinner-border text-primary" role="status">
+                  <div className="spinner-border text-success" role="status">
                     <span className="visually-hidden">Chargement...</span>
                   </div>
                 </div>

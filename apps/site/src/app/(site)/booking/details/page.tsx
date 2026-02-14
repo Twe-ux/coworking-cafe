@@ -54,7 +54,7 @@ export default function BookingDetailsPage() {
           <div className="row justify-content-center">
             <div className="col-lg-10">
               <div className="booking-card text-center py-5">
-                <div className="spinner-border text-primary" role="status">
+                <div className="spinner-border text-success" role="status">
                   <span className="visually-hidden">Chargement...</span>
                 </div>
                 <p className="mt-3 text-muted">Chargement de vos informations...</p>
