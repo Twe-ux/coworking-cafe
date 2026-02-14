@@ -10,14 +10,28 @@ export function WebSiteSchema() {
       "@id": "https://coworkingcafe.fr/#organization",
     },
     inLanguage: "fr-FR",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: "https://coworkingcafe.fr/search?q={search_term_string}",
+    potentialAction: [
+      {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://coworkingcafe.fr/search?q={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
       },
-      "query-input": "required name=search_term_string",
-    },
+      {
+        "@type": "ReserveAction",
+        name: "Réserver un espace",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://coworkingcafe.fr/booking",
+          actionPlatform: [
+            "http://schema.org/DesktopWebPlatform",
+            "http://schema.org/MobileWebPlatform"
+          ]
+        },
+      }
+    ],
   };
 
   return (

@@ -7,7 +7,7 @@ import ScrollToTop from "../../components/site/ui/ScrollToTop";
 import PathNameLoad from "../../utils/pathNameLoad";
 import { PWAStyles } from "../../components/layout/PWAStyles";
 import GoogleAnalytics from "../../components/analytics/GoogleAnalytics";
-import { OrganizationSchema, WebSiteSchema } from "../../components/seo/schemas";
+import { OrganizationSchema, WebSiteSchema, LocalBusinessSchema } from "../../components/seo/schemas";
 import { ReactNode } from "react";
 
 import type { Metadata } from "next";
@@ -62,6 +62,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
     <>
       <OrganizationSchema />
       <WebSiteSchema />
+      <LocalBusinessSchema />
       <GoogleAnalytics />
       <PWAStyles />
       <Bootstrap />

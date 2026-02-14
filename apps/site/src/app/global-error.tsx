@@ -1,0 +1,25 @@
+"use client";
+
+/**
+ * Global Error Boundary
+ * Catches errors in root layout
+ */
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <html>
+      <body>
+        <div style={{ padding: "20px", textAlign: "center" }}>
+          <h1>Une erreur globale s'est produite</h1>
+          <p>{error.message}</p>
+          <button onClick={() => reset()}>Réessayer</button>
+        </div>
+      </body>
+    </html>
+  );
+}
