@@ -138,26 +138,30 @@
         }
         @include breakpoint(md) {
           flex-direction: column;
-          align-items: start;
+          align-items: flex-start;
           gap: 15px;
-          // padding: 40px 0;
         }
         .concepts__name {
           border: none;
           @include flex();
+          align-items: baseline;
+          gap: 12px;
 
           sup {
+            position: relative;
             top: 0;
-            font-size: 36px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             color: var(--btn-clr);
+            line-height: 1;
             @include breakpoint(md) {
-              padding-bottom: 10px;
+              font-size: 24px;
             }
           }
 
           font-size: 32px;
           font-weight: 600;
+          line-height: 1.2;
           transition: all 0.5s ease-in-out;
           @include breakpoint(xl) {
             font-size: 30px;

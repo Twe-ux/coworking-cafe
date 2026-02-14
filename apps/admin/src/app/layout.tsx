@@ -22,9 +22,9 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "CoworKing Café Admin",
-  description: "Administration CoworKing Café",
-  applicationName: "CoworKing Café Admin",
+  title: "Cow-or-King Café Admin",
+  description: "Administration Cow-or-King Café Strasbourg",
+  applicationName: "Cow-or-King Café Admin",
   // PWA Configuration
   manifest: "/manifest.webmanifest",
   themeColor: "#000000",
@@ -41,22 +41,28 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/favicon.ico", sizes: "48x48" },
       { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
       {
-        url: "/web-app-manifest-192x192.png",
+        url: "/android-chrome-192x192.png",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        url: "/web-app-manifest-512x512.png",
+        url: "/android-chrome-512x512.png",
         sizes: "512x512",
         type: "image/png",
       },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      {
+        url: "/apple-touch-icon-dark.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
     ],
   },
   other: {

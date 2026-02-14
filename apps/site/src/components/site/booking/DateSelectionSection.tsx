@@ -5,7 +5,7 @@
 // ============================================================================
 
 import CustomDatePicker from "./CustomDatePicker";
-import type { ReservationType } from "@/types/booking";
+import type { ReservationType, GlobalHours } from "@/types/booking";
 
 /**
  * Props du composant DateSelectionSection
@@ -18,6 +18,7 @@ interface DateSelectionSectionProps {
   isOpen: boolean;
   isClosing: boolean;
   onToggle: () => void;
+  globalHours?: GlobalHours | null;
   className?: string;
 }
 
@@ -55,6 +56,7 @@ export function DateSelectionSection({
   isOpen,
   isClosing,
   onToggle,
+  globalHours,
   className = "",
 }: DateSelectionSectionProps) {
   /**
@@ -73,10 +75,53 @@ export function DateSelectionSection({
   };
 
   /**
+   * Vérifie si aujourd'hui peut être proposé selon le type de réservation
+   * - Hourly: au moins 1h avant la fermeture
+   * - Daily: avant 15H00
+   */
+  const hasTodayAvailableEndTimes = (): boolean => {
+    if (!globalHours) return true;
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // Daily reservation: not available after 15H00
+    if (reservationType === "daily") {
+      const cutoffTime = 15 * 60; // 15H00 in minutes
+      return currentMinutes < cutoffTime;
+    }
+
+    // Hourly reservation: need at least 1h before closing
+    if (reservationType === "hourly") {
+      const today = new Date();
+      const dayOfWeek = today.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase();
+      const dayHours = globalHours.defaultHours?.[dayOfWeek];
+
+      if (!dayHours || !dayHours.isOpen || !dayHours.closeTime) return false;
+
+      // Parse closing time
+      const [closeHour, closeMinute] = dayHours.closeTime.split(":").map(Number);
+      const closeMinutes = closeHour * 60 + closeMinute;
+
+      // Need at least 1h before closing for an end time
+      return currentMinutes + 60 < closeMinutes;
+    }
+
+    // Weekly/Monthly: always available (no time restriction for today)
+    return true;
+  };
+
+  /**
    * Calcule les dates min/max pour le DatePicker
    */
   const getMinDate = (): string => {
     const today = new Date();
+
+    // Si aujourd'hui n'a pas d'heures de fin disponibles, commencer demain
+    if (!hasTodayAvailableEndTimes()) {
+      today.setDate(today.getDate() + 1);
+    }
+
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
       2,
       "0"

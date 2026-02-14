@@ -4,8 +4,6 @@ import HomeBlogSSR from "../../components/site/blogs/HomeBlogSSR";
 import HeroOne from "../../components/site/heros/heroOne";
 import ProjectsOne from "../../components/site/projects/projectsOne";
 import TestimonialOne from "../../components/site/testimonial/testimonialOne";
-import Error from "../error";
-import NotFound from "../not-found";
 
 export const metadata: Metadata = {
   title:

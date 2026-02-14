@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { LoadingLogo } from './LoadingLogo';
 
 /**
@@ -10,6 +11,7 @@ import { LoadingLogo } from './LoadingLogo';
 export function PWAStyles() {
   const [isPWA, setIsPWA] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Detect PWA mode
@@ -33,6 +35,19 @@ export function PWAStyles() {
     }
   }, []);
 
+  // Disable scroll on auth pages in PWA mode
+  useEffect(() => {
+    if (isPWA && pathname.startsWith('/auth')) {
+      document.body.classList.add('pwa-no-scroll');
+    } else {
+      document.body.classList.remove('pwa-no-scroll');
+    }
+
+    return () => {
+      document.body.classList.remove('pwa-no-scroll');
+    };
+  }, [isPWA, pathname]);
+
   return (
     <>
       <style dangerouslySetInnerHTML={{
@@ -47,6 +62,78 @@ export function PWAStyles() {
           /* Fallback: hide when body has is-pwa class */
           body.is-pwa .pwa-hide {
             display: none !important;
+          }
+
+          /* Disable scroll on auth pages in PWA mode */
+          body.pwa-no-scroll {
+            overflow: hidden !important;
+            height: 100vh !important;
+            position: fixed !important;
+            width: 100% !important;
+          }
+
+          /* Reduce auth page paddings in PWA to fit content without scroll */
+          body.pwa-no-scroll .auth-section {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0 !important;
+            min-height: 100vh !important;
+            display: flex !important;
+            align-items: center !important;
+          }
+
+          body.pwa-no-scroll .auth-section .container {
+            padding-bottom: 0.5rem !important;
+          }
+
+          /* Reduce font sizes in PWA auth pages */
+          body.pwa-no-scroll .auth-title {
+            font-size: 1.5rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+
+          body.pwa-no-scroll .form-label {
+            font-size: 0.875rem !important;
+            margin-bottom: 0.25rem !important;
+          }
+
+          body.pwa-no-scroll .auth-input,
+          body.pwa-no-scroll .form-control {
+            font-size: 0.875rem !important;
+            padding: 0.5rem 0.75rem !important;
+          }
+
+          body.pwa-no-scroll .auth-btn {
+            font-size: 0.875rem !important;
+            padding: 0.5rem 1rem !important;
+          }
+
+          /* Reduce spacing between form elements in PWA */
+          body.pwa-no-scroll .auth-form .mb-3,
+          body.pwa-no-scroll .auth-form .mb-4 {
+            margin-bottom: 0.5rem !important;
+          }
+
+          body.pwa-no-scroll .auth-header {
+            margin-bottom: 0.75rem !important;
+          }
+
+          body.pwa-no-scroll .auth-footer {
+            margin-top: 0.75rem !important;
+          }
+
+          body.pwa-no-scroll .auth-footer p {
+            font-size: 0.875rem !important;
+            margin-bottom: 0 !important;
+          }
+
+          body.pwa-no-scroll .alert {
+            font-size: 0.875rem !important;
+            padding: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+
+          body.pwa-no-scroll .form-check-label {
+            font-size: 0.875rem !important;
           }
 
           /* PWA loader animations */

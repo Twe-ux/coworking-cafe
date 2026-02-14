@@ -1,11 +1,13 @@
 // Service Worker pour CoworKing Café PWA
 // Cache les assets pour une utilisation offline
 
-const CACHE_NAME = 'coworking-cafe-v2';
+const CACHE_NAME = 'coworking-cafe-v3';
 const urlsToCache = [
   '/booking',
-  '/favicon.svg',
-  '/favicon-96x96.png',
+  '/logo/favicon.svg',
+  '/logo/favicon-96x96.png',
+  '/logo/android-chrome-192x192.png',
+  '/logo/android-chrome-512x512.png',
 ];
 
 // Installation du service worker

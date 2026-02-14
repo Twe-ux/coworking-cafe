@@ -10,6 +10,9 @@
 //
 // Page-specific styles are in deferred.scss (loaded async)
 
+// 0. Bootstrap Icons (Required for booking flow - icons must display immediately)
+@import "../font/bootstrap-font/bootstrap-icons.min.css";
+
 // 1. Bootstrap 5 - Configuration (required)
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";

@@ -134,6 +134,7 @@ export default function BookingDatePage({ params }: BookingDatePageProps) {
             <BookingDateContent
               spaceInfo={spaceInfo}
               spaceConfig={spaceConfig}
+              globalHours={globalHours}
               loading={loading}
               availableReservationTypes={availableReservationTypes}
               bookingState={bookingState}

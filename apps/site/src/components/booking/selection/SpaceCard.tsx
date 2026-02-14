@@ -5,8 +5,11 @@
 // Created: 2026-02-08
 // ============================================================================
 
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import type { SpaceCardProps } from "./types";
 
 export default function SpaceCard({
@@ -14,6 +17,7 @@ export default function SpaceCard({
   showTTC,
   onConvertPrice,
 }: SpaceCardProps) {
+  const [showFullDescription, setShowFullDescription] = useState(false);
   return (
     <div className="col-lg-3 col-md-6 px-10">
       <Link
@@ -73,7 +77,77 @@ export default function SpaceCard({
               </span>
             </div>
 
-            <p className="card-description">{space.description}</p>
+            <div className="position-relative mb-3">
+              <p
+                className="card-description"
+                style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  marginBottom: 0,
+                }}
+              >
+                {space.description}
+              </p>
+
+              {/* Info icon for full description */}
+              <button
+                type="button"
+                className="btn btn-link p-0 position-absolute"
+                style={{
+                  top: 0,
+                  right: 0,
+                  fontSize: '1.2rem',
+                  color: 'var(--main-clr)',
+                  textDecoration: 'none',
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowFullDescription(!showFullDescription);
+                }}
+                onMouseEnter={() => setShowFullDescription(true)}
+                onMouseLeave={() => setShowFullDescription(false)}
+              >
+                <i className="bi bi-info-circle"></i>
+              </button>
+
+              {/* Tooltip/Popover with full description */}
+              {showFullDescription && (
+                <div
+                  className="position-absolute bg-white border rounded shadow-sm p-3"
+                  style={{
+                    top: '100%',
+                    right: 0,
+                    zIndex: 1000,
+                    maxWidth: '300px',
+                    marginTop: '0.5rem',
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
+                  <p className="mb-0" style={{ fontSize: '0.875rem' }}>
+                    {space.description}
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-link p-0 mt-2 d-md-none"
+                    style={{ fontSize: '0.75rem' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowFullDescription(false);
+                    }}
+                  >
+                    Fermer
+                  </button>
+                </div>
+              )}
+            </div>
 
             <div className="features-list mb-3">
               {space.features.map((feature, index) => (

@@ -13,7 +13,7 @@ import { DateSelectionSection } from "@/components/site/booking/DateSelectionSec
 import { TimeSelectionSection } from "@/components/site/booking/TimeSelectionSection";
 import { PeopleCounterSection } from "@/components/site/booking/PeopleCounterSection";
 import { PriceDisplayCard } from "@/components/site/booking/PriceDisplayCard";
-import type { ReservationType, SpaceConfig, ReservationTypeOption } from "@/types/booking";
+import type { ReservationType, SpaceConfig, ReservationTypeOption, GlobalHours } from "@/types/booking";
 
 export interface BookingDateContentProps {
   /** Space information for progress bar */
@@ -23,6 +23,8 @@ export interface BookingDateContentProps {
   };
   /** Space configuration */
   spaceConfig: SpaceConfig | null;
+  /** Global hours configuration */
+  globalHours?: GlobalHours | null;
   /** Loading state */
   loading: boolean;
   /** Available reservation types for this space */
@@ -94,6 +96,7 @@ export const BookingDateContent = forwardRef<HTMLDivElement, BookingDateContentP
     {
       spaceInfo,
       spaceConfig,
+      globalHours,
       loading,
       availableReservationTypes,
       bookingState,
@@ -147,6 +150,7 @@ export const BookingDateContent = forwardRef<HTMLDivElement, BookingDateContentP
                 isOpen={accordion.dateSectionOpen}
                 isClosing={accordion.dateSectionClosing}
                 onToggle={accordion.toggleDateSection}
+                globalHours={globalHours}
                 className="mb-3"
               />
             )}

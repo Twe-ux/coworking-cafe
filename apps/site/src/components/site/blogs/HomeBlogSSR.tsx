@@ -21,7 +21,7 @@ async function getRecentArticles(): Promise<ArticleData[]> {
     })
       .select('title slug featuredImage')
       .sort({ publishedAt: -1 })
-      .limit(3)
+      .limit(4)
       .lean<ArticleData[]>();
 
     return articles.map(article => ({
@@ -61,8 +61,8 @@ export default async function HomeBlogSSR({ className = "" }: HomeBlogSSRProps) 
         {/* Articles Grid */}
         <div className="blogs__wapper">
           <div className="row">
-            {articles.map((article) => (
-              <div key={article._id} className="col-lg-4 col-md-6 mb-lg-0 mb-5">
+            {articles.map((article, index) => (
+              <div key={article._id} className={`col-lg-4 col-md-6 mb-lg-0 mb-5 ${index === 3 ? 'd-none d-md-block d-lg-none' : ''}`}>
                 <div className="blogs__wapper_card">
                   <Link href={`/blog/${article.slug}`}>
                     <Image

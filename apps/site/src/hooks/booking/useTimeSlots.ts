@@ -64,6 +64,11 @@ export function useTimeSlots({
       return slot >= dayHours.openTime! && slot <= latestStartTime;
     });
 
+    // For daily reservations, limit start time to 15:00
+    if (reservationType === "daily") {
+      filteredSlots = filteredSlots.filter((slot) => slot <= "15:00");
+    }
+
     // Filter past times if today
     if (isToday) {
       const now = new Date();
@@ -77,7 +82,7 @@ export function useTimeSlots({
     }
 
     return filteredSlots;
-  }, [globalHours, selectedDate]);
+  }, [globalHours, selectedDate, reservationType]);
 
   // Calculate available end time slots
   const availableEndSlots = useMemo(() => {
@@ -107,7 +112,7 @@ export function useTimeSlots({
       return (
         endMinutes > startMinutes &&
         slot <= dayHours.closeTime! &&
-        endMinutes - startMinutes >= 30 // Minimum 30 minutes
+        endMinutes - startMinutes >= 60 // Minimum 1 hour
       );
     });
   }, [globalHours, selectedDate, startTime]);

@@ -14,7 +14,7 @@ export default function RegisterPage() {
     confirmPassword: "",
     givenName: "",
     username: "",
-    newsletter: true,
+    newsletter: false,
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -107,9 +107,6 @@ export default function RegisterPage() {
             <div className="auth-card">
               <div className="auth-header text-center mb-4">
                 <h2 className="auth-title">Inscription</h2>
-                <p className="auth-subtitle">
-                  Créez votre compte pour réserver votre espace
-                </p>
               </div>
 
               {error && (
