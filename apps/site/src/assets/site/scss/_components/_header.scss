@@ -217,7 +217,8 @@
     display: inline-flex;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--main-clr);
+      color: var(--btn-clr);
       border: 1px solid var(--main-clr);
     }
 
