@@ -1,5 +1,4 @@
 import "@/assets/site/scss/critical.scss";
-import { DeferredStyles } from "@/components/common/DeferredStyles";
 import { DynamicThemeColor } from "@/components/DynamicThemeColor";
 import { PWARegister } from "@/components/PWARegister";
 import { Analytics } from "@vercel/analytics/next";
@@ -87,7 +86,6 @@ export default function RootLayout({
         `}</style>
         <PWARegister />
         <DynamicThemeColor />
-        <DeferredStyles />
         <SiteProvidersWrapper>
           {children}
         </SiteProvidersWrapper>

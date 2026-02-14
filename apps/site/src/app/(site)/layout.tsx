@@ -1,4 +1,5 @@
 // import AhrefsAnalytics from "@/components/site/AhrefsWebAnalytics";
+import "@/assets/site/scss/deferred.scss";
 import ExceptionalClosureBanner from "../../components/site/banner/ExceptionalClosureBanner";
 import Bootstrap from "../../components/site/Bootstrap";
 import Footer from "../../components/site/footer";
