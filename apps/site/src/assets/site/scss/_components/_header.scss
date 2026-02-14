@@ -217,9 +217,7 @@
     display: inline-flex;
 
     &:hover {
-      background: var(--main-clr);
-      color: var(--btn-clr);
-      border: 1px solid var(--main-clr);
+      opacity: 0.9;
     }
 
     i {
