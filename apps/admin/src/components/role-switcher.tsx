@@ -81,7 +81,7 @@ export function RoleSwitcher() {
           >
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
               <Image
-                src="/logo/logo-circle.webp"
+                src="/images/logo-circle.webp"
                 alt="CoworKing Café"
                 width={32}
                 height={32}
@@ -106,7 +106,7 @@ export function RoleSwitcher() {
           >
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden shrink-0">
               <Image
-                src="/logo/logo-circle.webp"
+                src="/images/logo-circle.webp"
                 alt="CoworKing Café"
                 width={32}
                 height={32}
@@ -137,7 +137,7 @@ export function RoleSwitcher() {
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden shrink-0">
                 <Image
-                  src="/logo/logo-circle.webp"
+                  src="/images/logo-circle.webp"
                   alt="CoworKing Café"
                   width={32}
                   height={32}

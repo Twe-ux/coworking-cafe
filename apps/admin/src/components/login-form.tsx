@@ -1,6 +1,5 @@
 "use client";
 
-import logoCircle from "@/../public/logo/logo-circle.webp";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -60,7 +59,7 @@ export function LoginForm({
         <CardHeader className="text-center">
           <a href="/" className="flex justify-center mb-4">
             <Image
-              src={logoCircle}
+              src="/images/logo-circle.webp"
               alt="CoworKing Café Logo"
               width={100}
               height={100}
