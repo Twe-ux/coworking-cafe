@@ -117,8 +117,28 @@ export default function ReservationsPage() {
   const handleCancelClick = (e: React.MouseEvent, reservation: Reservation) => {
     e.preventDefault(); // Empêcher la navigation vers la page de détails
     e.stopPropagation();
+
+    // Security check: prevent cancellation of past reservations
+    const bookingDate = new Date(reservation.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    bookingDate.setHours(0, 0, 0, 0);
+
+    if (bookingDate < today) {
+      console.error("Cannot cancel a past reservation");
+      return;
+    }
+
     setSelectedBooking(reservation);
     setShowCancelModal(true);
+  };
+
+  const isDatePassed = (dateString: string): boolean => {
+    const bookingDate = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    bookingDate.setHours(0, 0, 0, 0);
+    return bookingDate < today;
   };
 
   const handleCancelModalClose = () => {
@@ -283,15 +303,16 @@ export default function ReservationsPage() {
                             <h5 className="reservation-space mb-0">
                               {getSpaceLabel(reservation.spaceType)}
                             </h5>
-                            {(reservation.status === "confirmed" || reservation.status === "pending") && (
-                              <button
-                                onClick={(e) => handleCancelClick(e, reservation)}
-                                className="btn-cancel-top"
-                                title="Annuler la réservation"
-                              >
-                                <i className="bi bi-x-circle"></i>
-                              </button>
-                            )}
+                            {(reservation.status === "confirmed" || reservation.status === "pending") &&
+                              !isDatePassed(reservation.date) && (
+                                <button
+                                  onClick={(e) => handleCancelClick(e, reservation)}
+                                  className="btn-cancel-top"
+                                  title="Annuler la réservation"
+                                >
+                                  <i className="bi bi-x-circle"></i>
+                                </button>
+                              )}
                           </div>
 
                           <div className="reservation-content">

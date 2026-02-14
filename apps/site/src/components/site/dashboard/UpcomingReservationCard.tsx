@@ -33,6 +33,15 @@ export default function UpcomingReservationCard({
 }: Props) {
   const [showCancelModal, setShowCancelModal] = useState(false);
 
+  // Check if reservation date is in the past
+  const isDatePassed = () => {
+    const bookingDate = new Date(reservation.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    bookingDate.setHours(0, 0, 0, 0);
+    return bookingDate < today;
+  };
+
   const getSpaceLabel = (spaceType: string) => {
     const labels: Record<string, string> = {
       "open-space": "Open-space",
@@ -82,15 +91,16 @@ export default function UpcomingReservationCard({
                 {getSpaceLabel(reservation.spaceType)}
               </h5>
               {(reservation.status === "confirmed" ||
-                reservation.status === "pending") && (
-                <button
-                  onClick={handleCancelClick}
-                  className="btn-cancel-top"
-                  title="Annuler la réservation"
-                >
-                  <i className="bi bi-x-circle"></i>
-                </button>
-              )}
+                reservation.status === "pending") &&
+                !isDatePassed() && (
+                  <button
+                    onClick={handleCancelClick}
+                    className="btn-cancel-top"
+                    title="Annuler la réservation"
+                  >
+                    <i className="bi bi-x-circle"></i>
+                  </button>
+                )}
             </div>
 
             <div className="reservation-content">

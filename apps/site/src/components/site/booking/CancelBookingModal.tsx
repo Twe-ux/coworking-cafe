@@ -51,6 +51,20 @@ export default function CancelBookingModal({
   const loadCancellationPreview = async () => {
     if (!booking) return;
 
+    // SECURITY CHECK: Prevent cancellation of past reservations
+    const bookingDate = new Date(booking.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    bookingDate.setHours(0, 0, 0, 0);
+
+    if (bookingDate < today) {
+      setError(
+        "Impossible d'annuler une réservation passée. L'empreinte bancaire a déjà été libérée ou capturée."
+      );
+      setLoadingPreview(false);
+      return;
+    }
+
     setLoadingPreview(true);
     setError(null);
 
@@ -199,6 +213,19 @@ export default function CancelBookingModal({
   // Handle cancellation
   const handleCancel = async () => {
     if (!booking) return;
+
+    // SECURITY CHECK: Double-check date before API call
+    const bookingDate = new Date(booking.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    bookingDate.setHours(0, 0, 0, 0);
+
+    if (bookingDate < today) {
+      setError(
+        "Impossible d'annuler une réservation passée. L'empreinte bancaire a déjà été traitée."
+      );
+      return;
+    }
 
     setLoading(true);
     setError(null);
