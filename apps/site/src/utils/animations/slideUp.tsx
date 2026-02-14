@@ -42,9 +42,9 @@ const SlideUp: React.FC<SlideUpProps> = ({ children, delay = 1, className }) => 
     }
   }, [MotionDiv])
 
-  // Before motion loads, render children immediately for better FCP
+  // Before motion loads, render placeholder to prevent flash
   if (!MotionDiv) {
-    return <div ref={placeholderRef} className={className}>{children}</div>
+    return <div ref={placeholderRef} className={className} style={{ minHeight: '1px' }} />
   }
 
   const slideUpVariants = {
