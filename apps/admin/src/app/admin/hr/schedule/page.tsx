@@ -53,7 +53,7 @@ export default function SchedulePage() {
 
     // Utilities
     getShiftsPositionedByEmployee,
-    calculateWeeklyHours,
+    calculateProjectedWeeklyHours,
     formatHoursToHHMM,
     isEmployeeUnavailable,
   } = useSchedulePage();
@@ -82,7 +82,6 @@ export default function SchedulePage() {
       week={week}
       weekShifts={weekShifts}
       employees={employees}
-      calculateWeeklyHours={calculateWeeklyHours}
       formatHoursToHHMM={formatHoursToHHMM}
     />
   );
@@ -102,6 +101,8 @@ export default function SchedulePage() {
           onDateChange={setCurrentDate}
           data={shifts}
           getDateForData={(shift) => shift.date}
+          secondaryData={timeEntries}
+          getDateForSecondaryData={(entry) => entry.date}
           renderCell={renderCell}
           renderSidebarWeek={renderSidebarWeek}
           onCellClick={handleCellClick}

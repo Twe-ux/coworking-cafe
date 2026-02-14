@@ -169,5 +169,8 @@ export function getWeekStart(date: Date): Date {
  */
 export function getWeekEnd(date: Date): Date {
   const weekStart = getWeekStart(date)
-  return new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000)
+  const weekEnd = new Date(weekStart)
+  weekEnd.setDate(weekEnd.getDate() + 6)
+  weekEnd.setHours(23, 59, 59, 999)
+  return weekEnd
 }

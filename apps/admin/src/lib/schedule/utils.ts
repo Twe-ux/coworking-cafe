@@ -161,3 +161,82 @@ export function calculateWeeklyHours(
     return totalHours + calculateShiftDuration(shift.startTime, shift.endTime);
   }, 0);
 }
+
+/**
+ * Calculate projected weekly hours for an employee
+ *
+ * LOGIQUE SIMPLIFIÉE :
+ * 1. Compter TOUTES les heures pointées (timeEntries completed) - sans comparaison avec shifts
+ * 2. Compter TOUS les shifts dont la fin est dans le futur (pas encore terminés)
+ * 3. Pas de matching shift ↔ timeEntry
+ *
+ * Gère automatiquement :
+ * - Heures supplémentaires / dépannage / urgence (timeEntries sans shift correspondant)
+ * - Shifts manqués (shifts passés sans timeEntry)
+ * - Shifts en cours (on compte le shift planifié jusqu'à ce qu'il soit terminé)
+ */
+export function calculateProjectedWeeklyHours(
+  employeeId: string,
+  weekShifts: Shift[],
+  weekTimeEntries: Array<{
+    employeeId: string;
+    date: string;
+    totalHours?: number;
+    status: 'active' | 'completed';
+    shiftNumber?: 1 | 2;
+  }>
+): number {
+  const now = new Date(); // Heure actuelle précise
+
+  const employeeShifts = weekShifts.filter((s) => s.employeeId === employeeId);
+  const employeeTimeEntries = weekTimeEntries.filter(
+    (te) => te.employeeId === employeeId && te.status === 'completed'
+  );
+
+  console.log(`\n[DEBUG] ========== Employee ${employeeId} ==========`);
+  console.log(`[DEBUG] Now:`, now.toISOString());
+  console.log(`[DEBUG] Shifts planifiés:`, employeeShifts.map(s => ({
+    date: s.date,
+    time: `${s.startTime}-${s.endTime}`
+  })));
+  console.log(`[DEBUG] TimeEntries completed:`, employeeTimeEntries.map(te => ({
+    date: te.date,
+    shiftNumber: te.shiftNumber,
+    totalHours: te.totalHours
+  })));
+
+  // 1. Compter TOUTES les heures pointées (completed)
+  const completedHours = employeeTimeEntries.reduce((sum, te) => {
+    const hours = te.totalHours || 0;
+    console.log(`[DEBUG] → TimeEntry ${te.date} shift#${te.shiftNumber}: ${hours}h`);
+    return sum + hours;
+  }, 0);
+
+  console.log(`[DEBUG] Total completed hours: ${completedHours}h`);
+
+  // 2. Compter les shifts dont la fin est dans le futur
+  const futureShiftsHours = employeeShifts.reduce((sum, shift) => {
+    // Créer DateTime de fin du shift
+    const shiftEnd = new Date(`${shift.date}T${shift.endTime}`);
+
+    // Gestion des shifts de nuit (qui se terminent le lendemain)
+    const shiftStart = new Date(`${shift.date}T${shift.startTime}`);
+    if (shiftEnd <= shiftStart) {
+      shiftEnd.setDate(shiftEnd.getDate() + 1);
+    }
+
+    const isFuture = shiftEnd > now;
+    const hours = isFuture ? calculateShiftDuration(shift.startTime, shift.endTime) : 0;
+
+    console.log(`[DEBUG] → Shift ${shift.date} ${shift.startTime}-${shift.endTime}: ${isFuture ? `✅ ${hours}h (fin future)` : '❌ passé/en cours'}`);
+
+    return sum + hours;
+  }, 0);
+
+  console.log(`[DEBUG] Total future shifts hours: ${futureShiftsHours}h`);
+
+  const totalHours = completedHours + futureShiftsHours;
+  console.log(`[DEBUG] ========== TOTAL: ${totalHours}h ==========\n`);
+
+  return totalHours;
+}

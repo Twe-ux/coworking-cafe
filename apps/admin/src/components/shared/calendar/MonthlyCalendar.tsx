@@ -55,6 +55,8 @@ export function MonthlyCalendar<T = any>({
   cellHeight = 120,
   legendComponent,
   actionButton,
+  secondaryData,
+  getDateForSecondaryData,
 }: MonthlyCalendarProps<T>) {
   // Calculer les jours du calendrier
   const calendarDays = useMemo(
@@ -187,6 +189,17 @@ export function MonthlyCalendar<T = any>({
                   );
                 });
 
+                // Filtrer les données secondaires de cette semaine
+                const weekSecondaryData = secondaryData && getDateForSecondaryData
+                  ? secondaryData.filter((item) => {
+                      const itemDate = getDateForSecondaryData(item);
+                      const itemDateStr = formatDateForComparison(itemDate);
+                      return (
+                        itemDateStr >= weekStartStr && itemDateStr <= weekEndStr
+                      );
+                    })
+                  : undefined;
+
                 const weekInfo: WeekData = {
                   weekStart,
                   weekEnd,
@@ -202,7 +215,7 @@ export function MonthlyCalendar<T = any>({
                     style={{ minHeight: cellHeight }}
                   >
                     {renderSidebarWeek ? (
-                      renderSidebarWeek(weekInfo, weekData)
+                      renderSidebarWeek(weekInfo, weekData, weekSecondaryData)
                     ) : (
                       <div className="flex-1 space-y-1">
                         {sidebarItems.map((item) => (

@@ -21,7 +21,7 @@ export interface SidebarItem {
   metadata?: Record<string, any>
 }
 
-export interface MonthlyCalendarProps<T = any> {
+export interface MonthlyCalendarProps<T = any, S = any> {
   // Date actuelle affichée
   currentDate: Date
   onDateChange: (date: Date) => void
@@ -30,9 +30,13 @@ export interface MonthlyCalendarProps<T = any> {
   data: T[]
   getDateForData: (item: T) => Date | string
 
+  // Données secondaires (ex: timeEntries pour calculer heures projetées)
+  secondaryData?: S[]
+  getDateForSecondaryData?: (item: S) => Date | string
+
   // Rendu personnalisé
   renderCell: (date: Date, dayData: T[], cellInfo: CalendarDay) => React.ReactNode
-  renderSidebarWeek?: (weekData: WeekData, weekItems: T[]) => React.ReactNode
+  renderSidebarWeek?: (weekData: WeekData, weekItems: T[], weekSecondaryItems?: S[]) => React.ReactNode
 
   // Comportement
   onCellClick?: (date: Date, dayData: T[]) => void

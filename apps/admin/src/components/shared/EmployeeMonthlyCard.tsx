@@ -88,8 +88,7 @@ export default function EmployeeMonthlyCard({
   };
 
   const employeeMonthlyStats = useMemo(() => {
-    const today = new Date();
-    const todayStr = formatDateToYMD(today);
+    const now = new Date(); // Heure actuelle précise
 
     return employees.map((employee): EmployeeStats => {
       const monthlyShifts = shifts.filter((shift) => {
@@ -105,8 +104,8 @@ export default function EmployeeMonthlyCard({
         return total + calculateShiftHours(shift);
       }, 0);
 
+      // 1. Compter TOUTES les heures pointées (completed) du mois
       let actualHours = 0;
-      const completedShiftIds = new Set<string>();
 
       if (Array.isArray(timeEntries)) {
         for (const entry of timeEntries) {
@@ -119,34 +118,32 @@ export default function EmployeeMonthlyCard({
 
             if (
               entryDateStr >= firstDayStr &&
-              entryDateStr <= todayStr &&
               entryDateStr <= lastDayStr
             ) {
               actualHours += entry.totalHours || 0;
-              const shiftId = `${entryDateStr}-${entry.shiftNumber || 1}`;
-              completedShiftIds.add(shiftId);
             }
           }
         }
       }
 
-      const remainingPlannedHours = monthlyShifts
-        .filter((shift) => {
-          const shiftDateStr = formatDateToYMD(shift.date);
-          const shiftId = `${shiftDateStr}-1`;
-          const isCompleted = completedShiftIds.has(shiftId);
+      // 2. Compter les shifts dont la fin est dans le futur
+      const futureShiftsHours = monthlyShifts.reduce((total, shift) => {
+        // Créer DateTime de fin du shift
+        const shiftEnd = new Date(`${formatDateToYMD(shift.date)}T${shift.endTime}`);
 
-          if (shiftDateStr === todayStr) {
-            return !isCompleted;
-          } else {
-            return shiftDateStr > todayStr;
-          }
-        })
-        .reduce((total, shift) => {
-          return total + calculateShiftHours(shift);
-        }, 0);
+        // Gestion des shifts de nuit (qui se terminent le lendemain)
+        const shiftStart = new Date(`${formatDateToYMD(shift.date)}T${shift.startTime}`);
+        if (shiftEnd <= shiftStart) {
+          shiftEnd.setDate(shiftEnd.getDate() + 1);
+        }
 
-      const projectedHours = actualHours + remainingPlannedHours;
+        const isFuture = shiftEnd > now;
+        const hours = isFuture ? calculateShiftHours(shift) : 0;
+
+        return total + hours;
+      }, 0);
+
+      const projectedHours = actualHours + futureShiftsHours;
 
       return {
         employee,

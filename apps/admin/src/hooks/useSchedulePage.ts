@@ -10,6 +10,7 @@ import {
   formatDateToYMD,
   formatHoursToHHMM,
   calculateWeeklyHours,
+  calculateProjectedWeeklyHours,
   getShiftsPositionedByEmployee,
   type EmployeeShiftPosition,
 } from "@/lib/schedule/utils";
@@ -51,6 +52,7 @@ export interface UseSchedulePageReturn {
   // Utilities
   getShiftsPositionedByEmployee: (date: Date, dayShifts: Shift[]) => EmployeeShiftPosition[];
   calculateWeeklyHours: (employeeId: string, weekShifts: Shift[]) => number;
+  calculateProjectedWeeklyHours: typeof calculateProjectedWeeklyHours;
   formatHoursToHHMM: (decimalHours: number) => string;
   formatDateToYMD: (date: Date | string) => string;
   isEmployeeUnavailable: (dateStr: string, employeeId: string) => boolean;
@@ -161,6 +163,7 @@ export function useSchedulePage(): UseSchedulePageReturn {
     // Utilities
     getShiftsPositionedByEmployee: getShiftsPositionedByEmployeeMemo,
     calculateWeeklyHours,
+    calculateProjectedWeeklyHours,
     formatHoursToHHMM,
     formatDateToYMD,
     isEmployeeUnavailable,
