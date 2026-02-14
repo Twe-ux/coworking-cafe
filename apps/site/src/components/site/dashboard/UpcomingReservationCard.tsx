@@ -95,19 +95,17 @@ export default function UpcomingReservationCard({
 
             <div className="reservation-content">
               <div className="reservation-info">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <div className="info-item mb-0">
-                    <i className="bi bi-calendar"></i>
-                    <span>{formatDate(reservation.date)}</span>
-                  </div>
-                  <div className="info-item mb-0">
-                    <i className="bi bi-clock"></i>
-                    <span>
-                      {reservation.reservationType === 'daily' || !reservation.endTime
-                        ? `Journée complète à partir de ${reservation.startTime}`
-                        : `${reservation.startTime} - ${reservation.endTime}`}
-                    </span>
-                  </div>
+                <div className="info-item mb-2">
+                  <i className="bi bi-calendar"></i>
+                  <span>{formatDate(reservation.date)}</span>
+                </div>
+                <div className="info-item mb-2">
+                  <i className="bi bi-clock"></i>
+                  <span>
+                    {reservation.reservationType === 'daily' || !reservation.endTime
+                      ? `Journée complète à partir de ${reservation.startTime}`
+                      : `${reservation.startTime} - ${reservation.endTime}`}
+                  </span>
                 </div>
                 <div className="info-item mb-0">
                   <i className="bi bi-people"></i>
