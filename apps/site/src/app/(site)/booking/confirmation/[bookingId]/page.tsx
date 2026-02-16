@@ -1,20 +1,20 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useBookingConfirmation } from "@/hooks/useBookingConfirmation";
-import {
-  getStatusBadge,
-  getPaymentStatusBadge,
-  calculateDepositAmount,
-} from "@/utils/booking-helpers";
+import BookingDetailsSummary from "@/components/booking/confirmation/BookingDetailsSummary";
 import ConfirmationHeader from "@/components/booking/confirmation/ConfirmationHeader";
 import ConfirmationSuccess from "@/components/booking/confirmation/ConfirmationSuccess";
-import BookingDetailsSummary from "@/components/booking/confirmation/BookingDetailsSummary";
 import DepositInfo from "@/components/booking/confirmation/DepositInfo";
 import ImportantInfo from "@/components/booking/confirmation/ImportantInfo";
 import { ConfirmationSkeleton } from "@/components/ui/skeletons";
+import { useBookingConfirmation } from "@/hooks/useBookingConfirmation";
+import {
+  calculateDepositAmount,
+  getPaymentStatusBadge,
+  getStatusBadge,
+} from "@/utils/booking-helpers";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ConfirmationPage({
   params,
@@ -25,7 +25,7 @@ export default function ConfirmationPage({
   const { data: session, status } = useSession();
   const { booking, spaceConfig, loading, error } = useBookingConfirmation(
     params.bookingId,
-    status
+    status,
   );
 
   if (status === "loading" || loading) {
@@ -111,8 +111,6 @@ export default function ConfirmationPage({
           </div>
         </div>
       </section>
-
-      <div style={{ height: "5rem" }}></div>
     </>
   );
 }
