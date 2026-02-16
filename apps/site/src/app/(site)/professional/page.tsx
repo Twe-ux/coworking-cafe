@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/common/Icon";
+import { IconArrowRight, IconCheck } from "@/components/icons/CriticalIcons";
 import Partner from "@/components/site/partner";
 import { partnerOneLogos } from "@/db/partnerOneLogos";
 import { professionalData } from "@/db/professional/professionalData";
@@ -13,7 +14,6 @@ import { useEffect, useRef, useState } from "react";
 import { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 // @ts-ignore - react-modal-video types not available
-import ModalVideo from "react-modal-video";
 import { Navigation, Pagination as PaginationModule } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -58,7 +58,7 @@ const Professional = () => {
   const [isOpen, setOpen] = useState(false);
 
   return (
-    <div className="pb__130">
+    <div className="">
       <section className="banner overflow-hidden">
         <div className="container position-relative">
           <div className="row">
@@ -173,7 +173,7 @@ const Professional = () => {
             </SlideDown>
           </div>
           <div className="row justify-content-between align-items-center about__wapper">
-            <div className="col-xl-5 col-lg-6">
+            <div className="col-xl-6 col-lg-5">
               <SlideUp>
                 <div className="about__wapper_left">
                   <p>
@@ -190,7 +190,7 @@ const Professional = () => {
                 </div>
               </SlideUp>
             </div>
-            <div className="col-xl-4 col-lg-6">
+            <div className="col-xl-6 col-lg-5">
               <SlideUp delay={2}>
                 <div className="about__wapper_center">
                   <Image
@@ -209,10 +209,10 @@ const Professional = () => {
           <Partner data={partnerOneLogos} />
         </div>
       </section>
-      <section className="projects pt__120 pb__130">
+      <section className="projects py__130" id="projects">
         <div className="container">
           {/* title Start */}
-          <SlideDown className="d-flex justify-content-between align-items-center projects__title">
+          <SlideDown className="d-flex align-items-center ">
             <h1 className="title">
               Un lieu équipé et modulable pour vos événements professionnels
             </h1>
@@ -231,7 +231,7 @@ const Professional = () => {
                     key={id}
                     className="projects__wapper_card"
                   >
-                    <div className="d-flex flex-column gap-5">
+                    <div className="d-flex flex-column gap-5 mb-4">
                       <Image
                         src={imgSrc}
                         alt={`${title} - CoworKing Café Anticafé Strasbourg`}
@@ -242,10 +242,11 @@ const Professional = () => {
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
-                    <div>
+                    <div className="h-text">
                       <div className="d-flex align-items-center"></div>
-
-                      <p className="project__group">{categories}</p>
+                      <p className="project__group mb-3 text-white">
+                        {categories}
+                      </p>
                       <p className="project__group">{subCategories}</p>
                     </div>
                   </SlideUp>
@@ -255,277 +256,240 @@ const Professional = () => {
           </div>
         </div>
       </section>
-      <div className="py__130">
-        <section className="about py__130" id="about">
-          <div className="container">
-            <div className="row justify-content-between about__title">
-              <SlideDown>
-                <div className="col-lg-10">
-                  <div>
-                    <h1 className="title">
-                      Formats & conditions de privatisation
-                    </h1>
-                  </div>
+
+      <section className="about py__130" id="about">
+        <div className="container">
+          <div className="row justify-content-between about__title">
+            <SlideDown>
+              <div className="col-lg-10">
+                <div>
+                  <h1 className="title">
+                    Formats & conditions de privatisation
+                  </h1>
                 </div>
-                <div className="col-lg-2">
-                  <div className="about__title_shap position-relative">
-                    <img
-                      src="/images/banner/Shape.svg"
-                      alt="img"
-                      className="w-100"
-                    />
-                  </div>
-                </div>
-              </SlideDown>
-            </div>
-            <div className="row justify-content-between align-items-center about__wapper">
-              <div className="col-xl-5 col-lg-6">
-                <SlideUp>
-                  <div className="about__wapper_left">
-                    <p>
-                      Les privatisations se font uniquement sur demande et sur
-                      devis, afin de garantir un événement adapté à votre format
-                      et à vos objectifs.
-                    </p>
-                    <Link href="/about" className="circle">
-                      <i className="fa-solid fa-arrow-right"></i>
-                      <span>Demande de devis</span>
-                    </Link>
-                  </div>
-                </SlideUp>
               </div>
-              <div className="col-xl-4 col-lg-6">
-                <SlideUp delay={2}>
-                  <div className="about__wapper_center">
-                    <img src="/images/about/Rectangle105.webp" alt="reunion" />
-                  </div>
-                </SlideUp>
-              </div>
-              <div className="col-xl-3 col-lg-6 mt-5 mt-xl-0">
-                <SlideUp delay={3}>
-                  <ul className="about__wapper_right">
-                    <li>
-                      <i className="fa-solid fa-check"></i>
-                      <span>Nous proposons plusieurs formats :</span>
-                    </li>
-                    <li>
-                      <i className="fa-solid fa-check"></i>
-                      <span>
-                        Demi-journée (matin ou après- midi), à partir de 880 €
-                        HT
-                      </span>
-                    </li>
-                    <li>
-                      <i className="fa-solid fa-check"></i>
-                      <span>Journée complète, à partir de 1 490 € HT</span>
-                    </li>
-                    <li>
-                      <i className="fa-solid fa-check"></i>
-                      <span>Soirée, à partir de 550 € HT</span>
-                    </li>
-                  </ul>
-                </SlideUp>
-              </div>
-            </div>
-            <h2 className="title mt__100">
-              Pourquoi choisir Coworking Café pour votre événement ?
-            </h2>
-            <p className="title__paragraph">
-              Privatiser Coworking Café, c’est faire le choix d’un lieu
-              événementiel B2B différent, déjà reconnu pour la qualité de son
-              accueil et de son atmosphère. C’est aussi bénéficier :
-            </p>
-            <ul className="about__wapper_right">
-              <li className="">
-                d’un espace pensé pour le travail et l’échange, pas simplement
-                loué pour l’occasion
-              </li>
-              <li>
-                de l’ADN Anticafé, pionnier du café-coworking, allié à un fort
-                ancrage local strasbourgeois
-              </li>
-              <li>
-                d’un cadre chaleureux qui favorise la participation, l’attention
-                et les rencontres d’une équipe réactive, habituée à accueillir
-                des groupes professionnels{" "}
-              </li>
-            </ul>
-          </div>
-        </section>
-        <section className="testimonial py__130">
-          <div className="container position-relative py__130">
-            {/* title Start */}
-            <SlideDown className="">
-              <h1 className="title text-center">
-                Merci pour vos retours! <br /> Parce que vous contribuez à notre
-                succès...
-              </h1>
             </SlideDown>
-            {/* title End */}
-            <SlideUp className="testimonial__wapper">
-              <Swiper
-                onSwiper={(swiper: SwiperType) => (swiperRef.current = swiper)}
-                spaceBetween={25}
-                breakpoints={{
-                  0: {
-                    slidesPerView: 1,
-                  },
-                  768: {
-                    slidesPerView: 2,
-                  },
-                }}
-                navigation={{
-                  nextEl: ".next-slide",
-                  prevEl: ".prev-slide",
-                }}
-                pagination={{
-                  type: "custom",
-                  el: ".testimonial-pagination",
-                  renderCustom: function (
-                    _swiper: SwiperType,
-                    current: number,
-                    total: number,
-                  ) {
-                    let html = "";
+          </div>
+          <div className="row justify-content-between align-items-center about__wapper">
+            <div className="col-xl-5 col-lg-6">
+              <SlideUp>
+                <div className="about__wapper_left">
+                  <p>
+                    Les privatisations se font uniquement sur demande et sur
+                    devis, afin de garantir un événement adapté à votre format
+                    et à vos objectifs.
+                  </p>
+                  <Link href="/about" className="circle">
+                    <IconArrowRight size={28} />
 
-                    // Calculer les pages à afficher (max 3)
-                    let startPage = Math.max(1, current - 1);
-                    let endPage = Math.min(total, startPage + 2);
+                    <span>Demande de devis</span>
+                  </Link>
+                </div>
+              </SlideUp>
+            </div>
+            <div className="col-xl-4 col-lg-6">
+              <SlideUp delay={2}>
+                <div className="about__wapper_center">
+                  <img src="/images/about/Rectangle105.webp" alt="reunion" />
+                </div>
+              </SlideUp>
+            </div>
+            <div className="col-xl-3 col-lg-6 mt-5 mt-xl-0">
+              <SlideUp delay={3}>
+                <ul className="about__wapper_right">
+                  <li>
+                    <IconCheck size={16} />
+                    <span>Nous proposons plusieurs formats :</span>
+                  </li>
+                  <li>
+                    <IconCheck size={16} />
+                    <span>
+                      Demi-journée (matin ou après- midi), à partir de 880 € HT
+                    </span>
+                  </li>
+                  <li>
+                    <IconCheck size={16} />
+                    <span>Journée complète, à partir de 1 490 € HT</span>
+                  </li>
+                  <li>
+                    <IconCheck size={16} />
+                    <span>Soirée, à partir de 550 € HT</span>
+                  </li>
+                </ul>
+              </SlideUp>
+            </div>
+          </div>
+          <h2 className="title mt-5">
+            Pourquoi choisir Coworking Café pour votre événement ?
+          </h2>
+          <p className="title__paragraph mt-5">
+            Privatiser Coworking Café, c’est faire le choix d’un lieu
+            événementiel B2B différent, déjà reconnu pour la qualité de son
+            accueil et de son atmosphère. C’est aussi bénéficier :
+          </p>
+          <ul className="about__wapper_right">
+            <li className="">
+              d’un espace pensé pour le travail et l’échange, pas simplement
+              loué pour l’occasion
+            </li>
+            <li>
+              de l’ADN Anticafé, pionnier du café-coworking, allié à un fort
+              ancrage local strasbourgeois
+            </li>
+            <li>
+              d’un cadre chaleureux qui favorise la participation, l’attention
+              et les rencontres
+            </li>
+            <li>
+              d’une équipe réactive, habituée à accueillir des groupes
+              professionnels
+            </li>
+          </ul>
+        </div>
+      </section>
+      <section className="testimonial py__130 h-dvh">
+        <div className="container position-relative">
+          {/* title Start */}
+          <SlideDown className="">
+            <h1 className="title text-center">
+              Merci pour vos retours! <br /> Parce que vous contribuez à notre
+              succès...
+            </h1>
+          </SlideDown>
+          {/* title End */}
+          <SlideUp className="testimonial__wapper">
+            <Swiper
+              onSwiper={(swiper: SwiperType) => (swiperRef.current = swiper)}
+              spaceBetween={25}
+              breakpoints={{
+                0: {
+                  slidesPerView: 1,
+                },
+                768: {
+                  slidesPerView: 2,
+                },
+              }}
+              navigation={{
+                nextEl: ".next-slide",
+                prevEl: ".prev-slide",
+              }}
+              pagination={{
+                type: "custom",
+                el: ".testimonial-pagination",
+                renderCustom: function (
+                  _swiper: SwiperType,
+                  current: number,
+                  total: number,
+                ) {
+                  let html = "";
 
-                    // Ajuster si on est à la fin
-                    if (endPage - startPage < 2) {
-                      startPage = Math.max(1, endPage - 2);
-                    }
+                  // Calculer les pages à afficher (max 3)
+                  let startPage = Math.max(1, current - 1);
+                  let endPage = Math.min(total, startPage + 2);
 
-                    // Ajouter "..." au début si on n'est pas sur les premières pages
-                    if (startPage > 1) {
-                      html += `<span class='slide-dots slide-dots-ellipsis' data-page='1'>...</span>`;
-                    }
+                  // Ajuster si on est à la fin
+                  if (endPage - startPage < 2) {
+                    startPage = Math.max(1, endPage - 2);
+                  }
 
-                    for (let i = startPage; i <= endPage; i++) {
-                      const activeClass =
-                        i === current ? "slide-dots-active" : "";
-                      html += `<span class='slide-dots ${activeClass}' data-page='${i}'>0${i}</span>`;
-                    }
+                  // Ajouter "..." au début si on n'est pas sur les premières pages
+                  if (startPage > 1) {
+                    html += `<span class='slide-dots slide-dots-ellipsis' data-page='1'>...</span>`;
+                  }
 
-                    // Ajouter "..." à la fin si on n'est pas sur les dernières pages
-                    if (endPage < total) {
-                      html += `<span class='slide-dots slide-dots-ellipsis' data-page='${total}'>...</span>`;
-                    }
+                  for (let i = startPage; i <= endPage; i++) {
+                    const activeClass =
+                      i === current ? "slide-dots-active" : "";
+                    html += `<span class='slide-dots ${activeClass}' data-page='${i}'>0${i}</span>`;
+                  }
 
-                    return html;
-                  },
-                }}
-                loop
-                modules={[Navigation, PaginationModule]}
-              >
-                {testimonialsOneData.map((testimonial, index) => (
-                  <SwiperSlide key={index} className="slide">
-                    <div className="d-flex gap-2 star">
-                      {Array.from({ length: testimonial.stars }).map((_, i) => (
-                        <i key={i} className="bi bi-star-fill" />
-                      ))}
-                    </div>
-                    <p className="review">{testimonial.review}</p>
-                    <div className="d-flex justify-content-between">
-                      <div className="d-flex gap-4 reviewer__info">
-                        <Image
-                          src={testimonial.reviewer.image}
-                          alt={testimonial.reviewer.name}
-                          width={60}
-                          height={60}
-                          loading="lazy"
-                          sizes="60px"
-                        />
-                        <div>
-                          <p>{testimonial.reviewer.name}</p>
-                          <small>{testimonial.reviewer.position}</small>
-                        </div>
-                      </div>
+                  // Ajouter "..." à la fin si on n'est pas sur les dernières pages
+                  if (endPage < total) {
+                    html += `<span class='slide-dots slide-dots-ellipsis' data-page='${total}'>...</span>`;
+                  }
+
+                  return html;
+                },
+              }}
+              loop
+              modules={[Navigation, PaginationModule]}
+            >
+              {testimonialsOneData.map((testimonial, index) => (
+                <SwiperSlide key={index} className="slide">
+                  <div className="d-flex gap-2 star">
+                    {Array.from({ length: testimonial.stars }).map((_, i) => (
+                      <i key={i} className="bi bi-star-fill" />
+                    ))}
+                  </div>
+                  <p className="review">{testimonial.review}</p>
+                  <div className="d-flex justify-content-between">
+                    <div className="d-flex gap-4 reviewer__info">
+                      <Image
+                        src={testimonial.reviewer.image}
+                        alt={testimonial.reviewer.name}
+                        width={60}
+                        height={60}
+                        loading="lazy"
+                        sizes="60px"
+                      />
                       <div>
-                        <Image
-                          src={testimonial.quoteImage}
-                          alt="quote"
-                          width={60}
-                          height={60}
-                          loading="lazy"
-                          sizes="60px"
-                        />
+                        <p>{testimonial.reviewer.name}</p>
+                        <small>{testimonial.reviewer.position}</small>
                       </div>
                     </div>
-                  </SwiperSlide>
-                ))}
-                <div className="d-flex justify-content-center gap-3 mt-4">
-                  <div className="d-flex justify-content-between w-380">
-                    <div className="prev-slide slide__nav">
-                      <Icon name="arrow-left" />
-                    </div>
-                    <div className="testimonial-pagination d-flex gap-3"></div>
-                    <div className="next-slide slide__nav">
-                      <Icon name="arrow-right" />
+                    <div>
+                      <Image
+                        src={testimonial.quoteImage}
+                        alt="quote"
+                        width={60}
+                        height={60}
+                        loading="lazy"
+                        sizes="60px"
+                      />
                     </div>
                   </div>
-                </div>
-              </Swiper>
-            </SlideUp>
-            <div className="video">
-              <h1 className="title text-center mb-5">
-                Pourquoi venir à CoworKing Café ? <br />
-                Pour ça !
-              </h1>
-
-              <div className="position-relative">
-                <Image
-                  src="/images/testimonail/anticafé-strasbourg.webp"
-                  alt="Vidéo présentation Anticafé CoworKing Café Strasbourg"
-                  width={1200}
-                  height={675}
-                  loading="lazy"
-                  quality={85}
-                  className="video_thumb"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1100px"
-                />
-                <div
-                  onClick={() => setOpen(true)}
-                  className="video_icon video-play"
-                >
-                  <Image
-                    src="/images/testimonail/Frame_20.svg"
-                    alt="bouton play"
-                    width={80}
-                    height={80}
-                    loading="lazy"
-                  />
+                </SwiperSlide>
+              ))}
+              <div className="d-flex justify-content-center gap-3 mt-4">
+                <div className="d-flex justify-content-between w-380">
+                  <div className="prev-slide slide__nav">
+                    <Icon name="arrow-left" />
+                  </div>
+                  <div className="testimonial-pagination d-flex gap-3"></div>
+                  <div className="next-slide slide__nav">
+                    <Icon name="arrow-right" />
+                  </div>
                 </div>
               </div>
+            </Swiper>
+          </SlideUp>
+        </div>
+      </section>
 
-              <h4 className="title__paragraph text-center mt-4 py__130">
-                Vous souhaitez organiser un événement professionnel à Strasbourg
-                dans un lieu chaleureux, fonctionnel et central ? Présentez-nous
-                votre projet par email (date, format, nombre de personnes,
-                besoins spécifiques). Nous étudierons votre demande et
-                reviendrons vers vous avec une proposition adaptée.
-              </h4>
-              {/* Links to contact */}
-              <div className="text-center mt-3 mt-md-5 mb-5">
-                <Link
-                  href="/contact"
-                  className="common__btn me-md-3 mb-3 mb-md-0 d-block d-md-inline-block"
-                >
-                  <span>Demander un devis</span>
-                </Link>
-              </div>
-            </div>
-            <ModalVideo
-              channel="youtube"
-              youtube={{ mute: 0, autoplay: 0 }}
-              isOpen={isOpen}
-              videoId="cHfYLa7XE_0"
-              onClose={() => setOpen(false)}
-            />
-          </div>
-        </section>
-      </div>
+      <section className="py__130">
+        <h1 className="title text-center mb-5">
+          Pourquoi venir à CoworKing Café ? <br />
+          Pour ça !
+        </h1>
+
+        <h4 className="title__paragraph text-center mt-4 text-white">
+          Vous souhaitez organiser un événement professionnel à Strasbourg dans
+          un lieu chaleureux, fonctionnel et central ? Présentez-nous votre
+          projet par email (date, format, nombre de personnes, besoins
+          spécifiques). Nous étudierons votre demande et reviendrons vers vous
+          avec une proposition adaptée.
+        </h4>
+        {/* Links to contact */}
+        <div className="text-center mt-3 mt-md-5 mb-5">
+          <Link
+            href="/contact"
+            className="common__btn me-md-3 mb-3 mb-md-0 d-block d-md-inline-block"
+          >
+            <span>Demander un devis</span>
+          </Link>
+        </div>
+      </section>
+
       <div className="py__130"></div>
     </div>
   );

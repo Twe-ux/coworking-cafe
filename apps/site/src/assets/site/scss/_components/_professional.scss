@@ -305,6 +305,9 @@
 
     &_right {
       li {
+        color: var(--gry-clr);
+        list-style-type: disc;
+
         @include flex();
         gap: 12px;
         margin-bottom: 25px;
@@ -423,10 +426,14 @@
       .d-flex {
         gap: 1rem;
       }
+      .h-text {
+        min-height: 470px;
+      }
 
       .project__group {
         color: var(--pra-clr);
         margin-top: 7px;
+        text-align: justify;
 
         @include breakpoint(md) {
           margin-top: 5px;
@@ -511,6 +518,10 @@
   &__title {
     max-width: 668px;
     margin: auto;
+  }
+
+  &.h-dvh {
+    height: 100dvh;
   }
 
   &__wapper {
