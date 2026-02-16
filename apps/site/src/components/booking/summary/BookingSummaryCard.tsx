@@ -5,6 +5,7 @@ import {
   SPACE_TYPE_LABELS as spaceTypeLabels,
   RESERVATION_TYPE_LABELS as reservationTypeLabels,
 } from "@/types/booking";
+import { getPeopleDisplayLabelLong } from "@/lib/utils/booking-display";
 
 interface BookingSummaryCardProps {
   bookingData: BookingData;
@@ -68,9 +69,7 @@ export default function BookingSummaryCard({ bookingData }: BookingSummaryCardPr
 
         <SummaryRow
           label="Personnes"
-          value={`${bookingData.numberOfPeople} ${
-            bookingData.numberOfPeople > 1 ? "personnes" : "personne"
-          }`}
+          value={getPeopleDisplayLabelLong(bookingData.numberOfPeople, bookingData.spaceType)}
         />
 
         <SummaryRow
