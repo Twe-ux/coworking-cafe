@@ -98,27 +98,31 @@ export const SPACE_TYPE_TO_SLUG: Record<string, string> = {
 };
 
 /**
- * Static display data (icons only - features come from DB)
+ * Static display data (icons + images hardcoded - features come from DB)
  */
 export const SPACE_DISPLAY_DATA: Record<string, Partial<DisplaySpace>> = {
   "open-space": {
     title: "Place",
     subtitle: "Open-space",
     icon: "bi-person-workspace",
+    image: "/images/spaces/openSpace/coworking-cafe-strasbourg.webp",
   },
   "salle-verriere": {
     title: "Salle de réunion",
     subtitle: "Verrière",
     icon: "bi-briefcase",
+    image: "/images/spaces/verriere/salle-reunion-coworking-strasbourg.webp",
   },
   "salle-etage": {
     title: "Salle de réunion",
     subtitle: "Étage",
     icon: "bi-building",
+    image: "/images/spaces/etage/salle-reunion-anticafe-cafecoworking.webp",
   },
   evenementiel: {
     title: "Événementiel",
     subtitle: "Grand espace",
     icon: "bi-calendar-event",
+    image: "/images/spaces/openSpace/coworking-anticafe-cafe-strasbourg.webp",
   },
 };

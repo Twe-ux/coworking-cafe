@@ -21,7 +21,7 @@ export async function getSpaces(): Promise<DisplaySpace[]> {
   try {
     await connectDB();
 
-    const configs = await SpaceConfiguration.find({}).lean();
+    const configs = await SpaceConfiguration.find({}).sort({ displayOrder: 1 }).lean();
 
     const displaySpaces: DisplaySpace[] = configs.map((config: any) => {
       const displayData = DISPLAY_DATA[config.spaceType] || {};
@@ -59,7 +59,7 @@ export async function getSpaces(): Promise<DisplaySpace[]> {
         subtitle: displayData.subtitle || "",
         description: config.description || displayData.description || "",
         icon: displayData.icon || "bi-building",
-        image: config.imageUrl || `/images/spaces/${config.slug}.jpg`,
+        image: displayData.image || config.imageUrl || `/images/spaces/${config.slug}.jpg`,
         capacity: capacityText,
         features: config.features || [],
         priceFrom: hourlyPrice, // Kept for compatibility
