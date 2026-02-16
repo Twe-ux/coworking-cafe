@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       // Store ALL reservation data in metadata (will be used by webhook to create booking)
       const metadata = {
         ...reservationData,
+        spaceType: dbSpaceType, // CRITICAL: Override with DB value (not URL value)
         userId: user?.id,
         createBookingOnAuthorization: 'true', // Flag for webhook
         depositAmount: depositAmount.toString(), // Store deposit amount in cents

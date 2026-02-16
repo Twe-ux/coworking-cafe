@@ -182,6 +182,7 @@ export interface BookingInitialEmailData {
 export interface BaseEmailData {
   name: string;
   spaceName: string;
+  spaceType?: string; // DB format (e.g., "salle-verriere")
   date: string;
   startTime: string;
   endTime: string;

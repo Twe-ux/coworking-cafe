@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { SPACE_TYPE_INFO } from "@/types/booking";
 import type { BookingData, ContactFormData, SpaceTypeInfo } from "@/types/booking";
+import { getPeopleDisplayLabel } from "@/lib/utils/booking-display";
 
 // ============================================================================
 // Types
@@ -53,7 +54,7 @@ function buildLabels(bookingData: BookingData): BookingLabels {
   });
 
   const timeLabel = `${bookingData.startTime}-${bookingData.endTime}`;
-  const peopleLabel = `${bookingData.numberOfPeople} pers.`;
+  const peopleLabel = getPeopleDisplayLabel(bookingData.numberOfPeople, bookingData.spaceType);
 
   return { dateLabel, timeLabel, peopleLabel, spaceInfo };
 }

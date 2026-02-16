@@ -4,6 +4,7 @@ import type {
   StatusBadge,
 } from "@/types/booking-confirmation";
 import { formatDate, formatTime } from "@/utils/booking-helpers";
+import { getPeopleDisplayLabelLong } from "@/lib/utils/booking-display";
 
 interface BookingDetailsSummaryProps {
   booking: Booking;
@@ -87,8 +88,7 @@ export default function BookingDetailsSummary({
             className="bi bi-people me-2 text-success"
             style={{ fontSize: "0.875rem" }}
           ></i>
-          {booking.numberOfPeople}{" "}
-          {booking.numberOfPeople > 1 ? "personnes" : "personne"}
+          {getPeopleDisplayLabelLong(booking.numberOfPeople, booking.spaceType)}
         </div>
       </div>
 

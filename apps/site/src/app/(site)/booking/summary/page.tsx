@@ -8,6 +8,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/navigation";
 import { useBookingSummary } from "@/hooks/useBookingSummary";
 import { SPACE_TYPE_INFO as spaceTypeInfo } from "@/types/booking";
+import { getPeopleDisplayLabel } from "@/lib/utils/booking-display";
 import "../../[id]/client-dashboard.scss";
 
 // Validate Stripe publishable key
@@ -74,7 +75,7 @@ export default function BookingSummaryPage() {
     month: "short",
   });
   const timeLabel = `${bookingData.startTime}-${bookingData.endTime}`;
-  const peopleLabel = `${bookingData.numberOfPeople} pers.`;
+  const peopleLabel = getPeopleDisplayLabel(bookingData.numberOfPeople, bookingData.spaceType);
 
   return (
     <section className="booking-summary-page py-5">

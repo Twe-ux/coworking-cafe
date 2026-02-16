@@ -6,10 +6,12 @@
  */
 
 import { getSpaceDisplayName, getPriceDisclaimerNote } from "@coworking-cafe/email";
+import { getPeopleDisplayLabel } from "@/lib/utils/booking-display";
 
 export interface BookingInitialEmailData {
   name: string;
   spaceName: string;
+  spaceType?: string; // DB format (e.g., "salle-verriere")
   date: string;
   time: string;
   reservationType?: "hourly" | "daily" | "weekly" | "monthly";
@@ -105,7 +107,7 @@ export function generateBookingInitialEmail(
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td class="detail-label" style="font-weight: 600; color: #6b7280; font-size: 15px;">Nombre de personnes</td>
-              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${data.numberOfPeople}</td>
+              <td class="detail-value" style="text-align: right; color: #111827; font-size: 15px; font-weight: 500;">${data.spaceType ? getPeopleDisplayLabel(data.numberOfPeople, data.spaceType) : data.numberOfPeople}</td>
             </tr>
           </table>
         </div>
