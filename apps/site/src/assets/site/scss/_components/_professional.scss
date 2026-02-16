@@ -309,7 +309,7 @@
         gap: 12px;
         margin-bottom: 25px;
         color: var(--pra-clr);
-        list-style-type: disc;
+        list-style: none;
 
         &:last-child {
           margin-bottom: 0;
@@ -327,10 +327,15 @@
           margin-bottom: 20px;
         }
 
-        // Puces disc jaunes
-        &::marker {
+        // Puce jaune custom pour les li sans icône (avec display: flex)
+        &:not(:has(svg)):not(:has(i))::before {
+          content: "•";
           color: var(--btn-clr); // Jaune #f2d381
-          font-size: 1.2em;
+          font-size: 1.5em;
+          font-weight: bold;
+          flex-shrink: 0;
+          line-height: 1;
+          margin-right: -12px; // Compense le gap pour avoir 12px au total
         }
 
         i,
