@@ -9,6 +9,7 @@
 "use client";
 
 import type { BookingData, SelectedService } from "@/types/booking";
+import { getPeopleDisplayLabel } from "@/lib/utils/booking-display";
 
 interface PriceBreakdownTableProps {
   bookingData: BookingData;
@@ -163,8 +164,7 @@ export default function PriceBreakdownTable({
                   textAlign: "right",
                 }}
               >
-                {bookingData.numberOfPeople}{" "}
-                {bookingData.numberOfPeople > 1 ? "pers." : "pers."}
+                {getPeopleDisplayLabel(bookingData.numberOfPeople, bookingData.spaceType)}
               </span>
               <span
                 className="text-muted d-none d-md-inline"
