@@ -1,15 +1,15 @@
 "use client";
-import { testimonialsOneData } from "../../../db/testimonialsOneData";
-import SlideDown from "../../../utils/animations/slideDown";
-import SlideUp from "../../../utils/animations/slideUp";
 import { Icon } from "@/components/common/Icon";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import dynamic from "next/dynamic";
+import { testimonialsOneData } from "../../../db/testimonialsOneData";
+import SlideDown from "../../../utils/animations/slideDown";
+import SlideUp from "../../../utils/animations/slideUp";
 
 const VideoTestimonial = dynamic(() => import("./videoTestimonial"), {
   ssr: false,
@@ -165,7 +165,6 @@ const TestimonialOne = () => {
             </div>
           </Swiper>
         </SlideUp>
-
         <VideoTestimonial />
       </div>
     </section>

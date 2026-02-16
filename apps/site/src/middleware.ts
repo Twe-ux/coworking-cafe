@@ -29,6 +29,7 @@ const publicRoutes = [
 
   "/boissons",
   "/menu",
+  "/professional",
 
   "/blog",
 
@@ -84,7 +85,9 @@ export async function middleware(req: NextRequest) {
   // 1. Public routes - allow everyone
   const isPublicRoute =
     publicRoutes.includes(pathname) ||
-    publicRoutes.some((route) => route.toLowerCase() === pathname.toLowerCase()) ||
+    publicRoutes.some(
+      (route) => route.toLowerCase() === pathname.toLowerCase(),
+    ) ||
     pathname.startsWith("/blog/") ||
     pathname.startsWith("/promo/") ||
     publicRoutePatterns.some((pattern) => pattern.test(pathname));
@@ -122,7 +125,8 @@ export async function middleware(req: NextRequest) {
         userRole === "staff"
       ) {
         // Redirect to admin app (external)
-        const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001";
+        const adminUrl =
+          process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001";
         return NextResponse.redirect(new URL(adminUrl, req.url));
       }
     }
