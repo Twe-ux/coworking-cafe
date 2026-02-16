@@ -68,9 +68,13 @@ export async function POST(request: NextRequest) {
         if (policy.minimumAmount && depositAmount < policy.minimumAmount) {          depositAmount = policy.minimumAmount;
         }
       }
-      // Store ALL reservation data in metadata (will be used by webhook to create booking)
+      // SECURITY: Exclude sensitive fields (password, confirmPassword) from metadata
+      // These fields should NEVER be sent to third-party services like Stripe
+      const { password, confirmPassword, ...safeReservationData } = reservationData;
+
+      // Store safe reservation data in metadata (will be used by webhook to create booking)
       const metadata = {
-        ...reservationData,
+        ...safeReservationData,
         spaceType: dbSpaceType, // CRITICAL: Override with DB value (not URL value)
         userId: user?.id,
         createBookingOnAuthorization: 'true', // Flag for webhook
