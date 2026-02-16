@@ -54,6 +54,7 @@ export async function sendBookingConfirmationEmail(
     await sendBookingInitialEmail(data.contactEmail, {
       name: data.contactName,
       spaceName: spaceConfig?.name || getSpaceTypeName(data.spaceType),
+      spaceType: data.spaceType,
       date: formattedDate,
       time: timeRange,
       price: data.totalPrice,

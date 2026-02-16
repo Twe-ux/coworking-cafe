@@ -435,6 +435,7 @@ export async function sendBookingInitialEmail(
   data: {
     name: string;
     spaceName: string;
+    spaceType?: string;
     date: string;
     time: string;
     price: number;
