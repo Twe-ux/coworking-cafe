@@ -6,10 +6,15 @@
 /**
  * Tier configuration for each space type
  * Defines the person count ranges (paliers) for pricing
+ * Supports both URL format (meeting-room-glass) and DB format (salle-verriere)
  */
 const SPACE_TIERS: Record<string, { min: number; max: number }> = {
+  // DB format (backend)
   'salle-verriere': { min: 1, max: 4 },
   'salle-etage': { min: 1, max: 10 },
+  // URL format (frontend) - same tiers
+  'meeting-room-glass': { min: 1, max: 4 },
+  'meeting-room-floor': { min: 1, max: 10 },
   // open-space and evenementiel don't have tiers, display exact count
 };
 
@@ -17,11 +22,12 @@ const SPACE_TIERS: Record<string, { min: number; max: number }> = {
  * Get formatted people count label with tier display
  *
  * @param numberOfPeople - Actual number of people
- * @param spaceType - Space type (DB format: "salle-verriere", "salle-etage", etc.)
+ * @param spaceType - Space type (URL or DB format: "meeting-room-glass" or "salle-verriere")
  * @returns Formatted label (e.g., "1-4 pers" or "5 pers")
  *
  * @example
  * getPeopleDisplayLabel(2, "salle-verriere") // → "1-4 pers"
+ * getPeopleDisplayLabel(2, "meeting-room-glass") // → "1-4 pers" (same tier)
  * getPeopleDisplayLabel(5, "salle-verriere") // → "5 pers" (exceeds tier)
  * getPeopleDisplayLabel(3, "open-space") // → "3 pers" (no tier)
  */
@@ -49,7 +55,7 @@ export function getPeopleDisplayLabel(
  * Get formatted people count label with full word
  *
  * @param numberOfPeople - Actual number of people
- * @param spaceType - Space type (DB format)
+ * @param spaceType - Space type (URL or DB format)
  * @returns Formatted label with full word (e.g., "1-4 personnes" or "5 personnes")
  */
 export function getPeopleDisplayLabelLong(
