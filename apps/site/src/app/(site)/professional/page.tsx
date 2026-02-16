@@ -298,21 +298,21 @@ const Professional = () => {
               <SlideUp delay={3}>
                 <ul className="about__wapper_right">
                   <li>
-                    <IconCheck size={16} />
+                    <IconCheck />
                     <span>Nous proposons plusieurs formats :</span>
                   </li>
                   <li>
-                    <IconCheck size={16} />
+                    <IconCheck />
                     <span>
                       Demi-journée (matin ou après- midi), à partir de 880 € HT
                     </span>
                   </li>
                   <li>
-                    <IconCheck size={16} />
+                    <IconCheck />
                     <span>Journée complète, à partir de 1 490 € HT</span>
                   </li>
                   <li>
-                    <IconCheck size={16} />
+                    <IconCheck />
                     <span>Soirée, à partir de 550 € HT</span>
                   </li>
                 </ul>
