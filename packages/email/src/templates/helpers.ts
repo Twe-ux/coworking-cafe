@@ -2,7 +2,7 @@
  * Helper functions for email templates
  */
 
-import { getSpaceTypeLabel, getDbSpaceTypeLabel } from "../space-types"
+import { getSpaceTypeLabel, getDbSpaceTypeLabel } from "../space-types";
 
 /**
  * Convert technical space IDs to French display names
@@ -10,30 +10,33 @@ import { getSpaceTypeLabel, getDbSpaceTypeLabel } from "../space-types"
  */
 export function getSpaceDisplayName(spaceName: string): string {
   // Try URL slug first
-  const urlLabel = getSpaceTypeLabel(spaceName)
+  const urlLabel = getSpaceTypeLabel(spaceName);
   if (urlLabel !== spaceName) {
-    return urlLabel
+    return urlLabel;
   }
 
   // Try database type
-  const dbLabel = getDbSpaceTypeLabel(spaceName)
+  const dbLabel = getDbSpaceTypeLabel(spaceName);
   if (dbLabel !== spaceName) {
-    return dbLabel
+    return dbLabel;
   }
 
   // Return as-is if not found
-  return spaceName
+  return spaceName;
 }
 
 /**
  * Generate price disclaimer note (asterisk explanation)
  * To be displayed below total price in all booking emails
+ *
+ * Note: Templates using this function should include .disclaimer-box styles
+ * in their dark mode CSS for proper theme support.
  */
 export function getPriceDisclaimerNote(): string {
   return `
-    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 24px 0;">
-      <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
-        <strong style="color: #92400e;">* Prix indicatif</strong> – Le montant final sera calculé en fonction du temps réellement passé sur place et des éventuels produits additionnels consommés. Le règlement s'effectuera sur place.
+    <div class="disclaimer-box" style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 24px 0;">
+      <p style="margin: 0; color: #92400e !important; font-size: 14px; line-height: 1.6;">
+        <strong style="color: #92400e !important;">* Prix indicatif</strong> – Le montant final sera calculé en fonction du temps réellement passé sur place et des éventuels produits additionnels consommés. Le règlement s'effectuera sur place.
       </p>
     </div>
   `;

@@ -65,6 +65,8 @@ export function generateBookingInitialEmail(
       .details-box h3 { color: #F59E0B !important; }
       .info-box { background: #1e3a8a !important; border-color: #3b82f6 !important; }
       .info-box p, .info-box a { color: #dbeafe !important; }
+      .disclaimer-box { background: #78350f !important; border-color: #F59E0B !important; }
+      .disclaimer-box p, .disclaimer-box strong { color: #F59E0B !important; }
       .footer { background: #111827 !important; color: #9ca3af !important; }
       .footer p { color: #9ca3af !important; }
     }
