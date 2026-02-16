@@ -548,7 +548,27 @@ git commit -m "feat(site): terminer tâche XYZ (Phase 1)"
 - ⏳ next/image partout
 - ⏳ Lazy loading composants
 - ⏳ Code splitting
-- ⏳ Compression images
+- ⏳ Compression images → **Conversion WebP**
+  - ✅ /images/professional/ (6 images) - **FAIT** : 4.2 MB → 608 KB (-86%)
+  - ✅ /images/about/Rectangle105.png - **FAIT** : 247K → 22K (-91%)
+  - ⏳ /images/ (racine) - og-image.png (3.2M) + og-image-optimized.png (442K)
+  - ⏳ /images/membersPrograms/ - programme-membre-fidelite (1.2M)
+  - ⏳ /images/testimonail/ - anticafé-strasbourg.png (392K)
+  - ⏳ /images/example/ - 5 fichiers (~1.3M)
+  - ⏳ Autres dossiers (scan complet fait - 42 images total)
+  - **Gain estimé total** : ~8 MB → ~1.5 MB (-80%)
+  - **Commandes** :
+    ```bash
+    # Conversion globale (toutes les images d'un coup)
+    cd public/images
+    for img in $(find . -type f \( -name "*.png" -o -name "*.jpg" \) | grep -v "_originals" | grep -v "backup"); do
+      cwebp -q 85 "$img" -o "${img%.*}.webp"
+    done
+
+    # Nettoyage après validation (supprimer PNG/JPG originaux)
+    # ⚠️ À faire APRÈS avoir migré le code vers .webp
+    find . -type f \( -name "*.png" -o -name "*.jpg" \) | grep -v "_originals" | grep -v "backup" | xargs rm
+    ```
 - ⏳ Core Web Vitals
   - ⏳ LCP < 2.5s
   - ⏳ FID < 100ms
