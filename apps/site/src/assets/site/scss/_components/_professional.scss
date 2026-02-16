@@ -309,6 +309,7 @@
         gap: 12px;
         margin-bottom: 25px;
         color: var(--pra-clr);
+        list-style-type: disc;
 
         &:last-child {
           margin-bottom: 0;
@@ -326,9 +327,9 @@
           margin-bottom: 20px;
         }
 
-        // Colorer les puces (list bullets)
+        // Puces disc jaunes
         &::marker {
-          color: var(--btn-clr);
+          color: var(--btn-clr); // Jaune #f2d381
           font-size: 1.2em;
         }
 
