@@ -13,6 +13,7 @@ import { DateSelectionSection } from "@/components/site/booking/DateSelectionSec
 import { TimeSelectionSection } from "@/components/site/booking/TimeSelectionSection";
 import { PeopleCounterSection } from "@/components/site/booking/PeopleCounterSection";
 import { PriceDisplayCard } from "@/components/site/booking/PriceDisplayCard";
+import { BookingFormSkeleton } from "@/components/ui/skeletons";
 import type { ReservationType, SpaceConfig, ReservationTypeOption, GlobalHours } from "@/types/booking";
 
 export interface BookingDateContentProps {
@@ -120,13 +121,7 @@ export const BookingDateContent = forwardRef<HTMLDivElement, BookingDateContentP
         />
 
         {/* Loading State */}
-        {loading && (
-          <div className="text-center py-5">
-            <div className="spinner-border text-success" role="status">
-              <span className="visually-hidden">Chargement...</span>
-            </div>
-          </div>
-        )}
+        {loading && <BookingFormSkeleton />}
 
         {/* Content */}
         {!loading && (
