@@ -4,6 +4,7 @@ import SummaryHeader from "@/components/booking/summary/SummaryHeader";
 import BookingSummaryCard from "@/components/booking/summary/BookingSummaryCard";
 import PaymentSection from "@/components/booking/summary/PaymentSection";
 import PriceBreakdownTable from "@/components/site/booking/PriceBreakdownTable";
+import { BookingSummarySkeleton } from "@/components/ui/skeletons";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/navigation";
 import { useBookingSummary } from "@/hooks/useBookingSummary";
@@ -53,12 +54,7 @@ export default function BookingSummaryPage() {
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-10">
-              <div className="booking-card text-center py-5">
-                <div className="spinner-border text-success" role="status">
-                  <span className="visually-hidden">Chargement...</span>
-                </div>
-                <p className="mt-3 text-muted">Chargement du récapitulatif...</p>
-              </div>
+              <BookingSummarySkeleton />
             </div>
           </div>
         </div>
