@@ -305,12 +305,10 @@
 
     &_right {
       li {
-        color: var(--gry-clr);
-        list-style-type: disc;
-
         @include flex();
         gap: 12px;
         margin-bottom: 25px;
+        color: var(--pra-clr);
 
         &:last-child {
           margin-bottom: 0;
@@ -326,6 +324,12 @@
 
         @include breakpoint(md) {
           margin-bottom: 20px;
+        }
+
+        // Colorer les puces (list bullets)
+        &::marker {
+          color: var(--btn-clr);
+          font-size: 1.2em;
         }
 
         i,
