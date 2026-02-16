@@ -8,6 +8,7 @@ import AccountOptions from "@/components/booking/details/AccountOptions";
 import AdditionalServicesSection from "@/components/booking/details/AdditionalServicesSection";
 import SpecialRequestsSection from "@/components/booking/details/SpecialRequestsSection";
 import PriceSummarySection from "@/components/booking/details/PriceSummarySection";
+import { BookingDetailsSkeleton } from "@/components/ui/skeletons";
 import "../../[id]/client-dashboard.scss";
 
 export default function BookingDetailsPage() {
@@ -53,12 +54,7 @@ export default function BookingDetailsPage() {
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-10">
-              <div className="booking-card text-center py-5">
-                <div className="spinner-border text-success" role="status">
-                  <span className="visually-hidden">Chargement...</span>
-                </div>
-                <p className="mt-3 text-muted">Chargement de vos informations...</p>
-              </div>
+              <BookingDetailsSkeleton />
             </div>
           </div>
         </div>
