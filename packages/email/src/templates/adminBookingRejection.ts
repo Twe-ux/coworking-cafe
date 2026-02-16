@@ -45,6 +45,8 @@ export function generateAdminBookingRejectionEmail(data: AdminBookingRejectionDa
       .detail-value { color: #fef2f2 !important; }
       .reason-box { background: #7f1d1d !important; border-color: #dc2626 !important; }
       .reason-box p, .reason-box strong { color: #fecaca !important; }
+      .disclaimer-box { background: #78350f !important; border-color: #F59E0B !important; }
+      .disclaimer-box p, .disclaimer-box strong { color: #F59E0B !important; }
       .footer { background: #111827 !important; color: #9ca3af !important; }
       .footer p, .footer strong { color: #9ca3af !important; }
     }

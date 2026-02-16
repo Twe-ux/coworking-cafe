@@ -48,6 +48,8 @@ export function generateAdminCancelClientBookingEmail(
       .price-value { color: #f3f4f6 !important; }
       .info-box { background: #1e3a8a !important; border-color: #3b82f6 !important; }
       .info-box p { color: #dbeafe !important; }
+      .disclaimer-box { background: #78350f !important; border-color: #F59E0B !important; }
+      .disclaimer-box p, .disclaimer-box strong { color: #F59E0B !important; }
       .contact-list li { color: #f3f4f6 !important; }
       .footer { background: #111827 !important; color: #9ca3af !important; }
       .footer p { color: #9ca3af !important; }

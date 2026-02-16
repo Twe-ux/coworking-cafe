@@ -41,6 +41,8 @@ export function generateBookingModifiedEmail(
       .detail-label { color: #9ca3af !important; }
       .detail-value { color: #f3f4f6 !important; }
       .price-value { color: #9ca3af !important; }
+      .disclaimer-box { background: #78350f !important; border-color: #F59E0B !important; }
+      .disclaimer-box p, .disclaimer-box strong { color: #F59E0B !important; }
       .footer { background: #111827 !important; color: #9ca3af !important; }
       .footer p { color: #9ca3af !important; }
       .info-badge { background: #374151 !important; color: #d1d5db !important; }
