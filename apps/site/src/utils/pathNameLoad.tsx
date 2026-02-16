@@ -8,7 +8,7 @@ const PathNameLoad = (): null => {
     const body = document.querySelector("body");
     if (body) {
       body.classList.remove("home1", "home2", "about__page");
-      if (pathName === "/" || "/professional") {
+      if (pathName === "/" || pathName === "/professional") {
         body.classList.add("home1");
       } else if (pathName === "/home-2") {
         body.classList.add("home2");
