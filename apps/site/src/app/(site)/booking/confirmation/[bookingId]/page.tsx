@@ -14,6 +14,7 @@ import ConfirmationSuccess from "@/components/booking/confirmation/ConfirmationS
 import BookingDetailsSummary from "@/components/booking/confirmation/BookingDetailsSummary";
 import DepositInfo from "@/components/booking/confirmation/DepositInfo";
 import ImportantInfo from "@/components/booking/confirmation/ImportantInfo";
+import { ConfirmationSkeleton } from "@/components/ui/skeletons";
 
 export default function ConfirmationPage({
   params,
@@ -28,18 +29,7 @@ export default function ConfirmationPage({
   );
 
   if (status === "loading" || loading) {
-    return (
-      <section className="confirmation-page py-5">
-        <div className="container">
-          <div className="text-center py-5">
-            <div className="spinner-border text-success" role="status">
-              <span className="visually-hidden">Chargement...</span>
-            </div>
-            <p className="mt-3 text-muted">Chargement...</p>
-          </div>
-        </div>
-      </section>
-    );
+    return <ConfirmationSkeleton />;
   }
 
   if (error) {

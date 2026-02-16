@@ -5,3 +5,4 @@ export { default as BookingFormSkeleton } from './BookingFormSkeleton';
 export { default as BookingDetailsSkeleton } from './BookingDetailsSkeleton';
 export { default as BookingSummarySkeleton } from './BookingSummarySkeleton';
 export { default as CheckoutSkeleton } from './CheckoutSkeleton';
+export { default as ConfirmationSkeleton } from './ConfirmationSkeleton';
