@@ -1,9 +1,11 @@
 import type { AdditionalService } from "@/types/booking";
+import { getPeopleDisplayLabel } from "@/lib/utils/booking-display";
 
 interface PriceSummarySectionProps {
   bookingData: {
     basePrice: number;
     numberOfPeople: number;
+    spaceType: string;
     reservationType: "hourly" | "daily" | "weekly" | "monthly";
     isDailyRate?: boolean;
   };
@@ -128,12 +130,14 @@ function BaseRateRow({
   basePrice,
   numberOfPeople,
   reservationType,
+  spaceType,
   showTTC,
   convertPrice,
 }: {
   basePrice: number;
   numberOfPeople: number;
   reservationType: "hourly" | "daily" | "weekly" | "monthly";
+  spaceType: string;
   showTTC: boolean;
   convertPrice: (price: number, vatRate: number, isTTC: boolean) => number;
 }) {
@@ -160,7 +164,7 @@ function BaseRateRow({
               textAlign: "right",
             }}
           >
-            {numberOfPeople} {numberOfPeople > 1 ? "pers." : "pers."}
+            {getPeopleDisplayLabel(numberOfPeople, spaceType)}
           </span>
           <span
             className="text-muted"
@@ -252,6 +256,7 @@ export default function PriceSummarySection({
         basePrice={bookingData.basePrice}
         numberOfPeople={bookingData.numberOfPeople}
         reservationType={bookingData.reservationType}
+        spaceType={bookingData.spaceType}
         showTTC={showTTC}
         convertPrice={convertPrice}
       />
