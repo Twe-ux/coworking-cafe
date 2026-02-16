@@ -8,7 +8,8 @@
 export { default as SelectionHeader } from "./SelectionHeader";
 export { default as SpaceCard } from "./SpaceCard";
 export { default as SpaceGrid } from "./SpaceGrid";
-export { useSpaceSelection } from "./useSpaceSelection";
+export { default as BookingContent } from "./BookingContent";
+// useSpaceSelection no longer exported - replaced by BookingContent with SSR
 
 export type {
   SpaceConfig,
