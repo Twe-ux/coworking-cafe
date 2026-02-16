@@ -94,6 +94,8 @@ export function useBookingState({
   const [appliedDailyRate, setAppliedDailyRate] = useState(false);
 
   // Participants
+  // Default to 1 person (matches minCapacity for most spaces)
+  // User can adjust via PeopleCounterSection, or value is restored from sessionStorage
   const [numberOfPeople, setNumberOfPeople] = useState(1);
 
   // UI State
