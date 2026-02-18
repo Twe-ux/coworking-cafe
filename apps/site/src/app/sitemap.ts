@@ -1,5 +1,5 @@
-import type { MetadataRoute } from "next";
 import { fetchAllPublishedArticles } from "@/lib/blog-helpers";
+import type { MetadataRoute } from "next";
 
 // Revalidate sitemap every 6 hours (blog articles don't change that often)
 export const revalidate = 21600; // 6 hours (in seconds)
@@ -59,6 +59,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/booking`,
+      lastModified: new Date("2026-02-10"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/privatization`,
+      lastModified: new Date("2026-02-10"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/compagny-pass`,
       lastModified: new Date("2026-02-10"),
       changeFrequency: "weekly",
       priority: 0.9,

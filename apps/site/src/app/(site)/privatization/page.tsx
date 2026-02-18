@@ -4,7 +4,7 @@ import { Icon } from "@/components/common/Icon";
 import { IconArrowRight, IconCheck } from "@/components/icons/CriticalIcons";
 import Partner from "@/components/site/partner";
 import { partnerOneLogos } from "@/db/partnerOneLogos";
-import { professionalData } from "@/db/professional/professionalData";
+import { privatisationData } from "@/db/privatisation/privatisationData";
 import { testimonialsOneData } from "@/db/testimonialsOneData";
 import SlideDown from "@/utils/animations/slideDown";
 import SlideUp from "@/utils/animations/slideUp";
@@ -17,7 +17,7 @@ import "swiper/css";
 import { Navigation, Pagination as PaginationModule } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-const Professional = () => {
+const Privatization = () => {
   const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const Professional = () => {
               <div className="banner__content">
                 <div className="banner__content_title ">
                   <SlideUp>
-                    <h1 className="title">Privatisation de Cow-or-King Café</h1>
+                    <h1 className="title">Privatisation de CoworKing Café</h1>
                   </SlideUp>
                   <SlideUp delay={2}>
                     <p>
@@ -165,9 +165,9 @@ const Professional = () => {
             <SlideDown>
               <div className="col-lg-10">
                 <h1 className="title">
-                  La privatisation de Cow-or-King Café s’adresse aux
-                  entreprises, équipes, formateurs, coachs, entrepreneurs,
-                  marques, collectifs et associations...
+                  La privatisation de CoworKing Café s’adresse aux entreprises,
+                  équipes, formateurs, coachs, entrepreneurs, marques,
+                  collectifs et associations...
                 </h1>
               </div>
             </SlideDown>
@@ -209,7 +209,7 @@ const Professional = () => {
           <Partner data={partnerOneLogos} />
         </div>
       </section>
-      <section className="projects py__130" id="projects">
+      <section className="projects pb__130" id="projects">
         <div className="container">
           {/* title Start */}
           <SlideDown className="d-flex align-items-center ">
@@ -223,7 +223,7 @@ const Professional = () => {
           </SlideDown>
           {/* title End */}
           <div className="projects__wapper">
-            {professionalData.map(
+            {privatisationData.map(
               ({ categories, subCategories, id, imgSrc, title }) => {
                 return (
                   <SlideUp
@@ -257,7 +257,7 @@ const Professional = () => {
         </div>
       </section>
 
-      <section className="about py__130" id="about">
+      <section className="about pb__130" id="about">
         <div className="container">
           <div className="row justify-content-between about__title">
             <SlideDown>
@@ -298,7 +298,6 @@ const Professional = () => {
               <SlideUp delay={3}>
                 <ul className="about__wapper_right">
                   <li>
-                    <IconCheck />
                     <span>Nous proposons plusieurs formats :</span>
                   </li>
                   <li>
@@ -327,20 +326,24 @@ const Professional = () => {
             événementiel B2B différent, déjà reconnu pour la qualité de son
             accueil et de son atmosphère. C’est aussi bénéficier :
           </p>
-          <ul className="about__wapper_right">
+          <ul className="about__wapper_right mt-4">
             <li className="">
+              <IconCheck />
               d’un espace pensé pour le travail et l’échange, pas simplement
               loué pour l’occasion
             </li>
             <li>
+              <IconCheck />
               de l’ADN Anticafé, pionnier du café-coworking, allié à un fort
               ancrage local strasbourgeois
             </li>
             <li>
+              <IconCheck />
               d’un cadre chaleureux qui favorise la participation, l’attention
               et les rencontres
             </li>
             <li>
+              <IconCheck />
               d’une équipe réactive, habituée à accueillir des groupes
               professionnels
             </li>
@@ -466,13 +469,13 @@ const Professional = () => {
         </div>
       </section>
 
-      <section className="py__130">
+      <section className="priva py__130">
         <h1 className="title text-center mb-5">
           Pourquoi venir à CoworKing Café ? <br />
           Pour ça !
         </h1>
 
-        <h4 className="title__paragraph text-center mt-4 text-white">
+        <h4 className="title__paragraph text-center mt-4  text-white">
           Vous souhaitez organiser un événement professionnel à Strasbourg dans
           un lieu chaleureux, fonctionnel et central ? Présentez-nous votre
           projet par email (date, format, nombre de personnes, besoins
@@ -480,7 +483,7 @@ const Professional = () => {
           avec une proposition adaptée.
         </h4>
         {/* Links to contact */}
-        <div className="text-center mt-3 mt-md-5 mb-5">
+        <div className="text-center">
           <Link
             href="/contact"
             className="common__btn me-md-3 mb-3 mb-md-0 d-block d-md-inline-block"
@@ -495,4 +498,4 @@ const Professional = () => {
   );
 };
 
-export default Professional;
+export default Privatization;

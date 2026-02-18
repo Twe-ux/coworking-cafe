@@ -29,7 +29,8 @@ const publicRoutes = [
 
   "/boissons",
   "/menu",
-  "/professional",
+  "/privatization",
+  "/compagny-pass",
 
   "/blog",
 

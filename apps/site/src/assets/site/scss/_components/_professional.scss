@@ -33,6 +33,7 @@
         }
       }
       p {
+        text-align: justify;
         max-width: 700px;
         font-size: 22px;
         line-height: 32px;
@@ -328,15 +329,15 @@
         }
 
         // Puce jaune custom pour les li sans icône (avec display: flex)
-        &:not(:has(svg)):not(:has(i))::before {
-          content: "•";
-          color: var(--btn-clr); // Jaune #f2d381
-          font-size: 1.5em;
-          font-weight: bold;
-          flex-shrink: 0;
-          line-height: 1;
-          margin-right: -12px; // Compense le gap pour avoir 12px au total
-        }
+        // &:not(:has(svg)):not(:has(i))::before {
+        //   content: "•";
+        //   color: var(--btn-clr); // Jaune #f2d381
+        //   font-size: 1.5em;
+        //   font-weight: bold;
+        //   flex-shrink: 0;
+        //   line-height: 1;
+        //   margin-right: -12px; // Compense le gap pour avoir 12px au total
+        // }
 
         i,
         svg {
@@ -668,5 +669,31 @@
       border: 1px solid var(--btn-clr);
       color: var(--secondary-clr);
     }
+  }
+}
+
+.priva {
+  padding-top: 130px;
+  padding-bottom: 130px;
+
+  @include breakpoint(xl) {
+    padding-top: 100px;
+    padding-bottom: 100px;
+  }
+
+  @include breakpoint(lg) {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  @include breakpoint(sm) {
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .title__paragraph {
+    max-width: 1200px;
+    margin: auto;
+    margin-bottom: 100px;
   }
 }

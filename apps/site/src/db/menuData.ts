@@ -41,10 +41,14 @@ export const menuData: MenuItem[] = [
   //   link: "/menu",
   // },
 
-  // {
-  //   title: "Professionnels",
-  //   link: "/professionnels",
-  // },
+  {
+    title: "Professionnels",
+    link: "#",
+    submenu: [
+      { title: "Privatisation", link: "/privatization" },
+      { title: "Pass entreprise", link: "/compagny-pass" },
+    ],
+  },
 
   {
     title: "Le Mag'",

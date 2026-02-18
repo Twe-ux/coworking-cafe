@@ -11,12 +11,12 @@ export function FAQPageSchema({ faqs }: FAQPageSchemaProps) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqs.map((faq) => ({
+    mainEntity: faqs.map((faq) => ({
       "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
+      name: faq.question,
+      acceptedAnswer: {
         "@type": "Answer",
-        "text": faq.answer,
+        text: faq.answer,
       },
     })),
   };
@@ -42,14 +42,15 @@ export const pricingFAQs: FAQ[] = [
       "Tous les tarifs incluent : l'accès à l'open-space, le WiFi très haut débit, les boissons chaudes et froides à volonté (plus de 40 boissons), l'imprimante/scanner et les casiers. Les forfaits journée, semaine et mois incluent également les encas et le programme membre fidélité.",
   },
   {
-    question: "Existe-t-il des tarifs étudiants pour le coworking à Strasbourg ?",
+    question:
+      "Existe-t-il des tarifs étudiants pour le coworking à Strasbourg ?",
     answer:
       "Oui ! Happy Hours étudiants : 12 € les 3 heures du lundi au vendredi de 17h à 20h (au lieu de 18 €). Happy Weekend étudiants : 24 € la journée le samedi, dimanche et jours fériés (au lieu de 29 €). Sur présentation d'une carte étudiante valide.",
   },
   {
     question: "Comment réserver une salle de réunion ?",
     answer:
-      "Vous pouvez réserver en ligne sur notre site. La Verrière (4-5 personnes) est à 24 €/h ou 120 €/jour. L'Étage (10-15 personnes) est à 60 €/h ou 300 €/jour. Les deux salles incluent le WiFi, les boissons à volonté et l'équipement de projection.",
+      "Vous pouvez réserver en ligne sur notre site. La Verrière (4-5 personnes) à partir de 24 €/h ou 120 €/jour. L'Étage (10-15 personnes) à partir de 60 €/h ou 300 €/jour. Les deux salles incluent le WiFi, les boissons à volonté et l'équipement de projection.",
   },
   {
     question: "Peut-on privatiser le CoworKing Café ?",
@@ -78,6 +79,6 @@ export const conceptFAQs: FAQ[] = [
   {
     question: "Quelles boissons sont incluses dans le tarif ?",
     answer:
-      "Plus de 40 boissons sont incluses : cafés, thés, chocolats chauds, boissons fraîches, jus... Toutes préparées à la demande et à volonté pendant toute la durée de votre session. Les encas sont également inclus à partir du forfait journée.",
+      "Plus de 40 boissons sont incluses : cafés, thés, boissons chaudes, boissons fraîches, ... Toutes préparées à la demande et à volonté pendant toute la durée de votre session. Les encas sont également inclus à partir du forfait journée.",
   },
 ];

@@ -175,7 +175,7 @@ export function IconArrowRight({ size = 16, className }: IconProps) {
   );
 }
 
-export function IconCheck({ size = 16, className }: IconProps) {
+export function IconCheck({ size = 20, className }: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
