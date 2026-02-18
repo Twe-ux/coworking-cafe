@@ -17,6 +17,7 @@ export const menuData: MenuItem[] = [
       { title: "Take Away", link: "/take-away" },
       { title: "Notre histoire", link: "/history" },
       { title: "Manifeste", link: "/manifest" },
+      { title: "Partenaires", link: "/partners" },
     ],
   },
   {

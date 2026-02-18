@@ -21,6 +21,8 @@ const publicRoutes = [
   "/take-away",
   "/history",
   "/manifest",
+  "/partners",
+
   "/spaces",
   "/pricing",
   "/members-program",
