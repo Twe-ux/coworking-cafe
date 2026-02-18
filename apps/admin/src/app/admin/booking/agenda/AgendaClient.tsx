@@ -18,7 +18,7 @@ import { EditBookingDialog } from "../reservations/EditBookingDialog";
 import { DayBookingsModal } from "./DayBookingsModal";
 import { useSession } from "next-auth/react";
 import type { Booking, BookingStatus } from "@/types/booking";
-import { useConfirmBooking, useCancelBooking } from "@/hooks/useBookings";
+import { useConfirmBooking, useCancelBooking, useMarkPresent, useMarkNoShow, useDeleteBooking } from "@/hooks/useBookings";
 import { ConfirmActionDialog } from "@/components/booking/ConfirmActionDialog";
 import {
   AlertDialog,
@@ -96,6 +96,9 @@ export function AgendaClient() {
   const [dayModalBookings, setDayModalBookings] = useState<Booking[]>([]);
   const confirmBooking = useConfirmBooking();
   const cancelBooking = useCancelBooking();
+  const markPresent = useMarkPresent();
+  const markNoShow = useMarkNoShow();
+  const deleteBooking = useDeleteBooking();
   const [isMarkingPresent, setIsMarkingPresent] = useState(false);
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -221,48 +224,34 @@ export function AgendaClient() {
   const confirmActionHandler = async () => {
     if (!pendingBookingId || !pendingAction) return;
 
+    const isPresent = pendingAction === "present";
     try {
-      const isPresent = pendingAction === "present";
       if (isPresent) {
         setIsMarkingPresent(true);
-      } else {
-        setIsMarkingNoShow(true);
-      }
-
-      const endpoint = isPresent ? "mark-present" : "mark-noshow";
-      const response = await fetch(
-        `/api/booking/reservations/${pendingBookingId}/${endpoint}`,
-        { method: "POST" }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        const successMessage = pendingIsAdminBooking
-          ? isPresent
-            ? "Client marqué comme présent"
-            : "Client marqué comme no-show"
-          : isPresent
-            ? "Client marqué comme présent - Empreinte bancaire libérée"
-            : "Client marqué comme no-show - Empreinte bancaire capturée";
-
+        await markPresent.mutateAsync(pendingBookingId);
         setMessage({
           type: "success",
-          text: successMessage,
+          text: pendingIsAdminBooking
+            ? "Client marqué comme présent"
+            : "Client marqué comme présent - Empreinte bancaire libérée",
         });
-        fetchBookings();
-        setDayModalOpen(false);
-        setConfirmDialogOpen(false);
       } else {
+        setIsMarkingNoShow(true);
+        await markNoShow.mutateAsync(pendingBookingId);
         setMessage({
-          type: "error",
-          text: data.error || "Erreur lors du traitement",
+          type: "success",
+          text: pendingIsAdminBooking
+            ? "Client marqué comme no-show"
+            : "Client marqué comme no-show - Empreinte bancaire capturée",
         });
       }
+      fetchBookings();
+      setDayModalOpen(false);
+      setConfirmDialogOpen(false);
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Erreur lors du traitement",
+        text: error instanceof Error ? error.message : "Erreur lors du traitement",
       });
     } finally {
       setIsMarkingPresent(false);
@@ -288,30 +277,15 @@ export function AgendaClient() {
 
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/booking/reservations/${deleteBookingId}`, {
-        method: "DELETE",
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({
-          type: "success",
-          text: "Réservation supprimée avec succès",
-        });
-        fetchBookings();
-        setDayModalOpen(false);
-        setDeleteDialogOpen(false);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.error || "Erreur lors de la suppression",
-        });
-      }
+      await deleteBooking.mutateAsync(deleteBookingId);
+      setMessage({ type: "success", text: "Réservation supprimée avec succès" });
+      fetchBookings();
+      setDayModalOpen(false);
+      setDeleteDialogOpen(false);
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Erreur lors de la suppression de la réservation",
+        text: error instanceof Error ? error.message : "Erreur lors de la suppression",
       });
     } finally {
       setIsDeleting(false);

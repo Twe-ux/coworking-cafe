@@ -226,3 +226,49 @@ export function useCancelBooking() {
     },
   })
 }
+
+export function useMarkPresent() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await fetch(`/api/booking/reservations/${bookingId}/mark-present`, {
+        method: "POST",
+      })
+
+      const data: ApiResponse<Booking> = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Erreur lors du marquage comme présent")
+      }
+
+      return data.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] })
+    },
+  })
+}
+
+export function useMarkNoShow() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (bookingId: string) => {
+      const response = await fetch(`/api/booking/reservations/${bookingId}/mark-noshow`, {
+        method: "POST",
+      })
+
+      const data: ApiResponse<Booking> = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Erreur lors du marquage comme no-show")
+      }
+
+      return data.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] })
+    },
+  })
+}
