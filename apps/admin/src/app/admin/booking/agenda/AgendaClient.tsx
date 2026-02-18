@@ -18,6 +18,7 @@ import { EditBookingDialog } from "../reservations/EditBookingDialog";
 import { DayBookingsModal } from "./DayBookingsModal";
 import { useSession } from "next-auth/react";
 import type { Booking, BookingStatus } from "@/types/booking";
+import { useConfirmBooking, useCancelBooking } from "@/hooks/useBookings";
 import { ConfirmActionDialog } from "@/components/booking/ConfirmActionDialog";
 import {
   AlertDialog,
@@ -93,8 +94,8 @@ export function AgendaClient() {
   const [dayModalOpen, setDayModalOpen] = useState(false);
   const [dayModalDate, setDayModalDate] = useState<Date>(new Date());
   const [dayModalBookings, setDayModalBookings] = useState<Booking[]>([]);
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
+  const confirmBooking = useConfirmBooking();
+  const cancelBooking = useCancelBooking();
   const [isMarkingPresent, setIsMarkingPresent] = useState(false);
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -162,75 +163,29 @@ export function AgendaClient() {
 
   const handleConfirm = async (bookingId: string) => {
     try {
-      setIsConfirming(true);
-      const response = await fetch(
-        `/api/booking/reservations/${bookingId}/confirm`,
-        {
-          method: "POST",
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({
-          type: "success",
-          text: "Réservation confirmée avec succès",
-        });
-        fetchBookings();
-        setDayModalOpen(false);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.error || "Erreur lors de la confirmation",
-        });
-      }
+      await confirmBooking.mutateAsync(bookingId);
+      setMessage({ type: "success", text: "Réservation confirmée avec succès" });
+      fetchBookings();
+      setDayModalOpen(false);
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Erreur lors de la confirmation de la réservation",
+        text: error instanceof Error ? error.message : "Erreur lors de la confirmation",
       });
-    } finally {
-      setIsConfirming(false);
     }
   };
 
   const handleCancel = async (bookingId: string, reason: string) => {
     try {
-      setIsCancelling(true);
-      const response = await fetch(
-        `/api/booking/reservations/${bookingId}/cancel`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ reason }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({
-          type: "success",
-          text: "Réservation annulée avec succès",
-        });
-        fetchBookings();
-        setDayModalOpen(false);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.error || "Erreur lors de l'annulation",
-        });
-      }
+      await cancelBooking.mutateAsync({ bookingId, reason });
+      setMessage({ type: "success", text: "Réservation annulée avec succès" });
+      fetchBookings();
+      setDayModalOpen(false);
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Erreur lors de l'annulation de la réservation",
+        text: error instanceof Error ? error.message : "Erreur lors de l'annulation",
       });
-    } finally {
-      setIsCancelling(false);
     }
   };
 
@@ -481,8 +436,8 @@ export function AgendaClient() {
         onMarkNoShow={handleMarkNoShow}
         onCreate={handleCreateFromModal}
         onDelete={handleDelete}
-        isConfirming={isConfirming}
-        isCancelling={isCancelling}
+        isConfirming={confirmBooking.isPending}
+        isCancelling={cancelBooking.isPending}
         isMarkingPresent={isMarkingPresent}
         isMarkingNoShow={isMarkingNoShow}
         isDeleting={isDeleting}
