@@ -19,11 +19,10 @@ export default function ExceptionalClosureBanner() {
   useEffect(() => {
     const fetchClosures = async () => {
       try {
-        // Fetch from open-space config as reference
-        const response = await fetch("/api/space-configurations/open-space");
+        const response = await fetch("/api/global-hours");
         const data = await response.json();
 
-        if (data.success && data.data.exceptionalClosures) {
+        if (data.success && data.data?.exceptionalClosures) {
           const now = new Date();
           now.setHours(0, 0, 0, 0);
 
@@ -42,7 +41,8 @@ export default function ExceptionalClosureBanner() {
           setUpcomingClosures(upcoming);
         }
       } catch (error) {
-    } finally {
+        console.error("[ExceptionalClosureBanner] Error fetching closures:", error);
+      } finally {
         setLoading(false);
       }
     };
