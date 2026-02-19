@@ -76,6 +76,21 @@ export default function ExceptionalClosureBanner() {
     localStorage.setItem("closureBannerDismissed", new Date().toDateString());
   };
 
+  // Add/remove body padding based on banner visibility
+  useEffect(() => {
+    const shouldShow = !loading && !isDismissed && upcomingClosures.length > 0;
+    if (shouldShow) {
+      document.body.style.paddingTop = '60px';
+    } else {
+      document.body.style.paddingTop = '0';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.paddingTop = '0';
+    };
+  }, [loading, isDismissed, upcomingClosures]);
+
   if (loading || isDismissed || upcomingClosures.length === 0) {
     return null;
   }
@@ -90,14 +105,12 @@ export default function ExceptionalClosureBanner() {
 
   // Format time range if partial closure
   const getClosureTimeText = () => {
-    if (
-      nextClosure.isFullDay !== false &&
-      !nextClosure.startTime &&
-      !nextClosure.endTime
-    ) {
+    // Priority: check isFullDay flag first (even if times are present)
+    if (nextClosure.isFullDay === true || nextClosure.isFullDay === undefined) {
       return "toute la journée";
     }
-    if (nextClosure.startTime && nextClosure.endTime) {
+    // Only show time range if explicitly marked as partial closure
+    if (nextClosure.isFullDay === false && nextClosure.startTime && nextClosure.endTime) {
       return `de ${nextClosure.startTime} à ${nextClosure.endTime}`;
     }
     return "toute la journée";
@@ -146,9 +159,12 @@ export default function ExceptionalClosureBanner() {
           color: white;
           padding: 0.75rem 0;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          position: sticky;
+          position: fixed;
           top: 0;
-          z-index: 1000;
+          left: 0;
+          right: 0;
+          width: 100%;
+          z-index: 1050;
         }
 
         .banner-content {
