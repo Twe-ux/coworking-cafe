@@ -12,14 +12,12 @@ import {
 } from "@/components/icons/CriticalIcons";
 import Navbar from "./navbar";
 import TopHeader from "./topHeader";
-import { useExceptionalClosures } from "@/hooks/useExceptionalClosures";
 
 const Header = () => {
   const [activeNavbar, setActiveNavebar] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { data: session } = useSession();
   const pathname = usePathname();
-  const { upcomingClosures, loading } = useExceptionalClosures();
 
   const getDashboardUrl = () => {
     if (!session?.user) return "/auth/login";
