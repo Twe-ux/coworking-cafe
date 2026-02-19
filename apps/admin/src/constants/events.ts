@@ -1,7 +1,10 @@
 /**
- * Default event categories
- * Can be extended by admins via the admin dashboard
+ * Event constants for admin forms
+ *
+ * Note: These are duplicated from @coworking-cafe/database to avoid
+ * importing mongoose models in client components
  */
+
 export const DEFAULT_EVENT_CATEGORIES: string[] = [
   "Atelier",
   "Formation",
@@ -17,9 +20,6 @@ export const DEFAULT_EVENT_CATEGORIES: string[] = [
   "Sport",
 ];
 
-/**
- * Event locations
- */
 export const EVENT_LOCATIONS: string[] = [
   "Open Space",
   "Salle Verrière",

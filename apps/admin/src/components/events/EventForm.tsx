@@ -15,7 +15,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus } from "lucide-react";
-import { DEFAULT_EVENT_CATEGORIES, EVENT_LOCATIONS } from "@coworking-cafe/database";
+import { DEFAULT_EVENT_CATEGORIES, EVENT_LOCATIONS } from "@/constants/events";
 import type { EventStatus } from "@coworking-cafe/database";
 
 export interface EventFormData {
