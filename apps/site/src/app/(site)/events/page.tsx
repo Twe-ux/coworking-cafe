@@ -1,38 +1,77 @@
 import PageTitle from "@/components/site/PageTitle";
-import ProjectCard from "@/components/site/projects/projectCard";
-import { eventsData } from "@/db/events/enventsData";
+import EventsCard from "@/components/site/events/EventsCard";
 import SlideDown from "@/utils/animations/slideDown";
 import SlideUp from "@/utils/animations/slideUp";
 import Image from "next/image";
 import Link from "next/link";
+import { connectDB } from "@/lib/mongodb";
+import { Event } from "@coworking-cafe/database";
 
-const EventsPage = () => {
+async function getUpcomingEvents() {
+  await connectDB();
+
+  const events = await Event.find({
+    status: "published",
+    date: { $gte: new Date().toISOString().split("T")[0] },
+  })
+    .sort({ date: 1, startTime: 1 })
+    .limit(12)
+    .lean();
+
+  return events.map((event) => ({
+    ...event,
+    _id: event._id.toString(),
+    createdBy: event.createdBy?.toString(),
+    createdAt: event.createdAt?.toString(),
+    updatedAt: event.updatedAt?.toString(),
+  }));
+}
+
+export default async function EventsPage() {
+  const events = await getUpcomingEvents();
+
   return (
     <>
       <PageTitle title={"Événements"} />
-      {/* events a venir */}
+      {/* Events à venir */}
       <section className="all__project pt__130">
         <div className="container">
           <div className="row">
-            <div className="row">
-              {eventsData.map(({ categories, id, imgSrc, title }) => (
+            {events.length === 0 ? (
+              <div className="col-12 text-center py-5">
+                <p className="text-muted">Aucun événement à venir pour le moment.</p>
+              </div>
+            ) : (
+              events.map((event, index) => (
                 <SlideUp
-                  key={id}
-                  className={`col-xl-4 col-md-6 mb-5 mb-xl-0`}
-                  delay={id}
+                  key={event._id}
+                  className="col-xl-4 col-md-6 mb-5"
+                  delay={index + 1}
                 >
-                  <ProjectCard
-                    categories={categories}
-                    imgSrc={imgSrc}
-                    title={title}
+                  <EventsCard
+                    slug={event.slug}
+                    title={event.title}
+                    shortDescription={event.shortDescription}
+                    date={event.date}
+                    startTime={event.startTime}
+                    category={event.category}
+                    imgSrc={event.imgSrc}
+                    imgAlt={event.imgAlt}
+                    location={event.location}
+                    price={event.price}
+                    registrationType={event.registrationType}
+                    externalLink={event.externalLink}
+                    maxParticipants={event.maxParticipants}
+                    currentParticipants={event.currentParticipants}
                   />
                 </SlideUp>
-              ))}
-            </div>
+              ))
+            )}
           </div>
         </div>
       </section>
-      {/* description */}
+
+      {/* Description */}
       <section className="spaces spaces__2 py__130" id="spaces">
         <div className="container position-relative">
           <SlideDown className="">
@@ -71,8 +110,8 @@ const EventsPage = () => {
                         de nos espaces.
                       </p>
 
-                      <Link href="#" className="common__btn mt-5  ">
-                        <span>Réserver</span>
+                      <Link href="/contact" className="common__btn mt-5">
+                        <span>Nous contacter</span>
                         <Image
                           src="/icons/arrow-up-rignt-black.svg"
                           alt="Icône lien externe"
@@ -106,6 +145,8 @@ const EventsPage = () => {
       </section>
     </>
   );
-};
+}
 
-export default EventsPage;
+// Revalidate every hour
+export const revalidate = 3600;
+
