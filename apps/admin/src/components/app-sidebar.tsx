@@ -114,7 +114,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {(!isMobile || openMobile) && (
         <SidebarContent>
           <NavMain items={navMain} />
-          <SidebarGroupLabel>Actualités</SidebarGroupLabel>
+          <SidebarGroupLabel className="mt-5">Actualités</SidebarGroupLabel>
           <NavSecondary items={navSecondary} />
         </SidebarContent>
       )}
