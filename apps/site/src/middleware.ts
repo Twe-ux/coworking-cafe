@@ -30,9 +30,11 @@ const publicRoutes = [
   "/horaires",
 
   "/boissons",
-  "/menu",
+  // "/menu",
   "/privatization",
   "/compagny-pass",
+
+  "/events",
 
   "/blog",
 

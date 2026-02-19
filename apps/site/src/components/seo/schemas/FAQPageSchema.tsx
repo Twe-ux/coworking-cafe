@@ -55,7 +55,7 @@ export const pricingFAQs: FAQ[] = [
   {
     question: "Peut-on privatiser le CoworKing Café ?",
     answer:
-      "Oui, la privatisation de l'ensemble de l'établissement est possible. Pour obtenir un devis personnalisé, contactez-nous par email à strasbourg@coworkingcafe.fr.",
+      "Oui, la privatisation de l'ensemble de l'établissement est possible. Pour obtenir un devis personnalisé, contactez-nous via notre formulaire de contact ou par téléphone au 09 87 33 45 19.",
   },
 ];
 

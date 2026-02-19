@@ -65,13 +65,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/privatization`,
-      lastModified: new Date("2026-02-10"),
+      lastModified: new Date("2026-02-20"),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
       url: `${baseUrl}/compagny-pass`,
-      lastModified: new Date("2026-02-10"),
+      lastModified: new Date("2026-02-20"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/partners`,
+      lastModified: new Date("2026-02-20"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/events`,
+      lastModified: new Date("2026-02-20"),
       changeFrequency: "weekly",
       priority: 0.9,
     },
@@ -81,18 +93,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.6,
     },
-    {
-      url: `${baseUrl}/food`,
-      lastModified: new Date("2026-01-25"),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/menu`,
-      lastModified: new Date("2026-01-25"),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
+    // {
+    //   url: `${baseUrl}/food`,
+    //   lastModified: new Date("2026-01-25"),
+    //   changeFrequency: "monthly",
+    //   priority: 0.7,
+    // },
+    // {
+    //   url: `${baseUrl}/menu`,
+    //   lastModified: new Date("2026-01-25"),
+    //   changeFrequency: "monthly",
+    //   priority: 0.7,
+    // },
     {
       url: `${baseUrl}/horaires`,
       lastModified: new Date("2026-01-20"),

@@ -52,8 +52,12 @@ export const menuData: MenuItem[] = [
   },
 
   {
-    title: "Le Mag'",
-    link: "/blog",
+    title: "Actus",
+    link: "#",
+    submenu: [
+      { title: "Événements", link: "/events" },
+      { title: "Le Mag'", link: "/blog" },
+    ],
   },
 
   // {
