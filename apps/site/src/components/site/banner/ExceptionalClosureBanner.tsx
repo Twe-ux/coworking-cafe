@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useExceptionalClosures } from "@/hooks/useExceptionalClosures";
 
 export default function ExceptionalClosureBanner() {
   const { upcomingClosures, loading } = useExceptionalClosures();
   const [isDismissed, setIsDismissed] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Check if banner was dismissed today
@@ -16,6 +18,28 @@ export default function ExceptionalClosureBanner() {
       setIsDismissed(true);
     }
   }, []);
+
+  // On pages other than "/", add margin-top to navbar so it's pushed below banner
+  useEffect(() => {
+    const shouldShow = !loading && !isDismissed && upcomingClosures.length > 0;
+    const headerBottom = document.querySelector('.header__bottom') as HTMLElement;
+
+    if (headerBottom && pathname !== "/") {
+      if (shouldShow) {
+        // Push navbar down on non-homepage pages
+        headerBottom.style.marginTop = '70px';
+      } else {
+        headerBottom.style.marginTop = '0';
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (headerBottom && pathname !== "/") {
+        headerBottom.style.marginTop = '0';
+      }
+    };
+  }, [loading, isDismissed, upcomingClosures, pathname]);
 
   const handleDismiss = () => {
     setIsDismissed(true);
