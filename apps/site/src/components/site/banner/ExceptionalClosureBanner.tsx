@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useExceptionalClosures } from "@/hooks/useExceptionalClosures";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useExceptionalClosures } from "@/hooks/useExceptionalClosures";
+import { useEffect, useState } from "react";
 
 export default function ExceptionalClosureBanner() {
   const { upcomingClosures, loading } = useExceptionalClosures();
@@ -22,21 +22,23 @@ export default function ExceptionalClosureBanner() {
   // On pages other than "/", add margin-top to navbar so it's pushed below banner
   useEffect(() => {
     const shouldShow = !loading && !isDismissed && upcomingClosures.length > 0;
-    const headerBottom = document.querySelector('.header__bottom') as HTMLElement;
+    const headerBottom = document.querySelector(
+      ".header__bottom",
+    ) as HTMLElement;
 
     if (headerBottom && pathname !== "/") {
       if (shouldShow) {
         // Push navbar down on non-homepage pages
-        headerBottom.style.marginTop = '70px';
+        headerBottom.style.marginTop = "62px";
       } else {
-        headerBottom.style.marginTop = '0';
+        headerBottom.style.marginTop = "0";
       }
     }
 
     // Cleanup on unmount
     return () => {
       if (headerBottom && pathname !== "/") {
-        headerBottom.style.marginTop = '0';
+        headerBottom.style.marginTop = "0";
       }
     };
   }, [loading, isDismissed, upcomingClosures, pathname]);
@@ -62,13 +64,17 @@ export default function ExceptionalClosureBanner() {
   const getClosureTimeText = () => {
     // Priority: check isFullDay flag first (even if times are present)
     if (nextClosure.isFullDay === true || nextClosure.isFullDay === undefined) {
-      return "toute la journée";
+      return "Fermé toute la journée";
     }
     // Only show time range if explicitly marked as partial closure
-    if (nextClosure.isFullDay === false && nextClosure.startTime && nextClosure.endTime) {
-      return `de ${nextClosure.startTime} à ${nextClosure.endTime}`;
+    if (
+      nextClosure.isFullDay === false &&
+      nextClosure.startTime &&
+      nextClosure.endTime
+    ) {
+      return `Ouvert de ${nextClosure.startTime} à ${nextClosure.endTime}`;
     }
-    return "toute la journée";
+    return "Fermé toute la journée";
   };
 
   return (
@@ -81,7 +87,7 @@ export default function ExceptionalClosureBanner() {
           <div className="banner-text">
             <strong>Horaires exceptionnels :</strong>{" "}
             <span className="closure-date">{formattedDate}</span>{" "}
-            <span className="closure-time">({getClosureTimeText()})</span>
+            <span className="closure-time"> - {getClosureTimeText()}</span>
             {nextClosure.reason && (
               <span className="closure-reason"> - {nextClosure.reason}</span>
             )}

@@ -173,13 +173,18 @@ export default function HorairesPage() {
                                   },
                                 )}
                               </strong>
-                              {isPartialClosure && (
-                                <span className="text-white-50">
+                              {isPartialClosure ? (
+                                <span className="text-white">
                                   {" "}
-                                  (de {closure.startTime} à {closure.endTime})
+                                  - Ouvert de {closure.startTime} à {closure.endTime}
+                                </span>
+                              ) : (
+                                <span className="text-white">
+                                  {" "}
+                                  - Fermé toute la journée
                                 </span>
                               )}
-                              {closure.reason && <span className="text-white"> - {closure.reason}</span>}
+                              {closure.reason && <span className="text-white"> ({closure.reason})</span>}
                             </li>
                           );
                         })}

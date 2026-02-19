@@ -299,23 +299,25 @@ export function HoursSettingsClient() {
                 {!closure.isFullDay && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Heure de début</Label>
+                      <Label>Ouverture à partir de</Label>
                       <Input
                         type="time"
                         value={closure.startTime || ""}
                         onChange={(e) =>
                           updateExceptionalClosure(index, "startTime", e.target.value)
                         }
+                        placeholder="Ex: 14:00"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Heure de fin</Label>
+                      <Label>Fermeture à partir de</Label>
                       <Input
                         type="time"
                         value={closure.endTime || ""}
                         onChange={(e) =>
                           updateExceptionalClosure(index, "endTime", e.target.value)
                         }
+                        placeholder="Ex: 18:00"
                       />
                     </div>
                   </div>
