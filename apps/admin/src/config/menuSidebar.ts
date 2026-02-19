@@ -247,16 +247,16 @@ export function getAdminMenu(
         },
         {
           title: "Événements",
-          url: "/events",
+          url: "/admin/events",
           icon: PartyPopper,
           items: [
             {
               title: "Liste des événements",
-              url: "/events",
+              url: "/admin/events",
             },
             {
               title: "Créer un événement",
-              url: "/events/create",
+              url: "/admin/events/create",
             },
           ],
         },

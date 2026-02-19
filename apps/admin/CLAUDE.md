@@ -19,30 +19,63 @@ Dashboard Next.js 14 pour gérer :
 
 ---
 
-## ⚠️ CONVENTION CRITIQUE : Utiliser `(dashboard)` pour TOUTES les routes admin
+## ⚠️ CONVENTION CRITIQUE : Structure des routes Admin vs Staff
 
-**IMPORTANT** : Les routes admin doivent **TOUJOURS** être créées dans `app/(dashboard)/`, jamais dans `(protected)` ou autres.
+**IMPORTANT** : Il existe DEUX dossiers distincts pour les routes avec sidebar :
+
+### 📁 Structure
+
+```
+apps/admin/src/app/
+├── (dashboard)/         # Routes STAFF (accès basique)
+│   ├── layout.tsx       # Layout avec sidebar
+│   ├── page.tsx         # "/" - Accueil Staff
+│   ├── planning/        # "/planning"
+│   ├── agenda/          # "/agenda"
+│   ├── cash-register/   # "/cash-register"
+│   └── produits/        # "/produits"
+│
+└── admin/               # Routes ADMIN (accès admin/dev)
+    ├── layout.tsx       # Hérite du layout (dashboard)
+    ├── page.tsx         # "/admin" - Dashboard Admin
+    ├── hr/              # "/admin/hr"
+    ├── accounting/      # "/admin/accounting"
+    ├── booking/         # "/admin/booking"
+    ├── messages/        # "/admin/messages"
+    ├── blog/            # "/admin/blog"
+    └── events/          # "/admin/events"
+```
 
 ### ✅ CORRECT
+
+**Routes Staff (accès basique)** → `app/(dashboard)/`
 ```
-apps/admin/src/app/(dashboard)/
-├── events/              # ✅ BON
-│   ├── page.tsx
-│   ├── create/
-│   └── [id]/edit/
-├── admin/
-│   ├── hr/
-│   ├── booking/
-│   └── blog/
+app/(dashboard)/planning/page.tsx        → /planning
+app/(dashboard)/agenda/page.tsx          → /agenda
+app/(dashboard)/cash-register/page.tsx   → /cash-register
+```
+
+**Routes Admin (accès admin/dev)** → `app/admin/`
+```
+app/admin/hr/page.tsx                    → /admin/hr
+app/admin/blog/articles/page.tsx         → /admin/blog/articles
+app/admin/events/page.tsx                → /admin/events
 ```
 
 ### ❌ INCORRECT
+
 ```
-apps/admin/src/app/(protected)/   # ❌ NE PAS UTILISER
-apps/admin/src/app/admin/events/  # ❌ Redondant, utiliser (dashboard)/events/
+app/(dashboard)/admin/blog/              # ❌ NE PAS mettre admin dans (dashboard)
+app/(protected)/events/                  # ❌ (protected) n'existe pas
+app/blog/                                # ❌ Sans (dashboard) = pas de sidebar
 ```
 
-**Raison** : Le layout `(dashboard)` contient la sidebar et toute la structure admin. Toutes les pages admin doivent hériter de ce layout.
+### 🎯 Règle simple
+
+- **Staff** (planning, agenda, produits...) → `app/(dashboard)/`
+- **Admin** (hr, blog, events, booking...) → `app/admin/`
+- Les deux héritent du layout avec sidebar
+- Les deux sont protégés par auth (via middleware)
 
 ---
 
