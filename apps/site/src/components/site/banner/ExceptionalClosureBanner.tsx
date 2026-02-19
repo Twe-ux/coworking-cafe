@@ -2,70 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-interface ExceptionalClosure {
-  date: string;
-  reason?: string;
-  startTime?: string;
-  endTime?: string;
-  isFullDay?: boolean;
-}
+import { useExceptionalClosures } from "@/hooks/useExceptionalClosures";
 
 export default function ExceptionalClosureBanner() {
-  const [upcomingClosures, setUpcomingClosures] = useState<
-    ExceptionalClosure[]
-  >([]);
+  const { upcomingClosures, loading } = useExceptionalClosures();
   const [isDismissed, setIsDismissed] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchClosures = async () => {
-      try {
-        const response = await fetch("/api/global-hours");
-        const data = await response.json();
-
-        console.log("[ExceptionalClosureBanner] API response:", data);
-
-        if (data.success && data.data?.exceptionalClosures) {
-          const now = new Date();
-          now.setHours(0, 0, 0, 0);
-
-          console.log("[ExceptionalClosureBanner] All closures:", data.data.exceptionalClosures);
-
-          // Filter upcoming closures (today and future)
-          const upcoming = data.data.exceptionalClosures
-            .filter((closure: ExceptionalClosure) => {
-              const closureDate = new Date(closure.date);
-              closureDate.setHours(0, 0, 0, 0);
-              const isUpcoming = closureDate >= now;
-              console.log(`[ExceptionalClosureBanner] Closure ${closure.date}: upcoming=${isUpcoming}`);
-              return isUpcoming;
-            })
-            .sort(
-              (a: ExceptionalClosure, b: ExceptionalClosure) =>
-                new Date(a.date).getTime() - new Date(b.date).getTime(),
-            )
-            .slice(0, 3); // Show max 3 upcoming closures
-
-          console.log("[ExceptionalClosureBanner] Upcoming closures:", upcoming);
-          setUpcomingClosures(upcoming);
-        }
-      } catch (error) {
-        console.error(
-          "[ExceptionalClosureBanner] Error fetching closures:",
-          error,
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClosures();
-
     // Check if banner was dismissed today
     const dismissedDate = localStorage.getItem("closureBannerDismissed");
     const isDismissedToday = dismissedDate === new Date().toDateString();
-    console.log("[ExceptionalClosureBanner] Is dismissed today:", isDismissedToday);
     if (isDismissedToday) {
       setIsDismissed(true);
     }
@@ -75,27 +21,6 @@ export default function ExceptionalClosureBanner() {
     setIsDismissed(true);
     localStorage.setItem("closureBannerDismissed", new Date().toDateString());
   };
-
-  // Add/remove top padding to header based on banner visibility
-  useEffect(() => {
-    const shouldShow = !loading && !isDismissed && upcomingClosures.length > 0;
-    const header = document.querySelector('.header') as HTMLElement;
-
-    if (header) {
-      if (shouldShow) {
-        header.style.paddingTop = '60px';
-      } else {
-        header.style.paddingTop = '0';
-      }
-    }
-
-    // Cleanup on unmount
-    return () => {
-      if (header) {
-        header.style.paddingTop = '0';
-      }
-    };
-  }, [loading, isDismissed, upcomingClosures]);
 
   if (loading || isDismissed || upcomingClosures.length === 0) {
     return null;
@@ -163,7 +88,7 @@ export default function ExceptionalClosureBanner() {
         .exceptional-closure-banner {
           background: linear-gradient(135deg, #c13080 0%, #661940 100%);
           color: white;
-          padding: 0.75rem 0;
+          padding: 1rem 0;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           position: fixed;
           top: 0;

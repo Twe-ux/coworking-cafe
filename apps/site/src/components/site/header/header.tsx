@@ -12,12 +12,14 @@ import {
 } from "@/components/icons/CriticalIcons";
 import Navbar from "./navbar";
 import TopHeader from "./topHeader";
+import { useExceptionalClosures } from "@/hooks/useExceptionalClosures";
 
 const Header = () => {
   const [activeNavbar, setActiveNavebar] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { data: session } = useSession();
   const pathname = usePathname();
+  const { upcomingClosures, loading } = useExceptionalClosures();
 
   const getDashboardUrl = () => {
     if (!session?.user) return "/auth/login";
@@ -44,11 +46,16 @@ const Header = () => {
     return `/${userId}`;
   };
 
+  // Only show TopHeader on homepage if there are no upcoming closures
+  const shouldShowTopHeader = pathname === "/" && !loading && upcomingClosures.length === 0;
+
   return (
     <>
-      <header className="header header__1">
-        {pathname === "/" && <TopHeader />}
-      </header>
+      {shouldShowTopHeader && (
+        <header className="header header__1">
+          <TopHeader />
+        </header>
+      )}
       <div className="header__bottom">
         <div className="container">
           <div className="d-flex align-items-center justify-content-between">
