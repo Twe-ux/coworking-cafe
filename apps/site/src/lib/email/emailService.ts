@@ -61,6 +61,18 @@ async function sendEmailViaSMTP(
 }
 
 /**
+ * Export sendEmail for direct use (for admin notifications, etc.)
+ */
+export async function sendEmail(options: {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}): Promise<boolean> {
+  return sendEmailViaSMTP(options.to, options.subject, options.html, options.text);
+}
+
+/**
  * 1️⃣ EMAIL: Confirmation de réservation initiale
  *
  * Envoyé : Immédiatement après création de la réservation (paiement initial)

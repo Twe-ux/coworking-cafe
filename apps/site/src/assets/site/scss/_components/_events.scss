@@ -1,0 +1,939 @@
+// .home1 {
+//   .projects {
+//     padding-top: 284px;
+//   }
+// }
+
+// Import responsive mixins (mobile-first)
+@import "../_abstracts/responsive";
+
+.projects {
+  @include breakpoint(lg) {
+    padding-top: 220px;
+  }
+
+  @include breakpoint(md) {
+    padding-top: 210px;
+  }
+
+  @include breakpoint(sm) {
+    padding-top: 0px;
+  }
+
+  &__title {
+    .title {
+      max-width: 570px;
+      @include breakpoint(md) {
+        max-width: 260px;
+      }
+    }
+  }
+
+  &__wapper {
+    columns: 2;
+    gap: 136px;
+    margin-top: 60px;
+
+    @include breakpoint(xxl) {
+      columns: 2;
+      gap: 80px;
+    }
+
+    @include breakpoint(xl) {
+      columns: 2;
+      gap: 60px;
+    }
+
+    @include breakpoint(lg) {
+      columns: 2;
+      gap: 40px;
+    }
+
+    @include breakpoint(md) {
+      columns: 1;
+      gap: 0;
+    }
+
+    &_card {
+      overflow: hidden;
+      margin-bottom: 40px;
+
+      @include breakpoint(md) {
+        margin-bottom: 40px;
+      }
+
+      &:last-child {
+        @include breakpoint(lg) {
+          margin-bottom: 30px;
+        }
+
+        @include breakpoint(sm) {
+          margin-bottom: 20px;
+        }
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+      }
+
+      .prj__title {
+        font-family: var(--font-kanit), "Kanit", sans-serif;
+        color: var(--grayWhite-clr);
+        margin-top: 20px;
+
+        @include breakpoint(md) {
+          margin-top: 20px;
+        }
+      }
+      .d-flex {
+        gap: 1rem;
+      }
+
+      .project__group {
+        color: var(--pra-clr);
+        margin-top: 7px;
+
+        @include breakpoint(md) {
+          margin-top: 5px;
+        }
+      }
+      &_circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 1px solid var(--btn-clr);
+        transition: all 0.5s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        flex-direction: column;
+        color: var(--btn-clr);
+      }
+      i,
+      svg {
+        transform: rotate(-45deg);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  &__usecase {
+    margin-top: 50px;
+
+    &_content {
+      max-width: 535px;
+
+      h3 {
+        color: var(--grayWhite-clr);
+      }
+
+      p {
+        color: var(--pra-clr);
+      }
+
+      .para2 {
+        margin-top: 40px;
+      }
+
+      .common__btn {
+        margin-top: 50px;
+        background-color: var(--btn-clr);
+        color: var(--secondary-clr);
+      }
+    }
+
+    &_img {
+      border-radius: 10px;
+      width: 100%;
+
+      @include breakpoint(sm) {
+        max-width: 500px;
+        margin: auto;
+      }
+    }
+  }
+}
+
+// --------------- projects__2 for home page 2 and it's extends main home page about section code
+.projects__2 {
+  .title {
+    max-width: 800px;
+    color: var(--secondary-clr);
+  }
+
+  margin-top: 368px;
+
+  @include breakpoint(xxl) {
+    margin-top: 320px;
+  }
+
+  @include breakpoint(xl) {
+    margin-top: 240px;
+  }
+
+  @include breakpoint(md) {
+    margin-top: 100px;
+  }
+
+  &_wapper {
+    margin-top: 60px;
+  }
+
+  &_card {
+    img {
+      border-radius: 10px;
+      margin-bottom: 35px;
+
+      @include breakpoint(sm) {
+        margin-bottom: 25px;
+      }
+    }
+
+    a {
+      color: var(--secondary-clr);
+      display: block;
+    }
+
+    p {
+      margin-top: 20px;
+      color: var(--main-clr);
+
+      @include breakpoint(sm) {
+        margin-top: 10px;
+      }
+    }
+  }
+
+  .two {
+    margin-top: 50px;
+
+    @include breakpoint(xl) {
+      margin-top: 0;
+    }
+  }
+
+  .three {
+    margin-top: 100px;
+
+    @include breakpoint(xl) {
+      margin-top: 0;
+    }
+  }
+}
+
+.tools {
+  background-color: var(--main-clr);
+
+  .projects__usecase {
+    margin-top: 0;
+  }
+
+  .counter {
+    padding: 70px;
+    background-color: #588983;
+    border-radius: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 130px;
+
+    @include breakpoint(lg) {
+      flex-wrap: wrap;
+      padding: 50px;
+      margin-top: 110px;
+    }
+
+    @include breakpoint(md) {
+      padding: 40px;
+      margin-top: 100px;
+    }
+
+    @include breakpoint(sm) {
+      padding: 20px;
+      margin-top: 90px;
+    }
+
+    &__box {
+      margin-bottom: 25px;
+
+      @include breakpoint(lg) {
+        width: 50%;
+      }
+
+      &:hover {
+        .counter__number {
+          color: var(--btn-clr);
+          -webkit-text-stroke-color: var(--btn-clr);
+        }
+      }
+    }
+
+    &__number {
+      -webkit-text-stroke-width: 1px;
+      -webkit-text-stroke-color: var(--grayWhite-clr);
+      color: transparent;
+      font-weight: 700;
+      font-size: 80px;
+      line-height: 90px;
+      margin-bottom: 28px;
+      transition: all 0.5s;
+
+      @include breakpoint(xl) {
+        font-size: 60px;
+      }
+
+      @include breakpoint(md) {
+        font-size: 40px;
+        margin-bottom: 0px;
+        line-height: 55px;
+      }
+    }
+
+    &__text {
+      color: var(--grayWhite-clr);
+    }
+  }
+}
+
+// ---------------  projects__3 for about page and it's extends main home page about section code
+.about__page {
+  .projects {
+    padding-top: 0px;
+    padding-bottom: 0;
+
+    .circle {
+      border: 1px solid var(--secondary-clr);
+      color: var(--secondary-clr);
+
+      &:hover {
+        border: 1px solid var(--btn-clr);
+      }
+    }
+
+    &__wapper {
+      &_card {
+        .prj__title {
+          color: var(--secondary-clr);
+        }
+
+        .project__group {
+          color: var(--main-clr);
+        }
+      }
+    }
+  }
+}
+
+.all__project {
+  margin-bottom: 181px;
+
+  .projects__2_card {
+    margin-bottom: 40px;
+  }
+
+  .custom__pagination {
+    margin-top: 0;
+  }
+}
+
+.spaces {
+  background-color: var(--main-clr);
+
+  &__title {
+    // Mobile-first: base gap (mobile)
+    gap: 1rem !important;
+    @include respond-above(md) {
+      gap: 1rem !important;
+    }
+    @include respond-above(lg) {
+      gap: 2rem !important;
+    }
+
+    .title {
+      max-width: 850px;
+    }
+
+    p {
+      // Mobile-first: base font-size (mobile)
+      font-size: 15px;
+      text-align: justify;
+      @include respond-above(md) {
+        font-size: 15px;
+      }
+      @include respond-above(lg) {
+        font-size: 17px;
+      }
+      @include respond-above(xl) {
+        font-size: 20px;
+      }
+    }
+
+    .common__btn {
+      background-color: var(--btn-clr);
+      color: var(--secondary-clr);
+    }
+  }
+
+  &__wapper {
+    &_list {
+      margin-top: 36px;
+      div {
+        @include justify();
+        color: var(--grayWhite-clr);
+        // Mobile-first: column layout (mobile)
+        flex-direction: column;
+        align-items: start;
+        gap: 15px;
+        padding: 40px 0;
+        border-bottom: 1px solid #e3ece71f;
+
+        @include respond-above(md) {
+          flex-direction: row;
+          align-items: center;
+          gap: 30px;
+          padding: 54px 0;
+        }
+
+        &:last-child {
+          padding: 0px;
+          padding-top: 54px;
+          border-bottom: none;
+        }
+
+        .service__name {
+          @include flex();
+          gap: 4px;
+          max-width: 515px;
+          width: 100%;
+          // Mobile-first: base font-size (mobile)
+          font-size: 25px;
+          font-weight: 600;
+          transition: all 0.5s ease-in-out;
+
+          @include respond-above(md) {
+            font-size: 30px;
+          }
+          @include respond-above(xl) {
+            font-size: 42px;
+          }
+
+          sup {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: -10px;
+            display: block;
+            color: var(--btn-clr);
+          }
+        }
+        .describe {
+          max-width: 501px;
+          color: var(--grayWhite-clr);
+        }
+        .icon {
+          // Mobile-first: base size (mobile)
+          min-width: 56px;
+          min-height: 56px;
+          border-radius: 50%;
+          border: 1px solid var(--btn-clr);
+          @include center();
+          transition: all 0.5s ease-in-out;
+
+          @include respond-above(lg) {
+            min-width: 66px;
+            min-height: 66px;
+          }
+
+          .black {
+            display: none;
+          }
+        }
+        &:hover {
+          .service__name {
+            color: var(--btn-clr);
+          }
+          .icon {
+            background-color: var(--btn-clr);
+            .black {
+              display: block;
+            }
+            .yellow {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .service__card {
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    transition: all 0.5s;
+
+    p {
+      text-align: justify;
+    }
+
+    img {
+      width: 100%;
+      // Mobile-first: base height (mobile)
+      height: 175px;
+      object-fit: cover;
+      border-radius: 10px;
+
+      @include respond-above(lg) {
+        height: 200px;
+      }
+    }
+    svg {
+      transform: rotate(-45deg);
+      width: 18px;
+      height: 18px;
+      margin-left: 4px;
+    }
+    &:hover {
+      background-color: var(--btn-clr);
+      p {
+        color: var(--secondary-clr);
+      }
+      a {
+        color: var(--secondary-clr);
+      }
+      .up__icon {
+        filter: brightness(70%) contrast(150%) saturate(0%);
+      }
+    }
+    h3 {
+      color: var(--secondary-clr);
+      margin-top: 20px;
+      display: block;
+    }
+    p {
+      transition: all 0.5s;
+      color: black;
+      font-weight: 500;
+      margin-top: 20px;
+      margin-bottom: 25px;
+    }
+    a {
+      transition: all 0.5s;
+      color: #c13080;
+      font-weight: 600;
+    }
+    .black {
+      display: none;
+    }
+  }
+
+  .counter {
+    // Mobile-first: base padding (mobile)
+    padding: 20px;
+    background-color: #588983;
+    border-radius: 10px;
+    width: 100%;
+    transform: translateY(40%);
+    display: flex;
+    justify-content: space-between;
+
+    @include respond-above(md) {
+      padding: 40px;
+      transform: translateY(40%);
+    }
+    @include respond-above(lg) {
+      flex-wrap: wrap;
+      padding: 50px;
+      transform: translateY(50%);
+    }
+    @include respond-above(xl) {
+      flex-wrap: nowrap;
+      padding: 70px;
+    }
+
+    &__box {
+      margin-bottom: 25px;
+      @include respond-above(lg) {
+        width: 50%;
+      }
+      @include respond-above(xl) {
+        width: auto;
+      }
+      &:hover {
+        .counter__number {
+          color: var(--btn-clr);
+          -webkit-text-stroke-color: var(--btn-clr);
+        }
+      }
+    }
+    &__number {
+      -webkit-text-stroke-width: 1px;
+      -webkit-text-stroke-color: var(--grayWhite-clr);
+      color: transparent;
+      font-weight: 700;
+      // Mobile-first: base font-size (mobile)
+      font-size: 40px;
+      line-height: 55px;
+      margin-bottom: 0px;
+      transition: all 0.5s;
+
+      @include respond-above(lg) {
+        margin-bottom: 5px;
+      }
+      @include respond-above(xl) {
+        font-size: 60px;
+        line-height: 90px;
+        margin-bottom: 28px;
+      }
+      @include respond-above(xxl) {
+        font-size: 80px;
+      }
+    }
+
+    &__text {
+      color: var(--grayWhite-clr);
+    }
+  }
+}
+
+// ---------------- spaces_2 for home page 2 and it exteds home page one service code
+.spaces__2 {
+  // Mobile-first: base padding (mobile)
+  padding-bottom: 240px;
+
+  @include respond-above(lg) {
+    padding-bottom: 320px;
+  }
+  @include respond-above(xl) {
+    padding-bottom: 266px;
+  }
+  @include respond-above(xxl) {
+    padding-bottom: 300px;
+  }
+
+  &_wapper {
+    margin-top: 60px;
+
+    .spaces__2_card {
+      background-color: #588983;
+      h3 {
+        color: var(--grayWhite-clr);
+        transition: all 0.5s;
+      }
+      p {
+        color: var(--grayWhite-clr);
+      }
+      a {
+        color: var(--btn-clr);
+      }
+      &:hover {
+        h3 {
+          color: var(--secondary-clr);
+        }
+      }
+    }
+    .two {
+      // Mobile-first: no transform (mobile)
+      transform: translateY(0px);
+      @include respond-above(xl) {
+        transform: translateY(50px);
+      }
+    }
+    .three {
+      // Mobile-first: no transform (mobile)
+      transform: translateY(0px);
+      @include respond-above(xl) {
+        transform: translateY(100px);
+      }
+    }
+    .video {
+      // Mobile-first: base transform (mobile)
+      transform: translateY(90px);
+      @include respond-above(md) {
+        transform: translateY(90px);
+      }
+      @include respond-above(lg) {
+        transform: translateY(100px);
+      }
+      @include respond-above(xl) {
+        transform: translateY(15%);
+      }
+    }
+  }
+
+  &_row {
+    // Mobile-first: base margin (mobile)
+    margin-top: 0px;
+
+    @include respond-above(md) {
+      margin-top: 0px;
+    }
+    @include respond-above(xl) {
+      margin-top: 30px;
+    }
+    @include respond-above(xxl) {
+      margin-top: 130px;
+    }
+
+    p {
+      color: var(--grayWhite-clr);
+    }
+    a {
+      color: var(--btn-clr);
+      font-weight: 700;
+    }
+  }
+}
+
+.py__110 {
+  padding-top: 110px;
+  padding-bottom: 110px;
+}
+
+.tools__concept {
+  background-color: var(--main-clr);
+
+  .projects__usecase {
+    margin-top: 0;
+  }
+
+  p {
+    text-align: justify;
+  }
+  .p {
+    position: absolute;
+    // Mobile-first: base font-size (mobile)
+    margin: 85px 0 0 15px;
+    font-size: 12px;
+    font-style: italic;
+
+    @include respond-above(md) {
+      margin: 85px 0 0 25px;
+      font-size: 20px;
+    }
+  }
+
+  .counter {
+    // Mobile-first: base padding (mobile)
+    padding: 20px;
+    background-color: #588983;
+    border-radius: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    // margin-top: 130px;
+
+    @include respond-above(md) {
+      padding: 30px;
+    }
+    @include respond-above(lg) {
+      flex-wrap: wrap;
+      padding: 40px;
+      // margin-top: 110px;
+    }
+    @include respond-above(xl) {
+      flex-wrap: nowrap;
+      padding: 30px 80px;
+    }
+
+    &__box {
+      margin-bottom: 0px;
+
+      @include respond-above(lg) {
+        width: 50%;
+      }
+      @include respond-above(xl) {
+        width: auto;
+      }
+
+      &:hover {
+        .counter__number,
+        sup {
+          color: var(--btn-clr);
+          -webkit-text-stroke-color: var(--btn-clr);
+        }
+      }
+    }
+
+    &__number {
+      -webkit-text-stroke-width: 1px;
+      -webkit-text-stroke-color: var(--grayWhite-clr);
+      color: transparent;
+      font-weight: 700;
+      // Mobile-first: base font-size (mobile)
+      font-size: 40px;
+      line-height: 55px;
+      margin-bottom: 0px;
+      transition: all 0.5s;
+
+      @include respond-above(md) {
+        font-size: 40px;
+        line-height: 55px;
+      }
+      @include respond-above(xl) {
+        font-size: 60px;
+        line-height: 60px;
+      }
+      @include respond-above(xxl) {
+        font-size: 50px;
+      }
+    }
+    sup {
+      -webkit-text-stroke-width: 1px;
+      -webkit-text-stroke-color: var(--grayWhite-clr);
+      color: transparent;
+      font-weight: 700;
+      // vertical-align: super;
+      // Mobile-first: base font-size (mobile)
+      font-size: 20px;
+      line-height: 55px;
+      margin-bottom: 0px;
+      transition: all 0.5s;
+
+      @include respond-above(md) {
+        font-size: 20px;
+        line-height: 55px;
+      }
+      @include respond-above(xl) {
+        font-size: 40px;
+        line-height: 60px;
+      }
+      @include respond-above(xxl) {
+        font-size: 30px;
+      }
+    }
+
+    &__text {
+      font-weight: normal;
+      font-size: 25px;
+      color: var(--grayWhite-clr);
+    }
+  }
+}
+
+.all__spaces {
+  background-color: transparent;
+  margin-bottom: 181px;
+  padding-bottom: 130px;
+}
+
+.spaces__usecase {
+  position: absolute;
+}
+
+.spaces__usecase_img {
+  margin-top: -185px;
+  margin-left: 50px;
+  height: 500px;
+  width: 500px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.stars {
+  margin-top: 80px;
+  margin-left: 75px;
+  position: absolute;
+}
+
+// Carrousel styles
+.spaces__carousel {
+  position: relative;
+  // Mobile-first: base max-width (mobile)
+  max-width: 100%;
+  margin: 0 auto;
+
+  @include respond-above(lg) {
+    max-width: 500px;
+  }
+  @include respond-above(xl) {
+    max-width: 600px;
+  }
+
+  .spaces-swiper {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+    .swiper-slide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    // Navigation buttons
+    .swiper-button-prev,
+    .swiper-button-next {
+      // Mobile-first: base size (mobile)
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+
+      @include respond-above(md) {
+        width: 50px;
+        height: 50px;
+      }
+
+      &:after {
+        // Mobile-first: base font-size (mobile)
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--main-clr);
+
+        @include respond-above(md) {
+          font-size: 20px;
+        }
+      }
+
+      &:hover {
+        background-color: var(--btn-clr);
+        &:after {
+          color: var(--secondary-clr);
+        }
+      }
+    }
+
+    // Pagination bullets
+    .swiper-pagination {
+      bottom: 15px;
+
+      .swiper-pagination-bullet {
+        width: 12px;
+        height: 12px;
+        background-color: rgba(255, 255, 255, 0.7);
+        opacity: 1;
+        transition: all 0.3s ease;
+
+        &-active {
+          background-color: var(--btn-clr);
+          width: 30px;
+          border-radius: 6px;
+        }
+      }
+    }
+  }
+
+  &_img {
+    width: 100%;
+    // Mobile-first: base height (mobile)
+    height: 300px;
+    object-fit: cover;
+    display: block;
+
+    @include respond-above(md) {
+      height: 350px;
+    }
+    @include respond-above(lg) {
+      height: 400px;
+    }
+    @include respond-above(xl) {
+      height: 500px;
+    }
+  }
+}

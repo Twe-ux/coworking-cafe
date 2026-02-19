@@ -300,6 +300,41 @@ export async function POST(
 
         console.log(`✅ Email d'annulation envoyé: ${recipientEmail} (Frais: ${chargePercentage}%)`);
       }
+
+      // Send notification to admin/team
+      try {
+        const { generateAdminCancellationNotification } = await import('@coworking-cafe/email');
+        const teamEmail = process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr';
+        const adminName = authResult.session.user?.name || 'Administrateur';
+
+        await sendEmail({
+          to: teamEmail,
+          subject: `🔔 Annulation admin - ${emailData.spaceName} - ${emailData.date}`,
+          html: generateAdminCancellationNotification({
+            cancelledBy: 'admin',
+            cancelledByName: adminName,
+            clientName: emailData.name || 'Client',
+            clientEmail: recipientEmail || 'Email non disponible',
+            spaceName: emailData.spaceName,
+            date: emailData.date,
+            startTime: emailData.startTime || '',
+            endTime: emailData.endTime || '',
+            numberOfPeople: emailData.numberOfPeople,
+            totalPrice: emailData.totalPrice,
+            cancellationFees: cancellationFee / 100,
+            refundAmount: refundAmount / 100,
+            confirmationNumber: populatedBooking._id.toString(),
+            reason: emailData.reason,
+            wasPending,
+            cancelledAt: new Date().toISOString(),
+          }),
+        });
+
+        console.log(`✅ Notification admin envoyée: ${teamEmail}`);
+      } catch (adminEmailError) {
+        console.error('❌ Erreur lors de l\'envoi de la notification admin:', adminEmailError);
+        // Don't block cancellation if admin email fails
+      }
     } catch (emailError) {
       console.error('❌ Erreur lors de l\'envoi de l\'email:', emailError);
       // Ne pas bloquer l'annulation si l'email échoue
