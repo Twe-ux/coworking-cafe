@@ -12,7 +12,9 @@ interface ExceptionalClosure {
 }
 
 export default function ExceptionalClosureBanner() {
-  const [upcomingClosures, setUpcomingClosures] = useState<ExceptionalClosure[]>([]);
+  const [upcomingClosures, setUpcomingClosures] = useState<
+    ExceptionalClosure[]
+  >([]);
   const [isDismissed, setIsDismissed] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -22,26 +24,37 @@ export default function ExceptionalClosureBanner() {
         const response = await fetch("/api/global-hours");
         const data = await response.json();
 
+        console.log("[ExceptionalClosureBanner] API response:", data);
+
         if (data.success && data.data?.exceptionalClosures) {
           const now = new Date();
           now.setHours(0, 0, 0, 0);
+
+          console.log("[ExceptionalClosureBanner] All closures:", data.data.exceptionalClosures);
 
           // Filter upcoming closures (today and future)
           const upcoming = data.data.exceptionalClosures
             .filter((closure: ExceptionalClosure) => {
               const closureDate = new Date(closure.date);
               closureDate.setHours(0, 0, 0, 0);
-              return closureDate >= now;
+              const isUpcoming = closureDate >= now;
+              console.log(`[ExceptionalClosureBanner] Closure ${closure.date}: upcoming=${isUpcoming}`);
+              return isUpcoming;
             })
-            .sort((a: ExceptionalClosure, b: ExceptionalClosure) =>
-              new Date(a.date).getTime() - new Date(b.date).getTime()
+            .sort(
+              (a: ExceptionalClosure, b: ExceptionalClosure) =>
+                new Date(a.date).getTime() - new Date(b.date).getTime(),
             )
             .slice(0, 3); // Show max 3 upcoming closures
 
+          console.log("[ExceptionalClosureBanner] Upcoming closures:", upcoming);
           setUpcomingClosures(upcoming);
         }
       } catch (error) {
-        console.error("[ExceptionalClosureBanner] Error fetching closures:", error);
+        console.error(
+          "[ExceptionalClosureBanner] Error fetching closures:",
+          error,
+        );
       } finally {
         setLoading(false);
       }
@@ -51,7 +64,9 @@ export default function ExceptionalClosureBanner() {
 
     // Check if banner was dismissed today
     const dismissedDate = localStorage.getItem("closureBannerDismissed");
-    if (dismissedDate === new Date().toDateString()) {
+    const isDismissedToday = dismissedDate === new Date().toDateString();
+    console.log("[ExceptionalClosureBanner] Is dismissed today:", isDismissedToday);
+    if (isDismissedToday) {
       setIsDismissed(true);
     }
   }, []);
@@ -75,7 +90,11 @@ export default function ExceptionalClosureBanner() {
 
   // Format time range if partial closure
   const getClosureTimeText = () => {
-    if (nextClosure.isFullDay !== false && !nextClosure.startTime && !nextClosure.endTime) {
+    if (
+      nextClosure.isFullDay !== false &&
+      !nextClosure.startTime &&
+      !nextClosure.endTime
+    ) {
       return "toute la journée";
     }
     if (nextClosure.startTime && nextClosure.endTime) {
@@ -92,13 +111,17 @@ export default function ExceptionalClosureBanner() {
             <i className="bi bi-exclamation-triangle-fill"></i>
           </div>
           <div className="banner-text">
-            <strong>Fermeture exceptionnelle :</strong>{" "}
-            <span className="closure-date">{formattedDate}</span>
-            {" "}<span className="closure-time">({getClosureTimeText()})</span>
-            {nextClosure.reason && <span className="closure-reason"> - {nextClosure.reason}</span>}
+            <strong>Horaires exceptionnels :</strong>{" "}
+            <span className="closure-date">{formattedDate}</span>{" "}
+            <span className="closure-time">({getClosureTimeText()})</span>
+            {nextClosure.reason && (
+              <span className="closure-reason"> - {nextClosure.reason}</span>
+            )}
             {upcomingClosures.length > 1 && (
               <span className="more-closures">
-                {" "}+{upcomingClosures.length - 1} autre{upcomingClosures.length > 2 ? "s" : ""}
+                {" "}
+                +{upcomingClosures.length - 1} autre
+                {upcomingClosures.length > 2 ? "s" : ""}
               </span>
             )}
           </div>
@@ -106,7 +129,11 @@ export default function ExceptionalClosureBanner() {
             <Link href="/horaires" className="banner-link">
               Voir les horaires
             </Link>
-            <button onClick={handleDismiss} className="banner-close" aria-label="Fermer">
+            <button
+              onClick={handleDismiss}
+              className="banner-close"
+              aria-label="Fermer"
+            >
               <i className="bi bi-x-lg"></i>
             </button>
           </div>
@@ -115,11 +142,12 @@ export default function ExceptionalClosureBanner() {
 
       <style jsx>{`
         .exceptional-closure-banner {
-          background: linear-gradient(135deg, #ff9a00 0%, #ff6a00 100%);
+          background: linear-gradient(135deg, #c13080 0%, #661940 100%);
           color: white;
           padding: 0.75rem 0;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          position: relative;
+          position: sticky;
+          top: 0;
           z-index: 1000;
         }
 
