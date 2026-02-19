@@ -10,13 +10,13 @@ import {
   Calculator,
   Calendar,
   CalendarDays,
+  Clock,
   Coins,
   Home,
   ListTodo,
   Mail,
   PartyPopper,
   ScanQrCode,
-  Settings,
   Terminal,
   UserCog,
   Users,
@@ -226,32 +226,6 @@ export function getAdminMenu(
       ],
     },
 
-    // Section Comptabilité
-    {
-      label: "Comptabilité",
-      items: [
-        {
-          title: "Comptabilité",
-          url: "/admin/accounting",
-          icon: Calculator,
-          items: [
-            {
-              title: "Caisse",
-              url: "/admin/accounting/cash-control",
-            },
-            {
-              title: "Fond de caisse",
-              url: "/admin/accounting/cash-register",
-            },
-            {
-              title: "Empreintes capturées",
-              url: "/admin/accounting/captured-deposits",
-            },
-          ],
-        },
-      ],
-    },
-
     // Section Actualités
     {
       label: "Actualités",
@@ -293,6 +267,46 @@ export function getAdminMenu(
         },
       ],
     },
+    // Section Comptabilité
+    {
+      label: "Comptabilité",
+      items: [
+        {
+          title: "Comptabilité",
+          url: "/admin/accounting",
+          icon: Calculator,
+          items: [
+            {
+              title: "Caisse",
+              url: "/admin/accounting/cash-control",
+            },
+            {
+              title: "Fond de caisse",
+              url: "/admin/accounting/cash-register",
+            },
+            {
+              title: "Empreintes capturées",
+              url: "/admin/accounting/captured-deposits",
+            },
+          ],
+        },
+      ],
+    },
+
+    {
+      items: [
+        // {
+        //   title: "Accueil Staff",
+        //   url: "/",
+        //   icon: Home,
+        // },
+        {
+          title: "Horaires",
+          url: "/admin/settings/hours",
+          icon: Clock,
+        },
+      ],
+    },
   ];
 
   // Section Dev Tools (conditionnelle - visible uniquement pour dev/admin)
@@ -300,17 +314,6 @@ export function getAdminMenu(
     sections.push({
       label: "Dev Tools",
       items: [
-        {
-          title: "Paramètres",
-          url: "/admin/settings",
-          icon: Settings,
-          items: [
-            {
-              title: "Horaires",
-              url: "/admin/settings/hours",
-            },
-          ],
-        },
         {
           title: "Dev Tools",
           url: "/admin/dev",
@@ -332,4 +335,3 @@ export function getAdminMenu(
 
   return sections;
 }
-
