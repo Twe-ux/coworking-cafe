@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   getAdminMenu,
+  getDevMenu,
   getSecondaryMenu,
   getStaffMenu,
 } from "@/config/menuSidebar";
@@ -39,28 +40,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isLoading = status === "loading";
 
   // Déterminer quel menu afficher selon le rôle
-  const navMain = React.useMemo(() => {
-    // Pendant le chargement OU si dev/admin → menu admin
+  const navSections = React.useMemo(() => {
+    // Pendant le chargement OU si dev/admin → menu admin par sections
     if (isLoading || isDev || isAdmin) {
       return getAdminMenu(
         counts.unreadMessages,
         counts.pendingUnavailabilities,
         counts.pendingBookings,
         counts.pendingJustifications,
-        isDev,
-        isAdmin,
-        isLoading,
       );
     }
 
-    // Menu STAFF pour les autres
-    return getStaffMenu();
+    // Menu STAFF pour les autres (format section pour compatibilité)
+    return [{ items: getStaffMenu() }];
   }, [isDev, isAdmin, counts, isLoading]);
 
-  const navSecondary = React.useMemo(
-    () => getSecondaryMenu(isDev, isAdmin, isLoading),
-    [isDev, isAdmin, isLoading],
-  );
+  const navSecondary = React.useMemo(() => getSecondaryMenu(), []);
+
+  // Dev Tools (visible uniquement pour dev/admin, pas pendant le loading)
+  const navDev = React.useMemo(() => {
+    if ((isDev || isAdmin) && !isLoading) {
+      return getDevMenu();
+    }
+    return [];
+  }, [isDev, isAdmin, isLoading]);
 
   // Déterminer le label de rôle (afficher admin par défaut pendant chargement)
   const roleLabel = React.useMemo(() => {
@@ -113,9 +116,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       {(!isMobile || openMobile) && (
         <SidebarContent>
-          <NavMain items={navMain} />
+          {/* Menu principal par sections */}
+          {navSections.map((section, index) => (
+            <React.Fragment key={index}>
+              {section.label && (
+                <SidebarGroupLabel className={index > 0 ? "mt-5" : ""}>
+                  {section.label}
+                </SidebarGroupLabel>
+              )}
+              <NavMain items={section.items} />
+            </React.Fragment>
+          ))}
+
+          {/* Section Actualités */}
           <SidebarGroupLabel className="mt-5">Actualités</SidebarGroupLabel>
           <NavSecondary items={navSecondary} />
+
+          {/* Dev Tools (tout en bas) */}
+          {navDev.length > 0 && (
+            <>
+              <SidebarGroupLabel className="mt-5">Dev Tools</SidebarGroupLabel>
+              <NavSecondary items={navDev} />
+            </>
+          )}
         </SidebarContent>
       )}
       {(!isMobile || openMobile) && (
