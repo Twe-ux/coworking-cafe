@@ -76,18 +76,24 @@ export default function ExceptionalClosureBanner() {
     localStorage.setItem("closureBannerDismissed", new Date().toDateString());
   };
 
-  // Add/remove body padding based on banner visibility
+  // Add/remove top padding to header based on banner visibility
   useEffect(() => {
     const shouldShow = !loading && !isDismissed && upcomingClosures.length > 0;
-    if (shouldShow) {
-      document.body.style.paddingTop = '60px';
-    } else {
-      document.body.style.paddingTop = '0';
+    const header = document.querySelector('.header') as HTMLElement;
+
+    if (header) {
+      if (shouldShow) {
+        header.style.paddingTop = '60px';
+      } else {
+        header.style.paddingTop = '0';
+      }
     }
 
     // Cleanup on unmount
     return () => {
-      document.body.style.paddingTop = '0';
+      if (header) {
+        header.style.paddingTop = '0';
+      }
     };
   }, [loading, isDismissed, upcomingClosures]);
 
@@ -164,7 +170,7 @@ export default function ExceptionalClosureBanner() {
           left: 0;
           right: 0;
           width: 100%;
-          z-index: 1050;
+          z-index: 1100;
         }
 
         .banner-content {
