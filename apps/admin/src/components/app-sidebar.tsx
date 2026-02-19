@@ -1,8 +1,8 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
@@ -12,17 +12,18 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroupLabel,
   SidebarHeader,
-  SidebarRail,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
-  getStaffMenu,
   getAdminMenu,
   getSecondaryMenu,
+  getStaffMenu,
 } from "@/config/menuSidebar";
 import { useRole } from "@/hooks/useRole";
 import { useSidebarCounts } from "@/hooks/useSidebarCounts";
@@ -56,7 +57,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return getStaffMenu();
   }, [isDev, isAdmin, counts, isLoading]);
 
-  const navSecondary = React.useMemo(() => getSecondaryMenu(), []);
+  const navSecondary = React.useMemo(
+    () => getSecondaryMenu(isDev, isAdmin, isLoading),
+    [isDev, isAdmin, isLoading],
+  );
 
   // Déterminer le label de rôle (afficher admin par défaut pendant chargement)
   const roleLabel = React.useMemo(() => {
@@ -110,7 +114,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {(!isMobile || openMobile) && (
         <SidebarContent>
           <NavMain items={navMain} />
-          <NavSecondary items={navSecondary} className="mt-auto" />
+          <SidebarGroupLabel>Actualités</SidebarGroupLabel>
+          <NavSecondary items={navSecondary} />
         </SidebarContent>
       )}
       {(!isMobile || openMobile) && (

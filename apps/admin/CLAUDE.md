@@ -1,7 +1,7 @@
 # CLAUDE.md - Admin App Development Guide
 
 > **App** : `/apps/admin/` - Dashboard Admin du Coworking Café
-> **Version** : 1.1
+> **Version** : 1.2
 > **Status** : ✅ Production Ready
 
 ---
@@ -13,8 +13,36 @@ Dashboard Next.js 14 pour gérer :
 - ⏰ **Pointage** : Time tracking, shifts, planning
 - 💰 **Comptabilité** : Caisse, chiffre d'affaires, PDF
 - 📊 **Analytics** : Stats et rapports
+- 📝 **Actualités** : Blog & Événements (contenu site public)
 
 **Stack** : Next.js 14 · TypeScript · Tailwind · shadcn/ui · MongoDB · NextAuth
+
+---
+
+## ⚠️ CONVENTION CRITIQUE : Utiliser `(dashboard)` pour TOUTES les routes admin
+
+**IMPORTANT** : Les routes admin doivent **TOUJOURS** être créées dans `app/(dashboard)/`, jamais dans `(protected)` ou autres.
+
+### ✅ CORRECT
+```
+apps/admin/src/app/(dashboard)/
+├── events/              # ✅ BON
+│   ├── page.tsx
+│   ├── create/
+│   └── [id]/edit/
+├── admin/
+│   ├── hr/
+│   ├── booking/
+│   └── blog/
+```
+
+### ❌ INCORRECT
+```
+apps/admin/src/app/(protected)/   # ❌ NE PAS UTILISER
+apps/admin/src/app/admin/events/  # ❌ Redondant, utiliser (dashboard)/events/
+```
+
+**Raison** : Le layout `(dashboard)` contient la sidebar et toute la structure admin. Toutes les pages admin doivent hériter de ce layout.
 
 ---
 

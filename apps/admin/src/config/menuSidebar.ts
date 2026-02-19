@@ -14,6 +14,7 @@ import {
   Home,
   ListTodo,
   Mail,
+  PartyPopper,
   ScanQrCode,
   Settings,
   Terminal,
@@ -180,21 +181,6 @@ export function getAdminMenu(
       ],
     },
     {
-      title: "Blog",
-      url: "/admin/blog",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Articles",
-          url: "/admin/blog/articles",
-        },
-        {
-          title: "Catégories",
-          url: "/admin/blog/categories",
-        },
-      ],
-    },
-    {
       title: "Promo",
       url: "/admin/promo",
       icon: ScanQrCode,
@@ -275,11 +261,46 @@ export function getAdminMenu(
 }
 
 /**
- * Menu secondaire (Support & Feedback)
- * Visible pour tous
+ * Menu secondaire (Actualités)
+ * Section dédiée au contenu site public (Blog & Événements)
  */
-export function getSecondaryMenu(): MenuItem[] {
-  return [
-    // Peut être étendu plus tard si besoin
+export function getSecondaryMenu(
+  isDev: boolean,
+  isAdmin: boolean,
+  isLoading = false,
+): MenuItem[] {
+  const items: MenuItem[] = [
+    {
+      title: "Blog",
+      url: "/admin/blog",
+      icon: BookOpen,
+      items: [
+        {
+          title: "Articles",
+          url: "/admin/blog/articles",
+        },
+        {
+          title: "Catégories",
+          url: "/admin/blog/categories",
+        },
+      ],
+    },
+    {
+      title: "Événements",
+      url: "/events",
+      icon: PartyPopper,
+      items: [
+        {
+          title: "Liste des événements",
+          url: "/events",
+        },
+        {
+          title: "Créer un événement",
+          url: "/events/create",
+        },
+      ],
+    },
   ];
+
+  return items;
 }
