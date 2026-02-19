@@ -62,7 +62,7 @@ export function SidebarGroup({ className, ...props }: React.ComponentProps<"div"
 /**
  * SidebarGroupLabel component
  * Label for a group of sidebar items
- * Hidden when sidebar is collapsed
+ * Invisible (but preserves space) when sidebar is collapsed
  */
 export function SidebarGroupLabel({
   className,
@@ -75,7 +75,7 @@ export function SidebarGroupLabel({
     <Comp
       className={cn(
         "text-muted-foreground px-2 py-1 text-xs font-medium transition-opacity duration-200",
-        "group-data-[state=collapsed]/sidebar:hidden",
+        "group-data-[state=collapsed]/sidebar:opacity-0 group-data-[state=collapsed]/sidebar:pointer-events-none",
         className
       )}
       {...props}
