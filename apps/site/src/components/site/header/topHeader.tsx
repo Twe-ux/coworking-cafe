@@ -1,5 +1,3 @@
-"use client";
-
 import {
   IconClock,
   IconFacebook,
@@ -7,16 +5,8 @@ import {
 } from "@/components/icons/CriticalIcons";
 import Link from "next/link";
 import ProtectedEmail from "../../common/ProtectedEmail";
-import { useExceptionalClosures } from "@/hooks/useExceptionalClosures";
 
 const TopHeader = () => {
-  const { upcomingClosures, loading } = useExceptionalClosures();
-
-  // Don't show TopHeader if there are upcoming closures (banner will show instead)
-  if (!loading && upcomingClosures.length > 0) {
-    return null;
-  }
-
   return (
     <div className="header__top d-lg-block d-none">
       <div className="container">

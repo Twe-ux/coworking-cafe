@@ -17,6 +17,28 @@ export default function ExceptionalClosureBanner() {
     }
   }, []);
 
+  // Add margin-top to header__bottom when banner is visible
+  useEffect(() => {
+    const shouldShow = !loading && !isDismissed && upcomingClosures.length > 0;
+    const headerBottom = document.querySelector('.header__bottom') as HTMLElement;
+
+    if (headerBottom) {
+      if (shouldShow) {
+        // Add margin equal to banner height (~70px with padding 1rem + content)
+        headerBottom.style.marginTop = '70px';
+      } else {
+        headerBottom.style.marginTop = '0';
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (headerBottom) {
+        headerBottom.style.marginTop = '0';
+      }
+    };
+  }, [loading, isDismissed, upcomingClosures]);
+
   const handleDismiss = () => {
     setIsDismissed(true);
     localStorage.setItem("closureBannerDismissed", new Date().toDateString());

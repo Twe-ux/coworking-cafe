@@ -46,16 +46,11 @@ const Header = () => {
     return `/${userId}`;
   };
 
-  // Only show TopHeader on homepage if there are no upcoming closures
-  const shouldShowTopHeader = pathname === "/" && !loading && upcomingClosures.length === 0;
-
   return (
     <>
-      {shouldShowTopHeader && (
-        <header className="header header__1">
-          <TopHeader />
-        </header>
-      )}
+      <header className="header header__1">
+        {pathname === "/" && <TopHeader />}
+      </header>
       <div className="header__bottom">
         <div className="container">
           <div className="d-flex align-items-center justify-content-between">
