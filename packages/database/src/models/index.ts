@@ -34,6 +34,10 @@ export type { ArticleDocument } from './article';
 export { Category } from './category';
 export type { CategoryDocument } from './category';
 
+// ===== Events =====
+export { Event } from './event';
+export type { EventDocument, EventStatus, RegistrationType } from './event';
+
 // ===== Messaging =====
 export { Conversation } from './conversation';
 export type { ConversationDocument, ConversationType, ConversationParticipant } from './conversation';
