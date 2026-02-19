@@ -1,6 +1,6 @@
 import PageTitle from "@/components/site/PageTitle";
 import ProjectCard from "@/components/site/projects/projectCard";
-import { projectsTwoData } from "@/db/projectsTwoData";
+import { eventsData } from "@/db/events/enventsData";
 import SlideDown from "@/utils/animations/slideDown";
 import SlideUp from "@/utils/animations/slideUp";
 import Image from "next/image";
@@ -15,7 +15,7 @@ const EventsPage = () => {
         <div className="container">
           <div className="row">
             <div className="row">
-              {projectsTwoData.map(({ categories, id, imgSrc, title }) => (
+              {eventsData.map(({ categories, id, imgSrc, title }) => (
                 <SlideUp
                   key={id}
                   className={`col-xl-4 col-md-6 mb-5 mb-xl-0`}
@@ -30,23 +30,6 @@ const EventsPage = () => {
               ))}
             </div>
           </div>
-          <SlideUp className="custom__pagination">
-            <div className="row">
-              <div className="col-12">
-                <ul className="d-flex justify-content-center">
-                  <li>
-                    <i className="fa-solid fa-arrow-left" />
-                  </li>
-                  <li>01</li>
-                  <li>02</li>
-                  <li>03</li>
-                  <li>
-                    <i className="fa-solid fa-arrow-right" />
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </SlideUp>
         </div>
       </section>
       {/* description */}
@@ -57,27 +40,23 @@ const EventsPage = () => {
               Si toi aussi tu veux organiser un événement chez nous...
             </h1>
           </SlideDown>
-          <section className="tools__concept py__110 ">
+          <section className="tools__concept py__90 ">
             <div className="container">
               <div className="projects__usecase">
                 <div className="row align-items-center">
                   <SlideUp className="col-lg-6">
                     <div className="projects__usecase_content">
-                      {/* <h3 className="t__54">
-                        Vous cherchez un lieu chaleureux, central et fonctionnel
-                        pour organiser un événement ?
-                      </h3> */}
-                      <p className="pt__50">
+                      <p className="">
                         Vous cherchez un lieu chaleureux, central et fonctionnel
                         pour organiser un événement ?
                       </p>
-                      <p className="para2">
+                      <p className="mt-4">
                         Coworking Café by Anticafé accueille aussi ateliers,
                         formations, conférences, rencontres professionnelles,
                         groupes de parole, lancements de produits ou points
                         boutiques, en format public ou privé.
                       </p>
-                      <p className="para2">
+                      <p className="mt-4">
                         Nos espaces sont modulables, équipés et pensés pour
                         favoriser les échanges, dans une ambiance conviviale et
                         propice aux rencontres. Que ce soit pour un événement
@@ -86,39 +65,39 @@ const EventsPage = () => {
                         format.
                       </p>
 
-                      <p className="para2">
+                      <p className="mt-4">
                         👉 Contactez-nous par email pour nous présenter votre
                         projet et connaître les conditions de mise à disposition
                         de nos espaces.
                       </p>
-                    </div>
 
-                    <Link href="#" className="common__btn mt-5">
-                      <span>Réserver</span>
-                      <Image
-                        src="/icons/arrow-up-rignt-black.svg"
-                        alt="Icône lien externe"
-                        width={20}
-                        height={20}
-                        loading="lazy"
-                      />
-                    </Link>
+                      <Link href="#" className="common__btn mt-5  ">
+                        <span>Réserver</span>
+                        <Image
+                          src="/icons/arrow-up-rignt-black.svg"
+                          alt="Icône lien externe"
+                          width={20}
+                          height={20}
+                          loading="lazy"
+                        />
+                      </Link>
+                    </div>
                   </SlideUp>
 
-                  {/* <SlideUp delay={2} className="col-lg-6 mt-5 mt-lg-0">
+                  <SlideUp delay={2} className="col-lg-6 mt-5 mt-lg-0">
                     <div className="spaces__carousel">
                       <Image
-                        src="/space1.jpg"
+                        src="/images/events/organiser-atelier-evenement-strasbourg.webp"
                         alt="CoworKing Café Anticafé Strasbourg"
                         width={800}
                         height={600}
                         loading="lazy"
                         quality={85}
-                        className="spaces__carousel_img"
+                        className="spaces__carousel_img rounded-3"
                         sizes="(max-width: 991px) 100vw, 50vw"
                       />
                     </div>
-                  </SlideUp> */}
+                  </SlideUp>
                 </div>
               </div>
             </div>
