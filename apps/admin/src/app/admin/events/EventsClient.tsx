@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { StyledAlert } from "@/components/ui/styled-alert";
@@ -61,7 +61,7 @@ export function EventsClient() {
   const [eventToDelete, setEventToDelete] = useState<EventItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -97,11 +97,12 @@ export function EventsClient() {
     } finally {
       setLoading(false);
     }
-  }, [pagination.page, pagination.limit, statusFilter, categoryFilter]);
+  };
 
   useEffect(() => {
     fetchEvents();
-  }, [fetchEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.limit, statusFilter, categoryFilter]);
 
   const handleCreateClick = () => {
     router.push("/events/create");
