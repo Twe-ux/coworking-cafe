@@ -20,12 +20,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  getAdminMenu,
-  getDevMenu,
-  getSecondaryMenu,
-  getStaffMenu,
-} from "@/config/menuSidebar";
+import { getAdminMenu, getStaffMenu } from "@/config/menuSidebar";
 import { useRole } from "@/hooks/useRole";
 import { useSidebarCounts } from "@/hooks/useSidebarCounts";
 import { Shield } from "lucide-react";
@@ -41,29 +36,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Déterminer quel menu afficher selon le rôle
   const navSections = React.useMemo(() => {
-    // Pendant le chargement OU si dev/admin → menu admin par sections
+    // Pendant le chargement OU si dev/admin → menu admin complet avec toutes les sections
     if (isLoading || isDev || isAdmin) {
       return getAdminMenu(
         counts.unreadMessages,
         counts.pendingUnavailabilities,
         counts.pendingBookings,
         counts.pendingJustifications,
+        isDev,
+        isAdmin,
       );
     }
 
     // Menu STAFF pour les autres (format section pour compatibilité)
     return [{ items: getStaffMenu() }];
   }, [isDev, isAdmin, counts, isLoading]);
-
-  const navSecondary = React.useMemo(() => getSecondaryMenu(), []);
-
-  // Dev Tools (visible uniquement pour dev/admin, pas pendant le loading)
-  const navDev = React.useMemo(() => {
-    if ((isDev || isAdmin) && !isLoading) {
-      return getDevMenu();
-    }
-    return [];
-  }, [isDev, isAdmin, isLoading]);
 
   // Déterminer le label de rôle (afficher admin par défaut pendant chargement)
   const roleLabel = React.useMemo(() => {
@@ -116,29 +103,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       {(!isMobile || openMobile) && (
         <SidebarContent>
-          {/* Menu principal par sections */}
+          {/* Toutes les sections du menu (incluant Actualités et Dev Tools) */}
           {navSections.map((section, index) => (
             <React.Fragment key={index}>
               {section.label && (
-                <SidebarGroupLabel className={index > 0 ? "mt-5" : ""}>
+                <SidebarGroupLabel className={index > 0 ? "mt-2" : ""}>
                   {section.label}
                 </SidebarGroupLabel>
               )}
               <NavMain items={section.items} />
             </React.Fragment>
           ))}
-
-          {/* Section Actualités */}
-          <SidebarGroupLabel className="mt-5">Actualités</SidebarGroupLabel>
-          <NavSecondary items={navSecondary} />
-
-          {/* Dev Tools (tout en bas) */}
-          {navDev.length > 0 && (
-            <>
-              <SidebarGroupLabel className="mt-5">Dev Tools</SidebarGroupLabel>
-              <NavSecondary items={navDev} />
-            </>
-          )}
         </SidebarContent>
       )}
       {(!isMobile || openMobile) && (
