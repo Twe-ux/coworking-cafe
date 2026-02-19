@@ -7,6 +7,10 @@
 // Import responsive mixins (mobile-first)
 @import "../_abstracts/responsive";
 
+.pt__130 {
+  padding-top: 130px;
+}
+
 .projects {
   @include breakpoint(lg) {
     padding-top: 220px;
