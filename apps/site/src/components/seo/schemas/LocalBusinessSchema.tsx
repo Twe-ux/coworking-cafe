@@ -8,7 +8,6 @@ export function LocalBusinessSchema() {
     "description": "Espace de coworking chaleureux au cœur de Strasbourg. WiFi rapide, café et boissons à volonté, salles de réunion privatisables. Réservation en ligne.",
     "url": "https://coworkingcafe.fr",
     "telephone": "+33987334519",
-    "email": "strasbourg@coworkingcafe.fr",
     "priceRange": "€€",
     "image": [
       "https://coworkingcafe.fr/images/banner/coworking-café.webp",
