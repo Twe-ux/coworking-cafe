@@ -1,5 +1,5 @@
-import type { MetadataRoute } from "next";
 import { fetchAllPublishedArticles } from "@/lib/blog-helpers";
+import type { MetadataRoute } from "next";
 
 // Revalidate sitemap every 6 hours (blog articles don't change that often)
 export const revalidate = 21600; // 6 hours (in seconds)
@@ -64,23 +64,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/privatization`,
+      lastModified: new Date("2026-02-20"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/compagny-pass`,
+      lastModified: new Date("2026-02-20"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/partners`,
+      lastModified: new Date("2026-02-20"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/events`,
+      lastModified: new Date("2026-02-20"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/contact`,
       lastModified: new Date("2026-01-10"),
       changeFrequency: "yearly",
       priority: 0.6,
     },
-    {
-      url: `${baseUrl}/food`,
-      lastModified: new Date("2026-01-25"),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/menu`,
-      lastModified: new Date("2026-01-25"),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
+    // {
+    //   url: `${baseUrl}/food`,
+    //   lastModified: new Date("2026-01-25"),
+    //   changeFrequency: "monthly",
+    //   priority: 0.7,
+    // },
+    // {
+    //   url: `${baseUrl}/menu`,
+    //   lastModified: new Date("2026-01-25"),
+    //   changeFrequency: "monthly",
+    //   priority: 0.7,
+    // },
     {
       url: `${baseUrl}/horaires`,
       lastModified: new Date("2026-01-20"),

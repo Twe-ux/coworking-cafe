@@ -130,8 +130,8 @@ export function EditBookingDialog({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="open-space">Open Space</SelectItem>
-                <SelectItem value="salle-verriere">Salle Verrière</SelectItem>
-                <SelectItem value="salle-etage">Salle Étage</SelectItem>
+                <SelectItem value="salle-verriere">Verrière</SelectItem>
+                <SelectItem value="salle-etage">Étage</SelectItem>
                 <SelectItem value="evenementiel">Événementiel</SelectItem>
               </SelectContent>
             </Select>

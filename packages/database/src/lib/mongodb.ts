@@ -31,8 +31,12 @@ export async function connectToDatabase() {
   if (!global.mongoose.promise) {
     const opts = {
       bufferCommands: false,
-      maxPoolSize: 5,
-      maxConnecting: 2,
+      maxPoolSize: 10, // Increased for Vercel serverless (was 5)
+      minPoolSize: 2,  // Maintain minimum connections
+      maxConnecting: 5, // Allow more simultaneous connections (was 2)
+      maxIdleTimeMS: 60000, // Close idle connections after 1min
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
     };
 
     global.mongoose.promise = mongoose.connect(process.env.MONGODB_URI, opts);

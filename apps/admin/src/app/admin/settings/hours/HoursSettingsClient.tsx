@@ -1,15 +1,26 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { StyledAlert } from "@/components/ui/styled-alert"
-import { Clock, Plus, Trash2, Save } from "lucide-react"
-import { HoursSettingsSkeleton } from "./HoursSettingsSkeleton"
-import type { GlobalHoursConfiguration, DayHours, ExceptionalClosure, WeeklyHours } from "@/types/settings"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { StyledAlert } from "@/components/ui/styled-alert";
+import { Switch } from "@/components/ui/switch";
+import type {
+  DayHours,
+  ExceptionalClosure,
+  GlobalHoursConfiguration,
+  WeeklyHours,
+} from "@/types/settings";
+import { Clock, Plus, Save, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { HoursSettingsSkeleton } from "./HoursSettingsSkeleton";
 
 const daysOfWeek = [
   { key: "monday" as const, label: "Lundi" },
@@ -19,42 +30,52 @@ const daysOfWeek = [
   { key: "friday" as const, label: "Vendredi" },
   { key: "saturday" as const, label: "Samedi" },
   { key: "sunday" as const, label: "Dimanche" },
-]
+];
 
 export function HoursSettingsClient() {
-  const [configuration, setConfiguration] = useState<GlobalHoursConfiguration | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [configuration, setConfiguration] =
+    useState<GlobalHoursConfiguration | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
-    fetchConfiguration()
-  }, [])
+    fetchConfiguration();
+  }, []);
 
   const fetchConfiguration = async () => {
     try {
-      setLoading(true)
-      const response = await fetch("/api/settings/hours")
-      const data = await response.json()
+      setLoading(true);
+      const response = await fetch("/api/settings/hours");
+      const data = await response.json();
 
       if (data.success) {
-        setConfiguration(data.data)
+        setConfiguration(data.data);
       } else {
-        setMessage({ type: "error", text: data.error || "Erreur lors du chargement" })
+        setMessage({
+          type: "error",
+          text: data.error || "Erreur lors du chargement",
+        });
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Erreur lors du chargement des horaires" })
+      setMessage({
+        type: "error",
+        text: "Erreur lors du chargement des horaires",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleSave = async () => {
-    if (!configuration) return
+    if (!configuration) return;
 
     try {
-      setSaving(true)
-      setMessage(null)
+      setSaving(true);
+      setMessage(null);
 
       const response = await fetch("/api/settings/hours", {
         method: "PATCH",
@@ -63,27 +84,36 @@ export function HoursSettingsClient() {
           defaultHours: configuration.defaultHours,
           exceptionalClosures: configuration.exceptionalClosures,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        setMessage({ type: "success", text: "Horaires mis à jour avec succès" })
-        setConfiguration(data.data)
+        setMessage({
+          type: "success",
+          text: "Horaires mis à jour avec succès",
+        });
+        setConfiguration(data.data);
       } else {
-        setMessage({ type: "error", text: data.error || "Erreur lors de la mise à jour" })
+        setMessage({
+          type: "error",
+          text: data.error || "Erreur lors de la mise à jour",
+        });
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Erreur lors de la mise à jour" })
+      setMessage({ type: "error", text: "Erreur lors de la mise à jour" });
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
-  const updateDayHours = (day: keyof WeeklyHours, updates: Partial<DayHours>) => {
-    if (!configuration) return
+  const updateDayHours = (
+    day: keyof WeeklyHours,
+    updates: Partial<DayHours>,
+  ) => {
+    if (!configuration) return;
 
-    const currentDayHours = configuration.defaultHours[day]
+    const currentDayHours = configuration.defaultHours[day];
 
     setConfiguration({
       ...configuration,
@@ -94,13 +124,13 @@ export function HoursSettingsClient() {
           ...updates,
         },
       },
-    })
-  }
+    });
+  };
 
   const addExceptionalClosure = () => {
-    if (!configuration) return
+    if (!configuration) return;
 
-    const today = new Date().toISOString().split("T")[0]
+    const today = new Date().toISOString().split("T")[0];
 
     setConfiguration({
       ...configuration,
@@ -114,35 +144,38 @@ export function HoursSettingsClient() {
           endTime: "",
         },
       ],
-    })
-  }
+    });
+  };
 
   const removeExceptionalClosure = (index: number) => {
-    if (!configuration) return
+    if (!configuration) return;
 
     setConfiguration({
       ...configuration,
-      exceptionalClosures: configuration.exceptionalClosures.filter((_, i) => i !== index),
-    })
-  }
+      exceptionalClosures: configuration.exceptionalClosures.filter(
+        (_, i) => i !== index,
+      ),
+    });
+  };
 
   const updateExceptionalClosure = (
     index: number,
     field: keyof ExceptionalClosure,
-    value: string | boolean
+    value: string | boolean,
   ) => {
-    if (!configuration) return
+    if (!configuration) return;
 
     setConfiguration({
       ...configuration,
-      exceptionalClosures: configuration.exceptionalClosures.map((closure, i) =>
-        i === index ? { ...closure, [field]: value } : closure
+      exceptionalClosures: configuration.exceptionalClosures.map(
+        (closure, i) =>
+          i === index ? { ...closure, [field]: value } : closure,
       ),
-    })
-  }
+    });
+  };
 
   if (loading) {
-    return <HoursSettingsSkeleton />
+    return <HoursSettingsSkeleton />;
   }
 
   if (!configuration) {
@@ -153,7 +186,7 @@ export function HoursSettingsClient() {
         </StyledAlert>
         <Button onClick={fetchConfiguration}>Réessayer</Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -175,7 +208,9 @@ export function HoursSettingsClient() {
       </div>
 
       {message && (
-        <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+        <StyledAlert
+          variant={message.type === "success" ? "success" : "destructive"}
+        >
           {message.text}
         </StyledAlert>
       )}
@@ -189,9 +224,12 @@ export function HoursSettingsClient() {
         </CardHeader>
         <CardContent className="space-y-4">
           {daysOfWeek.map((day) => {
-            const dayHours = configuration.defaultHours[day.key]
+            const dayHours = configuration.defaultHours[day.key];
             return (
-              <div key={day.key} className="flex items-center gap-4 p-4 border rounded-lg">
+              <div
+                key={day.key}
+                className="flex items-center gap-4 p-4 border rounded-lg"
+              >
                 <div className="w-32">
                   <Label className="font-semibold">{day.label}</Label>
                 </div>
@@ -233,7 +271,7 @@ export function HoursSettingsClient() {
                   </>
                 )}
               </div>
-            )
+            );
           })}
         </CardContent>
       </Card>
@@ -261,7 +299,11 @@ export function HoursSettingsClient() {
                         type="date"
                         value={closure.date}
                         onChange={(e) =>
-                          updateExceptionalClosure(index, "date", e.target.value)
+                          updateExceptionalClosure(
+                            index,
+                            "date",
+                            e.target.value,
+                          )
                         }
                       />
                     </div>
@@ -272,7 +314,11 @@ export function HoursSettingsClient() {
                         placeholder="Ex: Jour férié"
                         value={closure.reason || ""}
                         onChange={(e) =>
-                          updateExceptionalClosure(index, "reason", e.target.value)
+                          updateExceptionalClosure(
+                            index,
+                            "reason",
+                            e.target.value,
+                          )
                         }
                       />
                     </div>
@@ -286,50 +332,69 @@ export function HoursSettingsClient() {
                   </Button>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={closure.isFullDay}
-                    onCheckedChange={(checked) =>
-                      updateExceptionalClosure(index, "isFullDay", checked)
-                    }
-                  />
-                  <Label className="text-sm">Fermeture toute la journée</Label>
-                </div>
+                <div className="flex items-center">
+                  <div className="w-96 flex items-center gap-2">
+                    <Switch
+                      checked={closure.isFullDay}
+                      onCheckedChange={(checked) =>
+                        updateExceptionalClosure(index, "isFullDay", checked)
+                      }
+                    />
+                    <Label className="text-sm">
+                      Fermeture toute la journée
+                    </Label>
+                  </div>
 
-                {!closure.isFullDay && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Heure de début</Label>
+                  {!closure.isFullDay && (
+                    <div className="flex items-center gap-4 w-full">
+                      <Label className="w-30">Ouvert de</Label>
+
                       <Input
+                        className="w-70"
                         type="time"
                         value={closure.startTime || ""}
                         onChange={(e) =>
-                          updateExceptionalClosure(index, "startTime", e.target.value)
+                          updateExceptionalClosure(
+                            index,
+                            "startTime",
+                            e.target.value,
+                          )
                         }
+                        placeholder="Ex: 14:00"
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Heure de fin</Label>
+
+                      <Label className=""> à </Label>
+
                       <Input
+                        className="w-70"
                         type="time"
                         value={closure.endTime || ""}
                         onChange={(e) =>
-                          updateExceptionalClosure(index, "endTime", e.target.value)
+                          updateExceptionalClosure(
+                            index,
+                            "endTime",
+                            e.target.value,
+                          )
                         }
+                        placeholder="Ex: 18:00"
                       />
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             ))
           )}
 
-          <Button variant="outline" onClick={addExceptionalClosure} className="w-full">
+          <Button
+            variant="outline"
+            onClick={addExceptionalClosure}
+            className="w-full"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Ajouter une fermeture
           </Button>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

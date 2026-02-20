@@ -74,16 +74,21 @@ export default function HorairesPage() {
     return time;
   };
 
-  const isUpcoming = (dateStr: string) => {
+  const isUpcomingThisMonth = (dateStr: string) => {
     const closureDate = new Date(dateStr);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return closureDate >= today;
+
+    // Get end of current month
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
+
+    return closureDate >= today && closureDate <= endOfMonth;
   };
 
   const upcomingClosures =
     hoursData?.exceptionalClosures
-      .filter((closure) => isUpcoming(closure.date))
+      .filter((closure) => isUpcomingThisMonth(closure.date))
       .sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       ) || [];
@@ -149,15 +154,15 @@ export default function HorairesPage() {
                       <h5 className="alert-heading mb-3 text-white fw-bold">
                         Fermetures exceptionnelles à venir
                       </h5>
-                      <ul className="mb-0">
+                      <ul className="mb-0 text-white">
                         {upcomingClosures.map((closure, index) => {
                           const isPartialClosure =
                             closure.isFullDay === false &&
                             closure.startTime &&
                             closure.endTime;
                           return (
-                            <li key={index}>
-                              <strong>
+                            <li key={index} className="text-white mb-2">
+                              <strong className="text-white">
                                 {new Date(closure.date).toLocaleDateString(
                                   "fr-FR",
                                   {
@@ -168,13 +173,18 @@ export default function HorairesPage() {
                                   },
                                 )}
                               </strong>
-                              {isPartialClosure && (
-                                <span className="text-muted">
+                              {isPartialClosure ? (
+                                <span className="text-white">
                                   {" "}
-                                  (de {closure.startTime} à {closure.endTime})
+                                  - Ouvert de {closure.startTime} à {closure.endTime}
+                                </span>
+                              ) : (
+                                <span className="text-white">
+                                  {" "}
+                                  - Fermé toute la journée
                                 </span>
                               )}
-                              {closure.reason && ` - ${closure.reason}`}
+                              {closure.reason && <span className="text-white"> ({closure.reason})</span>}
                             </li>
                           );
                         })}

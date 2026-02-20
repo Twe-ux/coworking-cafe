@@ -36,7 +36,17 @@ export interface DepositPolicy {
   minimumAmount?: number
 }
 
-export type SpaceType = "open-space" | "salle-verriere" | "salle-etage" | "evenementiel"
+export type SpaceType =
+  | "open-space"
+  | "meeting-room-glass"
+  | "meeting-room-floor"
+  | "event-space"
+  | "desk"
+  | "private-office"
+  // Legacy types (backward compatibility)
+  | "salle-verriere"
+  | "salle-etage"
+  | "evenementiel"
 
 export interface SpaceConfiguration {
   _id?: string
@@ -78,6 +88,7 @@ export interface Booking {
   _id?: string
   spaceId: string
   spaceName?: string // Denormalized pour affichage
+  spaceType: SpaceType // Type d'espace (meeting-room-glass, meeting-room-floor, etc.)
   clientId: string
   clientName?: string // Denormalized pour affichage
   clientEmail?: string

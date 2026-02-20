@@ -69,7 +69,6 @@ const Home = () => {
     ],
 
     telephone: "+33987334519",
-    email: "strasbourg@coworkingcafe.fr",
 
     address: {
       "@type": "PostalAddress",

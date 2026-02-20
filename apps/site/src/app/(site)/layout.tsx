@@ -69,8 +69,8 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       <Bootstrap />
       <PathNameLoad />
       <div className="pwa-hide">
-        <Header />
         <ExceptionalClosureBanner />
+        <Header />
       </div>
       {children}
       <div className="pwa-hide">

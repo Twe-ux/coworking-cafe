@@ -20,6 +20,7 @@ export { generateAdminBookingRejectionEmail } from './adminBookingRejection';
 // ============ Actions Admin - Cancellation ============
 export { generateAdminCancelClientBookingEmail, type AdminCancelClientBookingData } from './adminCancelClientBooking';
 export { generateAdminCancelAdminBookingEmail, type AdminCancelAdminBookingData } from './adminCancelAdminBooking';
+export { generateAdminCancellationNotification } from './adminCancellationNotification';
 
 // ============ Confirmations de présence ============
 export { generateClientPresentEmail } from './clientPresent';

@@ -17,6 +17,7 @@ export const menuData: MenuItem[] = [
       { title: "Take Away", link: "/take-away" },
       { title: "Notre histoire", link: "/history" },
       { title: "Manifeste", link: "/manifest" },
+      { title: "Partenaires", link: "/partners" },
     ],
   },
   {
@@ -41,14 +42,22 @@ export const menuData: MenuItem[] = [
   //   link: "/menu",
   // },
 
-  // {
-  //   title: "Professionnels",
-  //   link: "/professionnels",
-  // },
+  {
+    title: "Professionnels",
+    link: "#",
+    submenu: [
+      { title: "Privatisation", link: "/privatization" },
+      { title: "Pass entreprise", link: "/compagny-pass" },
+    ],
+  },
 
   {
-    title: "Le Mag'",
-    link: "/blog",
+    title: "Actus",
+    link: "#",
+    submenu: [
+      { title: "Événements", link: "/events" },
+      { title: "Le Mag'", link: "/blog" },
+    ],
   },
 
   // {

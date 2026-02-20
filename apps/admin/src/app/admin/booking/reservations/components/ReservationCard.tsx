@@ -20,10 +20,10 @@ import {
   formatPrice,
   formatTimeDisplay,
   getCalculatedReservationType,
+  getSpaceLabel,
 } from "../utils";
 import {
   getBorderClassBySpace,
-  capitalize,
 } from "./reservationCardUtils";
 
 interface ReservationCardProps {
@@ -49,7 +49,7 @@ export function ReservationCard({
 
   return (
     <Card
-      className={`${getBorderClassBySpace(booking.spaceName)} cursor-pointer hover:bg-muted/50 transition-colors`}
+      className={`${getBorderClassBySpace(booking.spaceType || booking.spaceName)} cursor-pointer hover:bg-muted/50 transition-colors`}
       onClick={() => onRowClick(booking)}
     >
       <CardContent className="py-3 px-4 ">
@@ -57,7 +57,7 @@ export function ReservationCard({
           <div className="flex items-center gap-2 text-sm">
             {/* Espace */}
             <div className="w-[100px] truncate">
-              <span className="font-bold">{capitalize(booking.spaceName)}</span>
+              <span className="font-bold">{getSpaceLabel(booking.spaceType || booking.spaceName || "")}</span>
             </div>
 
             {/* Statut */}

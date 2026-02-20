@@ -1,6 +1,6 @@
 import { getAuthUser } from "@/lib/api-helpers";
 import { businessDaysUntil } from "@/lib/business-days";
-import { sendCancellationConfirmation } from "@/lib/email/emailService";
+import { sendCancellationConfirmation, sendEmail } from "@/lib/email/emailService";
 import { logger } from "@/lib/logger";
 import { connectDB } from "@/lib/mongodb";
 import { getSpaceTypeName } from "@/lib/space-names";
@@ -315,6 +315,50 @@ export async function POST(
             email: userEmail,
           },
         });
+      }
+
+      // Send notification to admin/team
+      try {
+        const { generateAdminCancellationNotification } = await import('@coworking-cafe/email');
+        const teamEmail = process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr';
+
+        await sendEmail({
+          to: teamEmail,
+          subject: `🔔 Annulation client - ${spaceName} - ${new Date(booking.date).toLocaleDateString('fr-FR')}`,
+          html: generateAdminCancellationNotification({
+            cancelledBy: 'client',
+            clientName: userName || 'Client',
+            clientEmail: userEmail || 'Email non disponible',
+            spaceName,
+            date: new Date(booking.date).toLocaleDateString('fr-FR'),
+            startTime: booking.startTime || '',
+            endTime: booking.endTime || '',
+            numberOfPeople: booking.numberOfPeople,
+            totalPrice: booking.totalPrice,
+            cancellationFees: cancellationFee / 100,
+            refundAmount: refundAmount / 100,
+            confirmationNumber: booking.confirmationNumber,
+            wasPending,
+            cancelledAt: new Date().toISOString(),
+          }),
+        });
+
+        logger.info("Admin notification sent", {
+          component: "Booking Cancellation",
+          data: {
+            bookingId: bookingId,
+            teamEmail,
+          },
+        });
+      } catch (adminEmailError) {
+        logger.error("Failed to send admin notification", {
+          component: "Booking Cancellation",
+          data: {
+            bookingId: bookingId,
+            error: adminEmailError instanceof Error ? adminEmailError.message : "Unknown",
+          },
+        });
+        // Don't fail the whole process if admin email fails
       }
     } catch (emailError) {
       logger.error("Failed to send cancellation email", {

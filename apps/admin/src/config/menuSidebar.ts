@@ -10,12 +10,13 @@ import {
   Calculator,
   Calendar,
   CalendarDays,
+  Clock,
   Coins,
   Home,
   ListTodo,
   Mail,
+  PartyPopper,
   ScanQrCode,
-  Settings,
   Terminal,
   UserCog,
   Users,
@@ -70,7 +71,15 @@ export function getStaffMenu(): MenuItem[] {
 }
 
 /**
- * Menu pour les ADMIN/DEV
+ * Interface pour les sections de menu avec label
+ */
+export interface MenuSection {
+  label?: string; // Label optionnel pour la section
+  items: MenuItem[];
+}
+
+/**
+ * Menu pour les ADMIN/DEV (toutes les sections)
  * Visible pour: admin et dev
  *
  * @param unreadCount - Nombre de messages non lus (pour le badge)
@@ -79,7 +88,6 @@ export function getStaffMenu(): MenuItem[] {
  * @param pendingJustifications - Nombre de pointages avec justification
  * @param isDev - Si l'utilisateur est dev (pour afficher Dev Tools)
  * @param isAdmin - Si l'utilisateur est admin (pour afficher Dev Tools)
- * @param isLoading - Si la session est en chargement (pour éviter le flash)
  */
 export function getAdminMenu(
   unreadCount: number,
@@ -88,198 +96,242 @@ export function getAdminMenu(
   pendingJustifications: number,
   isDev: boolean,
   isAdmin: boolean,
-  isLoading = false,
-): MenuItem[] {
-  const items: MenuItem[] = [
+): MenuSection[] {
+  const sections: MenuSection[] = [
+    // Section Général (sans label)
     {
-      title: "Accueil Staff",
-      url: "/",
-      icon: Home,
-    },
-    {
-      title: "Dashboard",
-      url: "/admin",
-      icon: Home,
-    },
-    {
-      title: "Tâches",
-      url: "/admin/tasks",
-      icon: ListTodo,
-    },
-    {
-      title: "Ressources Humaines",
-      url: "/admin/hr",
-      icon: UserCog,
-      badge: pendingJustifications > 0 ? pendingJustifications : undefined,
       items: [
-        {
-          title: "Employés",
-          url: "/admin/hr/employees",
-        },
-        {
-          title: "Planning",
-          url: "/admin/hr/schedule",
-        },
-        {
-          title: "Pointage Admin",
-          url: "/admin/hr/clocking-admin",
-          badge: pendingJustifications > 0 ? pendingJustifications : undefined,
-        },
-        {
-          title: "Disponibilités",
-          url: "/admin/hr/employees?tab=availability",
-        },
-      ],
-    },
-    {
-      title: "Comptabilité",
-      url: "/admin/accounting",
-      icon: Calculator,
-      items: [
-        {
-          title: "Caisse",
-          url: "/admin/accounting/cash-control",
-        },
-        {
-          title: "Fond de caisse",
-          url: "/admin/accounting/cash-register",
-        },
-        {
-          title: "Empreintes capturées",
-          url: "/admin/accounting/captured-deposits",
-        },
         // {
-        //   title: "Chiffre d'affaires",
-        //   url: "/admin/accounting/turnover",
+        //   title: "Accueil Staff",
+        //   url: "/",
+        //   icon: Home,
         // },
+        {
+          title: "Dashboard",
+          url: "/admin",
+          icon: Home,
+        },
       ],
     },
+
+    // Section Clients
     {
-      title: "Booking",
-      url: "/admin/booking",
-      icon: Building2,
-      badge: pendingBookings > 0 ? pendingBookings : undefined,
+      label: "Clients",
       items: [
         {
-          title: "Réservations",
-          url: "/admin/booking/reservations",
+          title: "Booking",
+          url: "/admin/booking",
+          icon: Building2,
           badge: pendingBookings > 0 ? pendingBookings : undefined,
+          items: [
+            {
+              title: "Réservations",
+              url: "/admin/booking/reservations",
+              badge: pendingBookings > 0 ? pendingBookings : undefined,
+            },
+            {
+              title: "Agenda",
+              url: "/admin/booking/agenda",
+            },
+            {
+              title: "Espaces",
+              url: "/admin/booking/spaces",
+            },
+            {
+              title: "Paramètre des conditions",
+              url: "/admin/booking/settings",
+            },
+          ],
         },
         {
-          title: "Agenda",
-          url: "/admin/booking/agenda",
-        },
-        {
-          title: "Espaces",
-          url: "/admin/booking/spaces",
-        },
-        {
-          title: "Paramètre des conditions",
-          url: "/admin/booking/settings",
-        },
-      ],
-    },
-    {
-      title: "Blog",
-      url: "/admin/blog",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Articles",
-          url: "/admin/blog/articles",
-        },
-        {
-          title: "Catégories",
-          url: "/admin/blog/categories",
+          title: "Utilisateurs",
+          url: "/admin/users",
+          icon: Users,
         },
       ],
     },
+
+    // Section Employés & Messages
     {
-      title: "Promo",
-      url: "/admin/promo",
-      icon: ScanQrCode,
-    },
-    {
-      title: "Utilisateurs",
-      url: "/admin/users",
-      icon: Users,
-    },
-    {
-      title: "Messages",
-      url: "/admin/messages",
-      icon: Mail,
-      badge:
-        unreadCount + pendingUnavailabilities > 0
-          ? unreadCount + pendingUnavailabilities
-          : undefined,
+      label: "Employés & Messages",
       items: [
         {
-          title: "Demandes d'indisponibilité",
-          url: "/admin/messages/unavailability-requests",
+          title: "Ressources Humaines",
+          url: "/admin/hr",
+          icon: UserCog,
+          badge: pendingJustifications > 0 ? pendingJustifications : undefined,
+          items: [
+            {
+              title: "Employés",
+              url: "/admin/hr/employees",
+            },
+            {
+              title: "Planning",
+              url: "/admin/hr/schedule",
+            },
+            {
+              title: "Pointage Admin",
+              url: "/admin/hr/clocking-admin",
+              badge:
+                pendingJustifications > 0 ? pendingJustifications : undefined,
+            },
+            {
+              title: "Disponibilités",
+              url: "/admin/hr/employees?tab=availability",
+            },
+          ],
+        },
+        {
+          title: "Tâches",
+          url: "/admin/tasks",
+          icon: ListTodo,
+        },
+        {
+          title: "Messages",
+          url: "/admin/messages",
+          icon: Mail,
           badge:
-            pendingUnavailabilities > 0 ? pendingUnavailabilities : undefined,
+            unreadCount + pendingUnavailabilities > 0
+              ? unreadCount + pendingUnavailabilities
+              : undefined,
+          items: [
+            {
+              title: "Demandes d'indisponibilité",
+              url: "/admin/messages/unavailability-requests",
+              badge:
+                pendingUnavailabilities > 0
+                  ? pendingUnavailabilities
+                  : undefined,
+            },
+            {
+              title: "Contact",
+              url: "/admin/messages/contact",
+              badge: unreadCount > 0 ? unreadCount : undefined,
+            },
+            {
+              title: "Support",
+              url: "/admin/messages/support",
+            },
+            {
+              title: "Messenger",
+              url: "/admin/messages/messenger",
+            },
+          ],
         },
         {
-          title: "Contact",
-          url: "/admin/messages/contact",
-          badge: unreadCount > 0 ? unreadCount : undefined,
-        },
-        {
-          title: "Support",
-          url: "/admin/messages/support",
-        },
-        {
-          title: "Messenger",
-          url: "/admin/messages/messenger",
+          title: "Produits",
+          url: "/admin/produits",
+          icon: UtensilsCrossed,
         },
       ],
     },
+
+    // Section Actualités
     {
-      title: "Produits",
-      url: "/admin/produits",
-      icon: UtensilsCrossed,
-    },
-    {
-      title: "Paramètres",
-      url: "/admin/settings",
-      icon: Settings,
+      label: "Actualités",
       items: [
+        {
+          title: "Blog",
+          url: "/admin/blog",
+          icon: BookOpen,
+          items: [
+            {
+              title: "Articles",
+              url: "/admin/blog/articles",
+            },
+            {
+              title: "Catégories",
+              url: "/admin/blog/categories",
+            },
+          ],
+        },
+        {
+          title: "Événements",
+          url: "/admin/events",
+          icon: PartyPopper,
+          items: [
+            {
+              title: "Liste des événements",
+              url: "/admin/events",
+            },
+            {
+              title: "Créer un événement",
+              url: "/admin/events/create",
+            },
+          ],
+        },
+        {
+          title: "Promo",
+          url: "/admin/promo",
+          icon: ScanQrCode,
+        },
+      ],
+    },
+    // Section Comptabilité
+    {
+      label: "Comptabilité",
+      items: [
+        {
+          title: "Comptabilité",
+          url: "/admin/accounting",
+          icon: Calculator,
+          items: [
+            {
+              title: "Caisse",
+              url: "/admin/accounting/cash-control",
+            },
+            {
+              title: "Fond de caisse",
+              url: "/admin/accounting/cash-register",
+            },
+            {
+              title: "Empreintes capturées",
+              url: "/admin/accounting/captured-deposits",
+            },
+          ],
+        },
+      ],
+    },
+
+    {
+      items: [
+        // {
+        //   title: "Accueil Staff",
+        //   url: "/",
+        //   icon: Home,
+        // },
         {
           title: "Horaires",
           url: "/admin/settings/hours",
+          icon: Clock,
         },
       ],
     },
   ];
 
-  // Dev Tools (visible pour dev et admin, ou pendant le chargement pour éviter le flash)
-  if (isDev || isAdmin || isLoading) {
-    items.push({
-      title: "Dev Tools",
-      url: "/admin/dev",
-      icon: Terminal,
+  // Section Dev Tools (conditionnelle - visible uniquement pour dev/admin)
+  if (isDev || isAdmin) {
+    sections.push({
+      label: "Dev Tools",
       items: [
         {
-          title: "Notifications",
-          url: "/admin/debug/notifications",
-        },
-        {
-          title: "Email Preview",
-          url: "/admin/dev/email-preview",
+          title: "Dev Tools",
+          url: "/admin/dev",
+          icon: Terminal,
+          items: [
+            {
+              title: "Notifications",
+              url: "/admin/debug/notifications",
+            },
+            {
+              title: "Email Preview",
+              url: "/admin/dev/email-preview",
+            },
+          ],
         },
       ],
     });
   }
 
-  return items;
-}
-
-/**
- * Menu secondaire (Support & Feedback)
- * Visible pour tous
- */
-export function getSecondaryMenu(): MenuItem[] {
-  return [
-    // Peut être étendu plus tard si besoin
-  ];
+  return sections;
 }

@@ -21,6 +21,8 @@ const publicRoutes = [
   "/take-away",
   "/history",
   "/manifest",
+  "/partners",
+
   "/spaces",
   "/pricing",
   "/members-program",
@@ -28,8 +30,11 @@ const publicRoutes = [
   "/horaires",
 
   "/boissons",
-  "/menu",
-  "/professional",
+  // "/menu",
+  "/privatization",
+  "/compagny-pass",
+
+  "/events",
 
   "/blog",
 

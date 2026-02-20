@@ -74,6 +74,9 @@ export interface BookingDocument extends Document {
   refundAmount?: number; // Montant remboursé après annulation
   cancelledBy?: ObjectId; // Utilisateur qui a effectué l'annulation
 
+  // Event link
+  relatedEvent?: ObjectId; // Reference to Event if this booking is auto-created from an event
+
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
@@ -347,6 +350,11 @@ export const BookingSchema = new Schema<BookingDocument>(
     cancelledBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+    },
+    relatedEvent: {
+      type: Schema.Types.ObjectId,
+      ref: "Event",
+      index: true,
     },
     completedAt: {
       type: Date,

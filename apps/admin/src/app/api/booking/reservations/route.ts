@@ -187,6 +187,7 @@ export async function GET(request: NextRequest) {
       return {
         _id: booking._id.toString(),
         spaceId: booking.space?.toString() || booking._id.toString(),
+        spaceType: booking.spaceType || 'open-space',
         spaceName: booking.spaceType || 'Espace',
         clientId: user?._id?.toString() || (typeof booking.user === 'string' ? booking.user : ''),
         clientName,
@@ -311,6 +312,7 @@ export async function POST(request: NextRequest) {
     const data: BookingType = {
       _id: booking._id.toString(),
       spaceId: booking.space?.toString() || booking._id.toString(),
+      spaceType: booking.spaceType,
       spaceName: booking.spaceType,
       clientId: user?._id?.toString() || booking.user?.toString() || '',
       clientName,

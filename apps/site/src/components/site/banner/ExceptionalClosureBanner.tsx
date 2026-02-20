@@ -1,60 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useExceptionalClosures } from "@/hooks/useExceptionalClosures";
 import Link from "next/link";
-
-interface ExceptionalClosure {
-  date: string;
-  reason?: string;
-  startTime?: string;
-  endTime?: string;
-  isFullDay?: boolean;
-}
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ExceptionalClosureBanner() {
-  const [upcomingClosures, setUpcomingClosures] = useState<ExceptionalClosure[]>([]);
+  const { upcomingClosures, loading } = useExceptionalClosures();
   const [isDismissed, setIsDismissed] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const fetchClosures = async () => {
-      try {
-        // Fetch from open-space config as reference
-        const response = await fetch("/api/space-configurations/open-space");
-        const data = await response.json();
-
-        if (data.success && data.data.exceptionalClosures) {
-          const now = new Date();
-          now.setHours(0, 0, 0, 0);
-
-          // Filter upcoming closures (today and future)
-          const upcoming = data.data.exceptionalClosures
-            .filter((closure: ExceptionalClosure) => {
-              const closureDate = new Date(closure.date);
-              closureDate.setHours(0, 0, 0, 0);
-              return closureDate >= now;
-            })
-            .sort((a: ExceptionalClosure, b: ExceptionalClosure) =>
-              new Date(a.date).getTime() - new Date(b.date).getTime()
-            )
-            .slice(0, 3); // Show max 3 upcoming closures
-
-          setUpcomingClosures(upcoming);
-        }
-      } catch (error) {
-    } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClosures();
-
     // Check if banner was dismissed today
     const dismissedDate = localStorage.getItem("closureBannerDismissed");
-    if (dismissedDate === new Date().toDateString()) {
+    const isDismissedToday = dismissedDate === new Date().toDateString();
+    if (isDismissedToday) {
       setIsDismissed(true);
     }
   }, []);
+
+  // On pages other than "/", add margin-top to navbar so it's pushed below banner
+  useEffect(() => {
+    const shouldShow = !loading && !isDismissed && upcomingClosures.length > 0;
+    const headerBottom = document.querySelector(
+      ".header__bottom",
+    ) as HTMLElement;
+
+    if (headerBottom && pathname !== "/") {
+      if (shouldShow) {
+        // Push navbar down on non-homepage pages
+        headerBottom.style.marginTop = "62px";
+      } else {
+        headerBottom.style.marginTop = "0";
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (headerBottom && pathname !== "/") {
+        headerBottom.style.marginTop = "0";
+      }
+    };
+  }, [loading, isDismissed, upcomingClosures, pathname]);
 
   const handleDismiss = () => {
     setIsDismissed(true);
@@ -75,13 +62,19 @@ export default function ExceptionalClosureBanner() {
 
   // Format time range if partial closure
   const getClosureTimeText = () => {
-    if (nextClosure.isFullDay !== false && !nextClosure.startTime && !nextClosure.endTime) {
-      return "toute la journée";
+    // Priority: check isFullDay flag first (even if times are present)
+    if (nextClosure.isFullDay === true || nextClosure.isFullDay === undefined) {
+      return "Fermé toute la journée";
     }
-    if (nextClosure.startTime && nextClosure.endTime) {
-      return `de ${nextClosure.startTime} à ${nextClosure.endTime}`;
+    // Only show time range if explicitly marked as partial closure
+    if (
+      nextClosure.isFullDay === false &&
+      nextClosure.startTime &&
+      nextClosure.endTime
+    ) {
+      return `Ouvert de ${nextClosure.startTime} à ${nextClosure.endTime}`;
     }
-    return "toute la journée";
+    return "Fermé toute la journée";
   };
 
   return (
@@ -92,13 +85,17 @@ export default function ExceptionalClosureBanner() {
             <i className="bi bi-exclamation-triangle-fill"></i>
           </div>
           <div className="banner-text">
-            <strong>Fermeture exceptionnelle :</strong>{" "}
-            <span className="closure-date">{formattedDate}</span>
-            {" "}<span className="closure-time">({getClosureTimeText()})</span>
-            {nextClosure.reason && <span className="closure-reason"> - {nextClosure.reason}</span>}
+            <strong>Horaires exceptionnels :</strong>{" "}
+            <span className="closure-date">{formattedDate}</span>{" "}
+            <span className="closure-time"> - {getClosureTimeText()}</span>
+            {nextClosure.reason && (
+              <span className="closure-reason"> - {nextClosure.reason}</span>
+            )}
             {upcomingClosures.length > 1 && (
               <span className="more-closures">
-                {" "}+{upcomingClosures.length - 1} autre{upcomingClosures.length > 2 ? "s" : ""}
+                {" "}
+                +{upcomingClosures.length - 1} autre
+                {upcomingClosures.length > 2 ? "s" : ""}
               </span>
             )}
           </div>
@@ -106,7 +103,11 @@ export default function ExceptionalClosureBanner() {
             <Link href="/horaires" className="banner-link">
               Voir les horaires
             </Link>
-            <button onClick={handleDismiss} className="banner-close" aria-label="Fermer">
+            <button
+              onClick={handleDismiss}
+              className="banner-close"
+              aria-label="Fermer"
+            >
               <i className="bi bi-x-lg"></i>
             </button>
           </div>
@@ -115,12 +116,16 @@ export default function ExceptionalClosureBanner() {
 
       <style jsx>{`
         .exceptional-closure-banner {
-          background: linear-gradient(135deg, #ff9a00 0%, #ff6a00 100%);
+          background: linear-gradient(135deg, #c13080 0%, #661940 100%);
           color: white;
-          padding: 0.75rem 0;
+          padding: 1rem 0;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          position: relative;
-          z-index: 1000;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          width: 100%;
+          z-index: 1100;
         }
 
         .banner-content {

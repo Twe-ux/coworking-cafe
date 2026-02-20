@@ -16,7 +16,6 @@ export function OrganizationSchema() {
     "description":
       "Espace de coworking chaleureux au cœur de Strasbourg. WiFi rapide, café et boissons à volonté, salles de réunion privatisables.",
     "telephone": "+33987334519",
-    "email": "strasbourg@coworkingcafe.fr",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "1 rue de la Division Leclerc",
@@ -28,7 +27,6 @@ export function OrganizationSchema() {
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": "+33987334519",
-      "email": "strasbourg@coworkingcafe.fr",
       "contactType": "customer service",
       "availableLanguage": ["French", "English"],
       "areaServed": "FR",
