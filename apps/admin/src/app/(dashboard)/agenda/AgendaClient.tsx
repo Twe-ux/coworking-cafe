@@ -14,26 +14,25 @@ import { ConfirmActionDialog } from "@/components/booking/ConfirmActionDialog";
 
 const spaceTypeColors: Record<string, string> = {
   "open-space": "bg-blue-500",
+  "meeting-room-glass": "bg-green-500",
+  "meeting-room-floor": "bg-purple-500",
+  "event-space": "bg-red-500",
+  // Legacy keys (backward compatibility)
   "salle-verriere": "bg-green-500",
   "salle-etage": "bg-purple-500",
-  evenementiel: "bg-red-500",
+  "evenementiel": "bg-red-500",
 };
 
 const spaceTypeLabels: Record<string, string> = {
   "open-space": "Open Space",
+  "meeting-room-glass": "Verrière",
+  "meeting-room-floor": "Étage",
+  "event-space": "Événementiel",
+  // Legacy keys (backward compatibility)
   "salle-verriere": "Verrière",
   "salle-etage": "Étage",
-  evenementiel: "Événementiel",
+  "evenementiel": "Événementiel",
 };
-
-function getSpaceType(spaceName?: string): string {
-  if (!spaceName) return "open-space";
-  const lower = spaceName.toLowerCase();
-  if (lower.includes("verriere")) return "salle-verriere";
-  if (lower.includes("etage")) return "salle-etage";
-  if (lower.includes("evenement")) return "evenementiel";
-  return "open-space";
-}
 
 export function AgendaClient() {
   const { data: session, status: sessionStatus } = useSession();
@@ -59,11 +58,13 @@ export function AgendaClient() {
   const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({ status: "confirmed" });
+      const params = new URLSearchParams();
 
       if (!isAuthenticated) {
         params.set("public", "true");
+        params.set("status", "confirmed"); // Public mode: confirmed only
       }
+      // Authenticated staff: fetch all statuses (confirmed, completed, no-show)
 
       const response = await fetch(`/api/booking/reservations?${params}`);
       const data = await response.json();
@@ -166,13 +167,16 @@ export function AgendaClient() {
   };
 
   const renderCell = (date: Date, dayBookings: Booking[]) => {
-    if (dayBookings.length === 0) return null;
+    // Only show confirmed bookings in calendar cells
+    const confirmedBookings = dayBookings.filter((b) => b.status === "confirmed");
+
+    if (confirmedBookings.length === 0) return null;
 
     return (
       <div className="h-[88px] overflow-hidden px-1 space-y-1">
-        {dayBookings.slice(0, 3).map((booking) => {
-          const spaceType = getSpaceType(booking.spaceName);
-          const spaceColor = spaceTypeColors[spaceType];
+        {confirmedBookings.slice(0, 3).map((booking) => {
+          const spaceType = booking.spaceType || "open-space";
+          const spaceColor = spaceTypeColors[spaceType] || spaceTypeColors["open-space"];
 
           return (
             <div
@@ -191,10 +195,10 @@ export function AgendaClient() {
           );
         })}
 
-        {dayBookings.length > 3 && (
+        {confirmedBookings.length > 3 && (
           <div className="text-xs text-center text-muted-foreground py-0.5">
-            +{dayBookings.length - 3} réservation
-            {dayBookings.length - 3 > 1 ? "s" : ""}
+            +{confirmedBookings.length - 3} réservation
+            {confirmedBookings.length - 3 > 1 ? "s" : ""}
           </div>
         )}
       </div>

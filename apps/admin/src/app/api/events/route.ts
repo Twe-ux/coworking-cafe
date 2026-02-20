@@ -1,10 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectDB } from "@/lib/db";
 import { Event } from "@coworking-cafe/database";
 import { eventSchema, eventFiltersSchema } from "@/lib/validations/event";
 import type { EventInput, EventFilters } from "@/lib/validations/event";
+import type { FilterQuery, SortOrder } from "mongoose";
+import { createEventBooking } from "@/lib/event-booking-sync";
 
 export const dynamic = "force-dynamic";
 
@@ -34,17 +36,16 @@ export async function GET(request: NextRequest) {
     });
 
     if (!filtersResult.success) {
-      return errorResponse(
-        "Invalid query parameters",
-        filtersResult.error.issues.map((e: any) => `${e.path.join(".")}: ${e.message}`).join(", "),
-        400
-      );
+      const errorMessages = filtersResult.error.issues
+        .map((e) => `${e.path.join(".")}: ${e.message}`)
+        .join(", ");
+      return errorResponse("Invalid query parameters", errorMessages, 400);
     }
 
     const filters: EventFilters = filtersResult.data;
 
     // Build MongoDB query
-    const query: any = {};
+    const query: FilterQuery<typeof Event> = {};
 
     if (filters.status) {
       query.status = filters.status;
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
     const skip = (filters.page - 1) * filters.limit;
 
     // Sort configuration
-    const sortConfig: any = {};
+    const sortConfig: Record<string, SortOrder> = {};
     sortConfig[filters.sortBy] = filters.sortOrder === "asc" ? 1 : -1;
 
     // Execute query
@@ -114,11 +115,10 @@ export async function POST(request: NextRequest) {
     const validationResult = eventSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return errorResponse(
-        "Validation failed",
-        validationResult.error.issues.map((e: any) => `${e.path.join(".")}: ${e.message}`).join(", "),
-        400
-      );
+      const errorMessages = validationResult.error.issues
+        .map((e) => `${e.path.join(".")}: ${e.message}`)
+        .join(", ");
+      return errorResponse("Validation failed", errorMessages, 400);
     }
 
     const eventData: EventInput = validationResult.data;
@@ -143,6 +143,17 @@ export async function POST(request: NextRequest) {
 
     // Populate createdBy for response
     await event.populate("createdBy", "givenName familyName email");
+
+    // Create linked booking reservation (blocks calendar) if requested
+    if (body.addToAgenda !== false) {
+      // Default to true if not specified (backward compatibility)
+      try {
+        await createEventBooking(event, authResult.session.user.id);
+      } catch (bookingError) {
+        console.error("[API] Failed to create event booking:", bookingError);
+        // Continue even if booking creation fails (event is still created)
+      }
+    }
 
     return successResponse(
       event,

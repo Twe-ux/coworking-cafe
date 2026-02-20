@@ -21,13 +21,18 @@ export function CreateEventClient() {
       setIsSubmitting(true);
       setMessage(null);
 
+      console.log("📤 Données envoyées à l'API:", data);
+
       const response = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
+      console.log("📥 Réponse HTTP:", response.status, response.statusText);
+
       const result = await response.json();
+      console.log("📥 Résultat API:", result);
 
       if (result.success) {
         setMessage({
@@ -37,15 +42,17 @@ export function CreateEventClient() {
 
         // Redirect to events list after 1.5 seconds
         setTimeout(() => {
-          router.push("/events");
+          router.push("/admin/events");
         }, 1500);
       } else {
+        console.error("❌ Erreur API:", result);
         setMessage({
           type: "error",
           text: result.error || "Erreur lors de la création",
         });
       }
     } catch (error) {
+      console.error("❌ Exception:", error);
       setMessage({
         type: "error",
         text: "Erreur lors de la création de l'événement",
@@ -56,7 +63,7 @@ export function CreateEventClient() {
   };
 
   const handleCancel = () => {
-    router.push("/events");
+    router.push("/admin/events");
   };
 
   return (

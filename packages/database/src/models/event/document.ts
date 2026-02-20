@@ -1,6 +1,6 @@
 import { Schema, Types, Document } from "mongoose";
 
-export type EventStatus = "draft" | "published" | "archived";
+export type EventStatus = "draft" | "published" | "archived" | "cancelled";
 export type RegistrationType = "internal" | "external";
 
 /** Document of an {@link Event}, as stored in the database. */
@@ -38,6 +38,7 @@ export interface EventDocument extends Document {
   // Status & metadata
   status: EventStatus;
   createdBy: Types.ObjectId; // Reference to User (admin)
+  relatedBooking?: Types.ObjectId; // Reference to Booking (auto-created to block calendar)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,7 +58,7 @@ export const EventSchema = new Schema<EventDocument>(
       required: [true, "Slug is required"],
       trim: true,
       lowercase: true,
-      index: true,
+      // unique index defined explicitly below
     },
     description: {
       type: String,
@@ -167,7 +168,7 @@ export const EventSchema = new Schema<EventDocument>(
       type: String,
       required: [true, "Status is required"],
       enum: {
-        values: ["draft", "published", "archived"],
+        values: ["draft", "published", "archived", "cancelled"],
         message: "{VALUE} is not a valid status",
       },
       default: "draft",
@@ -177,6 +178,11 @@ export const EventSchema = new Schema<EventDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Created by is required"],
+      // index defined explicitly below
+    },
+    relatedBooking: {
+      type: Schema.Types.ObjectId,
+      ref: "Booking",
       index: true,
     },
   },

@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectDB } from "@/lib/db";
 import { Event } from "@coworking-cafe/database";
-import { eventSchema } from "@/lib/validations/event";
-import type { EventInput } from "@/lib/validations/event";
+import { eventUpdateSchema } from "@/lib/validations/event";
+import type { EventUpdateInput } from "@/lib/validations/event";
 import mongoose from "mongoose";
+import { updateEventBooking, deleteEventBooking } from "@/lib/event-booking-sync";
 
 export const dynamic = "force-dynamic";
 
@@ -79,17 +80,16 @@ export async function PATCH(
     const body = await request.json();
 
     // Validate input (partial update allowed)
-    const validationResult = eventSchema.partial().safeParse(body);
+    const validationResult = eventUpdateSchema.partial().safeParse(body);
 
     if (!validationResult.success) {
-      return errorResponse(
-        "Validation failed",
-        validationResult.error.issues.map((e: any) => `${e.path.join(".")}: ${e.message}`).join(", "),
-        400
-      );
+      const errorMessages = validationResult.error.issues
+        .map((e) => `${e.path.join(".")}: ${e.message}`)
+        .join(", ");
+      return errorResponse("Validation failed", errorMessages, 400);
     }
 
-    const updateData: Partial<EventInput> = validationResult.data;
+    const updateData: Partial<EventUpdateInput> = validationResult.data;
 
     // Check if slug change conflicts with existing event
     if (updateData.slug) {
@@ -107,6 +107,9 @@ export async function PATCH(
       }
     }
 
+    // Get previous event status before update
+    const previousEvent = await Event.findById(id);
+
     // Update event
     const event = await Event.findByIdAndUpdate(
       id,
@@ -116,6 +119,80 @@ export async function PATCH(
 
     if (!event) {
       return errorResponse("Event not found", "No event found with this ID", 404);
+    }
+
+    // Handle linked booking reservation based on status change and addToAgenda flag
+    try {
+      const addToAgenda = body.addToAgenda;
+
+      // 1. If status changed to archived or cancelled, delete the booking
+      if (
+        updateData.status &&
+        (updateData.status === "archived" || updateData.status === "cancelled") &&
+        previousEvent?.status !== updateData.status
+      ) {
+        await deleteEventBooking(id);
+        console.log(`[API] Booking deleted for ${updateData.status} event ${id}`);
+      }
+      // 2. If addToAgenda is explicitly set to false, delete the booking
+      else if (addToAgenda === false) {
+        await deleteEventBooking(id);
+        console.log(`[API] Booking deleted (addToAgenda=false) for event ${id}`);
+      }
+      // 3. If addToAgenda is explicitly set to true, create or update the booking
+      else if (addToAgenda === true) {
+        // Check if event has all required fields for booking
+        const hasRequiredFields = event.date && event.startTime && event.endTime && event.location;
+
+        if (hasRequiredFields) {
+          if (event.relatedBooking) {
+            // Update existing booking if booking-related fields changed
+            const hasBookingRelatedChanges =
+              updateData.date !== undefined ||
+              updateData.startTime !== undefined ||
+              updateData.endTime !== undefined ||
+              updateData.location !== undefined ||
+              updateData.maxParticipants !== undefined ||
+              updateData.price !== undefined ||
+              updateData.organizer !== undefined ||
+              updateData.title !== undefined;
+
+            if (hasBookingRelatedChanges) {
+              await updateEventBooking(id, updateData);
+              console.log(`[API] Booking updated (addToAgenda=true) for event ${id}`);
+            }
+          } else {
+            // Create new booking
+            const { createEventBooking } = await import("@/lib/event-booking-sync");
+            await createEventBooking(event, authResult.session.user.id);
+            console.log(`[API] Booking created (addToAgenda=true) for event ${id}`);
+          }
+        } else {
+          console.log(`[API] Cannot create booking - missing required fields for event ${id}`);
+        }
+      }
+      // 4. If addToAgenda not specified, update booking if it exists and fields changed
+      else if (
+        event.relatedBooking &&
+        (!updateData.status || (updateData.status !== "archived" && updateData.status !== "cancelled"))
+      ) {
+        const hasBookingRelatedChanges =
+          updateData.date !== undefined ||
+          updateData.startTime !== undefined ||
+          updateData.endTime !== undefined ||
+          updateData.location !== undefined ||
+          updateData.maxParticipants !== undefined ||
+          updateData.price !== undefined ||
+          updateData.organizer !== undefined ||
+          updateData.title !== undefined;
+
+        if (hasBookingRelatedChanges) {
+          await updateEventBooking(id, updateData);
+        }
+      }
+    } catch (bookingError) {
+      console.error("[API] Failed to update event booking:", bookingError);
+      // Continue even if booking update fails (event is still updated)
     }
 
     return successResponse(event, "Event updated successfully");
@@ -161,6 +238,14 @@ export async function DELETE(
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return errorResponse("Invalid event ID", "The provided ID is not valid", 400);
+    }
+
+    // Delete linked booking reservation first
+    try {
+      await deleteEventBooking(id);
+    } catch (bookingError) {
+      console.error("[API] Failed to delete event booking:", bookingError);
+      // Continue even if booking deletion fails
     }
 
     const event = await Event.findByIdAndDelete(id);

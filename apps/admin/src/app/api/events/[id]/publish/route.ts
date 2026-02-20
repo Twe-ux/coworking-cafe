@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectDB } from "@/lib/db";
@@ -41,7 +41,7 @@ export async function POST(
     if (!validationResult.success) {
       return errorResponse(
         "Validation failed",
-        validationResult.error.issues.map((e: any) => `${e.path.join(".")}: ${e.message}`).join(", "),
+        validationResult.error.issues.map((e) => `${e.path.join(".")}: ${e.message}`).join(", "),
         400
       );
     }

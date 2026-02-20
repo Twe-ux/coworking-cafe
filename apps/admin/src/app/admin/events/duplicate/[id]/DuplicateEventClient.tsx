@@ -7,41 +7,62 @@ import { StyledAlert } from "@/components/ui/styled-alert";
 import { ArrowLeft, X } from "lucide-react";
 import { EventForm } from "@/components/events/EventForm";
 import type { EventFormData } from "@/components/events/EventForm";
-import { Skeleton } from "@/components/ui/skeleton";
 
-interface EditEventClientProps {
+interface DuplicateEventClientProps {
   eventId: string;
 }
 
-export function EditEventClient({ eventId }: EditEventClientProps) {
+export function DuplicateEventClient({ eventId }: DuplicateEventClientProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [initialData, setInitialData] = useState<EventFormData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [eventData, setEventData] = useState<EventFormData | null>(null);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
 
+  // Load event data
   useEffect(() => {
-    const fetchEvent = async () => {
+    async function loadEvent() {
       try {
         const response = await fetch(`/api/events/${eventId}`);
         const result = await response.json();
 
         if (result.success) {
-          // Add addToAgenda field based on relatedBooking existence
-          setInitialData({
-            ...result.data,
-            addToAgenda: !!result.data.relatedBooking,
-          });
+          const event = result.data;
+
+          // Prepare data for duplication (remove slug to force auto-generation)
+          const duplicateData: EventFormData = {
+            title: event.title,
+            slug: "", // Will be auto-generated from title + date
+            description: event.description,
+            shortDescription: event.shortDescription || "",
+            date: event.date,
+            startTime: event.startTime || "",
+            endTime: event.endTime || "",
+            category: event.category,
+            imgSrc: event.imgSrc,
+            imgAlt: event.imgAlt,
+            location: event.location || "",
+            registrationType: event.registrationType,
+            externalLink: event.externalLink || "",
+            maxParticipants: event.maxParticipants,
+            price: event.price,
+            organizer: event.organizer || "",
+            contactEmail: event.contactEmail || "",
+            status: "draft", // Always start as draft
+          };
+
+          setEventData(duplicateData);
         } else {
           setMessage({
             type: "error",
-            text: result.error || "Événement introuvable",
+            text: "Événement introuvable",
           });
         }
       } catch (error) {
+        console.error("Error loading event:", error);
         setMessage({
           type: "error",
           text: "Erreur lors du chargement de l'événement",
@@ -49,9 +70,9 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
-    fetchEvent();
+    loadEvent();
   }, [eventId]);
 
   const handleSubmit = async (data: EventFormData) => {
@@ -59,18 +80,23 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
       setIsSubmitting(true);
       setMessage(null);
 
-      const response = await fetch(`/api/events/${eventId}`, {
-        method: "PATCH",
+      console.log("📤 Données envoyées à l'API:", data);
+
+      const response = await fetch("/api/events", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
+      console.log("📥 Réponse HTTP:", response.status, response.statusText);
+
       const result = await response.json();
+      console.log("📥 Résultat API:", result);
 
       if (result.success) {
         setMessage({
           type: "success",
-          text: "Événement modifié avec succès !",
+          text: "Événement dupliqué avec succès !",
         });
 
         // Redirect to events list after 1.5 seconds
@@ -78,15 +104,17 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
           router.push("/admin/events");
         }, 1500);
       } else {
+        console.error("❌ Erreur API:", result);
         setMessage({
           type: "error",
-          text: result.error || "Erreur lors de la modification",
+          text: result.error || "Erreur lors de la duplication",
         });
       }
     } catch (error) {
+      console.error("❌ Exception:", error);
       setMessage({
         type: "error",
-        text: "Erreur lors de la modification de l'événement",
+        text: "Erreur lors de la duplication de l'événement",
       });
     } finally {
       setIsSubmitting(false);
@@ -99,29 +127,22 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-24" />
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-60" />
-            <Skeleton className="h-4 w-80" />
-          </div>
-        </div>
-        <Skeleton className="h-96 w-full" />
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Chargement...</div>
       </div>
     );
   }
 
-  if (!initialData) {
+  if (!eventData) {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" size="sm" onClick={handleCancel}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Retour
-        </Button>
         <StyledAlert variant="destructive">
           Événement introuvable
         </StyledAlert>
+        <Button onClick={handleCancel}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Retour
+        </Button>
       </div>
     );
   }
@@ -135,8 +156,10 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
           Retour
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Modifier l'événement</h1>
-          <p className="text-muted-foreground">{initialData.title}</p>
+          <h1 className="text-3xl font-bold">Dupliquer un événement</h1>
+          <p className="text-muted-foreground">
+            Créer un nouvel événement basé sur un événement existant
+          </p>
         </div>
       </div>
 
@@ -159,7 +182,7 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
 
       {/* Form */}
       <EventForm
-        initialData={initialData}
+        initialData={eventData}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}

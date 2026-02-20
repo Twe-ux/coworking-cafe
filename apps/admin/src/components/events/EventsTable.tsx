@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import { Edit, Trash2, Eye, EyeOff, Copy, Archive } from "lucide-react";
 import type { EventStatus } from "@coworking-cafe/database";
 import Image from "next/image";
 
@@ -37,6 +37,8 @@ interface EventsTableProps {
   events: EventItem[];
   loading: boolean;
   onEdit: (eventId: string) => void;
+  onDuplicate: (eventId: string) => void;
+  onArchive: (eventId: string) => void;
   onDelete: (event: EventItem) => void;
   onStatusToggle: (eventId: string, currentStatus: EventStatus) => void;
 }
@@ -57,6 +59,8 @@ export function EventsTable({
   events,
   loading,
   onEdit,
+  onDuplicate,
+  onArchive,
   onDelete,
   onStatusToggle,
 }: EventsTableProps) {
@@ -163,13 +167,33 @@ export function EventsTable({
                     variant="ghost"
                     size="sm"
                     onClick={() => onEdit(event._id)}
+                    title="Modifier"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => onDuplicate(event._id)}
+                    title="Dupliquer"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  {event.status !== "archived" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onArchive(event._id)}
+                      title="Archiver"
+                    >
+                      <Archive className="h-4 w-4 text-orange-500" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => onDelete(event)}
+                    title="Supprimer"
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
