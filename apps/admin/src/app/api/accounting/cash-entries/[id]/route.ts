@@ -8,7 +8,7 @@ import type { PrestaB2BItem, DepenseItem } from "@/types/accounting"
 export const dynamic = 'force-dynamic';
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string[] } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const authResult = await requireAuth(["dev", "admin"])
@@ -18,8 +18,7 @@ export async function GET(
 
     await connectMongoose()
 
-    const id = params.id.join("/")
-    const entry = await CashEntry.findById(id).lean()
+    const entry = await CashEntry.findById(params.id).lean()
 
     if (!entry) {
       return NextResponse.json(
@@ -50,7 +49,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string[] } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const authResult = await requireAuth(["dev", "admin"])
@@ -60,11 +59,10 @@ export async function PUT(
 
     await connectMongoose()
 
-    const id = params.id.join("/")
     const body = await request.json()
 
     const updatedEntry = await CashEntry.findByIdAndUpdate(
-      id,
+      params.id,
       {
         prestaB2B: body.prestaB2B?.filter((item: PrestaB2BItem) => item.label && item.value),
         depenses: body.depenses?.filter((item: DepenseItem) => item.label && item.value),
@@ -105,7 +103,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string[] } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const authResult = await requireAuth(["dev", "admin"])
@@ -115,8 +113,7 @@ export async function DELETE(
 
     await connectMongoose()
 
-    const id = params.id.join("/")
-    const deletedEntry = await CashEntry.findByIdAndDelete(id).lean()
+    const deletedEntry = await CashEntry.findByIdAndDelete(params.id).lean()
 
     if (!deletedEntry) {
       return NextResponse.json(

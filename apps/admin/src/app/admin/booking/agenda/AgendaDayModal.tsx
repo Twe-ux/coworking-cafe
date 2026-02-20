@@ -32,19 +32,25 @@ interface AgendaDayModalProps {
 
 const spaceTypeColors: Record<string, string> = {
   "open-space": "bg-blue-500",
+  "meeting-room-glass": "bg-green-500",
+  "meeting-room-floor": "bg-purple-500",
+  "event-space": "bg-red-500",
+  // Legacy keys (backward compatibility)
   "salle-verriere": "bg-green-500",
   "salle-etage": "bg-purple-500",
-  evenementiel: "bg-red-500",
+  "evenementiel": "bg-red-500",
 };
 
-function getSpaceType(spaceName?: string): string {
-  if (!spaceName) return "open-space";
-  const lower = spaceName.toLowerCase();
-  if (lower.includes("verriere")) return "salle-verriere";
-  if (lower.includes("etage")) return "salle-etage";
-  if (lower.includes("evenement")) return "evenementiel";
-  return "open-space";
-}
+const spaceTypeLabels: Record<string, string> = {
+  "open-space": "Open Space",
+  "meeting-room-glass": "Verrière",
+  "meeting-room-floor": "Étage",
+  "event-space": "Événementiel",
+  // Legacy keys (backward compatibility)
+  "salle-verriere": "Verrière",
+  "salle-etage": "Étage",
+  "evenementiel": "Événementiel",
+};
 
 export function AgendaDayModal({
   open,
@@ -93,8 +99,9 @@ export function AgendaDayModal({
             </div>
           ) : (
             bookings.map((booking) => {
-              const spaceType = getSpaceType(booking.spaceName);
-              const spaceColor = spaceTypeColors[spaceType];
+              const spaceType = booking.spaceType || "open-space";
+              const spaceColor = spaceTypeColors[spaceType] || spaceTypeColors["open-space"];
+              const spaceLabel = spaceTypeLabels[spaceType] || spaceType;
 
               return (
                 <div
@@ -106,7 +113,7 @@ export function AgendaDayModal({
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm">
-                          {booking.spaceName}
+                          {spaceLabel}
                         </span>
                         <span className="text-sm text-muted-foreground">·</span>
                         <span className="text-sm font-semibold">

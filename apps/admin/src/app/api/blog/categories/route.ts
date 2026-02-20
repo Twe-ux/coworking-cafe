@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, type NextResponse } from "next/server"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"

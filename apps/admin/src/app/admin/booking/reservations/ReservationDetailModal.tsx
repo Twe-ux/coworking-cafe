@@ -35,6 +35,7 @@ import {
   getReservationTypeLabel,
   getStatusBadgeClass,
   getStatusLabel,
+  getSpaceLabel,
 } from "./utils";
 
 interface CancellationFees {
@@ -155,7 +156,7 @@ export function ReservationDetailModal({
           <div className="space-y-6">
             {/* Espace */}
             <div>
-              <h3 className="text-lg font-bold">{booking.spaceName}</h3>
+              <h3 className="text-lg font-bold">{getSpaceLabel(booking.spaceType || booking.spaceName || "")}</h3>
               <div className="flex items-center gap-2 mt-2">
                 <Badge
                   variant="outline"

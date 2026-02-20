@@ -55,7 +55,7 @@ export function EditArticleClient({ articleId }: EditArticleClientProps) {
           content: art.content,
           excerpt: art.excerpt || "",
           category: typeof art.category === "object" ? art.category._id : art.category,
-          imgSrc: art.imgSrc || "",
+          imgSrc: art.featuredImage || "",
           imgAlt: art.imgAlt || "",
           status: art.status,
         });
@@ -77,10 +77,17 @@ export function EditArticleClient({ articleId }: EditArticleClientProps) {
       setIsSubmitting(true);
       setMessage(null);
 
+      // Map imgSrc to featuredImage for API
+      const { imgSrc, imgAlt, ...rest } = data;
+      const apiData = {
+        ...rest,
+        featuredImage: imgSrc,
+      };
+
       const response = await fetch(`/api/blog/articles/${articleId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(apiData),
       });
 
       const result = await response.json();

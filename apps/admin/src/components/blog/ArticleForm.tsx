@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import {
   Select,
   SelectContent,
@@ -213,14 +214,14 @@ export function ArticleForm({
       </div>
 
       {/* Image */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="imgSrc">URL Image (Cloudinary)</Label>
-          <Input
-            id="imgSrc"
+          <Label>Image de couverture</Label>
+          <ImageUpload
             value={formData.imgSrc}
-            onChange={(e) => handleChange("imgSrc", e.target.value)}
-            placeholder="https://res.cloudinary.com/..."
+            onChange={(url) => handleChange("imgSrc", url)}
+            disabled={isSubmitting}
+            folder="blog"
           />
         </div>
 

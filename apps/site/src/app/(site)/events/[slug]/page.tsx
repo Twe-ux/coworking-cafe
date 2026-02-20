@@ -13,6 +13,7 @@ interface EventDetailPageProps {
 async function getEvent(slug: string) {
   await connectDB();
 
+  // Get event even if past (SEO: keep old events indexed)
   const event = await Event.findOne({
     slug,
     status: "published",
@@ -48,14 +49,68 @@ export default async function EventDetailPage({
     day: "numeric",
   });
 
+  // Check if event is past
+  const today = new Date().toISOString().split("T")[0];
+  const isPastEvent = event.date < today;
+
+  // Schema.org JSON-LD for SEO
+  const eventSchema = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    description: event.shortDescription || event.description,
+    startDate: `${event.date}${event.startTime ? `T${event.startTime}` : ""}`,
+    endDate: event.endTime ? `${event.date}T${event.endTime}` : undefined,
+    eventStatus: isPastEvent
+      ? "https://schema.org/EventScheduled"
+      : "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: event.location
+      ? {
+          "@type": "Place",
+          name: event.location,
+        }
+      : undefined,
+    image: event.imgSrc,
+    offers: event.price
+      ? {
+          "@type": "Offer",
+          price: event.price,
+          priceCurrency: "EUR",
+          availability: isPastEvent
+            ? "https://schema.org/SoldOut"
+            : "https://schema.org/InStock",
+        }
+      : undefined,
+    organizer: event.organizer
+      ? {
+          "@type": "Organization",
+          name: event.organizer,
+          email: event.contactEmail,
+        }
+      : undefined,
+  };
+
   return (
     <>
+      {/* Schema.org JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }}
+      />
+
       {/* Hero Section */}
       <section className="event-detail-hero pt__130 pb__60">
         <div className="container">
           <div className="row align-items-center">
             <SlideUp className="col-lg-6">
               <div className="event-detail-content">
+                {isPastEvent && (
+                  <div className="alert alert-warning mb-3" role="alert">
+                    <strong>⏰ Événement passé</strong> - Cet événement a déjà eu lieu
+                  </div>
+                )}
+
                 <h1 className="title mb-4">{event.title}</h1>
 
                 {event.shortDescription && (
@@ -114,23 +169,27 @@ export default async function EventDetailPage({
                   )}
                 </div>
 
-                {/* Registration Button */}
-                {event.registrationType === "external" && event.externalLink && (
-                  <Link
-                    href={event.externalLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="common__btn"
-                  >
-                    <span>S'inscrire</span>
-                    <ExternalLink size={20} />
-                  </Link>
-                )}
+                {/* Registration Button - Only show for upcoming events */}
+                {!isPastEvent && (
+                  <>
+                    {event.registrationType === "external" && event.externalLink && (
+                      <Link
+                        href={event.externalLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="common__btn"
+                      >
+                        <span>S'inscrire</span>
+                        <ExternalLink size={20} />
+                      </Link>
+                    )}
 
-                {event.registrationType === "internal" && (
-                  <Link href="#inscription" className="common__btn">
-                    <span>S'inscrire</span>
-                  </Link>
+                    {event.registrationType === "internal" && (
+                      <Link href="#inscription" className="common__btn">
+                        <span>S'inscrire</span>
+                      </Link>
+                    )}
+                  </>
                 )}
               </div>
             </SlideUp>

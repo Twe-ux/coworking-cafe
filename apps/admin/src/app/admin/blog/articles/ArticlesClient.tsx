@@ -57,7 +57,7 @@ export function ArticlesClient() {
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "published">("all");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   // Create modal
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -95,7 +95,7 @@ export function ArticlesClient() {
         params.set("status", statusFilter);
       }
 
-      if (categoryFilter) {
+      if (categoryFilter && categoryFilter !== "all") {
         params.set("category", categoryFilter);
       }
 
@@ -104,7 +104,12 @@ export function ArticlesClient() {
 
       if (data.success) {
         setArticles(data.data.articles || []);
-        setPagination(data.data.pagination);
+        setPagination({
+          page: data.data.page || 1,
+          limit: pagination.limit,
+          total: data.data.total || 0,
+          totalPages: data.data.pages || 0,
+        });
       } else {
         setMessage({
           type: "error",

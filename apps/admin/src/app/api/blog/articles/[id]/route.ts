@@ -62,6 +62,7 @@ export async function PUT(
     const body = await request.json()
     const {
       title,
+      slug,
       content,
       excerpt,
       featuredImage,
@@ -115,6 +116,7 @@ export async function PUT(
     // Mettre à jour l'article
     const updateData: Record<string, unknown> = {}
     if (title !== undefined) updateData.title = title
+    if (slug !== undefined) updateData.slug = slug
     if (content !== undefined) updateData.content = content
     if (excerpt !== undefined) updateData.excerpt = excerpt
     if (featuredImage !== undefined) updateData.featuredImage = featuredImage

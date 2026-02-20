@@ -15,14 +15,14 @@ const spaces = [
   },
   {
     id: "salle-verriere",
-    name: "Salle Verrière",
+    name: "Verrière",
     icon: Building2,
     color: "bg-green-500",
     hoverColor: "hover:bg-green-500/10 hover:border-green-500"
   },
   {
     id: "salle-etage",
-    name: "Salle Étage",
+    name: "Étage",
     icon: Star,
     color: "bg-purple-500",
     hoverColor: "hover:bg-purple-500/10 hover:border-purple-500"

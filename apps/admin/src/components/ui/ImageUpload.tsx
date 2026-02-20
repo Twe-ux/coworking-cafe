@@ -9,9 +9,10 @@ interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
   disabled?: boolean;
+  folder?: string;
 }
 
-export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, disabled, folder = "produits" }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,7 +39,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       const signatureResponse = await fetch("/api/upload/signature", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder: "produits" }),
+        body: JSON.stringify({ folder }),
       });
 
       if (!signatureResponse.ok) {
@@ -51,7 +52,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
         throw new Error(signatureData.error || "Erreur signature");
       }
 
-      const { signature, timestamp, cloudName, apiKey, folder } =
+      const { signature, timestamp, cloudName, apiKey } =
         signatureData.data;
 
       // 2. Upload vers Cloudinary avec signature

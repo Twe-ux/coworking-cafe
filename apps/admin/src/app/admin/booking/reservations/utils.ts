@@ -156,3 +156,38 @@ export function formatTimeDisplay(startTime?: string, endTime?: string): string 
 
   return `Journée (${startTime}-${endTime})`;
 }
+
+/**
+ * Retourne le label français d'un type d'espace
+ * Supporte les anciennes et nouvelles clés pour compatibilité
+ */
+export function getSpaceLabel(spaceType: string): string {
+  const labels: Record<string, string> = {
+    "open-space": "Open Space",
+    "meeting-room-glass": "Verrière",
+    "meeting-room-floor": "Étage",
+    "event-space": "Événementiel",
+    // Legacy keys (backward compatibility)
+    "salle-verriere": "Verrière",
+    "salle-etage": "Étage",
+    "evenementiel": "Événementiel",
+  }
+  return labels[spaceType] || spaceType
+}
+
+/**
+ * Retourne la couleur CSS d'un type d'espace
+ */
+export function getSpaceColor(spaceType: string): string {
+  const colors: Record<string, string> = {
+    "open-space": "bg-blue-500",
+    "meeting-room-glass": "bg-green-500",
+    "meeting-room-floor": "bg-purple-500",
+    "event-space": "bg-red-500",
+    // Legacy keys (backward compatibility)
+    "salle-verriere": "bg-green-500",
+    "salle-etage": "bg-purple-500",
+    "evenementiel": "bg-red-500",
+  }
+  return colors[spaceType] || "bg-gray-500"
+}

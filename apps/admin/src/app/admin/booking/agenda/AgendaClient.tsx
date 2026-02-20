@@ -33,23 +33,35 @@ import { Trash2, Loader2 } from "lucide-react";
 
 const spaceTypeColors: Record<string, string> = {
   "open-space": "bg-blue-500",
+  "meeting-room-glass": "bg-green-500",
+  "meeting-room-floor": "bg-purple-500",
+  "event-space": "bg-red-500",
+  // Legacy keys (backward compatibility)
   "salle-verriere": "bg-green-500",
   "salle-etage": "bg-purple-500",
-  evenementiel: "bg-red-500",
+  "evenementiel": "bg-red-500",
 };
 
 const spaceTypeBorderColors: Record<string, string> = {
   "open-space": "border-l-blue-500",
+  "meeting-room-glass": "border-l-green-500",
+  "meeting-room-floor": "border-l-purple-500",
+  "event-space": "border-l-red-500",
+  // Legacy keys (backward compatibility)
   "salle-verriere": "border-l-green-500",
   "salle-etage": "border-l-purple-500",
-  evenementiel: "border-l-red-500",
+  "evenementiel": "border-l-red-500",
 };
 
 const spaceTypeLabels: Record<string, string> = {
   "open-space": "Open Space",
+  "meeting-room-glass": "Verrière",
+  "meeting-room-floor": "Étage",
+  "event-space": "Événementiel",
+  // Legacy keys (backward compatibility)
   "salle-verriere": "Verrière",
   "salle-etage": "Étage",
-  evenementiel: "Événementiel",
+  "evenementiel": "Événementiel",
 };
 
 const statusLabels: Record<BookingStatus, string> = {
@@ -369,15 +381,6 @@ export function AgendaClient() {
     setDeleteBookingId(null);
   };
 
-  const getSpaceType = (spaceName?: string): string => {
-    if (!spaceName) return "open-space";
-    const lower = spaceName.toLowerCase();
-    if (lower.includes("verriere")) return "salle-verriere";
-    if (lower.includes("etage")) return "salle-etage";
-    if (lower.includes("evenement")) return "evenementiel";
-    return "open-space";
-  };
-
   const renderCell = (date: Date, dayBookings: Booking[], cellInfo: { isCurrentMonth: boolean; isToday: boolean }) => {
     // Ne pas afficher les réservations annulées
     const activeBookings = dayBookings.filter((b) => b.status !== "cancelled");
@@ -392,9 +395,9 @@ export function AgendaClient() {
     return (
       <div className="h-[88px] overflow-hidden px-1 space-y-1">
         {sortedBookings.slice(0, 3).map((booking) => {
-          const spaceType = getSpaceType(booking.spaceName);
-          const spaceColor = spaceTypeColors[spaceType];
-          const borderColor = spaceTypeBorderColors[spaceType];
+          const spaceType = booking.spaceType || "open-space";
+          const spaceColor = spaceTypeColors[spaceType] || spaceTypeColors["open-space"];
+          const borderColor = spaceTypeBorderColors[spaceType] || spaceTypeBorderColors["open-space"];
 
           // Si en attente : fond orange avec bordure de la couleur de l'espace
           // Si confirmée : fond de la couleur de l'espace
