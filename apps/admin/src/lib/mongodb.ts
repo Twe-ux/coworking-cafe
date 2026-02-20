@@ -20,17 +20,17 @@ function getMongoUri(): string {
 const databaseName = process.env.MONGODB_DB || "coworking_cafe";
 
 const options: MongoClientOptions = {
-  maxPoolSize: 5, // Reduced for M0 cluster limit
-  minPoolSize: 1,
+  maxPoolSize: 10, // Increased for Vercel serverless (was 5)
+  minPoolSize: 2,  // Maintain minimum connections (was 1)
   serverSelectionTimeoutMS: 10000,
-  socketTimeoutMS: 60000,
+  socketTimeoutMS: 45000, // Reduced timeout (was 60s)
   connectTimeoutMS: 10000,
   family: 4,
-  maxIdleTimeMS: 30000, // Close idle connections faster
+  maxIdleTimeMS: 60000, // Close idle connections after 1min (was 30s)
   compressors: ["zlib"],
   retryWrites: true,
   retryReads: true,
-  maxConnecting: 2,
+  maxConnecting: 5, // Allow more simultaneous (was 2)
 };
 
 /**
@@ -153,8 +153,12 @@ export async function connectMongoose(): Promise<typeof mongoose> {
   // Connect with Mongoose
   await mongoose.connect(uri, {
     dbName: databaseName,
-    maxPoolSize: 5,
-    maxConnecting: 2,
+    maxPoolSize: 10, // Increased for Vercel serverless (was 5)
+    minPoolSize: 2,
+    maxConnecting: 5, // Allow more simultaneous (was 2)
+    maxIdleTimeMS: 60000,
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
   });
 
   return mongoose;
