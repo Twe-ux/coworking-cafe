@@ -2,17 +2,17 @@ import type { Employee } from "@/types/hr";
 import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 
-interface Articles6And7Props {
+interface Articles7To12Props {
   employee: Employee;
   monthlySalary: string;
   monthlyHours: string;
 }
 
-export function Articles6And7({
+export function Articles7To12({
   employee,
   monthlySalary,
   monthlyHours,
-}: Articles6And7Props) {
+}: Articles7To12Props) {
   return (
     <Page size="A4" style={styles.page}>
       {/* Article 7 */}

@@ -3,11 +3,12 @@ import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 import { DistributionTable } from "./DistributionTable";
 
-interface Article4And5Props {
+interface Articles5And6Props {
   employee: Employee;
+  monthlyHours: string;
 }
 
-export function Article4And5({ employee }: Article4And5Props) {
+export function Articles5And6({ employee, monthlyHours }: Articles5And6Props) {
   return (
     <>
       {/* Page 4 - Article 5 */}

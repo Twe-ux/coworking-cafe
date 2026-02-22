@@ -3,12 +3,12 @@ import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 import { AvailabilityTable } from "./AvailabilityTable";
 
-interface Article4And5Props {
+interface Articles3And4Props {
   employee: Employee;
   monthlyHours: string;
 }
 
-export function Article3({ employee, monthlyHours }: Article4And5Props) {
+export function Articles3And4({ employee, monthlyHours }: Articles3And4Props) {
   return (
     <Page size="A4" style={styles.page}>
       <View style={styles.section}>
