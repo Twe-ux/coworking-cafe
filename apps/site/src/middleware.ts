@@ -31,7 +31,7 @@ const publicRoutes = [
 
   "/boissons",
   // "/menu",
-  "/privatization",
+  // "/privatization", // Moved to publicRoutePatterns to include all sub-routes
   "/compagny-pass",
 
   "/events",
@@ -46,6 +46,7 @@ const publicRoutes = [
 const publicRoutePatterns = [
   /^\/promo\/[^\/]+$/, // /promo/[token]
   /^\/booking(\/.*)?$/, // /booking and all sub-routes
+  /^\/privatization(\/.*)?$/, // /privatization and all sub-routes (devis, merci)
 ];
 
 // Auth routes
@@ -94,6 +95,7 @@ export async function middleware(req: NextRequest) {
       (route) => route.toLowerCase() === pathname.toLowerCase(),
     ) ||
     pathname.startsWith("/blog/") ||
+    pathname.startsWith("/events/") ||
     pathname.startsWith("/promo/") ||
     publicRoutePatterns.some((pattern) => pattern.test(pathname));
 
