@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,33 +27,39 @@ export function Step1PersonalInfo() {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<PersonalInfo>({
-    defaultValues: data.step1
-      ? {
-          ...data.step1,
-          dateOfBirth: formatDateForInput(data.step1.dateOfBirth),
-        }
-      : {
-          firstName: '',
-          lastName: '',
-          dateOfBirth: '',
-          placeOfBirth: {
-            city: '',
-            department: '',
-            country: 'France',
-          },
-          nationality: 'Française',
-          address: {
-            street: '',
-            postalCode: '',
-            city: '',
-          },
-          phone: '',
-          email: '',
-          socialSecurityNumber: '',
-        },
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      dateOfBirth: '',
+      placeOfBirth: {
+        city: '',
+        department: '',
+        country: 'France',
+      },
+      nationality: 'Française',
+      address: {
+        street: '',
+        postalCode: '',
+        city: '',
+      },
+      phone: '',
+      email: '',
+      socialSecurityNumber: '',
+    },
   })
+
+  // Update form values when data.step1 changes (async draft loading)
+  useEffect(() => {
+    if (data.step1) {
+      reset({
+        ...data.step1,
+        dateOfBirth: formatDateForInput(data.step1.dateOfBirth),
+      })
+    }
+  }, [data.step1, reset])
 
   const onSubmit = (formData: PersonalInfo) => {
     saveStep1(formData)

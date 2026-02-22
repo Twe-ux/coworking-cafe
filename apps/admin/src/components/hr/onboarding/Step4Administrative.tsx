@@ -47,13 +47,13 @@ export function Step4Administrative() {
     },
   });
 
-  // Update form when data.step4 becomes available (edit mode)
+  // Update form when data.step4 becomes available (edit mode or draft loading)
   // Only reset once when data arrives, not on every change
   useEffect(() => {
-    if (data.step4 && mode === "edit") {
+    if (data.step4) {
       reset(data.step4);
     }
-  }, [data.step4, reset, mode]);
+  }, [data.step4, reset]);
 
   // Fetch used colors from existing employees
   useEffect(() => {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,25 +36,31 @@ export function Step2ContractInfo() {
     setValue,
     watch,
     control,
+    reset,
     formState: { errors },
   } = useForm<ContractInfo>({
-    defaultValues: data.step2
-      ? {
-          ...data.step2,
-          hireDate: formatDateForInput(data.step2.hireDate),
-          endDate: formatDateForInput(data.step2.endDate),
-        }
-      : {
-          contractType: "CDI",
-          contractualHours: 35,
-          hireDate: "",
-          hireTime: "",
-          level: "",
-          step: 1,
-          hourlyRate: 12.08,
-          employeeRole: "Employé polyvalent",
-        },
+    defaultValues: {
+      contractType: "CDI",
+      contractualHours: 35,
+      hireDate: "",
+      hireTime: "",
+      level: "",
+      step: 1,
+      hourlyRate: 12.08,
+      employeeRole: "Employé polyvalent",
+    },
   });
+
+  // Update form values when data.step2 changes (async draft loading)
+  useEffect(() => {
+    if (data.step2) {
+      reset({
+        ...data.step2,
+        hireDate: formatDateForInput(data.step2.hireDate),
+        endDate: formatDateForInput(data.step2.endDate),
+      });
+    }
+  }, [data.step2, reset]);
 
   const contractType = watch("contractType");
 
