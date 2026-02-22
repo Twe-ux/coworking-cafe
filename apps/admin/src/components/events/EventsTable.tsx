@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Eye, EyeOff, Copy, Archive } from "lucide-react";
+import { Edit, Trash2, Eye, EyeOff, Copy, Archive, Users } from "lucide-react";
 import type { EventStatus } from "@coworking-cafe/database";
 import Image from "next/image";
+import Link from "next/link";
 
 interface EventItem {
   _id: string;
@@ -47,12 +48,14 @@ const statusColors: Record<EventStatus, string> = {
   draft: "bg-gray-500",
   published: "bg-green-500",
   archived: "bg-orange-500",
+  cancelled: "bg-red-500",
 };
 
 const statusLabels: Record<EventStatus, string> = {
   draft: "Brouillon",
   published: "Publié",
   archived: "Archivé",
+  cancelled: "Annulé",
 };
 
 export function EventsTable({
@@ -134,15 +137,17 @@ export function EventsTable({
               <TableCell>
                 {event.registrationType === "internal" ? (
                   <div className="text-sm">
-                    <div>Interne</div>
-                    {event.maxParticipants && (
-                      <div className="text-xs text-muted-foreground">
-                        {event.currentParticipants || 0}/{event.maxParticipants}
-                      </div>
-                    )}
+                    <Link
+                      href={`/admin/events/${event._id}/registrations`}
+                      className="inline-flex items-center gap-1 text-primary hover:underline"
+                    >
+                      <Users className="h-3 w-3" />
+                      {event.currentParticipants || 0}
+                      {event.maxParticipants && `/${event.maxParticipants}`}
+                    </Link>
                   </div>
                 ) : (
-                  <div className="text-sm">Externe</div>
+                  <div className="text-sm text-muted-foreground">Externe</div>
                 )}
               </TableCell>
               <TableCell className="text-right">

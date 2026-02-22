@@ -157,15 +157,7 @@ const Privatization = () => {
                     className="common__btn buttons_file"
                   >
                     <span>Demande de devis</span>
-                    {/* <IconArrowRight size={14} /> */}
                   </Link>
-                  {/* <Link
-                  href={"/pricing#pricing"}
-                  className="common__btn buttons_outline mt-4 mt-sm-0"
-                >
-                  <span>Nos tarifs</span>
-                  <IconArrowRight size={14} />
-                </Link> */}
                 </SlideUp>
                 <SlideUp
                   delay={4}
@@ -437,13 +429,12 @@ const Privatization = () => {
           Pour ça !
         </h1> */}
 
-        <p className="project__group  text-center  ">
+        <p className="project__group  text-center">
           Vous souhaitez organiser un événement professionnel à Strasbourg dans
           un lieu chaleureux, fonctionnel et central ? Présentez-nous votre
           projet par email (date, format, nombre de personnes, besoins
           spécifiques). Nous étudierons votre demande et reviendrons vers vous
-          avec une proposition adaptée.{" "}
-          <Link href="/privatization/devis">Demandez un devis</Link> personnalisé.
+          avec une proposition adaptée.
         </p>
         {/* Links to devis form */}
         <div className="text-center">

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Clock, MapPin, ExternalLink } from "lucide-react";
+import { Calendar, Clock, ExternalLink } from "lucide-react";
 
 interface EventsCardProps {
   slug: string;
@@ -11,7 +11,6 @@ interface EventsCardProps {
   category: string[];
   imgSrc: string;
   imgAlt: string;
-  location?: string;
   price?: number;
   registrationType: "internal" | "external";
   externalLink?: string;
@@ -28,7 +27,6 @@ export default function EventsCard({
   category,
   imgSrc,
   imgAlt,
-  location,
   price,
   registrationType,
   externalLink,
@@ -48,99 +46,115 @@ export default function EventsCard({
     currentParticipants &&
     currentParticipants >= maxParticipants;
 
+  const truncatedDescription =
+    shortDescription && shortDescription.length > 100
+      ? `${shortDescription.substring(0, 100)}...`
+      : shortDescription;
+
   return (
-    <div className="project__card h-100">
-      <div className="project__card_img">
-        <Link href={`/events/${slug}`}>
+    <article className="events-card">
+      <div className="events-card__image-wrapper">
+        <Link href={`/events/${slug}`} aria-label={`Voir ${title}`}>
           <Image
             src={imgSrc}
             alt={imgAlt}
             width={400}
             height={300}
-            className="w-100"
+            className="events-card__image"
             loading="lazy"
             quality={85}
+            sizes="(max-width: 767px) 100vw, (max-width: 991px) 50vw, 25vw"
           />
         </Link>
 
-        {/* Categories */}
-        {category && category.length > 0 && (
-          <div className="project__card_category">
-            {category.slice(0, 2).map((cat, index) => (
-              <span key={index} className="badge bg-primary me-1">
+        {category.length > 0 && (
+          <div className="events-card__categories">
+            {category.slice(0, 2).map((cat) => (
+              <span key={cat} className="events-card__category">
                 {cat}
               </span>
             ))}
             {category.length > 2 && (
-              <span className="badge bg-secondary">+{category.length - 2}</span>
+              <span className="events-card__category events-card__category--extra">
+                +{category.length - 2}
+              </span>
             )}
           </div>
         )}
       </div>
 
-      <div className="project__card_content">
-        <Link href={`/events/${slug}`}>
-          <h3 className="project__card_title">{title}</h3>
-        </Link>
+      <div className="events-card__content">
+        <h3 className="events-card__title">
+          <Link href={`/events/${slug}`}>{title}</Link>
+        </h3>
 
-        {shortDescription && (
-          <p className="project__card_description text-muted">
-            {shortDescription.length > 100
-              ? `${shortDescription.substring(0, 100)}...`
-              : shortDescription}
-          </p>
+        {truncatedDescription && (
+          <p className="events-card__description">{truncatedDescription}</p>
         )}
 
-        {/* Event Meta */}
-        <div className="event__meta mt-3">
-          <div className="d-flex align-items-center gap-2 mb-2">
-            <Calendar size={16} className="text-primary" />
-            <span className="small">{formattedDate}</span>
+        <div className="events-card__meta">
+          <div className="events-card__meta-datetime">
+            <span className="events-card__meta-date">
+              <Calendar
+                size={14}
+                className="events-card__meta-icon"
+                aria-hidden="true"
+              />
+              {formattedDate}
+            </span>
+            {startTime && (
+              <span className="events-card__meta-time">
+                <Clock
+                  size={14}
+                  className="events-card__meta-icon"
+                  aria-hidden="true"
+                />
+                {startTime}
+              </span>
+            )}
           </div>
-
-          {startTime && (
-            <div className="d-flex align-items-center gap-2 mb-2">
-              <Clock size={16} className="text-primary" />
-              <span className="small">{startTime}</span>
-            </div>
-          )}
-
-          {location && (
-            <div className="d-flex align-items-center gap-2 mb-2">
-              <MapPin size={16} className="text-primary" />
-              <span className="small">{location}</span>
-            </div>
-          )}
         </div>
 
-        {/* Price */}
-        {price && price > 0 && (
-          <div className="event__price mt-2">
-            <strong className="text-primary">{price}€</strong>
-          </div>
+        {price !== undefined && price > 0 && (
+          <div className="events-card__price">{price}&euro;</div>
         )}
 
-        {/* Action Button */}
-        <div className="mt-3">
+        <div className="events-card__actions">
           {isFullyBooked ? (
-            <span className="badge bg-danger">Complet</span>
-          ) : registrationType === "external" && externalLink ? (
-            <Link
-              href={externalLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="common__btn common__btn--sm"
-            >
-              <span>S'inscrire</span>
-              <ExternalLink size={16} />
-            </Link>
+            <span className="events-card__badge--full">Complet</span>
           ) : (
-            <Link href={`/events/${slug}`} className="common__btn common__btn--sm">
-              <span>En savoir plus</span>
-            </Link>
+            <>
+              {registrationType === "external" && externalLink ? (
+                <Link
+                  href={externalLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="events-card__btn-primary"
+                  aria-label={`S'inscrire à ${title} (lien externe)`}
+                >
+                  <span>S&apos;inscrire</span>
+                  <ExternalLink size={14} aria-hidden="true" />
+                </Link>
+              ) : (
+                <Link
+                  href={`/events/${slug}#inscription`}
+                  className="events-card__btn-primary"
+                  aria-label={`S'inscrire à ${title}`}
+                >
+                  S&apos;inscrire
+                </Link>
+              )}
+              <Link
+                href={`/events/${slug}`}
+                className="events-card__btn-secondary"
+                aria-label={`Voir détails de ${title}`}
+              >
+                Voir détails
+              </Link>
+            </>
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

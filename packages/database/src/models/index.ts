@@ -38,6 +38,8 @@ export type { CategoryDocument } from './category';
 export { Event } from './event';
 export type { EventDocument, EventStatus, RegistrationType } from './event';
 export { DEFAULT_EVENT_CATEGORIES, EVENT_LOCATIONS } from './event';
+export { EventRegistration } from './eventRegistration';
+export type { EventRegistrationDocument, RegistrationStatus } from './eventRegistration';
 
 // ===== Messaging =====
 export { Conversation } from './conversation';

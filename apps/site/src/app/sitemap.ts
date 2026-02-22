@@ -1,4 +1,6 @@
 import { fetchAllPublishedArticles } from "@/lib/blog-helpers";
+import { connectDB } from "@/lib/mongodb";
+import { Event } from "@coworking-cafe/database";
 import type { MetadataRoute } from "next";
 
 // Revalidate sitemap every 6 hours (blog articles don't change that often)
@@ -164,6 +166,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // Event pages (dynamic)
+  await connectDB();
+  const events = await Event.find({ status: "published" })
+    .select("slug updatedAt date")
+    .lean();
+
+  const eventPages: MetadataRoute.Sitemap = events.map((event) => ({
+    url: `${baseUrl}/events/${event.slug}`,
+    lastModified: event.updatedAt ? new Date(event.updatedAt) : new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
   // Combine all URLs
-  return [...staticPages, ...blogPages];
+  return [...staticPages, ...blogPages, ...eventPages];
 }

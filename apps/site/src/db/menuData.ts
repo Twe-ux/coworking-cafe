@@ -59,35 +59,4 @@ export const menuData: MenuItem[] = [
       { title: "Le Mag'", link: "/blog" },
     ],
   },
-
-  // {
-  //   title: "admin",
-  //   link: "#",
-  //   submenu: [
-  //     { title: "Promo'", link: "/scan" },
-  //     { title: "dashboard", link: "/dashboard" },
-  //   ],
-  // },
-  // {
-  //   title: "Pages",
-  //   link: "#",
-  //   submenu: [
-  //     { title: "Faq's", link: "/faq" },
-  //     { title: "Pricing", link: "/pricing" },
-  //     { title: "Projects", link: "/projects" },
-  //     { title: "Project Details", link: "/project-details" },
-  //   ],
-  // },
-  // {
-  //   title: "Blog",
-  //   link: "#",
-  //   submenu: [
-  //     { title: "Blog", link: "/blog" },
-  //     { title: "Blog Details", link: "/blog-details" },
-  //   ],
-  // },
-  // {
-  //   title: "Contact Us",
-  //   link: "/contact",
-  // },
 ];

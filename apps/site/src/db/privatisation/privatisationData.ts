@@ -12,22 +12,22 @@ export const privatisationData: Privatisation[] = [
     title: "salle de réunion privatisable",
     categories: "Zones variées et confortables, jusqu'à 50 places.",
     subCategories: `En privatisant Coworking Café, vous bénéficiez de
-l’ensemble de l’établissement, sans cohabitation avec
-d’autres publics.
-Selon le format choisi, le lieu peut accueillir entre 40 et
-60 personnes, avec différentes configurations possibles
-: présentations, échanges en petits groupes,
-conférences, ateliers ou moments plus informels.
-L’espace se prête aussi bien à des temps de travail
-structurés qu’à des moments de respiration, de
-networking ou de convivialité.
-La privatisation vous offre une liberté totale
-d’organisation : circulation fluide, prises de parole,
-musique d’ambiance, utilisation de micros et de
-supports de présentation sont possibles.
-Seule limite volontaire : nous ne proposons pas de
-soirées festives tardives à ambiance musicale, afin de
-préserver l’ADN du lieu.`,
+                    l’ensemble de l’établissement, sans cohabitation avec
+                    d’autres publics.
+                    Selon le format choisi, le lieu peut accueillir entre 40 et
+                    60 personnes, avec différentes configurations possibles
+                    : présentations, échanges en petits groupes,
+                    conférences, ateliers ou moments plus informels.
+                    L’espace se prête aussi bien à des temps de travail
+                    structurés qu’à des moments de respiration, de
+                    networking ou de convivialité.
+                    La privatisation vous offre une liberté totale
+                    d’organisation : circulation fluide, prises de parole,
+                    musique d’ambiance, utilisation de micros et de
+                    supports de présentation sont possibles.
+                    Seule limite volontaire : nous ne proposons pas de
+                    soirées festives tardives à ambiance musicale, afin de
+                    préserver l’ADN du lieu.`,
     imgSrc: "/images/professional/location-espace-evenementiel-strasbourg.webp",
   },
   {
@@ -50,7 +50,7 @@ formules cocktail avec mignardises.
 La vente d’alcool est possible uniquement dans le cadre
 des repas, toujours dans un contexte professionnel.`,
 
-    imgSrc: "/images/professional/team-building-strasbourg.webp",
+    imgSrc: "/images/professional/traiteur-privatisation-coworkingcafe.webp",
   },
   {
     id: 2,

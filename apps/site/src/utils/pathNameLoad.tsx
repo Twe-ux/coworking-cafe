@@ -8,8 +8,10 @@ const PathNameLoad = (): null => {
     const body = document.querySelector("body");
     if (body) {
       body.classList.remove("home1", "home2", "about__page");
-      if (pathName === "/" || pathName === "/professional") {
+      if (pathName === "/" || pathName === "/privatization") {
         body.classList.add("home1");
+      } else if (pathName.startsWith("/events/")) {
+        body.classList.add("bg-events");
       } else if (pathName === "/home-2") {
         body.classList.add("home2");
       } else if (pathName === "/about") {

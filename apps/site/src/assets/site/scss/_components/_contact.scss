@@ -3,6 +3,10 @@
   margin: auto;
   padding-top: 166px;
 
+  #contact {
+    scroll-margin-top: 150px;
+  }
+
   #emplacement {
     scroll-margin-top: 200px;
   }
@@ -97,7 +101,9 @@
       padding: 22px 20px;
       outline: none;
       margin-bottom: 20px;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
 
       @include breakpoint(md) {
         padding: 19px 17px;
