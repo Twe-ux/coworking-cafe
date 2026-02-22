@@ -10,6 +10,7 @@ import {
   IconPersonCircle,
   IconSpeedometer,
 } from "@/components/icons/CriticalIcons";
+import { AnchorLink } from "@/components/common/AnchorLink";
 import Navbar from "./navbar";
 import TopHeader from "./topHeader";
 
@@ -96,11 +97,11 @@ const Header = () => {
 
             {/* Right: Action buttons */}
             <div className="d-flex align-items-center gap-3">
-              {/* Contact - tablet + desktop (≥768px) */}
-              <div className="d-none d-md-block">
-                <Link href={"/contact#contact"} className="common__btn">
+              {/* Contact - large desktop only (≥1400px) to avoid overlap on iPad Pro landscape (1366px) */}
+              <div className="d-none d-xxl-block">
+                <AnchorLink href="/contact#contact" className="common__btn">
                   <span>Contact</span>
-                </Link>
+                </AnchorLink>
               </div>
               {/* Réserver - tablet + desktop (≥768px) */}
               <div className="d-none d-md-block">

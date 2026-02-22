@@ -1,3 +1,4 @@
+import { AnchorLink } from "@/components/common/AnchorLink";
 import { IconArrowRight, IconCheck } from "@/components/icons/CriticalIcons";
 import Partner from "@/components/site/partner";
 import { TestimonialsSwiper } from "@/components/site/privatization/TestimonialsSwiper";
@@ -380,7 +381,7 @@ const Privatization = () => {
             Privatiser Coworking Café, c'est faire le choix d'un lieu
             événementiel B2B différent, déjà reconnu pour la qualité de son
             accueil et de son atmosphère, comme lors de{" "}
-            <Link href="/events#events">nos événements réguliers</Link>. C'est
+            <AnchorLink href="/events#events">nos événements réguliers</AnchorLink>. C'est
             aussi bénéficier :
           </p>
           <ul className="about__wapper_right mt-4">

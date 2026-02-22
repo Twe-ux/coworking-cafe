@@ -1,3 +1,4 @@
+import { AnchorLink } from "@/components/common/AnchorLink";
 import { projectsOneData } from "../../../db/projectsOneData";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
@@ -19,10 +20,10 @@ const ProjectsOne: React.FC<ProjectsOneProps> = ({ isProjectUseCaseShow }) => {
           <h1 className="title">
             Des espaces pour favoriser votre créativité et votre productivité !
           </h1>
-          <Link href="/spaces#spaces" className="circle mt-5 mt-lg-0">
+          <AnchorLink href="/spaces#spaces" className="circle mt-5 mt-lg-0">
             <Icon name="arrow-right" />
             <span>En savoir plus</span>
-          </Link>
+          </AnchorLink>
         </SlideDown>
         {/* title End */}
         <div className="projects__wapper">
@@ -38,7 +39,7 @@ const ProjectsOne: React.FC<ProjectsOneProps> = ({ isProjectUseCaseShow }) => {
             }) => {
               return (
                 <SlideUp delay={id} key={id} className="projects__wapper_card">
-                  <Link href={`/spaces#${link}`}>
+                  <AnchorLink href={`/spaces#${link}`}>
                     <div className="d-flex flex-column gap-5">
                       <Image
                         src={imgSrc}
@@ -61,21 +62,21 @@ const ProjectsOne: React.FC<ProjectsOneProps> = ({ isProjectUseCaseShow }) => {
                         />
                       )}
                     </div>
-                  </Link>
+                  </AnchorLink>
                   <div>
                     <div className="d-flex align-items-center">
-                      <Link
+                      <AnchorLink
                         href={`/spaces#${link}`}
                         className="prj__title t__28"
                       >
                         {title}
-                      </Link>
-                      <Link
+                      </AnchorLink>
+                      <AnchorLink
                         href={`/spaces#${link}`}
                         className="projects__wapper_card_circle mt-3"
                       >
                         <Icon name="arrow-right" />
-                      </Link>
+                      </AnchorLink>
                     </div>
 
                     <p className="project__group">{categories}</p>

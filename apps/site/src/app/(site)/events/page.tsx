@@ -1,3 +1,4 @@
+import { AnchorLink } from "@/components/common/AnchorLink";
 import { BreadcrumbSchema } from "@/components/seo/BreadcrumbSchema";
 import PageTitle from "@/components/site/PageTitle";
 import EventsCard from "@/components/site/events/EventsCard";
@@ -226,7 +227,7 @@ export default async function EventsPage() {
                         de nos espaces.
                       </p>
 
-                      <Link
+                      <AnchorLink
                         href="/contact#contact"
                         className="common__btn mt-5"
                       >
@@ -238,7 +239,7 @@ export default async function EventsPage() {
                           height={20}
                           loading="lazy"
                         />
-                      </Link>
+                      </AnchorLink>
                     </div>
                   </SlideUp>
 

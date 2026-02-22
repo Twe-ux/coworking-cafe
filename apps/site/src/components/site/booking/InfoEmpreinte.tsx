@@ -1,5 +1,7 @@
 "use client";
 
+import { AnchorLink } from "@/components/common/AnchorLink";
+
 interface InfoEmpreinteProps {
   type: "manual_capture" | "setup_intent";
   amount: number;
@@ -48,16 +50,18 @@ export default function InfoEmpreinte({
         Une empreinte bancaire de{" "}
         <strong style={{ color: "#333" }}>{formatAmount(amount)}</strong> sera
         effectuée sur votre carte pour garantir votre réservation, selon{" "}
-        <a
+        <AnchorLink
           href="/cgu#article6"
-          style={{
+          className="anchor-link-cgu"
+        >
+          <span style={{
             color: "#588983",
             textDecoration: "underline",
             fontWeight: 600,
-          }}
-        >
-          nos CGVs
-        </a>{" "}
+          }}>
+            nos CGVs
+          </span>
+        </AnchorLink>{" "}
         <br /> Aucun débit ne sera effectué si vous vous présentez à votre
         réservation.
       </div>

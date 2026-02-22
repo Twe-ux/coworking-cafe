@@ -1,4 +1,5 @@
 import { Icon } from "@/components/common/Icon";
+import { AnchorLink } from "@/components/common/AnchorLink";
 import { BreadcrumbSchema } from "@/components/seo/BreadcrumbSchema";
 import PageTitle from "@/components/site/PageTitle";
 import SlideUp from "@/utils/animations/slideUp";
@@ -255,9 +256,9 @@ const CompagnyPass = () => {
               s&#39;intégrer simplement à votre organisation.
             </p>
             <div className="py-4 text-center">
-              <Link href="/contact#contact" className="btn btn-primary">
+              <AnchorLink href="/contact#contact" className="btn btn-primary">
                 Demander un devis
-              </Link>
+              </AnchorLink>
             </div>
             <p className="mt-4">
               Découvrez aussi nos{" "}

@@ -8,6 +8,8 @@
 
 "use client";
 
+import { AnchorLink } from "@/components/common/AnchorLink";
+
 interface CancellationTier {
   daysBeforeBooking: number;
   chargePercentage: number;
@@ -134,25 +136,24 @@ export default function CancellationPolicyDisplay({
         >
           <p style={{ margin: "0", color: "#92400E" }}>
             Pour plus de détails, consultez nos{" "}
-            <a
-              href="/cgu#article6"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "#F59E0B",
-                textDecoration: "underline",
-                fontWeight: "600",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "#D97706")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "#F59E0B")
-              }
-            >
-              Conditions Générales de Vente (Article 6)
-            </a>
+            <AnchorLink href="/cgu#article6">
+              <span
+                style={{
+                  color: "#F59E0B",
+                  textDecoration: "underline",
+                  fontWeight: "600",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = "#D97706")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "#F59E0B")
+                }
+              >
+                Conditions Générales de Vente (Article 6)
+              </span>
+            </AnchorLink>
           </p>
         </div>
       </div>

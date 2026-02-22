@@ -1,3 +1,4 @@
+import { AnchorLink } from "@/components/common/AnchorLink";
 import { IconArrowRight } from "@/components/icons/CriticalIcons";
 import SlideUp from "../../../utils/animations/slideUp";
 import Image from "next/image";
@@ -31,20 +32,20 @@ const HeroOne = () => {
                 delay={3}
                 className="buttons d-sm-flex align-items-center"
               >
-                <Link
-                  href={"/spaces#spaces"}
+                <AnchorLink
+                  href="/spaces#spaces"
                   className="common__btn buttons_file"
                 >
                   <span>Voir les espaces</span>
                   <IconArrowRight size={14} />
-                </Link>
-                <Link
-                  href={"/pricing#pricing"}
+                </AnchorLink>
+                <AnchorLink
+                  href="/pricing#pricing"
                   className="common__btn buttons_outline mt-4 mt-sm-0"
                 >
                   <span>Nos tarifs</span>
                   <IconArrowRight size={14} />
-                </Link>
+                </AnchorLink>
               </SlideUp>
               <SlideUp
                 delay={4}

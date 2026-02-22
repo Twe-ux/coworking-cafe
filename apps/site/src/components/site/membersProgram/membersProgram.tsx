@@ -1,3 +1,4 @@
+import { AnchorLink } from "@/components/common/AnchorLink";
 import { membersProgramData } from "../../../db/membersProgram/memberProgramData";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
@@ -43,7 +44,7 @@ const MembersProgram = () => {
               <div className="col-12">
                 <p>
                   Tu souhaites créer ton compte Membre ?
-                  <Link href="/auth/register#register"> Clique ici !</Link>
+                  <AnchorLink href="/auth/register#register"> Clique ici !</AnchorLink>
                 </p>
               </div>
             </div>

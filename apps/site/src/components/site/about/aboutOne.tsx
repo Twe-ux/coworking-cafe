@@ -1,3 +1,4 @@
+import { AnchorLink } from "@/components/common/AnchorLink";
 import { partnerOneLogos } from "../../../db/partnerOneLogos";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
@@ -39,10 +40,10 @@ const AboutOne = () => {
                   télétravailleurs et équipes en quête d’un lieu où travailler
                   comme à la maison, mais en mieux.
                 </p>
-                <Link href="/concept#concept" className="circle">
+                <AnchorLink href="/concept#concept" className="circle">
                   <Icon name="arrow-right" />
                   <span>En savoir plus</span>
-                </Link>
+                </AnchorLink>
               </div>
             </SlideUp>
           </div>

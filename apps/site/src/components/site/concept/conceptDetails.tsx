@@ -1,3 +1,4 @@
+import { AnchorLink } from "@/components/common/AnchorLink";
 import { conceptData } from "../../../db/concept/conceptData";
 import SlideDown from "../../../utils/animations/slideDown";
 import SlideUp from "../../../utils/animations/slideUp";
@@ -12,17 +13,17 @@ const ConceptDetails = () => {
         <SlideDown className="d-lg-flex justify-content-between align-items-center concept__title">
           <h5 className="title">Comment ça marche ?</h5>
           <div className="d-flex gap-3">
-            <Link href={"/spaces#spaces"} className="common__btn mt-4 mt-lg-0">
+            <AnchorLink href="/spaces#spaces" className="common__btn mt-4 mt-lg-0">
               <span>Nos espaces</span>
               <Icon name="arrow-right" />
-            </Link>
-            <Link
-              href={"/pricing#pricing"}
+            </AnchorLink>
+            <AnchorLink
+              href="/pricing#pricing"
               className="common__btn mt-4 mt-lg-0"
             >
               <span>Nos tarifs</span>
               <Icon name="arrow-right" />
-            </Link>
+            </AnchorLink>
           </div>
         </SlideDown>
         <div className="concept__wapper">
