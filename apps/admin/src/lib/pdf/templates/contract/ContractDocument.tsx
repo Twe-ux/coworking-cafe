@@ -18,8 +18,8 @@ import { Document as PDFDocument } from "@react-pdf/renderer";
 import { ContractHeader } from "./components/ContractHeader";
 import { Article1 } from "./components/Article1";
 import { Articles3And4 } from "./components/Articles3And4";
-import { Articles5And6 } from "./components/Articles5And6";
-import { Articles7To12 } from "./components/Articles7To12";
+import { Articles5And6 } from "./components/Articles5";
+import { Articles7To12 } from "./components/Articles6To12";
 import { FinalArticlesAndSignatures } from "./components/FinalArticlesAndSignatures";
 
 interface ContractDocumentProps {

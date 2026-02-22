@@ -37,8 +37,8 @@ export function Articles3And4({ employee, monthlyHours }: Articles3And4Props) {
           contrat.
         </Text>
       </View>
+      {/* Article 3 */}
       <View style={styles.section}>
-        {/* Article 3 */}
         <Text style={styles.articleTitle}>Article 3 - Lieu de travail</Text>
 
         <Text style={styles.text}>
@@ -52,7 +52,10 @@ export function Articles3And4({ employee, monthlyHours }: Articles3And4Props) {
           restaurant, le Salarié se verra proposer un avenant de détachement lié
           à la réalisation de sa formation.
         </Text>
+      </View>
 
+      {/* Article 4 */}
+      <View style={styles.section}>
         <Text style={styles.articleTitle}>
           Article 4 - Durée mensuelle du travail
         </Text>

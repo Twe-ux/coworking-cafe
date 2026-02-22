@@ -2,7 +2,7 @@ import type { Employee } from "@/types/hr";
 import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 
-interface Articles7To12Props {
+interface Articles6To12Props {
   employee: Employee;
   monthlySalary: string;
   monthlyHours: string;
@@ -12,9 +12,44 @@ export function Articles7To12({
   employee,
   monthlySalary,
   monthlyHours,
-}: Articles7To12Props) {
+}: Articles6To12Props) {
   return (
     <Page size="A4" style={styles.page}>
+      {/* Article 6 */}
+      <View style={styles.section}>
+        <Text style={styles.articleTitle}>
+          Article 6 - Heures complémentaires
+        </Text>
+
+        <Text style={styles.text}>
+          Il est convenu qu'en fonction des besoins de l'entreprise, le Salarié
+          pourra être amené à effectuer des heures complémentaires, dans la
+          limite du tiers de la durée initiale du contrat par semaine.
+        </Text>
+
+        <Text style={styles.text}>
+          Les heures complémentaires effectuées en-deca du 1/10 de la durée
+          initialement fixée au contrat seront majorées a{" "}
+          <Text style={styles.textBold}>10%</Text>.
+        </Text>
+
+        <Text style={styles.text}>
+          Les heures complémentaires effectuées au-delà du 1/10 de la durée
+          initialement fixée au contrat seront majorées a{" "}
+          <Text style={styles.textBold}>25%</Text>.
+        </Text>
+
+        <Text style={styles.text}>
+          En contrepartie, le Salarié a droit à une période minimale de travail
+          continue de 2 heures par jour.
+        </Text>
+        <Text style={styles.text}>
+          En tout état de cause, les heures complémentaires ne pourront avoir
+          pour effet de porter la durée du contrat au niveau de la durée légale
+          ou conventionnelle de travail.
+        </Text>
+      </View>
+
       {/* Article 7 */}
       <View style={styles.section}>
         <Text style={styles.articleTitle}>Article 7 - Rémunération</Text>

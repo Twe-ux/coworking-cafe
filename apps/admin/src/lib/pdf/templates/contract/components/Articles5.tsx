@@ -3,16 +3,17 @@ import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 import { DistributionTable } from "./DistributionTable";
 
-interface Articles5And6Props {
+interface Articles5Props {
   employee: Employee;
   monthlyHours: string;
 }
 
-export function Articles5And6({ employee, monthlyHours }: Articles5And6Props) {
+export function Articles5And6({ employee, monthlyHours }: Articles5Props) {
   return (
     <>
-      {/* Page 4 - Article 5 */}
+      {/* Page 4 - */}
       <Page size="A4" style={styles.page}>
+        {/* Article 5  */}
         <View style={styles.section}>
           <Text style={styles.articleTitle}>
             Article 5 - Répartition de la durée du travail
@@ -80,41 +81,6 @@ export function Articles5And6({ employee, monthlyHours }: Articles5And6Props) {
             la limite de 5 heures, les deux séquences de travail réalisées par
             le Salarié à temps partiel au cours de cette journée seront chacune
             d’une durée minimale de 3 heures consécutives
-          </Text>
-        </View>
-        <View style={styles.section}>
-          {/* Article 6 */}
-
-          <Text style={styles.articleTitle}>
-            Article 6 - Heures complémentaires
-          </Text>
-
-          <Text style={styles.text}>
-            Il est convenu qu'en fonction des besoins de l'entreprise, le
-            Salarié pourra être amené à effectuer des heures complémentaires,
-            dans la limite du tiers de la durée initiale du contrat par semaine.
-          </Text>
-
-          <Text style={styles.text}>
-            Les heures complémentaires effectuées en-deca du 1/10 de la durée
-            initialement fixée au contrat seront majorées a{" "}
-            <Text style={styles.textBold}>10%</Text>.
-          </Text>
-
-          <Text style={styles.text}>
-            Les heures complémentaires effectuées au-delà du 1/10 de la durée
-            initialement fixée au contrat seront majorées a{" "}
-            <Text style={styles.textBold}>25%</Text>.
-          </Text>
-
-          <Text style={styles.text}>
-            En contrepartie, le Salarié a droit à une période minimale de
-            travail continue de 2 heures par jour.
-          </Text>
-          <Text style={styles.text}>
-            En tout état de cause, les heures complémentaires ne pourront avoir
-            pour effet de porter la durée du contrat au niveau de la durée
-            légale ou conventionnelle de travail.
           </Text>
         </View>
       </Page>
