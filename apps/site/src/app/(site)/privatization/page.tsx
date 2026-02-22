@@ -1,64 +1,126 @@
-"use client";
-
-import { Icon } from "@/components/common/Icon";
 import { IconArrowRight, IconCheck } from "@/components/icons/CriticalIcons";
 import Partner from "@/components/site/partner";
+import { TestimonialsSwiper } from "@/components/site/privatization/TestimonialsSwiper";
 import { partnerOneLogos } from "@/db/partnerOneLogos";
 import { privatisationData } from "@/db/privatisation/privatisationData";
-import { testimonialsOneData } from "@/db/testimonialsOneData";
 import SlideDown from "@/utils/animations/slideDown";
 import SlideUp from "@/utils/animations/slideUp";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { Swiper as SwiperType } from "swiper";
-import "swiper/css";
-// @ts-ignore - react-modal-video types not available
-import { Navigation, Pagination as PaginationModule } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
+
+export const metadata: Metadata = {
+  title: "Privatisation Événements B2B | CoworKing Café Strasbourg",
+  description:
+    "Privatisez notre espace de 180m² pour vos séminaires, formations et team building à Strasbourg. De 15 à 50 personnes, équipements pro inclus.",
+  keywords: [
+    "privatisation coworking Strasbourg",
+    "location salle événement Strasbourg",
+    "séminaire entreprise Strasbourg",
+    "team building Strasbourg",
+    "salle formation Strasbourg",
+    "événement B2B Strasbourg",
+  ],
+  alternates: {
+    canonical: "https://coworkingcafe.fr/privatization",
+  },
+  openGraph: {
+    title: "Privatisation CoworKing Café | Événements B2B Strasbourg",
+    description:
+      "180m² modulables pour vos événements professionnels : séminaires, formations, team building. De 15 à 50 personnes.",
+    url: "https://coworkingcafe.fr/privatization",
+    siteName: "CoworKing Café by Anticafé",
+    images: [
+      {
+        url: "https://coworkingcafe.fr/images/professional/privatisation-anticafe-strasbourg.webp",
+        width: 1200,
+        height: 630,
+        alt: "Privatisation CoworKing Café Strasbourg - Événements B2B",
+      },
+    ],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privatisation CoworKing Café Strasbourg",
+    description:
+      "180m² pour vos événements B2B : séminaires, formations, team building à Strasbourg",
+    images: [
+      "https://coworkingcafe.fr/images/professional/privatisation-anticafe-strasbourg.webp",
+    ],
+  },
+};
 
 const Privatization = () => {
-  const swiperRef = useRef<SwiperType | null>(null);
-
-  useEffect(() => {
-    const handlePaginationClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.classList.contains("slide-dots") && swiperRef.current) {
-        e.preventDefault();
-        e.stopPropagation();
-        const page = parseInt(target.getAttribute("data-page") || "1", 10);
-        // slideToLoop utilise un index basé sur 0
-        swiperRef.current.slideToLoop(page - 1, 500);
-      }
-    };
-
-    // Utiliser setTimeout pour s'assurer que le DOM est prêt
-    const timer = setTimeout(() => {
-      const paginationEl = document.querySelector(".testimonial-pagination");
-      if (paginationEl) {
-        paginationEl.addEventListener(
-          "click",
-          handlePaginationClick as EventListener,
-        );
-      }
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      const paginationEl = document.querySelector(".testimonial-pagination");
-      if (paginationEl) {
-        paginationEl.removeEventListener(
-          "click",
-          handlePaginationClick as EventListener,
-        );
-      }
-    };
-  }, []);
-
-  const [isOpen, setOpen] = useState(false);
-
   return (
     <div className="">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "EventVenue",
+            name: "CoworKing Café by Anticafé",
+            description:
+              "Espace de coworking privatisable pour événements professionnels à Strasbourg",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "Strasbourg",
+              addressRegion: "Grand Est",
+              addressCountry: "FR",
+            },
+            maximumAttendeeCapacity: 50,
+            minimumAttendeeCapacity: 15,
+            floorSize: {
+              "@type": "QuantitativeValue",
+              value: 180,
+              unitCode: "MTK",
+            },
+            amenityFeature: [
+              {
+                "@type": "LocationFeatureSpecification",
+                name: "WiFi haut débit",
+                value: true,
+              },
+              {
+                "@type": "LocationFeatureSpecification",
+                name: "Équipement audiovisuel",
+                value: true,
+              },
+              {
+                "@type": "LocationFeatureSpecification",
+                name: "Restauration sur place",
+                value: true,
+              },
+            ],
+            priceRange: "550€-1490€",
+            offers: [
+              {
+                "@type": "Offer",
+                name: "Soirée",
+                price: "550",
+                priceCurrency: "EUR",
+                description: "Privatisation soirée",
+              },
+              {
+                "@type": "Offer",
+                name: "Demi-journée",
+                price: "880",
+                priceCurrency: "EUR",
+                description: "Privatisation demi-journée",
+              },
+              {
+                "@type": "Offer",
+                name: "Journée complète",
+                price: "1490",
+                priceCurrency: "EUR",
+                description: "Privatisation journée complète",
+              },
+            ],
+          }),
+        }}
+      />
       <section className="banner overflow-hidden">
         <div className="container position-relative">
           <div className="row">
@@ -70,18 +132,19 @@ const Privatization = () => {
                   </SlideUp>
                   <SlideUp delay={2}>
                     <p>
-                      Organiser un événement professionnel demande plus qu’une
+                      Organiser un événement professionnel demande plus qu'une
                       salle : il faut un lieu qui donne envie de se rassembler,
-                      d’échanger et de créer du lien, tout en offrant des
-                      conditions de travail irréprochables. Chez Coworking Café
-                      by Anticafé, nous proposons la privatisation complète de
-                      notre établissement pour vos événements B2B à Strasbourg,
-                      dans un cadre à la fois inspirant, fonctionnel et humain.
-                      Ici, pas de salle froide ni impersonnelle. Pas non plus de
-                      café bruyant. Notre force : un espace hybride, pensé dès
-                      l’origine pour le travail, la collaboration et la
-                      concentration, que nous mettons entièrement à votre
-                      disposition le temps de votre événement.
+                      d'échanger et de créer du lien, tout en offrant des
+                      conditions de travail irréprochables. Chez{" "}
+                      <Link href="/">Coworking Café by Anticafé</Link>, nous
+                      proposons la privatisation complète de notre établissement
+                      pour vos événements B2B à Strasbourg, dans un cadre à la
+                      fois inspirant, fonctionnel et humain. Ici, pas de salle
+                      froide ni impersonnelle. Pas non plus de café bruyant.
+                      Notre force : un espace hybride, pensé dès l'origine pour
+                      le travail, la collaboration et la concentration, que nous
+                      mettons entièrement à votre disposition le temps de votre
+                      événement.
                     </p>
                   </SlideUp>
                 </div>
@@ -90,7 +153,7 @@ const Privatization = () => {
                   className="buttons d-sm-flex align-items-center"
                 >
                   <Link
-                    href={"/spaces#spaces"}
+                    href={"/privatization/devis"}
                     className="common__btn buttons_file"
                   >
                     <span>Demande de devis</span>
@@ -127,7 +190,7 @@ const Privatization = () => {
               <div className="banner__right">
                 <Image
                   src="/images/banner/logo-circle-white.webp"
-                  alt="CoworKing Café by Anticafé Strasbourg - Logo circulaire"
+                  alt="CoworKing Café Strasbourg privatisation événements professionnels logo"
                   width={250}
                   height={250}
                   className="logo__circle"
@@ -137,7 +200,7 @@ const Privatization = () => {
                 <div>
                   <Image
                     src="/images/professional/privatisation-anticafe-strasbourg.webp"
-                    alt="Espace de coworking avec boissons à volonté - CoworKing Café Strasbourg"
+                    alt="Privatisation espace coworking événements B2B séminaires Strasbourg"
                     width={800}
                     height={600}
                     className="bg__img"
@@ -164,11 +227,9 @@ const Privatization = () => {
           <div className="row justify-content-between about__title">
             <SlideDown>
               <div className="col-lg-10">
-                <h1 className="title">
-                  La privatisation de CoworKing Café s’adresse aux entreprises,
-                  équipes, formateurs, coachs, entrepreneurs, marques,
-                  collectifs et associations...
-                </h1>
+                <h2 className="title">
+                  À qui s'adresse la privatisation de CoworKing Café ?
+                </h2>
               </div>
             </SlideDown>
           </div>
@@ -177,12 +238,15 @@ const Privatization = () => {
               <SlideUp>
                 <div className="about__wapper_left">
                   <p>
-                    ..qui recherchent un lieu événementiel différent, à taille
-                    humaine, au cœur de Strasbourg. Nous accueillons
+                    La privatisation s'adresse aux entreprises, équipes,
+                    formateurs, coachs, entrepreneurs, marques, collectifs et
+                    associations qui recherchent un lieu événementiel différent,
+                    à taille humaine, au cœur de Strasbourg. Nous accueillons
                     exclusivement des événements à vocation professionnelle :
-                    réunions d’équipe, séminaires, formations, workshops,
+                    réunions d'équipe, séminaires, formations, workshops,
                     conférences, tables rondes, team buildings, lancements de
-                    produits ou encore points boutiques éphémères. Ce
+                    produits ou encore points boutiques éphémères. Découvrez{" "}
+                    <Link href="/spaces">nos espaces modulables</Link>. Ce
                     positionnement volontairement clair nous permet de garantir
                     un cadre cohérent, qualitatif et respectueux du lieu comme
                     de ses usages.
@@ -195,7 +259,7 @@ const Privatization = () => {
                 <div className="about__wapper_center">
                   <Image
                     src="/images/professional/privatisation-coworking-strasbourg.webp"
-                    alt="Espace de travail open space - CoworKing Café Anticafé Strasbourg"
+                    alt="Salle de réunion modulable privatisation team building Strasbourg"
                     width={800}
                     height={600}
                     loading="lazy"
@@ -209,17 +273,13 @@ const Privatization = () => {
           <Partner data={partnerOneLogos} />
         </div>
       </section>
-      <section className="projects pb__130" id="projects">
+      <section className="projects" id="projects">
         <div className="container">
           {/* title Start */}
           <SlideDown className="d-flex align-items-center ">
-            <h1 className="title">
+            <h2 className="title">
               Un lieu équipé et modulable pour vos événements professionnels
-            </h1>
-            {/* <Link href="/spaces#spaces" className="circle mt-5 mt-lg-0">
-              <Icon name="arrow-right" />
-              <span>En savoir plus</span>
-            </Link> */}
+            </h2>
           </SlideDown>
           {/* title End */}
           <div className="projects__wapper">
@@ -234,7 +294,7 @@ const Privatization = () => {
                     <div className="d-flex flex-column gap-5 mb-4">
                       <Image
                         src={imgSrc}
-                        alt={`${title} - CoworKing Café Anticafé Strasbourg`}
+                        alt={`Privatisation ${title} événements professionnels CoworKing Café Strasbourg`}
                         width={600}
                         height={400}
                         loading="lazy"
@@ -243,7 +303,7 @@ const Privatization = () => {
                       />
                     </div>
                     <div className="h-text">
-                      <div className="d-flex align-items-center"></div>
+                      <div className="d-flex align-items-center "></div>
                       <p className="project__group mb-3 text-white">
                         {categories}
                       </p>
@@ -263,9 +323,9 @@ const Privatization = () => {
             <SlideDown>
               <div className="col-lg-10">
                 <div>
-                  <h1 className="title">
+                  <h2 className="title">
                     Formats & conditions de privatisation
-                  </h1>
+                  </h2>
                 </div>
               </div>
             </SlideDown>
@@ -279,7 +339,7 @@ const Privatization = () => {
                     devis, afin de garantir un événement adapté à votre format
                     et à vos objectifs.
                   </p>
-                  <Link href="/about" className="circle">
+                  <Link href="/privatization/devis" className="circle">
                     <IconArrowRight size={28} />
 
                     <span>Demande de devis</span>
@@ -290,7 +350,10 @@ const Privatization = () => {
             <div className="col-xl-4 col-lg-6">
               <SlideUp delay={2}>
                 <div className="about__wapper_center">
-                  <img src="/images/about/Rectangle105.webp" alt="reunion" />
+                  <img
+                    src="/images/about/Rectangle105.webp"
+                    alt="Salle de réunion privatisée séminaire formation Strasbourg"
+                  />
                 </div>
               </SlideUp>
             </div>
@@ -318,174 +381,74 @@ const Privatization = () => {
               </SlideUp>
             </div>
           </div>
-          <h2 className="title mt-5">
+          <h2 className="title mt-5 pt-5">
             Pourquoi choisir Coworking Café pour votre événement ?
           </h2>
           <p className="title__paragraph mt-5">
-            Privatiser Coworking Café, c’est faire le choix d’un lieu
+            Privatiser Coworking Café, c'est faire le choix d'un lieu
             événementiel B2B différent, déjà reconnu pour la qualité de son
-            accueil et de son atmosphère. C’est aussi bénéficier :
+            accueil et de son atmosphère, comme lors de{" "}
+            <Link href="/events#events">nos événements réguliers</Link>. C'est
+            aussi bénéficier :
           </p>
           <ul className="about__wapper_right mt-4">
             <li className="">
               <IconCheck />
-              d’un espace pensé pour le travail et l’échange, pas simplement
-              loué pour l’occasion
+              d'un espace pensé pour le travail et l'échange, pas simplement
+              loué pour l'occasion
             </li>
             <li>
               <IconCheck />
-              de l’ADN Anticafé, pionnier du café-coworking, allié à un fort
+              de l'ADN Anticafé, pionnier du café-coworking, allié à un fort
               ancrage local strasbourgeois
             </li>
             <li>
               <IconCheck />
-              d’un cadre chaleureux qui favorise la participation, l’attention
+              d'un cadre chaleureux qui favorise la participation, l'attention
               et les rencontres
             </li>
             <li>
               <IconCheck />
-              d’une équipe réactive, habituée à accueillir des groupes
+              d'une équipe réactive, habituée à accueillir des groupes
               professionnels
             </li>
           </ul>
         </div>
       </section>
-      <section className="testimonial py__130 h-dvh">
+      <section className="testimonial py__110 h-dvh">
         <div className="container position-relative">
           {/* title Start */}
           <SlideDown className="">
-            <h1 className="title text-center">
+            <h2 className="title text-center">
               Merci pour vos retours! <br /> Parce que vous contribuez à notre
               succès...
-            </h1>
+            </h2>
           </SlideDown>
           {/* title End */}
           <SlideUp className="testimonial__wapper">
-            <Swiper
-              onSwiper={(swiper: SwiperType) => (swiperRef.current = swiper)}
-              spaceBetween={25}
-              breakpoints={{
-                0: {
-                  slidesPerView: 1,
-                },
-                768: {
-                  slidesPerView: 2,
-                },
-              }}
-              navigation={{
-                nextEl: ".next-slide",
-                prevEl: ".prev-slide",
-              }}
-              pagination={{
-                type: "custom",
-                el: ".testimonial-pagination",
-                renderCustom: function (
-                  _swiper: SwiperType,
-                  current: number,
-                  total: number,
-                ) {
-                  let html = "";
-
-                  // Calculer les pages à afficher (max 3)
-                  let startPage = Math.max(1, current - 1);
-                  let endPage = Math.min(total, startPage + 2);
-
-                  // Ajuster si on est à la fin
-                  if (endPage - startPage < 2) {
-                    startPage = Math.max(1, endPage - 2);
-                  }
-
-                  // Ajouter "..." au début si on n'est pas sur les premières pages
-                  if (startPage > 1) {
-                    html += `<span class='slide-dots slide-dots-ellipsis' data-page='1'>...</span>`;
-                  }
-
-                  for (let i = startPage; i <= endPage; i++) {
-                    const activeClass =
-                      i === current ? "slide-dots-active" : "";
-                    html += `<span class='slide-dots ${activeClass}' data-page='${i}'>0${i}</span>`;
-                  }
-
-                  // Ajouter "..." à la fin si on n'est pas sur les dernières pages
-                  if (endPage < total) {
-                    html += `<span class='slide-dots slide-dots-ellipsis' data-page='${total}'>...</span>`;
-                  }
-
-                  return html;
-                },
-              }}
-              loop
-              modules={[Navigation, PaginationModule]}
-            >
-              {testimonialsOneData.map((testimonial, index) => (
-                <SwiperSlide key={index} className="slide">
-                  <div className="d-flex gap-2 star">
-                    {Array.from({ length: testimonial.stars }).map((_, i) => (
-                      <i key={i} className="bi bi-star-fill" />
-                    ))}
-                  </div>
-                  <p className="review">{testimonial.review}</p>
-                  <div className="d-flex justify-content-between">
-                    <div className="d-flex gap-4 reviewer__info">
-                      <Image
-                        src={testimonial.reviewer.image}
-                        alt={testimonial.reviewer.name}
-                        width={60}
-                        height={60}
-                        loading="lazy"
-                        sizes="60px"
-                      />
-                      <div>
-                        <p>{testimonial.reviewer.name}</p>
-                        <small>{testimonial.reviewer.position}</small>
-                      </div>
-                    </div>
-                    <div>
-                      <Image
-                        src={testimonial.quoteImage}
-                        alt="quote"
-                        width={60}
-                        height={60}
-                        loading="lazy"
-                        sizes="60px"
-                      />
-                    </div>
-                  </div>
-                </SwiperSlide>
-              ))}
-              <div className="d-flex justify-content-center gap-3 mt-4">
-                <div className="d-flex justify-content-between w-380">
-                  <div className="prev-slide slide__nav">
-                    <Icon name="arrow-left" />
-                  </div>
-                  <div className="testimonial-pagination d-flex gap-3"></div>
-                  <div className="next-slide slide__nav">
-                    <Icon name="arrow-right" />
-                  </div>
-                </div>
-              </div>
-            </Swiper>
+            <TestimonialsSwiper />
           </SlideUp>
         </div>
       </section>
 
-      <section className="priva py__130">
-        <h1 className="title text-center mb-5">
+      <section className="priva pb__130 container">
+        {/* <h1 className="title text-center mb-5">
           Pourquoi venir à CoworKing Café ? <br />
           Pour ça !
-        </h1>
+        </h1> */}
 
-        <h4 className="title__paragraph text-center mt-4  text-white">
+        <p className="project__group  text-center  ">
           Vous souhaitez organiser un événement professionnel à Strasbourg dans
           un lieu chaleureux, fonctionnel et central ? Présentez-nous votre
           projet par email (date, format, nombre de personnes, besoins
           spécifiques). Nous étudierons votre demande et reviendrons vers vous
-          avec une proposition adaptée.
-        </h4>
-        {/* Links to contact */}
+          avec une proposition adaptée.{" "}
+          <Link href="/privatization/devis">Demandez un devis</Link> personnalisé.
+        </p>
+        {/* Links to devis form */}
         <div className="text-center">
           <Link
-            href="/contact"
+            href="/privatization/devis"
             className="common__btn me-md-3 mb-3 mb-md-0 d-block d-md-inline-block"
           >
             <span>Demander un devis</span>

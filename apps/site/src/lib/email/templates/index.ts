@@ -39,3 +39,7 @@ export { generateReminderEmail } from './reminder';
 
 // ============ Auth templates ============
 export { passwordResetEmail } from './passwordReset';
+
+// ============ Privatisation ============
+export { sendPrivatizationRequestEmail } from './privatizationRequest';
+export type { PrivatizationRequestData } from './privatizationRequest';
