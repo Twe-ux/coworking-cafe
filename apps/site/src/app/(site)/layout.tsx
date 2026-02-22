@@ -15,13 +15,13 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://coworkingcafe.fr"),
-  title: "Cow-or-King Café Strasbourg | Espace Coworking avec Boissons Illimitées",
+  title: "CoworKing Café Strasbourg | Espace Coworking avec Boissons Illimitées",
   description:
-    "Espace de coworking à Strasbourg centre. Cow-or-King Café by Anticafé : 60 places, +40 boissons illimitées, Wi-Fi rapide. Réservation en ligne. Le café motive, l'humain relie.",
+    "Espace de coworking à Strasbourg centre. CoworKing Café by Anticafé : 60 places, +40 boissons illimitées, Wi-Fi rapide. Réservation en ligne. Le café motive, l'humain relie.",
   keywords: [
     "coworking strasbourg",
     "anticafé strasbourg",
-    "cow-or-king café strasbourg",
+    "coworking café strasbourg",
     "espace coworking strasbourg centre",
     "café coworking alsace",
     "coworking boissons illimitées",
@@ -30,11 +30,11 @@ export const metadata: Metadata = {
     "coworking journée strasbourg",
   ],
   openGraph: {
-    title: "Cow-or-King Café Strasbourg | Espace Coworking avec Boissons Illimitées",
+    title: "CoworKing Café Strasbourg | Espace Coworking avec Boissons Illimitées",
     description:
       "Espace de coworking au cœur de Strasbourg. +40 boissons illimitées, Wi-Fi rapide, ambiance conviviale. Le café motive • L'humain relie • Vous faites le reste.",
     url: "https://coworkingcafe.fr",
-    siteName: "Cow-or-King Café Strasbourg",
+    siteName: "CoworKing Café Strasbourg",
     locale: "fr_FR",
     type: "website",
     images: [
@@ -42,13 +42,13 @@ export const metadata: Metadata = {
         url: "/images/og-image.webp",
         width: 1200,
         height: 630,
-        alt: "Cow-or-King Café Strasbourg - Espace de coworking avec boissons illimitées",
+        alt: "CoworKing Café Strasbourg - Espace de coworking avec boissons illimitées",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cow-or-King Café Strasbourg | Coworking + Boissons Illimitées",
+    title: "CoworKing Café Strasbourg | Coworking + Boissons Illimitées",
     description:
       "Espace de coworking au cœur de Strasbourg. +40 boissons illimitées, Wi-Fi rapide. Réservez votre place !",
     images: ["/images/og-image.webp"],

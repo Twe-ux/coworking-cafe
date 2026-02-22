@@ -3,7 +3,7 @@ export function LocalBusinessSchema() {
     "@context": "https://schema.org",
     "@type": "CoworkingSpace",
     "@id": "https://coworkingcafe.fr/#localbusiness",
-    "name": "Cow-or-King Café Strasbourg",
+    "name": "CoworKing Café Strasbourg",
     "alternateName": ["CoworKing Café by Anticafé", "Anticafé Strasbourg"],
     "description": "Espace de coworking chaleureux au cœur de Strasbourg. WiFi rapide, café et boissons à volonté, salles de réunion privatisables. Réservation en ligne.",
     "url": "https://coworkingcafe.fr",

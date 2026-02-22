@@ -3,7 +3,7 @@ export function OrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": "https://coworkingcafe.fr/#organization",
-    "name": "Cow-or-King Café Strasbourg",
+    "name": "CoworKing Café Strasbourg",
     "alternateName": ["CoworKing Café by Anticafé", "Anticafé Strasbourg"],
     "url": "https://coworkingcafe.fr",
     "logo": {

@@ -1,0 +1,1 @@
+export { TestimonialsSwiper } from "./TestimonialsSwiper";

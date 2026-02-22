@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Réserver un Espace | Cow-or-King Café Strasbourg",
+  title: "Réserver un Espace | CoworKing Café Strasbourg",
   description:
     "Réservez votre place de coworking en ligne. Open-space, salle de réunion privée ou espace événementiel. Boissons illimitées incluses. Réservation instantanée.",
   keywords: [
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "espace événementiel strasbourg",
   ],
   openGraph: {
-    title: "Réserver un Espace de Coworking | Cow-or-King Café",
+    title: "Réserver un Espace de Coworking | CoworKing Café",
     description:
       "Réservation en ligne - Open-space, salle de réunion ou événementiel. Boissons illimitées, WiFi rapide. Confirmation immédiate.",
     url: "https://coworkingcafe.fr/booking",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Réserver un Espace | Cow-or-King Café",
+    title: "Réserver un Espace | CoworKing Café",
     description: "Réservation en ligne instantanée. Open-space, salles privées, événementiel.",
     images: ["/images/og-booking.webp"],
   },

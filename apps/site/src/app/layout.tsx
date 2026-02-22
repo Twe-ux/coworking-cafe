@@ -31,8 +31,8 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   metadataBase: new URL("https://coworkingcafe.fr"),
   title: {
-    default: "Cow-or-King Café Strasbourg",
-    template: "%s | Cow-or-King Café Strasbourg",
+    default: "CoworKing Café Strasbourg",
+    template: "%s | CoworKing Café Strasbourg",
   },
   icons: {
     icon: [
@@ -47,18 +47,18 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Cow-or-King Café",
+    title: "CoworKing Café",
   },
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    siteName: "Cow-or-King Café Strasbourg",
+    siteName: "CoworKing Café Strasbourg",
     images: [
       {
         url: "/images/og-image.webp",
         width: 1200,
         height: 630,
-        alt: "Cow-or-King Café Strasbourg - Espace de coworking avec boissons illimitées",
+        alt: "CoworKing Café Strasbourg - Espace de coworking avec boissons illimitées",
       },
     ],
   },

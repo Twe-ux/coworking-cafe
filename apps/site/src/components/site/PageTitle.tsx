@@ -8,7 +8,7 @@ const PageTitle = ({ title }: PageTitleProps) => {
       <div className="container">
         <div className="row">
           <div className="d-flex justify-content-center align-items-center">
-            <h2>{title}</h2>
+            <h1>{title}</h1>
           </div>
         </div>
       </div>

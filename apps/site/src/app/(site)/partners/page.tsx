@@ -1,20 +1,134 @@
 import PageTitle from "@/components/site/PageTitle";
-import SlideUp from "@/utils/animations/slideUp";
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Partenaires | Coworking Café by Anticafé Strasbourg",
+  description:
+    "Découvrez les partenaires locaux et fournisseurs de Coworking Café à Strasbourg : café Omnino, lait fermier, produits bio et collaborations engagées.",
+  keywords: [
+    "partenaires coworking Strasbourg",
+    "fournisseurs locaux",
+    "café Omnino",
+    "produits locaux Strasbourg",
+    "collaborations coworking",
+  ],
+  alternates: {
+    canonical: "https://coworkingcafe.fr/partners",
+  },
+  openGraph: {
+    title: "Partenaires | Coworking Café Strasbourg",
+    description:
+      "Nos partenaires locaux : torréfacteur Omnino, Ferme Saint-Ulrich, et acteurs engagés de Strasbourg.",
+    url: "https://coworkingcafe.fr/partners",
+    siteName: "Coworking Café by Anticafé",
+    images: [
+      {
+        url: "https://coworkingcafe.fr/images/partners/omnino-cafe-coworking-strasbourg-anticafe.webp",
+        width: 1200,
+        height: 630,
+        alt: "Partenaires Coworking Café Strasbourg",
+      },
+    ],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Partenaires | Coworking Café Strasbourg",
+    description: "Découvrez nos partenaires locaux et engagés à Strasbourg",
+    images: [
+      "https://coworkingcafe.fr/images/partners/omnino-cafe-coworking-strasbourg-anticafe.webp",
+    ],
+  },
+};
 
 const Partners = () => {
+  // Structured Data pour les partenaires
+  const partnersStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: "Coworking Café by Anticafé",
+    description: "Coworking café à Strasbourg avec partenaires locaux engagés",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Strasbourg",
+      addressCountry: "FR",
+    },
+    partner: [
+      {
+        "@type": "Organization",
+        name: "Omnino",
+        description: "Torréfacteur local à Strasbourg",
+        url: "https://www.omnino.fr",
+      },
+      {
+        "@type": "Organization",
+        name: "Ferme Saint-Ulrich",
+        description: "Production laitière locale près de Strasbourg",
+        url: "https://www.bienvenue-a-la-ferme.com",
+      },
+      {
+        "@type": "Organization",
+        name: "CHERICO",
+        description: "Chicorée 100% biologique alternative au café",
+        url: "https://www.cherico.fr",
+      },
+      {
+        "@type": "Organization",
+        name: "OATLY",
+        description: "Lait d'avoine pour coffee shops",
+        url: "https://www.oatly.com/fr-fr/products",
+      },
+      {
+        "@type": "Organization",
+        name: "ALPRO",
+        description: "Laits végétaux gamme Barista",
+        url: "https://www.alpro.com/fr",
+      },
+      {
+        "@type": "Organization",
+        name: "Cave Baumann",
+        description: "Fournisseur sirops Monin à Strasbourg",
+        url: "https://www.caves-baumann.fr/",
+      },
+      {
+        "@type": "Organization",
+        name: "Hola Maté",
+        description: "Boutique maté et boissons Onda Maté à Strasbourg",
+        url: "https://holamate.fr/",
+      },
+      {
+        "@type": "Organization",
+        name: "Magic Lab",
+        description: "Boissons à base de champignons adaptogènes",
+        url: "https://www.drinkmagiclab.com/",
+      },
+      {
+        "@type": "Organization",
+        name: "Le Café Potager",
+        description: "Fast good et déjeuners frais à Strasbourg",
+        url: "https://www.lecafepotager.com/",
+      },
+    ],
+  };
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(partnersStructuredData),
+        }}
+      />
       <PageTitle title={"Partenaires"} />
       <article className="concept pb__130 ">
         <div className="container pb-md-5 mb-md-5">
           <div className="first__para pt__60">
-            <SlideUp>
-              <h3 className="t__28">
-                Découvrez les partenaires de Coworking Café by Anticafé à
-                Strasbourg :
-              </h3>
-            </SlideUp>
+            <h3 className="t__28">
+              Découvrez les partenaires de Coworking Café by Anticafé à
+              Strasbourg :
+            </h3>
+
             <p>
               Chez Coworking Café by Anticafé, nous croyons aux projets qui se
               construisent ensemble. Derrière chaque boisson, chaque encas,
@@ -26,7 +140,8 @@ const Partners = () => {
               Travailler, se rencontrer et créer du lien passe aussi par le
               choix de collaborations humaines, responsables et durables. Cette
               page met en lumière celles et ceux qui contribuent, au quotidien,
-              à faire vivre notre coworking café à Strasbourg.
+              à faire vivre notre{" "}
+              <a href="/">coworking café à Strasbourg</a>.
             </p>
             <p>
               Être un coworking café, ce n’est pas seulement proposer un espace
@@ -46,9 +161,10 @@ const Partners = () => {
             <p>
               Coworking Café est un lieu de passage, de rencontres et de
               projets. Les partenariats évoluent, se transforment et
-              s’enrichissent au fil du temps. Nous aimons tester, co-créer,
+              s'enrichissent au fil du temps. Nous aimons tester, co-créer,
               imaginer de nouvelles synergies et donner de la visibilité aux
-              initiatives qui nous inspirent.
+              initiatives qui nous inspirent, notamment lors de vos{" "}
+              <a href="/booking">réunions et événements professionnels</a>.
             </p>
 
             <p>
@@ -58,20 +174,20 @@ const Partners = () => {
               </i>
             </p>
             <p>
-              📩 Contactez-nous par email — chaque demande est étudiée avec
-              attention.
+              📩 <a href="/contact">Contactez-nous par email</a> — chaque
+              demande est étudiée avec attention.
             </p>
           </div>
 
           {/* PAGE Image gauche, Texte droite  OMNINO*/}
-          <div className="row align-items-center g-4 pt__50">
-            <h2 className="t__28 mb-4">Nos fournisseurs</h2>
+          <div className="row align-items-center g-5 pt__60">
+            <h2 className="t__54 mb-4">Nos fournisseurs</h2>
             <div className="col-lg-6">
               <Image
                 src="/images/partners/omnino-cafe-coworking-strasbourg-anticafe.webp"
                 width={648}
                 height={648}
-                alt="Épicerie encas sucrés et snacks - CoworKing Café Anticafé Strasbourg"
+                alt="omnino café de spécialité torréfacteur local strasbourg coworking"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -85,10 +201,14 @@ const Partners = () => {
               <p>
                 Pour le café, nous avons fait le choix d’un partenaire local
                 engagé : Omnino, torréfacteur artisanal basé à Strasbourg.
+              </p>
+              <p>
                 Derrière chaque tasse servie chez Coworking Café, il y a un
                 travail précis de sélection, de torréfaction et de passion pour
                 le café de spécialité. Omnino partage notre exigence de qualité,
                 mais aussi notre envie de transmission et de convivialité.
+              </p>
+              <p>
                 Au-delà de nous fournir le café que vous dégustez au quotidien,
                 Omnino fait vivre la culture café au sein même de notre espace
                 en organisant régulièrement des ateliers de torréfaction et de
@@ -104,7 +224,7 @@ const Partners = () => {
           </div>
 
           {/* PAGE Texte gauche, Image droite  FERME ST ULRICH*/}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <h3 className="t__28">
                 🥛 La Ferme Saint-Ulrich <br /> Le goût du vrai lait
@@ -112,16 +232,21 @@ const Partners = () => {
               <p>
                 Pour le lait de vache, nous travaillons avec la Ferme
                 Saint-Ulrich, une exploitation située près de Strasbourg,
-                reconnue pour la qualité exceptionnelle de sa production. Ici,
-                pas de compromis : un lait authentique, riche et gourmand, qui
-                fait toute la différence en tasse. C’est simple : une fois qu’on
-                y a goûté, difficile de revenir en arrière. Sa texture, son goût
-                et sa tenue en boisson chaude subliment nos cafés, cappuccinos
-                et latte, et participent pleinement à l’expérience que nous
-                voulons offrir chez Coworking Café. Choisir la Ferme
-                Saint-Ulrich, c’est soutenir une agriculture locale et engagée,
-                tout en garantissant à nos clients un produit sincère, savoureux
-                et respectueux du savoir-faire de notre région.
+                reconnue pour la qualité exceptionnelle de sa production.
+              </p>
+              <p>
+                Ici, pas de compromis : un lait authentique, riche et gourmand,
+                qui fait toute la différence en tasse. C’est simple : une fois
+                qu’on y a goûté, difficile de revenir en arrière. Sa texture,
+                son goût et sa tenue en boisson chaude subliment nos cafés,
+                cappuccinos et latte, et participent pleinement à l’expérience
+                que nous voulons offrir chez Coworking Café.
+              </p>
+              <p>
+                Choisir la Ferme Saint-Ulrich, c’est soutenir une agriculture
+                locale et engagée, tout en garantissant à nos clients un produit
+                sincère, savoureux et respectueux du savoir-faire de notre
+                région.
               </p>
               <a
                 href="https://www.bienvenue-a-la-ferme.com"
@@ -136,7 +261,7 @@ const Partners = () => {
                 src="/images/partners/ferme-st-ulrich-coworking-cafe-strasbourg-anticafe.webp"
                 width={850}
                 height={568}
-                alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
+                alt="ferme saint-ulrich lait de vache local strasbourg partenaire coworking"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -145,7 +270,7 @@ const Partners = () => {
           </div>
 
           {/* PAGE Image gauche, Texte droite CHERICO */}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <Image
                 src="/images/partners/cherico-anticafe-strasbourg-coworking-chicoree.webp"
@@ -168,6 +293,8 @@ const Partners = () => {
                 travail avec des boissons qui ont du sens. C’est pourquoi nous
                 avons choisi CHERICO, une marque qui propose une chicorée 100 %
                 biologique comme alternative naturelle au café ☕ sans caféine.
+              </p>
+              <p>
                 Fabriquée à partir de racines de chicorée torréfiées, la
                 chicorée CHERICO révèle des arômes doux de caramel et de
                 noisette, offrant une boisson chaude réconfortante pour tous
@@ -188,7 +315,7 @@ const Partners = () => {
           </div>
 
           {/* PAGE Texte gauche, Image droite  OATLY*/}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <h3 className="t__28">
                 🌾 OATLY
@@ -200,7 +327,9 @@ const Partners = () => {
                 Fabriqué à base d’avoine, ce lait végétal est reconnu pour sa
                 texture onctueuse, son goût équilibré et sa capacité à sublimer
                 les boissons chaudes comme froides, sans masquer les arômes du
-                café ou du matcha. <br />
+                café ou du matcha.
+              </p>
+              <p>
                 Chez CoworKing Café, le lait d’avoine OATLY s’adresse aussi bien
                 aux personnes intolérantes au lactose, qu’aux curieux, aux
                 flexitariens ou à celles et ceux qui souhaitent simplement
@@ -209,13 +338,20 @@ const Partners = () => {
                 notre volonté de proposer des alternatives accessibles,
                 qualitatives et dans l’air du temps. 🌱☕
               </p>
+              <a
+                href="https://www.oatly.com/fr-fr/products"
+                target="_blank"
+                rel="noopener"
+              >
+                Découvrez OATLY
+              </a>
             </div>
             <div className="col-lg-6">
               <Image
                 src="/images/partners/oatly-coworking-cafe-strasbourg-lait-davoine.webp"
                 width={850}
                 height={568}
-                alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
+                alt="oatly lait avoine végétal barista coffee shop strasbourg"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -224,13 +360,13 @@ const Partners = () => {
           </div>
 
           {/* PAGE Image gauche, Texte droite ALPRO*/}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <Image
                 src="/images/partners/alpro-lait-vegetal-coffee-shop-strasbourg.webp"
                 width={648}
                 height={648}
-                alt="Épicerie encas sucrés et snacks - CoworKing Café Anticafé Strasbourg"
+                alt="alpro laits végétaux coco amande barista strasbourg"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -256,11 +392,14 @@ const Partners = () => {
                 goût, la régularité et le plaisir en tasse, que ce soit pour
                 travailler longtemps… ou juste savourer l’instant ☕✨
               </p>
+              <a href="https://www.alpro.com/fr" target="_blank" rel="noopener">
+                Découvrez ALPRO
+              </a>
             </div>
           </div>
 
           {/* PAGE Texte gauche, Image droite CAVE BAUMANN*/}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <h3 className="t__28">
                 🍯 Cave Baumann <br /> Le paradis des sirops à Strasbourg
@@ -282,13 +421,20 @@ const Partners = () => {
                 caverne d’Ali Baba pour les amateurs de boissons gourmandes… et
                 les baristas exigeants 😉☕
               </p>
+              <a
+                href="https://www.caves-baumann.fr/"
+                target="_blank"
+                rel="noopener"
+              >
+                Découvrez CAVES JACQUES BAUMANN
+              </a>
             </div>
             <div className="col-lg-6">
               <Image
                 src="/images/partners/cave-baumann-strasbourg-cafe-coworking.webp"
                 width={850}
                 height={568}
-                alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
+                alt="cave baumann sirops monin fournisseur professionnel strasbourg"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -297,13 +443,13 @@ const Partners = () => {
           </div>
 
           {/* PAGE Image gauche, Texte droite HOLA MATE*/}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <Image
                 src="/images/partners/hola-mate-onda-strasbourg.jpg"
                 width={648}
                 height={648}
-                alt="Épicerie encas sucrés et snacks - CoworKing Café Anticafé Strasbourg"
+                alt="hola maté onda boissons énergisantes naturelles strasbourg"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -331,11 +477,14 @@ const Partners = () => {
                 des esprits curieux. Une alternative naturelle, stylée et
                 rafraîchissante à découvrir chez nous 🧉✨
               </p>
+              <a href="https://holamate.fr/" target="_blank" rel="noopener">
+                Découvrez HOLA MATE
+              </a>
             </div>
           </div>
 
           {/* PAGE Texte gauche, Image droite MAGIC LAB */}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <h3 className="t__28">
                 🍄 Magic Lab <br /> Les champignons adaptogènes, version plaisir
@@ -358,13 +507,20 @@ const Partners = () => {
                 vous. Une alternative consciente, sélectionnée avec exigence… et
                 curiosité 🍄☕
               </p>
+              <a
+                href="https://www.drinkmagiclab.com/"
+                target="_blank"
+                rel="noopener"
+              >
+                Découvrez MAGIC LAB
+              </a>
             </div>
             <div className="col-lg-6">
               <Image
                 src="/images/partners/magiclab-boisson-champignons-coffeeshop-strasbourg.webp"
                 width={850}
                 height={568}
-                alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
+                alt="magic lab champignons adaptogènes boisson bien-être alternative café"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -373,13 +529,13 @@ const Partners = () => {
           </div>
 
           {/* PAGE Image gauche, Texte droite LE CAFE POTAGER */}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <Image
                 src="/images/partners/cafe-potager-strasbourg-partenaire-coworking-anticafe.jpg"
                 width={648}
                 height={648}
-                alt="Épicerie encas sucrés et snacks - CoworKing Café Anticafé Strasbourg"
+                alt="café potager restauration fraîche déjeuners entreprise strasbourg"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -394,9 +550,10 @@ const Partners = () => {
                 Pour les déjeuners lors de nos réunions, formations et
                 événements professionnels, nous collaborons avec Le Café
                 Potager, un coffee shop – fast good engagé à Strasbourg. Leur
-                cuisine fraîche, équilibrée et gourmande s’intègre parfaitement
-                à l’esprit de Coworking Café : bien manger, sans lourdeur, même
-                lors d’une journée de travail intense.
+                cuisine fraîche, équilibrée et gourmande s'intègre parfaitement
+                à l'esprit de Coworking Café : bien manger, sans lourdeur, même
+                lors d'une journée de travail intense. Idéal pour accompagner
+                vos <a href="/privatization">privatisations d'espace</a>.
               </p>
               <p>
                 Le Café Potager nous livre des menus pensés pour les groupes,
@@ -406,6 +563,13 @@ const Partners = () => {
                 soutenant des acteurs strasbourgeois partageant les mêmes
                 valeurs de simplicité, de fraîcheur et d’efficacité 🍽️✨
               </p>
+              <a
+                href="https://www.lecafepotager.com/"
+                target="_blank"
+                rel="noopener"
+              >
+                Découvrez LE CAFE POTAGER
+              </a>
             </div>
           </div>
         </div>
@@ -425,10 +589,10 @@ const Partners = () => {
           </p>
         </div>
         <div>
-          <h2>Nos partenaires du quotidien</h2>
+          <h2 className="t__54 mb-4">Nos partenaires du quotidien</h2>
 
           {/* PAGE Texte gauche, Image droite GOLDEN TREE*/}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <h3 className="t__28">
                 🏡 Golden Tree <br /> La conciergerie alsacienne de confiance
@@ -445,16 +609,24 @@ const Partners = () => {
                 Grâce à ce partenariat, nous créons des ponts entre hébergement,
                 travail et art de vivre à Strasbourg, en orientant notamment les
                 voyageurs et professionnels de passage vers un lieu où ils
-                peuvent s’installer, travailler efficacement et profiter d’un
-                vrai coffee shop local.
+                peuvent s'installer, travailler efficacement et profiter d'un
+                vrai coffee shop local. Découvrez{" "}
+                <a href="/spaces">nos espaces de coworking</a>.
               </p>
+              <a
+                href="https://goldentreeconciergerie.fr/"
+                target="_blank"
+                rel="noopener"
+              >
+                Découvrez GOLDEN TREE
+              </a>
             </div>
             <div className="col-lg-6">
               <Image
                 src="/images/partners/golden-tree-conciergerie-partenaires-strasbourg-coworking.webp"
                 width={850}
                 height={568}
-                alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
+                alt="golden tree conciergerie alsace gestion logements strasbourg"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -463,13 +635,13 @@ const Partners = () => {
           </div>
 
           {/* PAGE Image gauche, Texte droite DRAMAGISTE*/}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <Image
                 src="/images/partners/le-dramagiste-evenement-entreprise-magicien-strasbourg-partenaires.jpeg"
                 width={648}
                 height={648}
-                alt="Épicerie encas sucrés et snacks - CoworKing Café Anticafé Strasbourg"
+                alt="le dramagiste magicien événements entreprise team building strasbourg"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -494,11 +666,18 @@ const Partners = () => {
                 mesure. Un partenaire créatif qui apporte une vraie dimension
                 humaine et émotionnelle aux projets professionnels.
               </p>
+              <a
+                href="https://www.ledramagiste.com/"
+                target="_blank"
+                rel="noopener"
+              >
+                Découvrez LE DRAMAGISTE
+              </a>
             </div>
           </div>
 
           {/* PAGE Texte gauche, Image droite NOMADE STATION*/}
-          <div className="row align-items-center g-4 pt__50">
+          <div className="row align-items-center g-5 pt__60">
             <div className="col-lg-6">
               <h3 className="t__28">
                 🧳 Nomade Station <br /> Voyager léger à Strasbourg
@@ -519,13 +698,20 @@ const Partners = () => {
                 vie de celles et ceux qui bougent, travaillent autrement et
                 veulent profiter pleinement de Strasbourg.
               </p>
+              <a
+                href="https://www.nomadestation.com/"
+                target="_blank"
+                rel="noopener"
+              >
+                Découvrez NOMADE STATION
+              </a>
             </div>
             <div className="col-lg-6">
               <Image
                 src="/images/partners/nomade-station-strasbourg-partenaires-coworking.webp"
                 width={850}
                 height={568}
-                alt="Gobelets réutilisables Billie écologiques - CoworKing Café Anticafé Strasbourg"
+                alt="nomade station dépôt bagages consigne strasbourg voyageurs"
                 className="w-100 rounded"
                 style={{ height: "auto" }}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -533,7 +719,7 @@ const Partners = () => {
             </div>
           </div>
 
-          <div className="pb__130">
+          <div className="pb__130 pt__60">
             <h3 className="t__28">🌱 Vous souhaitez collaborer avec nous ?</h3>
             <p>
               Nous sommes également ouverts aux collaborations, projets communs

@@ -3,7 +3,7 @@ export function WebSiteSchema() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": "https://coworkingcafe.fr/#website",
-    name: "Cow-or-King Café Strasbourg",
+    name: "CoworKing Café Strasbourg",
     alternateName: ["CoworKing Café", "Anticafé Strasbourg"],
     url: "https://coworkingcafe.fr",
     publisher: {
