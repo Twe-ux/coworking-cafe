@@ -4,13 +4,14 @@
  * Contract PDF Document Template
  * Uses @react-pdf/renderer for PDF generation
  *
- * Structure: 6 pages
+ * Structure: 7 pages
  * - Page 1: Header + Company/Employee info
  * - Page 2: Article 1 (Trial period) + Article 2 (Functions)
  * - Page 3: Articles 3-4 (Location + Monthly hours + Availability)
  * - Page 4: Article 5 (Schedule distribution)
  * - Page 5: Articles 6-10 (Overtime + Salary + Employment rules)
- * - Page 6: Articles 11-14 (Final articles) + Signatures
+ * - Page 6: Articles 11-13 (Final articles)
+ * - Page 7: Article 14 (Termination) + Signatures
  */
 
 import type { Employee } from "@/types/hr";
@@ -20,7 +21,8 @@ import { Article1 } from "./components/Article1";
 import { Articles3And4 } from "./components/Articles3And4";
 import { Article5 } from "./components/Articles5";
 import { Articles6To10 } from "./components/Articles6To10";
-import { Articles11To14AndSignatures } from "./components/Articles11To14AndSignatures";
+import { Articles11To13 } from "./components/Articles11To13";
+import { Article14AndSignatures } from "./components/Article14AndSignatures";
 
 interface ContractDocumentProps {
   employee: Employee;
@@ -110,8 +112,11 @@ export default function ContractDocument({
         monthlyHours={monthlyHours}
       />
 
-      {/* Page 6: Articles 11-14 + Signatures */}
-      <Articles11To14AndSignatures employee={employee} />
+      {/* Page 6: Articles 11-13 */}
+      <Articles11To13 employee={employee} />
+
+      {/* Page 7: Article 14 + Signatures */}
+      <Article14AndSignatures employee={employee} />
     </PDFDocument>
   );
 }
