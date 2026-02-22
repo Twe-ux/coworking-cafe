@@ -3,12 +3,12 @@ import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 import { DistributionTable } from "./DistributionTable";
 
-interface Articles5Props {
+interface Article5Props {
   employee: Employee;
   monthlyHours: string;
 }
 
-export function Articles5And6({ employee, monthlyHours }: Articles5Props) {
+export function Article5({ employee, monthlyHours }: Article5Props) {
   return (
     <>
       {/* Page 4 - */}
@@ -66,13 +66,13 @@ export function Articles5And6({ employee, monthlyHours }: Articles5Props) {
           <Text style={styles.text}>
             - Qu’elle intervienne dans le cadre des plages de planification
             possible précisées à l’article 4 du contrat et qui en déterminent
-            ainsi la variation possible
+            ainsi la variation possible.
           </Text>
           <Text style={styles.text}>
             - Qu’elle intervienne notamment dans les cas suivants : variation
             d’activité, changement d’affectation d’équipe en fonction des
             compétences requises par l’entreprise, remplacement pour départ,
-            absence ou maladie d’un Salarié, accident du travail ou congés
+            absence ou maladie d’un Salarié, accident du travail ou congés.
           </Text>
           <Text style={styles.text}>
             - Chaque journée de travail ne pourra comporter qu’une seule coupure
@@ -80,7 +80,7 @@ export function Articles5And6({ employee, monthlyHours }: Articles5Props) {
             contrepartie de toute coupure journalière supérieure à 2 heures dans
             la limite de 5 heures, les deux séquences de travail réalisées par
             le Salarié à temps partiel au cours de cette journée seront chacune
-            d’une durée minimale de 3 heures consécutives
+            d’une durée minimale de 3 heures consécutives.
           </Text>
         </View>
       </Page>

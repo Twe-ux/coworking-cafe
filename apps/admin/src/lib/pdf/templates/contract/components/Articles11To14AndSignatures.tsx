@@ -2,17 +2,41 @@ import type { Employee } from "@/types/hr";
 import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 
-interface FinalArticlesAndSignaturesProps {
+interface Articles11To14AndSignaturesProps {
   employee: Employee;
 }
 
-export function FinalArticlesAndSignatures({
+export function Articles11To14AndSignatures({
   employee,
-}: FinalArticlesAndSignaturesProps) {
+}: Articles11To14AndSignaturesProps) {
   return (
     <Page size="A4" style={styles.page}>
+      {/* Article 11 */}
+      <View style={styles.section}>
+        <Text style={styles.articleTitle}>
+          Article 11 - Caisse de retraite et prévoyance
+        </Text>
+        <Text style={styles.text}>
+          Le Salarié bénéficiera du régime de retraite et de prévoyance du
+          groupe AG2R auxquels la société a souscrit.
+        </Text>
+      </View>
+
       {/* Article 12 */}
       <View style={styles.section}>
+        <Text style={styles.articleTitle}>Article 12 - Garanties</Text>
+        <Text style={styles.text}>
+          Le Salarié bénéficie de tous les droits et avantages reconnus aux
+          Salariés à temps plein travaillant dans la Société, résultant du code
+          du travail, de la convention collective ou des usages, dans les
+          conditions définies par la convention collective.
+        </Text>
+        <Text style={styles.text}>
+          Il lui est garanti un traitement équivalent aux autres Salariés de
+          même qualification professionnelle et de même ancienneté, en ce qui
+          concerne les possibilités de promotion, de déroulement de carrière,
+          d'accès à la formation professionnelle.
+        </Text>
         <Text style={styles.text}>
           Le Salarié pourra être reçu par un membre de la Direction afin
           d'examiner les problèmes qui pourraient se poser dans l'application de

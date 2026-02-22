@@ -4,13 +4,13 @@
  * Contract PDF Document Template
  * Uses @react-pdf/renderer for PDF generation
  *
- * Structure: 7 pages
+ * Structure: 6 pages
  * - Page 1: Header + Company/Employee info
  * - Page 2: Article 1 (Trial period) + Article 2 (Functions)
  * - Page 3: Articles 3-4 (Location + Monthly hours + Availability)
- * - Page 4: Articles 5-6 (Schedule distribution + Overtime)
- * - Page 5: Article 7-12 (Salary + Employment rules)
- * - Page 6: Final articles + Signatures
+ * - Page 4: Article 5 (Schedule distribution)
+ * - Page 5: Articles 6-10 (Overtime + Salary + Employment rules)
+ * - Page 6: Articles 11-14 (Final articles) + Signatures
  */
 
 import type { Employee } from "@/types/hr";
@@ -18,9 +18,9 @@ import { Document as PDFDocument } from "@react-pdf/renderer";
 import { ContractHeader } from "./components/ContractHeader";
 import { Article1 } from "./components/Article1";
 import { Articles3And4 } from "./components/Articles3And4";
-import { Articles5And6 } from "./components/Articles5";
-import { Articles7To12 } from "./components/Articles6To12";
-import { FinalArticlesAndSignatures } from "./components/FinalArticlesAndSignatures";
+import { Article5 } from "./components/Articles5";
+import { Articles6To10 } from "./components/Articles6To10";
+import { Articles11To14AndSignatures } from "./components/Articles11To14AndSignatures";
 
 interface ContractDocumentProps {
   employee: Employee;
@@ -100,18 +100,18 @@ export default function ContractDocument({
       {/* Page 3: Articles 3-4 (Location + Monthly hours + Availability) */}
       <Articles3And4 employee={employee} monthlyHours={monthlyHours} />
 
-      {/* Page 4: Articles 5-6 (Schedule distribution + Overtime) */}
-      <Articles5And6 employee={employee} monthlyHours={monthlyHours} />
+      {/* Page 4: Article 5 (Schedule distribution) */}
+      <Article5 employee={employee} monthlyHours={monthlyHours} />
 
-      {/* Page 5: Articles 7-12 (Salary + Employment rules) */}
-      <Articles7To12
+      {/* Page 5: Articles 6-10 (Overtime + Salary + Employment rules) */}
+      <Articles6To10
         employee={employee}
         monthlySalary={monthlySalary}
         monthlyHours={monthlyHours}
       />
 
-      {/* Page 7: Articles 8-10 + Signatures */}
-      <FinalArticlesAndSignatures employee={employee} />
+      {/* Page 6: Articles 11-14 + Signatures */}
+      <Articles11To14AndSignatures employee={employee} />
     </PDFDocument>
   );
 }
