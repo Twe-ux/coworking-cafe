@@ -24,12 +24,17 @@ export function useExceptionalClosures() {
           const now = new Date();
           now.setHours(0, 0, 0, 0);
 
-          // Filter upcoming closures (today and future)
+          // Calculate date 30 days from now
+          const oneMonthFromNow = new Date(now);
+          oneMonthFromNow.setDate(oneMonthFromNow.getDate() + 30);
+
+          // Filter upcoming closures (today and within next 30 days)
           const upcoming = data.data.exceptionalClosures
             .filter((closure: ExceptionalClosure) => {
               const closureDate = new Date(closure.date);
               closureDate.setHours(0, 0, 0, 0);
-              return closureDate >= now;
+              // Show only if closure is today or in the future AND within next 30 days
+              return closureDate >= now && closureDate <= oneMonthFromNow;
             })
             .sort(
               (a: ExceptionalClosure, b: ExceptionalClosure) =>
