@@ -98,7 +98,7 @@ export default function ContractDocument({
       />
 
       {/* Page 3: Article 3 (Location) */}
-      <Article3 />
+      <Article3 employee={employee} monthlyHours={monthlyHours} />
 
       {/* Pages 4-5: Articles 4-5 (Hours + Schedule tables) */}
       <Article4And5 employee={employee} monthlyHours={monthlyHours} />

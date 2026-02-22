@@ -262,7 +262,7 @@ const CompagnyPass = () => {
             </div>
             <p className="mt-4">
               Découvrez aussi nos{" "}
-              <Link href="/pricing">tarifs individuels</Link> ou notre{" "}
+              <Link href="/pricing#pricing">tarifs individuels</Link> ou notre{" "}
               <Link href="/concept">concept unique</Link> de coworking à
               Strasbourg.
             </p>

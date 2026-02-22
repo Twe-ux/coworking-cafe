@@ -14,8 +14,8 @@ import { StyleSheet } from "@react-pdf/renderer";
 export const styles = StyleSheet.create({
   // Page
   page: {
-    paddingTop: 60,
-    paddingBottom: 60,
+    paddingTop: 30,
+    paddingBottom: 30,
     paddingLeft: 65, // Increased for better side margins
     paddingRight: 65,
     fontFamily: "Helvetica",
@@ -181,7 +181,7 @@ export const styles = StyleSheet.create({
   signatureContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 100, // Reduced from 40
+    marginTop: 20, // Reduced from 40
     marginBottom: 20,
   },
 
@@ -199,12 +199,11 @@ export const styles = StyleSheet.create({
   signatureLabel: {
     fontSize: 11,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 10,
   },
 
   signatureName: {
     fontSize: 11,
-    marginBottom: 5,
   },
 
   signatureText: {

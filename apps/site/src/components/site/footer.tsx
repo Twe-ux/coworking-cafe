@@ -141,7 +141,7 @@ const Footer = () => {
                   height={300}
                   loading="lazy"
                   className="logo"
-                  style={{ width: 'auto', height: 'auto', maxWidth: '300px' }}
+                  style={{ width: "auto", height: "auto", maxWidth: "300px" }}
                   sizes="300px"
                 />
               </Link>
@@ -232,7 +232,7 @@ const Footer = () => {
                   <Link href={"/concept"}>Fonctionnement</Link>
                 </li>
                 <li>
-                  <Link href={"/pricing"}>Tarifs</Link>
+                  <Link href={"/pricing#pricing"}>Tarifs</Link>
                 </li>
                 <li>
                   <Link href={"/blog"}>Le Mag&apos;</Link>

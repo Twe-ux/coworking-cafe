@@ -1,5 +1,5 @@
-import { Page, Text, View } from "@react-pdf/renderer";
 import type { Employee } from "@/types/hr";
+import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 
 interface Articles6And7Props {
@@ -15,31 +15,6 @@ export function Articles6And7({
 }: Articles6And7Props) {
   return (
     <Page size="A4" style={styles.page}>
-      {/* Article 6 */}
-      <View style={styles.section}>
-        <Text style={styles.articleTitle}>
-          Article 6 - Heures complémentaires
-        </Text>
-
-        <Text style={styles.text}>
-          Il est convenu qu'en fonction des besoins de l'entreprise, le Salarié
-          pourra être amené à effectuer des heures complémentaires, dans la
-          limite du tiers de la durée initiale du contrat par semaine.
-        </Text>
-
-        <Text style={styles.text}>
-          Les heures complémentaires effectuées en-deca du 1/10 de la durée
-          initialement fixée au contrat seront majorées a{" "}
-          <Text style={styles.textBold}>10%</Text>.
-        </Text>
-
-        <Text style={styles.text}>
-          Les heures complémentaires effectuées au-delà du 1/10 de la durée
-          initialement fixée au contrat seront majorées a{" "}
-          <Text style={styles.textBold}>25%</Text>.
-        </Text>
-      </View>
-
       {/* Article 7 */}
       <View style={styles.section}>
         <Text style={styles.articleTitle}>Article 7 - Rémunération</Text>
@@ -60,6 +35,74 @@ export function Articles6And7({
           Sur cette rémunération seront prélevées les cotisations sociales et
           notamment celles afférentes au régime de protection sociale en vigueur
           dans la société à la date de versement.
+        </Text>
+      </View>
+      {/* Article 8 */}
+      <View style={styles.section}>
+        <Text style={styles.articleTitle}>Article 8 - Cumul d'emplois</Text>
+
+        <Text style={styles.text}>
+          Le Salarié s’engage à porter à la connaissance de l’Employeur tout
+          autre emploi à temps partiel qu’il pourrait occuper. Le Salarié
+          communiquera notamment le nombre d’heures effectuées chez cet autre
+          employeur qui en aucun cas ne pourra le conduire à effectuer un temps
+          de travail effectif, tous emplois confondus, qui excède les limites
+          fixées par la loi (10h par jour, 48 h par semaine, 44 h en moyenne sur
+          12 semaines).
+        </Text>
+      </View>
+
+      {/* Article 9 */}
+      <View style={styles.section}>
+        <Text style={styles.articleTitle}>Article 9 - Congés payés</Text>
+
+        <Text style={styles.text}>
+          Le Salarié bénéficiera des congés payés conformément aux dispositions
+          légales et conventionnelles en vigueur dont l’époque sera déterminée
+          par accord des parties ou, à défaut, en fonction des nécessités du
+          service.
+        </Text>
+      </View>
+      {/* Article 10 */}
+      <View style={styles.section}>
+        <Text style={styles.articleTitle}>Article 10 - Absence et maladie</Text>
+
+        <Text style={styles.text}>
+          Toute absence doit être portée à la connaissance de la Direction par
+          tous moyens et dans les plus brefs délais. Les absences pour maladie
+          ou accident devront être confirmées par l’envoi, dans les 48 heures à
+          compter du premier jour d’indisponibilité, d’un arrêt de travail. En
+          cas de prolongation d’arrêt de travail, Le Salarié devra transmettre
+          dans les mêmes délais le certificat médical justifiant cette
+          prolongation.
+        </Text>
+      </View>
+
+      {/* Article 11 */}
+      <View style={styles.section}>
+        <Text style={styles.articleTitle}>
+          Article 11 - Caisse de retraite et prévoyance
+        </Text>
+        <Text style={styles.text}>
+          Le Salarié bénéficiera du régime de retraite et de prévoyance du
+          groupe AG2R auxquels la société a souscrit.
+        </Text>
+      </View>
+
+      {/* Article 12 */}
+      <View style={styles.section}>
+        <Text style={styles.articleTitle}>Article 12 - Garanties</Text>
+        <Text style={styles.text}>
+          Le Salarié bénéficie de tous les droits et avantages reconnus aux
+          Salariés à temps plein travaillant dans la Société, résultant du code
+          du travail, de la convention collective ou des usages, dans les
+          conditions définies par la convention collective.
+        </Text>
+        <Text style={styles.text}>
+          Il lui est garanti un traitement équivalent aux autres Salariés de
+          même qualification professionnelle et de même ancienneté, en ce qui
+          concerne les possibilités de promotion, de déroulement de carrière,
+          d'accès à la formation professionnelle.
         </Text>
       </View>
     </Page>

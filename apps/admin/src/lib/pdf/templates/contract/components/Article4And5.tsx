@@ -1,49 +1,16 @@
-import { Page, Text, View } from "@react-pdf/renderer";
 import type { Employee } from "@/types/hr";
+import { Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
-import { AvailabilityTable } from "./AvailabilityTable";
 import { DistributionTable } from "./DistributionTable";
 
 interface Article4And5Props {
   employee: Employee;
-  monthlyHours: string;
 }
 
-export function Article4And5({ employee, monthlyHours }: Article4And5Props) {
+export function Article4And5({ employee }: Article4And5Props) {
   return (
     <>
-      {/* Page 4 - Article 4 */}
-      <Page size="A4" style={styles.page}>
-        <View style={styles.section}>
-          <Text style={styles.articleTitle}>
-            Article 4 - Durée mensuelle du travail
-          </Text>
-
-          <Text style={styles.text}>
-            Le présent contrat de travail est conclu pour une durée mensuelle du
-            travail de <Text style={styles.textBold}>{monthlyHours} heures</Text>.
-          </Text>
-
-          <Text style={styles.text}>
-            Conformément aux dispositions conventionnelles applicables, il est
-            expressément convenu que la durée du travail du Salarié, notifiée
-            dans les conditions énoncées a l'article 5 du présent contrat, sera
-            programmée dans les plages de planification possible définies
-            ci-après :
-          </Text>
-
-          <Text style={[styles.text, { marginBottom: 20 }]}>
-            La durée mensuelle de travail a été divisée par 4,33 semaines en
-            moyenne par mois pour obtenir la référence horaire hebdomadaire
-            servant à définir le volant des plages de planification possible.
-          </Text>
-
-          {/* Availability Table */}
-          <AvailabilityTable availability={employee.availability} />
-        </View>
-      </Page>
-
-      {/* Page 5 - Article 5 */}
+      {/* Page 4 - Article 5 */}
       <Page size="A4" style={styles.page}>
         <View style={styles.section}>
           <Text style={styles.articleTitle}>
@@ -62,10 +29,91 @@ export function Article4And5({ employee, monthlyHours }: Article4And5Props) {
           />
 
           <Text style={styles.text}>
-            En ce qui concerne les jours de repos hebdomadaires, il a été convenu
-            en accord avec le Salarie et conformément aux dispositions
-            conventionnelles que les 2 jours de repos hebdomadaires sont fixés
-            contractuellement dans le tableau de répartition ci-dessus.
+            En ce qui concerne les jours de repos hebdomadaires, il a été
+            convenu en accord avec le Salarié et conformément aux dispositions
+            conventionnelles que :
+          </Text>
+          <Text style={styles.text}>
+            les 2 jours de repos hebdomadaires sont fixés contractuellement dans
+            le tableau de répartition ci-dessus et qu’ils peuvent faire l’objet
+            d’un commun accord d’une modification éventuelle ultérieure
+            conformément aux règles de planification en vigueur.
+          </Text>
+          <Text style={styles.text}>
+            Par ailleurs, concernant cette répartition de la durée du travail,
+            il est rappelé tout particulièrement et conformément aux
+            dispositions conventionnelles en vigueur à la date du présent
+            contrat de travail que :
+          </Text>
+          <Text style={styles.text}>
+            - Les horaires sont notifiés au Salarié par affichage du programme
+            de travail dans le respect des règles et délais de planification
+            prévus conventionnellement à savoir 10 jours calendaires avant le
+            début de la semaine concernée, modifiables au plus tard 3 jours
+            avant avec l’accord du Salarié.
+          </Text>
+          <Text style={styles.text}>
+            - La modification de la répartition de la durée du travail, sur les
+            semaines du mois ou sur les jours des dites semaines, est notifiée
+            au Salarié dans les mêmes formes et délais.
+          </Text>
+          <Text style={styles.text}>
+            - Cette modification de la répartition de la durée du travail et des
+            horaires de travail est possible sous réserve :
+          </Text>
+          <Text style={styles.text}>
+            - Qu’elle intervienne dans le cadre des plages de planification
+            possible précisées à l’article 4 du contrat et qui en déterminent
+            ainsi la variation possible
+          </Text>
+          <Text style={styles.text}>
+            - Qu’elle intervienne notamment dans les cas suivants : variation
+            d’activité, changement d’affectation d’équipe en fonction des
+            compétences requises par l’entreprise, remplacement pour départ,
+            absence ou maladie d’un Salarié, accident du travail ou congés
+          </Text>
+          <Text style={styles.text}>
+            - Chaque journée de travail ne pourra comporter qu’une seule coupure
+            dont la durée ne peut excéder 5 heures. Dans ce cas, et en
+            contrepartie de toute coupure journalière supérieure à 2 heures dans
+            la limite de 5 heures, les deux séquences de travail réalisées par
+            le Salarié à temps partiel au cours de cette journée seront chacune
+            d’une durée minimale de 3 heures consécutives
+          </Text>
+        </View>
+        <View style={styles.section}>
+          {/* Article 6 */}
+
+          <Text style={styles.articleTitle}>
+            Article 6 - Heures complémentaires
+          </Text>
+
+          <Text style={styles.text}>
+            Il est convenu qu'en fonction des besoins de l'entreprise, le
+            Salarié pourra être amené à effectuer des heures complémentaires,
+            dans la limite du tiers de la durée initiale du contrat par semaine.
+          </Text>
+
+          <Text style={styles.text}>
+            Les heures complémentaires effectuées en-deca du 1/10 de la durée
+            initialement fixée au contrat seront majorées a{" "}
+            <Text style={styles.textBold}>10%</Text>.
+          </Text>
+
+          <Text style={styles.text}>
+            Les heures complémentaires effectuées au-delà du 1/10 de la durée
+            initialement fixée au contrat seront majorées a{" "}
+            <Text style={styles.textBold}>25%</Text>.
+          </Text>
+
+          <Text style={styles.text}>
+            En contrepartie, le Salarié a droit à une période minimale de
+            travail continue de 2 heures par jour.
+          </Text>
+          <Text style={styles.text}>
+            En tout état de cause, les heures complémentaires ne pourront avoir
+            pour effet de porter la durée du contrat au niveau de la durée
+            légale ou conventionnelle de travail.
           </Text>
         </View>
       </Page>

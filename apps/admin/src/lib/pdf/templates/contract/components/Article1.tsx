@@ -9,7 +9,12 @@ interface Article1Props {
   hireDate: string;
 }
 
-export function Article1({ employee, isFullTime, dpaeDate, hireDate }: Article1Props) {
+export function Article1({
+  employee,
+  isFullTime,
+  dpaeDate,
+  hireDate,
+}: Article1Props) {
   return (
     <Page size="A4" style={styles.page}>
       <View style={styles.section}>
@@ -30,7 +35,7 @@ export function Article1({ employee, isFullTime, dpaeDate, hireDate }: Article1P
         </Text>
 
         {/* Table Article 1 - Style moderne et centré */}
-        <View style={{ alignItems: "center", marginTop: 15, marginBottom: 15 }}>
+        <View style={{ alignItems: "center", marginTop: 15, marginBottom: 30 }}>
           <View
             style={[
               styles.table,
@@ -51,7 +56,9 @@ export function Article1({ employee, isFullTime, dpaeDate, hireDate }: Article1P
               >
                 En qualité de
               </Text>
-              <Text style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}>
+              <Text
+                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+              >
                 Equipier polyvalent
               </Text>
             </View>
@@ -65,7 +72,9 @@ export function Article1({ employee, isFullTime, dpaeDate, hireDate }: Article1P
               >
                 Niveau
               </Text>
-              <Text style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}>
+              <Text
+                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+              >
                 {employee.level ?? ""}
               </Text>
             </View>
@@ -79,7 +88,9 @@ export function Article1({ employee, isFullTime, dpaeDate, hireDate }: Article1P
               >
                 Echelon
               </Text>
-              <Text style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}>
+              <Text
+                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+              >
                 {employee.step ?? ""}
               </Text>
             </View>
@@ -93,7 +104,9 @@ export function Article1({ employee, isFullTime, dpaeDate, hireDate }: Article1P
               >
                 Date d'entree
               </Text>
-              <Text style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}>
+              <Text
+                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+              >
                 {hireDate}
               </Text>
             </View>
@@ -107,7 +120,9 @@ export function Article1({ employee, isFullTime, dpaeDate, hireDate }: Article1P
               >
                 Heure
               </Text>
-              <Text style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}>
+              <Text
+                style={[styles.tableCellLast, { textAlign: "left", flex: 1 }]}
+              >
                 {employee.hireTime ?? "9H30"}
               </Text>
             </View>
@@ -148,7 +163,6 @@ export function Article1({ employee, isFullTime, dpaeDate, hireDate }: Article1P
           contraire, les dispositions prévues à l'article 8 s'appliquent.
         </Text>
       </View>
-
       <View style={styles.section}>
         {/* Article 2 */}
         <Text style={styles.articleTitle}>Article 2 - Fonctions</Text>
