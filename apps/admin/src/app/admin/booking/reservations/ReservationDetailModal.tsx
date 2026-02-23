@@ -135,14 +135,11 @@ export function ReservationDetailModal({
     setCancellationFees(null);
   };
 
-  // Format deposit amount (stored in cents)
+  // Format deposit amount (ALWAYS stored in cents)
   const formatDepositAmount = (amount: number | undefined): string | null => {
     if (amount === undefined || amount === null) return null;
-    // If amount > 1000, it's probably in cents
-    if (amount > 1000) {
-      return formatPrice(amount / 100);
-    }
-    return formatPrice(amount);
+    // depositAmount is always stored in cents, always divide by 100
+    return formatPrice(amount / 100);
   };
 
   return (
