@@ -446,10 +446,10 @@ export function AgendaClient() {
               <span className="text-sm font-semibold text-muted-foreground">
                 Espaces :
               </span>
-              {Object.entries(spaceTypeLabels).map(([type, label]) => (
+              {["open-space", "meeting-room-glass", "meeting-room-floor", "event-space"].map((type) => (
                 <div key={type} className="flex items-center gap-2">
                   <div className={`w-4 h-4 rounded ${spaceTypeColors[type]}`} />
-                  <span className="text-sm">{label}</span>
+                  <span className="text-sm">{spaceTypeLabels[type]}</span>
                 </div>
               ))}
             </div>

@@ -86,6 +86,9 @@ export default function SchedulePage() {
     />
   );
 
+  // Dynamic cell height: 40px base (16px padding + 20px header + 4px margin) + 24px per employee (20px row + 4px gap)
+  const dynamicCellHeight = Math.max(120, 40 + employees.length * 24);
+
   return (
     <div className="space-y-6 pb-8">
       <ScheduleHeader />
@@ -113,7 +116,7 @@ export default function SchedulePage() {
             label: emp.firstName,
             color: emp.color || "#9CA3AF",
           }))}
-          cellHeight={120}
+          cellHeight={dynamicCellHeight}
         />
       )}
 

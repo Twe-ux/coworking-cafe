@@ -5,9 +5,9 @@
  * Empty slots are clickable to create new shifts
  */
 
+import { formatDateToYMD } from "@/lib/schedule/utils";
 import type { Employee } from "@/types/hr";
 import type { Shift } from "@/types/shift";
-import { formatDateToYMD } from "@/lib/schedule/utils";
 
 interface EmployeeShiftPosition {
   employee: Employee;
@@ -22,11 +22,15 @@ interface ScheduleDayCellProps {
   employees: Employee[];
   getShiftsPositionedByEmployee: (
     date: Date,
-    dayShifts: Shift[]
+    dayShifts: Shift[],
   ) => EmployeeShiftPosition[];
   isEmployeeUnavailable: (dateStr: string, employeeId: string) => boolean;
   onShiftClick: (shift: Shift, e: React.MouseEvent) => void;
-  onEmptySlotClick?: (date: Date, employeeId: string, period: "morning" | "afternoon") => void;
+  onEmptySlotClick?: (
+    date: Date,
+    employeeId: string,
+    period: "morning" | "afternoon",
+  ) => void;
 }
 
 interface ShiftButtonProps {
@@ -54,10 +58,21 @@ interface TimeSlotColumnProps {
   date: Date;
   period: "morning" | "afternoon";
   onShiftClick: (shift: Shift, e: React.MouseEvent) => void;
-  onEmptySlotClick?: (date: Date, employeeId: string, period: "morning" | "afternoon") => void;
+  onEmptySlotClick?: (
+    date: Date,
+    employeeId: string,
+    period: "morning" | "afternoon",
+  ) => void;
 }
 
-function TimeSlotColumn({ shifts, employee, date, period, onShiftClick, onEmptySlotClick }: TimeSlotColumnProps) {
+function TimeSlotColumn({
+  shifts,
+  employee,
+  date,
+  period,
+  onShiftClick,
+  onEmptySlotClick,
+}: TimeSlotColumnProps) {
   if (shifts.length === 0) {
     return (
       <button
@@ -98,7 +113,7 @@ export function ScheduleDayCell({
   const dateStr = formatDateToYMD(date);
 
   return (
-    <div className="flex-1 space-y-1 overflow-hidden">
+    <div className="flex-1 space-y-1">
       {employees.map((employee) => {
         // Check if employee is unavailable on this date
         const isUnavailable = isEmployeeUnavailable(dateStr, employee.id);
@@ -106,9 +121,9 @@ export function ScheduleDayCell({
         // If unavailable, show "INDISPO" badge in red
         if (isUnavailable) {
           return (
-            <div key={employee.id} className="grid min-h-4 grid-cols-2 gap-2">
+            <div key={employee.id} className="flex h-5 items-center">
               <div
-                className="col-span-2 rounded bg-red-500 px-1 py-0.5 text-center text-xs font-bold text-white"
+                className="w-full rounded bg-red-500 px-1 py-0.5 text-center text-xs font-bold text-white"
                 title={`${employee.firstName} est indisponible ce jour`}
               >
                 INDISPO
@@ -119,15 +134,15 @@ export function ScheduleDayCell({
 
         // Otherwise, show shifts as usual
         const employeeShifts = positionedShifts.find(
-          (ps) => ps.employee.id === employee.id
+          (ps) => ps.employee.id === employee.id,
         );
         const morningShifts = employeeShifts?.morningShifts ?? [];
         const afternoonShifts = employeeShifts?.afternoonShifts ?? [];
 
         return (
-          <div key={employee.id} className="grid min-h-4 grid-cols-2 gap-2">
+          <div key={employee.id} className="flex h-5 items-center gap-2">
             {/* Morning column (before 14:30) */}
-            <div className="space-y-1 text-center">
+            <div className="flex-1 min-w-0 text-center">
               <TimeSlotColumn
                 shifts={morningShifts}
                 employee={employee}
@@ -139,7 +154,7 @@ export function ScheduleDayCell({
             </div>
 
             {/* Afternoon column (after 14:30) */}
-            <div className="space-y-1 text-center">
+            <div className="flex-1 min-w-0 text-center">
               <TimeSlotColumn
                 shifts={afternoonShifts}
                 employee={employee}

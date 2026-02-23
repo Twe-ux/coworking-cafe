@@ -153,9 +153,9 @@ export function MonthlyCalendar<T = any>({
         <div className="flex gap-4">
           {/* Colonne latérale optionnelle */}
           {showSidebar && (
-            <div className="w-32 flex-shrink-0 rounded-lg border bg-gray-50 border-gray-400">
+            <div className="w-32 flex-shrink-0 overflow-hidden rounded-lg border border-gray-400 bg-gray-400">
               {/* En-tête */}
-              <div className="flex min-h-[40px] items-center justify-center rounded-t-lg bg-gray-50 p-2 text-center text-sm font-medium text-gray-600">
+              <div className="flex min-h-[40px] items-center justify-center bg-gray-50 p-2 text-center text-sm font-medium text-gray-600">
                 {sidebarTitle}
               </div>
 
@@ -190,15 +190,17 @@ export function MonthlyCalendar<T = any>({
                 });
 
                 // Filtrer les données secondaires de cette semaine
-                const weekSecondaryData = secondaryData && getDateForSecondaryData
-                  ? secondaryData.filter((item) => {
-                      const itemDate = getDateForSecondaryData(item);
-                      const itemDateStr = formatDateForComparison(itemDate);
-                      return (
-                        itemDateStr >= weekStartStr && itemDateStr <= weekEndStr
-                      );
-                    })
-                  : undefined;
+                const weekSecondaryData =
+                  secondaryData && getDateForSecondaryData
+                    ? secondaryData.filter((item) => {
+                        const itemDate = getDateForSecondaryData(item);
+                        const itemDateStr = formatDateForComparison(itemDate);
+                        return (
+                          itemDateStr >= weekStartStr &&
+                          itemDateStr <= weekEndStr
+                        );
+                      })
+                    : undefined;
 
                 const weekInfo: WeekData = {
                   weekStart,
@@ -211,8 +213,8 @@ export function MonthlyCalendar<T = any>({
                 return (
                   <div
                     key={weekIndex}
-                    className="flex flex-col rounded-b-lg border-t border-gray-400 bg-gray-50 p-2"
-                    style={{ minHeight: cellHeight }}
+                    className="flex flex-col bg-gray-50 p-2 mt-px"
+                    style={{ height: cellHeight }}
                   >
                     {renderSidebarWeek ? (
                       renderSidebarWeek(weekInfo, weekData, weekSecondaryData)
@@ -267,8 +269,12 @@ export function MonthlyCalendar<T = any>({
                       ${!dayInfo.isCurrentMonth ? " opacity-80" : ""}
                       ${
                         dayInfo.isToday
-                          ? " ring-2 ring-blue-500 ring-inset"
-                          : " "
+                          ? `ring-2 ring-blue-500 ring-inset ${
+                              index === daysWithInfo.length - 7 ? "rounded-bl-lg" :
+                              index === daysWithInfo.length - 1 ? "rounded-br-lg" :
+                              ""
+                            }`
+                          : ""
                       }
                       ${
                         !readOnly && onCellClick
@@ -276,7 +282,7 @@ export function MonthlyCalendar<T = any>({
                           : ""
                       }
                     `}
-                    style={{ minHeight: cellHeight }}
+                    style={{ height: cellHeight }}
                     onClick={() => handleCellClick(dayInfo.date)}
                   >
                     {/* Numéro du jour */}

@@ -38,10 +38,10 @@ export function ScheduleWeekSidebar({
   return (
     <>
       {/* Spacer to align with day number in cells */}
-      <div className="mb-1 h-6"></div>
+      <div className="mb-1 h-5"></div>
 
       {/* Employee list with their weekly hours */}
-      <div className="flex-1 space-y-1 overflow-hidden">
+      <div className="flex-1 space-y-1">
         {employees.map((employee) => {
           // Calculate planned hours (all shifts of the week)
           const plannedHours = weekShifts
