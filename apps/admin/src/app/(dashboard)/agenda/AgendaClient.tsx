@@ -62,9 +62,9 @@ export function AgendaClient() {
 
       if (!isAuthenticated) {
         params.set("public", "true");
-        params.set("status", "confirmed"); // Public mode: confirmed only
+        // Fetch all statuses (confirmed, completed, no-show) for staff view
       }
-      // Authenticated staff: fetch all statuses (confirmed, completed, no-show)
+      // Fetch all statuses (confirmed, completed, no-show)
 
       const response = await fetch(`/api/booking/reservations?${params}`);
       const data = await response.json();
