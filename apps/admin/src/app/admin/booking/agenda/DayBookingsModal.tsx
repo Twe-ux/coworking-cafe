@@ -149,7 +149,7 @@ export function DayBookingsModal({
     setSelectedBookingForCancel(null);
   };
 
-  const renderBookingCard = (booking: Booking, isPending: boolean, showStatusBadge = false) => {
+  const renderBookingCard = (booking: Booking, isPending: boolean, showStatusBadge = false, isHistoryTab = false) => {
     const spaceTypeColors: Record<string, string> = {
       "open-space": "bg-blue-500",
       "meeting-room-glass": "bg-green-500",
@@ -275,7 +275,7 @@ export function DayBookingsModal({
             </>
           )}
 
-          {!isPending && (
+          {!isPending && !isHistoryTab && (
             <>
               {/* Only show Present/No-show buttons for client bookings (with card hold) */}
               {!booking.isAdminBooking && (
@@ -442,7 +442,7 @@ export function DayBookingsModal({
                       <CardContent className="p-0">
                         <div>
                           {historyBookings.map((booking) =>
-                            renderBookingCard(booking, false, true),
+                            renderBookingCard(booking, false, true, true),
                           )}
                         </div>
                       </CardContent>

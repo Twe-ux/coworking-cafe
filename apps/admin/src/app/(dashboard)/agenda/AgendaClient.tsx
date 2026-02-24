@@ -167,21 +167,27 @@ export function AgendaClient() {
   };
 
   const renderCell = (date: Date, dayBookings: Booking[]) => {
-    // Only show confirmed bookings in calendar cells
-    const confirmedBookings = dayBookings.filter((b) => b.status === "confirmed");
+    // Show all bookings: confirmed, completed, and no-show
+    const visibleBookings = dayBookings.filter((b) =>
+      b.status === "confirmed" || b.status === "completed" || b.status === "no-show"
+    );
 
-    if (confirmedBookings.length === 0) return null;
+    if (visibleBookings.length === 0) return null;
 
     return (
       <div className="h-[88px] overflow-hidden px-1 space-y-1">
-        {confirmedBookings.slice(0, 3).map((booking) => {
+        {visibleBookings.slice(0, 3).map((booking) => {
           const spaceType = booking.spaceType || "open-space";
           const spaceColor = spaceTypeColors[spaceType] || spaceTypeColors["open-space"];
+
+          // Reduced opacity for history (completed, no-show)
+          const isHistory = booking.status === "completed" || booking.status === "no-show";
+          const opacityClass = isHistory ? "opacity-50" : "";
 
           return (
             <div
               key={booking._id}
-              className={`${spaceColor} text-white rounded px-2 py-0.5 text-xs cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-between gap-2`}
+              className={`${spaceColor} ${opacityClass} text-white rounded px-2 py-0.5 text-xs cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-between gap-2`}
             >
               <span className="truncate font-medium">
                 {booking.clientCompany || booking.clientName}
@@ -195,10 +201,10 @@ export function AgendaClient() {
           );
         })}
 
-        {confirmedBookings.length > 3 && (
+        {visibleBookings.length > 3 && (
           <div className="text-xs text-center text-muted-foreground py-0.5">
-            +{confirmedBookings.length - 3} réservation
-            {confirmedBookings.length - 3 > 1 ? "s" : ""}
+            +{visibleBookings.length - 3} réservation
+            {visibleBookings.length - 3 > 1 ? "s" : ""}
           </div>
         )}
       </div>
@@ -249,10 +255,10 @@ export function AgendaClient() {
             <span className="text-sm font-semibold text-muted-foreground">
               Espaces :
             </span>
-            {Object.entries(spaceTypeLabels).map(([type, label]) => (
+            {["open-space", "meeting-room-glass", "meeting-room-floor", "event-space"].map((type) => (
               <div key={type} className="flex items-center gap-2">
                 <div className={`w-4 h-4 rounded ${spaceTypeColors[type]}`} />
-                <span className="text-sm">{label}</span>
+                <span className="text-sm">{spaceTypeLabels[type]}</span>
               </div>
             ))}
           </div>

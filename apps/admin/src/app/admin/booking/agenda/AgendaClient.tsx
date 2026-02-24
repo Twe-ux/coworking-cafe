@@ -311,7 +311,7 @@ export function AgendaClient() {
   };
 
   const renderCell = (date: Date, dayBookings: Booking[], cellInfo: { isCurrentMonth: boolean; isToday: boolean }) => {
-    // Ne pas afficher les réservations annulées
+    // Show all bookings except cancelled
     const activeBookings = dayBookings.filter((b) => b.status !== "cancelled");
 
     if (activeBookings.length === 0) {
@@ -335,10 +335,14 @@ export function AgendaClient() {
           const border =
             booking.status === "pending" ? `border-l-8 ${borderColor}` : "";
 
+          // Reduced opacity for history (completed, no-show)
+          const isHistory = booking.status === "completed" || booking.status === "no-show";
+          const opacityClass = isHistory ? "opacity-50" : "";
+
           return (
             <div
               key={booking._id}
-              className={`${bgColor} ${border} text-white rounded px-2 py-0.5 text-xs cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-between gap-2`}
+              className={`${bgColor} ${border} ${opacityClass} text-white rounded px-2 py-0.5 text-xs cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-between gap-2`}
             >
               <span className="truncate font-medium">
                 {booking.clientCompany || booking.clientName}

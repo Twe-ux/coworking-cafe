@@ -8,7 +8,7 @@ export function getStatusLabel(status: BookingStatus): string {
     pending: "En attente",
     confirmed: "Confirmée",
     cancelled: "Annulée",
-    completed: "Terminée",
+    completed: "Présent",
     "no-show": "No-show",
   }
   return labels[status]
@@ -19,7 +19,7 @@ export function getStatusLabel(status: BookingStatus): string {
  * - pending (En attente) → orange
  * - confirmed (Confirmée) → vert
  * - cancelled (Annulée) → rouge
- * - completed (Terminée) → bleu/gris
+ * - completed (Présent) → vert
  */
 export function getStatusVariant(
   status: BookingStatus
@@ -42,7 +42,7 @@ export function getStatusBadgeClass(status: BookingStatus): string {
     pending: "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-50",
     confirmed: "bg-green-50 text-green-700 border-green-200 hover:bg-green-50",
     cancelled: "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
-    completed: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50",
+    completed: "bg-green-50 text-green-700 border-green-200 hover:bg-green-50",
     "no-show": "bg-red-50 text-red-700 border-red-200 hover:bg-red-50",
   }
   return classes[status]
