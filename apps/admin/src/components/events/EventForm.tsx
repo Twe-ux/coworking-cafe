@@ -29,7 +29,7 @@ export interface EventFormData {
 
 export type EventFormChangeHandler = (
   field: keyof EventFormData,
-  value: string | number | string[] | undefined
+  value: string | number | string[] | boolean | undefined
 ) => void;
 
 interface EventFormProps {

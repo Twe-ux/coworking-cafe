@@ -5,7 +5,7 @@ import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
 import { generateBookingValidationEmail } from "@coworking-cafe/email"
 import { sendEmail } from "@/lib/email/emailService"
-import type { Booking as BookingType, ReservationType, BookingStatus, CaptureMethod } from "@/types/booking"
+import type { Booking as BookingType, ReservationType, BookingStatus, CaptureMethod, SpaceType } from "@/types/booking"
 import type { Types } from "mongoose"
 
 /**
@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
       return {
         _id: booking._id.toString(),
         spaceId: booking.space?.toString() || booking._id.toString(),
-        spaceType: booking.spaceType || 'open-space',
+        spaceType: (booking.spaceType || 'open-space') as SpaceType,
         spaceName: booking.spaceType || 'Espace',
         clientId: user?._id?.toString() || (typeof booking.user === 'string' ? booking.user : ''),
         clientName,
@@ -314,7 +314,7 @@ export async function POST(request: NextRequest) {
     const data: BookingType = {
       _id: booking._id.toString(),
       spaceId: booking.space?.toString() || booking._id.toString(),
-      spaceType: booking.spaceType,
+      spaceType: booking.spaceType as SpaceType,
       spaceName: booking.spaceType,
       clientId: user?._id?.toString() || booking.user?.toString() || '',
       clientName,

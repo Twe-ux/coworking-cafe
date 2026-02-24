@@ -125,7 +125,7 @@ export function EventFormFields({
           <Checkbox
             id="addToAgenda"
             checked={formData.addToAgenda}
-            onCheckedChange={(checked) => handleChange("addToAgenda", checked as boolean)}
+            onCheckedChange={(checked) => handleChange("addToAgenda", checked === true)}
           />
           <Label htmlFor="addToAgenda" className="cursor-pointer font-normal flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -180,7 +180,7 @@ export function EventFormFields({
             value={newCategory}
             onValueChange={(value) => {
               onNewCategoryChange(value);
-              onAddCategory(value); // Ajouter automatiquement dès la sélection
+              onAddCategory(); // Ajouter automatiquement dès la sélection
             }}
           >
             <SelectTrigger className="flex-1">

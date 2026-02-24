@@ -9,7 +9,7 @@ import {
   generateAdminCancelAdminBookingEmail,
 } from "@coworking-cafe/email"
 import { sendEmail, sendBookingModifiedEmail } from "@/lib/email/emailService"
-import type { Booking as BookingType, BookingStatus, ReservationType, CaptureMethod } from "@/types/booking"
+import type { Booking as BookingType, BookingStatus, ReservationType, CaptureMethod, SpaceType } from "@/types/booking"
 import { Types } from "mongoose"
 
 // Interface pour le user populé
@@ -73,6 +73,7 @@ function mapBookingToType(booking: BookingDocumentWithUser): BookingType {
   return {
     _id: booking._id.toString(),
     spaceId: booking.space?.toString() || booking._id.toString(),
+    spaceType: (booking.spaceType || "open-space") as SpaceType,
     spaceName: booking.spaceType || "Espace",
     clientId,
     clientName,
