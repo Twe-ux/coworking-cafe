@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const isPublic = searchParams.get("public") === "true"
 
-    // Public mode: no auth needed, only confirmed reservations
+    // Public mode: no auth needed, returns all booking statuses
     if (!isPublic) {
       const authResult = await requireAuth(["dev", "admin", "staff"])
       if (!authResult.authorized) {
@@ -160,11 +160,9 @@ export async function GET(request: NextRequest) {
 
     const filter: Record<string, unknown> = {}
 
-    // Public mode forces confirmed status only
-    if (isPublic) {
-      filter.status = "confirmed"
-    } else {
-      if (status) filter.status = status
+    // Apply status filter if provided (works in both public and authenticated modes)
+    if (status) {
+      filter.status = status
     }
 
     if (spaceId) filter.space = spaceId
