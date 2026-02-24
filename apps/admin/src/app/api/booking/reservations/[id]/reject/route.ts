@@ -3,6 +3,12 @@ import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
+import {
+  generateAdminBookingRejectionEmail,
+  generateReservationRejectedEmail,
+} from "@coworking-cafe/email"
+import { sendEmail } from "@/lib/email/emailService"
+import { stripe } from "@coworking-cafe/database"
 
 /**
  * PUT /api/booking/reservations/[id]/reject
@@ -40,7 +46,6 @@ export async function PUT(
     // Cancel Stripe Setup Intent if exists
     if (booking.stripeSetupIntentId) {
       try {
-        const { stripe } = await import('@coworking-cafe/database');
         await stripe.setupIntents.cancel(booking.stripeSetupIntentId);
         console.log('✅ Stripe SetupIntent annulé:', booking.stripeSetupIntentId);
       } catch (stripeError) {
@@ -77,13 +82,9 @@ export async function PUT(
 
     // Envoyer l'email de refus
     try {
-      const { sendEmail } = await import('@/lib/email/emailService')
-
       // Choisir le template selon isAdminBooking
       if (booking.isAdminBooking) {
         // Template admin : pas de mention de libération d'empreinte bancaire
-        const { generateAdminBookingRejectionEmail } = await import('@coworking-cafe/email')
-
         await sendEmail({
           to: user.email || booking.contactEmail || '',
           subject: '❌ Réservation refusée - CoworKing Café',
@@ -91,8 +92,6 @@ export async function PUT(
         })
       } else {
         // Template classique : avec mention de libération d'empreinte bancaire
-        const { generateReservationRejectedEmail } = await import('@coworking-cafe/email')
-
         await sendEmail({
           to: user.email || booking.contactEmail || '',
           subject: '❌ Réservation refusée - CoworKing Café',

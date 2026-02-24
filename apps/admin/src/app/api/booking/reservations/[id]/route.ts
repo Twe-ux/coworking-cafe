@@ -3,7 +3,11 @@ import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
-import { generateReservationRejectedEmail } from "@coworking-cafe/email"
+import {
+  generateReservationRejectedEmail,
+  generateBookingValidationEmail,
+  generateAdminCancelAdminBookingEmail,
+} from "@coworking-cafe/email"
 import { sendEmail, sendBookingModifiedEmail } from "@/lib/email/emailService"
 import type { Booking as BookingType, BookingStatus, ReservationType, CaptureMethod } from "@/types/booking"
 import { Types } from "mongoose"
@@ -203,7 +207,6 @@ export async function PATCH(
 
       if (body.status === "confirmed") {
         // Send confirmation email - choisir variant selon isAdminBooking
-        const { generateBookingValidationEmail } = await import('@coworking-cafe/email')
         const variant = booking.isAdminBooking ? 'admin' : 'client'
         const html = generateBookingValidationEmail(emailData, variant)
 
@@ -217,7 +220,6 @@ export async function PATCH(
       } else if (body.status === "cancelled") {
         // Send rejection/cancellation email with reason - choisir template selon isAdminBooking
         if (booking.isAdminBooking) {
-          const { generateAdminCancelAdminBookingEmail } = await import('@coworking-cafe/email')
           const html = generateAdminCancelAdminBookingEmail({
             ...emailData,
             reason: body.cancelReason,

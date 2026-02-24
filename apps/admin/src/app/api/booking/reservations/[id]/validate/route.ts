@@ -3,6 +3,8 @@ import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
+import { generateBookingValidationEmail } from "@coworking-cafe/email"
+import { sendEmail } from "@/lib/email/emailService"
 
 /**
  * PUT /api/booking/reservations/[id]/validate
@@ -59,9 +61,6 @@ export async function PUT(
 
     // Envoyer l'email de confirmation
     try {
-      const { sendEmail } = await import('@/lib/email/emailService')
-      const { generateBookingValidationEmail } = await import('@coworking-cafe/email')
-
       // Choisir le variant selon isAdminBooking
       const variant = booking.isAdminBooking ? 'admin' : 'client'
 

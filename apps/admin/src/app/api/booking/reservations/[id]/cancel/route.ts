@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Booking, Payment } from "@coworking-cafe/database";
+import { Booking, Payment, stripe } from "@coworking-cafe/database";
+import {
+  generateAdminCancelAdminBookingEmail,
+  generateReservationRejectedEmail,
+  generateAdminCancellationNotification,
+} from "@coworking-cafe/email";
+import { sendEmail } from "@/lib/email/emailService";
 import { connectMongoose } from "@/lib/mongodb";
 import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
@@ -132,7 +138,6 @@ export async function POST(
     console.log(`[Cancel] Days until booking: ${daysUntilBooking}, Charge: ${chargePercentage}%, Skip: ${skipCapture}`);
 
     // Handle Stripe payment
-    const { stripe } = await import('@coworking-cafe/database');
     let refundAmount = 0;
     let cancellationFee = 0;
 
@@ -246,7 +251,6 @@ export async function POST(
 
     // Envoyer l'email d'annulation
     try {
-      const { sendEmail } = await import('@/lib/email/emailService');
       const recipientEmail = user?.email || populatedBooking.contactEmail;
 
       if (!recipientEmail) {
@@ -266,8 +270,6 @@ export async function POST(
         // Choisir le template selon isAdminBooking ET les frais
         if (populatedBooking.isAdminBooking) {
           // Template admin : pas de mention de paiement
-          const { generateAdminCancelAdminBookingEmail } = await import('@coworking-cafe/email');
-
           await sendEmail({
             to: recipientEmail,
             subject: '❌ Réservation annulée - CoworKing Café',
@@ -275,8 +277,6 @@ export async function POST(
           });
         } else if (wasPending || chargePercentage === 0) {
           // Réservation pending ou annulation gratuite : pas de frais
-          const { generateReservationRejectedEmail } = await import('@coworking-cafe/email');
-
           await sendEmail({
             to: recipientEmail,
             subject: '❌ Réservation annulée - CoworKing Café',
@@ -289,8 +289,6 @@ export async function POST(
           // Annulation avec frais : utiliser template avec détails des frais
           // TODO: Créer template spécifique pour annulation avec frais
           // Pour l'instant, utiliser le template classique
-          const { generateReservationRejectedEmail } = await import('@coworking-cafe/email');
-
           await sendEmail({
             to: recipientEmail,
             subject: '❌ Réservation annulée avec frais - CoworKing Café',
@@ -303,7 +301,6 @@ export async function POST(
 
       // Send notification to admin/team
       try {
-        const { generateAdminCancellationNotification } = await import('@coworking-cafe/email');
         const teamEmail = process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr';
         const adminName = authResult.session.user?.name || 'Administrateur';
 

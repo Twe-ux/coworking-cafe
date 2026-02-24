@@ -3,6 +3,8 @@ import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
+import { generateBookingValidationEmail } from "@coworking-cafe/email"
+import { sendEmail } from "@/lib/email/emailService"
 import type { Booking as BookingType, ReservationType, BookingStatus, CaptureMethod } from "@/types/booking"
 import type { Types } from "mongoose"
 
@@ -360,9 +362,6 @@ export async function POST(request: NextRequest) {
         }
 
         if (booking.status === 'confirmed') {
-          const { sendEmail } = await import('@/lib/email/emailService')
-          const { generateBookingValidationEmail } = await import('@coworking-cafe/email')
-
           // Choisir le variant selon isAdminBooking
           const variant = booking.isAdminBooking ? 'admin' : 'client'
 
