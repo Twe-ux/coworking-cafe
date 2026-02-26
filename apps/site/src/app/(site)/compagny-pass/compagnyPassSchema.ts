@@ -12,8 +12,33 @@ export function generateCompagnyPassSchema() {
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "EUR",
+      lowPrice: "6",
+      highPrice: "290",
       availability: "https://schema.org/InStock",
       offerCount: 2,
+      priceSpecification: [
+        {
+          "@type": "UnitPriceSpecification",
+          price: "6",
+          priceCurrency: "EUR",
+          name: "Tarif horaire",
+          description: "À partir de 6€/heure pour l'accès open-space",
+        },
+        {
+          "@type": "UnitPriceSpecification",
+          price: "290",
+          priceCurrency: "EUR",
+          name: "Abonnement mensuel",
+          description: "À partir de 290€/mois pour l'accès illimité",
+        },
+      ],
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      reviewCount: "32",
+      bestRating: "5",
+      worstRating: "1",
     },
     provider: {
       "@type": "LocalBusiness",
