@@ -60,7 +60,7 @@ export const columns: ColumnDef<CashEntryRow>[] = [
     header: "Différence",
     cell: ({ row }) => (
       <DifferenceCell
-        ca={row.original.totalCA || 0}
+        ca={row.original.TTC || 0}
         encaissements={row.original.totalEncaissements || 0}
       />
     ),
