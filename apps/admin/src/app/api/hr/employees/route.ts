@@ -115,6 +115,10 @@ export async function GET(request: NextRequest) {
     // Paramètre pour inclure ou non les employés inactifs
     const includeInactive = searchParams.get('includeInactive') === 'true'
 
+    // Paramètre pour inclure les données complètes (address, SSN, etc.)
+    // Requis pour la génération du PDF paie - accessible seulement si authentifié
+    const includeFullData = searchParams.get('fullData') === 'true'
+
     // Construction de la requête
     interface QueryFilter {
       role?: string;
@@ -246,6 +250,22 @@ export async function GET(request: NextRequest) {
       getOnboardingProgress?: () => number;
       createdAt?: Date;
       updatedAt?: Date;
+      // Full data fields (only included with fullData=true)
+      address?: EmployeeType['address'];
+      socialSecurityNumber?: string;
+      dateOfBirth?: string;
+      placeOfBirth?: EmployeeType['placeOfBirth'];
+      nationality?: string;
+      level?: string;
+      step?: number;
+      hourlyRate?: number;
+      monthlySalary?: number;
+      workSchedule?: unknown; // Mongoose document type differs from EmployeeType
+      bankDetails?: {
+        iban?: string;
+        bic?: string;
+        bankName?: string;
+      };
     }
 
     const formattedEmployees = employees
@@ -321,7 +341,7 @@ export async function GET(request: NextRequest) {
       // Si c'est déjà un hex, on garde tel quel
       const defaultColor = employeeColor
 
-      return {
+      const baseData = {
         _id: employee._id.toString(),
         id: employee._id.toString(),
         firstName: employee.firstName,
@@ -347,6 +367,26 @@ export async function GET(request: NextRequest) {
         createdAt: employee.createdAt,
         updatedAt: employee.updatedAt,
       }
+
+      // Add full data fields if requested (for payroll PDF)
+      if (includeFullData) {
+        return {
+          ...baseData,
+          address: employee.address,
+          socialSecurityNumber: employee.socialSecurityNumber,
+          dateOfBirth: employee.dateOfBirth,
+          placeOfBirth: employee.placeOfBirth,
+          nationality: employee.nationality,
+          level: employee.level,
+          step: employee.step,
+          hourlyRate: employee.hourlyRate,
+          monthlySalary: employee.monthlySalary,
+          workSchedule: employee.workSchedule,
+          bankDetails: employee.bankDetails,
+        }
+      }
+
+      return baseData
     })
     .filter((employee) => {
       // Si includeInactive=true, ne pas filtrer par statut

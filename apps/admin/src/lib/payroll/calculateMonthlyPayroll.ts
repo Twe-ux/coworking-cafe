@@ -85,6 +85,16 @@ export async function calculateMonthlyPayroll(
 
   // Calculate payroll data for each employee
   const payrollData: EmployeePayrollData[] = employees.map((employee) => {
+    // Debug: log employee data to check what fields are present
+    console.log("🔍 Employee data:", {
+      id: employee.id,
+      name: employee.firstName,
+      hasAddress: !!employee.address,
+      address: employee.address,
+      hasSSN: !!employee.socialSecurityNumber,
+      ssn: employee.socialSecurityNumber,
+    });
+
     const employeeHours = monthlyHours.find(
       (h) => h.employeeId === employee.id
     );

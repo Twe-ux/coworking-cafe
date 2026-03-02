@@ -137,7 +137,7 @@ export function PayrollPreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[90vh] flex flex-col">
+      <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>
             Prévisualisation - Paie {monthNames[month - 1]} {year}

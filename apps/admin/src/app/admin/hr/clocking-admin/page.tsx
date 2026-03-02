@@ -28,7 +28,8 @@ export default function ClockingAdminPage() {
   const fetchEmployees = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/hr/employees?status=active");
+      // fullData=true pour récupérer address et socialSecurityNumber (nécessaire pour PDF paie)
+      const response = await fetch("/api/hr/employees?status=active&fullData=true");
       const result = await response.json();
 
       if (result.success) {
