@@ -14,6 +14,7 @@ import { Clock, Play, Square, User } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import PINKeypad from "@/components/clocking/PINKeypad";
 import { StyledAlert } from "@/components/ui/styled-alert";
+import { JustificationDialog } from "@/components/clocking/JustificationDialog";
 
 interface TimeTrackingCardProps {
   employee: Employee;
@@ -35,6 +36,15 @@ export default function TimeTrackingCard({
   const [activeEntries, setActiveEntries] = useState<TimeEntry[]>([]);
   const [totalTodayEntries, setTotalTodayEntries] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Justification states
+  const [showJustificationDialog, setShowJustificationDialog] = useState(false);
+  const [justificationAction, setJustificationAction] = useState<"clock-in" | "clock-out" | null>(null);
+  const [justificationData, setJustificationData] = useState<{
+    clockTime?: string;
+    scheduledShifts?: Array<{ startTime: string; endTime: string }>;
+  } | null>(null);
+  const [savedPin, setSavedPin] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -113,7 +123,7 @@ export default function TimeTrackingCard({
   };
 
   // Clock-out direct sans PIN
-  const handleDirectClockOut = async () => {
+  const handleDirectClockOut = async (justificationNote?: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -126,19 +136,35 @@ export default function TimeTrackingCard({
         },
         body: JSON.stringify({
           employeeId: employee.id,
+          justificationNote,
         }),
       });
 
       const result = await response.json();
 
       if (result.success) {
+        // Fermer le dialog de justification si ouvert
+        setShowJustificationDialog(false);
+        setJustificationAction(null);
+        setJustificationData(null);
+
         // Petit délai pour laisser la BD se mettre à jour
         setTimeout(async () => {
           await fetchActiveEntries();
           onStatusChange?.();
         }, 300);
       } else {
-        setError(result.error || "Erreur lors de l'arrêt du pointage");
+        // Détecter si justification requise
+        if (result.details?.code === "JUSTIFICATION_REQUIRED") {
+          setJustificationAction("clock-out");
+          setJustificationData({
+            clockTime: result.details.clockOutTime,
+            scheduledShifts: result.details.scheduledShifts,
+          });
+          setShowJustificationDialog(true);
+        } else {
+          setError(result.error || "Erreur lors de l'arrêt du pointage");
+        }
       }
     } catch (error) {
       setError("Erreur de connexion");
@@ -147,7 +173,7 @@ export default function TimeTrackingCard({
     }
   };
 
-  const handlePINSubmit = async (pin: string) => {
+  const handlePINSubmit = async (pin: string, justificationNote?: string) => {
     if (!pinAction) return;
 
     setIsLoading(true);
@@ -182,6 +208,7 @@ export default function TimeTrackingCard({
         body: JSON.stringify({
           employeeId: employee.id,
           pin: pin,
+          justificationNote,
         }),
       });
 
@@ -190,6 +217,10 @@ export default function TimeTrackingCard({
       if (result.success) {
         setShowPINDialog(false);
         setPinAction(null);
+        setShowJustificationDialog(false);
+        setJustificationAction(null);
+        setJustificationData(null);
+        setSavedPin(null);
 
         // Petit délai pour laisser la BD se mettre à jour
         setTimeout(async () => {
@@ -197,7 +228,22 @@ export default function TimeTrackingCard({
           onStatusChange?.();
         }, 300);
       } else {
-        setError(result.error || "Erreur lors du pointage");
+        // Détecter si justification requise
+        if (result.details?.code === "JUSTIFICATION_REQUIRED") {
+          // Sauvegarder le PIN et fermer le dialog PIN
+          setSavedPin(pin);
+          setShowPINDialog(false);
+
+          // Ouvrir le dialog de justification
+          setJustificationAction(pinAction);
+          setJustificationData({
+            clockTime: result.details.clockInTime || result.details.clockOutTime,
+            scheduledShifts: result.details.scheduledShifts,
+          });
+          setShowJustificationDialog(true);
+        } else {
+          setError(result.error || "Erreur lors du pointage");
+        }
       }
     } catch (error) {
       setError("Erreur de connexion");
@@ -209,6 +255,26 @@ export default function TimeTrackingCard({
   const handlePINCancel = () => {
     setShowPINDialog(false);
     setPinAction(null);
+    setError(null);
+  };
+
+  const handleJustificationSubmit = async (justification: string) => {
+    if (!justificationAction) return;
+
+    if (justificationAction === "clock-out") {
+      // Clock-out sans PIN, juste avec justification
+      await handleDirectClockOut(justification);
+    } else if (justificationAction === "clock-in" && savedPin) {
+      // Clock-in avec PIN sauvegardé + justification
+      await handlePINSubmit(savedPin, justification);
+    }
+  };
+
+  const handleJustificationCancel = () => {
+    setShowJustificationDialog(false);
+    setJustificationAction(null);
+    setJustificationData(null);
+    setSavedPin(null);
     setError(null);
   };
 
@@ -352,6 +418,16 @@ export default function TimeTrackingCard({
           />
         </DialogContent>
       </Dialog>
+
+      <JustificationDialog
+        open={showJustificationDialog}
+        onClose={handleJustificationCancel}
+        onSubmit={handleJustificationSubmit}
+        isLoading={isLoading}
+        action={justificationAction || "clock-in"}
+        clockTime={justificationData?.clockTime}
+        scheduledShifts={justificationData?.scheduledShifts}
+      />
     </>
   );
 }

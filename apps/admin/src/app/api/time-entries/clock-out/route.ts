@@ -283,6 +283,11 @@ export async function POST(request: NextRequest) {
         // Première justification (seulement au clock-out)
         timeEntry.justificationNote = `[Départ] ${body.justificationNote}`
       }
+      // IMPORTANT: Définir explicitement justificationRead à false
+      // (les valeurs par défaut du schéma ne s'appliquent pas aux updates)
+      if (timeEntry.justificationRead === undefined) {
+        timeEntry.justificationRead = false
+      }
     }
 
     await timeEntry.save()

@@ -250,6 +250,7 @@ export async function POST(request: NextRequest) {
       shiftNumber: finalShiftNumber,
       isOutOfSchedule,
       justificationNote: body.justificationNote ? `[Arrivée] ${body.justificationNote}` : undefined,
+      justificationRead: body.justificationNote ? false : undefined,
     }
 
     const newTimeEntry = new TimeEntry(timeEntryData)
