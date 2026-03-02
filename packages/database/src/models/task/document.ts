@@ -4,6 +4,14 @@ import { Schema, Document, Types } from 'mongoose';
  * Interface Task Document
  * Tâche à faire pour l'équipe
  */
+export interface TaskMetadata {
+  type?: string;                           // Task category: "inventory", "shift", etc.
+  inventoryType?: string;                  // "weekly" | "monthly" (when type=inventory)
+  inventoryEntryId?: string;               // Linked inventory entry ID
+  productId?: string;                      // Linked product ID (low stock alerts)
+  [key: string]: unknown;                  // Extensible for future use
+}
+
 export interface TaskDocument extends Document {
   _id: Types.ObjectId;
   title: string;                           // Titre court (max 100 chars)
@@ -15,6 +23,7 @@ export interface TaskDocument extends Document {
   completedBy?: Types.ObjectId;            // Référence User (qui a complété)
   completedAt?: Date;                      // Date/heure de complétion
   recurringTaskId?: Types.ObjectId;        // Ref RecurringTask template (if generated)
+  metadata?: TaskMetadata;                 // Extensible metadata for categorization
   createdAt: Date;
   updatedAt: Date;
 }
@@ -72,6 +81,10 @@ export const TaskSchema = new Schema<TaskDocument>(
       type: Schema.Types.ObjectId,
       ref: 'RecurringTask',
     },
+    metadata: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
   },
   {
     timestamps: true, // Ajoute createdAt et updatedAt automatiquement
@@ -83,3 +96,4 @@ TaskSchema.index({ status: 1, priority: -1, dueDate: 1 });
 TaskSchema.index({ createdBy: 1 });
 TaskSchema.index({ completedBy: 1 });
 TaskSchema.index({ recurringTaskId: 1, status: 1 });
+TaskSchema.index({ 'metadata.type': 1, status: 1 });

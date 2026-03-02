@@ -20,6 +20,7 @@ function formatRecurringTask(
     recurrenceType: doc.recurrenceType,
     recurrenceDays: doc.recurrenceDays,
     active: doc.active,
+    metadata: doc.metadata || {},
     createdBy: doc.createdBy.toString(),
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
@@ -48,6 +49,7 @@ export async function GET(): Promise<NextResponse<ApiResponse<RecurringTaskType[
       recurrenceType: t.recurrenceType,
       recurrenceDays: t.recurrenceDays,
       active: t.active,
+      metadata: t.metadata || {},
       createdBy: t.createdBy.toString(),
       createdAt: t.createdAt.toISOString(),
       updatedAt: t.updatedAt.toISOString(),
@@ -97,6 +99,7 @@ export async function POST(
       recurrenceType: body.recurrenceType,
       recurrenceDays: body.recurrenceDays,
       active: true,
+      metadata: body.metadata || {},
       createdBy: authResult.session.user.id,
     });
 

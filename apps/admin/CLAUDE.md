@@ -362,6 +362,14 @@ import { DatePicker } from '@/components/ui/date-picker';
 - Performance
 - Secrets
 
+### 📦 Module Inventory
+→ **[docs/inventory/](./docs/inventory/)**
+- [ARCHITECTURE.md](./docs/inventory/ARCHITECTURE.md) - Structure, flows, relations models
+- [USER_GUIDE.md](./docs/inventory/USER_GUIDE.md) - Workflows par module
+- [DEV_GUIDE.md](./docs/inventory/DEV_GUIDE.md) - API routes, types, hooks, helpers
+- [FAQ.md](./docs/inventory/FAQ.md) - Questions, troubleshooting, patterns
+- [PERMISSIONS.md](./docs/inventory/PERMISSIONS.md) - Roles et permissions detaillees
+
 ---
 
 ## 🎯 Checklist Avant de Coder
@@ -411,6 +419,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 - ✅ Comptabilité (Caisse, CA, PDF)
 - ✅ Dashboard (Stats, Navigation)
 - ✅ Pages d'erreur (404, 403, 401, 500)
+- ✅ Inventory (Fournisseurs, Produits, Inventaires, Commandes, Analytics)
 
 ### Qualité
 
@@ -479,6 +488,12 @@ Total : 1-2 jours/module
 - [TESTING.md](./docs/guides/TESTING.md) - Tests manuels
 - [FAQ.md](./docs/guides/FAQ.md) - Questions fréquentes
 
+### Module Inventory
+- [ARCHITECTURE.md](./docs/inventory/ARCHITECTURE.md) - Structure et flows
+- [USER_GUIDE.md](./docs/inventory/USER_GUIDE.md) - Workflows utilisateur
+- [DEV_GUIDE.md](./docs/inventory/DEV_GUIDE.md) - API, types, hooks
+- [FAQ.md](./docs/inventory/FAQ.md) - Questions et troubleshooting
+
 ### Fichiers Importants
 - `/TESTING_CHECKLIST.md` - Checklist tests détaillée
 - `/docs/refactoring/REFACTORING_SUMMARY.txt` - Historique refactoring
@@ -510,9 +525,9 @@ pnpm exec tsc --noEmit        # Type check complet
 
 ---
 
-**Dernière mise à jour** : 2026-02-08
+**Dernière mise à jour** : 2026-02-28
 **Auteur** : Thierry + Claude
-**Version** : 1.1
+**Version** : 1.2
 
 ---
 

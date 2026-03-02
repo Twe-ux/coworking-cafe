@@ -4,6 +4,12 @@ import { Schema, Document, Types } from 'mongoose';
  * Interface RecurringTask Document
  * Template for recurring tasks that auto-generate task instances
  */
+export interface RecurringTaskMetadata {
+  type?: string;                           // Task category: "inventory", "shift", etc.
+  inventoryType?: string;                  // "weekly" | "monthly" (when type=inventory)
+  [key: string]: unknown;                  // Extensible for future use
+}
+
 export interface RecurringTaskDocument extends Document {
   _id: Types.ObjectId;
   title: string;
@@ -12,6 +18,7 @@ export interface RecurringTaskDocument extends Document {
   recurrenceType: 'weekly' | 'monthly';
   recurrenceDays: number[]; // weekly: 0-6 (0=Sunday), monthly: 1-31
   active: boolean;
+  metadata?: RecurringTaskMetadata;        // Extensible metadata for categorization
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -57,6 +64,10 @@ export const RecurringTaskSchema = new Schema<RecurringTaskDocument>(
     active: {
       type: Boolean,
       default: true,
+    },
+    metadata: {
+      type: Schema.Types.Mixed,
+      default: {},
     },
     createdBy: {
       type: Schema.Types.ObjectId,
