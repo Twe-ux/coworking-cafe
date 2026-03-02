@@ -73,10 +73,13 @@ export function formatFormDataForAPI(
 
 /**
  * Retourne l'URL et la méthode HTTP selon le mode (création ou édition)
+ * Encode l'ID en remplaçant les / par des - pour éviter les problèmes de routing Next.js
  */
 export function getAPIEndpoint(isEdit: boolean, id?: string): { url: string; method: "POST" | "PUT" } {
   if (isEdit && id) {
-    return { url: `/api/accounting/cash-entries/${id}`, method: "PUT" };
+    // Encoder l'ID : remplacer / par - pour l'URL (2026/02/01 → 2026-02-01)
+    const encodedId = id.replace(/\//g, "-");
+    return { url: `/api/accounting/cash-entries/${encodedId}`, method: "PUT" };
   }
   return { url: "/api/accounting/cash-entries", method: "POST" };
 }

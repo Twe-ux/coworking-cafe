@@ -41,6 +41,7 @@ export function Step4Administrative() {
       dpaeCompleted: false,
       dpaeCompletedAt: "",
       medicalVisitCompleted: false,
+      mutuelleCompleted: false,
       mutuelleWanted: undefined, // undefined = non renseigné
       bankDetailsProvided: false,
       registerCompleted: false,
@@ -91,17 +92,19 @@ export function Step4Administrative() {
   const dpaeCompleted = watch("dpaeCompleted");
   const dpaeCompletedAt = watch("dpaeCompletedAt");
   const medicalVisitCompleted = watch("medicalVisitCompleted");
+  const mutuelleCompleted = watch("mutuelleCompleted");
   const mutuelleWanted = watch("mutuelleWanted");
   const bankDetailsProvided = watch("bankDetailsProvided");
   const registerCompleted = watch("registerCompleted");
 
   // Le bouton est activé uniquement si toutes les checkboxes sont cochées
   // ET que la date DPAE est renseignée
-  // ET que la mutuelle est renseignée (true ou false, pas undefined)
+  // ET que le choix mutuelle est fait (checkbox cochée + OUI/NON sélectionné)
   const allAdminTasksCompleted =
     dpaeCompleted &&
     dpaeCompletedAt &&
     medicalVisitCompleted &&
+    mutuelleCompleted &&
     mutuelleWanted !== undefined &&
     bankDetailsProvided &&
     registerCompleted;
@@ -289,19 +292,36 @@ export function Step4Administrative() {
                 </Label>
               </div>
 
-              {/* Mutuelle - Radio buttons */}
+              {/* Mutuelle - Checkbox + Radio buttons */}
               <div className="space-y-2">
-                <div className="flex items-center gap-4">
-                  <Label className="font-medium">
-                    L'employé souhaite-t-il la mutuelle de l'entreprise ?{" "}
-                    <span className="text-destructive">*</span>
-                  </Label>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="mutuelleCompleted"
+                      checked={watch("mutuelleCompleted")}
+                      onCheckedChange={(checked) => {
+                        setValue("mutuelleCompleted", checked as boolean);
+                        // Réinitialiser le choix si décochée
+                        if (!checked) {
+                          setValue("mutuelleWanted", undefined);
+                        }
+                      }}
+                    />
+                    <Label
+                      htmlFor="mutuelleCompleted"
+                      className="font-normal cursor-pointer whitespace-nowrap"
+                    >
+                      Choix mutuelle effectué
+                    </Label>
+                  </div>
                   <Controller
                     name="mutuelleWanted"
                     control={control}
                     rules={{
                       validate: (value) =>
-                        value !== undefined || "Veuillez sélectionner une option",
+                        !mutuelleCompleted ||
+                        value !== undefined ||
+                        "Veuillez sélectionner une option",
                     }}
                     render={({ field }) => (
                       <RadioGroup
@@ -313,6 +333,10 @@ export function Step4Administrative() {
                               : "no"
                         }
                         onValueChange={(value: string) => {
+                          // Cocher automatiquement la checkbox quand on sélectionne OUI/NON
+                          if (!mutuelleCompleted) {
+                            setValue("mutuelleCompleted", true);
+                          }
                           field.onChange(value === "yes");
                         }}
                         className="flex flex-row gap-4"

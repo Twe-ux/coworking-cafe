@@ -85,6 +85,7 @@ export function buildEmployeePayload(
       dpaeCompletedAt: adminInfo.dpaeCompletedAt ? new Date(adminInfo.dpaeCompletedAt) : undefined,
       medicalVisitCompleted: adminInfo.medicalVisitCompleted || false,
       mutuelleCompleted: adminInfo.mutuelleCompleted || false,
+      mutuelleWanted: adminInfo.mutuelleWanted,
       bankDetailsProvided: adminInfo.bankDetailsProvided || false,
       registerCompleted: adminInfo.registerCompleted || false,
       contractSent: adminInfo.contractSent || false,

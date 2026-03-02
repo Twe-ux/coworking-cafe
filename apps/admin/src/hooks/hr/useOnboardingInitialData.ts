@@ -52,7 +52,8 @@ function transformAdministrativeInfo(employee: Employee) {
       ? new Date(status.dpaeCompletedAt).toISOString().split('T')[0]
       : '',
     medicalVisitCompleted: status?.medicalVisitCompleted || false,
-    mutuelleCompleted: status?.mutuelleCompleted || false,
+    mutuelleCompleted: status?.mutuelleCompleted || (status?.mutuelleWanted !== undefined) || false,
+    mutuelleWanted: status?.mutuelleWanted,
     bankDetailsProvided: status?.bankDetailsProvided || false,
     registerCompleted: status?.registerCompleted || false,
     contractSent: status?.contractSent || false,

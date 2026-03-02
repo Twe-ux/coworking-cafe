@@ -10,10 +10,11 @@
  * - Adresse
  * - N° Sécu
  * - Date début
+ * - Date fin
+ * - Taux horaire
  * - Heures contrat
  * - Heures réalisées
  * - Heures sup
- * - Date fin
  * - Mutuelle
  */
 
@@ -76,7 +77,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "12%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "11%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>Nom, Prénom</Text>
@@ -84,7 +85,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "15%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "13%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>Adresse</Text>
@@ -92,7 +93,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "12%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "11%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>N° Sécu</Text>
@@ -112,6 +113,14 @@ export function PayrollDocument({
               ]}
             >
               <Text>Date fin</Text>
+            </View>
+            <View
+              style={[
+                styles.tableCellHeader,
+                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
+              ]}
+            >
+              <Text>Taux h.</Text>
             </View>
             <View
               style={[
@@ -140,7 +149,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "7%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>Mutuelle</Text>
@@ -160,7 +169,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCellLeft,
                     {
-                      width: "12%",
+                      width: "11%",
                       fontSize: 8,
                       padding: "5 2 2 2",
                       alignItems: "flex-start",
@@ -175,7 +184,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCellLeft,
                     {
-                      width: "15%",
+                      width: "13%",
                       fontSize: 7,
                       padding: "5 2 2 2",
                       alignItems: "flex-start",
@@ -195,7 +204,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCell,
                     {
-                      width: "12%",
+                      width: "11%",
                       fontSize: 7,
                       padding: "5 2 2 2",
                       alignItems: "center",
@@ -223,6 +232,16 @@ export function PayrollDocument({
                   ]}
                 >
                   <Text>{formatDate(employee.endDate)}</Text>
+                </View>
+
+                {/* Taux horaire */}
+                <View
+                  style={[
+                    styles.tableCell,
+                    { width: "8%", fontSize: 8, padding: "5 2 2 2" },
+                  ]}
+                >
+                  <Text>{employee.hourlyRate.toFixed(2)}€</Text>
                 </View>
 
                 {/* H. contrat */}
@@ -273,7 +292,7 @@ export function PayrollDocument({
                 <View
                   style={[
                     styles.tableCell,
-                    { width: "8%", fontSize: 8, padding: "5 2 2 2" },
+                    { width: "7%", fontSize: 8, padding: "5 2 2 2" },
                   ]}
                 >
                   <Text>{employee.hasMutuelle ? "Oui" : "Non"}</Text>

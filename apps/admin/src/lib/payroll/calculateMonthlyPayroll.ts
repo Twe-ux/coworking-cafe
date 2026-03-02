@@ -15,6 +15,7 @@ export interface EmployeePayrollData {
   socialSecurityNumber: string; // Formatted SSN
   hireDate: string;
   endDate?: string;
+  hourlyRate: number; // Hourly rate (€/hour)
   contractualHours: number;
   monthlyContractualHours: number; // contractualHours × 4.33
   hoursWorked: number; // Actual hours worked in the month
@@ -125,6 +126,7 @@ export async function calculateMonthlyPayroll(
       socialSecurityNumber: formatSSN(employee.socialSecurityNumber),
       hireDate: employee.hireDate,
       endDate: employee.endDate,
+      hourlyRate: employee.hourlyRate,
       contractualHours: employee.contractualHours,
       monthlyContractualHours: Math.round(monthlyContractualHours * 100) / 100,
       hoursWorked: Math.round(hoursWorked * 100) / 100,

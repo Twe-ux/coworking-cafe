@@ -18,7 +18,10 @@ export async function GET(
 
     await connectMongoose()
 
-    const entry = await CashEntry.findById(params.id).lean()
+    // Décoder l'ID : remplacer - par / (2026-02-01 → 2026/02/01)
+    const decodedId = params.id.replace(/-/g, "/")
+
+    const entry = await CashEntry.findById(decodedId).lean()
 
     if (!entry) {
       return NextResponse.json(
@@ -61,8 +64,11 @@ export async function PUT(
 
     const body = await request.json()
 
+    // Décoder l'ID : remplacer - par / (2026-02-01 → 2026/02/01)
+    const decodedId = params.id.replace(/-/g, "/")
+
     const updatedEntry = await CashEntry.findByIdAndUpdate(
-      params.id,
+      decodedId,
       {
         prestaB2B: body.prestaB2B?.filter((item: PrestaB2BItem) => item.label && item.value),
         depenses: body.depenses?.filter((item: DepenseItem) => item.label && item.value),
@@ -113,7 +119,10 @@ export async function DELETE(
 
     await connectMongoose()
 
-    const deletedEntry = await CashEntry.findByIdAndDelete(params.id).lean()
+    // Décoder l'ID : remplacer - par / (2026-02-01 → 2026/02/01)
+    const decodedId = params.id.replace(/-/g, "/")
+
+    const deletedEntry = await CashEntry.findByIdAndDelete(decodedId).lean()
 
     if (!deletedEntry) {
       return NextResponse.json(
