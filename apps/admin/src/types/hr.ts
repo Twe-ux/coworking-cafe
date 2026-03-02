@@ -52,7 +52,8 @@ export interface OnboardingStatus {
   dpaeCompletedAt?: Date | string;
   medicalVisitCompleted?: boolean;
   medicalVisitCompletedAt?: Date | string;
-  mutuelleCompleted?: boolean;
+  mutuelleWanted?: boolean; // true = Oui, false = Non
+  mutuelleCompleted?: boolean; // Deprecated - kept for backward compatibility
   mutuelleCompletedAt?: Date | string;
   bankDetailsProvided: boolean;
   bankDetailsProvidedAt?: Date | string;

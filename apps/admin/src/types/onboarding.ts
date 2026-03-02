@@ -61,7 +61,8 @@ export interface AdministrativeInfo {
   dpaeCompleted?: boolean;
   dpaeCompletedAt?: string; // Date DPAE (nécessaire pour le contrat)
   medicalVisitCompleted?: boolean;
-  mutuelleCompleted?: boolean;
+  mutuelleWanted?: boolean; // true = Oui, false = Non, undefined = non renseigné
+  mutuelleCompleted?: boolean; // Deprecated - kept for backward compatibility
   bankDetailsProvided?: boolean;
   registerCompleted?: boolean;
   contractSent?: boolean;

@@ -129,7 +129,10 @@ export async function calculateMonthlyPayroll(
       monthlyContractualHours: Math.round(monthlyContractualHours * 100) / 100,
       hoursWorked: Math.round(hoursWorked * 100) / 100,
       overtimeHours: Math.round(overtimeHours * 100) / 100,
-      hasMutuelle: employee.onboardingStatus?.mutuelleCompleted || false,
+      hasMutuelle:
+        employee.onboardingStatus?.mutuelleWanted ??
+        employee.onboardingStatus?.mutuelleCompleted ??
+        false,
     };
   });
 

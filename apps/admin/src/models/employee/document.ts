@@ -67,7 +67,8 @@ export interface EmployeeDocument extends Document {
     dpaeCompletedAt?: Date;
     medicalVisitCompleted?: boolean;
     medicalVisitCompletedAt?: Date;
-    mutuelleCompleted?: boolean;
+    mutuelleWanted?: boolean; // true = Oui, false = Non
+    mutuelleCompleted?: boolean; // Deprecated - kept for backward compatibility
     mutuelleCompletedAt?: Date;
     bankDetailsProvided: boolean;
     bankDetailsProvidedAt?: Date;
@@ -270,7 +271,8 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
         dpaeCompletedAt: { type: Date },
         medicalVisitCompleted: { type: Boolean, default: false },
         medicalVisitCompletedAt: { type: Date },
-        mutuelleCompleted: { type: Boolean, default: false },
+        mutuelleWanted: { type: Boolean }, // true = Oui, false = Non, undefined = non renseigné
+        mutuelleCompleted: { type: Boolean, default: false }, // Deprecated
         mutuelleCompletedAt: { type: Date },
         bankDetailsProvided: { type: Boolean, default: false },
         bankDetailsProvidedAt: { type: Date },

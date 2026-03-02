@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useOnboardingContext } from "@/contexts/OnboardingContext";
 import type { Employee } from "@/types/hr";
 import type { AdministrativeInfo } from "@/types/onboarding";
@@ -40,7 +41,7 @@ export function Step4Administrative() {
       dpaeCompleted: false,
       dpaeCompletedAt: "",
       medicalVisitCompleted: false,
-      mutuelleCompleted: false,
+      mutuelleWanted: undefined, // undefined = non renseigné
       bankDetailsProvided: false,
       registerCompleted: false,
       contractSent: false,
@@ -90,17 +91,18 @@ export function Step4Administrative() {
   const dpaeCompleted = watch("dpaeCompleted");
   const dpaeCompletedAt = watch("dpaeCompletedAt");
   const medicalVisitCompleted = watch("medicalVisitCompleted");
-  const mutuelleCompleted = watch("mutuelleCompleted");
+  const mutuelleWanted = watch("mutuelleWanted");
   const bankDetailsProvided = watch("bankDetailsProvided");
   const registerCompleted = watch("registerCompleted");
 
   // Le bouton est activé uniquement si toutes les checkboxes sont cochées
   // ET que la date DPAE est renseignée
+  // ET que la mutuelle est renseignée (true ou false, pas undefined)
   const allAdminTasksCompleted =
     dpaeCompleted &&
     dpaeCompletedAt &&
     medicalVisitCompleted &&
-    mutuelleCompleted &&
+    mutuelleWanted !== undefined &&
     bankDetailsProvided &&
     registerCompleted;
 
@@ -287,20 +289,55 @@ export function Step4Administrative() {
                 </Label>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="mutuelleCompleted"
-                  checked={watch("mutuelleCompleted")}
-                  onCheckedChange={(checked) =>
-                    setValue("mutuelleCompleted", checked as boolean)
-                  }
-                />
-                <Label
-                  htmlFor="mutuelleCompleted"
-                  className="font-normal cursor-pointer"
-                >
-                  Mutuelle souscrite
+              {/* Mutuelle - Radio buttons */}
+              <div className="space-y-2">
+                <Label className="font-medium">
+                  L'employé souhaite-t-il la mutuelle de l'entreprise ?{" "}
+                  <span className="text-destructive">*</span>
                 </Label>
+                <Controller
+                  name="mutuelleWanted"
+                  control={control}
+                  rules={{ required: "Veuillez sélectionner une option" }}
+                  render={({ field }) => (
+                    <RadioGroup
+                      value={
+                        field.value === undefined
+                          ? undefined
+                          : field.value
+                            ? "yes"
+                            : "no"
+                      }
+                      onValueChange={(value: string) => {
+                        field.onChange(value === "yes");
+                      }}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="mutuelle-no" />
+                        <Label
+                          htmlFor="mutuelle-no"
+                          className="font-normal cursor-pointer"
+                        >
+                          Non
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="mutuelle-yes" />
+                        <Label
+                          htmlFor="mutuelle-yes"
+                          className="font-normal cursor-pointer"
+                        >
+                          Oui
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  )}
+                />
+                {errors.mutuelleWanted && (
+                  <p className="text-sm text-destructive">
+                    {errors.mutuelleWanted.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center space-x-2">
