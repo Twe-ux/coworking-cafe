@@ -291,51 +291,54 @@ export function Step4Administrative() {
 
               {/* Mutuelle - Radio buttons */}
               <div className="space-y-2">
-                <Label className="font-medium">
-                  L'employé souhaite-t-il la mutuelle de l'entreprise ?{" "}
-                  <span className="text-destructive">*</span>
-                </Label>
-                <Controller
-                  name="mutuelleWanted"
-                  control={control}
-                  rules={{
-                    validate: (value) =>
-                      value !== undefined || "Veuillez sélectionner une option",
-                  }}
-                  render={({ field }) => (
-                    <RadioGroup
-                      value={
-                        field.value === undefined
-                          ? undefined
-                          : field.value
-                            ? "yes"
-                            : "no"
-                      }
-                      onValueChange={(value: string) => {
-                        field.onChange(value === "yes");
-                      }}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="mutuelle-no" />
-                        <Label
-                          htmlFor="mutuelle-no"
-                          className="font-normal cursor-pointer"
-                        >
-                          Non
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="mutuelle-yes" />
-                        <Label
-                          htmlFor="mutuelle-yes"
-                          className="font-normal cursor-pointer"
-                        >
-                          Oui
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  )}
-                />
+                <div className="flex items-center gap-4">
+                  <Label className="font-medium">
+                    L'employé souhaite-t-il la mutuelle de l'entreprise ?{" "}
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <Controller
+                    name="mutuelleWanted"
+                    control={control}
+                    rules={{
+                      validate: (value) =>
+                        value !== undefined || "Veuillez sélectionner une option",
+                    }}
+                    render={({ field }) => (
+                      <RadioGroup
+                        value={
+                          field.value === undefined
+                            ? undefined
+                            : field.value
+                              ? "yes"
+                              : "no"
+                        }
+                        onValueChange={(value: string) => {
+                          field.onChange(value === "yes");
+                        }}
+                        className="flex flex-row gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="mutuelle-no" />
+                          <Label
+                            htmlFor="mutuelle-no"
+                            className="font-normal cursor-pointer"
+                          >
+                            Non
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="mutuelle-yes" />
+                          <Label
+                            htmlFor="mutuelle-yes"
+                            className="font-normal cursor-pointer"
+                          >
+                            Oui
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    )}
+                  />
+                </div>
                 {errors.mutuelleWanted && (
                   <p className="text-sm text-destructive">
                     {errors.mutuelleWanted.message}
