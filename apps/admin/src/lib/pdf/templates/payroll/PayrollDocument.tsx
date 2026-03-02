@@ -179,10 +179,15 @@ export function PayrollDocument({
                       fontSize: 7,
                       padding: "5 2 2 2",
                       alignItems: "flex-start",
+                      flexDirection: "column",
+                      justifyContent: "center",
                     },
                   ]}
                 >
-                  <Text>{employee.address}</Text>
+                  <Text>{employee.addressLine1}</Text>
+                  {employee.addressLine2 && (
+                    <Text style={{ marginTop: 2 }}>{employee.addressLine2}</Text>
+                  )}
                 </View>
 
                 {/* N° Sécu */}

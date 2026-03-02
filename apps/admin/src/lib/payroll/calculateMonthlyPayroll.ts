@@ -10,7 +10,8 @@ export interface EmployeePayrollData {
   firstName: string;
   lastName: string;
   fullName: string;
-  address: string; // Formatted address
+  addressLine1: string; // Street number and name
+  addressLine2: string; // Postal code and city
   socialSecurityNumber: string; // Formatted SSN
   hireDate: string;
   endDate?: string;
@@ -27,21 +28,27 @@ interface MonthlyHoursData {
 }
 
 /**
- * Format employee address for PDF
+ * Format employee address for PDF (2 lines)
+ * Returns: { line1: "N° rue", line2: "Code postal Ville" }
  */
-function formatAddress(employee: Employee): string {
+function formatAddress(employee: Employee): { line1: string; line2: string } {
   // Debug log
   console.log("Formatting address for", employee.firstName, employee.address);
 
-  if (!employee.address) return "Non renseignée";
+  if (!employee.address) {
+    return { line1: "Non renseignée", line2: "" };
+  }
 
   const { street, postalCode, city } = employee.address;
-  if (!street && !city) return "Non renseignée";
 
-  const parts = [street, `${postalCode || ""} ${city || ""}`.trim()].filter(
-    Boolean
-  );
-  return parts.join(", ");
+  if (!street && !city) {
+    return { line1: "Non renseignée", line2: "" };
+  }
+
+  const line1 = street || "";
+  const line2 = `${postalCode || ""} ${city || ""}`.trim();
+
+  return { line1, line2 };
 }
 
 /**
@@ -106,12 +113,15 @@ export async function calculateMonthlyPayroll(
     // Overtime = MAX(0, hours worked - monthly contractual)
     const overtimeHours = Math.max(0, hoursWorked - monthlyContractualHours);
 
+    const address = formatAddress(employee);
+
     return {
       employeeId: employee.id,
       firstName: employee.firstName,
       lastName: employee.lastName,
       fullName: `${employee.firstName} ${employee.lastName}`,
-      address: formatAddress(employee),
+      addressLine1: address.line1,
+      addressLine2: address.line2,
       socialSecurityNumber: formatSSN(employee.socialSecurityNumber),
       hireDate: employee.hireDate,
       endDate: employee.endDate,
