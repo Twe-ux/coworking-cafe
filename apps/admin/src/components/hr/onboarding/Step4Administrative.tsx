@@ -298,7 +298,10 @@ export function Step4Administrative() {
                 <Controller
                   name="mutuelleWanted"
                   control={control}
-                  rules={{ required: "Veuillez sélectionner une option" }}
+                  rules={{
+                    validate: (value) =>
+                      value !== undefined || "Veuillez sélectionner une option",
+                  }}
                   render={({ field }) => (
                     <RadioGroup
                       value={
