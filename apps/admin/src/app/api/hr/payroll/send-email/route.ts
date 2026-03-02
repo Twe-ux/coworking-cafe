@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { Resend } from "resend";
-
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { sendEmail } from "@/lib/email/emailService";
 
 interface SendEmailPayload {
   recipientEmail: string;
@@ -91,10 +88,9 @@ export async function POST(request: NextRequest) {
     // Convert base64 to Buffer
     const pdfBuffer = Buffer.from(pdfBase64, "base64");
 
-    // Send email with Resend
-    const { data, error } = await resend.emails.send({
-      from: "CoworKing Café <noreply@coworkingcafe.com>",
-      to: [recipientEmail],
+    // Send email with SMTP (via @coworking-cafe/email package)
+    const result = await sendEmail({
+      to: recipientEmail,
       subject: `Récapitulatif Paie - ${monthName} ${year}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -128,13 +124,13 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    if (error) {
-      console.error("Resend error:", error);
+    if (!result.success) {
+      console.error("Email sending error:", result.error);
       return NextResponse.json(
         {
           success: false,
           error: "Erreur lors de l'envoi de l'email",
-          details: error.message,
+          details: result.error,
         },
         { status: 500 }
       );
@@ -143,7 +139,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Email envoyé à ${recipientEmail}`,
-      data: { emailId: data?.id },
     });
   } catch (error) {
     console.error("Error sending payroll email:", error);

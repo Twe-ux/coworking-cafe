@@ -17,6 +17,24 @@ Dashboard Next.js 14 pour gérer :
 
 **Stack** : Next.js 14 · TypeScript · Tailwind · shadcn/ui · MongoDB · NextAuth
 
+### 📧 Emails
+
+**IMPORTANT** : N'utilisez **JAMAIS Resend** pour l'envoi d'emails.
+
+✅ **Utiliser** : Package partagé `@coworking-cafe/email` avec SMTP
+```typescript
+import { sendEmail } from "@/lib/email/emailService";
+
+await sendEmail({
+  to: "user@example.com",
+  subject: "Sujet",
+  html: "<p>Contenu HTML</p>",
+  attachments: [{ filename: "file.pdf", content: buffer }]
+});
+```
+
+❌ **Ne PAS utiliser** : Resend, SendGrid, ou autres services tiers
+
 ---
 
 ## ⚠️ CONVENTION CRITIQUE : Structure des routes Admin vs Staff
