@@ -76,7 +76,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "15%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "12%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>Nom, Prénom</Text>
@@ -111,12 +111,20 @@ export function PayrollDocument({
                 { width: "8%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
+              <Text>Date fin</Text>
+            </View>
+            <View
+              style={[
+                styles.tableCellHeader,
+                { width: "9%", fontSize: 9, padding: "8 2 2 2" },
+              ]}
+            >
               <Text>H. contrat</Text>
             </View>
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "9%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>H. réalisées</Text>
@@ -124,18 +132,10 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "9%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>H. sup</Text>
-            </View>
-            <View
-              style={[
-                styles.tableCellHeader,
-                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
-              ]}
-            >
-              <Text>Date fin</Text>
             </View>
             <View
               style={[
@@ -160,7 +160,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCellLeft,
                     {
-                      width: "15%",
+                      width: "12%",
                       fontSize: 8,
                       padding: "5 2 2 2",
                       alignItems: "flex-start",
@@ -210,11 +210,21 @@ export function PayrollDocument({
                   <Text>{formatDate(employee.hireDate)}</Text>
                 </View>
 
-                {/* H. contrat */}
+                {/* Date fin */}
                 <View
                   style={[
                     styles.tableCell,
                     { width: "8%", fontSize: 8, padding: "5 2 2 2" },
+                  ]}
+                >
+                  <Text>{formatDate(employee.endDate)}</Text>
+                </View>
+
+                {/* H. contrat */}
+                <View
+                  style={[
+                    styles.tableCell,
+                    { width: "9%", fontSize: 8, padding: "5 2 2 2" },
                   ]}
                 >
                   <Text>{employee.monthlyContractualHours.toFixed(2)}h</Text>
@@ -224,7 +234,7 @@ export function PayrollDocument({
                 <View
                   style={[
                     styles.tableCell,
-                    { width: "8%", fontSize: 8, padding: "5 2 2 2" },
+                    { width: "9%", fontSize: 8, padding: "5 2 2 2" },
                   ]}
                 >
                   <Text>{employee.hoursWorked.toFixed(2)}h</Text>
@@ -235,7 +245,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCell,
                     {
-                      width: "8%",
+                      width: "9%",
                       fontSize: 8,
                       padding: "5 2 2 2",
                       color:
@@ -252,16 +262,6 @@ export function PayrollDocument({
                       ? `${employee.overtimeHours.toFixed(2)}h`
                       : "-"}
                   </Text>
-                </View>
-
-                {/* Date fin */}
-                <View
-                  style={[
-                    styles.tableCell,
-                    { width: "8%", fontSize: 8, padding: "5 2 2 2" },
-                  ]}
-                >
-                  <Text>{formatDate(employee.endDate)}</Text>
                 </View>
 
                 {/* Mutuelle */}

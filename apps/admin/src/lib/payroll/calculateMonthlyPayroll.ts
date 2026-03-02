@@ -30,7 +30,12 @@ interface MonthlyHoursData {
  * Format employee address for PDF
  */
 function formatAddress(employee: Employee): string {
-  const { street, postalCode, city } = employee.address || {};
+  // Debug log
+  console.log("Formatting address for", employee.firstName, employee.address);
+
+  if (!employee.address) return "Non renseignée";
+
+  const { street, postalCode, city } = employee.address;
   if (!street && !city) return "Non renseignée";
 
   const parts = [street, `${postalCode || ""} ${city || ""}`.trim()].filter(
@@ -42,8 +47,11 @@ function formatAddress(employee: Employee): string {
 /**
  * Format social security number with spaces: 1 23 45 67 890 123 45
  */
-function formatSSN(ssn: string): string {
-  if (!ssn) return "";
+function formatSSN(ssn?: string): string {
+  // Debug log
+  console.log("Formatting SSN:", ssn);
+
+  if (!ssn) return "Non renseigné";
 
   const cleaned = ssn.replace(/\s/g, "");
   if (cleaned.length === 15) {
