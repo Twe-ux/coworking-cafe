@@ -197,6 +197,7 @@ export async function GET(request: NextRequest) {
       const endDateCondition = {
         $or: [
           { endDate: { $exists: false } }, // Pas de date de fin
+          { endDate: null }, // Ou endDate explicitement null
           { endDate: { $gte: monthStart } }, // Ou date de fin >= début du mois
         ],
       }
