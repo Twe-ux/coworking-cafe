@@ -56,9 +56,9 @@ export function useHRManagement() {
   // Tous les employés (exclure dev uniquement)
   const employees = allEmployees.filter((emp) => !isDevEmployee(emp));
 
-  // Charger les employés au montage
+  // Charger les employés au montage (inclure les inactifs pour le toggle)
   useEffect(() => {
-    fetchEmployees();
+    fetchEmployees({ includeInactive: true });
   }, [fetchEmployees]);
 
   // Rediriger staff vers leur vue dédiée

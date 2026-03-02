@@ -115,6 +115,18 @@ export function ScheduleDayCell({
   return (
     <div className="flex-1 space-y-1">
       {employees.map((employee) => {
+        // Ne pas afficher l'employé si la date est après sa démission
+        if (employee.endDate) {
+          const endDate = new Date(employee.endDate);
+          endDate.setHours(0, 0, 0, 0);
+          const cellDate = new Date(date);
+          cellDate.setHours(0, 0, 0, 0);
+
+          if (cellDate > endDate) {
+            return null; // Employé démissionnaire, ne pas afficher
+          }
+        }
+
         // Check if employee is unavailable on this date
         const isUnavailable = isEmployeeUnavailable(dateStr, employee.id);
 

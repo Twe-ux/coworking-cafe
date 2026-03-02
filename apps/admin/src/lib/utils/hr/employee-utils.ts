@@ -160,6 +160,8 @@ export function filterEmployees(
 ): Employee[] {
   return employees.filter((emp) => {
     // Filtre archivés
+    // Si showArchived = false → montrer seulement actifs
+    // Si showArchived = true → montrer seulement archivés
     if (!filters.showArchived && isArchived(emp)) return false;
     if (filters.showArchived && !isArchived(emp)) return false;
 

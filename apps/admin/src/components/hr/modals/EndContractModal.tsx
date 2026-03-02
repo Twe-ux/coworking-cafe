@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -47,6 +47,7 @@ export function EndContractModal({
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors },
     reset,
   } = useForm<EndContractFormData>({
@@ -93,12 +94,17 @@ export function EndContractModal({
             <Label htmlFor="endDate">
               Date de fin de contrat <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="endDate"
-              type="date"
-              {...register('endDate', {
-                required: 'La date de fin est requise',
-              })}
+            <Controller
+              name="endDate"
+              control={control}
+              rules={{ required: 'La date de fin est requise' }}
+              render={({ field }) => (
+                <DatePicker
+                  date={field.value}
+                  onDateChange={field.onChange}
+                  placeholder="Sélectionner la date de fin"
+                />
+              )}
             />
             {errors.endDate && (
               <p className="text-sm text-destructive">

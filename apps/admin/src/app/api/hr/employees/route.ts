@@ -65,28 +65,83 @@ export async function GET(request: NextRequest) {
       console.log(`✅ [AUTO-ACTIVATION] ${activationResult.modifiedCount} employé(s) activé(s) avec succès`)
     }
 
+    // 🔧 DÉSACTIVATION AUTOMATIQUE des employés dont la date de fin de contrat est passée
+    // Vérifie et désactive automatiquement les employés dont endDate <= aujourd'hui
+    console.log('🔍 [AUTO-DÉSACTIVATION] Vérification des fins de contrat...')
+
+    // Vérifier quels employés correspondent aux critères AVANT désactivation
+    const employeesToDeactivate = await Employee.find({
+      endDate: { $lte: todayStr },
+      isActive: true,
+      isDraft: false,
+    }).select('firstName lastName endDate endContractReason isActive').lean()
+
+    if (employeesToDeactivate.length > 0) {
+      console.log(`📋 [AUTO-DÉSACTIVATION] ${employeesToDeactivate.length} employé(s) à désactiver:`,
+        employeesToDeactivate.map(e => `${e.firstName} ${e.lastName} (endDate: ${e.endDate}, raison: ${e.endContractReason || 'N/A'})`))
+    } else {
+      console.log('ℹ️ [AUTO-DÉSACTIVATION] Aucun employé à désactiver')
+    }
+
+    const deactivationResult = await Employee.updateMany(
+      {
+        endDate: { $lte: todayStr },
+        isActive: true,
+        isDraft: false,
+      },
+      {
+        $set: {
+          isActive: false,
+          deletedAt: new Date(),
+        },
+      }
+    )
+
+    // Log si des employés ont été désactivés
+    if (deactivationResult.modifiedCount > 0) {
+      console.log(`✅ [AUTO-DÉSACTIVATION] ${deactivationResult.modifiedCount} employé(s) désactivé(s) avec succès`)
+    }
+
     // Paramètres de recherche depuis l'URL
     const { searchParams } = new URL(request.url)
     const role = searchParams.get('role')
     const active = searchParams.get('active')
     const search = searchParams.get('search')
+    const month = searchParams.get('month') // Format YYYY-MM pour filtrer par mois actif
 
     // Paramètre pour inclure ou non les brouillons
     const includeDrafts = searchParams.get('includeDrafts') === 'true'
+
+    // Paramètre pour inclure ou non les employés inactifs
+    const includeInactive = searchParams.get('includeInactive') === 'true'
 
     // Construction de la requête
     interface QueryFilter {
       role?: string;
       isActive?: boolean;
       isDraft?: boolean;
-      $or?: Array<{ isDraft: { $exists: boolean } } | { isDraft: boolean }>;
-      $and?: Array<{
-        $or: Array<
-          | { firstName: { $regex: string; $options: string } }
-          | { lastName: { $regex: string; $options: string } }
-          | { email: { $regex: string; $options: string } }
-        >;
-      }>;
+      hireDate?: { $lte?: string };
+      $or?: Array<
+        | { isDraft: { $exists: boolean } }
+        | { isDraft: boolean }
+        | { endDate: { $exists: boolean } }
+        | { endDate: { $gte: string } }
+      >;
+      $and?: Array<
+        | {
+            $or: Array<
+              | { firstName: { $regex: string; $options: string } }
+              | { lastName: { $regex: string; $options: string } }
+              | { email: { $regex: string; $options: string } }
+            >;
+          }
+        | {
+            $or: Array<
+              | { endDate: { $exists: boolean } }
+              | { endDate: { $gte: string } }
+            >;
+          }
+      >;
     }
 
     const query: QueryFilter = includeDrafts
@@ -108,16 +163,61 @@ export async function GET(request: NextRequest) {
       // On ne filtre pas ici car on va gérer cela après en vérifiant la date
     }
 
+    // 🗓️ FILTRE PAR MOIS - Employés actifs pendant le mois spécifié
+    // Retourne les employés qui étaient actifs pendant au moins une partie du mois
+    if (month) {
+      // Valider le format YYYY-MM
+      if (!/^\d{4}-\d{2}$/.test(month)) {
+        return Response.json(
+          { error: { message: 'Format de mois invalide. Utilisez YYYY-MM' } },
+          { status: 400 }
+        )
+      }
+
+      // Calculer début et fin du mois
+      const [year, monthNum] = month.split('-').map(Number)
+      const monthStart = `${year}-${String(monthNum).padStart(2, '0')}-01`
+
+      // Dernier jour du mois
+      const lastDay = new Date(year, monthNum, 0).getDate()
+      const monthEnd = `${year}-${String(monthNum).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+
+      console.log(`🗓️ [FILTRE MOIS] Recherche employés actifs pour ${month} (${monthStart} à ${monthEnd})`)
+
+      // Employé actif pendant le mois si :
+      // 1. Embauché avant ou pendant le mois (hireDate <= fin du mois)
+      // 2. ET (pas de démission OU démission après le début du mois)
+      query.hireDate = { $lte: monthEnd }
+
+      // Ajouter condition sur endDate dans $and
+      const endDateCondition = {
+        $or: [
+          { endDate: { $exists: false } }, // Pas de date de fin
+          { endDate: { $gte: monthStart } }, // Ou date de fin >= début du mois
+        ],
+      }
+
+      if (query.$and) {
+        query.$and.push(endDateCondition)
+      } else {
+        query.$and = [endDateCondition]
+      }
+    }
+
     if (search) {
-      query.$and = [
-        {
-          $or: [
-            { firstName: { $regex: search, $options: 'i' } },
-            { lastName: { $regex: search, $options: 'i' } },
-            { email: { $regex: search, $options: 'i' } },
-          ],
-        },
-      ]
+      const searchCondition = {
+        $or: [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ],
+      }
+
+      if (query.$and) {
+        query.$and.push(searchCondition)
+      } else {
+        query.$and = [searchCondition]
+      }
     }
 
     const employees = await Employee.find(query)
@@ -153,12 +253,25 @@ export async function GET(request: NextRequest) {
       // Calculer le statut d'emploi
       let employmentStatus: 'draft' | 'waiting' | 'active' | 'inactive' = 'active'
 
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
       if (employee.isDraft) {
         employmentStatus = 'draft'
-      } else if (employee.hireDate) {
-        // Vérifier d'abord la date d'embauche (prioritaire sur isActive)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
+      } else if (!employee.isActive) {
+        employmentStatus = 'inactive'
+      } else if (employee.endDate) {
+        // Vérifier si la date de fin est passée
+        const endDate = new Date(employee.endDate)
+        endDate.setHours(0, 0, 0, 0)
+
+        if (endDate <= today) {
+          employmentStatus = 'inactive'
+        }
+      }
+
+      // Vérifier la date d'embauche (si pas encore inactif)
+      if (employmentStatus !== 'inactive' && employee.hireDate) {
         const hireDate = new Date(employee.hireDate)
         hireDate.setHours(0, 0, 0, 0)
 
@@ -166,11 +279,7 @@ export async function GET(request: NextRequest) {
           employmentStatus = 'waiting'
         } else if (employee.isActive) {
           employmentStatus = 'active'
-        } else {
-          employmentStatus = 'inactive'
         }
-      } else if (!employee.isActive) {
-        employmentStatus = 'inactive'
       }
 
       // Générer une couleur par défaut si elle n'existe pas
@@ -240,10 +349,16 @@ export async function GET(request: NextRequest) {
       }
     })
     .filter((employee) => {
+      // Si includeInactive=true, ne pas filtrer par statut
+      if (includeInactive) {
+        return true
+      }
+
       // Si aucun filtre active spécifié, exclure seulement les vraiment inactifs
       if (active === null) {
         return employee.employmentStatus !== 'inactive'
       }
+
       return true
     })
 

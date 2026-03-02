@@ -201,6 +201,7 @@ export interface PaginatedResponse<T> {
 export interface EmployeeFilters {
   active?: boolean;
   archived?: boolean;
+  includeInactive?: boolean;
   contractType?: ContractType;
   role?: EmployeeRole;
 }

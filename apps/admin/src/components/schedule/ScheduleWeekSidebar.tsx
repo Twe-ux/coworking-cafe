@@ -17,6 +17,7 @@ interface ScheduleWeekSidebarProps {
 }
 
 export function ScheduleWeekSidebar({
+  week,
   employees,
   weekShifts,
   formatHoursToHHMM,
@@ -35,6 +36,19 @@ export function ScheduleWeekSidebar({
     return Math.max(0, hours);
   };
 
+  // Filter employees: don't show if entire week is after their end date
+  const activeEmployees = employees.filter((employee) => {
+    if (!employee.endDate) return true; // No end date, always active
+
+    const endDate = new Date(employee.endDate);
+    endDate.setHours(0, 0, 0, 0);
+    const weekStart = new Date(week.weekStart);
+    weekStart.setHours(0, 0, 0, 0);
+
+    // Only show if week starts before or on end date
+    return weekStart <= endDate;
+  });
+
   return (
     <>
       {/* Spacer to align with day number in cells */}
@@ -42,7 +56,7 @@ export function ScheduleWeekSidebar({
 
       {/* Employee list with their weekly hours */}
       <div className="flex-1 space-y-1">
-        {employees.map((employee) => {
+        {activeEmployees.map((employee) => {
           // Calculate planned hours (all shifts of the week)
           const plannedHours = weekShifts
             .filter((shift) => shift.employeeId === employee.id)

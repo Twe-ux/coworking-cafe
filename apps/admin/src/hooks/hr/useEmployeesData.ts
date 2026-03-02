@@ -30,6 +30,9 @@ export function useEmployeesData() {
       if (filters?.archived) {
         params.append("includeDeleted", "true");
       }
+      if (filters?.includeInactive) {
+        params.append("includeInactive", "true");
+      }
 
       const response = await fetch(`/api/hr/employees?${params.toString()}`);
       const data: APIResponse<Employee[]> = await response.json();

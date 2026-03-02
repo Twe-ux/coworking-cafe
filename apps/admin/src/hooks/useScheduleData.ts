@@ -159,11 +159,17 @@ export function useScheduleData(): UseScheduleDataReturn {
     return () => clearTimeout(timeoutId);
   }, [currentDate, queryClient]);
 
-  // Fetch active employees
+  // Fetch employees active during the current month
   const fetchEmployees = useCallback(async () => {
     try {
       setIsLoadingEmployees(true);
-      const response = await fetch("/api/hr/employees?status=active");
+
+      // Format current month as YYYY-MM for filtering
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const monthParam = `${year}-${month}`;
+
+      const response = await fetch(`/api/hr/employees?month=${monthParam}`);
       const result: ApiResponse<Employee[]> = await response.json();
 
       if (result.success && result.data) {
@@ -181,7 +187,7 @@ export function useScheduleData(): UseScheduleDataReturn {
     } finally {
       setIsLoadingEmployees(false);
     }
-  }, []);
+  }, [currentDate]);
 
   // Fetch time entries for current month
   const fetchTimeEntries = useCallback(async () => {

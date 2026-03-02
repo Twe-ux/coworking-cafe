@@ -7,6 +7,7 @@ import { ScheduleModals } from "@/components/schedule/ScheduleModals";
 import { ScheduleSkeleton } from "@/components/schedule/ScheduleSkeleton";
 import { ScheduleWeekSidebar } from "@/components/schedule/ScheduleWeekSidebar";
 import { MonthlyCalendar } from "@/components/shared/calendar";
+import { useAdaptiveCellHeight } from "@/hooks/useAdaptiveCellHeight";
 import { useSchedulePage } from "@/hooks/useSchedulePage";
 import type { Shift } from "@/types/shift";
 import type { WeekData } from "@/components/shared/calendar/types";
@@ -58,6 +59,10 @@ export default function SchedulePage() {
     isEmployeeUnavailable,
   } = useSchedulePage();
 
+  // Calculate adaptive cell height based on number of employees
+  // MUST be called before any conditional returns (React hooks rules)
+  const cellHeight = useAdaptiveCellHeight(employees.length);
+
   // Loading state
   if (isLoading) {
     return <ScheduleSkeleton />;
@@ -86,9 +91,6 @@ export default function SchedulePage() {
     />
   );
 
-  // Dynamic cell height: 40px base (16px padding + 20px header + 4px margin) + 24px per employee (20px row + 4px gap)
-  const dynamicCellHeight = Math.max(120, 40 + employees.length * 24);
-
   return (
     <div className="space-y-6 pb-8">
       <ScheduleHeader />
@@ -116,7 +118,7 @@ export default function SchedulePage() {
             label: emp.firstName,
             color: emp.color || "#9CA3AF",
           }))}
-          cellHeight={dynamicCellHeight}
+          cellHeight={cellHeight}
         />
       )}
 

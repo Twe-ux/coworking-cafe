@@ -8,6 +8,7 @@ import { CalendarOff } from "lucide-react";
 import { CreateUnavailabilityModal } from "../unavailability/CreateUnavailabilityModal";
 import type { CreateUnavailabilityData } from "../unavailability/CreateUnavailabilityModal";
 import { UnavailabilityDetailsModal } from "../unavailability/UnavailabilityDetailsModal";
+import { useAdaptiveCellHeight } from "@/hooks/useAdaptiveCellHeight";
 import { useUnavailabilities } from "@/hooks/useUnavailabilities";
 import {
   getMonthBoundaries,
@@ -42,6 +43,9 @@ export function AvailabilityCalendarTab() {
   const [selectedUnavailability, setSelectedUnavailability] = useState<IUnavailabilityWithEmployee | null>(null);
   const [editMode, setEditMode] = useState(false);
 
+  // Calculate adaptive cell height based on number of employees
+  const cellHeight = useAdaptiveCellHeight(employees.length);
+
   // Get month boundaries for unavailabilities (using strings to avoid timezone issues)
   const { monthStart, monthEnd } = useMemo(() => {
     const year = currentDate.getFullYear();
@@ -57,11 +61,17 @@ export function AvailabilityCalendarTab() {
     status: 'approved',
   });
 
-  // Fetch active employees with availabilities
+  // Fetch employees active during the current month
   const fetchEmployees = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/hr/employees?status=active");
+
+      // Format current month as YYYY-MM for filtering
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const monthParam = `${year}-${month}`;
+
+      const response = await fetch(`/api/hr/employees?month=${monthParam}`);
       const result = await response.json();
 
       if (result.success) {
@@ -81,7 +91,7 @@ export function AvailabilityCalendarTab() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentDate]);
 
   useEffect(() => {
     fetchEmployees();
@@ -242,14 +252,26 @@ export function AvailabilityCalendarTab() {
     return (
       <div className="flex-1 space-y-1 overflow-hidden">
         {employees.map((employee) => {
+          // Ne pas afficher l'employé si la date de la cellule est après sa démission
+          if (employee.endDate) {
+            const endDate = new Date(employee.endDate);
+            endDate.setHours(0, 0, 0, 0);
+            const cellDate = new Date(date);
+            cellDate.setHours(0, 0, 0, 0);
+
+            if (cellDate > endDate) {
+              return null; // Employé démissionnaire, ne pas afficher
+            }
+          }
+
           const isUnavailable = isEmployeeUnavailable(dateStr, employee.id);
 
           // If unavailable, show red "INDISPO" instead of availabilities
           if (isUnavailable) {
             return (
-              <div key={employee.id} className="grid min-h-4 grid-cols-1">
+              <div key={employee.id} className="flex h-5 items-center">
                 <div
-                  className="cursor-pointer rounded bg-red-600 px-1 py-0.5 text-center text-xs font-bold text-white hover:bg-red-700"
+                  className="w-full cursor-pointer rounded bg-red-600 px-1 py-0.5 text-center text-xs font-bold text-white hover:bg-red-700"
                   onClick={() => handleUnavailabilityClick(dateStr, employee.id)}
                   title="Cliquez pour voir les détails"
                 >
@@ -270,9 +292,9 @@ export function AvailabilityCalendarTab() {
           );
 
           return (
-            <div key={employee.id} className="grid min-h-4 grid-cols-2 gap-1">
+            <div key={employee.id} className="flex h-5 items-center gap-2">
               {/* Morning column (before 14:30) */}
-              <div className="space-y-1 text-center">
+              <div className="flex-1 min-w-0 space-y-1 text-center">
                 {morningSlots.length > 0 ? (
                   morningSlots.map((avDate, idx) => (
                     <div
@@ -290,7 +312,7 @@ export function AvailabilityCalendarTab() {
               </div>
 
               {/* Afternoon column (after 14:30) */}
-              <div className="space-y-1 text-center">
+              <div className="flex-1 min-w-0 space-y-1 text-center">
                 {afternoonSlots.length > 0 ? (
                   afternoonSlots.map((avDate, idx) => (
                     <div
@@ -313,14 +335,27 @@ export function AvailabilityCalendarTab() {
     );
   };
 
-  const renderSidebarWeek = () => {
+  const renderSidebarWeek = (week: any) => {
+    // Filter employees: don't show if entire week is after their end date
+    const activeEmployees = employees.filter((employee) => {
+      if (!employee.endDate) return true; // No end date, always active
+
+      const endDate = new Date(employee.endDate);
+      endDate.setHours(0, 0, 0, 0);
+      const weekStart = new Date(week.weekStart);
+      weekStart.setHours(0, 0, 0, 0);
+
+      // Only show if week starts before or on end date
+      return weekStart <= endDate;
+    });
+
     return (
       <>
         {/* Spacer pour aligner avec le numéro de jour */}
-        <div className="mb-1 h-6"></div>
+        <div className="mb-1 h-5"></div>
         {/* Liste des employés */}
         <div className="flex-1 space-y-1 overflow-hidden">
-          {employees.map((employee) => (
+          {activeEmployees.map((employee) => (
             <div
               key={employee.id}
               className="flex h-5 items-center rounded px-1 text-xs font-medium text-white"
@@ -374,7 +409,7 @@ export function AvailabilityCalendarTab() {
             label: emp.firstName,
             color: emp.color || "#9CA3AF",
           }))}
-          cellHeight={120}
+          cellHeight={cellHeight}
         />
       )}
 

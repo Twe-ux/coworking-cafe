@@ -17,6 +17,9 @@ EmployeeSchema.methods.getFullName = function (this: EmployeeDocument): string {
 EmployeeSchema.methods.getEmploymentStatus = function (
   this: EmployeeDocument
 ): 'draft' | 'waiting' | 'active' | 'inactive' {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   // Si c'est un brouillon
   if (this.isDraft) {
     return 'draft';
@@ -27,10 +30,18 @@ EmployeeSchema.methods.getEmploymentStatus = function (
     return 'inactive';
   }
 
+  // Si la date de fin de contrat est passée (démission, fin CDD, etc.)
+  if (this.endDate) {
+    const endDate = new Date(this.endDate);
+    endDate.setHours(0, 0, 0, 0);
+
+    if (endDate <= today) {
+      return 'inactive';
+    }
+  }
+
   // Si la date d'embauche est dans le futur
   if (this.hireDate) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     const hireDate = new Date(this.hireDate);
     hireDate.setHours(0, 0, 0, 0);
 
