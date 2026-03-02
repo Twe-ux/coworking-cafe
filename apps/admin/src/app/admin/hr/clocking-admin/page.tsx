@@ -7,11 +7,12 @@ import { ClockingAdminPageSkeleton } from "./ClockingAdminPageSkeleton";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Calendar, CalendarDays, Info, FileDown } from "lucide-react";
+import { AlertTriangle, Calendar, CalendarDays, Info, FileText } from "lucide-react";
 import { usePendingJustifications } from "@/hooks/usePendingJustifications";
 import type { Employee } from "@/types/hr";
 import { calculateMonthlyPayroll } from "@/lib/payroll/calculateMonthlyPayroll";
 import { generatePayrollPDF } from "@/lib/pdf/generatePayrollPDF";
+import { PayrollPreviewModal } from "@/components/hr/payroll/PayrollPreviewModal";
 import { toast } from "sonner";
 
 export default function ClockingAdminPage() {
@@ -19,7 +20,9 @@ export default function ClockingAdminPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const { count: pendingJustifications } = usePendingJustifications();
 
   const fetchEmployees = useCallback(async () => {
@@ -69,9 +72,9 @@ export default function ClockingAdminPage() {
     setCurrentDate(new Date());
   }, []);
 
-  const handleExportPDF = useCallback(async () => {
+  const handleGeneratePDF = useCallback(async () => {
     try {
-      setIsExporting(true);
+      setIsGenerating(true);
       toast.info("Génération du PDF en cours...");
 
       const year = currentDate.getFullYear();
@@ -87,22 +90,15 @@ export default function ClockingAdminPage() {
         year,
       });
 
-      // Download PDF
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `Paie_${year}-${String(month).padStart(2, "0")}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
+      // Store blob and open preview modal
+      setPdfBlob(blob);
+      setIsPreviewOpen(true);
       toast.success("PDF généré avec succès");
     } catch (error) {
       console.error("Error generating payroll PDF:", error);
       toast.error("Erreur lors de la génération du PDF");
     } finally {
-      setIsExporting(false);
+      setIsGenerating(false);
     }
   }, [currentDate, employees]);
 
@@ -127,11 +123,11 @@ export default function ClockingAdminPage() {
         <div className="flex gap-2">
           <Button
             variant="default"
-            onClick={handleExportPDF}
-            disabled={isExporting || employees.length === 0}
+            onClick={handleGeneratePDF}
+            disabled={isGenerating || employees.length === 0}
           >
-            <FileDown className="mr-2 h-4 w-4" />
-            {isExporting ? "Export en cours..." : "Exporter PDF Paie"}
+            <FileText className="mr-2 h-4 w-4" />
+            {isGenerating ? "Génération..." : "Générer PDF Paie"}
           </Button>
           <Button variant="outline" asChild>
             <Link href="/admin/hr/schedule">
@@ -183,6 +179,15 @@ export default function ClockingAdminPage() {
           automatiquement.
         </AlertDescription>
       </Alert>
+
+      {/* Payroll Preview Modal */}
+      <PayrollPreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        pdfBlob={pdfBlob}
+        month={currentDate.getMonth() + 1}
+        year={currentDate.getFullYear()}
+      />
     </div>
   );
 }
