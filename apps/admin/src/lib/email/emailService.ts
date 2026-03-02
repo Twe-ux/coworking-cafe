@@ -5,6 +5,7 @@ import {
   generateBookingModifiedEmail,
 } from '@coworking-cafe/email';
 import { accountActivationEmail } from './templates/accountActivation';
+import { generatePurchaseOrderEmail } from './templates/purchaseOrder';
 
 interface SendEmailParams {
   to: string;
@@ -186,6 +187,48 @@ export async function sendAccountActivationEmail(
   const html = accountActivationEmail({
     userName: data.userName,
     activationUrl,
+  });
+
+  const result = await sendEmail({
+    to: email,
+    subject,
+    html,
+  });
+
+  return result.success;
+}
+
+/**
+ * Send purchase order email to supplier
+ */
+export async function sendPurchaseOrderEmail(
+  email: string,
+  orderData: {
+    orderNumber: string;
+    supplierName: string;
+    items: Array<{
+      productName: string;
+      quantity: number;
+      unit: string;
+      unitPriceHT: number;
+      totalHT: number;
+    }>;
+    totalHT: number;
+    totalTTC: number;
+    notes?: string;
+    createdAt: string;
+  }
+): Promise<boolean> {
+  const subject = `📦 Commande ${orderData.orderNumber} - CoworKing Café`;
+
+  const html = generatePurchaseOrderEmail({
+    orderNumber: orderData.orderNumber,
+    supplierName: orderData.supplierName,
+    items: orderData.items,
+    totalHT: orderData.totalHT,
+    totalTTC: orderData.totalTTC,
+    notes: orderData.notes,
+    createdAt: orderData.createdAt,
   });
 
   const result = await sendEmail({
