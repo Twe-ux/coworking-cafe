@@ -38,15 +38,11 @@ export async function generatePayrollPDF(
   const pdfModule = await import("@react-pdf/renderer");
   const { pdf } = pdfModule;
 
-  // Dynamically construct the module path to avoid static bundling
-  const moduleName = "PayrollDocument";
-
-  // This will be resolved at runtime only
-  const payrollModule = await import(
-    /* webpackIgnore: true */
-    `./templates/payroll/${moduleName}.tsx`
+  // Import the PayrollDocument component
+  // Using absolute path to avoid resolution issues
+  const { PayrollDocument } = await import(
+    "@/lib/pdf/templates/payroll/PayrollDocument"
   );
-  const { PayrollDocument } = payrollModule;
 
   const { createElement } = await import("react");
 
