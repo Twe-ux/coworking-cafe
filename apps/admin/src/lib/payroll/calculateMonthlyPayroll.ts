@@ -129,10 +129,19 @@ export async function calculateMonthlyPayroll(
       monthlyContractualHours: Math.round(monthlyContractualHours * 100) / 100,
       hoursWorked: Math.round(hoursWorked * 100) / 100,
       overtimeHours: Math.round(overtimeHours * 100) / 100,
-      hasMutuelle:
-        employee.onboardingStatus?.mutuelleWanted ??
-        employee.onboardingStatus?.mutuelleCompleted ??
-        false,
+      hasMutuelle: (() => {
+        const mutuelleWanted = employee.onboardingStatus?.mutuelleWanted;
+        const mutuelleCompleted = employee.onboardingStatus?.mutuelleCompleted;
+
+        console.log("🔍 Mutuelle debug:", {
+          employeeName: employee.firstName,
+          mutuelleWanted,
+          mutuelleCompleted,
+          onboardingStatus: employee.onboardingStatus,
+        });
+
+        return mutuelleWanted ?? mutuelleCompleted ?? false;
+      })(),
     };
   });
 
