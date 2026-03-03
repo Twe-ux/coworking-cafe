@@ -14,19 +14,16 @@ export type TimeEntryModelType = Model<ITimeEntry, {}, ITimeEntryMethods>
 
 let TimeEntryModel: TimeEntryModelType
 
-// En développement, toujours recréer le modèle pour éviter les problèmes de cache
-// avec un schéma obsolète après hot-reload
-if (process.env.NODE_ENV === 'development' && models.TimeEntry) {
-  // Supprimer le modèle en cache
+// IMPORTANT: Toujours supprimer le modèle en cache pour forcer l'utilisation du schéma à jour
+// Cela résout le problème où un modèle avec un ancien schéma (avant ajout des champs
+// justificationNote/justificationRead) peut rester en cache et ignorer les nouveaux champs
+if (models.TimeEntry) {
   delete models.TimeEntry
 }
 
-if (models.TimeEntry) {
-  TimeEntryModel = models.TimeEntry as TimeEntryModelType
-} else {
-  attachHooks()
-  TimeEntryModel = model<ITimeEntry, TimeEntryModelType>('TimeEntry', TimeEntrySchema)
-}
+// Toujours créer un nouveau modèle avec le schéma actuel
+attachHooks()
+TimeEntryModel = model<ITimeEntry, TimeEntryModelType>('TimeEntry', TimeEntrySchema)
 
 if (!TimeEntryModel) {
   throw new Error('TimeEntry model not initialized')
