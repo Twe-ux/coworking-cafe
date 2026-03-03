@@ -58,12 +58,16 @@ export const columns: ColumnDef<CashEntryRow>[] = [
   {
     id: "difference",
     header: "Différence",
-    cell: ({ row }) => (
-      <DifferenceCell
-        ca={row.original.TTC || 0}
-        encaissements={row.original.totalEncaissements || 0}
-      />
-    ),
+    cell: ({ row }) => {
+      // CA attendu = CA TTC + Presta B2B - Dépenses
+      const caAttendu = (row.original.TTC || 0) + (row.original.totalCA || 0);
+      return (
+        <DifferenceCell
+          ca={caAttendu}
+          encaissements={row.original.totalEncaissements || 0}
+        />
+      );
+    },
   },
   {
     id: "actions",
