@@ -94,15 +94,6 @@ export async function PATCH(
 
     // Si on marque comme complétée
     if (body.status === 'completed' && task.status !== 'completed') {
-      // Recurring task: delete instance instead of completing
-      if (task.recurringTaskId) {
-        await Task.findByIdAndDelete(task._id);
-        return successResponse(
-          { ...formatTask(task), status: 'completed' } as TaskType,
-          'Tache recurrente completee'
-        );
-      }
-
       task.status = 'completed';
       // completedBy reste undefined si pas d'auth (utilisateur non connecté)
       task.completedBy = undefined;
