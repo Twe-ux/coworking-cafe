@@ -34,13 +34,14 @@ export async function POST(): Promise<NextResponse<ApiResponse<{ created: number
 
       if (!matchesDay) continue;
 
-      // Check if there's already a pending task for this template
-      const existingPending = await Task.findOne({
+      // Check if there's already a task for today (pending OR completed)
+      // This prevents creating a duplicate when the user completes the task on the same day
+      const existingToday = await Task.findOne({
         recurringTaskId: template._id,
-        status: 'pending',
+        dueDate: today,
       }).lean();
 
-      if (existingPending) continue;
+      if (existingToday) continue;
 
       // Create new task instance
       await Task.create({
