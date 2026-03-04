@@ -70,14 +70,14 @@ export function ProduitsItemsByCategoryList({
         return (
           <Card key={category.id}>
             <div
-              className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+              className={`flex items-center justify-between p-4 hover:bg-green-50 hover:border-green-500 ${isExpanded ? 'rounded-t-lg' : 'rounded-lg'} transition-colors cursor-pointer border border-transparent`}
               onClick={() => toggleCategory(category.id)}
             >
               <div className="flex items-center gap-3">
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
                 >
                   {isExpanded ? (
                     <ChevronDown className="w-4 h-4" />

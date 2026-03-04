@@ -128,8 +128,9 @@ export function SortableItemList({
               )}
               {onDelete && (
                 <Button
-                  variant="destructive"
+                  variant="outline"
                   size="icon"
+                  className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                   onClick={() => onDelete(item.id)}
                   disabled={isReordering}
                 >

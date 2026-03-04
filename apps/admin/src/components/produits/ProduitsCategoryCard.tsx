@@ -67,6 +67,7 @@ export function ProduitsCategoryCard({
               <Button
                 variant="outline"
                 size="sm"
+                className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                 onClick={() => onEdit(category)}
               >
                 <Pencil className="w-4 h-4 mr-2" />
@@ -76,8 +77,9 @@ export function ProduitsCategoryCard({
 
             {onToggleActive && (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
+                className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 hover:text-gray-700"
                 onClick={() => onToggleActive(category.id, !category.isActive)}
               >
                 {category.isActive ? (
@@ -96,8 +98,9 @@ export function ProduitsCategoryCard({
 
             {onDelete && (
               <Button
-                variant="destructive"
+                variant="outline"
                 size="sm"
+                className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                 onClick={() => onDelete(category.id)}
               >
                 <Trash2 className="w-4 h-4 mr-2" />

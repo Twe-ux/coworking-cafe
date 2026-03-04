@@ -36,14 +36,14 @@ export function ProduitsCategoryRow({
       }`}
     >
       {/* Header - toujours visible */}
-      <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+      <div className={`flex items-center justify-between p-4 hover:bg-green-50 hover:border-green-500 ${isExpanded ? 'rounded-t-lg' : 'rounded-lg'} transition-colors cursor-pointer border border-transparent`}>
         {/* Left: Chevron + Info principale */}
         <div className="flex items-center gap-3 flex-1">
           {/* Chevron expand/collapse */}
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="h-6 w-6"
+            className="h-6 w-6 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? (
@@ -99,6 +99,7 @@ export function ProduitsCategoryRow({
             <Button
               variant="outline"
               size="icon"
+              className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
               onClick={() => onEdit(category)}
               title="Modifier"
             >
@@ -108,8 +109,9 @@ export function ProduitsCategoryRow({
 
           {onDelete && (
             <Button
-              variant="destructive"
+              variant="outline"
               size="icon"
+              className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
               onClick={() => onDelete(category.id)}
               title="Supprimer"
             >

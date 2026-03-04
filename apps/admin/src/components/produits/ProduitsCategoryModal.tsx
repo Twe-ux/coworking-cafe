@@ -214,10 +214,15 @@ export function ProduitsCategoryModal({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={saving}>
+          <Button variant="outline" className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700" onClick={onClose} disabled={saving}>
             Annuler
           </Button>
-          <Button onClick={handleSave} disabled={saving || !name || !slug}>
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={handleSave}
+            disabled={saving || !name || !slug}
+          >
             {saving ? "Enregistrement..." : "Enregistrer"}
           </Button>
         </DialogFooter>

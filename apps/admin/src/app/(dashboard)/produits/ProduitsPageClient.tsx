@@ -168,7 +168,7 @@ function ItemsCardGrid({ groups, onSelectItem }: ItemsCardGridProps) {
         return (
           <Card key={category.id}>
             <div
-              className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors cursor-pointer"
+              className="flex items-center gap-3 p-3 hover:bg-green-50 transition-colors cursor-pointer"
               onClick={() => toggle(category.id)}
             >
               {isOpen ? (
@@ -189,7 +189,7 @@ function ItemsCardGrid({ groups, onSelectItem }: ItemsCardGridProps) {
                     <div
                       key={item.id}
                       className={`flex items-center gap-2 rounded-lg border p-1.5 transition-all hover:shadow-sm ${
-                        item.recipe ? "cursor-pointer hover:bg-muted/50" : ""
+                        item.recipe ? "cursor-pointer hover:bg-green-50" : ""
                       }`}
                       onClick={() => onSelectItem(item)}
                     >

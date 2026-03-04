@@ -83,6 +83,7 @@ export function ProduitsItemCard({
               <Button
                 variant="outline"
                 size="icon"
+                className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                 onClick={() => onEdit(item)}
                 title="Modifier"
               >
@@ -92,8 +93,9 @@ export function ProduitsItemCard({
 
             {onToggleActive && (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
+                className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 hover:text-gray-700"
                 onClick={() => onToggleActive(item.id, !item.isActive)}
                 title={item.isActive ? "Désactiver" : "Activer"}
               >
@@ -107,8 +109,9 @@ export function ProduitsItemCard({
 
             {onDelete && (
               <Button
-                variant="destructive"
+                variant="outline"
                 size="icon"
+                className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                 onClick={() => onDelete(item.id)}
                 title="Supprimer"
               >

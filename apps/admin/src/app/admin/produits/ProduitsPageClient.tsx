@@ -265,12 +265,20 @@ export function ProduitsPageClient() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleCreateCategory}>
-            <Plus className="w-4 h-4 mr-2" />
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={handleCreateCategory}
+          >
+            <Plus className="mr-2 h-4 w-4" />
             Nouvelle catégorie
           </Button>
-          <Button onClick={handleCreateItem} variant="secondary">
-            <Plus className="w-4 h-4 mr-2" />
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={handleCreateItem}
+          >
+            <Plus className="mr-2 h-4 w-4" />
             Nouvel item
           </Button>
         </div>
@@ -279,7 +287,7 @@ export function ProduitsPageClient() {
       {/* Filter Cards - Clickable */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card
-          className={`cursor-pointer transition-all hover:shadow-md ${
+          className={`cursor-pointer transition-all hover:bg-blue-50 hover:border-blue-500 rounded-lg ${
             selectedType === "drink" ? "ring-2 ring-blue-500" : ""
           }`}
           onClick={() => setSelectedType("drink")}
@@ -297,7 +305,7 @@ export function ProduitsPageClient() {
         </Card>
 
         <Card
-          className={`cursor-pointer transition-all hover:shadow-md ${
+          className={`cursor-pointer transition-all hover:bg-orange-50 hover:border-orange-500 rounded-lg ${
             selectedType === "food" ? "ring-2 ring-orange-500" : ""
           }`}
           onClick={() => setSelectedType("food")}
@@ -315,7 +323,7 @@ export function ProduitsPageClient() {
         </Card>
 
         <Card
-          className={`cursor-pointer transition-all hover:shadow-md ${
+          className={`cursor-pointer transition-all hover:bg-green-50 hover:border-green-500 rounded-lg ${
             selectedType === "grocery" ? "ring-2 ring-green-500" : ""
           }`}
           onClick={() => setSelectedType("grocery")}
@@ -333,7 +341,7 @@ export function ProduitsPageClient() {
         </Card>
 
         <Card
-          className={`cursor-pointer transition-all hover:shadow-md ${
+          className={`cursor-pointer transition-all hover:bg-purple-50 hover:border-purple-500 rounded-lg ${
             selectedType === "goodies" ? "ring-2 ring-purple-500" : ""
           }`}
           onClick={() => setSelectedType("goodies")}
@@ -351,7 +359,7 @@ export function ProduitsPageClient() {
         </Card>
 
         <Card
-          className={`cursor-pointer transition-all hover:shadow-md ${
+          className={`cursor-pointer transition-all hover:bg-gray-50 hover:border-gray-500 rounded-lg ${
             selectedType === "all" ? "ring-2 ring-primary" : ""
           }`}
           onClick={() => setSelectedType("all")}
@@ -371,12 +379,12 @@ export function ProduitsPageClient() {
 
       {/* Catégories */}
       <Card>
-        <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => setCategoriesExpanded(!categoriesExpanded)}>
+        <div className={`flex items-center justify-between p-4 hover:bg-green-50 hover:border-green-500 ${categoriesExpanded ? 'rounded-t-lg' : 'rounded-lg'} transition-colors cursor-pointer border border-transparent`} onClick={() => setCategoriesExpanded(!categoriesExpanded)}>
           <div className="flex items-center gap-3">
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
-              className="h-6 w-6"
+              className="h-6 w-6 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             >
               {categoriesExpanded ? (
                 <ChevronDown className="w-4 h-4" />
