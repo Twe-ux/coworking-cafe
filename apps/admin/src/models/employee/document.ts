@@ -92,6 +92,34 @@ export interface EmployeeDocument extends Document {
     bankName: string;
   };
 
+  // Lettre de démission
+  resignationLetter?: {
+    filename: string;
+    contentBase64: string;
+    uploadedAt: Date;
+    uploadedBy: string;
+  };
+
+  // DPAE (Déclaration Préalable À l'Embauche)
+  dpae?: {
+    completed: boolean;
+    completedAt?: Date;
+    dpaePdf?: {
+      filename: string;
+      contentBase64: string;
+      uploadedAt: Date;
+      uploadedBy: string;
+    };
+  };
+
+  // Contract PDF (stored like DPAE)
+  contractPdf?: {
+    filename: string;
+    contentBase64: string;
+    uploadedAt: Date;
+    uploadedBy: string;
+  };
+
   // Congés payés (CP)
   paidLeaveBalance: number; // Solde CP disponible (en heures)
   paidLeaveAcquired: number; // CP acquis dans l'année (en heures)
@@ -327,6 +355,50 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
       type: Number,
       default: 0,
       min: [0, 'Les congés payés pris ne peuvent pas être négatifs'],
+    },
+
+    // Lettre de démission
+    resignationLetter: {
+      type: {
+        filename: { type: String, trim: true },
+        contentBase64: { type: String },
+        uploadedAt: { type: Date },
+        uploadedBy: { type: String, trim: true },
+      },
+      required: false,
+      _id: false,
+    },
+
+    // DPAE (Déclaration Préalable À l'Embauche)
+    dpae: {
+      type: {
+        completed: { type: Boolean, default: false },
+        completedAt: { type: Date },
+        dpaePdf: {
+          type: {
+            filename: { type: String, trim: true },
+            contentBase64: { type: String },
+            uploadedAt: { type: Date },
+            uploadedBy: { type: String, trim: true },
+          },
+          required: false,
+          _id: false,
+        },
+      },
+      required: false,
+      _id: false,
+    },
+
+    // Contract PDF (stored like DPAE)
+    contractPdf: {
+      type: {
+        filename: { type: String, trim: true },
+        contentBase64: { type: String },
+        uploadedAt: { type: Date },
+        uploadedBy: { type: String, trim: true },
+      },
+      required: false,
+      _id: false,
     },
 
     // Code pointage (PIN 4 chiffres)

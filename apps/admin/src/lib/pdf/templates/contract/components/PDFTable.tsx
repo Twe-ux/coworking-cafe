@@ -3,6 +3,7 @@
  * Tableau avec bordures complètes et style moderne
  */
 
+import React from "react";
 import { Text, View } from "@react-pdf/renderer";
 import { styles } from "../styles";
 
@@ -56,6 +57,10 @@ export function PDFTable({ rows, labelWidth = "40%" }: PDFTableProps) {
             >
               {typeof row.value === "string" ? (
                 <Text>{row.value}</Text>
+              ) : typeof row.value === "number" ? (
+                <Text>{String(row.value)}</Text>
+              ) : typeof row.value === "object" && row.value !== null && !React.isValidElement(row.value) ? (
+                <Text>{JSON.stringify(row.value)}</Text>
               ) : (
                 row.value
               )}

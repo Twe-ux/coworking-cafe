@@ -101,6 +101,28 @@ export interface Employee {
   hireTime?: string;
   endDate?: string;
   endContractReason?: EndContractReason;
+  resignationLetter?: {
+    filename: string;
+    contentBase64: string;
+    uploadedAt: Date | string;
+    uploadedBy: string;
+  };
+  dpae?: {
+    completed: boolean;
+    completedAt?: Date | string;
+    dpaePdf?: {
+      filename: string;
+      contentBase64: string;
+      uploadedAt: Date | string;
+      uploadedBy: string;
+    };
+  };
+  contractPdf?: {
+    filename: string;
+    contentBase64: string;
+    uploadedAt: Date | string;
+    uploadedBy: string;
+  };
   onboardingStatus?: OnboardingStatus;
   onboardingProgress?: number;
   workSchedule?: WorkSchedule;

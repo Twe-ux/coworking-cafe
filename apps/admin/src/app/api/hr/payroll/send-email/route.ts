@@ -2,126 +2,204 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { sendEmail } from "@/lib/email/emailService";
+import { detectMonthlyChanges } from "@/lib/utils/hr/payroll-helpers";
+import {
+  buildPayrollSubject,
+  buildPayrollEmailHtml,
+} from "@/lib/email/templates/payrollEmail";
 
 interface SendEmailPayload {
   recipientEmail: string;
   pdfBase64: string;
   month: number;
   year: number;
+  employeeId?: string;
+  employeeName?: string;
+}
+
+interface PayrollAttachment {
+  filename: string;
+  content: Buffer;
+}
+
+const MONTH_NAMES = [
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+];
+
+/**
+ * Build attachments array: always payroll PDF, optionally contract and resignation letter
+ */
+async function buildAttachments(
+  payload: SendEmailPayload,
+  pdfBuffer: Buffer
+): Promise<{
+  attachments: PayrollAttachment[];
+  hasContract: boolean;
+  hasResignation: boolean;
+  hasDpae: boolean;
+}> {
+  const { month, year, employeeId, employeeName } = payload;
+  const nameSlug = employeeName || "employe";
+
+  const attachments: PayrollAttachment[] = [
+    {
+      filename: `paie-${nameSlug}-${month}-${year}.pdf`,
+      content: pdfBuffer,
+    },
+  ];
+
+  let hasContract = false;
+  let hasResignation = false;
+  let hasDpae = false;
+
+  const monthlyChanges = await detectMonthlyChanges(month, year);
+
+  // If employeeId is provided, attach documents for that specific employee
+  if (employeeId) {
+    const newEmp = monthlyChanges.newEmployees.find(
+      (e) => String(e.employee._id) === String(employeeId)
+    );
+    if (newEmp && newEmp.contract.length > 0) {
+      attachments.push({
+        filename: `contrat-${nameSlug}.pdf`,
+        content: newEmp.contract,
+      });
+      hasContract = true;
+    }
+
+    if (newEmp?.dpaePdf && newEmp.dpaePdf.length > 0) {
+      attachments.push({
+        filename: `dpae-${nameSlug}.pdf`,
+        content: newEmp.dpaePdf,
+      });
+      hasDpae = true;
+    }
+
+    const resignation = monthlyChanges.resignations.find(
+      (e) => String(e.employee._id) === String(employeeId)
+    );
+    if (resignation?.resignationLetter) {
+      attachments.push({
+        filename: `demission-${nameSlug}.pdf`,
+        content: resignation.resignationLetter,
+      });
+      hasResignation = true;
+    }
+  } else {
+    // No employeeId → attach ALL contracts and resignations for the month
+    monthlyChanges.newEmployees.forEach((newEmp) => {
+      const empNameSlug = `${newEmp.employee.firstName}-${newEmp.employee.lastName}`.toLowerCase();
+
+      if (newEmp.contract && newEmp.contract.length > 0) {
+        attachments.push({
+          filename: `contrat-${empNameSlug}.pdf`,
+          content: newEmp.contract,
+        });
+        hasContract = true;
+      }
+
+      if (newEmp.dpaePdf && newEmp.dpaePdf.length > 0) {
+        attachments.push({
+          filename: `dpae-${empNameSlug}.pdf`,
+          content: newEmp.dpaePdf,
+        });
+        hasDpae = true;
+      }
+    });
+
+    monthlyChanges.resignations.forEach((resignation) => {
+      const empNameSlug = `${resignation.employee.firstName}-${resignation.employee.lastName}`.toLowerCase();
+
+      if (resignation.resignationLetter && resignation.resignationLetter.length > 0) {
+        attachments.push({
+          filename: `demission-${empNameSlug}.pdf`,
+          content: resignation.resignationLetter,
+        });
+        hasResignation = true;
+      }
+    });
+  }
+
+  return { attachments, hasContract, hasResignation, hasDpae };
 }
 
 /**
  * POST /api/hr/payroll/send-email
- * Send payroll PDF by email
+ * Send payroll PDF by email with optional contract and resignation letter
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Non authentifié",
-        },
+        { success: false, error: "Non authentifié" },
         { status: 401 }
       );
     }
 
-    // Only dev and admin can send payroll emails
     const userRole = session?.user?.role;
     if (!userRole || !["dev", "admin"].includes(userRole)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Accès refusé - Administrateurs uniquement",
-        },
+        { success: false, error: "Accès refusé - Administrateurs uniquement" },
         { status: 403 }
       );
     }
 
-    // Parse request body
-    const { recipientEmail, pdfBase64, month, year }: SendEmailPayload =
-      await request.json();
+    const payload: SendEmailPayload = await request.json();
+    const { recipientEmail, pdfBase64, month, year } = payload;
 
-    // Validation
     if (!recipientEmail || !pdfBase64 || !month || !year) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Données manquantes",
-        },
+        { success: false, error: "Données manquantes" },
         { status: 400 }
       );
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(recipientEmail)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Format d'email invalide",
-        },
+        { success: false, error: "Format d'email invalide" },
         { status: 400 }
       );
     }
 
-    // Month name
-    const monthNames = [
-      "Janvier",
-      "Février",
-      "Mars",
-      "Avril",
-      "Mai",
-      "Juin",
-      "Juillet",
-      "Août",
-      "Septembre",
-      "Octobre",
-      "Novembre",
-      "Décembre",
-    ];
-    const monthName = monthNames[month - 1];
-
-    // Convert base64 to Buffer
+    const monthName = MONTH_NAMES[month - 1];
     const pdfBuffer = Buffer.from(pdfBase64, "base64");
 
-    // Send email with SMTP (via @coworking-cafe/email package)
+    // Build attachments with optional contract/resignation letter/DPAE
+    const { attachments, hasContract, hasResignation, hasDpae } =
+      await buildAttachments(payload, pdfBuffer);
+
+    console.log(
+      `[Payroll Email] Sending to ${recipientEmail} | ` +
+        `${attachments.length} attachment(s)` +
+        `${hasContract ? " [+contract]" : ""}` +
+        `${hasDpae ? " [+DPAE]" : ""}` +
+        `${hasResignation ? " [+resignation]" : ""}`
+    );
+
+    const subject = buildPayrollSubject({
+      monthName,
+      year,
+      hasContract,
+      hasResignation,
+      hasDpae,
+    });
+    const html = buildPayrollEmailHtml({
+      monthName,
+      year,
+      hasContract,
+      hasResignation,
+      hasDpae,
+    });
+
     const result = await sendEmail({
       to: recipientEmail,
-      subject: `Récapitulatif Paie - ${monthName} ${year}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #1e40af;">Récapitulatif Paie - ${monthName} ${year}</h2>
-
-          <p>Bonjour,</p>
-
-          <p>Veuillez trouver ci-joint le récapitulatif de paie pour le mois de <strong>${monthName} ${year}</strong>.</p>
-
-          <p>Ce document contient :</p>
-          <ul>
-            <li>Informations complètes des employés (nom, adresse, N° sécu)</li>
-            <li>Dates de contrat (début et fin si applicable)</li>
-            <li>Heures contractuelles et heures réalisées</li>
-            <li>Heures supplémentaires calculées</li>
-            <li>Statut mutuelle</li>
-          </ul>
-
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;" />
-
-          <p style="font-size: 12px; color: #6b7280;">
-            Ce message a été envoyé automatiquement depuis le système de gestion RH de CoworKing Café.
-          </p>
-        </div>
-      `,
-      attachments: [
-        {
-          filename: `Paie_${year}-${String(month).padStart(2, "0")}.pdf`,
-          content: pdfBuffer,
-        },
-      ],
+      subject,
+      html,
+      attachments,
     });
 
     if (!result.success) {
@@ -139,6 +217,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Email envoyé à ${recipientEmail}`,
+      attachmentCount: attachments.length,
+      hasContract,
+      hasResignation,
+      hasDpae,
     });
   } catch (error) {
     console.error("Error sending payroll email:", error);

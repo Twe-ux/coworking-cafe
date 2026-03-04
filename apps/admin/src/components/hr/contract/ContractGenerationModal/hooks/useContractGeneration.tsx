@@ -81,6 +81,39 @@ export function useContractGeneration({
   }, [employee, monthlySalary, monthlyHours])
 
   /**
+   * Save PDF to MongoDB (for payroll email retrieval)
+   */
+  const savePDFToDatabase = useCallback(async (pdfBlob: Blob) => {
+    if (!employee._id) {
+      console.warn('Cannot save PDF to DB: employee ID missing')
+      return
+    }
+
+    try {
+      const fileName = `Contrat_CDI_${employee.lastName}_${employee.firstName}.pdf`
+      const formData = new FormData()
+      formData.append('employeeId', employee._id)
+      formData.append('pdf', pdfBlob, fileName)
+
+      const response = await fetch('/api/hr/contract/upload-pdf', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!data.success) {
+        console.error('Failed to save PDF to database:', data.error)
+      } else {
+        console.log('PDF saved to database successfully')
+      }
+    } catch (error) {
+      console.error('Error saving PDF to database:', error)
+      // Don't throw - this is a non-critical background operation
+    }
+  }, [employee._id, employee.lastName, employee.firstName])
+
+  /**
    * Generate and download PDF
    */
   const generatePDF = useCallback(async () => {
@@ -88,6 +121,9 @@ export function useContractGeneration({
 
     try {
       const pdfBlob = await generatePDFBlob()
+
+      // Save to database in background (for payroll emails)
+      await savePDFToDatabase(pdfBlob)
 
       // Create download link
       const fileName = `Contrat_CDI_${employee.lastName}_${employee.firstName}.pdf`
@@ -115,7 +151,7 @@ export function useContractGeneration({
     } finally {
       setGenerating(false)
     }
-  }, [employee, generatePDFBlob, onSuccess, router])
+  }, [employee, generatePDFBlob, savePDFToDatabase, onSuccess, router])
 
   /**
    * Generate PDF and send via email
@@ -132,6 +168,9 @@ export function useContractGeneration({
       try {
         // Generate PDF blob
         const pdfBlob = await generatePDFBlob()
+
+        // Save to database in background (for payroll emails)
+        await savePDFToDatabase(pdfBlob)
 
         // Create form data to send PDF to server
         const formData = new FormData()
@@ -169,7 +208,7 @@ export function useContractGeneration({
         setSending(false)
       }
     },
-    [employee, generatePDFBlob, onSuccess, router]
+    [employee, generatePDFBlob, savePDFToDatabase, onSuccess, router]
   )
 
   return {
