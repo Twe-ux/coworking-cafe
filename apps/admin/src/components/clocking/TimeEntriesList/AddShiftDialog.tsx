@@ -1,5 +1,7 @@
 'use client'
 
+import { createPortal } from 'react-dom'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -32,9 +34,15 @@ export function AddShiftDialog({
   onCreate,
   onCancel,
 }: AddShiftDialogProps) {
-  if (!isOpen) return null
+  const [mounted, setMounted] = useState(false)
 
-  return (
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!isOpen || !mounted) return null
+
+  const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
         <h3 className="mb-4 text-lg font-semibold">Ajouter un nouveau shift</h3>
@@ -123,4 +131,6 @@ export function AddShiftDialog({
       </div>
     </div>
   )
+
+  return createPortal(modalContent, document.body)
 }
