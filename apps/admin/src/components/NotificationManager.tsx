@@ -152,7 +152,7 @@ export function NotificationManager() {
           onClick={handleDisable}
           disabled={loading}
           variant="outline"
-          className="shadow-lg"
+          className="shadow-lg border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
           size="icon"
           title="Désactiver les notifications"
         >

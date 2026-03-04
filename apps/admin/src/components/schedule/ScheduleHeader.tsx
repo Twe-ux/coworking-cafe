@@ -30,7 +30,11 @@ export function ScheduleHeader({
       </div>
       <div className="flex gap-2">
         <div className="relative">
-          <Button variant="outline" asChild>
+          <Button
+            variant="outline"
+            asChild
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          >
             <Link href="/admin/hr/absences">
               <Calendar className="mr-2 h-4 w-4" />
               Absences
@@ -45,7 +49,11 @@ export function ScheduleHeader({
             </Badge>
           )}
         </div>
-        <Button variant="outline" asChild>
+        <Button
+          variant="outline"
+          asChild
+          className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+        >
           <Link href="/admin/hr/clocking-admin">
             <ClipboardList className="mr-2 h-4 w-4" />
             Pointages

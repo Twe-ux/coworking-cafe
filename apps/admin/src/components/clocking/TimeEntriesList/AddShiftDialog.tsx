@@ -35,7 +35,7 @@ export function AddShiftDialog({
   if (!isOpen) return null
 
   return (
-    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
         <h3 className="mb-4 text-lg font-semibold">Ajouter un nouveau shift</h3>
 
@@ -103,10 +103,20 @@ export function AddShiftDialog({
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
-          <Button variant="outline" onClick={onCancel} disabled={isCreating}>
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            disabled={isCreating}
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+          >
             Annuler
           </Button>
-          <Button variant="outline" onClick={onCreate} disabled={isCreating} className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700">
+          <Button
+            variant="outline"
+            onClick={onCreate}
+            disabled={isCreating}
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          >
             {isCreating ? 'Creation...' : 'Creer le shift'}
           </Button>
         </div>
