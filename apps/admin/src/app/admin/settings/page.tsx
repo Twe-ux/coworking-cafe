@@ -31,7 +31,7 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {settingsModules.map((module) => (
           <Link key={module.href} href={module.href}>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+            <Card className="hover:bg-green-50 hover:border-green-500 transition-colors cursor-pointer h-full">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <module.icon className="w-8 h-8 text-primary" />

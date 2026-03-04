@@ -13,7 +13,7 @@ export default function AccountingPage() {
           <Link href="/admin/accounting/cash-control">
             <Button
               variant="outline"
-              className="h-32 w-full flex flex-col gap-2 hover:bg-accent"
+              className="h-32 w-full flex flex-col gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             >
               <Calculator className="h-8 w-8 text-primary" />
               <span className="text-lg font-semibold">Contrôle de Caisse</span>
@@ -26,7 +26,7 @@ export default function AccountingPage() {
           <Link href="/admin/accounting/cash-register">
             <Button
               variant="outline"
-              className="h-32 w-full flex flex-col gap-2 hover:bg-accent"
+              className="h-32 w-full flex flex-col gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             >
               <Coins className="h-8 w-8 text-primary" />
               <span className="text-lg font-semibold">Fond de Caisse</span>
@@ -39,7 +39,7 @@ export default function AccountingPage() {
           <Link href="/admin/accounting/captured-deposits">
             <Button
               variant="outline"
-              className="h-32 w-full flex flex-col gap-2 hover:bg-accent"
+              className="h-32 w-full flex flex-col gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             >
               <CreditCard className="h-8 w-8 text-primary" />
               <span className="text-lg font-semibold">Empreintes Capturées</span>

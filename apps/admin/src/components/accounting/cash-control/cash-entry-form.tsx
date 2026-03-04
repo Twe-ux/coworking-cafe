@@ -145,7 +145,8 @@ export function FormCashControl({
 
       <Button
         type="submit"
-        className="bg-primary text-white hover:bg-green-700"
+        variant="outline"
+        className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
       >
         {!editingRow || editingRow._id === "" ? "Ajouter" : "Modifier"}
       </Button>

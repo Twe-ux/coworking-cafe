@@ -94,6 +94,7 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
             <>
               <Button
                 variant="outline"
+                className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
                 onClick={() => setRecurringManagerOpen(true)}
               >
                 <Repeat className="h-4 w-4 mr-2" />
@@ -102,7 +103,11 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
                   <span className="ml-1 text-xs">({templates.length})</span>
                 )}
               </Button>
-              <Button onClick={() => setModalOpen(true)}>
+              <Button
+                variant="outline"
+                className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+                onClick={() => setModalOpen(true)}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Creer une tache
               </Button>

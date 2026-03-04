@@ -184,7 +184,13 @@ export function HoursSettingsClient() {
         <StyledAlert variant="destructive">
           Impossible de charger la configuration des horaires.
         </StyledAlert>
-        <Button onClick={fetchConfiguration}>Réessayer</Button>
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={fetchConfiguration}
+        >
+          Réessayer
+        </Button>
       </div>
     );
   }
@@ -201,8 +207,13 @@ export function HoursSettingsClient() {
             Gérer les horaires d'ouverture et fermetures exceptionnelles
           </p>
         </div>
-        <Button onClick={handleSave} disabled={saving}>
-          <Save className="w-4 h-4 mr-2" />
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={handleSave}
+          disabled={saving}
+        >
+          <Save className="mr-2 h-4 w-4" />
           {saving ? "Enregistrement..." : "Enregistrer"}
         </Button>
       </div>
@@ -326,9 +337,10 @@ export function HoursSettingsClient() {
                   <Button
                     variant="outline"
                     size="icon"
+                    className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                     onClick={() => removeExceptionalClosure(index)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
 
@@ -388,9 +400,9 @@ export function HoursSettingsClient() {
           <Button
             variant="outline"
             onClick={addExceptionalClosure}
-            className="w-full"
+            className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Ajouter une fermeture
           </Button>
         </CardContent>

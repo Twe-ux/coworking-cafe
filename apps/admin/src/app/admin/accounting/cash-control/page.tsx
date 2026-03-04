@@ -112,9 +112,11 @@ export default function CashControlPage() {
               </div>
 
               <Button
+                variant="outline"
                 onClick={handleGeneratePDF}
                 disabled={isGeneratingPDF || tableData.length === 0}
                 size="sm"
+                className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
               >
                 {isGeneratingPDF ? (
                   <>Génération...</>

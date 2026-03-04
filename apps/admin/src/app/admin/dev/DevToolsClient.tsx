@@ -76,7 +76,7 @@ export function DevToolsClient() {
 
           return (
             <Link key={tool.href} href={tool.href}>
-              <Card className="transition-colors hover:bg-muted/50 cursor-pointer">
+              <Card className="transition-colors hover:bg-green-50 hover:border-green-500 cursor-pointer">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">

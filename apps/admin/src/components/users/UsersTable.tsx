@@ -137,20 +137,20 @@ export function UsersTable({ users, onEdit, onDelete }: UsersTableProps) {
                 <div className="flex items-center justify-center gap-2">
                   {onEdit && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => onEdit(user)}
-                      className="h-8 w-8 p-0"
+                      className="h-8 w-8 p-0 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
                   )}
                   {onDelete && user.isActive && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => onDelete(user.id)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      className="h-8 w-8 p-0 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

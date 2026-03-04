@@ -140,7 +140,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
                 <p className="text-sm text-muted-foreground">
                   Votre code PIN vous permet de vous connecter rapidement à l'application.
                 </p>
-                <Button onClick={() => setShowPINChange(true)} className="w-full">
+                <Button variant="outline" onClick={() => setShowPINChange(true)} className="w-full border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700">
                   Changer mon PIN
                 </Button>
               </div>

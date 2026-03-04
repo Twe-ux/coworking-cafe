@@ -68,7 +68,10 @@ export default function UsersPage() {
             Gérer les utilisateurs de la plateforme
           </p>
         </div>
-        <Button>
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+        >
           <UserPlus className="mr-2 h-4 w-4" />
           Nouvel utilisateur
         </Button>
@@ -145,7 +148,11 @@ export default function UsersPage() {
           {error ? (
             <div className="text-center py-12 text-destructive">
               <p>Erreur : {error}</p>
-              <Button variant="outline" onClick={refetch} className="mt-4">
+              <Button
+                variant="outline"
+                onClick={refetch}
+                className="mt-4 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+              >
                 Réessayer
               </Button>
             </div>
