@@ -138,7 +138,8 @@ export function NotificationManager() {
         <Button
           onClick={handleEnable}
           disabled={loading}
-          className="shadow-lg"
+          variant="outline"
+          className="shadow-lg border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
           size="lg"
         >
           <Bell className="w-5 h-5 mr-2" />

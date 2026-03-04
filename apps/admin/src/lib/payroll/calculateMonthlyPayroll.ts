@@ -16,16 +16,27 @@ export interface EmployeePayrollData {
   hireDate: string;
   endDate?: string;
   hourlyRate: number; // Hourly rate (€/hour)
-  contractualHours: number;
-  monthlyContractualHours: number; // contractualHours × 4.33
-  hoursWorked: number; // Actual hours worked in the month
-  overtimeHours: number; // MAX(0, hoursWorked - monthlyContractualHours)
+  contractualHours: number; // Weekly contractual hours (e.g., 12h, 35h)
+  monthlyContractualHours: number; // contractualHours × 4.33 (decimal format)
+  hoursWorked: number; // Actual hours worked in the month (decimal format)
+  paidLeaveHours: number; // Approved paid leave hours (CP) - PAID
+  sickLeaveHours: number; // Approved sick leave hours (AM) - NOT paid by employer (sécu)
+  unavailabilityHours: number; // Approved unavailability hours - NOT paid
+  totalPaidHours: number; // hoursWorked + paidLeaveHours (decimal format)
+  overtimeHours: number; // MAX(0, totalPaidHours - monthlyContractualHours) (decimal format)
   hasMutuelle: boolean; // Based on onboardingStatus.mutuelleCompleted
 }
 
 interface MonthlyHoursData {
   employeeId: string;
   totalHours: number;
+}
+
+interface MonthlyAbsencesData {
+  employeeId: string;
+  paidLeaveHours: number; // CP hours (paid)
+  sickLeaveHours: number; // AM hours (not paid by employer)
+  unavailabilityHours: number; // Indispo hours (not paid)
 }
 
 /**
@@ -91,6 +102,9 @@ export async function calculateMonthlyPayroll(
   // Fetch time entries for all employees in the month
   const monthlyHours = await fetchMonthlyHours(employees, startDate, endDate);
 
+  // Fetch absences for all employees in the month
+  const monthlyAbsences = await fetchMonthlyAbsences(employees, startDate, endDate);
+
   // Calculate payroll data for each employee
   const payrollData: EmployeePayrollData[] = employees.map((employee) => {
     // Debug: log employee data to check what fields are present
@@ -108,11 +122,34 @@ export async function calculateMonthlyPayroll(
     );
     const hoursWorked = employeeHours?.totalHours || 0;
 
-    // Monthly contractual hours = weekly hours × 4.33
-    const monthlyContractualHours = employee.contractualHours * 4.33;
+    // Get absences data
+    const employeeAbsences = monthlyAbsences.find(
+      (a) => a.employeeId === employee.id
+    );
+    const paidLeaveHours = employeeAbsences?.paidLeaveHours || 0;
+    const sickLeaveHours = employeeAbsences?.sickLeaveHours || 0;
+    const unavailabilityHours = employeeAbsences?.unavailabilityHours || 0;
 
-    // Overtime = MAX(0, hours worked - monthly contractual)
-    const overtimeHours = Math.max(0, hoursWorked - monthlyContractualHours);
+    /**
+     * CALCUL DES HEURES PAYÉES ET SUPPLÉMENTAIRES
+     *
+     * Format : Toutes les heures sont en format DÉCIMAL (51.96h, pas 51h57)
+     * - 1 mois = 4.33 semaines en moyenne (52 semaines / 12 mois)
+     * - Heures contractuelles mensuelles = heures hebdomadaires × 4.33
+     * - Exemple : 12h/semaine × 4.33 = 51.96h/mois (= 51h57min)
+     *
+     * Heures payées = Heures pointées + Congés payés (CP)
+     * - CP : Payé (décompté du solde)
+     * - AM : Pas payé par employeur (sécu sociale) - suivi uniquement
+     * - Indispo : Pas payé - suivi uniquement
+     *
+     * Heures supplémentaires = MAX(0, heures payées - heures contractuelles mensuelles)
+     * - Si employé fait moins que son contrat → 0 heures sup
+     * - Si employé fait plus que son contrat → différence en heures sup
+     */
+    const monthlyContractualHours = employee.contractualHours * 4.33;
+    const totalPaidHours = hoursWorked + paidLeaveHours;
+    const overtimeHours = Math.max(0, totalPaidHours - monthlyContractualHours);
 
     const address = formatAddress(employee);
 
@@ -130,6 +167,10 @@ export async function calculateMonthlyPayroll(
       contractualHours: employee.contractualHours,
       monthlyContractualHours: Math.round(monthlyContractualHours * 100) / 100,
       hoursWorked: Math.round(hoursWorked * 100) / 100,
+      paidLeaveHours: Math.round(paidLeaveHours * 100) / 100,
+      sickLeaveHours: Math.round(sickLeaveHours * 100) / 100,
+      unavailabilityHours: Math.round(unavailabilityHours * 100) / 100,
+      totalPaidHours: Math.round(totalPaidHours * 100) / 100,
       overtimeHours: Math.round(overtimeHours * 100) / 100,
       hasMutuelle: (() => {
         const mutuelleWanted = employee.onboardingStatus?.mutuelleWanted;
@@ -203,6 +244,93 @@ async function fetchMonthlyHours(
         error
       );
       results.push({ employeeId: employee.id, totalHours: 0 });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Fetch and aggregate monthly absences for employees
+ * @param employees - List of employees
+ * @param startDate - Start date (YYYY-MM-DD)
+ * @param endDate - End date (YYYY-MM-DD)
+ * @returns Array of employee IDs with absence hours breakdown
+ */
+async function fetchMonthlyAbsences(
+  employees: Employee[],
+  startDate: string,
+  endDate: string
+): Promise<MonthlyAbsencesData[]> {
+  const results: MonthlyAbsencesData[] = [];
+
+  // Fetch absences for each employee
+  for (const employee of employees) {
+    try {
+      const response = await fetch(
+        `/api/hr/absences?employeeId=${employee.id}&status=approved&startDate=${startDate}&endDate=${endDate}`
+      );
+
+      if (!response.ok) {
+        console.error(
+          `Failed to fetch absences for employee ${employee.id}`
+        );
+        results.push({
+          employeeId: employee.id,
+          paidLeaveHours: 0,
+          sickLeaveHours: 0,
+          unavailabilityHours: 0,
+        });
+        continue;
+      }
+
+      const data = await response.json();
+
+      if (!data.success || !data.data) {
+        results.push({
+          employeeId: employee.id,
+          paidLeaveHours: 0,
+          sickLeaveHours: 0,
+          unavailabilityHours: 0,
+        });
+        continue;
+      }
+
+      // Sum hours by absence type
+      const absences = data.data as Array<{
+        type: "paid_leave" | "sick_leave" | "unavailability";
+        totalHours: number;
+      }>;
+
+      const paidLeaveHours = absences
+        .filter((a) => a.type === "paid_leave")
+        .reduce((sum, a) => sum + a.totalHours, 0);
+
+      const sickLeaveHours = absences
+        .filter((a) => a.type === "sick_leave")
+        .reduce((sum, a) => sum + a.totalHours, 0);
+
+      const unavailabilityHours = absences
+        .filter((a) => a.type === "unavailability")
+        .reduce((sum, a) => sum + a.totalHours, 0);
+
+      results.push({
+        employeeId: employee.id,
+        paidLeaveHours: Math.round(paidLeaveHours * 100) / 100,
+        sickLeaveHours: Math.round(sickLeaveHours * 100) / 100,
+        unavailabilityHours: Math.round(unavailabilityHours * 100) / 100,
+      });
+    } catch (error) {
+      console.error(
+        `Error fetching absences for employee ${employee.id}:`,
+        error
+      );
+      results.push({
+        employeeId: employee.id,
+        paidLeaveHours: 0,
+        sickLeaveHours: 0,
+        unavailabilityHours: 0,
+      });
     }
   }
 

@@ -40,7 +40,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (isLoading || isDev || isAdmin) {
       return getAdminMenu(
         counts.unreadMessages,
-        counts.pendingUnavailabilities,
+        counts.pendingAbsences,
         counts.pendingBookings,
         counts.pendingJustifications,
         isDev,

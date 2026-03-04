@@ -16,7 +16,7 @@ export function SidebarRail({ className, ...props }: React.ComponentProps<"butto
       aria-label="Toggle Sidebar"
       onClick={toggleSidebar}
       className={cn(
-        "hover:bg-accent absolute inset-y-0 right-0 w-2",
+        "hover:bg-green-50 absolute inset-y-0 right-0 w-2",
         className
       )}
       {...props}

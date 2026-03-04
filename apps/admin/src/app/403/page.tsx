@@ -89,8 +89,9 @@ export default function IpRestrictedPage() {
             <div className="flex justify-center">
               <Button
                 asChild
+                variant="outline"
                 size="lg"
-                className="group bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-base"
+                className="group border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700 shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-base"
               >
                 <Link
                   href="https://coworkingcafe.fr"

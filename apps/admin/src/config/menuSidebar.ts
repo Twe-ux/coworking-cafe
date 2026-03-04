@@ -83,7 +83,7 @@ export interface MenuSection {
  * Visible pour: admin et dev
  *
  * @param unreadCount - Nombre de messages non lus (pour le badge)
- * @param pendingUnavailabilities - Nombre de demandes d'indisponibilité en attente
+ * @param pendingAbsences - Nombre de demandes d'absence en attente
  * @param pendingBookings - Nombre de réservations en attente
  * @param pendingJustifications - Nombre de pointages avec justification
  * @param isDev - Si l'utilisateur est dev (pour afficher Dev Tools)
@@ -91,7 +91,7 @@ export interface MenuSection {
  */
 export function getAdminMenu(
   unreadCount: number,
-  pendingUnavailabilities: number,
+  pendingAbsences: number,
   pendingBookings: number,
   pendingJustifications: number,
   isDev: boolean,
@@ -176,6 +176,11 @@ export function getAdminMenu(
                 pendingJustifications > 0 ? pendingJustifications : undefined,
             },
             {
+              title: "Absences",
+              url: "/admin/hr/absences",
+              badge: pendingAbsences > 0 ? pendingAbsences : undefined,
+            },
+            {
               title: "Disponibilités",
               url: "/admin/hr/employees?tab=availability",
             },
@@ -190,19 +195,8 @@ export function getAdminMenu(
           title: "Messages",
           url: "/admin/messages",
           icon: Mail,
-          badge:
-            unreadCount + pendingUnavailabilities > 0
-              ? unreadCount + pendingUnavailabilities
-              : undefined,
+          badge: unreadCount > 0 ? unreadCount : undefined,
           items: [
-            {
-              title: "Demandes d'indisponibilité",
-              url: "/admin/messages/unavailability-requests",
-              badge:
-                pendingUnavailabilities > 0
-                  ? pendingUnavailabilities
-                  : undefined,
-            },
             {
               title: "Contact",
               url: "/admin/messages/contact",

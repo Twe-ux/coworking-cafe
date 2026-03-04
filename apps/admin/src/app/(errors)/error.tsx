@@ -74,14 +74,14 @@ export default function Error({
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button onClick={reset} size="lg" className="gap-2">
-            <RefreshCcw className="w-5 h-5" />
+          <Button onClick={reset} variant="outline" size="lg" className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700">
+            <RefreshCcw className="mr-2 h-4 w-4" />
             Réessayer
           </Button>
 
-          <Button asChild variant="outline" size="lg" className="gap-2">
+          <Button asChild variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
             <Link href="/">
-              <Home className="w-5 h-5" />
+              <Home className="mr-2 h-4 w-4" />
               Retour à l'accueil
             </Link>
           </Button>

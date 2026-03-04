@@ -385,7 +385,8 @@ export function NotificationDebug() {
             <Button
               onClick={handleTestLocalNotification}
               disabled={permission !== "granted"}
-              variant="secondary"
+              variant="outline"
+              className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
             >
               <TestTube className="w-4 h-4 mr-2" />
               Test notification locale
@@ -394,7 +395,8 @@ export function NotificationDebug() {
             <Button
               onClick={handleTestServiceWorkerNotification}
               disabled={!swRegistered || permission !== "granted"}
-              variant="secondary"
+              variant="outline"
+              className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
             >
               <TestTube className="w-4 h-4 mr-2" />
               Test via Service Worker
@@ -402,7 +404,8 @@ export function NotificationDebug() {
 
             <Button
               onClick={handleTestBadge}
-              variant="secondary"
+              variant="outline"
+              className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
             >
               <TestTube className="w-4 h-4 mr-2" />
               Test Badge (iOS/PWA)
@@ -411,8 +414,8 @@ export function NotificationDebug() {
             <Button
               onClick={handleTestServerPush}
               disabled={!subscribed}
-              variant="default"
-              className="bg-green-600 hover:bg-green-700"
+              variant="outline"
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             >
               <TestTube className="w-4 h-4 mr-2" />
               🚀 Test Push Serveur (PROD)

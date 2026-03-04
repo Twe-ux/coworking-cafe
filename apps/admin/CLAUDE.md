@@ -37,6 +37,78 @@ await sendEmail({
 
 ---
 
+## 🎨 Styles de Boutons (shadcn/ui)
+
+**TOUJOURS** utiliser `variant="outline"` avec les classes de couleur appropriées selon le type d'action.
+
+### 🔗 **Navigation/Liens** (gris → vert au hover)
+```typescript
+<Button
+  variant="outline"
+  className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+>
+  <Icon className="mr-2 h-4 w-4" />
+  Texte
+</Button>
+```
+**Exemples** : Planning, Voir détails, Aller à...
+
+### ➕ **Actions Principales** (vert)
+```typescript
+<Button
+  variant="outline"
+  className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+>
+  <Icon className="mr-2 h-4 w-4" />
+  Texte
+</Button>
+```
+**Exemples** : Ajouter, Créer, Nouveau, Valider
+
+### 📄 **Export/Génération** (bleu)
+```typescript
+<Button
+  variant="outline"
+  className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+>
+  <Icon className="mr-2 h-4 w-4" />
+  Texte
+</Button>
+```
+**Exemples** : Générer PDF, Exporter, Télécharger, Importer
+
+### 🔵 **Modification** (bleu)
+```typescript
+<Button
+  variant="outline"
+  className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+>
+  <Icon className="mr-2 h-4 w-4" />
+  Texte
+</Button>
+```
+**Exemples** : Modifier, Éditer, Mettre à jour
+
+### ❌ **Suppression/Reset** (rouge)
+```typescript
+<Button
+  variant="outline"
+  className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+>
+  <Icon className="mr-2 h-4 w-4" />
+  Texte
+</Button>
+```
+**Exemples** : Effacer, Supprimer, Annuler, Réinitialiser
+
+### ⚠️ **Important**
+- ✅ **TOUJOURS** `variant="outline"` (jamais `default`, `ghost`, etc.)
+- ✅ **TOUJOURS** ajouter l'icône avec `className="mr-2 h-4 w-4"`
+- ✅ **TOUJOURS** utiliser les couleurs appropriées selon le type d'action
+- ❌ **JAMAIS** de boutons sans couleur ou avec des couleurs aléatoires
+
+---
+
 ## ⚠️ CONVENTION CRITIQUE : Structure des routes Admin vs Staff
 
 **IMPORTANT** : Il existe DEUX dossiers distincts pour les routes avec sidebar :
@@ -170,6 +242,35 @@ const mongoUri = "mongodb+srv://admin:PASSWORD@..."
 // ✅ CORRECT
 const mongoUri = process.env.MONGODB_URI!
 ```
+
+### 6. Date Picker - Composant Unifié
+
+**TOUJOURS** utiliser le composant `DatePicker` de shadcn/ui pour la saisie de dates.
+
+```typescript
+// ❌ INTERDIT
+<Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+
+// ✅ CORRECT
+import { DatePicker } from '@/components/ui/date-picker';
+
+<DatePicker
+  date={formData.startDate}
+  onDateChange={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
+  placeholder="Sélectionner la date"
+/>
+```
+
+**Pourquoi** :
+- ✅ Interface cohérente dans toute l'app
+- ✅ Meilleure UX (calendrier visuel)
+- ✅ Gestion locale FR automatique
+- ✅ Validation intégrée
+
+**Exemples d'utilisation** :
+- Onboarding employé : dates de contrat
+- Création d'absence : dates de début/fin
+- Formulaires RH : dates diverses
 
 ---
 

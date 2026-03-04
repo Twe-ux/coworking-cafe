@@ -138,9 +138,9 @@ export function ImageUpload({ value, onChange, disabled, folder = "produits" }: 
           />
           <Button
             type="button"
-            variant="destructive"
+            variant="outline"
+            className="absolute top-2 right-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             size="sm"
-            className="absolute top-2 right-2"
             onClick={handleRemove}
             disabled={disabled}
           >

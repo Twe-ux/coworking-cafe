@@ -60,7 +60,8 @@ export function EmailPasswordLogin({
 
       <Button
         type="submit"
-        className="w-full"
+        variant="outline"
+        className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
         disabled={isLoading || !email || !password}
       >
         {isLoading ? 'Connexion...' : 'Se connecter'}

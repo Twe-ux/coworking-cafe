@@ -105,7 +105,7 @@ export function LoginForm({
                   disabled={loading}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" variant="outline" className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700" disabled={loading}>
                 {loading ? "Connexion..." : "Se connecter"}
               </Button>
             </div>

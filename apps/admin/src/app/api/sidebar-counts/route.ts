@@ -4,14 +4,14 @@ import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { connectDB } from "@/lib/db";
 import { ContactMail } from "@/models/contactMail";
-import Unavailability from "@/models/unavailability";
+import Absence from "@/models/absence";
 import TimeEntry from "@/models/timeEntry";
 import { Booking } from "@coworking-cafe/database";
 
 interface SidebarCounts {
   pendingBookings: number;
   unreadMessages: number;
-  pendingUnavailabilities: number;
+  pendingAbsences: number;
   pendingJustifications: number;
 }
 
@@ -44,10 +44,10 @@ export async function GET(
     }
 
     // Run all 4 count queries in parallel
-    const [unreadMessages, pendingUnavailabilities, pendingBookings, pendingJustifications] =
+    const [unreadMessages, pendingAbsences, pendingBookings, pendingJustifications] =
       await Promise.all([
         ContactMail.countDocuments({ status: "unread" }),
-        Unavailability.countDocuments({ status: "pending" }),
+        Absence.countDocuments({ status: "pending", isActive: true }),
         Booking.countDocuments(bookingsQuery),
         TimeEntry.countDocuments({
           isOutOfSchedule: true,
@@ -59,7 +59,7 @@ export async function GET(
     const counts: SidebarCounts = {
       pendingBookings,
       unreadMessages,
-      pendingUnavailabilities,
+      pendingAbsences,
       pendingJustifications,
     };
 

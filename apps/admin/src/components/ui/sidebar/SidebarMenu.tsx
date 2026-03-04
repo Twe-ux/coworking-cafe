@@ -52,7 +52,7 @@ export function SidebarMenuButton({
       className={cn(
         // Base styles with enhanced mobile touch
         "relative flex w-full items-center gap-2 rounded-md text-left transition-colors",
-        "hover:bg-accent hover:text-accent-foreground",
+        "border border-transparent hover:bg-green-50 hover:text-green-700 hover:border-green-500",
         // Enhanced mobile touch interactions
         "touch-manipulation select-none",
         "active:bg-accent/80 active:scale-[0.98]",
@@ -138,7 +138,7 @@ export function SidebarMenuSubButton({
   return (
     <Comp
       className={cn(
-        "hover:bg-accent hover:text-accent-foreground flex h-7 min-w-0 items-center gap-2 rounded-md px-2 text-sm transition-colors",
+        "border border-transparent hover:bg-green-50 hover:text-green-700 hover:border-green-500 flex h-7 min-w-0 items-center gap-2 rounded-md px-2 text-sm transition-colors",
         isActive && "bg-accent text-accent-foreground font-medium",
         className
       )}
@@ -163,8 +163,8 @@ export function SidebarMenuAction({
     <Comp
       data-sidebar="menu-action"
       className={cn(
-        "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-none transition-transform",
-        "hover:bg-accent hover:text-accent-foreground",
+        "absolute right-1 top-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-none transition-transform",
+        "hover:bg-green-50 hover:text-green-700",
         "focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none",
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[state=collapsed]/sidebar:hidden",

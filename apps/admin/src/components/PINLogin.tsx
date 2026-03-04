@@ -103,7 +103,8 @@ export function PINLogin() {
 
             <Button
               type="submit"
-              className="w-full"
+              variant="outline"
+              className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
               disabled={loading || attempts >= 3 || pin.length !== 6}
             >
               {loading ? 'Vérification...' : 'Déverrouiller'}
@@ -111,8 +112,8 @@ export function PINLogin() {
 
             <Button
               type="button"
-              variant="ghost"
-              className="w-full text-sm"
+              variant="outline"
+              className="w-full text-sm border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
               onClick={handleForgotPIN}
             >
               PIN oublié ? Se reconnecter

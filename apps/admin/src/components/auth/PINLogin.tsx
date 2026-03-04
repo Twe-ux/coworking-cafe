@@ -91,7 +91,7 @@ export function PINLogin({
                   variant={number ? 'outline' : 'ghost'}
                   size="lg"
                   className={`h-16 w-16 text-xl font-semibold ${
-                    !number ? 'invisible' : ''
+                    !number ? 'invisible' : 'border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500'
                   }`}
                   onClick={() => number && handleNumberPress(number)}
                   disabled={isLoading || !number}
@@ -107,7 +107,7 @@ export function PINLogin({
         <div className="flex justify-center">
           <Button
             variant="outline"
-            className="flex items-center justify-center gap-2 w-full"
+            className="flex items-center justify-center gap-2 w-full border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={handleClear}
             disabled={isLoading || pin.length === 0}
           >

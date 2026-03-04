@@ -85,7 +85,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "13%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "11%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>Adresse</Text>
@@ -93,7 +93,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "11%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "10%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>N° Sécu</Text>
@@ -101,7 +101,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "7%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>Date début</Text>
@@ -109,7 +109,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "7%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>Date fin</Text>
@@ -117,7 +117,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "7%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>Taux h.</Text>
@@ -125,7 +125,7 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "9%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "8%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>H. contrat</Text>
@@ -133,15 +133,39 @@ export function PayrollDocument({
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "9%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "7%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
-              <Text>H. réalisées</Text>
+              <Text>H. pointées</Text>
             </View>
             <View
               style={[
                 styles.tableCellHeader,
-                { width: "9%", fontSize: 9, padding: "8 2 2 2" },
+                { width: "6%", fontSize: 9, padding: "8 2 2 2" },
+              ]}
+            >
+              <Text>CP (h)</Text>
+            </View>
+            <View
+              style={[
+                styles.tableCellHeader,
+                { width: "6%", fontSize: 9, padding: "8 2 2 2" },
+              ]}
+            >
+              <Text>AM (h)</Text>
+            </View>
+            <View
+              style={[
+                styles.tableCellHeader,
+                { width: "7%", fontSize: 9, padding: "8 2 2 2" },
+              ]}
+            >
+              <Text>Total payé</Text>
+            </View>
+            <View
+              style={[
+                styles.tableCellHeader,
+                { width: "7%", fontSize: 9, padding: "8 2 2 2" },
               ]}
             >
               <Text>H. sup</Text>
@@ -169,7 +193,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCellLeft,
                     {
-                      width: "11%",
+                      width: "10%",
                       fontSize: 8,
                       padding: "5 2 2 2",
                       alignItems: "flex-start",
@@ -184,7 +208,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCellLeft,
                     {
-                      width: "13%",
+                      width: "11%",
                       fontSize: 7,
                       padding: "5 2 2 2",
                       alignItems: "flex-start",
@@ -204,7 +228,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCell,
                     {
-                      width: "11%",
+                      width: "10%",
                       fontSize: 7,
                       padding: "5 2 2 2",
                       alignItems: "center",
@@ -218,7 +242,7 @@ export function PayrollDocument({
                 <View
                   style={[
                     styles.tableCell,
-                    { width: "8%", fontSize: 8, padding: "5 2 2 2" },
+                    { width: "7%", fontSize: 8, padding: "5 2 2 2" },
                   ]}
                 >
                   <Text>{formatDate(employee.hireDate)}</Text>
@@ -228,7 +252,7 @@ export function PayrollDocument({
                 <View
                   style={[
                     styles.tableCell,
-                    { width: "8%", fontSize: 8, padding: "5 2 2 2" },
+                    { width: "7%", fontSize: 8, padding: "5 2 2 2" },
                   ]}
                 >
                   <Text>{formatDate(employee.endDate)}</Text>
@@ -238,7 +262,7 @@ export function PayrollDocument({
                 <View
                   style={[
                     styles.tableCell,
-                    { width: "8%", fontSize: 8, padding: "5 2 2 2" },
+                    { width: "7%", fontSize: 8, padding: "5 2 2 2" },
                   ]}
                 >
                   <Text>{employee.hourlyRate.toFixed(2)}€</Text>
@@ -248,20 +272,73 @@ export function PayrollDocument({
                 <View
                   style={[
                     styles.tableCell,
-                    { width: "9%", fontSize: 8, padding: "5 2 2 2" },
+                    { width: "8%", fontSize: 8, padding: "5 2 2 2" },
                   ]}
                 >
                   <Text>{employee.monthlyContractualHours.toFixed(2)}h</Text>
                 </View>
 
-                {/* H. réalisées */}
+                {/* H. pointées */}
                 <View
                   style={[
                     styles.tableCell,
-                    { width: "9%", fontSize: 8, padding: "5 2 2 2" },
+                    { width: "7%", fontSize: 8, padding: "5 2 2 2" },
                   ]}
                 >
                   <Text>{employee.hoursWorked.toFixed(2)}h</Text>
+                </View>
+
+                {/* CP (h) */}
+                <View
+                  style={[
+                    styles.tableCell,
+                    {
+                      width: "6%",
+                      fontSize: 8,
+                      padding: "5 2 2 2",
+                      color: employee.paidLeaveHours > 0 ? "#16a34a" : "#000000",
+                    },
+                  ]}
+                >
+                  <Text>
+                    {employee.paidLeaveHours > 0
+                      ? employee.paidLeaveHours.toFixed(2)
+                      : "-"}
+                  </Text>
+                </View>
+
+                {/* AM (h) */}
+                <View
+                  style={[
+                    styles.tableCell,
+                    {
+                      width: "6%",
+                      fontSize: 8,
+                      padding: "5 2 2 2",
+                      color: employee.sickLeaveHours > 0 ? "#dc2626" : "#000000",
+                    },
+                  ]}
+                >
+                  <Text>
+                    {employee.sickLeaveHours > 0
+                      ? employee.sickLeaveHours.toFixed(2)
+                      : "-"}
+                  </Text>
+                </View>
+
+                {/* Total payé */}
+                <View
+                  style={[
+                    styles.tableCell,
+                    {
+                      width: "7%",
+                      fontSize: 8,
+                      padding: "5 2 2 2",
+                      fontFamily: "Helvetica-Bold",
+                    },
+                  ]}
+                >
+                  <Text>{employee.totalPaidHours.toFixed(2)}h</Text>
                 </View>
 
                 {/* H. sup */}
@@ -269,7 +346,7 @@ export function PayrollDocument({
                   style={[
                     styles.tableCell,
                     {
-                      width: "9%",
+                      width: "7%",
                       fontSize: 8,
                       padding: "5 2 2 2",
                       color:
@@ -305,9 +382,21 @@ export function PayrollDocument({
         {/* Footer */}
         <View style={{ marginTop: 30 }}>
           <Text style={[styles.text, { fontSize: 9, fontStyle: "italic" }]}>
-            Note : Les heures supplémentaires sont calculées selon la formule :
-            Heures sup = MAX(0, Heures réalisées - (Heures hebdo contractuelles
-            × 4.33))
+            Note : Total payé = H. pointées + CP (Congés payés). Les heures
+            supplémentaires sont calculées selon la formule : Heures sup =
+            MAX(0, Total payé - (Heures hebdo contractuelles × 4.33)). CP =
+            Congés payés (payés, décomptés du solde). AM = Arrêt maladie (non
+            payés par employeur, pris en charge par sécurité sociale).
+          </Text>
+          <Text
+            style={[
+              styles.text,
+              { fontSize: 9, fontStyle: "italic", marginTop: 5 },
+            ]}
+          >
+            Format des heures : Toutes les heures sont exprimées en format
+            décimal. Exemple : 51.96h = 51 heures et 57 minutes (0.96 × 60 =
+            57 min). Ce format facilite les calculs comptables.
           </Text>
           <Text
             style={[

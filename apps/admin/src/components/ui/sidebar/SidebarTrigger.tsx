@@ -21,7 +21,7 @@ export function SidebarTrigger({
     <button
       className={cn(
         "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
-        "hover:bg-accent hover:text-accent-foreground",
+        "hover:bg-green-50 hover:text-green-700",
         // Enhanced mobile touch targets
         isMobile ? "h-10 w-10" : "h-7 w-7",
         // Better mobile touch feedback

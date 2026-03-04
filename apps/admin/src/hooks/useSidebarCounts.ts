@@ -5,7 +5,7 @@ import { getBadgeSeenAt } from "@/lib/utils/badge-seen";
 interface SidebarCounts {
   pendingBookings: number;
   unreadMessages: number;
-  pendingUnavailabilities: number;
+  pendingAbsences: number;
   pendingJustifications: number;
 }
 
@@ -19,7 +19,7 @@ interface UseSidebarCountsReturn {
 const DEFAULT_COUNTS: SidebarCounts = {
   pendingBookings: 0,
   unreadMessages: 0,
-  pendingUnavailabilities: 0,
+  pendingAbsences: 0,
   pendingJustifications: 0,
 };
 
@@ -78,7 +78,7 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
       const newCounts: SidebarCounts = {
         pendingBookings: data.data?.pendingBookings || 0,
         unreadMessages: data.data?.unreadMessages || 0,
-        pendingUnavailabilities: data.data?.pendingUnavailabilities || 0,
+        pendingAbsences: data.data?.pendingAbsences || 0,
         pendingJustifications: data.data?.pendingJustifications || 0,
       };
 
@@ -87,7 +87,7 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
       const total =
         newCounts.pendingBookings +
         newCounts.unreadMessages +
-        newCounts.pendingUnavailabilities +
+        newCounts.pendingAbsences +
         newCounts.pendingJustifications;
       updatePWABadge(total);
     } catch (err) {
