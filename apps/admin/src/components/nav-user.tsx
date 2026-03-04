@@ -65,7 +65,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className=" data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 {user.avatar && (
@@ -112,17 +112,25 @@ export function NavUser({
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem onClick={handleProfileClick}>
+              <DropdownMenuGroup className="mb-3">
+                <div
+                  onClick={handleProfileClick}
+                  className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors border border-transparent text-green-700 hover:bg-green-50 hover:text-green-700 hover:border-green-500 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+                  role="menuitem"
+                >
                   <User />
                   Mon profil
-                </DropdownMenuItem>
+                </div>
               </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
+              {/* <DropdownMenuSeparator /> */}
+              <div
+                onClick={handleLogout}
+                className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors border border-transparent text-red-700 hover:bg-red-50 hover:text-red-700 hover:border-red-500 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+                role="menuitem"
+              >
                 <LogOut />
                 Se déconnecter
-              </DropdownMenuItem>
+              </div>
             </DropdownMenuContent>
           </DropdownMenuPortal>
         </DropdownMenu>

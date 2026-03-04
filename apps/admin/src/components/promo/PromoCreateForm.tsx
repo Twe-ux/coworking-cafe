@@ -133,15 +133,17 @@ export function PromoCreateForm({
                         title="Token unique pour le lien QR"
                       />
                     </FormControl>
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={regenerateToken}
-                      className="px-3 py-2 text-sm border rounded-md hover:bg-accent"
+                      className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
                       disabled={isDisabled}
                       title="Regénérer le token"
                     >
                       🔄
-                    </button>
+                    </Button>
                   </div>
                   <FormDescription>
                     Utilisé pour le lien : /promo/{field.value.slice(0, 8)}...
@@ -283,7 +285,12 @@ export function PromoCreateForm({
             )}
           />
 
-          <Button type="submit" disabled={isDisabled} className="w-full">
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={isDisabled}
+            className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          >
             {isSubmitting ? "Création en cours..." : "Créer le code promo"}
           </Button>
         </form>

@@ -11,6 +11,7 @@ import { PromoMarketingForm } from "@/components/promo/PromoMarketingForm";
 import { PromoHistory } from "@/components/promo/PromoHistory";
 import { PromoPageSkeleton } from "@/components/promo/PromoPageSkeleton";
 import { StyledAlert } from "@/components/ui/styled-alert";
+import { Button } from "@/components/ui/button";
 
 /**
  * Page Promo - S'adapte selon le rôle utilisateur
@@ -64,12 +65,13 @@ export default function PromoPage() {
           Aucune configuration promo n'existe encore en base de données.
         </StyledAlert>
         {!isStaff && (
-          <button
+          <Button
+            variant="outline"
             onClick={handleInit}
-            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
           >
             Initialiser la configuration promo
-          </button>
+          </Button>
         )}
       </div>
     );

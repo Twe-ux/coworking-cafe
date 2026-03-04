@@ -83,11 +83,13 @@ export function ArticlesTable({
                 {article.slug}
               </TableCell>
               <TableCell>
-                <Badge variant="outline">{article.category.name}</Badge>
+                <Badge variant="outline" className="text-xs border-blue-500 bg-blue-50 text-blue-700 pointer-events-none">
+                  {article.category.name}
+                </Badge>
               </TableCell>
               <TableCell>
                 <Badge
-                  variant={article.status === "published" ? "default" : "secondary"}
+                  className={article.status === "published" ? "bg-green-500" : "bg-gray-500"}
                 >
                   {article.status === "published" ? "Publié" : "Brouillon"}
                 </Badge>
@@ -105,8 +107,9 @@ export function ArticlesTable({
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
+                    className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 hover:text-gray-700"
                     onClick={() => onStatusToggle(article._id, article.status)}
                     title={
                       article.status === "published"
@@ -121,18 +124,22 @@ export function ArticlesTable({
                     )}
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
+                    className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                     onClick={() => onEdit(article._id)}
+                    title="Modifier"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
+                    className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                     onClick={() => onDelete(article)}
+                    title="Supprimer"
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </TableCell>

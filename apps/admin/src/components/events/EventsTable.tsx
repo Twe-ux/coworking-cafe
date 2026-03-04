@@ -118,12 +118,12 @@ export function EventsTable({
               <TableCell>
                 <div className="flex flex-wrap gap-1">
                   {event.category.slice(0, 2).map((cat) => (
-                    <Badge key={cat} variant="secondary" className="text-xs">
+                    <Badge key={cat} variant="outline" className="text-xs border-blue-500 bg-blue-50 text-blue-700 pointer-events-none">
                       {cat}
                     </Badge>
                   ))}
                   {event.category.length > 2 && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="outline" className="text-xs border-blue-500 bg-blue-50 text-blue-700 pointer-events-none">
                       +{event.category.length - 2}
                     </Badge>
                   )}
@@ -153,8 +153,9 @@ export function EventsTable({
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
+                    className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 hover:text-gray-700"
                     onClick={() => onStatusToggle(event._id, event.status)}
                     title={
                       event.status === "published"
@@ -169,16 +170,18 @@ export function EventsTable({
                     )}
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
+                    className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                     onClick={() => onEdit(event._id)}
                     title="Modifier"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
+                    className="border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
                     onClick={() => onDuplicate(event._id)}
                     title="Dupliquer"
                   >
@@ -186,21 +189,23 @@ export function EventsTable({
                   </Button>
                   {event.status !== "archived" && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
+                      className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 hover:text-gray-700"
                       onClick={() => onArchive(event._id)}
                       title="Archiver"
                     >
-                      <Archive className="h-4 w-4 text-orange-500" />
+                      <Archive className="h-4 w-4" />
                     </Button>
                   )}
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
+                    className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                     onClick={() => onDelete(event)}
                     title="Supprimer"
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </TableCell>

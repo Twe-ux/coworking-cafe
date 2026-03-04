@@ -61,18 +61,22 @@ export function CategoriesTable({
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
+                      className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                       onClick={() => onEdit(cat)}
+                      title="Modifier"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
+                      className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                       onClick={() => onDelete(cat)}
+                      title="Supprimer"
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>

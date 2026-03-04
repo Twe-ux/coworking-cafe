@@ -37,7 +37,7 @@ export function ActionsCell({ row, openForm, onDelete }: ActionsCellProps) {
         <Button
           onClick={handleOpenFormWithDate}
           variant="outline"
-          className="border-primary text-primary hover:bg-accent"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
         >
           Saisir
         </Button>
@@ -49,20 +49,25 @@ export function ActionsCell({ row, openForm, onDelete }: ActionsCellProps) {
     <div className="text-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="outline" className="h-8 w-8 p-0 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleOpenFormWithDate}>
+          <div
+            onClick={handleOpenFormWithDate}
+            className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors border border-transparent text-blue-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+            role="menuitem"
+          >
             Modifier
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-red-600 focus:text-red-600"
+          </div>
+          <div
             onClick={() => onDelete && onDelete(row)}
+            className="relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors border border-transparent text-red-700 hover:bg-red-50 hover:text-red-700 hover:border-red-500 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+            role="menuitem"
           >
             Supprimer
-          </DropdownMenuItem>
+          </div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

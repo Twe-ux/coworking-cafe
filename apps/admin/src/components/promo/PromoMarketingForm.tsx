@@ -113,7 +113,7 @@ export function PromoMarketingForm({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
-            <div className="flex justify-around">
+            <div className="flex justify-between gap-6">
               {/* Titre */}
               <FormField
                 control={form.control}
@@ -132,11 +132,10 @@ export function PromoMarketingForm({
                         className="text-base"
                       />
                     </FormControl>
-                    <FormDescription className="flex items-center justify-between">
+                    <FormDescription className="flex items-center justify-between gap-2">
                       <span>Titre principal affiché en haut de la page</span>
                       <Badge
-                        variant={titleLength > 90 ? "destructive" : "secondary"}
-                        className="text-xs"
+                        className={`text-xs ${titleLength > 90 ? "bg-red-500" : "bg-gray-500"}`}
                       >
                         {titleLength}/100
                       </Badge>
@@ -163,11 +162,10 @@ export function PromoMarketingForm({
                         disabled={isDisabled}
                       />
                     </FormControl>
-                    <FormDescription className="flex items-center justify-between">
+                    <FormDescription className="flex items-center justify-between gap-2">
                       <span>Texte affiché sur le bouton d'action</span>
                       <Badge
-                        variant={ctaLength > 45 ? "destructive" : "secondary"}
-                        className="text-xs"
+                        className={`text-xs ${ctaLength > 45 ? "bg-red-500" : "bg-gray-500"}`}
                       >
                         {ctaLength}/50
                       </Badge>
@@ -205,16 +203,16 @@ export function PromoMarketingForm({
                   </FormControl>
                   <FormDescription className="flex items-center justify-between">
                     <span className="flex items-center gap-1">
-                      <Badge variant="outline" className="text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-xs pointer-events-none"
+                      >
                         HTML
                       </Badge>
                       <span className="text-xs">autorisé</span>
                     </span>
                     <Badge
-                      variant={
-                        messageLength > 900 ? "destructive" : "secondary"
-                      }
-                      className="text-xs"
+                      className={`text-xs ${messageLength > 900 ? "bg-red-500" : "bg-gray-500"}`}
                     >
                       {messageLength}/1000
                     </Badge>
@@ -277,15 +275,16 @@ export function PromoMarketingForm({
                 variant="outline"
                 onClick={() => form.reset()}
                 disabled={isDisabled}
-                className="gap-2"
+                className="gap-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
               >
                 <RotateCcw className="h-4 w-4" />
                 Réinitialiser
               </Button>
               <Button
                 type="submit"
+                variant="outline"
                 disabled={isDisabled}
-                className="flex-1 gap-2"
+                className="flex-1 gap-2 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
               >
                 {isSubmitting ? (
                   <>

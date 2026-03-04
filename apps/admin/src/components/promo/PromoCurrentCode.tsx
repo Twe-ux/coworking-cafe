@@ -48,7 +48,7 @@ export function PromoCurrentCode({ promoCode }: PromoCurrentCodeProps) {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <h3 className="text-xl font-bold">{promoCode.code}</h3>
-            <Badge variant={promoCode.isActive ? 'default' : 'secondary'}>
+            <Badge className={promoCode.isActive ? 'bg-green-500' : 'bg-gray-500'}>
               {promoCode.isActive ? (
                 <span className="flex items-center gap-1">
                   <CircleCheck className="w-3 h-3" />
