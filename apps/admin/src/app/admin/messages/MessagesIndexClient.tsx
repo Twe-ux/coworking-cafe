@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Mail, HelpCircle, CalendarOff } from "lucide-react";
+import { MessageCircle, Mail, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,14 +10,6 @@ export function MessagesIndexClient() {
   const { counts } = useSidebarCounts();
 
   const modules = [
-    {
-      title: "Demandes d'indisponibilité",
-      description: "Approuver ou refuser les demandes de congés et absences",
-      icon: CalendarOff,
-      href: "/admin/messages/unavailability-requests",
-      stats: "En attente",
-      badge: counts.pendingUnavailabilities > 0 ? counts.pendingUnavailabilities : undefined,
-    },
     {
       title: "Contact",
       description: "Consulter les demandes de contact des clients",
@@ -54,7 +46,7 @@ export function MessagesIndexClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {modules.map((module) => (
           <Link key={module.href} href={module.href}>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+            <Card className="hover:bg-green-50 hover:border-green-500 transition-colors cursor-pointer h-full">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

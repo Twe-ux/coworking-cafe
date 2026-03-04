@@ -139,34 +139,37 @@ export const columns: ColumnDef<ContactMail>[] = [
       return (
         <div className="flex gap-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
               meta?.onReply?.(row.original);
             }}
+            className="h-8 w-8 p-0 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
           >
             <Mail className="w-4 h-4" />
           </Button>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
               meta?.onArchive?.(row.original.id);
             }}
+            className="h-8 w-8 p-0 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
           >
-            <Archive className="w-4 h-4 text-muted-foreground" />
+            <Archive className="w-4 h-4" />
           </Button>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
               meta?.onDelete?.(row.original.id);
             }}
+            className="h-8 w-8 p-0 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
           >
-            <Trash2 className="w-4 h-4 text-destructive" />
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       );

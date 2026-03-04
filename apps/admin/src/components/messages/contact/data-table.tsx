@@ -85,7 +85,7 @@ export function DataTable<TData extends ContactMail>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className="cursor-pointer hover:bg-muted/50"
+                className="cursor-pointer hover:bg-green-50"
                 onClick={() => onView?.(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (

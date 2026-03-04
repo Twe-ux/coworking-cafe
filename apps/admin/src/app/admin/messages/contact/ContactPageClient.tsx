@@ -294,11 +294,12 @@ export function ContactPageClient() {
             <CardTitle>Messages</CardTitle>
             {selectedMessages.length > 0 && (
               <Button
-                variant="destructive"
+                variant="outline"
                 size="sm"
+                className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                 onClick={handleBulkDelete}
               >
-                <Trash2 className="w-4 h-4 mr-2" />
+                <Trash2 className="mr-2 h-4 w-4" />
                 Supprimer ({selectedMessages.length})
               </Button>
             )}

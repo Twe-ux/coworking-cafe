@@ -51,9 +51,10 @@ export function MessageInput({ onSendMessage, disabled = false }: MessageInputPr
         />
         <Button
           type="submit"
+          variant="outline"
           disabled={!content.trim() || disabled || sending}
           size="icon"
-          className="h-[60px] w-[60px]"
+          className="h-[60px] w-[60px] border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
         >
           <Send className="h-5 w-5" />
         </Button>

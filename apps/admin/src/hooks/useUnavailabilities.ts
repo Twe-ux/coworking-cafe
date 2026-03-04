@@ -48,7 +48,8 @@ const unavailabilityKeys = {
 };
 
 /**
- * Fetch unavailabilities from API
+ * Fetch absences from NEW API and convert to legacy format
+ * Now uses /api/hr/absences instead of /api/unavailability
  */
 async function fetchUnavailabilities(
   options: Omit<UseUnavailabilitiesOptions, 'autoFetch'>
@@ -59,14 +60,44 @@ async function fetchUnavailabilities(
   if (options.startDate) params.set('startDate', options.startDate);
   if (options.endDate) params.set('endDate', options.endDate);
 
-  const response = await fetch(`/api/unavailability?${params}`);
+  // Use NEW absences API
+  const response = await fetch(`/api/hr/absences?${params}`);
   const data = await response.json();
 
   if (!data.success) {
     throw new Error(data.error || 'Erreur inconnue');
   }
 
-  return data.data || [];
+  const absences = data.data || [];
+
+  // Convert new Absence format to legacy Unavailability format
+  return absences.map((absence: any) => ({
+    _id: absence._id,
+    employeeId: typeof absence.employeeId === 'string'
+      ? absence.employeeId
+      : (absence.employeeId._id || absence.employeeId.id),
+    startDate: absence.startDate,
+    endDate: absence.endDate,
+    reason: absence.reason || '',
+    // Map new types to old types
+    type: absence.type === 'paid_leave' ? 'vacation'
+      : absence.type === 'sick_leave' ? 'sick'
+      : 'personal',
+    status: absence.status,
+    requestedBy: 'employee', // Default
+    approvedBy: absence.approvedBy,
+    approvedAt: absence.approvedAt,
+    rejectionReason: absence.rejectionReason,
+    notificationSent: true, // Assume sent
+    createdAt: absence.createdAt,
+    updatedAt: absence.updatedAt,
+    employee: typeof absence.employeeId === 'object' ? {
+      _id: absence.employeeId._id || absence.employeeId.id,
+      firstName: absence.employeeId.firstName,
+      lastName: absence.employeeId.lastName,
+      email: absence.employeeId.email,
+    } : undefined as any,
+  }));
 }
 
 export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): UseUnavailabilitiesReturn {
@@ -102,10 +133,19 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
 
   const createUnavailability = useCallback(async (data: CreateUnavailabilityData) => {
     try {
-      const response = await fetch('/api/unavailability', {
+      // Convert old type format to new format
+      const absenceType = data.type === 'vacation' ? 'paid_leave'
+        : data.type === 'sick' ? 'sick_leave'
+        : 'unavailability';
+
+      const response = await fetch('/api/hr/absences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          type: absenceType,
+          status: 'approved', // Auto-approve when created by admin
+        }),
       });
 
       const result = await response.json();
@@ -124,10 +164,18 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
 
   const updateUnavailability = useCallback(async (id: string, data: UpdateUnavailabilityData) => {
     try {
-      const response = await fetch(`/api/unavailability/${id}`, {
-        method: 'PUT',
+      // Convert type if provided
+      const updateData = { ...data };
+      if (data.type) {
+        (updateData as any).type = data.type === 'vacation' ? 'paid_leave'
+          : data.type === 'sick' ? 'sick_leave'
+          : 'unavailability';
+      }
+
+      const response = await fetch(`/api/hr/absences/${id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(updateData),
       });
 
       const result = await response.json();
@@ -146,7 +194,7 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
 
   const deleteUnavailability = useCallback(async (id: string) => {
     try {
-      const response = await fetch(`/api/unavailability/${id}`, {
+      const response = await fetch(`/api/hr/absences/${id}`, {
         method: 'DELETE',
       });
 

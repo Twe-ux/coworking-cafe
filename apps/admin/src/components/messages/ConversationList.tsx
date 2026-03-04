@@ -143,7 +143,7 @@ export function ConversationList({
                   onClick={() => conversation._id && onSelectConversation(conversation._id)}
                   className={`
                     w-full flex items-center gap-3 p-3 rounded-lg transition-colors
-                    hover:bg-muted/50
+                    hover:bg-green-50
                     ${isActive ? "bg-muted" : ""}
                   `}
                 >

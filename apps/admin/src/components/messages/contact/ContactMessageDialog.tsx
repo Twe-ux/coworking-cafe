@@ -193,9 +193,9 @@ export function ContactMessageDialog({
           {message.status !== "replied" && (
             <Button
               onClick={() => setShowReplyForm(!showReplyForm)}
-              variant={showReplyForm ? "default" : "outline"}
+              variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
             >
               <Reply className="w-4 h-4 mr-2" />
               Répondre
@@ -206,7 +206,7 @@ export function ContactMessageDialog({
               onClick={handleArchive}
               variant="outline"
               size="sm"
-              className="flex-1 hover:bg-gray-100 hover:text-gray-900"
+              className="flex-1 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             >
               <Archive className="w-4 h-4 mr-2" />
               Archiver
@@ -216,7 +216,7 @@ export function ContactMessageDialog({
             onClick={handleDelete}
             variant="outline"
             size="sm"
-            className="flex-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+            className="flex-1 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Supprimer
@@ -325,7 +325,8 @@ Elle sera envoyée par email à l'adresse fournie."
                   onClick={handleReply}
                   disabled={isSubmitting || !reply.trim()}
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700"
+                  variant="outline"
+                  className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {isSubmitting ? "Envoi..." : "Envoyer la réponse"}
