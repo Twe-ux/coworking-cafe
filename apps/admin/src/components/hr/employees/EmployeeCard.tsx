@@ -168,7 +168,7 @@ export function EmployeeCard({
               size="icon"
               onClick={() => onEdit(employee)}
               title="Modifier"
-              className="border-green-500 hover:bg-green-200 text-green-600 hover:text-green-700"
+              className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -182,11 +182,7 @@ export function EmployeeCard({
                     ? "Passer Admin"
                     : "Changer de rôle"
                 }
-                className={
-                  employee.employeeRole === "Employé polyvalent"
-                    ? "border-blue-500 hover:bg-blue-200 text-blue-600 hover:text-blue-700"
-                    : "border-blue-500 bg-blue-300 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
-                }
+                className="border-yellow-500 text-yellow-700 hover:bg-yellow-50 hover:text-yellow-700"
               >
                 <ShieldCheck className="h-4 w-4" />
               </Button>
