@@ -19,6 +19,7 @@ export interface BookingValidationEmailData {
   totalPrice: number;
   confirmationNumber?: string;
   contactEmail: string;
+  hasDevisAttachment?: boolean;
 }
 
 export type BookingValidationVariant = 'client' | 'admin';
@@ -142,6 +143,15 @@ export function generateBookingValidationEmail(
 
       <!-- Price disclaimer -->
       ${getPriceDisclaimerNote()}
+
+      ${data.hasDevisAttachment ? `
+      <!-- Devis attachment note -->
+      <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px 20px; border-radius: 8px; margin: 24px 0;">
+        <p style="margin: 0; font-size: 15px; color: #1e40af;">
+          <strong>📎 Ci-joint votre devis</strong> au format PDF pour vos dossiers.
+        </p>
+      </div>
+      ` : ''}
 
       <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">${closingMessage}</p>
 

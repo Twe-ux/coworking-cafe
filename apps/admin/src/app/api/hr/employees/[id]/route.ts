@@ -81,6 +81,20 @@ export async function GET(
   }
 }
 
+/** Max PDF file size: 5MB */
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
+
+interface PdfPayload {
+  filename: string
+  contentBase64: string
+}
+
+interface DpaePayload {
+  completed: boolean
+  completedAt?: string
+  dpaePdf?: PdfPayload
+}
+
 /** Employee update request body type */
 interface EmployeeUpdateBody {
   firstName?: string
@@ -109,6 +123,8 @@ interface EmployeeUpdateBody {
   onboardingStatus?: Record<string, unknown>
   workSchedule?: Record<string, unknown>
   bankDetails?: { iban?: string; bic?: string; bankName?: string }
+  resignationLetter?: PdfPayload
+  dpae?: DpaePayload
   isActive?: boolean
   isDraft?: boolean
   deletedAt?: Date | null
@@ -142,6 +158,22 @@ interface EmployeeUpdateData {
   onboardingStatus?: Record<string, unknown>
   workSchedule?: Record<string, unknown>
   bankDetails?: { iban?: string; bic?: string; bankName?: string }
+  resignationLetter?: {
+    filename: string
+    contentBase64: string
+    uploadedAt: Date
+    uploadedBy: string
+  }
+  dpae?: {
+    completed: boolean
+    completedAt?: Date
+    dpaePdf?: {
+      filename: string
+      contentBase64: string
+      uploadedAt: Date
+      uploadedBy: string
+    }
+  }
   isActive?: boolean
   isDraft?: boolean
   deletedAt?: Date | null
@@ -223,6 +255,76 @@ export async function PUT(
     if (data.onboardingStatus !== undefined) updateData.onboardingStatus = data.onboardingStatus
     if (data.workSchedule !== undefined) updateData.workSchedule = data.workSchedule
     if (data.bankDetails !== undefined) updateData.bankDetails = data.bankDetails
+
+    // Resignation letter validation and storage
+    if (data.resignationLetter !== undefined) {
+      const letter = data.resignationLetter
+      if (!letter.filename?.toLowerCase().endsWith('.pdf')) {
+        return NextResponse.json(
+          { success: false, error: 'Seuls les fichiers PDF sont acceptés' },
+          { status: 400 }
+        )
+      }
+      if (!letter.contentBase64?.startsWith('JVBERi0')) {
+        return NextResponse.json(
+          { success: false, error: 'Le fichier ne semble pas être un PDF valide' },
+          { status: 400 }
+        )
+      }
+      const decodedSize = Buffer.from(letter.contentBase64, 'base64').length
+      if (decodedSize > MAX_FILE_SIZE_BYTES) {
+        return NextResponse.json(
+          { success: false, error: `Fichier trop volumineux (max 5MB)` },
+          { status: 400 }
+        )
+      }
+      updateData.resignationLetter = {
+        filename: letter.filename.trim(),
+        contentBase64: letter.contentBase64,
+        uploadedAt: new Date(),
+        uploadedBy: session.user.id,
+      }
+    }
+
+    // DPAE (Déclaration Préalable À l'Embauche) validation and storage
+    if (data.dpae !== undefined) {
+      const dpaeData: EmployeeUpdateData['dpae'] = {
+        completed: data.dpae.completed,
+        completedAt: data.dpae.completed ? new Date() : undefined,
+      }
+
+      if (data.dpae.dpaePdf) {
+        const pdf = data.dpae.dpaePdf
+        if (!pdf.filename?.toLowerCase().endsWith('.pdf')) {
+          return NextResponse.json(
+            { success: false, error: 'Seuls les fichiers PDF sont acceptés pour la DPAE' },
+            { status: 400 }
+          )
+        }
+        if (!pdf.contentBase64?.startsWith('JVBERi0')) {
+          return NextResponse.json(
+            { success: false, error: 'Le fichier DPAE ne semble pas être un PDF valide' },
+            { status: 400 }
+          )
+        }
+        const decodedSize = Buffer.from(pdf.contentBase64, 'base64').length
+        if (decodedSize > MAX_FILE_SIZE_BYTES) {
+          return NextResponse.json(
+            { success: false, error: 'Fichier DPAE trop volumineux (max 5MB)' },
+            { status: 400 }
+          )
+        }
+        dpaeData.dpaePdf = {
+          filename: pdf.filename.trim(),
+          contentBase64: pdf.contentBase64,
+          uploadedAt: new Date(),
+          uploadedBy: session.user.id,
+        }
+      }
+
+      updateData.dpae = dpaeData
+    }
+
     if (data.isActive !== undefined) updateData.isActive = data.isActive
     if (data.isDraft !== undefined) updateData.isDraft = data.isDraft
     if (data.deletedAt !== undefined) updateData.deletedAt = data.deletedAt

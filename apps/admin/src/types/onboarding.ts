@@ -60,6 +60,8 @@ export interface AdministrativeInfo {
   // Checkboxes de suivi administratif
   dpaeCompleted?: boolean;
   dpaeCompletedAt?: string; // Date DPAE (nécessaire pour le contrat)
+  dpaePdfFilename?: string; // Filename of uploaded DPAE PDF
+  dpaePdfBase64?: string; // Base64 content of DPAE PDF
   medicalVisitCompleted?: boolean;
   mutuelleCompleted?: boolean; // Checkbox: Choix mutuelle effectué
   mutuelleWanted?: boolean; // true = Oui, false = Non, undefined = non renseigné

@@ -92,6 +92,19 @@ export function buildEmployeePayload(
     },
     isActive,
     isDraft: false,
+    // DPAE (Déclaration Préalable À l'Embauche)
+    ...(adminInfo.dpaeCompleted !== undefined && {
+      dpae: {
+        completed: adminInfo.dpaeCompleted,
+        completedAt: adminInfo.dpaeCompletedAt ? new Date(adminInfo.dpaeCompletedAt) : undefined,
+        ...(adminInfo.dpaePdfBase64 && adminInfo.dpaePdfFilename && {
+          dpaePdf: {
+            filename: adminInfo.dpaePdfFilename,
+            contentBase64: adminInfo.dpaePdfBase64,
+          },
+        }),
+      },
+    }),
   }
 }
 

@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
 import { generateBookingValidationEmail } from "@coworking-cafe/email"
 import { sendEmail } from "@/lib/email/emailService"
+import { fetchPdfAttachment } from "@/lib/utils/fetch-pdf-attachment"
 
 /**
  * PUT /api/booking/reservations/[id]/validate
@@ -64,10 +65,28 @@ export async function PUT(
       // Choisir le variant selon isAdminBooking
       const variant = booking.isAdminBooking ? 'admin' : 'client'
 
+      // Fetch devis PDF attachment if available
+      const attachments: Array<{ filename: string; content: Buffer }> = []
+      if (booking.depositFileUrl) {
+        const devisAttachment = await fetchPdfAttachment(
+          booking.depositFileUrl,
+          `devis-${booking._id.toString()}.pdf`
+        )
+        if (devisAttachment) {
+          attachments.push(devisAttachment)
+        }
+      }
+
+      const hasDevisAttachment = attachments.length > 0
+
       await sendEmail({
         to: user.email || booking.contactEmail || '',
         subject: booking.isAdminBooking ? '✅ Réservation confirmée - CoworKing Café' : '🎉 Réservation validée - CoworKing Café',
-        html: generateBookingValidationEmail(emailData, variant),
+        html: generateBookingValidationEmail({
+          ...emailData,
+          hasDevisAttachment,
+        }, variant),
+        ...(hasDevisAttachment && { attachments }),
       })
 
       console.log('✅ Email de validation envoyé:', user.email || booking.contactEmail)

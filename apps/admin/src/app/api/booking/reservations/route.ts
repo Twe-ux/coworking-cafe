@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/db"
 import { Booking } from "@coworking-cafe/database"
 import { generateBookingValidationEmail } from "@coworking-cafe/email"
 import { sendEmail } from "@/lib/email/emailService"
+import { fetchPdfAttachment } from "@/lib/utils/fetch-pdf-attachment"
 import type { Booking as BookingType, ReservationType, BookingStatus, CaptureMethod, SpaceType } from "@/types/booking"
 import type { Types } from "mongoose"
 
@@ -363,13 +364,29 @@ export async function POST(request: NextRequest) {
           // Choisir le variant selon isAdminBooking
           const variant = booking.isAdminBooking ? 'admin' : 'client'
 
+          // Fetch devis PDF attachment if available
+          const attachments: Array<{ filename: string; content: Buffer }> = []
+          if (booking.depositFileUrl) {
+            const devisAttachment = await fetchPdfAttachment(
+              booking.depositFileUrl,
+              `devis-${booking._id.toString()}.pdf`
+            )
+            if (devisAttachment) {
+              attachments.push(devisAttachment)
+            }
+          }
+
+          const hasDevisAttachment = attachments.length > 0
+
           await sendEmail({
             to: user?.email || booking.contactEmail || '',
             subject: booking.isAdminBooking ? '✅ Réservation confirmée - CoworKing Café' : '🎉 Réservation validée - CoworKing Café',
             html: generateBookingValidationEmail({
               ...emailData,
               confirmationNumber: booking._id.toString(),
+              hasDevisAttachment,
             }, variant),
+            ...(hasDevisAttachment && { attachments }),
           })
         }
       } catch (emailError: unknown) {

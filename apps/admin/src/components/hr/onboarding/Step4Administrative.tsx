@@ -13,11 +13,13 @@ import { useOnboardingContext } from "@/contexts/OnboardingContext";
 import type { Employee } from "@/types/hr";
 import type { AdministrativeInfo } from "@/types/onboarding";
 import { EMPLOYEE_COLORS } from "@/types/onboarding";
-import { Check, Loader2 } from "lucide-react";
+import { Check, FileText, Loader2, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
+
+const MAX_DPAE_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function Step4Administrative() {
   const { data, saveStep4, loading, error, mode, employeeId } = useOnboardingContext();
@@ -25,6 +27,12 @@ export function Step4Administrative() {
   const [createdEmployee, setCreatedEmployee] = useState<Employee | null>(null);
   const [showContractModal, setShowContractModal] = useState(false);
   const [usedColors, setUsedColors] = useState<string[]>([]);
+
+  // DPAE PDF upload state
+  const [dpaeFile, setDpaeFile] = useState<File | null>(null);
+  const [dpaeFileBase64, setDpaeFileBase64] = useState<string | null>(null);
+  const [dpaeFileError, setDpaeFileError] = useState<string | null>(null);
+  const dpaeFileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -40,6 +48,8 @@ export function Step4Administrative() {
       color: EMPLOYEE_COLORS[0].value,
       dpaeCompleted: false,
       dpaeCompletedAt: "",
+      dpaePdfFilename: "",
+      dpaePdfBase64: "",
       medicalVisitCompleted: false,
       mutuelleCompleted: false,
       mutuelleWanted: undefined, // undefined = non renseigné
@@ -96,6 +106,59 @@ export function Step4Administrative() {
   const mutuelleWanted = watch("mutuelleWanted");
   const bankDetailsProvided = watch("bankDetailsProvided");
   const registerCompleted = watch("registerCompleted");
+
+  // DPAE file handlers
+  const resetDpaeFileState = useCallback(() => {
+    setDpaeFile(null);
+    setDpaeFileBase64(null);
+    setDpaeFileError(null);
+    setValue("dpaePdfFilename", "");
+    setValue("dpaePdfBase64", "");
+    if (dpaeFileInputRef.current) {
+      dpaeFileInputRef.current.value = "";
+    }
+  }, [setValue]);
+
+  const handleDpaeFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      setDpaeFileError(null);
+
+      if (!file) {
+        resetDpaeFileState();
+        return;
+      }
+
+      if (file.type !== "application/pdf") {
+        setDpaeFileError("Seuls les fichiers PDF sont acceptés");
+        resetDpaeFileState();
+        return;
+      }
+
+      if (file.size > MAX_DPAE_FILE_SIZE) {
+        setDpaeFileError("Le fichier ne doit pas dépasser 5 Mo");
+        resetDpaeFileState();
+        return;
+      }
+
+      setDpaeFile(file);
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(",")[1];
+        setDpaeFileBase64(base64);
+        setValue("dpaePdfFilename", file.name);
+        setValue("dpaePdfBase64", base64);
+      };
+      reader.onerror = () => {
+        setDpaeFileError("Erreur lors de la lecture du fichier");
+        resetDpaeFileState();
+      };
+      reader.readAsDataURL(file);
+    },
+    [resetDpaeFileState, setValue]
+  );
 
   // Le bouton est activé uniquement si toutes les checkboxes sont cochées
   // ET que la date DPAE est renseignée
@@ -234,9 +297,10 @@ export function Step4Administrative() {
                     checked={watch("dpaeCompleted")}
                     onCheckedChange={(checked) => {
                       setValue("dpaeCompleted", checked as boolean);
-                      // Réinitialiser la date si décochée
+                      // Réinitialiser la date et le fichier si décochée
                       if (!checked) {
                         setValue("dpaeCompletedAt", "");
+                        resetDpaeFileState();
                       }
                     }}
                   />
@@ -271,8 +335,61 @@ export function Step4Administrative() {
                     </p>
                   )}
                 </div>
+
+                {/* PDF Upload - shown when DPAE is checked */}
+                {dpaeCompleted && (
+                  <div className="ml-7 space-y-2">
+                    <Label className="text-sm text-muted-foreground">
+                      Document DPAE (PDF, optionnel)
+                    </Label>
+                    {dpaeFile || watch("dpaePdfFilename") ? (
+                      <div className="flex items-center gap-3 rounded-md border border-gray-300 p-3">
+                        <FileText className="h-5 w-5 shrink-0 text-blue-600" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">
+                            {dpaeFile?.name || watch("dpaePdfFilename")}
+                          </p>
+                          {dpaeFile && (
+                            <p className="text-xs text-muted-foreground">
+                              {(dpaeFile.size / 1024).toFixed(0)} Ko
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={resetDpaeFileState}
+                          className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => dpaeFileInputRef.current?.click()}
+                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-gray-300 px-4 py-4 text-sm text-muted-foreground transition-colors hover:border-blue-400 hover:bg-blue-50/50 hover:text-blue-600"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Cliquer pour sélectionner le PDF de la DPAE
+                      </button>
+                    )}
+                    <input
+                      ref={dpaeFileInputRef}
+                      type="file"
+                      accept="application/pdf"
+                      onChange={handleDpaeFileChange}
+                      className="hidden"
+                    />
+                    {dpaeFileError && (
+                      <p className="text-sm text-destructive">{dpaeFileError}</p>
+                    )}
+                  </div>
+                )}
+
                 <a href="https://www.due.urssaf.fr/declarant/index.jsf">
-                  Site Déclaration DUE
+                  Site Déclaration DPAE
                 </a>
               </div>
 

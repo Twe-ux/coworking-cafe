@@ -144,7 +144,11 @@ export function useHRManagement() {
   /**
    * Confirmer la fin de contrat
    */
-  const handleEndContractConfirm = async (endDate: string, reason: string) => {
+  const handleEndContractConfirm = async (
+    endDate: string,
+    reason: string,
+    resignationLetter?: { filename: string; contentBase64: string }
+  ) => {
     if (!selectedEmployee) return;
 
     try {
@@ -153,7 +157,11 @@ export function useHRManagement() {
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ endDate, endContractReason: reason }),
+          body: JSON.stringify({
+            endDate,
+            endContractReason: reason,
+            resignationLetter,
+          }),
         }
       );
 

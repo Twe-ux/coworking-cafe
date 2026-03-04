@@ -7,13 +7,61 @@ import Employee from '@/models/employee'
 import type { EndContractReason } from '@/types/hr'
 import type { SessionUser } from '@/types/session'
 
+/** Max resignation letter file size: 5MB */
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
+
+interface ResignationLetterPayload {
+  filename: string
+  contentBase64: string
+}
+
 interface EmployeeDocument {
   _id: mongoose.Types.ObjectId
   endDate?: string
   endContractReason?: EndContractReason
+  resignationLetter?: {
+    filename: string
+    contentBase64: string
+    uploadedAt: Date
+    uploadedBy: string
+  }
   isActive: boolean
   deletedAt?: Date
   save: () => Promise<EmployeeDocument>
+}
+
+/**
+ * Validate resignation letter PDF payload.
+ * Returns an error message string if invalid, or null if valid.
+ */
+function validateResignationLetter(
+  letter: ResignationLetterPayload
+): string | null {
+  if (!letter.filename || typeof letter.filename !== 'string') {
+    return 'Le nom du fichier est requis'
+  }
+
+  if (!letter.filename.toLowerCase().endsWith('.pdf')) {
+    return 'Seuls les fichiers PDF sont acceptés'
+  }
+
+  if (!letter.contentBase64 || typeof letter.contentBase64 !== 'string') {
+    return 'Le contenu du fichier est requis'
+  }
+
+  // Check PDF signature (base64 of "%PDF-" starts with "JVBERi0")
+  if (!letter.contentBase64.startsWith('JVBERi0')) {
+    return 'Le fichier ne semble pas être un PDF valide'
+  }
+
+  // Check decoded file size (max 5MB)
+  const decodedSize = Buffer.from(letter.contentBase64, 'base64').length
+  if (decodedSize > MAX_FILE_SIZE_BYTES) {
+    const sizeMB = (decodedSize / (1024 * 1024)).toFixed(1)
+    return `Le fichier est trop volumineux (${sizeMB}MB). Maximum: 5MB`
+  }
+
+  return null
 }
 
 /**
@@ -50,7 +98,7 @@ export async function PUT(
       )
     }
 
-    const { endDate, endContractReason } = await request.json()
+    const { endDate, endContractReason, resignationLetter } = await request.json()
 
     if (!endDate || !endContractReason) {
       return NextResponse.json(
@@ -60,6 +108,17 @@ export async function PUT(
         },
         { status: 400 }
       )
+    }
+
+    // Validate resignation letter if provided
+    if (resignationLetter) {
+      const validationError = validateResignationLetter(resignationLetter)
+      if (validationError) {
+        return NextResponse.json(
+          { success: false, error: validationError },
+          { status: 400 }
+        )
+      }
     }
 
     await connectMongoose()
@@ -79,6 +138,16 @@ export async function PUT(
     employee.isActive = false
     employee.deletedAt = new Date() // deletedAt reste en Date (timestamp)
 
+    // Store resignation letter if provided
+    if (resignationLetter) {
+      employee.resignationLetter = {
+        filename: resignationLetter.filename.trim(),
+        contentBase64: resignationLetter.contentBase64,
+        uploadedAt: new Date(),
+        uploadedBy: session.user.id,
+      }
+    }
+
     await employee.save()
 
     return NextResponse.json({
@@ -89,6 +158,7 @@ export async function PUT(
         endDate: employee.endDate,
         endContractReason: employee.endContractReason,
         isActive: employee.isActive,
+        hasResignationLetter: !!employee.resignationLetter,
       },
     })
   } catch (error: unknown) {

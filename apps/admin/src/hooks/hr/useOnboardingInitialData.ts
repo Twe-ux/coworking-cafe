@@ -51,6 +51,8 @@ function transformAdministrativeInfo(employee: Employee) {
     dpaeCompletedAt: status?.dpaeCompletedAt
       ? new Date(status.dpaeCompletedAt).toISOString().split('T')[0]
       : '',
+    dpaePdfFilename: employee.dpae?.dpaePdf?.filename || '',
+    dpaePdfBase64: employee.dpae?.dpaePdf?.contentBase64 || '',
     medicalVisitCompleted: status?.medicalVisitCompleted || false,
     mutuelleCompleted: status?.mutuelleCompleted || (status?.mutuelleWanted !== undefined) || false,
     mutuelleWanted: status?.mutuelleWanted,
