@@ -34,7 +34,7 @@ export default function BlogPage() {
           const Icon = section.icon;
           return (
             <Link key={section.href} href={section.href}>
-              <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+              <Card className="hover:bg-green-50 hover:border-green-500 transition-colors cursor-pointer h-full">
                 <CardHeader>
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-primary/10 rounded-lg">

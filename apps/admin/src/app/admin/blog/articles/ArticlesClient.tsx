@@ -227,7 +227,11 @@ export function ArticlesClient() {
             Gérer les articles du blog
           </p>
         </div>
-        <Button onClick={() => setCreateModalOpen(true)}>
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={() => setCreateModalOpen(true)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Créer un article
         </Button>
@@ -240,7 +244,7 @@ export function ArticlesClient() {
             {message.text}
           </StyledAlert>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             className="absolute top-2 right-2"
             onClick={() => setMessage(null)}

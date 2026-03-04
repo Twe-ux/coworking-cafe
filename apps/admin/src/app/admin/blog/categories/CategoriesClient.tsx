@@ -113,7 +113,11 @@ export function CategoriesClient() {
           <h1 className="text-3xl font-bold">Catégories</h1>
           <p className="text-muted-foreground">Gérer les catégories d&apos;articles</p>
         </div>
-        <Button onClick={() => setCreateModalOpen(true)}>
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={() => setCreateModalOpen(true)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Créer une catégorie
         </Button>
@@ -125,7 +129,7 @@ export function CategoriesClient() {
           <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
             {message.text}
           </StyledAlert>
-          <Button variant="ghost" size="sm" className="absolute top-2 right-2" onClick={() => setMessage(null)}>
+          <Button variant="outline" size="sm" className="absolute top-2 right-2" onClick={() => setMessage(null)}>
             <X className="h-4 w-4" />
           </Button>
         </div>
