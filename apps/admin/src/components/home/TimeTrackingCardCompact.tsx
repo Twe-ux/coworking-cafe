@@ -320,8 +320,8 @@ export function TimeTrackingCardCompact({
                 e.stopPropagation();
                 handleClockAction("clock-out");
               }}
-              variant="destructive"
-              className="h-8"
+              variant="outline"
+              className="h-8 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -338,7 +338,8 @@ export function TimeTrackingCardCompact({
                 e.stopPropagation();
                 handleClockAction("clock-in");
               }}
-              className="bg-green-600 hover:bg-green-700 h-8"
+              variant="outline"
+              className="h-8 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
               disabled={isLoading}
             >
               {isLoading ? (

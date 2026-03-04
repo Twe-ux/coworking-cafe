@@ -121,7 +121,7 @@ export function AgendaDayModal({
     return (
       <div
         key={booking._id}
-        className="flex items-center justify-between py-2 px-3 border-b last:border-b-0 hover:bg-muted/50"
+        className="flex items-center justify-between py-2 px-3 border-b last:border-b-0 hover:bg-green-50"
       >
         <div className="flex items-center gap-3 flex-1">
           <div className={`w-1 h-12 rounded ${spaceColor}`} />

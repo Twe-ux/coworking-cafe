@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { X, CheckCircle } from 'lucide-react';
-import type { UnavailabilityType } from '@/types/unavailability';
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import type { UnavailabilityType } from "@/types/unavailability";
+import { CheckCircle, X } from "lucide-react";
+import { useState } from "react";
 
 interface Employee {
   id: string;
@@ -33,12 +33,12 @@ export function RequestUnavailabilityModal({
   onClose,
 }: RequestUnavailabilityModalProps) {
   const [formData, setFormData] = useState({
-    employeeId: '',
-    pin: '',
-    startDate: '',
-    endDate: '',
-    type: 'vacation' as UnavailabilityType,
-    reason: '',
+    employeeId: "",
+    pin: "",
+    startDate: "",
+    endDate: "",
+    type: "personal" as UnavailabilityType,
+    reason: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,40 +47,58 @@ export function RequestUnavailabilityModal({
   const handleSubmit = async () => {
     setError(null);
 
-    if (!formData.employeeId || !formData.pin || !formData.startDate || !formData.endDate || !formData.reason) {
-      setError('Veuillez remplir tous les champs obligatoires');
+    if (
+      !formData.employeeId ||
+      !formData.pin ||
+      !formData.startDate ||
+      !formData.endDate ||
+      !formData.reason
+    ) {
+      setError("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
     if (formData.pin.length !== 4 || !/^\d+$/.test(formData.pin)) {
-      setError('Le code PIN doit être composé de 4 chiffres');
+      setError("Le code PIN doit être composé de 4 chiffres");
       return;
     }
 
     if (formData.startDate > formData.endDate) {
-      setError('La date de début doit être avant la date de fin');
+      setError("La date de début doit être avant la date de fin");
       return;
     }
 
     if (formData.reason.trim().length < 10) {
-      setError('Le motif doit contenir au moins 10 caractères');
+      setError("Le motif doit contenir au moins 10 caractères");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const response = await fetch('/api/unavailability/request', {
-        method: 'POST',
+
+      // Map types: personal → unavailability, vacation → paid_leave
+      const absenceType = formData.type === "vacation" ? "paid_leave" : "unavailability";
+
+      // Single API call with PIN verification
+      const response = await fetch("/api/hr/absences/request", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          employeeId: formData.employeeId,
+          pin: formData.pin,
+          type: absenceType,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          reason: formData.reason,
+        }),
       });
 
       const result = await response.json();
 
       if (!result.success) {
-        throw new Error(result.error || 'Erreur lors de l\'envoi de la demande');
+        throw new Error(result.error || "Erreur lors de l'envoi de la demande");
       }
 
       setSuccess(true);
@@ -88,7 +106,11 @@ export function RequestUnavailabilityModal({
         handleClose();
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'envoi de la demande');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erreur lors de l'envoi de la demande",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -96,12 +118,12 @@ export function RequestUnavailabilityModal({
 
   const handleClose = () => {
     setFormData({
-      employeeId: '',
-      pin: '',
-      startDate: '',
-      endDate: '',
-      type: 'vacation',
-      reason: '',
+      employeeId: "",
+      pin: "",
+      startDate: "",
+      endDate: "",
+      type: "personal",
+      reason: "",
     });
     setError(null);
     setSuccess(false);
@@ -117,7 +139,8 @@ export function RequestUnavailabilityModal({
           <CheckCircle className="mx-auto h-16 w-16 text-green-600 mb-4" />
           <h3 className="text-xl font-semibold mb-2">Demande envoyée !</h3>
           <p className="text-gray-600">
-            Votre demande d'indisponibilité a été envoyée. Vous recevrez une réponse par email.
+            Votre demande d'absence a été envoyée. Vous recevrez une
+            réponse par email.
           </p>
         </div>
       </div>
@@ -128,9 +151,11 @@ export function RequestUnavailabilityModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Demander une indisponibilité</h3>
+          <h3 className="text-lg font-semibold">
+            Demander une absence
+          </h3>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={handleClose}
             disabled={isSubmitting}
@@ -172,7 +197,10 @@ export function RequestUnavailabilityModal({
               maxLength={4}
               value={formData.pin}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, pin: e.target.value.replace(/\D/g, '') }))
+                setFormData((prev) => ({
+                  ...prev,
+                  pin: e.target.value.replace(/\D/g, ""),
+                }))
               }
               placeholder="****"
             />
@@ -190,7 +218,10 @@ export function RequestUnavailabilityModal({
                 type="date"
                 value={formData.startDate}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, startDate: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    startDate: e.target.value,
+                  }))
                 }
               />
             </div>
@@ -220,10 +251,8 @@ export function RequestUnavailabilityModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="vacation">Congés</SelectItem>
-                <SelectItem value="sick">Maladie</SelectItem>
-                <SelectItem value="personal">Personnel</SelectItem>
-                <SelectItem value="other">Autre</SelectItem>
+                <SelectItem value="personal">Indisponibilité</SelectItem>
+                <SelectItem value="vacation">Congés Payés (CP)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -253,11 +282,21 @@ export function RequestUnavailabilityModal({
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
-          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isSubmitting}
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+          >
             Annuler
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? 'Envoi...' : 'Envoyer la demande'}
+          <Button
+            variant="outline"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          >
+            {isSubmitting ? "Envoi..." : "Envoyer la demande"}
           </Button>
         </div>
       </div>

@@ -1,8 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -10,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ChevronLeft, ChevronRight, Filter } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Employee } from '@/hooks/useEmployees'
 import type { TimeEntriesFilters as FiltersType } from './types'
 
@@ -43,43 +42,35 @@ export function TimeEntriesFilters({
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <Filter className="h-4 w-4" />
-            Filtres
-          </CardTitle>
-          {currentDate && (
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={onPreviousMonth}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={onToday} className="min-w-[160px] capitalize">
-                {monthLabel}
-              </Button>
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={onNextMonth}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="flex justify-between">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <CardContent className="flex items-center gap-4 p-5">
+        {/* Month navigation */}
+        {currentDate && (
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" size="icon" className="h-9 w-9" onClick={onPreviousMonth}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={onToday} className="min-w-[160px] capitalize border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
+              {monthLabel}
+            </Button>
+            <Button variant="outline" size="icon" className="h-9 w-9" onClick={onNextMonth}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="flex flex-1 items-center gap-4">
           {/* Employee filter */}
-          <div>
-            <Label htmlFor="employee-select">Employe (avec pointages)</Label>
+          <div className="flex-1">
             <Select
               value={filters.employeeId}
               onValueChange={(value) => onFilterChange('employeeId', value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Tous les employes avec pointages" />
+                <SelectValue placeholder="Tous les employés" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">
-                  Tous les employes avec pointages
-                </SelectItem>
+                <SelectItem value="all">Tous les employés</SelectItem>
                 {availableEmployees.map((employee) => (
                   <SelectItem key={employee.id} value={employee.id}>
                     <div className="flex items-center gap-2">
@@ -95,10 +86,7 @@ export function TimeEntriesFilters({
           </div>
 
           {/* Date filter */}
-          <div>
-            <Label htmlFor="specific-date">
-              Date specifique (avec pointages)
-            </Label>
+          <div className="flex-1">
             <Select
               value={
                 filters.startDate && filters.startDate === filters.endDate
@@ -116,12 +104,10 @@ export function TimeEntriesFilters({
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Toutes les dates avec pointages" />
+                <SelectValue placeholder="Toutes les dates" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">
-                  Toutes les dates avec pointages
-                </SelectItem>
+                <SelectItem value="all">Toutes les dates</SelectItem>
                 {availableDates.map((date) => (
                   <SelectItem key={date} value={date}>
                     {(() => {
@@ -141,8 +127,7 @@ export function TimeEntriesFilters({
           </div>
 
           {/* Status filter */}
-          <div>
-            <Label htmlFor="status-select">Statut</Label>
+          <div className="flex-1">
             <Select
               value={filters.status}
               onValueChange={(value) => onFilterChange('status', value)}
@@ -153,17 +138,21 @@ export function TimeEntriesFilters({
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
                 <SelectItem value="active">En cours</SelectItem>
-                <SelectItem value="completed">Termine</SelectItem>
+                <SelectItem value="completed">Terminé</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        <div className="mt-4 flex justify-end">
-          <Button variant="destructive" size="sm" onClick={onClearFilters}>
-            Effacer les filtres
-          </Button>
-        </div>
+        {/* Clear filters button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onClearFilters}
+          className="shrink-0 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+        >
+          Effacer
+        </Button>
       </CardContent>
     </Card>
   )

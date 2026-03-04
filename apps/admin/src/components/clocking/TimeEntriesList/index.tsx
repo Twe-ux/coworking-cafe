@@ -60,8 +60,9 @@ export default function TimeEntriesList({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Filters (3/4) + Action buttons (1/4) */}
+      {/* Filters + Action buttons */}
       <div className="flex gap-4">
+        {/* Filters */}
         <div className="flex-1">
           <TimeEntriesFilters
             filters={filters}
@@ -75,17 +76,22 @@ export default function TimeEntriesList({
             onToday={onToday}
           />
         </div>
-        <Card className="w-[400px] shrink-0">
-          <CardContent className="flex h-full flex-col justify-center gap-3 p-5">
+
+        {/* Action buttons */}
+        <Card className="shrink-0">
+          <CardContent className="flex h-full items-center justify-center gap-3 p-5">
             <Button
-              className="w-[250px] mx-auto"
-              variant="default"
+              variant="outline"
               onClick={() => setShowAddShiftDialog(true)}
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             >
               <Plus className="mr-2 h-4 w-4" />
               Ajouter un shift
             </Button>
-            <Button className="w-[250px] mx-auto" variant="outline">
+            <Button
+              variant="outline"
+              className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+            >
               <Download className="mr-2 h-4 w-4" />
               Exporter
             </Button>

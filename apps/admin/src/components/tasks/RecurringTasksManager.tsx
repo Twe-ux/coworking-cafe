@@ -227,15 +227,16 @@ export function RecurringTasksManager({
                   </div>
 
                   <div className="flex justify-end gap-2 pt-1">
-                    <Button variant="ghost" size="sm" onClick={cancelEdit} className="h-7">
+                    <Button variant="outline" size="sm" onClick={cancelEdit} className="h-7">
                       <X className="w-3.5 h-3.5 mr-1" />
                       Annuler
                     </Button>
                     <Button
+                      variant="outline"
                       size="sm"
                       onClick={saveEdit}
                       disabled={!editState.title.trim() || editState.recurrenceDays.length === 0}
-                      className="h-7"
+                      className="h-7 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
                     >
                       <Check className="w-3.5 h-3.5 mr-1" />
                       Enregistrer
@@ -269,10 +270,10 @@ export function RecurringTasksManager({
 
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => startEdit(template)}
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                        className="h-7 w-7 p-0 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </Button>
@@ -281,10 +282,10 @@ export function RecurringTasksManager({
                         onCheckedChange={(active) => onUpdate(template.id, { active })}
                       />
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => onDelete(template.id)}
-                        className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        className="h-7 w-7 p-0 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>

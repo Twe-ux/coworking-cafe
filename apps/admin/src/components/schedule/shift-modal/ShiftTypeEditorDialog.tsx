@@ -132,7 +132,7 @@ export function ShiftTypeEditorDialog({
           <Button variant="outline" onClick={onClose}>
             Annuler
           </Button>
-          <Button onClick={handleSave}>
+          <Button variant="outline" onClick={handleSave} className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700">
             {isNew ? 'Ajouter' : 'Enregistrer'}
           </Button>
         </DialogFooter>

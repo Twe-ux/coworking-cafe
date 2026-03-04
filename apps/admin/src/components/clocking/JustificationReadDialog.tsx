@@ -79,7 +79,8 @@ export function JustificationReadDialog({
           <Button
             onClick={onConfirmRead}
             disabled={isLoading}
-            className="bg-green-600 hover:bg-green-700"
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
           >
             {isLoading ? (
               <>

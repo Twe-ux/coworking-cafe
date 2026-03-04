@@ -51,7 +51,7 @@ export function QuickClockingCard() {
           <CardTitle>Pointage</CardTitle>
         </div>
         <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
             Voir tout
             <ExternalLink className="w-4 h-4" />
           </Button>

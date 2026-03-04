@@ -113,7 +113,7 @@ export function MonthlyCalendar<T = any>({
               variant="outline"
               size="sm"
               onClick={goToPreviousMonth}
-              className="h-9 w-9 p-0"
+              className="h-9 w-9 p-0 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
               aria-label="Mois précédent"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -127,13 +127,18 @@ export function MonthlyCalendar<T = any>({
               variant="outline"
               size="sm"
               onClick={goToNextMonth}
-              className="h-9 w-9 p-0"
+              className="h-9 w-9 p-0 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
               aria-label="Mois suivant"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
 
-            <Button variant="outline" size="sm" onClick={goToToday}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+              onClick={goToToday}
+            >
               Aujourd&apos;hui
             </Button>
           </div>

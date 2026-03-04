@@ -81,8 +81,9 @@ export default function CreateEmployeeModal({
             </Button>
             <Button
               type="submit"
+              variant="outline"
               disabled={isLoading}
-              className="bg-coffee-primary hover:bg-coffee-primary/90"
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             >
               {isLoading ? (
                 <>

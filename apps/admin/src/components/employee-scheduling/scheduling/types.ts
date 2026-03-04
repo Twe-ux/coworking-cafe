@@ -5,11 +5,13 @@
 import type { Employee } from '@/hooks/useEmployees'
 import type { Shift } from '@/hooks/useShifts'
 import type { TimeEntry } from '@/types/timeEntry'
+import type { IUnavailabilityWithEmployee } from '@/types/unavailability'
 
 export interface EmployeeSchedulingProps {
   className?: string
   employees?: Employee[]
   shifts?: Shift[]
+  unavailabilities?: IUnavailabilityWithEmployee[]
   onAddShift?: (date: Date) => void
   readOnly?: boolean
   userRole?: string

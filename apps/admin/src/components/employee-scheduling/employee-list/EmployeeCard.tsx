@@ -30,7 +30,7 @@ export function EmployeeCard({
 }: EmployeeCardProps) {
   return (
     <Card
-      className="cursor-pointer transition-all hover:shadow-lg"
+      className="cursor-pointer transition-all hover:bg-green-50 hover:border-green-500"
       onClick={() => onSelect?.(employee)}
     >
       <CardContent className="p-6">

@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Employee } from "@/hooks/useEmployees";
+import type { IUnavailabilityWithEmployee } from "@/types/unavailability";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { DayCell } from "./DayCell";
@@ -14,6 +15,7 @@ import { getDaysInWeek } from "./utils";
 interface WeekCardProps {
   week: WeekData;
   employees: Employee[];
+  unavailabilities?: IUnavailabilityWithEmployee[];
   getShiftsPositionedByEmployee: (date: Date) => PositionedShifts[];
   calculateWeeklyHours: (
     employeeId: string,
@@ -30,6 +32,7 @@ interface WeekCardProps {
 export function WeekCard({
   week,
   employees,
+  unavailabilities = [],
   getShiftsPositionedByEmployee,
   calculateWeeklyHours,
   showHours = true,
@@ -102,6 +105,7 @@ export function WeekCard({
                     key={dayIndex}
                     day={day}
                     employees={employees}
+                    unavailabilities={unavailabilities}
                     positionedShifts={positionedShifts}
                     isFirstDay={isFirstDay}
                     isLastDay={isLastDay}

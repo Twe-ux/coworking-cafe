@@ -118,7 +118,7 @@ export function TodayTasksCard() {
               {hasMoreTasks && (
                 <div className="mt-4 pt-4 border-t">
                   <Link href="/admin/tasks">
-                    <Button variant="ghost" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
                       Voir toutes les tâches ({tasks.length})
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>

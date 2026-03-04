@@ -105,7 +105,7 @@ export function TaskItem({
   return (
     <div
       className={cn(
-        "border rounded-lg border-l-4 py-2.5 px-3 hover:bg-muted/50 transition-all duration-300",
+        "border rounded-lg border-l-4 py-2.5 px-3 hover:bg-green-50 transition-all duration-300",
         borderColor,
         isCompleted && "opacity-60",
         isToggling && "opacity-50",
@@ -259,10 +259,10 @@ export function TaskItem({
             {/* Delete button */}
             {showDeleteButton && onDelete && (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => onDelete(task.id)}
-                className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="h-8 w-8 p-0 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

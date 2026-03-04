@@ -176,13 +176,14 @@ export function CashCountHelper({
                 </span>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={handleReset} size="sm">
+                <Button variant="outline" onClick={handleReset} size="sm" className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700">
                   Réinitialiser
                 </Button>
                 <Button
+                  variant="outline"
                   onClick={handleReport}
                   disabled={total === 0}
-                  className="flex-1"
+                  className="flex-1 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
                   size="sm"
                 >
                   Reporter

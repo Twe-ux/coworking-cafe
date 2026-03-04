@@ -25,12 +25,14 @@ export function EmployeeScheduling({
   className = "",
   employees: propEmployees = DEFAULT_EMPLOYEES,
   shifts: propShifts = [],
+  unavailabilities: propUnavailabilities = [],
   onAddShift,
   readOnly = false,
   userRole = "",
 }: EmployeeSchedulingProps) {
   const [unavailabilityModalOpen, setUnavailabilityModalOpen] = useState(false);
   const employees = propEmployees;
+  const unavailabilities = propUnavailabilities;
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Hooks for data management
@@ -68,8 +70,8 @@ export function EmployeeScheduling({
               </p>
             </div>
             <Button
-              variant="destructive"
-              className="gap-2 border-red-600 border text-red-500 bg-red-50 hover:bg-red-600/20 hover:text-red-700"
+              variant="outline"
+              className="gap-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
               onClick={() => setUnavailabilityModalOpen(true)}
             >
               <CalendarOff className="w-4 h-4" />
@@ -84,6 +86,7 @@ export function EmployeeScheduling({
                 key={weekIndex}
                 week={week}
                 employees={employees}
+                unavailabilities={unavailabilities}
                 getShiftsPositionedByEmployee={getShiftsPositionedByEmployee}
                 calculateWeeklyHours={calculateWeeklyHours}
               />

@@ -3,9 +3,15 @@
 import EmployeeScheduling from "@/components/employee-scheduling/EmployeeScheduling";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useShifts } from "@/hooks/useShifts";
+import { useUnavailabilities } from "@/hooks/useUnavailabilities";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
 import { PlanningPageSkeleton } from "./PlanningPageSkeleton";
 
 export default function StaffSchedulePage() {
+  const { data: session } = useSession();
+  const [refreshKey, setRefreshKey] = useState(0);
+
   // Charger les employés et shifts depuis l'API
   const {
     employees,
@@ -19,8 +25,13 @@ export default function StaffSchedulePage() {
     error: shiftsError,
   } = useShifts({ active: true });
 
+  // Charger les indisponibilités approuvées (pour affichage dans planning)
+  const { unavailabilities, loading: unavailabilitiesLoading } = useUnavailabilities({
+    status: "approved",
+  });
+
   // Gérer les états de chargement et d'erreur
-  if (employeesLoading || shiftsLoading) {
+  if (employeesLoading || shiftsLoading || unavailabilitiesLoading) {
     return <PlanningPageSkeleton />;
   }
 
@@ -38,13 +49,22 @@ export default function StaffSchedulePage() {
     );
   }
 
+  // Get current user's employee from email match
+  const currentEmployee = employees.find(
+    (emp) => emp.email === session?.user?.email,
+  );
+
   return (
-    // {/* Planning uniquement pour le staff - afficher tous les employés et tous les créneaux */}
-    <EmployeeScheduling
-      employees={employees}
-      shifts={shifts}
-      readOnly={true}
-      userRole="staff"
-    />
+    <div className="space-y-6">
+      {/* Planning */}
+      <EmployeeScheduling
+        key={refreshKey}
+        employees={employees}
+        shifts={shifts}
+        unavailabilities={unavailabilities}
+        readOnly={true}
+        userRole="staff"
+      />
+    </div>
   );
 }

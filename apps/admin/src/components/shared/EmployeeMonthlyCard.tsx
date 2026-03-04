@@ -8,10 +8,21 @@ import { type Employee } from "@/types/hr";
 import { Calendar, Clock, Target } from "lucide-react";
 import { useMemo } from "react";
 
+interface Absence {
+  _id: string;
+  employeeId: string | { _id?: string; id?: string };
+  type: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  totalHours: number;
+}
+
 interface EmployeeMonthlyCardProps {
   employees: Employee[];
   shifts: Shift[];
   timeEntries?: TimeEntry[];
+  absences?: Absence[];
   currentDate: Date;
   className?: string;
   showStats?: boolean;
@@ -28,6 +39,7 @@ export default function EmployeeMonthlyCard({
   employees,
   shifts,
   timeEntries = [],
+  absences = [],
   currentDate,
   className = "",
   showStats = false,
@@ -143,16 +155,60 @@ export default function EmployeeMonthlyCard({
         return total + hours;
       }, 0);
 
-      const projectedHours = actualHours + futureShiftsHours;
+      // Calculate absence hours for this employee in this month
+      let paidLeaveHours = 0; // CP - paid by employer, counts as planned & realized
+      let sickLeaveHours = 0; // AM - NOT paid by employer, counts in projected only
+      // Indispo (unavailability) = 0h - doesn't count anywhere
+
+      if (Array.isArray(absences)) {
+        for (const absence of absences) {
+          // Extract employee ID (handle both string and object format)
+          const absenceEmployeeId =
+            typeof absence.employeeId === "string"
+              ? absence.employeeId
+              : absence.employeeId._id || absence.employeeId.id;
+
+          // Only count approved absences for this employee
+          if (
+            absenceEmployeeId === employee.id &&
+            absence.status === "approved"
+          ) {
+            // Check if absence overlaps with current month
+            const absenceStart = absence.startDate;
+            const absenceEnd = absence.endDate;
+
+            if (absenceStart <= lastDayStr && absenceEnd >= firstDayStr) {
+              const hours = absence.totalHours || 0;
+
+              if (absence.type === "paid_leave") {
+                paidLeaveHours += hours;
+              } else if (absence.type === "sick_leave") {
+                sickLeaveHours += hours;
+              }
+              // unavailability doesn't count (0h)
+            }
+          }
+        }
+      }
+
+      // Planned hours: shifts + CP only
+      // AM doesn't change planned (it's based on planned shifts that we use to calculate AM hours)
+      const plannedHoursWithCP = plannedHours + paidLeaveHours;
+
+      // Actual hours: completed time entries + CP only (CP is paid)
+      const actualHoursWithCP = actualHours + paidLeaveHours;
+
+      // Projected hours: actual + AM (employee is "busy" even if not paid) + future shifts
+      const projectedHours = actualHoursWithCP + sickLeaveHours + futureShiftsHours;
 
       return {
         employee,
-        plannedHours,
-        actualHours,
+        plannedHours: plannedHoursWithCP,
+        actualHours: actualHoursWithCP,
         projectedHours,
       };
     });
-  }, [employees, shifts, timeEntries, firstDayStr, lastDayStr]);
+  }, [employees, shifts, timeEntries, absences, firstDayStr, lastDayStr]);
 
   const getHoursColorClass = (hours: number): string => {
     if (hours >= 140) return "text-red-600 bg-red-50 border-red-200";

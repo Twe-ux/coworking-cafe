@@ -115,9 +115,10 @@ export function ConfirmationDialog({
                   <p className="text-xs text-destructive">{pinError}</p>
                 )}
                 <Button
+                  variant="outline"
                   onClick={onAdminConfirm}
                   disabled={submitting || adminPin.length !== 6}
-                  className="w-full"
+                  className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
                 >
                   Confirmer
                 </Button>

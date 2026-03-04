@@ -285,7 +285,9 @@ export function TaskCreateModal({
             </Button>
             <Button
               type="submit"
+              variant="outline"
               disabled={loading || (isRecurring && recurrenceDays.length === 0)}
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             >
               {loading ? "Creation..." : "Creer"}
             </Button>

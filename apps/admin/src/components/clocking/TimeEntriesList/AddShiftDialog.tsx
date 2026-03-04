@@ -106,7 +106,7 @@ export function AddShiftDialog({
           <Button variant="outline" onClick={onCancel} disabled={isCreating}>
             Annuler
           </Button>
-          <Button onClick={onCreate} disabled={isCreating}>
+          <Button variant="outline" onClick={onCreate} disabled={isCreating} className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700">
             {isCreating ? 'Creation...' : 'Creer le shift'}
           </Button>
         </div>

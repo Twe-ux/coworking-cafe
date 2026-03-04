@@ -302,7 +302,7 @@ export default function TimeTrackingCard({
   return (
     <>
       <Card
-        className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+        className={`cursor-pointer transition-all duration-200 hover:border-green-500 ${
           hasActiveShift
             ? "bg-green-50 ring-2 ring-green-500"
             : canClockIn
@@ -367,24 +367,24 @@ export default function TimeTrackingCard({
           <div className="flex justify-center">
             {hasActiveShift ? (
               <Button
-                className="flex w-full items-center justify-center gap-2"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleClockAction("clock-out");
                 }}
-                variant="destructive"
+                variant="outline"
+                className="flex w-full items-center justify-center gap-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
               >
                 <Square className="h-4 w-4" />
                 Arrêter le pointage
               </Button>
             ) : canClockIn ? (
               <Button
-                className="flex w-full items-center justify-center gap-2"
+                className="flex w-full items-center justify-center gap-2 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleClockAction("clock-in");
                 }}
-                variant="default"
+                variant="outline"
               >
                 <Play className="h-4 w-4" />
                 Commencer le pointage

@@ -54,19 +54,19 @@ export function ShiftTypeSettings({
                 <div className="flex gap-1">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => onEdit(key)}
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                   >
                     <Edit2 className="h-3 w-3" />
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => onDelete(key)}
-                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                    className="h-8 w-8 p-0 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>

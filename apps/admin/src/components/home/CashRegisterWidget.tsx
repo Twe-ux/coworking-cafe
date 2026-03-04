@@ -273,8 +273,9 @@ export function CashRegisterWidget() {
 
         {/* Bouton valider */}
         <Button
+          variant="outline"
           onClick={handleValidate}
-          className="w-full h-8 sm:h-9 text-xs sm:text-sm"
+          className="w-full h-8 sm:h-9 text-xs sm:text-sm border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
           disabled={submitting || !amount}
         >
           {submitting ? "Enregistrement..." : "Valider"}

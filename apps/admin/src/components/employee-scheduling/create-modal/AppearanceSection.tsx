@@ -43,7 +43,7 @@ export function AppearanceSection({
                 />
                 <span className="text-xs text-gray-600">{color.label}</span>
                 {formData.color === color.value && (
-                  <div className="bg-coffee-primary absolute top-1 right-1 h-3 w-3 rounded-full" />
+                  <div className="bg-green-600 absolute top-1 right-1 h-3 w-3 rounded-full" />
                 )}
               </button>
             ))}

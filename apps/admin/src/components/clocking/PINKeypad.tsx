@@ -98,7 +98,7 @@ export default function PINKeypad({
                   variant={number ? 'outline' : 'ghost'}
                   size="lg"
                   className={`h-16 w-16 text-xl font-semibold ${
-                    !number ? 'invisible' : 'hover:bg-blue-50'
+                    !number ? 'invisible' : 'border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500'
                   }`}
                   onClick={() => number && handleNumberPress(number)}
                   disabled={isLoading || !number}
@@ -114,7 +114,7 @@ export default function PINKeypad({
         <div className="flex space-x-3">
           <Button
             variant="outline"
-            className="flex flex-1 items-center justify-center gap-2"
+            className="flex flex-1 items-center justify-center gap-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={handleClear}
             disabled={isLoading || pin.length === 0}
           >
@@ -123,7 +123,7 @@ export default function PINKeypad({
           </Button>
           <Button
             variant="outline"
-            className="flex flex-1 items-center justify-center gap-2"
+            className="flex flex-1 items-center justify-center gap-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={handleCancel}
             disabled={isLoading}
           >

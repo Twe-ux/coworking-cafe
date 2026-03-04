@@ -91,8 +91,9 @@ export function EmployeeListMain({
         </div>
 
         <Button
+          variant="outline"
           onClick={handleCreateClick}
-          className="bg-coffee-primary hover:bg-coffee-primary/90"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
         >
           <UserPlus className="mr-2 h-4 w-4" />
           Ajouter un employé

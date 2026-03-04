@@ -36,7 +36,7 @@ export function EmployeeListFilters({
       <select
         value={selectedRole}
         onChange={(e) => onRoleChange(e.target.value as EmployeeRole)}
-        className="focus:ring-coffee-primary rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+        className="focus:ring-green-500 rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
       >
         {EMPLOYEE_ROLES.map((role) => (
           <option key={role} value={role}>
@@ -50,7 +50,7 @@ export function EmployeeListFilters({
           onClick={() => onViewModeChange('grid')}
           className={`p-2 transition-colors ${
             viewMode === 'grid'
-              ? 'bg-coffee-primary text-white'
+              ? 'bg-green-600 text-white'
               : 'bg-white text-gray-600 hover:bg-gray-50'
           }`}
         >
@@ -60,7 +60,7 @@ export function EmployeeListFilters({
           onClick={() => onViewModeChange('list')}
           className={`p-2 transition-colors ${
             viewMode === 'list'
-              ? 'bg-coffee-primary text-white'
+              ? 'bg-green-600 text-white'
               : 'bg-white text-gray-600 hover:bg-gray-50'
           }`}
         >

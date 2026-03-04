@@ -236,6 +236,8 @@ export default function PrintRequestsPage() {
 
                           <Button
                             size="sm"
+                            variant="outline"
+                            className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                             onClick={() => {
                               handleDownload(request.id, attachment.filename);
                               // Auto-open print dialog after download
@@ -254,10 +256,10 @@ export default function PrintRequestsPage() {
                 {request.status === 'pending' && (
                   <div className="mt-4 pt-4 border-t">
                     <Button
-                      variant="secondary"
+                      variant="outline"
                       onClick={() => handleMarkProcessed(request.id)}
                       disabled={processing === request.id}
-                      className="w-full"
+                      className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
                     >
                       <CheckCircle className="h-4 w-4 mr-2" />
                       {processing === request.id

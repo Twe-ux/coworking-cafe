@@ -61,7 +61,7 @@ export function WeekPlanningCard() {
           </div>
         </div>
         <Link href="/admin/hr/schedule">
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
             Voir planning complet
             <ExternalLink className="w-4 h-4" />
           </Button>

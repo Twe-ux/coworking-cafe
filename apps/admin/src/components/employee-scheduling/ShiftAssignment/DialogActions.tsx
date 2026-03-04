@@ -18,9 +18,9 @@ export function DialogActions({
     <DialogFooter className="flex flex-col gap-2 sm:flex-row">
       {isEditing && (
         <Button
-          variant="destructive"
+          variant="outline"
           onClick={onDelete}
-          className="flex w-full items-center gap-2 sm:w-auto"
+          className="flex w-full items-center gap-2 sm:w-auto border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
         >
           <Trash2 className="h-4 w-4" />
           Delete Shift
@@ -37,9 +37,10 @@ export function DialogActions({
           Cancel
         </Button>
         <Button
+          variant="outline"
           onClick={onSubmit}
           disabled={isSubmitting}
-          className="flex flex-1 items-center gap-2 sm:flex-none"
+          className="flex flex-1 items-center gap-2 sm:flex-none border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
         >
           <Save className="h-4 w-4" />
           {isSubmitting

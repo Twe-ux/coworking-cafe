@@ -27,7 +27,7 @@ export function NotesDialog({
       <DialogTrigger asChild>
         <Button
           type="button"
-          variant={notes ? "default" : "outline"}
+          variant="outline"
           size="icon"
           className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
           title="Ajouter une note"
@@ -57,7 +57,7 @@ export function NotesDialog({
             >
               Effacer
             </Button>
-            <Button onClick={() => onOpenChange(false)}>Enregistrer</Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700">Enregistrer</Button>
           </div>
         </div>
       </DialogContent>

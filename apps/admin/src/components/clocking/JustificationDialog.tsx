@@ -126,7 +126,8 @@ export function JustificationDialog({
           <Button
             onClick={handleSubmit}
             disabled={isLoading || !justification.trim()}
-            className="bg-orange-600 hover:bg-orange-700"
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
           >
             {isLoading ? "Envoi..." : "Valider le pointage"}
           </Button>
