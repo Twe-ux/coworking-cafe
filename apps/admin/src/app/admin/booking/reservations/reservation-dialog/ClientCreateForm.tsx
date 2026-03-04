@@ -91,13 +91,14 @@ export function ClientCreateForm({
 
         <Button
           type="button"
+          variant="outline"
           onClick={onCreate}
           disabled={!newClient.name || loading}
           className={cn(
             "w-full",
             newClient.email
-              ? "bg-green-500 hover:bg-green-600 text-white"
-              : "bg-orange-500 hover:bg-orange-600 text-white",
+              ? "border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+              : "border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700",
           )}
         >
           {loading ? (

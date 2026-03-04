@@ -55,7 +55,7 @@ export function BookingIndexClient() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {bookingModules.map((module) => (
           <Link key={module.href} href={module.href}>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+            <Card className="hover:bg-green-50 hover:border-green-500 transition-colors cursor-pointer h-full">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

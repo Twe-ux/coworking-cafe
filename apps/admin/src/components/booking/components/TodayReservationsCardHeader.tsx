@@ -25,7 +25,7 @@ export function TodayReservationsCardHeader({
         <Link href={viewAllUrl}>
           <Button
             variant="outline"
-            className="gap-2 border-green-500 text-green-600 hover:bg-green-100 hover:text-green-700"
+            className="gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
           >
             {viewAllLabel}
             <ExternalLink className="w-4 h-4" />

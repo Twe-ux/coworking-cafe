@@ -89,7 +89,7 @@ export function StaffReservationRow({
 
   return (
     <div
-      className={`border rounded-lg border-l-4 ${borderClass} py-2.5 px-3 hover:bg-muted/50 transition-colors`}
+      className={`border rounded-lg border-l-4 ${borderClass} py-2.5 px-3 hover:bg-green-50 transition-colors`}
     >
       <div className="flex items-center gap-3">
         {/* Colonne principale avec 2 lignes */}

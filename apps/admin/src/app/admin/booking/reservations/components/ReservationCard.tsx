@@ -49,7 +49,7 @@ export function ReservationCard({
 
   return (
     <Card
-      className={`${getBorderClassBySpace(booking.spaceType || booking.spaceName)} cursor-pointer hover:bg-muted/50 transition-colors`}
+      className={`${getBorderClassBySpace(booking.spaceType || booking.spaceName)} cursor-pointer hover:bg-green-50 transition-colors`}
       onClick={() => onRowClick(booking)}
     >
       <CardContent className="py-3 px-4 ">

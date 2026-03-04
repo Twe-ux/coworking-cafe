@@ -19,12 +19,19 @@ export function ReservationsHeader({ onCreateClick }: ReservationsHeaderProps) {
         </p>
       </div>
       <div className="flex gap-2">
-        <Button onClick={onCreateClick}>
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={onCreateClick}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nouvelle réservation
         </Button>
         <Link href="/admin/booking/agenda">
-          <Button variant="outline">
+          <Button
+            variant="outline"
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          >
             <CalendarDays className="w-4 h-4 mr-2" />
             Voir l'agenda
           </Button>

@@ -179,11 +179,17 @@ export function QuickCancelDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isCancelling}>
+          <Button
+            variant="outline"
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+            onClick={() => onOpenChange(false)}
+            disabled={isCancelling}
+          >
             Annuler
           </Button>
           <Button
-            variant="destructive"
+            variant="outline"
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={handleConfirm}
             disabled={isCancelling}
           >

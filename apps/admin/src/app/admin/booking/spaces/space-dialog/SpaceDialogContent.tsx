@@ -161,12 +161,21 @@ export function SpaceDialogContent({
         <Button
           type="button"
           variant="outline"
+          className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
           onClick={onCancel}
           disabled={loading}
         >
           Annuler
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button
+          type="submit"
+          variant="outline"
+          className={isEditing
+            ? "border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+            : "border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          }
+          disabled={loading}
+        >
           {loading
             ? "Enregistrement..."
             : isEditing

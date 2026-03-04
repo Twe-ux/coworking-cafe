@@ -38,15 +38,25 @@ export function BookingSettingsClient() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Réglages Réservations</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchSettings} disabled={saving}>
-            <RefreshCw className="w-4 h-4 mr-2" />
+          <Button
+            variant="outline"
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+            onClick={fetchSettings}
+            disabled={saving}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
             Annuler
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={handleSave}
+            disabled={saving}
+          >
             {saving ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="mr-2 h-4 w-4" />
             )}
             Enregistrer
           </Button>

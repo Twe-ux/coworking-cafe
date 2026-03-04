@@ -179,7 +179,7 @@ export function DayBookingsModal({
     return (
       <div
         key={booking._id}
-        className="flex items-center justify-between py-2 px-3 border-b last:border-b-0 hover:bg-muted/50"
+        className="flex items-center justify-between py-2 px-3 border-b last:border-b-0 hover:bg-green-50"
       >
         {/* Left: Space + Name + Time */}
         <div className="flex items-center gap-3 flex-1">
@@ -244,7 +244,7 @@ export function DayBookingsModal({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8"
+                className="h-8 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                 onClick={() => onEdit(booking)}
                 disabled={isCancelling}
               >
@@ -307,7 +307,7 @@ export function DayBookingsModal({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8"
+                    className="h-8 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                     onClick={() => onEdit(booking)}
                   >
                     <Edit2 className="h-3 w-3" />
@@ -350,7 +350,12 @@ export function DayBookingsModal({
                 <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="text-sm">Aucune réservation pour ce jour</p>
                 {hasFullPermissions && (
-                  <Button onClick={onCreate} className="mt-4" size="sm">
+                  <Button
+                    variant="outline"
+                    className="mt-4 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+                    size="sm"
+                    onClick={onCreate}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Nouvelle réservation
                   </Button>
@@ -419,10 +424,10 @@ export function DayBookingsModal({
                   {hasFullPermissions && (
                     <div className="flex justify-center pt-2">
                       <Button
-                        onClick={onCreate}
                         variant="outline"
                         size="sm"
-                        className="w-full"
+                        className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+                        onClick={onCreate}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Ajouter une réservation
@@ -480,11 +485,16 @@ export function DayBookingsModal({
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleCancelDialogClose}>
+            <Button
+              variant="outline"
+              className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+              onClick={handleCancelDialogClose}
+            >
               Retour
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
+              className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
               onClick={handleCancelConfirm}
               disabled={isCancelling}
             >

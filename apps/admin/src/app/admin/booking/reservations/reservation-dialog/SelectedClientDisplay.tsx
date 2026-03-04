@@ -58,6 +58,7 @@ export function SelectedClientDisplay({
               type="button"
               variant="outline"
               size="sm"
+              className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
               onClick={onEdit}
             >
               <Edit2 className="h-4 w-4 mr-1" />
@@ -65,8 +66,9 @@ export function SelectedClientDisplay({
             </Button>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
+              className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
               onClick={() => onChange(null)}
             >
               Changer

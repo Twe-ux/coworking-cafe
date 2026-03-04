@@ -154,6 +154,8 @@ export function DepositSection({
                       />
                       <Button
                         type="button"
+                        variant="outline"
+                        className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
                         onClick={() => {
                           if (manualUrl) {
                             console.log("📎 File URL added:", manualUrl);
@@ -171,10 +173,10 @@ export function DepositSection({
                     </p>
                     <Button
                       type="button"
-                      variant="link"
+                      variant="outline"
                       size="sm"
                       onClick={() => setUseManualUrl(false)}
-                      className="h-auto p-0 text-xs"
+                      className="h-auto px-2 py-0.5 text-xs border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
                     >
                       Ou uploader directement un fichier
                     </Button>
@@ -206,13 +208,13 @@ export function DepositSection({
                     )}
                     <Button
                       type="button"
-                      variant="link"
+                      variant="outline"
                       size="sm"
                       onClick={() => {
                         setUseManualUrl(true)
                         setUploadError(null)
                       }}
-                      className="h-auto p-0 text-xs"
+                      className="h-auto px-2 py-0.5 text-xs border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
                     >
                       Ou coller un lien Google Drive/Dropbox
                     </Button>
@@ -232,12 +234,13 @@ export function DepositSection({
                 </a>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
+                  className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                   onClick={handleRemoveFile}
                   title="Supprimer"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="mr-2 h-4 w-4" />
                 </Button>
               </div>
             )}

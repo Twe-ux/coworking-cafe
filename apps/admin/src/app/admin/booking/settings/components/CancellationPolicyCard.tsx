@@ -74,15 +74,25 @@ export function CancellationPolicyCard({
                   />
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm" onClick={() => onRemove(index)}>
-                    <Trash2 className="w-4 h-4 text-destructive" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+                    onClick={() => onRemove(index)}
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-        <Button variant="outline" size="sm" className="mt-4" onClick={onAdd}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-4 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={onAdd}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Ajouter un palier
         </Button>

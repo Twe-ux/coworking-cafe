@@ -382,7 +382,10 @@ export function AgendaClient() {
           Agenda
         </h1>
         <Link href="/admin/booking/reservations">
-          <Button variant="outline">
+          <Button
+            variant="outline"
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          >
             <ListFilter className="w-4 h-4 mr-2" />
             Voir les réservations
           </Button>
@@ -469,7 +472,11 @@ export function AgendaClient() {
           </div>
         }
         actionButton={
-          <Button onClick={handleCreate}>
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={handleCreate}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle réservation
           </Button>

@@ -80,9 +80,10 @@ export function ClientEditForm({
         <div className="flex gap-2 pt-2">
           <Button
             type="button"
+            variant="outline"
+            className="flex-1 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             onClick={onSave}
             disabled={!editClient.name || !editClient.email || loading}
-            className="flex-1"
           >
             <Save className="h-4 w-4 mr-2" />
             Enregistrer
@@ -90,6 +91,7 @@ export function ClientEditForm({
           <Button
             type="button"
             variant="outline"
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={onCancel}
             disabled={loading}
           >

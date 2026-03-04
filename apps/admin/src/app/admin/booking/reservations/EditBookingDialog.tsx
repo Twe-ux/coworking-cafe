@@ -214,10 +214,19 @@ export function EditBookingDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
+          <Button
+            variant="outline"
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+            onClick={handleClose}
+          >
             Annuler
           </Button>
-          <Button onClick={handleSubmit} disabled={loading}>
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
             {loading ? "Enregistrement..." : "Enregistrer"}
           </Button>
         </DialogFooter>

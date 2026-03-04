@@ -110,7 +110,11 @@ export function SpacesClient() {
             Configuration des espaces réservables
           </p>
         </div>
-        <Button onClick={handleCreate}>
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={handleCreate}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nouvel espace
         </Button>
@@ -216,7 +220,7 @@ export function SpacesClient() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
+                    className="flex-1 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                     onClick={() => handleEdit(space)}
                   >
                     <Edit className="w-4 h-4 mr-2" />
@@ -225,6 +229,7 @@ export function SpacesClient() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                     onClick={() => space._id && handleDelete(space._id)}
                   >
                     <Trash2 className="w-4 h-4" />
