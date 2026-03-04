@@ -39,16 +39,17 @@ self.addEventListener('activate', (event) => {
 
 // Stratégie de cache : Network First, fallback to Cache
 self.addEventListener('fetch', (event) => {
-  // Ne mettre en cache que les requêtes GET
-  if (event.request.method !== 'GET') {
-    event.respondWith(fetch(event.request));
+  const url = new URL(event.request.url);
+
+  // Ne JAMAIS mettre en cache les routes auth, session, et upload
+  const noCachePaths = ['/api/auth', '/login', '/api/hr/employees/verify-pin', '/api/upload'];
+  if (noCachePaths.some(path => url.pathname.startsWith(path))) {
+    // Bypass service worker completely for these paths
     return;
   }
 
-  // Ne JAMAIS mettre en cache les routes auth et session
-  const url = new URL(event.request.url);
-  const noCachePaths = ['/api/auth', '/login', '/api/hr/employees/verify-pin'];
-  if (noCachePaths.some(path => url.pathname.startsWith(path))) {
+  // Ne mettre en cache que les requêtes GET
+  if (event.request.method !== 'GET') {
     event.respondWith(fetch(event.request));
     return;
   }

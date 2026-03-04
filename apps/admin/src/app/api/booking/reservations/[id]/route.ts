@@ -183,6 +183,16 @@ export async function PATCH(
       ? `${populatedUser.firstName} ${populatedUser.lastName}`
       : booking.contactName || populatedUser?.email || "Client"
 
+    console.log("[PATCH] Email check:", {
+      populatedUser: !!populatedUser,
+      userEmail: populatedUser?.email,
+      contactEmail: booking.contactEmail,
+      finalEmail: clientEmail,
+      statusChange: body.status !== previousStatus,
+      newStatus: body.status,
+      previousStatus,
+    })
+
     if (clientEmail && body.status && body.status !== previousStatus) {
       // Format date for email
       const formatDateForEmail = (date: Date | string): string => {
