@@ -46,13 +46,28 @@ export function TimeEntriesFilters({
         {/* Month navigation */}
         {currentDate && (
           <div className="flex items-center gap-2 shrink-0">
-            <Button variant="outline" size="icon" className="h-9 w-9" onClick={onPreviousMonth}>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-9 w-9 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+              onClick={onPreviousMonth}
+            >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={onToday} className="min-w-[160px] capitalize border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onToday}
+              className="min-w-[160px] capitalize border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+            >
               {monthLabel}
             </Button>
-            <Button variant="outline" size="icon" className="h-9 w-9" onClick={onNextMonth}>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-9 w-9 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+              onClick={onNextMonth}
+            >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
