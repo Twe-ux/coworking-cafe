@@ -9,6 +9,7 @@ import {
   generateAdminCancelAdminBookingEmail,
 } from "@coworking-cafe/email"
 import { sendEmail, sendBookingModifiedEmail } from "@/lib/email/emailService"
+import { fetchPdfAttachment } from "@/lib/utils/fetch-pdf-attachment"
 import type { Booking as BookingType, BookingStatus, ReservationType, CaptureMethod, SpaceType } from "@/types/booking"
 import { Types } from "mongoose"
 
@@ -54,8 +55,8 @@ interface BookingDocumentWithUser {
 }
 
 // Helper pour vérifier si user est populé
-function isPopulatedUser(user: PopulatedUser | Types.ObjectId | undefined): user is PopulatedUser {
-  return user !== undefined && typeof user === 'object' && '_id' in user && 'email' in user
+function isPopulatedUser(user: PopulatedUser | Types.ObjectId | undefined | null): user is PopulatedUser {
+  return user !== undefined && user !== null && typeof user === 'object' && '_id' in user && 'email' in user
 }
 
 // Helper pour mapper un booking vers le type attendu
@@ -209,15 +210,33 @@ export async function PATCH(
       if (body.status === "confirmed") {
         // Send confirmation email - choisir variant selon isAdminBooking
         const variant = booking.isAdminBooking ? 'admin' : 'client'
-        const html = generateBookingValidationEmail(emailData, variant)
+
+        // Fetch devis PDF attachment if available
+        const attachments: Array<{ filename: string; content: Buffer }> = []
+        if (booking.depositFileUrl) {
+          const devisAttachment = await fetchPdfAttachment(
+            booking.depositFileUrl,
+            `devis-${params.id}.pdf`
+          )
+          if (devisAttachment) {
+            attachments.push(devisAttachment)
+          }
+        }
+
+        const hasDevisAttachment = attachments.length > 0
+        const html = generateBookingValidationEmail({
+          ...emailData,
+          hasDevisAttachment,
+        }, variant)
 
         await sendEmail({
           to: clientEmail,
           subject: booking.isAdminBooking ? "✅ Réservation confirmée - CoworKing Café" : "🎉 Réservation validée - CoworKing Café",
           html,
+          ...(hasDevisAttachment && { attachments }),
         })
 
-        console.log(`✉️ Email de confirmation envoyé à ${clientEmail}`)
+        console.log(`✉️ Email de confirmation envoyé à ${clientEmail}${hasDevisAttachment ? ' [+devis PDF]' : ''}`)
       } else if (body.status === "cancelled") {
         // Send rejection/cancellation email with reason - choisir template selon isAdminBooking
         if (booking.isAdminBooking) {
