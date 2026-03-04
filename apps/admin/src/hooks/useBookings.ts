@@ -161,21 +161,65 @@ export function useConfirmBooking() {
 
   return useMutation({
     mutationFn: async (bookingId: string) => {
+      console.log("[useConfirmBooking] Confirmation de la réservation:", bookingId)
+
       const response = await fetch(`/api/booking/reservations/${bookingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "confirmed" }),
       })
 
+      console.log("[useConfirmBooking] Response status:", response.status)
+
       const data: ApiResponse<Booking> = await response.json()
 
+      console.log("[useConfirmBooking] Response data:", data)
+
       if (!response.ok || !data.success) {
-        throw new Error(data.error || "Erreur lors de la confirmation")
+        const errorMessage = data.error || "Erreur lors de la confirmation"
+        console.error("[useConfirmBooking] Erreur:", errorMessage)
+        throw new Error(errorMessage)
       }
 
+      console.log("[useConfirmBooking] Confirmation réussie:", data.data)
       return data.data
     },
-    onSuccess: () => {
+    // Optimistic update: update UI immediately before API response
+    onMutate: async (bookingId) => {
+      console.log("[useConfirmBooking] onMutate - Mise à jour optimiste pour:", bookingId)
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["bookings"] })
+
+      // Snapshot previous value
+      const previousBookings = queryClient.getQueryData<Booking[]>(["bookings", { status: "all" }])
+
+      // Optimistically update cache
+      queryClient.setQueriesData<Booking[]>(
+        { queryKey: ["bookings"] },
+        (old) => {
+          if (!old) return old
+          return old.map((booking) =>
+            booking._id === bookingId
+              ? { ...booking, status: "confirmed" as const }
+              : booking
+          )
+        }
+      )
+
+      // Return context with snapshot
+      return { previousBookings }
+    },
+    // On error, rollback to previous value
+    onError: (error, bookingId, context) => {
+      console.error("[useConfirmBooking] onError - Rollback pour:", bookingId, error)
+      if (context?.previousBookings) {
+        queryClient.setQueryData(["bookings", { status: "all" }], context.previousBookings)
+      }
+    },
+    // Always refetch after error or success
+    onSettled: () => {
+      console.log("[useConfirmBooking] onSettled - Invalidation du cache")
       queryClient.invalidateQueries({ queryKey: ["bookings"] })
     },
   })

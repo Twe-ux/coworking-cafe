@@ -48,20 +48,25 @@ export function useReservationsLogic() {
 
   const handleConfirm = async (bookingId: string) => {
     try {
+      console.log("[handleConfirm] Tentative de confirmation:", bookingId);
       await confirmBooking.mutateAsync(bookingId);
+      console.log("[handleConfirm] Confirmation réussie");
       setMessage({
         type: "success",
         text: "Réservation confirmée avec succès",
       });
       setDetailModalOpen(false);
     } catch (error) {
+      console.error("[handleConfirm] Erreur capturée:", error);
+      const errorMessage = error instanceof Error
+        ? error.message
+        : "Erreur lors de la confirmation";
+      console.error("[handleConfirm] Message d'erreur:", errorMessage);
       setMessage({
         type: "error",
-        text:
-          error instanceof Error
-            ? error.message
-            : "Erreur lors de la confirmation",
+        text: errorMessage,
       });
+      // Ne pas fermer la modal en cas d'erreur pour que l'utilisateur puisse réessayer
     }
   };
 
