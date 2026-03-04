@@ -112,7 +112,13 @@ export function Step3Availability() {
       )}
 
       <div className="flex justify-end">
-        <Button onClick={handleSubmit} size="lg" disabled={!canSubmit}>
+        <Button
+          onClick={handleSubmit}
+          size="lg"
+          disabled={!canSubmit}
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+        >
           Suivant
         </Button>
       </div>

@@ -128,19 +128,19 @@ export function UnavailabilityRequestsList() {
               {/* Actions */}
               <div className="flex gap-2 pt-2">
                 <Button
-                  variant="default"
+                  variant="outline"
                   size="sm"
                   onClick={() => handleApprove(request)}
-                  className="flex-1"
+                  className="flex-1 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Approuver
                 </Button>
                 <Button
-                  variant="destructive"
+                  variant="outline"
                   size="sm"
                   onClick={() => handleReject(request)}
-                  className="flex-1"
+                  className="flex-1 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                 >
                   <XCircle className="mr-2 h-4 w-4" />
                   Refuser

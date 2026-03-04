@@ -300,7 +300,12 @@ export function Step2ContractInfo() {
       </Card>
 
       <div className="flex justify-end">
-        <Button type="submit" size="lg">
+        <Button
+          type="submit"
+          size="lg"
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+        >
           Suivant
         </Button>
       </div>

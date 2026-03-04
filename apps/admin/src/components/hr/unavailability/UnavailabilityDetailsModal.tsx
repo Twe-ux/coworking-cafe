@@ -75,7 +75,7 @@ export function UnavailabilityDetailsModal({
       <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Détails de l'indisponibilité</h3>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button variant="outline" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -163,15 +163,15 @@ export function UnavailabilityDetailsModal({
         <div className="mt-6 flex gap-2">
           <Button
             variant="outline"
-            className="flex-1"
+            className="flex-1 border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
             onClick={() => onEdit(unavailability)}
           >
             <Edit className="mr-2 h-4 w-4" />
             Modifier
           </Button>
           <Button
-            variant="destructive"
-            className="flex-1"
+            variant="outline"
+            className="flex-1 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={handleDeleteClick}
             disabled={isDeleting}
           >
@@ -210,15 +210,15 @@ export function UnavailabilityDetailsModal({
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="flex-1 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                 onClick={handleCancelDelete}
                 disabled={isDeleting}
               >
                 Annuler
               </Button>
               <Button
-                variant="destructive"
-                className="flex-1"
+                variant="outline"
+                className="flex-1 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
               >

@@ -92,6 +92,11 @@ export interface EmployeeDocument extends Document {
     bankName: string;
   };
 
+  // Congés payés (CP)
+  paidLeaveBalance: number; // Solde CP disponible (en heures)
+  paidLeaveAcquired: number; // CP acquis dans l'année (en heures)
+  paidLeaveTaken: number; // CP pris dans l'année (en heures)
+
   // ===== PARTIE PLANNING (de tmp) =====
   // Code pointage (PIN 4 chiffres)
   clockingCode: string;
@@ -305,6 +310,23 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
       },
       required: false,
       _id: false,
+    },
+
+    // Congés payés (CP)
+    paidLeaveBalance: {
+      type: Number,
+      default: 0,
+      min: [0, 'Le solde de congés payés ne peut pas être négatif'],
+    },
+    paidLeaveAcquired: {
+      type: Number,
+      default: 0,
+      min: [0, 'Les congés payés acquis ne peuvent pas être négatifs'],
+    },
+    paidLeaveTaken: {
+      type: Number,
+      default: 0,
+      min: [0, 'Les congés payés pris ne peuvent pas être négatifs'],
     },
 
     // Code pointage (PIN 4 chiffres)

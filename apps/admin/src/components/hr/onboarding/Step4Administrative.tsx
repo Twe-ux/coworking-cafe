@@ -419,6 +419,8 @@ export function Step4Administrative() {
             type="submit"
             size="lg"
             disabled={loading || !allAdminTasksCompleted}
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {loading

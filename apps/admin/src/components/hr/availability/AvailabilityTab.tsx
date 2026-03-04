@@ -112,7 +112,11 @@ export function AvailabilityTab() {
             </SelectContent>
           </Select>
 
-          <Button onClick={handleAdd}>
+          <Button
+            onClick={handleAdd}
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Ajouter
           </Button>
@@ -216,16 +220,16 @@ export function AvailabilityTab() {
                                 <div className="absolute inset-0 bg-black/60 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                                   <Button
                                     size="icon"
-                                    variant="ghost"
-                                    className="h-6 w-6 text-white hover:bg-white/20"
+                                    variant="outline"
+                                    className="h-6 w-6 border-blue-400 text-white hover:bg-white/20"
                                     onClick={() => handleEdit(av)}
                                   >
                                     <Edit2 className="h-3 w-3" />
                                   </Button>
                                   <Button
                                     size="icon"
-                                    variant="ghost"
-                                    className="h-6 w-6 text-white hover:bg-white/20"
+                                    variant="outline"
+                                    className="h-6 w-6 border-red-400 text-white hover:bg-white/20"
                                     onClick={() => handleDelete(av)}
                                   >
                                     <Trash2 className="h-3 w-3" />

@@ -123,14 +123,19 @@ export default function ClockingAdminPage() {
         </div>
         <div className="flex gap-2">
           <Button
-            variant="default"
+            variant="outline"
             onClick={handleGeneratePDF}
             disabled={isGenerating || employees.length === 0}
+            className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
           >
             <FileText className="mr-2 h-4 w-4" />
             {isGenerating ? "Génération..." : "Générer PDF Paie"}
           </Button>
-          <Button variant="outline" asChild>
+          <Button
+            variant="outline"
+            asChild
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          >
             <Link href="/admin/hr/schedule">
               <CalendarDays className="mr-2 h-4 w-4" />
               Planning

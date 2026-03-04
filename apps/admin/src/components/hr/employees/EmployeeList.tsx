@@ -174,7 +174,12 @@ export function EmployeeList({
           </Label>
         </div>
 
-        <Button onClick={onCreateNew} className="flex items-center gap-2">
+        <Button
+          onClick={onCreateNew}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 border-green-500 text-green-700 hover:bg-green-50"
+        >
           <Plus className="h-4 w-4" />
           Nouvel Employé
         </Button>
@@ -187,7 +192,12 @@ export function EmployeeList({
             {showArchived ? "Aucun employé archivé" : "Aucun employé trouvé"}
           </p>
           {!showArchived && (
-            <Button onClick={onCreateNew} variant="outline" className="mt-4">
+            <Button
+              onClick={onCreateNew}
+              variant="outline"
+              size="sm"
+              className="mt-4 border-green-500 text-green-700 hover:bg-green-50"
+            >
               Créer le premier employé
             </Button>
           )}

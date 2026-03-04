@@ -190,7 +190,12 @@ export function PayrollPreviewModal({
           </div>
 
           {/* Download Button */}
-          <Button onClick={handleDownload} disabled={!pdfBlob}>
+          <Button
+            onClick={handleDownload}
+            disabled={!pdfBlob}
+            variant="outline"
+            className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+          >
             <Download className="mr-2 h-4 w-4" />
             Télécharger
           </Button>

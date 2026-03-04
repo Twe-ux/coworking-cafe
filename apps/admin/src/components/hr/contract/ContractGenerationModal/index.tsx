@@ -174,6 +174,8 @@ export function ContractGenerationModal({
               <Button
                 onClick={handleSendEmail}
                 disabled={sending || !emailAddress}
+                variant="outline"
+                className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
               >
                 {sending ? (
                   <>Envoi en cours...</>
@@ -188,14 +190,20 @@ export function ContractGenerationModal({
           ) : (
             <>
               <Button
-                variant="secondary"
+                variant="outline"
                 onClick={() => setShowEmailInput(true)}
                 disabled={generating || sending}
+                className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Envoyer par email
               </Button>
-              <Button onClick={generatePDF} disabled={generating || sending}>
+              <Button
+                onClick={generatePDF}
+                disabled={generating || sending}
+                variant="outline"
+                className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+              >
                 {generating ? (
                   <>Generation en cours...</>
                 ) : (

@@ -5,6 +5,7 @@ import { MonthlyCalendar } from "@/components/shared/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarOff } from "lucide-react";
+import { toast } from "sonner";
 import { CreateUnavailabilityModal } from "../unavailability/CreateUnavailabilityModal";
 import type { CreateUnavailabilityData } from "../unavailability/CreateUnavailabilityModal";
 import { UnavailabilityDetailsModal } from "../unavailability/UnavailabilityDetailsModal";
@@ -206,21 +207,47 @@ export function AvailabilityCalendarTab() {
 
   // Handler: Delete unavailability
   const handleDelete = async (id: string) => {
-    await deleteUnavailability(id);
-    setIsDetailsModalOpen(false);
-    setSelectedUnavailability(null);
+    try {
+      const result = await deleteUnavailability(id);
+      if (result.success) {
+        toast.success("Absence supprimée avec succès");
+        setIsDetailsModalOpen(false);
+        setSelectedUnavailability(null);
+      } else {
+        toast.error(result.error || "Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Error deleting unavailability:", error);
+      toast.error("Erreur lors de la suppression");
+    }
   };
 
   // Handler: Create or Update unavailability
   const handleCreateOrUpdate = async (data: CreateUnavailabilityData) => {
-    if (editMode && selectedUnavailability) {
-      await updateUnavailability(selectedUnavailability._id, data);
-      setEditMode(false);
-      setSelectedUnavailability(null);
-    } else {
-      await createUnavailability(data);
+    try {
+      if (editMode && selectedUnavailability) {
+        const result = await updateUnavailability(selectedUnavailability._id, data);
+        if (result.success) {
+          toast.success("Absence modifiée avec succès");
+          setEditMode(false);
+          setSelectedUnavailability(null);
+          setIsModalOpen(false);
+        } else {
+          toast.error(result.error || "Erreur lors de la modification");
+        }
+      } else {
+        const result = await createUnavailability(data);
+        if (result.success) {
+          toast.success("Absence créée avec succès");
+          setIsModalOpen(false);
+        } else {
+          toast.error(result.error || "Erreur lors de la création");
+        }
+      }
+    } catch (error) {
+      console.error("Error creating/updating unavailability:", error);
+      toast.error("Erreur lors de l'opération");
     }
-    setIsModalOpen(false);
   };
 
   // Handler: Close create modal
@@ -374,20 +401,6 @@ export function AvailabilityCalendarTab() {
 
   return (
     <div className="space-y-6">
-      {/* Header with Create Button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Disponibilités mensuelles</h2>
-          <p className="text-sm text-muted-foreground">
-            Visualisez les créneaux de disponibilité de vos employés
-          </p>
-        </div>
-        <Button onClick={() => setIsModalOpen(true)}>
-          <CalendarOff className="mr-2 h-4 w-4" />
-          Créer une indisponibilité
-        </Button>
-      </div>
-
       {/* Calendar */}
       {isLoading ? (
         <div className="flex h-[600px] items-center justify-center">
@@ -410,6 +423,17 @@ export function AvailabilityCalendarTab() {
             color: emp.color || "#9CA3AF",
           }))}
           cellHeight={cellHeight}
+          actionButton={
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              variant="outline"
+              size="sm"
+              className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+            >
+              <CalendarOff className="mr-2 h-4 w-4" />
+              Créer une absence
+            </Button>
+          }
         />
       )}
 

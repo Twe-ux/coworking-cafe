@@ -112,6 +112,9 @@ export interface Employee {
     bic: string;
     bankName: string;
   };
+  paidLeaveBalance: number; // Solde CP disponible (en heures)
+  paidLeaveAcquired: number; // CP acquis dans l'année (en heures)
+  paidLeaveTaken: number; // CP pris dans l'année (en heures)
   deletedAt?: Date;
   createdAt?: Date;
   createdBy?: string;

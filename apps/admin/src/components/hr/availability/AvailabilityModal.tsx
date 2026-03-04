@@ -225,7 +225,12 @@ export function AvailabilityModal({
             <Button type="button" variant="outline" onClick={() => onClose()}>
               Annuler
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              variant="outline"
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            >
               {loading
                 ? 'Enregistrement...'
                 : availability

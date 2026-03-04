@@ -88,7 +88,13 @@ export function PromoteToAdminModal({
               {isCurrentlyAdmin ? 'Passer en Staff' : 'Passer en Admin'}
             </h3>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleClose} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClose}
+            disabled={isSubmitting}
+            className="border-gray-300 text-gray-700 hover:border-red-500 hover:bg-red-50 hover:text-red-700"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -201,7 +207,8 @@ export function PromoteToAdminModal({
             Annuler
           </Button>
           <Button
-            className="flex-1"
+            variant="outline"
+            className="flex-1 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             onClick={handleSubmit}
             disabled={isSubmitting}
           >

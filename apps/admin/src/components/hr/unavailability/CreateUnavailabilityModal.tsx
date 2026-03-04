@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -58,11 +58,25 @@ export function CreateUnavailabilityModal({
     employeeId: editData?.employeeId || '',
     startDate: editData?.startDate || '',
     endDate: editData?.endDate || '',
-    type: editData?.type || 'vacation',
+    type: editData?.type || 'personal',
     reason: editData?.reason || '',
   });
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Update form data when editData changes or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        employeeId: editData?.employeeId || '',
+        startDate: editData?.startDate || '',
+        endDate: editData?.endDate || '',
+        type: editData?.type || 'personal',
+        reason: editData?.reason || '',
+      });
+      setError(null);
+    }
+  }, [isOpen, editData]);
 
   const handleSubmit = async () => {
     setError(null);
@@ -93,7 +107,7 @@ export function CreateUnavailabilityModal({
       employeeId: '',
       startDate: '',
       endDate: '',
-      type: 'vacation',
+      type: 'personal',
       reason: '',
     });
     setError(null);
@@ -107,10 +121,10 @@ export function CreateUnavailabilityModal({
       <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            {isEditMode ? 'Modifier l\'indisponibilité' : 'Créer une indisponibilité'}
+            {isEditMode ? 'Modifier l\'absence' : 'Créer une absence'}
           </h3>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={handleClose}
             disabled={isCreating}
@@ -146,24 +160,22 @@ export function CreateUnavailabilityModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="start-date">Date de début *</Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, startDate: e.target.value }))
+              <DatePicker
+                date={formData.startDate}
+                onDateChange={(date) =>
+                  setFormData((prev) => ({ ...prev, startDate: date }))
                 }
+                placeholder="Sélectionner la date de début"
               />
             </div>
             <div>
               <Label htmlFor="end-date">Date de fin *</Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={formData.endDate}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, endDate: e.target.value }))
+              <DatePicker
+                date={formData.endDate}
+                onDateChange={(date) =>
+                  setFormData((prev) => ({ ...prev, endDate: date }))
                 }
+                placeholder="Sélectionner la date de fin"
               />
             </div>
           </div>
@@ -181,10 +193,9 @@ export function CreateUnavailabilityModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="vacation">Congés</SelectItem>
-                <SelectItem value="sick">Maladie</SelectItem>
-                <SelectItem value="personal">Personnel</SelectItem>
-                <SelectItem value="other">Autre</SelectItem>
+                <SelectItem value="personal">Indisponibilité</SelectItem>
+                <SelectItem value="vacation">Congés Payés (CP)</SelectItem>
+                <SelectItem value="sick">Arrêt Maladie (AM)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -211,10 +222,20 @@ export function CreateUnavailabilityModal({
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
-          <Button variant="outline" onClick={handleClose} disabled={isCreating}>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isCreating}
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+          >
             Annuler
           </Button>
-          <Button onClick={handleSubmit} disabled={isCreating}>
+          <Button
+            variant="outline"
+            onClick={handleSubmit}
+            disabled={isCreating}
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          >
             {isCreating
               ? (isEditMode ? 'Modification...' : 'Création...')
               : (isEditMode ? 'Modifier' : 'Créer')}

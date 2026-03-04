@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import EmployeeMonthlyCard from "@/components/shared/EmployeeMonthlyCard";
 import { ScheduleDayCell } from "@/components/schedule/ScheduleDayCell";
 import { ScheduleHeader } from "@/components/schedule/ScheduleHeader";
@@ -7,8 +8,13 @@ import { ScheduleModals } from "@/components/schedule/ScheduleModals";
 import { ScheduleSkeleton } from "@/components/schedule/ScheduleSkeleton";
 import { ScheduleWeekSidebar } from "@/components/schedule/ScheduleWeekSidebar";
 import { MonthlyCalendar } from "@/components/shared/calendar";
+import { Button } from "@/components/ui/button";
+import { CalendarOff } from "lucide-react";
+import { CreateUnavailabilityModal } from "@/components/hr/unavailability/CreateUnavailabilityModal";
+import type { CreateUnavailabilityData } from "@/components/hr/unavailability/CreateUnavailabilityModal";
 import { useAdaptiveCellHeight } from "@/hooks/useAdaptiveCellHeight";
 import { useSchedulePage } from "@/hooks/useSchedulePage";
+import { useUnavailabilities } from "@/hooks/useUnavailabilities";
 import type { Shift } from "@/types/shift";
 import type { WeekData } from "@/components/shared/calendar/types";
 
@@ -59,9 +65,50 @@ export default function SchedulePage() {
     isEmployeeUnavailable,
   } = useSchedulePage();
 
+  // Absence modal state
+  const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false);
+  const [absences, setAbsences] = useState<any[]>([]);
+
+  // Unavailabilities hook for creating absences
+  const { createUnavailability } = useUnavailabilities();
+
   // Calculate adaptive cell height based on number of employees
   // MUST be called before any conditional returns (React hooks rules)
   const cellHeight = useAdaptiveCellHeight(employees.length);
+
+  // Fetch approved absences for current month
+  useEffect(() => {
+    const fetchAbsences = async () => {
+      try {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        const startDate = firstDay.toISOString().split('T')[0];
+        const endDate = lastDay.toISOString().split('T')[0];
+
+        const response = await fetch(
+          `/api/hr/absences?status=approved&startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+
+        if (data.success) {
+          setAbsences(data.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching absences:', error);
+      }
+    };
+
+    fetchAbsences();
+  }, [currentDate]);
+
+  // Handler: Create absence
+  const handleCreateAbsence = async (data: CreateUnavailabilityData) => {
+    await createUnavailability(data);
+    setIsAbsenceModalOpen(false);
+  };
 
   // Loading state
   if (isLoading) {
@@ -119,6 +166,17 @@ export default function SchedulePage() {
             color: emp.color || "#9CA3AF",
           }))}
           cellHeight={cellHeight}
+          actionButton={
+            <Button
+              onClick={() => setIsAbsenceModalOpen(true)}
+              variant="outline"
+              size="sm"
+              className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+            >
+              <CalendarOff className="mr-2 h-4 w-4" />
+              Créer une absence
+            </Button>
+          }
         />
       )}
 
@@ -143,10 +201,19 @@ export default function SchedulePage() {
           employees={employees}
           shifts={shifts}
           timeEntries={timeEntries}
+          absences={absences}
           currentDate={currentDate}
           className="mt-8"
         />
       )}
+
+      {/* Create Absence Modal */}
+      <CreateUnavailabilityModal
+        isOpen={isAbsenceModalOpen}
+        employees={employees}
+        onClose={() => setIsAbsenceModalOpen(false)}
+        onCreate={handleCreateAbsence}
+      />
     </div>
   );
 }

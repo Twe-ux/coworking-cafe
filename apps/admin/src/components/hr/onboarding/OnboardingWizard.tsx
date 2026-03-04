@@ -76,9 +76,9 @@ export function OnboardingWizard({ children }: OnboardingWizardProps) {
       {/* Back Button */}
       {currentStep > 1 && (
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={goBack}
-          className="gap-2"
+          className="gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour

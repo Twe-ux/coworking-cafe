@@ -19,19 +19,31 @@ export function QuickActions() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-2">
-        <Button asChild variant="outline">
+        <Button
+          asChild
+          variant="outline"
+          className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+        >
           <Link href="/admin/hr/employees?action=new">
             <UserPlus className="mr-2 h-4 w-4" />
             Nouvel employé
           </Link>
         </Button>
-        <Button asChild variant="outline">
+        <Button
+          asChild
+          variant="outline"
+          className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+        >
           <Link href="/admin/hr/schedule">
             <Calendar className="mr-2 h-4 w-4" />
             Créer un créneau
           </Link>
         </Button>
-        <Button asChild variant="outline">
+        <Button
+          asChild
+          variant="outline"
+          className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+        >
           <Link href="/admin/hr/clocking-admin">
             <Clock className="mr-2 h-4 w-4" />
             Pointer un employé

@@ -148,7 +148,12 @@ export function EndContractModal({
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              variant="outline"
+              className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+            >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Confirmer
             </Button>

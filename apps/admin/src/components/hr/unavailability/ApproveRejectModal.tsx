@@ -71,7 +71,7 @@ export function ApproveRejectModal({
             )}
           </h3>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={onCancel}
             disabled={isSubmitting}
@@ -142,13 +142,23 @@ export function ApproveRejectModal({
         )}
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+          >
             Annuler
           </Button>
           <Button
-            variant={mode === 'approve' ? 'default' : 'destructive'}
+            variant="outline"
             onClick={handleConfirm}
             disabled={isSubmitting}
+            className={
+              mode === 'approve'
+                ? 'border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700'
+                : 'border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700'
+            }
           >
             {isSubmitting
               ? 'En cours...'

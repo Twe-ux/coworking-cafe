@@ -32,7 +32,13 @@ export function TimeSlotInput({ slot, onStartChange, onEndChange, onRemove }: Ti
         onChange={(e) => onEndChange(e.target.value)}
         className="w-28"
       />
-      <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        onClick={onRemove}
+        className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+      >
         <Trash2 className="w-4 h-4" />
       </Button>
     </div>

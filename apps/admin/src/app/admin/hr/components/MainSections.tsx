@@ -17,7 +17,7 @@ interface MainSectionsProps {
 export function MainSections({ pendingJustifications }: MainSectionsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="hover:border-green-500 transition-colors">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
@@ -28,7 +28,11 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Button asChild className="w-full" variant="default">
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          >
             <Link href="/admin/hr/employees">
               <Users className="mr-2 h-4 w-4" />
               Voir tous les employés
@@ -39,7 +43,7 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
               asChild
               variant="outline"
               size="sm"
-              className="col-span-2"
+              className="col-span-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             >
               <Link href="/admin/hr/employees?tab=availability">
                 Disponibilités
@@ -49,7 +53,7 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="hover:border-green-500 transition-colors">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
@@ -60,7 +64,11 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild className="w-full" variant="default">
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          >
             <Link href="/admin/hr/schedule">
               <Calendar className="mr-2 h-4 w-4" />
               Gérer le planning
@@ -72,7 +80,7 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
         </CardContent>
       </Card>
 
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="hover:border-green-500 transition-colors">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
@@ -91,7 +99,11 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild className="w-full" variant="default">
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          >
             <Link href="/admin/hr/clocking-admin">
               <Clock className="mr-2 h-4 w-4" />
               Voir les pointages
