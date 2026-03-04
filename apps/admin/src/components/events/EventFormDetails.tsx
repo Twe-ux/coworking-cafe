@@ -184,10 +184,21 @@ export function EventFormDetails({
 
       {/* Actions */}
       <div className="flex justify-end gap-4 pt-4 border-t">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+        <Button
+          type="button"
+          variant="outline"
+          className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
           Annuler
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Enregistrement..." : "Enregistrer"}
         </Button>
       </div>

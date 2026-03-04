@@ -47,7 +47,11 @@ export function EventsClient() {
             Gérer les événements du site public
           </p>
         </div>
-        <Button onClick={() => router.push("/admin/events/create")}>
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={() => router.push("/admin/events/create")}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Créer un événement
         </Button>
@@ -60,9 +64,9 @@ export function EventsClient() {
             {message.text}
           </StyledAlert>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="absolute top-2 right-2"
+            className="absolute top-2 right-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={() => setMessage(null)}
           >
             <X className="h-4 w-4" />
@@ -94,6 +98,7 @@ export function EventsClient() {
         <div className="flex justify-center gap-2">
           <Button
             variant="outline"
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             disabled={pagination.page === 1}
             onClick={() => setPage(pagination.page - 1)}
           >
@@ -104,6 +109,7 @@ export function EventsClient() {
           </span>
           <Button
             variant="outline"
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             disabled={pagination.page === pagination.totalPages}
             onClick={() => setPage(pagination.page + 1)}
           >

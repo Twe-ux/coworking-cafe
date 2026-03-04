@@ -43,11 +43,12 @@ export function RegistrationsClient({ eventId }: RegistrationsClientProps) {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
+          className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
           onClick={() => router.push("/admin/events")}
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Retour
         </Button>
       </div>
@@ -80,7 +81,12 @@ export function RegistrationsClient({ eventId }: RegistrationsClientProps) {
             </div>
           )}
         </div>
-        <Button onClick={exportCSV} disabled={registrations.length === 0}>
+        <Button
+          variant="outline"
+          className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+          onClick={exportCSV}
+          disabled={registrations.length === 0}
+        >
           <Download className="mr-2 h-4 w-4" />
           Exporter CSV
         </Button>
@@ -97,9 +103,9 @@ export function RegistrationsClient({ eventId }: RegistrationsClientProps) {
         >
           {message.text}
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="absolute top-2 right-2"
+            className="absolute top-2 right-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={() => setMessage(null)}
           >
             <X className="h-4 w-4" />
@@ -114,7 +120,8 @@ export function RegistrationsClient({ eventId }: RegistrationsClientProps) {
           {statusOptions.map((opt) => (
             <Button
               key={opt.value}
-              variant={statusFilter === opt.value ? "default" : "outline"}
+              variant="outline"
+              className={statusFilter === opt.value ? "border-green-500 bg-green-50 text-green-700" : "border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"}
               size="sm"
               onClick={() => setStatusFilter(opt.value)}
             >
@@ -161,6 +168,7 @@ export function RegistrationsClient({ eventId }: RegistrationsClientProps) {
           <Button
             variant="outline"
             size="sm"
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             disabled={pagination.page <= 1}
             onClick={() => setPage(pagination.page - 1)}
           >
@@ -172,6 +180,7 @@ export function RegistrationsClient({ eventId }: RegistrationsClientProps) {
           <Button
             variant="outline"
             size="sm"
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             disabled={pagination.page >= pagination.totalPages}
             onClick={() => setPage(pagination.page + 1)}
           >

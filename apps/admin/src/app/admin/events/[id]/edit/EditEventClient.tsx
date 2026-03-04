@@ -115,8 +115,13 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
   if (!initialData) {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" size="sm" onClick={handleCancel}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          onClick={handleCancel}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Retour
         </Button>
         <StyledAlert variant="destructive">
@@ -130,8 +135,13 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={handleCancel}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          onClick={handleCancel}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Retour
         </Button>
         <div>
@@ -147,9 +157,9 @@ export function EditEventClient({ eventId }: EditEventClientProps) {
             {message.text}
           </StyledAlert>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="absolute top-2 right-2"
+            className="absolute top-2 right-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
             onClick={() => setMessage(null)}
           >
             <X className="h-4 w-4" />

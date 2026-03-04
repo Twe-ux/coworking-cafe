@@ -95,7 +95,7 @@ export function RegistrationsTable({
                 <div className="flex justify-end gap-1">
                   {reg.status !== "confirmed" && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => onStatusChange(reg._id, "confirmed")}
                       title="Confirmer"
@@ -105,7 +105,7 @@ export function RegistrationsTable({
                   )}
                   {reg.status !== "pending" && reg.status !== "cancelled" && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => onStatusChange(reg._id, "pending")}
                       title="Mettre en attente"
@@ -115,7 +115,7 @@ export function RegistrationsTable({
                   )}
                   {reg.status !== "cancelled" && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => onStatusChange(reg._id, "cancelled")}
                       title="Annuler"
@@ -124,7 +124,7 @@ export function RegistrationsTable({
                     </Button>
                   )}
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => onDelete(reg._id)}
                     title="Supprimer"

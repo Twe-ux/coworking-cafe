@@ -194,7 +194,13 @@ export function EventFormFields({
               ))}
             </SelectContent>
           </Select>
-          <Button type="button" onClick={() => onAddCategory()} disabled={!newCategory}>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={() => onAddCategory()}
+            disabled={!newCategory}
+          >
             <Plus className="h-4 w-4" />
           </Button>
         </div>
