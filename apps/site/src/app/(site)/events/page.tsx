@@ -175,6 +175,7 @@ export default async function EventsPage() {
                     category={event.category}
                     imgSrc={event.imgSrc}
                     imgAlt={event.imgAlt}
+                    priceType={(event as any).priceType}
                     price={event.price}
                     registrationType={event.registrationType}
                     externalLink={event.externalLink}

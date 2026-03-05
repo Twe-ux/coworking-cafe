@@ -20,6 +20,7 @@ export interface EventFormData {
   registrationType: "internal" | "external";
   externalLink?: string;
   maxParticipants?: number;
+  priceType?: "free" | "organizer" | "fixed";
   price?: number;
   organizer?: string;
   contactEmail?: string;
@@ -54,6 +55,7 @@ const DEFAULT_FORM_DATA: EventFormData = {
   registrationType: "external",
   externalLink: "",
   maxParticipants: undefined,
+  priceType: "free",
   price: undefined,
   organizer: "",
   contactEmail: "",

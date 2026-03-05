@@ -31,6 +31,7 @@ export interface EventDocument extends Document {
   currentParticipants?: number; // Current count if internal registration
 
   // Optional information
+  priceType?: "free" | "organizer" | "fixed"; // Type of pricing
   price?: number; // Price if paid event (display only, no payment system)
   organizer?: string; // Organizer name
   contactEmail?: string; // Contact email for the event
@@ -149,6 +150,14 @@ export const EventSchema = new Schema<EventDocument>(
       type: Number,
       default: 0,
       min: [0, "Current participants cannot be negative"],
+    },
+    priceType: {
+      type: String,
+      enum: {
+        values: ["free", "organizer", "fixed"],
+        message: "{VALUE} is not a valid price type",
+      },
+      default: "free",
     },
     price: {
       type: Number,

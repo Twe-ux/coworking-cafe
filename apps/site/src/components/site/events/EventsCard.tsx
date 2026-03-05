@@ -11,6 +11,7 @@ interface EventsCardProps {
   category: string[];
   imgSrc: string;
   imgAlt: string;
+  priceType?: "free" | "organizer" | "fixed";
   price?: number;
   registrationType: "internal" | "external";
   externalLink?: string;
@@ -27,6 +28,7 @@ export default function EventsCard({
   category,
   imgSrc,
   imgAlt,
+  priceType,
   price,
   registrationType,
   externalLink,
@@ -115,8 +117,17 @@ export default function EventsCard({
           </div>
         </div>
 
-        {price !== undefined && price > 0 && (
+        {/* Price display based on priceType */}
+        {priceType === "fixed" && price !== undefined && price > 0 && (
           <div className="events-card__price">{price}&euro;</div>
+        )}
+        {priceType === "organizer" && (
+          <div className="events-card__price events-card__price--info">
+            Prix fixé par l&apos;organisateur
+          </div>
+        )}
+        {priceType === "free" && (
+          <div className="events-card__price events-card__price--free">Gratuit</div>
         )}
 
         <div className="events-card__actions">

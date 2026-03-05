@@ -125,23 +125,70 @@ export function EventFormDetails({
         )}
       </div>
 
-      {/* Optional Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Pricing Section */}
+      <div className="space-y-4 border rounded-lg p-4">
         <div className="space-y-2">
-          <Label htmlFor="price">Prix (€)</Label>
-          <Input
-            id="price"
-            type="number"
-            min="0"
-            step="0.01"
-            value={formData.price || ""}
-            onChange={(e) =>
-              handleChange("price", e.target.value ? parseFloat(e.target.value) : undefined)
-            }
-            placeholder="0.00"
-          />
+          <Label>Type de tarification</Label>
+          <Select
+            value={formData.priceType || "free"}
+            onValueChange={(value) => {
+              handleChange("priceType", value as "free" | "organizer" | "fixed");
+              // Reset price when changing to free or organizer
+              if (value !== "fixed") {
+                handleChange("price", undefined);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="free">Gratuit</SelectItem>
+              <SelectItem value="organizer">Prix fixé par l&apos;organisateur</SelectItem>
+              <SelectItem value="fixed">Prix fixe</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
+        {formData.priceType === "fixed" && (
+          <div className="space-y-2">
+            <Label htmlFor="price">Montant (€) *</Label>
+            <Input
+              id="price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.price || ""}
+              onChange={(e) =>
+                handleChange("price", e.target.value ? parseFloat(e.target.value) : undefined)
+              }
+              placeholder="Ex: 15.00"
+            />
+            <p className="text-sm text-muted-foreground">
+              Prix qui sera affiché sur le site
+            </p>
+          </div>
+        )}
+
+        {formData.priceType === "organizer" && (
+          <div className="bg-blue-50 border border-blue-200 rounded p-3">
+            <p className="text-sm text-blue-700">
+              Le prix sera indiqué comme "Prix fixé par l&apos;organisateur" sur le site.
+            </p>
+          </div>
+        )}
+
+        {formData.priceType === "free" && (
+          <div className="bg-green-50 border border-green-200 rounded p-3">
+            <p className="text-sm text-green-700">
+              L&apos;événement sera affiché comme gratuit.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Organizer & Contact */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="organizer">Organisateur</Label>
           <Input
