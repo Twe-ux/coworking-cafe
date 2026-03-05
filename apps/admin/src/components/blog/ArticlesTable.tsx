@@ -83,9 +83,15 @@ export function ArticlesTable({
                 {article.slug}
               </TableCell>
               <TableCell>
-                <Badge variant="outline" className="text-xs border-blue-500 bg-blue-50 text-blue-700 pointer-events-none">
-                  {article.category.name}
-                </Badge>
+                {article.category ? (
+                  <Badge variant="outline" className="text-xs border-blue-500 bg-blue-50 text-blue-700 pointer-events-none">
+                    {article.category.name}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs border-gray-300 bg-gray-50 text-gray-500 pointer-events-none">
+                    Sans catégorie
+                  </Badge>
+                )}
               </TableCell>
               <TableCell>
                 <Badge
