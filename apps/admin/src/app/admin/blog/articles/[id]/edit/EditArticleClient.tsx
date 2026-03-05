@@ -54,7 +54,7 @@ export function EditArticleClient({ articleId }: EditArticleClientProps) {
           slug: art.slug,
           content: art.content,
           excerpt: art.excerpt || "",
-          category: typeof art.category === "object" ? art.category._id : art.category,
+          category: art.category && typeof art.category === "object" ? art.category._id : (art.category || ""),
           imgSrc: art.featuredImage || "",
           imgAlt: art.imgAlt || "",
           status: art.status,
@@ -77,11 +77,12 @@ export function EditArticleClient({ articleId }: EditArticleClientProps) {
       setIsSubmitting(true);
       setMessage(null);
 
-      // Map imgSrc to featuredImage for API
-      const { imgSrc, imgAlt, ...rest } = data;
+      // Map form fields to API fields
+      const { imgSrc, imgAlt, category, ...rest } = data;
       const apiData = {
         ...rest,
         featuredImage: imgSrc,
+        categoryId: category, // Map category to categoryId for API
       };
 
       const response = await fetch(`/api/blog/articles/${articleId}`, {

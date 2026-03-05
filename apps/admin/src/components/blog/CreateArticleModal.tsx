@@ -31,11 +31,12 @@ export function CreateArticleModal({
       setIsSubmitting(true);
       setError(null);
 
-      // Map imgSrc to featuredImage for API
-      const { imgSrc, imgAlt, ...rest } = data;
+      // Map form fields to API fields
+      const { imgSrc, imgAlt, category, ...rest } = data;
       const apiData = {
         ...rest,
         featuredImage: imgSrc,
+        categoryId: category, // Map category to categoryId for API
       };
 
       const response = await fetch("/api/blog/articles", {
