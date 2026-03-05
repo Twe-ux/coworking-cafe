@@ -110,10 +110,19 @@ export async function PATCH(
     // Get previous event status before update
     const previousEvent = await Event.findById(id);
 
+    // Prepare update operations
+    const updateOps: Record<string, unknown> = { $set: updateData };
+
+    // Clear price field if priceType changed to free or organizer
+    if (updateData.priceType && updateData.priceType !== "fixed") {
+      updateOps.$unset = { price: "" };
+      delete updateData.price; // Remove from $set to avoid conflict
+    }
+
     // Update event
     const event = await Event.findByIdAndUpdate(
       id,
-      { $set: updateData },
+      updateOps,
       { new: true, runValidators: true }
     ).populate("createdBy", "givenName familyName email");
 
