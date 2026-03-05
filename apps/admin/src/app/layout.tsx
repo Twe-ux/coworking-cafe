@@ -1,7 +1,7 @@
 import { Providers } from "@/components/providers";
 import { PWADetector } from "@/components/PWADetector";
 import { Analytics } from "@vercel/analytics/next";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Merriweather, Montserrat, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 
@@ -27,13 +27,6 @@ export const metadata: Metadata = {
   applicationName: "Cow-or-King Café Admin",
   // PWA Configuration
   manifest: "/manifest.webmanifest",
-  themeColor: "#000000",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -69,6 +62,14 @@ export const metadata: Metadata = {
     "apple-mobile-web-app-capable": "yes",
     "mobile-web-app-capable": "yes",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
