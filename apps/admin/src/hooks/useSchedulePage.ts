@@ -56,6 +56,7 @@ export interface UseSchedulePageReturn {
   formatHoursToHHMM: (decimalHours: number) => string;
   formatDateToYMD: (date: Date | string) => string;
   isEmployeeUnavailable: (dateStr: string, employeeId: string) => boolean;
+  getEmployeeAbsence: (dateStr: string, employeeId: string) => any;
 }
 
 /**
@@ -117,10 +118,23 @@ export function useSchedulePage(): UseSchedulePageReturn {
     });
   }, [shifts, dayShiftsModal.date]);
 
-  // Check if employee is unavailable on a specific date
+  // Check if employee is unavailable on a specific date (returns boolean)
   const isEmployeeUnavailable = useCallback(
     (dateStr: string, employeeId: string): boolean => {
       return unavailabilities.some((unavail) => {
+        return (
+          unavail.employeeId === employeeId &&
+          isDateInRange(dateStr, unavail.startDate, unavail.endDate)
+        );
+      });
+    },
+    [unavailabilities]
+  );
+
+  // Get employee's absence for a specific date (returns absence object or undefined)
+  const getEmployeeAbsence = useCallback(
+    (dateStr: string, employeeId: string) => {
+      return unavailabilities.find((unavail) => {
         return (
           unavail.employeeId === employeeId &&
           isDateInRange(dateStr, unavail.startDate, unavail.endDate)
@@ -167,5 +181,6 @@ export function useSchedulePage(): UseSchedulePageReturn {
     formatHoursToHHMM,
     formatDateToYMD,
     isEmployeeUnavailable,
+    getEmployeeAbsence,
   };
 }

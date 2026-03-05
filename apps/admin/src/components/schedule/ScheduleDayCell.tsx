@@ -1,13 +1,15 @@
 /**
  * Schedule day cell component
  * Renders shift buttons organized by morning/afternoon for each employee
- * Shows unavailabilities in red when employee is unavailable
+ * Shows unavailabilities with color-coded badges (CP/AM/Indispo)
  * Empty slots are clickable to create new shifts
  */
 
 import { formatDateToYMD } from "@/lib/schedule/utils";
 import type { Employee } from "@/types/hr";
 import type { Shift } from "@/types/shift";
+import type { IUnavailabilityWithEmployee } from "@/types/unavailability";
+import { CalendarOff } from "lucide-react";
 
 interface EmployeeShiftPosition {
   employee: Employee;
@@ -25,6 +27,7 @@ interface ScheduleDayCellProps {
     dayShifts: Shift[],
   ) => EmployeeShiftPosition[];
   isEmployeeUnavailable: (dateStr: string, employeeId: string) => boolean;
+  getEmployeeAbsence: (dateStr: string, employeeId: string) => IUnavailabilityWithEmployee | undefined;
   onShiftClick: (shift: Shift, e: React.MouseEvent) => void;
   onEmptySlotClick?: (
     date: Date,
@@ -106,6 +109,7 @@ export function ScheduleDayCell({
   employees,
   getShiftsPositionedByEmployee,
   isEmployeeUnavailable,
+  getEmployeeAbsence,
   onShiftClick,
   onEmptySlotClick,
 }: ScheduleDayCellProps) {
@@ -127,18 +131,29 @@ export function ScheduleDayCell({
           }
         }
 
-        // Check if employee is unavailable on this date
-        const isUnavailable = isEmployeeUnavailable(dateStr, employee.id);
+        // Check if employee has an absence on this date
+        const absence = getEmployeeAbsence(dateStr, employee.id);
 
-        // If unavailable, show "INDISPO" badge in red
-        if (isUnavailable) {
+        // If unavailable, show color-coded badge based on absence type
+        if (absence) {
+          const absenceTypeLabels: Record<string, string> = {
+            paid_leave: 'CP',
+            sick_leave: 'AM',
+            unavailability: 'Indispo'
+          };
+          const label = absenceTypeLabels[absence.type] || 'Absent';
+          const bgColor = absence.type === 'paid_leave' ? 'bg-green-100 text-green-700 border-green-300'
+            : absence.type === 'sick_leave' ? 'bg-red-100 text-red-700 border-red-300'
+            : 'bg-orange-100 text-orange-700 border-orange-300';
+
           return (
             <div key={employee.id} className="flex h-5 items-center">
               <div
-                className="w-full rounded bg-red-500 px-1 py-0.5 text-center text-xs font-bold text-white"
-                title={`${employee.firstName} est indisponible ce jour`}
+                className={`flex w-full items-center justify-center gap-1 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}
+                title={`${employee.firstName} - ${label}`}
               >
-                INDISPO
+                <CalendarOff className="h-3 w-3" />
+                <span>{label}</span>
               </div>
             </div>
           );

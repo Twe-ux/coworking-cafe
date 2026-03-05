@@ -63,6 +63,7 @@ export default function SchedulePage() {
     calculateProjectedWeeklyHours,
     formatHoursToHHMM,
     isEmployeeUnavailable,
+    getEmployeeAbsence,
   } = useSchedulePage();
 
   // Absence modal state
@@ -123,6 +124,7 @@ export default function SchedulePage() {
       employees={employees}
       getShiftsPositionedByEmployee={getShiftsPositionedByEmployee}
       isEmployeeUnavailable={isEmployeeUnavailable}
+      getEmployeeAbsence={getEmployeeAbsence}
       onShiftClick={handleShiftClick}
       onEmptySlotClick={handleEmptySlotClick}
     />

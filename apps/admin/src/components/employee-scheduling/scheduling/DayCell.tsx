@@ -94,7 +94,7 @@ export function DayCell({
             const label = absenceTypeLabels[unavailability.type] || 'Absent';
             const bgColor = unavailability.type === 'paid_leave' ? 'bg-green-100 text-green-700 border-green-300'
               : unavailability.type === 'sick_leave' ? 'bg-red-100 text-red-700 border-red-300'
-              : 'bg-gray-100 text-gray-700 border-gray-300';
+              : 'bg-orange-100 text-orange-700 border-orange-300';
 
             return (
               <div key={employee.id} className="grid min-h-4 grid-cols-1">
