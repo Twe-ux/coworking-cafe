@@ -97,10 +97,12 @@ export function DayCell({
               : 'bg-orange-100 text-orange-700 border-orange-300';
 
             return (
-              <div key={employee.id} className="grid h-5 grid-cols-1">
-                <div className={`flex items-center justify-center gap-1 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}>
-                  <CalendarOff className="h-3 w-3" />
-                  <span>{label}</span>
+              <div key={employee.id} className="grid h-5 grid-cols-2 gap-2">
+                <div className="col-span-2">
+                  <div className={`flex items-center justify-center gap-1 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}>
+                    <CalendarOff className="h-3 w-3" />
+                    <span>{label}</span>
+                  </div>
                 </div>
               </div>
             );
