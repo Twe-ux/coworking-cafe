@@ -110,8 +110,8 @@ export async function POST(
     }
 
     // Send no-show email to client
-    // Skip email for admin bookings (no bank deposit)
-    if (!bookingDoc.isAdminBooking) {
+    // Only send email if booking has a Stripe payment intent (= card hold)
+    if (bookingDoc.stripePaymentIntentId) {
       try {
         const user = booking.user;
         const space = booking.space;
@@ -145,9 +145,9 @@ export async function POST(
         status: booking.status,
         cancelReason: booking.cancelReason,
       },
-      bookingDoc.isAdminBooking
-        ? "Client marqué comme no-show"
-        : "Client marqué comme no-show - Empreinte bancaire capturée"
+      bookingDoc.stripePaymentIntentId
+        ? "Client marqué comme no-show - Empreinte bancaire capturée"
+        : "Client marqué comme no-show"
     );
   } catch (error) {
     console.error("[API] Mark no-show error:", error);

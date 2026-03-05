@@ -239,18 +239,14 @@ export async function PATCH(
           hasDevisAttachment,
         }, variant)
 
-        // BCC to admin for notifications (hidden copy)
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@coworkingcafe.fr'
-
         await sendEmail({
           to: clientEmail,
           subject: booking.isAdminBooking ? "✅ Réservation confirmée - CoworKing Café" : "🎉 Réservation validée - CoworKing Café",
           html,
-          bcc: adminEmail,
           ...(hasDevisAttachment && { attachments }),
         })
 
-        console.log(`✉️ Email de confirmation envoyé à ${clientEmail}${hasDevisAttachment ? ' [+devis PDF]' : ''} [BCC: ${adminEmail}]`)
+        console.log(`✉️ Email de confirmation envoyé à ${clientEmail}${hasDevisAttachment ? ' [+devis PDF]' : ''}`)
       } else if (body.status === "cancelled") {
         // Send rejection/cancellation email with reason - choisir template selon isAdminBooking
         if (booking.isAdminBooking) {

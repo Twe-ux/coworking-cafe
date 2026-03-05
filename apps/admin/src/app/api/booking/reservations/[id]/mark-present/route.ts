@@ -123,8 +123,11 @@ export async function POST(
     }
 
     // Send email to client confirming presence and card hold release
-    // Skip email for admin bookings (no bank deposit)
-    if (!bookingDoc.isAdminBooking) {
+    // Only send email if booking has a Stripe payment intent (= card hold)
+    console.log(`[API] Vérification envoi email - stripePaymentIntentId: ${bookingDoc.stripePaymentIntentId}`);
+
+    if (bookingDoc.stripePaymentIntentId) {
+      console.log(`[API] Booking a un payment intent, envoi de l'email...`);
       try {
         const bookingDate = booking.date instanceof Date
           ? booking.date.toISOString().split('T')[0]
@@ -136,6 +139,7 @@ export async function POST(
           const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client';
           const spaceName = isPopulatedSpace(booking.space) ? booking.space.name : 'Espace';
 
+          console.log(`[API] Appel sendClientPresentEmail pour: ${user.email}`);
           await sendClientPresentEmail(
             user.email,
             {
@@ -148,11 +152,16 @@ export async function POST(
               totalPrice: booking.totalPrice || 0,
             }
           );
+          console.log(`[API] sendClientPresentEmail terminé`);
+        } else {
+          console.log(`[API] User non populé ou email manquant`);
         }
       } catch (emailError) {
         console.error("[API] Error sending present email:", emailError);
         // Don't fail the request if email fails
       }
+    } else {
+      console.log(`[API] Pas de payment intent, pas d'email envoyé`);
     }
 
     return successResponse(
@@ -160,9 +169,9 @@ export async function POST(
         _id: booking._id,
         status: booking.status,
       },
-      bookingDoc.isAdminBooking
-        ? "Client marqué comme présent"
-        : "Client marqué comme présent - Empreinte bancaire libérée"
+      bookingDoc.stripePaymentIntentId
+        ? "Client marqué comme présent - Empreinte bancaire libérée"
+        : "Client marqué comme présent"
     );
   } catch (error) {
     console.error("[API] Mark present error:", error);

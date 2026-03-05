@@ -57,6 +57,7 @@ export async function sendClientPresentEmail(
     totalPrice: number;
   }
 ): Promise<boolean> {
+  console.log(`[Email] Préparation email présence pour: ${email}`);
   const subject = '✅ Merci pour votre venue - CoworKing Café by Anticafé';
 
   const html = generateClientPresentEmail({
@@ -69,11 +70,18 @@ export async function sendClientPresentEmail(
     totalPrice: bookingDetails.totalPrice,
   });
 
+  console.log(`[Email] Envoi email présence à: ${email}, sujet: ${subject}`);
   const result = await sendEmail({
     to: email,
     subject,
     html,
   });
+
+  if (result.success) {
+    console.log(`✅ [Email] Email présence envoyé avec succès à: ${email}`);
+  } else {
+    console.error(`❌ [Email] Échec envoi email présence à: ${email}`);
+  }
 
   return result.success;
 }
@@ -93,6 +101,7 @@ export async function sendClientNoShowEmail(
     depositAmount: number; // Montant empreinte en centimes
   }
 ): Promise<boolean> {
+  console.log(`[Email] Préparation email no-show pour: ${email}`);
   const subject = '❌ Absence constatée - CoworKing Café by Anticafé';
 
   const html = generateClientNoShowEmail({
@@ -106,11 +115,18 @@ export async function sendClientNoShowEmail(
     contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
   });
 
+  console.log(`[Email] Envoi email no-show à: ${email}, sujet: ${subject}`);
   const result = await sendEmail({
     to: email,
     subject,
     html,
   });
+
+  if (result.success) {
+    console.log(`✅ [Email] Email no-show envoyé avec succès à: ${email}`);
+  } else {
+    console.error(`❌ [Email] Échec envoi email no-show à: ${email}`);
+  }
 
   return result.success;
 }
