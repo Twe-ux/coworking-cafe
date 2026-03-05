@@ -27,12 +27,14 @@ export function Sidebar({
 
   // Hover interactions - only on desktop
   const handleMouseEnter = React.useCallback(() => {
-    if (isMobile || state === "expanded" || collapsible === "none") return;
-
+    // ALWAYS cancel close timer when entering, regardless of state
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = undefined;
     }
+
+    // Only open if not already expanded
+    if (isMobile || state === "expanded" || collapsible === "none") return;
     setOpen(true);
   }, [isMobile, state, collapsible, setOpen]);
 
