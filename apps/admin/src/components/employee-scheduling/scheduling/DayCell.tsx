@@ -32,7 +32,12 @@ export function DayCell({
 
   // Helper: Check if employee is unavailable on this date
   const isEmployeeUnavailable = (employeeId: string): IUnavailabilityWithEmployee | undefined => {
-    const dayStr = day.toISOString().split('T')[0];
+    // Format date in local timezone (YYYY-MM-DD) to avoid UTC offset issues
+    const year = day.getFullYear();
+    const month = String(day.getMonth() + 1).padStart(2, '0');
+    const dayOfMonth = String(day.getDate()).padStart(2, '0');
+    const dayStr = `${year}-${month}-${dayOfMonth}`;
+
     return unavailabilities.find(unavail => {
       if (typeof unavail.employeeId === 'object' && unavail.employeeId !== null) {
         const empId = (unavail.employeeId as any).id || (unavail.employeeId as any)._id;

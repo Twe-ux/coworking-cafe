@@ -18,16 +18,20 @@ import type { CreateAbsenceRequest } from '@/types/absence';
  *  - limit: Max results (default: 100)
  */
 export async function GET(request: NextRequest) {
-  // Auth check
-  const authResult = await requireAuth(['dev', 'admin', 'staff']);
-  if (!authResult.authorized) return authResult.response;
+  const { searchParams } = new URL(request.url);
+  const status = searchParams.get('status');
+
+  // Allow public access ONLY for approved absences (for staff planning view)
+  // All other requests require authentication
+  if (status !== 'approved') {
+    const authResult = await requireAuth(['dev', 'admin', 'staff']);
+    if (!authResult.authorized) return authResult.response;
+  }
 
   try {
     await connectMongoose();
 
-    const { searchParams } = new URL(request.url);
     const employeeId = searchParams.get('employeeId');
-    const status = searchParams.get('status');
     const type = searchParams.get('type');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
