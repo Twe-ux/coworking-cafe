@@ -42,7 +42,8 @@ async function sendEmailViaSMTP(
   to: string,
   subject: string,
   html: string,
-  text?: string
+  text?: string,
+  bcc?: string | string[]
 ): Promise<boolean> {
   try {
     await smtpSendEmail({
@@ -50,9 +51,13 @@ async function sendEmailViaSMTP(
       subject,
       html,
       text: text || '',
+      bcc,
     });
 
     console.log(`Email envoyé avec succès à ${to}: ${subject}`);
+    if (bcc) {
+      console.log(`BCC envoyé à: ${Array.isArray(bcc) ? bcc.join(', ') : bcc}`);
+    }
     return true;
   } catch (error) {
     console.error(`Erreur lors de l'envoi de l'email à ${to}:`, error);
@@ -495,7 +500,10 @@ Email : ${EMAIL_CONFIG.contact.email}
 L'équipe CoworKing Café by Anticafé
   `;
 
-  return sendEmailViaSMTP(to, subject, html, text);
+  // Add admin BCC if configured
+  const adminBcc = process.env.EMAIL_BCC || process.env.ADMIN_EMAIL;
+
+  return sendEmailViaSMTP(to, subject, html, text, adminBcc);
 }
 
 /**
