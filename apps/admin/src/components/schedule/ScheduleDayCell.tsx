@@ -46,7 +46,7 @@ function ShiftButton({ shift, employee, onShiftClick }: ShiftButtonProps) {
   return (
     <button
       onClick={(e) => onShiftClick(shift, e)}
-      className="w-full rounded px-1 py-0.5 text-xs font-medium text-white"
+      className="h-5 w-full rounded px-1 py-0.5 text-xs font-medium text-white"
       style={{ backgroundColor: employee.color || "#9CA3AF" }}
       title={`${employee.firstName} - ${shift.startTime} à ${shift.endTime}`}
     >
@@ -147,17 +147,13 @@ export function ScheduleDayCell({
             : 'bg-orange-100 text-orange-700 border-orange-300';
 
           return (
-            <div key={employee.id} className="flex h-5 items-center gap-2">
-              <div className="flex-1">
-                <div
-                  className={`flex items-center justify-center gap-1 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}
-                  title={`${employee.firstName} - ${label}`}
-                >
-                  <CalendarOff className="h-3 w-3" />
-                  <span>{label}</span>
-                </div>
-              </div>
-              <div className="flex-1"></div>
+            <div
+              key={employee.id}
+              className={`flex h-5 items-center justify-center gap-2 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}
+              title={`${employee.firstName} - ${label}`}
+            >
+              <CalendarOff className="h-3 w-3" />
+              <span>{label}</span>
             </div>
           );
         }
