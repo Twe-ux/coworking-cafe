@@ -52,12 +52,19 @@ export async function GET(request: NextRequest) {
       query.type = type;
     }
 
-    if (startDate) {
-      query.startDate = { $gte: startDate };
-    }
-
-    if (endDate) {
-      query.endDate = { $lte: endDate };
+    // Date range: find absences that OVERLAP with the requested period
+    // Overlap condition: absence ends after period start AND absence starts before period end
+    if (startDate && endDate) {
+      query.$and = [
+        { endDate: { $gte: startDate } },    // Absence ends after or during period
+        { startDate: { $lte: endDate } }     // Absence starts before or during period
+      ];
+    } else if (startDate) {
+      // Only startDate: find absences that end after this date
+      query.endDate = { $gte: startDate };
+    } else if (endDate) {
+      // Only endDate: find absences that start before this date
+      query.startDate = { $lte: endDate };
     }
 
     // Fetch absences
