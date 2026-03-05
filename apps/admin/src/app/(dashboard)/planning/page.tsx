@@ -12,19 +12,42 @@ export default function StaffSchedulePage() {
   const { data: session } = useSession();
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Calculate date range: current week +/- 2 weeks (4 weeks total)
-  // This limits the amount of data loaded for better performance
+  // Calculate date range: current week +/- 2 weeks, rounded to full weeks (Monday-Sunday)
+  // This ensures we always display complete weeks, even if they extend beyond the 2-week window
   const dateRange = useMemo(() => {
     const now = new Date();
-    const startDate = new Date(now);
-    startDate.setDate(now.getDate() - 14); // 2 weeks before
 
-    const endDate = new Date(now);
-    endDate.setDate(now.getDate() + 14); // 2 weeks after
+    // Calculate 2 weeks before
+    const twoWeeksBefore = new Date(now);
+    twoWeeksBefore.setDate(now.getDate() - 14);
+
+    // Round DOWN to the Monday of that week
+    const startDate = new Date(twoWeeksBefore);
+    const startDayOfWeek = startDate.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+    const daysToMonday = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1; // If Sunday, go back 6 days
+    startDate.setDate(startDate.getDate() - daysToMonday);
+
+    // Calculate 2 weeks after
+    const twoWeeksAfter = new Date(now);
+    twoWeeksAfter.setDate(now.getDate() + 14);
+
+    // Round UP to the Sunday of that week
+    const endDate = new Date(twoWeeksAfter);
+    const endDayOfWeek = endDate.getDay();
+    const daysToSunday = endDayOfWeek === 0 ? 0 : 7 - endDayOfWeek; // If already Sunday, keep it; else go forward to Sunday
+    endDate.setDate(endDate.getDate() + daysToSunday);
+
+    // Format as YYYY-MM-DD using local timezone
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
     return {
-      startDate: startDate.toISOString().split('T')[0], // YYYY-MM-DD
-      endDate: endDate.toISOString().split('T')[0],     // YYYY-MM-DD
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
     };
   }, []);
 
