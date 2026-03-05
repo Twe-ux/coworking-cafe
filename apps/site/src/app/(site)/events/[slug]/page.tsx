@@ -91,6 +91,7 @@ export default async function EventDetailPage({
         endTime={event.endTime}
         location={event.location}
         category={event.category}
+        priceType={(event as any).priceType}
         price={event.price}
         imgSrc={event.imgSrc}
         imgAlt={event.imgAlt}

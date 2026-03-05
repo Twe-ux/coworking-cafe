@@ -11,6 +11,7 @@ interface EventDetailHeroProps {
   endTime?: string;
   location?: string;
   category: string[];
+  priceType?: "free" | "organizer" | "fixed";
   price?: number;
   imgSrc: string;
   imgAlt: string;
@@ -30,6 +31,7 @@ export default function EventDetailHero({
   endTime,
   location,
   category,
+  priceType,
   price,
   imgSrc,
   imgAlt,
@@ -119,8 +121,12 @@ export default function EventDetailHero({
               )}
 
               {/* Price */}
-              {price && price > 0 ? (
+              {priceType === "fixed" && price && price > 0 ? (
                 <div className="event-detail__price">{price}&euro;</div>
+              ) : priceType === "organizer" ? (
+                <div className="event-detail__price event-detail__price--info">
+                  Prix fixé par l&apos;organisateur
+                </div>
               ) : (
                 <div className="event-detail__price event-detail__price--free">Gratuit</div>
               )}
