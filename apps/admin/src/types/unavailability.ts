@@ -1,6 +1,15 @@
 import { Document, Types } from "mongoose";
 
-export type UnavailabilityType = "vacation" | "personal";
+// New API uses: paid_leave, sick_leave, unavailability
+// Legacy types: vacation, sick, personal
+export type UnavailabilityType =
+  | "paid_leave"
+  | "sick_leave"
+  | "unavailability"
+  | "vacation"  // Legacy
+  | "sick"      // Legacy
+  | "personal"; // Legacy
+
 export type UnavailabilityStatus =
   | "pending"
   | "approved"

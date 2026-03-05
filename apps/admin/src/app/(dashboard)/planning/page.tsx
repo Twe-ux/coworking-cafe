@@ -5,12 +5,28 @@ import { useEmployees } from "@/hooks/useEmployees";
 import { useShifts } from "@/hooks/useShifts";
 import { useUnavailabilities } from "@/hooks/useUnavailabilities";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { PlanningPageSkeleton } from "./PlanningPageSkeleton";
 
 export default function StaffSchedulePage() {
   const { data: session } = useSession();
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Calculate date range: current week +/- 2 weeks (4 weeks total)
+  // This limits the amount of data loaded for better performance
+  const dateRange = useMemo(() => {
+    const now = new Date();
+    const startDate = new Date(now);
+    startDate.setDate(now.getDate() - 14); // 2 weeks before
+
+    const endDate = new Date(now);
+    endDate.setDate(now.getDate() + 14); // 2 weeks after
+
+    return {
+      startDate: startDate.toISOString().split('T')[0], // YYYY-MM-DD
+      endDate: endDate.toISOString().split('T')[0],     // YYYY-MM-DD
+    };
+  }, []);
 
   // Charger les employés et shifts depuis l'API
   const {
@@ -23,11 +39,17 @@ export default function StaffSchedulePage() {
     shifts,
     isLoading: shiftsLoading,
     error: shiftsError,
-  } = useShifts({ active: true });
+  } = useShifts({
+    active: true,
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+  });
 
   // Charger les indisponibilités approuvées (pour affichage dans planning)
   const { unavailabilities, loading: unavailabilitiesLoading } = useUnavailabilities({
     status: "approved",
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
   });
 
   // Gérer les états de chargement et d'erreur

@@ -79,10 +79,9 @@ async function fetchUnavailabilities(
     startDate: absence.startDate,
     endDate: absence.endDate,
     reason: absence.reason || '',
-    // Map new types to old types
-    type: absence.type === 'paid_leave' ? 'vacation'
-      : absence.type === 'sick_leave' ? 'sick'
-      : 'personal',
+    // Keep new types as-is (paid_leave, sick_leave, unavailability)
+    // DayCell expects these exact types
+    type: absence.type,
     status: absence.status,
     requestedBy: 'employee', // Default
     approvedBy: absence.approvedBy,
