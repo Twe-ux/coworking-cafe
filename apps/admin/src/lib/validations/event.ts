@@ -44,6 +44,7 @@ const eventBaseSchema = z.object({
   ),
   maxParticipants: z.number().int().min(1, "Max participants must be at least 1").optional(),
   currentParticipants: z.number().int().min(0, "Current participants cannot be negative").optional(),
+  priceType: z.enum(["free", "organizer", "fixed"]).default("free"),
   price: z.number().min(0, "Price cannot be negative").optional(),
   organizer: z.string().optional(),
   contactEmail: z.preprocess(
