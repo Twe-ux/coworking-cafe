@@ -133,11 +133,15 @@ export async function POST(
           ? booking.date.toISOString().split('T')[0]
           : String(booking.date);
 
-        // Check if user is populated and has email
-        if (isPopulatedUser(booking.user) && booking.user.email) {
-          const user = booking.user;
+        // Get user and space (cast to any like in original working code)
+        const user = booking.user as any;
+        const space = booking.space as any;
+
+        console.log(`[API] User email: ${user?.email}, User object:`, JSON.stringify(user));
+
+        if (user && user.email) {
           const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client';
-          const spaceName = isPopulatedSpace(booking.space) ? booking.space.name : 'Espace';
+          const spaceName = space?.name || 'Espace';
 
           console.log(`[API] Appel sendClientPresentEmail pour: ${user.email}`);
           await sendClientPresentEmail(
@@ -154,7 +158,7 @@ export async function POST(
           );
           console.log(`[API] sendClientPresentEmail terminé`);
         } else {
-          console.log(`[API] User non populé ou email manquant`);
+          console.log(`[API] User non populé ou email manquant - User:`, user);
         }
       } catch (emailError) {
         console.error("[API] Error sending present email:", emailError);
