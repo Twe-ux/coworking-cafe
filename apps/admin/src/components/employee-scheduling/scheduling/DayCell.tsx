@@ -33,17 +33,7 @@ export function DayCell({
   // Helper: Check if employee is unavailable on this date
   const isEmployeeUnavailable = (employeeId: string): IUnavailabilityWithEmployee | undefined => {
     const dayStr = day.toISOString().split('T')[0];
-    const result = unavailabilities.find(unavail => {
-      // Debug: Log check
-      console.log('[DayCell] Checking unavail:', {
-        employeeId,
-        unavailEmployeeId: unavail.employeeId,
-        dayStr,
-        startDate: unavail.startDate,
-        endDate: unavail.endDate,
-        type: unavail.type,
-      });
-
+    return unavailabilities.find(unavail => {
       if (typeof unavail.employeeId === 'object' && unavail.employeeId !== null) {
         const empId = (unavail.employeeId as any).id || (unavail.employeeId as any)._id;
         if (empId !== employeeId) return false;
@@ -51,13 +41,8 @@ export function DayCell({
         return false;
       }
 
-      const match = dayStr >= unavail.startDate && dayStr <= unavail.endDate;
-      if (match) {
-        console.log('[DayCell] ✅ Match found for', employeeId, 'on', dayStr, ':', unavail.type);
-      }
-      return match;
+      return dayStr >= unavail.startDate && dayStr <= unavail.endDate;
     });
-    return result;
   }
 
   // Arrondir les coins bas si c'est aujourd'hui et première/dernière cellule

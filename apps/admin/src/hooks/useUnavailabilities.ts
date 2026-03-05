@@ -120,6 +120,8 @@ export function useUnavailabilities(options: UseUnavailabilitiesOptions = {}): U
     queryKey: unavailabilityKeys.list(filters),
     queryFn: () => fetchUnavailabilities(filters),
     enabled: autoFetch,
+    refetchOnWindowFocus: false, // Prevent refetch when returning to the tab
+    retry: false, // Don't retry on 401 errors
   });
 
   const invalidate = useCallback(() => {

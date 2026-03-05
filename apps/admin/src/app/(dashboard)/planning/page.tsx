@@ -52,11 +52,6 @@ export default function StaffSchedulePage() {
     endDate: dateRange.endDate,
   });
 
-  // Debug: Log unavailabilities data
-  console.log('[Planning] Date range:', dateRange);
-  console.log('[Planning] Unavailabilities loaded:', unavailabilities.length);
-  console.log('[Planning] Unavailabilities:', unavailabilities);
-
   // Gérer les états de chargement et d'erreur
   if (employeesLoading || shiftsLoading || unavailabilitiesLoading) {
     return <PlanningPageSkeleton />;
