@@ -147,9 +147,9 @@ export function ScheduleDayCell({
             : 'bg-orange-100 text-orange-700 border-orange-300';
 
           return (
-            <div key={employee.id} className="flex h-5 items-center">
+            <div key={employee.id} className="flex min-h-6 items-center">
               <div
-                className={`flex w-full items-center justify-center gap-1 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}
+                className={`flex w-full items-center justify-center gap-1 rounded border px-2 py-1 text-xs font-medium ${bgColor}`}
                 title={`${employee.firstName} - ${label}`}
               >
                 <CalendarOff className="h-3 w-3" />
@@ -167,7 +167,7 @@ export function ScheduleDayCell({
         const afternoonShifts = employeeShifts?.afternoonShifts ?? [];
 
         return (
-          <div key={employee.id} className="flex h-5 items-center gap-2">
+          <div key={employee.id} className="flex min-h-6 items-center gap-2">
             {/* Morning column (before 14:30) */}
             <div className="flex-1 min-w-0 text-center">
               <TimeSlotColumn

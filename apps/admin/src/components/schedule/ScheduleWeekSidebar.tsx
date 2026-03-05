@@ -69,7 +69,7 @@ export function ScheduleWeekSidebar({
           return (
             <div
               key={employee.id}
-              className="flex h-5 items-center justify-between rounded px-1 text-xs font-medium text-white"
+              className="flex min-h-6 items-center justify-between rounded px-1 text-xs font-medium text-white"
               style={{ backgroundColor: employee.color || "#9CA3AF" }}
               title={`${employee.fullName}: ${plannedText}`}
             >
