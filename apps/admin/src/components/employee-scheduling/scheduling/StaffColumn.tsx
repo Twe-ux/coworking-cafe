@@ -21,7 +21,7 @@ export function StaffColumn({ employees, weeklyHoursCalculator, showHours = true
       </div>
 
       {/* Employee list */}
-      <div className="flex min-h-[140px] flex-col rounded-b-lg border-r border-b border-l border-gray-400 bg-gray-50 p-2">
+      <div className="flex min-h-[120px] flex-col rounded-b-lg border-r border-b border-l border-gray-400 bg-gray-50 p-2 pb-3">
         <div className="h-6" />
         <div className="flex-1 space-y-1 overflow-hidden">
           {employees.map((employee) => {
@@ -30,7 +30,7 @@ export function StaffColumn({ employees, weeklyHoursCalculator, showHours = true
             return (
               <div
                 key={employee.id}
-                className={`flex min-h-6 items-center rounded px-1 text-xs font-medium text-white ${
+                className={`flex h-5 items-center rounded px-1 text-xs font-medium text-white ${
                   showHours ? 'justify-between' : 'justify-center'
                 }`}
                 style={{ backgroundColor: employee.color || '#9CA3AF' }}

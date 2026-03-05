@@ -61,7 +61,7 @@ export function DayCell({
 
   return (
     <div
-      className={`flex min-h-[140px] flex-col bg-white p-2 ${
+      className={`flex min-h-[120px] flex-col bg-white p-2 pb-3 ${
         dayIsToday ? 'ring-2 ring-blue-500 ring-inset' : ''
       } ${roundedClass} cursor-pointer transition-colors hover:bg-gray-50`}
     >
@@ -97,8 +97,8 @@ export function DayCell({
               : 'bg-orange-100 text-orange-700 border-orange-300';
 
             return (
-              <div key={employee.id} className="grid min-h-6 grid-cols-1">
-                <div className={`flex items-center justify-center gap-1 rounded border px-2 py-1 text-xs font-medium ${bgColor}`}>
+              <div key={employee.id} className="grid h-5 grid-cols-1">
+                <div className={`flex items-center justify-center gap-1 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}>
                   <CalendarOff className="h-3 w-3" />
                   <span>{label}</span>
                 </div>
@@ -107,7 +107,7 @@ export function DayCell({
           }
 
           return (
-            <div key={employee.id} className="grid min-h-6 grid-cols-2 gap-2">
+            <div key={employee.id} className="grid h-5 grid-cols-2 gap-2">
               {/* Morning column (before 14:30) */}
               <div className="space-y-1 text-center">
                 {morningShifts.length > 0 ? (
