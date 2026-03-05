@@ -267,5 +267,5 @@ export default async function EventsPage() {
   );
 }
 
-// Revalidate every hour
-export const revalidate = 3600;
+// Revalidate every 5 minutes (events can be added frequently)
+export const revalidate = 300;
