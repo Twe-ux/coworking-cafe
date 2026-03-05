@@ -134,36 +134,35 @@ export async function POST(
 
     // Send email to client confirming presence and card hold release
     // Only send email if booking has a Stripe payment intent (= card hold)
-    console.log(`[API] Vérification envoi email - stripePaymentIntentId: ${bookingDoc.stripePaymentIntentId}`);
-
     if (bookingDoc.stripePaymentIntentId) {
-      console.log(`[API] Booking a un payment intent, envoi de l'email...`);
       try {
-        const bookingDate = booking.date instanceof Date
-          ? booking.date.toISOString().split('T')[0]
-          : String(booking.date);
+        // Use same pattern as confirmation route
+        const populatedUser = isPopulatedUser(booking.user) ? booking.user : undefined;
+        const populatedSpace = isPopulatedSpace(booking.space) ? booking.space : undefined;
+        const clientEmail = populatedUser?.email || (booking as any).contactEmail;
+        const clientName = (populatedUser?.firstName && populatedUser?.lastName)
+          ? `${populatedUser.firstName} ${populatedUser.lastName}`
+          : (booking as any).contactName || populatedUser?.email || "Client";
 
-        // Get user and space (cast to any like in original working code)
-        const user = booking.user as any;
-        const space = booking.space as any;
-        const bookingWithContact = booking as any;
-
-        console.log(`[API] User email: ${user?.email}, User object:`, JSON.stringify(user));
-
-        // Try user email first, fallback to contactEmail
-        const clientEmail = user?.email || bookingWithContact?.contactEmail;
-        const clientName = user
-          ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client'
-          : bookingWithContact?.contactName || 'Client';
-        const spaceName = space?.name || 'Espace';
+        console.log("[API] Mark Present - Email check:", {
+          populatedUser: !!populatedUser,
+          userEmail: populatedUser?.email,
+          contactEmail: (booking as any).contactEmail,
+          finalEmail: clientEmail,
+          stripePaymentIntentId: bookingDoc.stripePaymentIntentId,
+        });
 
         if (clientEmail) {
-          console.log(`[API] Appel sendClientPresentEmail pour: ${clientEmail} (source: ${user?.email ? 'user' : 'contactEmail'})`);
+          const bookingDate = booking.date instanceof Date
+            ? booking.date.toISOString().split('T')[0]
+            : String(booking.date);
+
+          console.log(`[API] Envoi email présence à: ${clientEmail}`);
           await sendClientPresentEmail(
             clientEmail,
             {
               name: clientName,
-              spaceName,
+              spaceName: populatedSpace?.name || booking.spaceType || 'Espace',
               date: bookingDate,
               startTime: booking.startTime || '09:00',
               endTime: booking.endTime || '18:00',
@@ -171,16 +170,14 @@ export async function POST(
               totalPrice: booking.totalPrice || 0,
             }
           );
-          console.log(`[API] sendClientPresentEmail terminé`);
+          console.log(`[API] Email présence envoyé avec succès`);
         } else {
-          console.log(`[API] Aucun email trouvé - User:`, user, 'ContactEmail:', bookingWithContact?.contactEmail);
+          console.log(`[API] Aucun email trouvé pour cette réservation`);
         }
       } catch (emailError) {
         console.error("[API] Error sending present email:", emailError);
         // Don't fail the request if email fails
       }
-    } else {
-      console.log(`[API] Pas de payment intent, pas d'email envoyé`);
     }
 
     return successResponse(

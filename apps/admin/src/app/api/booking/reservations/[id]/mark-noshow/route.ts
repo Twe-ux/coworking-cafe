@@ -113,18 +113,31 @@ export async function POST(
     // Only send email if booking has a Stripe payment intent (= card hold)
     if (bookingDoc.stripePaymentIntentId) {
       try {
-        const user = booking.user;
-        const space = booking.space;
-        const bookingDate = booking.date instanceof Date
-          ? booking.date.toISOString().split('T')[0]
-          : String(booking.date);
+        // Use same pattern as confirmation route
+        const populatedUser = booking.user as PopulatedUser;
+        const populatedSpace = booking.space as PopulatedSpace;
+        const clientEmail = populatedUser?.email || (booking as any).contactEmail;
+        const clientName = (populatedUser?.firstName && populatedUser?.lastName)
+          ? `${populatedUser.firstName} ${populatedUser.lastName}`
+          : (booking as any).contactName || populatedUser?.email || "Client";
 
-        if (user && user.email) {
+        console.log("[API] Mark No-Show - Email check:", {
+          hasUser: !!populatedUser,
+          userEmail: populatedUser?.email,
+          contactEmail: (booking as any).contactEmail,
+          finalEmail: clientEmail,
+        });
+
+        if (clientEmail) {
+          const bookingDate = booking.date instanceof Date
+            ? booking.date.toISOString().split('T')[0]
+            : String(booking.date);
+
           await sendClientNoShowEmail(
-            user.email,
+            clientEmail,
             {
-              name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client',
-              spaceName: space?.name || 'Espace',
+              name: clientName,
+              spaceName: populatedSpace?.name || 'Espace',
               date: bookingDate,
               startTime: booking.startTime || '09:00',
               endTime: booking.endTime || '18:00',
@@ -132,6 +145,7 @@ export async function POST(
               depositAmount: booking.depositAmount || 0,
             }
           );
+          console.log(`[API] Email no-show envoyé avec succès à: ${clientEmail}`);
         }
       } catch (emailError) {
         console.error("[API] Error sending no-show email:", emailError);
