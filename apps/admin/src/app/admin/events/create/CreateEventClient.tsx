@@ -67,7 +67,7 @@ export function CreateEventClient() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -90,7 +90,9 @@ export function CreateEventClient() {
       {/* Message */}
       {message && (
         <div className="relative">
-          <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+          <StyledAlert
+            variant={message.type === "success" ? "success" : "destructive"}
+          >
             {message.text}
           </StyledAlert>
           <Button

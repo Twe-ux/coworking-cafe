@@ -31,7 +31,7 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
           <Button
             asChild
             variant="outline"
-            className="w-full border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+            className="w-full bg-primary border-primary text-white hover:border-primary/80 hover:bg-primary/80 hover:text-white"
           >
             <Link href="/admin/hr/employees">
               <Users className="mr-2 h-4 w-4" />
@@ -67,7 +67,7 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
           <Button
             asChild
             variant="outline"
-            className="w-full border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+            className="w-full bg-primary border-primary text-white hover:border-primary/80 hover:bg-primary/80 hover:text-white"
           >
             <Link href="/admin/hr/schedule">
               <Calendar className="mr-2 h-4 w-4" />
@@ -102,7 +102,7 @@ export function MainSections({ pendingJustifications }: MainSectionsProps) {
           <Button
             asChild
             variant="outline"
-            className="w-full border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+            className="w-full bg-primary border-primary text-white hover:border-primary/80 hover:bg-primary/80 hover:text-white"
           >
             <Link href="/admin/hr/clocking-admin">
               <Clock className="mr-2 h-4 w-4" />

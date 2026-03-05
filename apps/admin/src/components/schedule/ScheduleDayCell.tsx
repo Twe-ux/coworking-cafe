@@ -27,7 +27,10 @@ interface ScheduleDayCellProps {
     dayShifts: Shift[],
   ) => EmployeeShiftPosition[];
   isEmployeeUnavailable: (dateStr: string, employeeId: string) => boolean;
-  getEmployeeAbsence: (dateStr: string, employeeId: string) => IUnavailabilityWithEmployee | undefined;
+  getEmployeeAbsence: (
+    dateStr: string,
+    employeeId: string,
+  ) => IUnavailabilityWithEmployee | undefined;
   onShiftClick: (shift: Shift, e: React.MouseEvent) => void;
   onEmptySlotClick?: (
     date: Date,
@@ -137,14 +140,17 @@ export function ScheduleDayCell({
         // If unavailable, show color-coded badge based on absence type
         if (absence) {
           const absenceTypeLabels: Record<string, string> = {
-            paid_leave: 'CP',
-            sick_leave: 'AM',
-            unavailability: 'Indispo'
+            paid_leave: "CP",
+            sick_leave: "AM",
+            unavailability: "Indispo",
           };
-          const label = absenceTypeLabels[absence.type] || 'Absent';
-          const bgColor = absence.type === 'paid_leave' ? 'bg-green-100 text-green-700 border-green-300'
-            : absence.type === 'sick_leave' ? 'bg-red-100 text-red-700 border-red-300'
-            : 'bg-orange-100 text-orange-700 border-orange-300';
+          const label = absenceTypeLabels[absence.type] || "Absent";
+          const bgColor =
+            absence.type === "paid_leave"
+              ? "bg-green-500 text-white border-green-500"
+              : absence.type === "sick_leave"
+                ? "bg-red-500 text-white border-red-500"
+                : "bg-orange-500 text-white border-orange-500";
 
           return (
             <div

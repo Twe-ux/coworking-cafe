@@ -60,7 +60,9 @@ export function EventsClient() {
       {/* Message */}
       {message && (
         <div className="relative">
-          <StyledAlert variant={message.type === "success" ? "success" : "destructive"}>
+          <StyledAlert
+            variant={message.type === "success" ? "success" : "destructive"}
+          >
             {message.text}
           </StyledAlert>
           <Button
@@ -87,7 +89,9 @@ export function EventsClient() {
         events={events}
         loading={loading}
         onEdit={(eventId) => router.push(`/admin/events/${eventId}/edit`)}
-        onDuplicate={(eventId) => router.push(`/admin/events/duplicate/${eventId}`)}
+        onDuplicate={(eventId) =>
+          router.push(`/admin/events/duplicate/${eventId}`)
+        }
         onArchive={handleArchive}
         onDelete={handleDeleteClick}
         onStatusToggle={handleStatusToggle}
