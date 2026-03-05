@@ -11,10 +11,8 @@ export interface Supplier {
   name: string
   contact: string
   email: string
-  phone: string
-  address?: string
-  categories: ("food" | "cleaning")[]
-  paymentTerms?: string
+  phone?: string
+  categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
   isActive: boolean
   createdAt: string
@@ -25,11 +23,10 @@ export interface SupplierFormData {
   name: string
   contact: string
   email: string
-  phone: string
-  address?: string
-  categories: ("food" | "cleaning")[]
-  paymentTerms?: string
+  phone?: string
+  categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
+  isActive?: boolean
 }
 
 // ----------------------------------------------------------------------------

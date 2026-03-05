@@ -100,13 +100,10 @@ export async function PUT(
           ...(body.name && { name: body.name }),
           ...(body.contact && { contact: body.contact }),
           ...(body.email && { email: body.email }),
-          ...(body.phone && { phone: body.phone }),
-          ...(body.address !== undefined && { address: body.address }),
+          ...(body.phone !== undefined && { phone: body.phone }),
           ...(body.categories && { categories: body.categories }),
-          ...(body.paymentTerms !== undefined && {
-            paymentTerms: body.paymentTerms,
-          }),
           ...(body.notes !== undefined && { notes: body.notes }),
+          ...('isActive' in body && { isActive: body.isActive }),
         },
       },
       { new: true, runValidators: true }
@@ -139,8 +136,10 @@ export async function PUT(
 }
 
 /**
- * DELETE /api/inventory/suppliers/[id] - Soft delete a supplier (set isActive = false)
+ * DELETE /api/inventory/suppliers/[id] - Soft delete (deactivate) a supplier
  * Auth: requireAuth(['admin', 'dev'])
+ *
+ * Note: Soft delete to preserve data integrity for products and orders history
  */
 export async function DELETE(
   request: NextRequest,
@@ -160,7 +159,7 @@ export async function DELETE(
       return notFoundResponse('Fournisseur')
     }
 
-    // Soft delete - set isActive to false
+    // Soft delete - deactivate the supplier
     await Supplier.findByIdAndUpdate(params.id, {
       $set: { isActive: false },
     })
@@ -175,7 +174,7 @@ export async function DELETE(
       error
     )
     return errorResponse(
-      'Erreur lors de la suppression du fournisseur',
+      'Erreur lors de la désactivation du fournisseur',
       error instanceof Error ? error.message : undefined,
       500
     )

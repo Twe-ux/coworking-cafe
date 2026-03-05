@@ -51,13 +51,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by category
-    if (category && (category === 'food' || category === 'cleaning')) {
+    if (category && ['food', 'cleaning', 'emballage', 'papeterie', 'divers'].includes(category)) {
       filter.categories = category
     }
 
-    // Filter by active status
+    // Filter by active status (default: show only active)
     if (active !== null && active !== undefined) {
       filter.isActive = active === 'true'
+    } else {
+      // Default: show only active suppliers
+      filter.isActive = true
     }
 
     // Fetch suppliers
@@ -106,8 +109,8 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as SupplierFormData
 
     // Validate required fields
-    if (!body.name || !body.contact || !body.email || !body.phone) {
-      return errorResponse('Champs requis manquants', undefined, 400)
+    if (!body.name || !body.contact || !body.email) {
+      return errorResponse('Champs requis manquants (nom, contact, email)', undefined, 400)
     }
 
     if (!body.categories || body.categories.length === 0) {
@@ -133,11 +136,9 @@ export async function POST(request: NextRequest) {
       name: body.name,
       contact: body.contact,
       email: body.email,
-      phone: body.phone,
-      address: body.address,
+      ...(body.phone && { phone: body.phone }),
       categories: body.categories,
-      paymentTerms: body.paymentTerms,
-      notes: body.notes,
+      ...(body.notes && { notes: body.notes }),
       isActive: true,
     })
 

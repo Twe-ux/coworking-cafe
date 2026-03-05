@@ -15,6 +15,7 @@ interface UseSupplierReturn {
   createSupplier: (data: SupplierFormData) => Promise<boolean>
   updateSupplier: (id: string, data: Partial<SupplierFormData>) => Promise<boolean>
   deleteSupplier: (id: string) => Promise<boolean>
+  reactivateSupplier: (id: string) => Promise<boolean>
   refetch: () => Promise<void>
 }
 
@@ -122,7 +123,7 @@ export function useSuppliers(filters?: UseSupplierFilters): UseSupplierReturn {
   }
 
   /**
-   * Delete (soft delete) a supplier
+   * Deactivate (soft delete) a supplier
    */
   const deleteSupplier = async (id: string): Promise<boolean> => {
     try {
@@ -148,6 +149,35 @@ export function useSuppliers(filters?: UseSupplierFilters): UseSupplierReturn {
     }
   }
 
+  /**
+   * Reactivate a deactivated supplier
+   */
+  const reactivateSupplier = async (id: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/inventory/suppliers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: true }),
+      })
+
+      const result = (await res.json()) as APIResponse<Supplier>
+
+      if (result.success) {
+        // Invalidate cache and refetch
+        inventoryCache.invalidatePattern('suppliers')
+        await fetchSuppliers()
+        return true
+      } else {
+        setError(result.error || 'Erreur lors de la réactivation')
+        return false
+      }
+    } catch (err) {
+      console.error('[useSuppliers] Reactivate error:', err)
+      setError('Erreur réseau lors de la réactivation')
+      return false
+    }
+  }
+
   // Fetch suppliers on mount and when filters change
   useEffect(() => {
     fetchSuppliers()
@@ -160,6 +190,7 @@ export function useSuppliers(filters?: UseSupplierFilters): UseSupplierReturn {
     createSupplier,
     updateSupplier,
     deleteSupplier,
+    reactivateSupplier,
     refetch: fetchSuppliers,
   }
 }

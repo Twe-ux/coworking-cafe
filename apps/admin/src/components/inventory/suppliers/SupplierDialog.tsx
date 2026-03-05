@@ -33,12 +33,10 @@ const supplierSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   contact: z.string().min(2, 'Le contact doit contenir au moins 2 caractères'),
   email: z.string().email('Email invalide'),
-  phone: z.string().min(10, 'Téléphone invalide'),
-  address: z.string().optional(),
+  phone: z.string().optional(),
   categories: z
-    .array(z.enum(['food', 'cleaning']))
+    .array(z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']))
     .min(1, 'Sélectionnez au moins une catégorie'),
-  paymentTerms: z.string().optional(),
   notes: z.string().optional(),
 })
 
@@ -69,9 +67,7 @@ export function SupplierDialog({
       contact: '',
       email: '',
       phone: '',
-      address: '',
       categories: [],
-      paymentTerms: '',
       notes: '',
     },
   })
@@ -129,10 +125,8 @@ export function SupplierDialog({
         name: supplier.name,
         contact: supplier.contact,
         email: supplier.email,
-        phone: supplier.phone,
-        address: supplier.address || '',
+        phone: supplier.phone || '',
         categories: supplier.categories,
-        paymentTerms: supplier.paymentTerms || '',
         notes: supplier.notes || '',
       })
       setEmailExists(false)
@@ -142,9 +136,7 @@ export function SupplierDialog({
         contact: '',
         email: '',
         phone: '',
-        address: '',
         categories: [],
-        paymentTerms: '',
         notes: '',
       })
       setEmailExists(false)
@@ -282,7 +274,7 @@ export function SupplierDialog({
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Téléphone *</FormLabel>
+                    <FormLabel>Téléphone</FormLabel>
                     <FormControl>
                       <Input placeholder="06 12 34 56 78" {...field} />
                     </FormControl>
@@ -291,21 +283,6 @@ export function SupplierDialog({
                 )}
               />
             </div>
-
-            {/* Address */}
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Adresse</FormLabel>
-                  <FormControl>
-                    <Input placeholder="123 Rue de Paris, 75001 Paris" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             {/* Categories - Checkboxes */}
             <FormField
@@ -364,25 +341,78 @@ export function SupplierDialog({
                       </FormControl>
                       <FormLabel className="font-normal">Entretien</FormLabel>
                     </FormItem>
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={form
+                            .watch('categories')
+                            ?.includes('emballage')}
+                          onCheckedChange={(checked) => {
+                            const current = form.getValues('categories') || []
+                            if (checked) {
+                              form.setValue('categories', [...current, 'emballage'])
+                            } else {
+                              form.setValue(
+                                'categories',
+                                current.filter((c) => c !== 'emballage')
+                              )
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        Emballage
+                      </FormLabel>
+                    </FormItem>
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={form
+                            .watch('categories')
+                            ?.includes('papeterie')}
+                          onCheckedChange={(checked) => {
+                            const current = form.getValues('categories') || []
+                            if (checked) {
+                              form.setValue('categories', [
+                                ...current,
+                                'papeterie',
+                              ])
+                            } else {
+                              form.setValue(
+                                'categories',
+                                current.filter((c) => c !== 'papeterie')
+                              )
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">Papeterie</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={form
+                            .watch('categories')
+                            ?.includes('divers')}
+                          onCheckedChange={(checked) => {
+                            const current = form.getValues('categories') || []
+                            if (checked) {
+                              form.setValue('categories', [
+                                ...current,
+                                'divers',
+                              ])
+                            } else {
+                              form.setValue(
+                                'categories',
+                                current.filter((c) => c !== 'divers')
+                              )
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">Divers</FormLabel>
+                    </FormItem>
                   </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Payment Terms */}
-            <FormField
-              control={form.control}
-              name="paymentTerms"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Conditions de paiement</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ex: 30 jours fin de mois"
-                      {...field}
-                    />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

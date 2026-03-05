@@ -5,10 +5,8 @@ export interface SupplierDocument extends Document {
   name: string
   contact: string
   email: string
-  phone: string
-  address?: string
-  categories: ("food" | "cleaning")[]
-  paymentTerms?: string
+  phone?: string
+  categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
   isActive: boolean
   createdAt: Date
@@ -36,25 +34,16 @@ export const SupplierSchema = new Schema<SupplierDocument>(
     },
     phone: {
       type: String,
-      required: [true, "Phone is required"],
-      trim: true,
-    },
-    address: {
-      type: String,
       trim: true,
     },
     categories: {
       type: [String],
-      enum: ["food", "cleaning"],
+      enum: ["food", "cleaning", "emballage", "papeterie", "divers"],
       required: [true, "At least one category is required"],
       validate: {
         validator: (v: string[]) => v.length > 0,
         message: "At least one category must be provided",
       },
-    },
-    paymentTerms: {
-      type: String,
-      trim: true,
     },
     notes: {
       type: String,

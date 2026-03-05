@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Filter } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
@@ -23,7 +23,7 @@ interface SupplierFiltersProps {
 export function SupplierFilters({ onFilterChange }: SupplierFiltersProps) {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<string>('all')
-  const [activeStatus, setActiveStatus] = useState<string>('all')
+  const [activeStatus, setActiveStatus] = useState<string>('active')
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
@@ -69,9 +69,14 @@ export function SupplierFilters({ onFilterChange }: SupplierFiltersProps) {
   const handleReset = () => {
     setSearch('')
     setCategory('all')
-    setActiveStatus('all')
-    onFilterChange({})
+    setActiveStatus('active')
+    onFilterChange({ active: true })
   }
+
+  // Apply default filter on mount (show only active suppliers)
+  useEffect(() => {
+    onFilterChange({ active: true })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="bg-card rounded-lg border p-4">
@@ -97,6 +102,9 @@ export function SupplierFilters({ onFilterChange }: SupplierFiltersProps) {
             <SelectItem value="all">Toutes catégories</SelectItem>
             <SelectItem value="food">Alimentation</SelectItem>
             <SelectItem value="cleaning">Entretien</SelectItem>
+            <SelectItem value="emballage">Emballage</SelectItem>
+            <SelectItem value="papeterie">Papeterie</SelectItem>
+            <SelectItem value="divers">Divers</SelectItem>
           </SelectContent>
         </Select>
 

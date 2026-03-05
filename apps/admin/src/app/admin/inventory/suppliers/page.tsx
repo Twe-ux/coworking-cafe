@@ -26,6 +26,7 @@ export default function SuppliersPage() {
     createSupplier,
     updateSupplier,
     deleteSupplier,
+    reactivateSupplier,
   } = useSuppliers(filters)
 
   const handleCreateClick = () => {
@@ -89,6 +90,7 @@ export default function SuppliersPage() {
         loading={loading}
         onEdit={handleEditClick}
         onDelete={deleteSupplier}
+        onReactivate={reactivateSupplier}
       />
 
       {/* Dialog */}

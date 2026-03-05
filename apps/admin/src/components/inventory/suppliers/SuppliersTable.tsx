@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Edit, Trash2, MoreHorizontal } from 'lucide-react'
+import { Edit, Trash2, MoreHorizontal, RefreshCw } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -36,6 +36,7 @@ interface SuppliersTableProps {
   loading: boolean
   onEdit: (supplier: Supplier) => void
   onDelete: (id: string) => Promise<boolean>
+  onReactivate: (id: string) => Promise<boolean>
 }
 
 export function SuppliersTable({
@@ -43,6 +44,7 @@ export function SuppliersTable({
   loading,
   onEdit,
   onDelete,
+  onReactivate,
 }: SuppliersTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(
@@ -62,8 +64,15 @@ export function SuppliersTable({
     }
   }
 
-  const getCategoryLabel = (category: 'food' | 'cleaning') => {
-    return category === 'food' ? 'Alimentation' : 'Entretien'
+  const getCategoryLabel = (category: 'food' | 'cleaning' | 'emballage' | 'papeterie' | 'divers') => {
+    const labels: Record<string, string> = {
+      food: 'Alimentation',
+      cleaning: 'Entretien',
+      emballage: 'Emballage',
+      papeterie: 'Papeterie',
+      divers: 'Divers'
+    }
+    return labels[category] || category
   }
 
   if (loading) {
@@ -141,13 +150,23 @@ export function SuppliersTable({
                         <Edit className="mr-2 h-4 w-4" />
                         Modifier
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDeleteClick(supplier)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Désactiver
-                      </DropdownMenuItem>
+                      {supplier.isActive ? (
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(supplier)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Désactiver
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={() => onReactivate(supplier._id)}
+                          className="text-green-600"
+                        >
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Réactiver
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -166,13 +185,18 @@ export function SuppliersTable({
               Êtes-vous sûr de vouloir désactiver{' '}
               <strong>{supplierToDelete?.name}</strong> ?
               <br />
-              Le fournisseur sera marqué comme inactif mais pourra être
-              réactivé plus tard.
+              <span className="text-muted-foreground text-sm mt-2 block">
+                Le fournisseur sera masqué mais ses produits et commandes resteront intacts.
+                Vous pourrez le réactiver plus tard si nécessaire.
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete}>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-orange-500 text-white hover:bg-orange-600"
+            >
               Désactiver
             </AlertDialogAction>
           </AlertDialogFooter>
