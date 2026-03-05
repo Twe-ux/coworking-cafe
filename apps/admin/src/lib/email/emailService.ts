@@ -11,6 +11,7 @@ interface SendEmailParams {
   subject: string;
   html: string;
   text?: string;
+  bcc?: string | string[];
   attachments?: Array<{
     filename: string;
     content?: string | Buffer;
@@ -18,13 +19,14 @@ interface SendEmailParams {
   }>;
 }
 
-export async function sendEmail({ to, subject, html, text, attachments }: SendEmailParams) {
+export async function sendEmail({ to, subject, html, text, bcc, attachments }: SendEmailParams) {
   try {
     await smtpSendEmail({
       to,
       subject,
       html,
       text: text || '',
+      bcc,
       attachments,
     });
 

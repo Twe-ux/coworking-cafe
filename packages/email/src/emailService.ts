@@ -19,6 +19,7 @@ export interface EmailOptions {
   text?: string;
   from?: string;
   replyTo?: string;
+  bcc?: string | string[];
   attachments?: Array<{
     filename: string;
     content?: string | Buffer;
@@ -65,6 +66,7 @@ export async function sendEmail(
     await transporter.sendMail({
       from: options.from || getEmailSender(senderType),
       to: options.to,
+      bcc: options.bcc,
       subject: options.subject,
       html: options.html,
       text: options.text,
