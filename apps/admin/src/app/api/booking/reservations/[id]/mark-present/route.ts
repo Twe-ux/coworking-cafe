@@ -90,6 +90,16 @@ export async function POST(
       return errorResponse("Réservation introuvable", "Booking not found", 404);
     }
 
+    // DEBUG: Log booking structure
+    console.log(`[API DEBUG] Booking structure:`, {
+      _id: booking._id,
+      hasUser: !!booking.user,
+      userType: typeof booking.user,
+      userId: booking.user instanceof Object ? (booking.user as any)._id : booking.user,
+      contactEmail: (booking as any).contactEmail,
+      contactName: (booking as any).contactName,
+    });
+
     // Check if booking is confirmed
     if (booking.status !== "confirmed") {
       return errorResponse(
@@ -136,18 +146,23 @@ export async function POST(
         // Get user and space (cast to any like in original working code)
         const user = booking.user as any;
         const space = booking.space as any;
+        const bookingWithContact = booking as any;
 
         console.log(`[API] User email: ${user?.email}, User object:`, JSON.stringify(user));
 
-        if (user && user.email) {
-          const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client';
-          const spaceName = space?.name || 'Espace';
+        // Try user email first, fallback to contactEmail
+        const clientEmail = user?.email || bookingWithContact?.contactEmail;
+        const clientName = user
+          ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Client'
+          : bookingWithContact?.contactName || 'Client';
+        const spaceName = space?.name || 'Espace';
 
-          console.log(`[API] Appel sendClientPresentEmail pour: ${user.email}`);
+        if (clientEmail) {
+          console.log(`[API] Appel sendClientPresentEmail pour: ${clientEmail} (source: ${user?.email ? 'user' : 'contactEmail'})`);
           await sendClientPresentEmail(
-            user.email,
+            clientEmail,
             {
-              name: userName,
+              name: clientName,
               spaceName,
               date: bookingDate,
               startTime: booking.startTime || '09:00',
@@ -158,7 +173,7 @@ export async function POST(
           );
           console.log(`[API] sendClientPresentEmail terminé`);
         } else {
-          console.log(`[API] User non populé ou email manquant - User:`, user);
+          console.log(`[API] Aucun email trouvé - User:`, user, 'ContactEmail:', bookingWithContact?.contactEmail);
         }
       } catch (emailError) {
         console.error("[API] Error sending present email:", emailError);
