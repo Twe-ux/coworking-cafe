@@ -15,7 +15,8 @@ if (models.InventoryEntry && process.env.NODE_ENV === 'production') {
   }
   InventoryEntryModel = model<InventoryEntryDocument>(
     'InventoryEntry',
-    InventoryEntrySchema
+    InventoryEntrySchema,
+    'inventory-entries'
   )
 }
 

@@ -14,7 +14,8 @@ if (models.PurchaseOrder && process.env.NODE_ENV === 'production') {
   }
   PurchaseOrderModel = model<PurchaseOrderDocument>(
     'PurchaseOrder',
-    PurchaseOrderSchema
+    PurchaseOrderSchema,
+    'inventory-orders'
   )
 }
 

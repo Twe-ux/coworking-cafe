@@ -13,7 +13,7 @@ if (models.Supplier && process.env.NODE_ENV === 'production') {
   if (models.Supplier) {
     delete models.Supplier
   }
-  SupplierModel = model<SupplierDocument>('Supplier', SupplierSchema)
+  SupplierModel = model<SupplierDocument>('Supplier', SupplierSchema, 'inventory-suppliers')
 }
 
 if (!SupplierModel) {

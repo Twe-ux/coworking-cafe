@@ -15,7 +15,8 @@ if (models.StockMovement && process.env.NODE_ENV === 'production') {
   }
   StockMovementModel = model<StockMovementDocument>(
     'StockMovement',
-    StockMovementSchema
+    StockMovementSchema,
+    'inventory-movements'
   )
 }
 

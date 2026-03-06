@@ -13,7 +13,7 @@ if (models.Product && process.env.NODE_ENV === 'production') {
   if (models.Product) {
     delete models.Product
   }
-  ProductModel = model<ProductDocument>('Product', ProductSchema)
+  ProductModel = model<ProductDocument>('Product', ProductSchema, 'inventory-products')
 }
 
 if (!ProductModel) {

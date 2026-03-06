@@ -109,6 +109,52 @@ await sendEmail({
 
 ---
 
+## 🔢 Inputs Numériques - Auto-sélection
+
+**RÈGLE CRITIQUE** : TOUS les inputs de type `number` doivent sélectionner automatiquement leur contenu au focus.
+
+### ❌ Comportement par défaut (MAUVAIS)
+```
+Input avec valeur 0
+User focus → tape "1"
+Résultat : 01 ❌
+```
+
+### ✅ Comportement souhaité (BON)
+```
+Input avec valeur 0
+User focus → contenu sélectionné → tape "1"
+Résultat : 1 ✅
+```
+
+### 📝 Pattern à appliquer PARTOUT
+
+```tsx
+<Input
+  type="number"
+  onFocus={(e) => e.target.select()}  // ← OBLIGATOIRE sur TOUS les inputs number
+  {...field}
+/>
+```
+
+### 🎯 Où appliquer
+
+**TOUS les formulaires avec inputs numériques** :
+- Prix (unitPriceHT, prices, amounts)
+- Quantités (stock, quantity, count)
+- Pourcentages (TVA, discounts)
+- Durées (minutes, hours, days)
+- Ordre d'affichage (order field)
+- TOUT champ de type `number`
+
+### ⚠️ Important
+
+- ✅ **TOUJOURS** ajouter `onFocus={(e) => e.target.select()}` sur `<Input type="number">`
+- ✅ Vérifier TOUS les formulaires existants et nouveaux
+- ❌ **JAMAIS** d'input number sans auto-sélection
+
+---
+
 ## ⚠️ CONVENTION CRITIQUE : Structure des routes Admin vs Staff
 
 **IMPORTANT** : Il existe DEUX dossiers distincts pour les routes avec sidebar :
@@ -271,6 +317,84 @@ import { DatePicker } from '@/components/ui/date-picker';
 - Onboarding employé : dates de contrat
 - Création d'absence : dates de début/fin
 - Formulaires RH : dates diverses
+
+### 7. Collections MongoDB - Nomenclature avec Préfixe
+
+**RÈGLE** : TOUTES les collections MongoDB par module doivent utiliser un préfixe.
+
+### ❌ Nomenclature par défaut (MAUVAIS)
+```typescript
+// Sans préfixe - risque de collision et mauvaise organisation
+export const Supplier = mongoose.model('Supplier', SupplierSchema)
+export const Product = mongoose.model('Product', ProductSchema)
+// → Collections : suppliers, products (ambiguë)
+```
+
+### ✅ Nomenclature avec préfixe (BON)
+```typescript
+// Avec préfixe module - organisation claire
+export const Supplier = mongoose.model('Supplier', SupplierSchema, 'inventory-suppliers')
+export const Product = mongoose.model('Product', ProductSchema, 'inventory-products')
+// → Collections : inventory-suppliers, inventory-products (clair)
+```
+
+### 📋 Convention de Nommage
+
+**Collections globales** : Pas de préfixe
+```
+users
+sessions
+employees
+```
+
+**Collections par module** : Préfixe `module-`
+```
+inventory-suppliers
+inventory-products
+inventory-entries
+inventory-orders
+inventory-movements
+
+booking-reservations
+booking-payments
+booking-promotions
+
+hr-contracts
+hr-absences
+hr-timesheets
+```
+
+### 🎯 Pattern à appliquer
+
+```typescript
+// 3ème paramètre = nom de collection explicite
+export const Model = mongoose.models.ModelName ||
+  mongoose.model<DocumentType>(
+    'ModelName',           // Nom du modèle (pour mongoose.models)
+    Schema,                // Schema Mongoose
+    'module-collection'    // ← Nom explicite de la collection
+  )
+```
+
+### 🔄 Migration Progressive
+
+**Modules avec préfixe** : ✅
+- `inventory-*` (suppliers, products, entries, orders, movements)
+
+**Modules à migrer** : ⏳
+- HR (contracts, absences, timesheets)
+- Booking (reservations, payments)
+- Autres modules
+
+**Migration à faire module par module** pour éviter les régressions.
+
+### ⚠️ Important
+
+- ✅ **TOUJOURS** utiliser préfixe pour nouveaux modules
+- ✅ Améliore l'organisation dans MongoDB Compass/Atlas
+- ✅ Évite collisions entre modules
+- ✅ Facilite backups/restore par module
+- ❌ **JAMAIS** créer collection sans préfixe (sauf globales)
 
 ---
 
