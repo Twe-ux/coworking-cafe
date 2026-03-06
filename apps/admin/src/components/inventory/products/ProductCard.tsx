@@ -35,11 +35,13 @@ export function ProductCard({ product, onEdit, onDeactivate, onReactivate }: Pro
       !product.isActive ? 'opacity-60' : ''
     }`}>
       {/* Product info */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <span className="font-medium text-sm truncate">{product.name}</span>
-        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shrink-0">{CATEGORY_LABELS[product.category]}</Badge>
-        {product.hasShortDLC && <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">DLC</Badge>}
-        {!product.isActive && <Badge variant="destructive" className="text-[10px] px-1.5 py-0 shrink-0">Inactif</Badge>}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <span className="font-medium text-sm truncate w-48 shrink-0">{product.name}</span>
+        <div className="flex items-center gap-1.5">
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shrink-0">{CATEGORY_LABELS[product.category]}</Badge>
+          {product.hasShortDLC && <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">DLC</Badge>}
+          {!product.isActive && <Badge variant="destructive" className="text-[10px] px-1.5 py-0 shrink-0">Inactif</Badge>}
+        </div>
       </div>
 
       {/* Stock + actions */}
