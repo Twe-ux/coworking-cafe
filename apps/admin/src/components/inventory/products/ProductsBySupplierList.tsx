@@ -104,7 +104,7 @@ export function ProductsBySupplierList({
   }
 
   const renderProducts = (products: Product[]) => (
-    <CardContent className="border-t pt-3 pb-3 space-y-2">
+    <CardContent className="border-t pt-1 pb-1 space-y-0">
       {products.map((p) => (
         <ProductCard key={p._id} product={p} onEdit={onEdit} onDeactivate={onDeactivate} onReactivate={onReactivate} />
       ))}
