@@ -124,7 +124,7 @@ export function SuppliersTable({
                 <TableCell>
                   <div className="flex gap-1 flex-wrap">
                     {supplier.categories.map((category) => (
-                      <Badge key={category} variant="secondary">
+                      <Badge key={category} variant="secondary" className="text-[10px] px-1.5 py-0">
                         {getCategoryLabel(category)}
                       </Badge>
                     ))}
@@ -146,14 +146,17 @@ export function SuppliersTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(supplier)}>
+                      <DropdownMenuItem
+                        onClick={() => onEdit(supplier)}
+                        className="cursor-pointer hover:bg-blue-50 hover:text-blue-700"
+                      >
                         <Edit className="mr-2 h-4 w-4" />
                         Modifier
                       </DropdownMenuItem>
                       {supplier.isActive ? (
                         <DropdownMenuItem
                           onClick={() => handleDeleteClick(supplier)}
-                          className="text-destructive"
+                          className="text-destructive cursor-pointer hover:bg-red-50"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Désactiver
@@ -161,7 +164,7 @@ export function SuppliersTable({
                       ) : (
                         <DropdownMenuItem
                           onClick={() => onReactivate(supplier._id)}
-                          className="text-green-600"
+                          className="text-green-600 cursor-pointer hover:bg-green-50"
                         >
                           <RefreshCw className="mr-2 h-4 w-4" />
                           Réactiver
