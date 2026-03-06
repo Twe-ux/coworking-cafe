@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Edit, Trash2, MoreHorizontal, RefreshCw } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { Edit, Trash2, MoreHorizontal, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,13 +11,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,16 +27,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import type { Supplier } from '@/types/inventory'
-import { Skeleton } from '@/components/ui/skeleton'
+} from "@/components/ui/alert-dialog";
+import type { Supplier } from "@/types/inventory";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SuppliersTableProps {
-  suppliers: Supplier[]
-  loading: boolean
-  onEdit: (supplier: Supplier) => void
-  onDelete: (id: string) => Promise<boolean>
-  onReactivate: (id: string) => Promise<boolean>
+  suppliers: Supplier[];
+  loading: boolean;
+  onEdit: (supplier: Supplier) => void;
+  onDelete: (id: string) => Promise<boolean>;
+  onReactivate: (id: string) => Promise<boolean>;
 }
 
 export function SuppliersTable({
@@ -46,41 +46,45 @@ export function SuppliersTable({
   onDelete,
   onReactivate,
 }: SuppliersTableProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(
-    null
-  )
+    null,
+  );
 
   const handleDeleteClick = (supplier: Supplier) => {
-    setSupplierToDelete(supplier)
-    setDeleteDialogOpen(true)
-  }
+    setSupplierToDelete(supplier);
+    setDeleteDialogOpen(true);
+  };
 
   const handleConfirmDelete = async () => {
     if (supplierToDelete) {
-      await onDelete(supplierToDelete._id)
-      setDeleteDialogOpen(false)
-      setSupplierToDelete(null)
+      await onDelete(supplierToDelete._id);
+      setDeleteDialogOpen(false);
+      setSupplierToDelete(null);
     }
-  }
+  };
 
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
-      food: 'Alimentation', cleaning: 'Entretien', emballage: 'Emballage', papeterie: 'Papeterie', divers: 'Divers',
-    }
-    return labels[category] || category
-  }
+      food: "Alimentation",
+      cleaning: "Entretien",
+      emballage: "Emballage",
+      papeterie: "Papeterie",
+      divers: "Divers",
+    };
+    return labels[category] || category;
+  };
 
   const getCategoryBadgeClass = (category: string) => {
     const colors: Record<string, string> = {
-      food: 'border-orange-500 bg-orange-50 text-orange-700',
-      cleaning: 'border-blue-500 bg-blue-50 text-blue-700',
-      emballage: 'border-purple-500 bg-purple-50 text-purple-700',
-      papeterie: 'border-pink-500 bg-pink-50 text-pink-700',
-      divers: 'border-gray-500 bg-gray-50 text-gray-700',
-    }
-    return colors[category] || 'border-gray-500 bg-gray-50 text-gray-700'
-  }
+      food: "border-orange-500 bg-orange-50 text-orange-700",
+      cleaning: "border-blue-500 bg-blue-50 text-blue-700",
+      emballage: "border-purple-500 bg-purple-50 text-purple-700",
+      papeterie: "border-pink-500 bg-pink-50 text-pink-700",
+      divers: "border-gray-500 bg-gray-50 text-gray-700",
+    };
+    return colors[category] || "border-gray-500 bg-gray-50 text-gray-700";
+  };
 
   if (loading) {
     return (
@@ -90,7 +94,7 @@ export function SuppliersTable({
         <Skeleton className="h-12 w-full" />
         <Skeleton className="h-12 w-full" />
       </div>
-    )
+    );
   }
 
   if (suppliers.length === 0) {
@@ -101,7 +105,7 @@ export function SuppliersTable({
           Commencez par créer un nouveau fournisseur
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -109,7 +113,7 @@ export function SuppliersTable({
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="hover:bg-transparent">
               <TableHead>Nom</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Email</TableHead>
@@ -121,7 +125,7 @@ export function SuppliersTable({
           </TableHeader>
           <TableBody>
             {suppliers.map((supplier) => (
-              <TableRow key={supplier._id}>
+              <TableRow key={supplier._id} className="hover:bg-transparent">
                 <TableCell className="font-medium">{supplier.name}</TableCell>
                 <TableCell>{supplier.contact}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">
@@ -131,7 +135,11 @@ export function SuppliersTable({
                 <TableCell>
                   <div className="flex gap-1 flex-wrap">
                     {supplier.categories.map((category) => (
-                      <Badge key={category} variant="outline" className={`text-xs pointer-events-none ${getCategoryBadgeClass(category)}`}>
+                      <Badge
+                        key={category}
+                        variant="outline"
+                        className={`text-xs pointer-events-none ${getCategoryBadgeClass(category)}`}
+                      >
                         {getCategoryLabel(category)}
                       </Badge>
                     ))}
@@ -139,15 +147,19 @@ export function SuppliersTable({
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={supplier.isActive ? 'default' : 'destructive'}
+                    variant={supplier.isActive ? "default" : "destructive"}
                   >
-                    {supplier.isActive ? 'Actif' : 'Inactif'}
+                    {supplier.isActive ? "Actif" : "Inactif"}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-8 w-8 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">Actions</span>
                       </Button>
@@ -192,12 +204,13 @@ export function SuppliersTable({
           <AlertDialogHeader>
             <AlertDialogTitle>Désactiver le fournisseur</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir désactiver{' '}
+              Êtes-vous sûr de vouloir désactiver{" "}
               <strong>{supplierToDelete?.name}</strong> ?
               <br />
               <span className="text-muted-foreground text-sm mt-2 block">
-                Le fournisseur sera masqué mais ses produits et commandes resteront intacts.
-                Vous pourrez le réactiver plus tard si nécessaire.
+                Le fournisseur sera masqué mais ses produits et commandes
+                resteront intacts. Vous pourrez le réactiver plus tard si
+                nécessaire.
               </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -213,5 +226,5 @@ export function SuppliersTable({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
