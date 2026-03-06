@@ -7,6 +7,8 @@
 
 interface OrderItem {
   productName: string
+  supplierReference?: string
+  packagingDescription?: string
   quantity: number
   unit: string
   unitPriceHT: number
@@ -28,11 +30,18 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
 
   // Generate items rows HTML
   const itemsHtml = items
-    .map(
-      (item) => `
+    .map((item) => {
+      const refLine = item.supplierReference
+        ? `<br><span style="color: #6b7280; font-size: 12px;">Réf: ${item.supplierReference}</span>`
+        : ''
+      const packLine = item.packagingDescription
+        ? `<br><span style="color: #6b7280; font-size: 12px;">${item.packagingDescription}</span>`
+        : ''
+
+      return `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px;">
-        ${item.productName}
+        ${item.productName}${refLine}${packLine}
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: center; font-family: 'Courier New', monospace;">
         ${item.quantity}
@@ -48,7 +57,7 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
       </td>
     </tr>
   `
-    )
+    })
     .join('')
 
   return `

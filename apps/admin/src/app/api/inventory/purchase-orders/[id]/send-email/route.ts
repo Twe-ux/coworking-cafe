@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/api/auth'
 import { successResponse, errorResponse, notFoundResponse } from '@/lib/api/response'
 import { connectMongoose } from '@/lib/mongodb'
 import { PurchaseOrder } from '@/models/inventory/purchaseOrder'
+import { Product } from '@/models/inventory/product'
 import { Supplier } from '@/models/inventory/supplier'
 import { getRequiredRoles } from '@/lib/inventory/permissions'
 import { transformOrder } from '@/lib/inventory/orderHelpers'
@@ -55,17 +56,32 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       day: 'numeric',
     })
 
+    // Enrich items with product data (supplierReference, packagingDescription)
+    const productIds = order.items.map((item) => item.productId)
+    const products = await Product.find({ _id: { $in: productIds } })
+      .select('supplierReference packagingDescription')
+      .lean()
+
+    const productMap = new Map(
+      products.map((p) => [p._id.toString(), p])
+    )
+
     // Send email to supplier
     const emailSent = await sendPurchaseOrderEmail(supplier.email, {
       orderNumber: order.orderNumber,
       supplierName: supplier.name,
-      items: order.items.map((item) => ({
-        productName: item.productName,
-        quantity: item.quantity,
-        unit: item.unit,
-        unitPriceHT: item.unitPriceHT,
-        totalHT: item.totalHT,
-      })),
+      items: order.items.map((item) => {
+        const productData = productMap.get(item.productId.toString())
+        return {
+          productName: item.productName,
+          supplierReference: productData?.supplierReference || undefined,
+          packagingDescription: productData?.packagingDescription || undefined,
+          quantity: item.quantity,
+          unit: item.unit,
+          unitPriceHT: item.unitPriceHT,
+          totalHT: item.totalHT,
+        }
+      }),
       totalHT: order.totalHT,
       totalTTC: order.totalTTC,
       notes: order.notes,

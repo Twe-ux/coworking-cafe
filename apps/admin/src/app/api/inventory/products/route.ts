@@ -10,7 +10,7 @@ import type { ProductFormData } from "@/types/inventory"
 
 /**
  * GET /api/inventory/products - List all products with optional filters
- * Query params: ?search=xxx&category=food&supplierId=xxx&lowStock=true
+ * Query params: ?search=xxx&category=food&supplierId=xxx&lowStock=true&sortBy=order|name
  * Auth: requireAuth(['admin', 'staff', 'dev'])
  */
 export const dynamic = 'force-dynamic'
@@ -31,17 +31,10 @@ export async function GET(request: NextRequest) {
     const supplierId = searchParams.get('supplierId')
     const lowStock = searchParams.get('lowStock')
     const active = searchParams.get('active')
+    const sortBy = searchParams.get('sortBy')
 
     // Build filter
-    interface QueryFilter {
-      name?: { $regex: string; $options: string }
-      category?: string
-      supplierId?: string
-      isActive?: boolean
-      $expr?: { $lt: [string, string] }
-    }
-
-    const filter: QueryFilter = {}
+    const filter: Record<string, unknown> = {}
 
     // Search by name
     if (search) {
@@ -49,7 +42,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by category
-    if (category && (category === 'food' || category === 'cleaning')) {
+    const validCategories = ['food', 'cleaning', 'emballage', 'papeterie', 'divers']
+    if (category && validCategories.includes(category)) {
       filter.category = category
     }
 
@@ -63,15 +57,31 @@ export async function GET(request: NextRequest) {
       filter.isActive = active === 'true'
     }
 
-    // Filter by low stock (currentStock < minStock)
+    // Filter by low stock: accounts for minStockUnit (package vs unit)
     if (lowStock === 'true') {
-      filter.$expr = { $lt: ['$currentStock', '$minStock'] }
+      filter.$expr = {
+        $lt: [
+          '$currentStock',
+          {
+            $cond: {
+              if: { $eq: ['$minStockUnit', 'package'] },
+              then: { $multiply: ['$minStock', { $ifNull: ['$unitsPerPackage', 1] }] },
+              else: '$minStock',
+            },
+          },
+        ],
+      }
     }
+
+    // Build sort order
+    const sortOrder: Record<string, 1 | -1> = sortBy === 'order'
+      ? { order: 1, name: 1 }
+      : { name: 1 }
 
     // Fetch products with supplier info
     const products = await Product.find(filter)
       .populate('supplierId', 'name')
-      .sort({ name: 1 })
+      .sort(sortOrder)
       .lean()
 
     // Transform dates to strings and populate supplier name
@@ -124,6 +134,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate packaging coherence
+    const packagingType = body.packagingType || 'unit'
+    const unitsPerPackage = body.unitsPerPackage || 1
+    if (packagingType !== 'pack' && unitsPerPackage > 1) {
+      return errorResponse(
+        'unitsPerPackage doit être 1 quand le conditionnement n\'est pas "pack"',
+        undefined,
+        400
+      )
+    }
+
     // Check if supplier exists
     const supplier = await Supplier.findById(body.supplierId)
     if (!supplier) {
@@ -139,6 +160,12 @@ export async function POST(request: NextRequest) {
       vatRate: body.vatRate,
       supplierId: body.supplierId,
       supplierName: supplier.name,
+      supplierReference: body.supplierReference || '',
+      packagingType: body.packagingType || 'unit',
+      unitsPerPackage: body.unitsPerPackage || 1,
+      packagingDescription: body.packagingDescription || '',
+      minStockUnit: body.minStockUnit || 'unit',
+      order: body.order || 0,
       minStock: body.minStock,
       maxStock: body.maxStock,
       currentStock: 0, // Start with 0, will be updated via stock movements

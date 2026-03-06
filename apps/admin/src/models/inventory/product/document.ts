@@ -3,12 +3,18 @@ import { Schema, Document, Types } from "mongoose"
 /** Document of a Product, as stored in the database. */
 export interface ProductDocument extends Document {
   name: string
-  category: "food" | "cleaning"
+  category: "food" | "cleaning" | "emballage" | "papeterie" | "divers"
   unit: "kg" | "L" | "unit" | "pack"
   unitPriceHT: number
   vatRate: number
   supplierId: Types.ObjectId
   supplierName?: string
+  supplierReference?: string
+  packagingType: "pack" | "unit" | "kg" | "L"
+  unitsPerPackage: number
+  packagingDescription?: string
+  minStockUnit: "package" | "unit"
+  order: number
   minStock: number
   maxStock: number
   currentStock: number
@@ -28,7 +34,7 @@ export const ProductSchema = new Schema<ProductDocument>(
     },
     category: {
       type: String,
-      enum: ["food", "cleaning"],
+      enum: ["food", "cleaning", "emballage", "papeterie", "divers"],
       required: [true, "Category is required"],
     },
     unit: {
@@ -55,6 +61,33 @@ export const ProductSchema = new Schema<ProductDocument>(
     supplierName: {
       type: String,
       trim: true,
+    },
+    supplierReference: {
+      type: String,
+      trim: true,
+    },
+    packagingType: {
+      type: String,
+      enum: ["pack", "unit", "kg", "L"],
+      default: "unit",
+    },
+    unitsPerPackage: {
+      type: Number,
+      default: 1,
+      min: [1, "Units per package must be at least 1"],
+    },
+    packagingDescription: {
+      type: String,
+      trim: true,
+    },
+    minStockUnit: {
+      type: String,
+      enum: ["package", "unit"],
+      default: "unit",
+    },
+    order: {
+      type: Number,
+      default: 0,
     },
     minStock: {
       type: Number,

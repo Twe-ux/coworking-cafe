@@ -18,6 +18,7 @@ interface UseProductReturn {
   createProduct: (data: ProductFormData) => Promise<boolean>
   updateProduct: (id: string, data: Partial<ProductFormData>) => Promise<boolean>
   deleteProduct: (id: string) => Promise<boolean>
+  reactivateProduct: (id: string) => Promise<boolean>
   fetchLowStock: () => Promise<void>
   refetch: () => Promise<void>
 }
@@ -177,6 +178,35 @@ export function useProducts(filters?: UseProductFilters): UseProductReturn {
     }
   }
 
+  /**
+   * Reactivate a deactivated product
+   */
+  const reactivateProduct = async (id: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/inventory/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: true }),
+      })
+
+      const result = (await res.json()) as APIResponse<Product>
+
+      if (result.success) {
+        inventoryCache.invalidatePattern('products')
+        await fetchProducts()
+        await fetchLowStock()
+        return true
+      } else {
+        setError(result.error || 'Erreur lors de la réactivation')
+        return false
+      }
+    } catch (err) {
+      console.error('[useProducts] Reactivate error:', err)
+      setError('Erreur réseau lors de la réactivation')
+      return false
+    }
+  }
+
   // Fetch products on mount and when filters change
   useEffect(() => {
     fetchProducts()
@@ -191,6 +221,7 @@ export function useProducts(filters?: UseProductFilters): UseProductReturn {
     createProduct,
     updateProduct,
     deleteProduct,
+    reactivateProduct,
     fetchLowStock,
     refetch: fetchProducts,
   }

@@ -4,13 +4,22 @@ import { successResponse, errorResponse } from '@/lib/api/response'
 import { connectMongoose } from '@/lib/mongodb'
 import { Product } from '@/models/inventory/product'
 import { getRequiredRoles } from '@/lib/inventory/permissions'
-import type { OrderSuggestionsResponse } from '@/types/inventory'
+import {
+  calculateOrderSuggestion,
+  formatStock,
+} from '@/lib/inventory/stockHelpers'
+import type {
+  OrderSuggestionsResponse,
+  PackagingType,
+  MinStockUnit,
+} from '@/types/inventory'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * GET /api/inventory/purchase-orders/suggestions?supplierId=xxx
  * Returns product suggestions for a supplier based on low stock levels.
+ * Accounts for packaging type and units per package.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -24,26 +33,62 @@ export async function GET(request: NextRequest) {
       return errorResponse('supplierId requis', undefined, 400)
     }
 
-    // Fetch products from this supplier that are below minStock
+    // Fetch active products from this supplier
+    // Low stock check accounts for minStockUnit (package vs unit)
     const products = await Product.find({
       supplierId,
       isActive: true,
-      $expr: { $lt: ['$currentStock', '$minStock'] },
+      $expr: {
+        $lt: [
+          '$currentStock',
+          {
+            $cond: {
+              if: { $eq: ['$minStockUnit', 'package'] },
+              then: { $multiply: ['$minStock', { $ifNull: ['$unitsPerPackage', 1] }] },
+              else: '$minStock',
+            },
+          },
+        ],
+      },
     })
-      .sort({ name: 1 })
+      .sort({ order: 1, name: 1 })
       .lean()
 
-    const suggestions = products.map((p) => ({
-      productId: p._id.toString(),
-      productName: p.name,
-      unit: p.unit,
-      currentStock: p.currentStock,
-      minStock: p.minStock,
-      maxStock: p.maxStock,
-      suggestedQuantity: Math.max(0, p.maxStock - p.currentStock),
-      unitPriceHT: p.unitPriceHT,
-      vatRate: p.vatRate,
-    }))
+    const suggestions = products.map((p) => {
+      const packagingType = (p.packagingType || 'unit') as PackagingType
+      const unitsPerPackage = p.unitsPerPackage || 1
+      const minStockUnit = (p.minStockUnit || 'unit') as MinStockUnit
+
+      const suggestion = calculateOrderSuggestion(
+        p.currentStock,
+        p.minStock,
+        p.maxStock,
+        minStockUnit,
+        unitsPerPackage
+      )
+
+      return {
+        productId: p._id.toString(),
+        productName: p.name,
+        unit: p.unit,
+        currentStock: p.currentStock,
+        currentStockFormatted: formatStock(
+          p.currentStock,
+          packagingType,
+          unitsPerPackage,
+          minStockUnit
+        ),
+        minStock: p.minStock,
+        maxStock: p.maxStock,
+        suggestedQuantity: suggestion.suggestedPacks,
+        suggestedUnits: suggestion.suggestedUnits,
+        packagingType,
+        packagingDescription: p.packagingDescription || undefined,
+        supplierReference: p.supplierReference || undefined,
+        unitPriceHT: p.unitPriceHT,
+        vatRate: p.vatRate,
+      }
+    })
 
     const result: OrderSuggestionsResponse = {
       supplierId,

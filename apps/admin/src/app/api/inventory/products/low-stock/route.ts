@@ -22,10 +22,22 @@ export async function GET(request: NextRequest) {
     // Connect to database
     await connectMongoose()
 
-    // Fetch products with low stock (currentStock < minStock)
+    // Fetch products with low stock
+    // Accounts for minStockUnit: if "package", compares currentStock < minStock * unitsPerPackage
     const lowStockProducts = await Product.find({
       isActive: true,
-      $expr: { $lt: ['$currentStock', '$minStock'] },
+      $expr: {
+        $lt: [
+          '$currentStock',
+          {
+            $cond: {
+              if: { $eq: ['$minStockUnit', 'package'] },
+              then: { $multiply: ['$minStock', { $ifNull: ['$unitsPerPackage', 1] }] },
+              else: '$minStock',
+            },
+          },
+        ],
+      },
     })
       .populate('supplierId', 'name')
       .sort({ currentStock: 1 }) // Sort by lowest stock first

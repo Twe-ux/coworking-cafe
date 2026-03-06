@@ -2,23 +2,10 @@
 
 import { Control } from 'react-hook-form'
 import { Plus } from 'lucide-react'
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { ProductFormData, Supplier } from '@/types/inventory'
 
 interface ProductBasicFieldsProps {
@@ -61,20 +48,20 @@ export function ProductBasicFields({
               <FormLabel>Catégorie *</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="food">Alimentation</SelectItem>
                   <SelectItem value="cleaning">Entretien</SelectItem>
+                  <SelectItem value="emballage">Emballage</SelectItem>
+                  <SelectItem value="papeterie">Papeterie</SelectItem>
+                  <SelectItem value="divers">Divers</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={control}
           name="unit"
@@ -83,9 +70,7 @@ export function ProductBasicFields({
               <FormLabel>Unité *</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="kg">kg</SelectItem>
@@ -121,7 +106,6 @@ export function ProductBasicFields({
             </FormItem>
           )}
         />
-
         <FormField
           control={control}
           name="vatRate"
@@ -133,9 +117,7 @@ export function ProductBasicFields({
                 value={field.value.toString()}
               >
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="5.5">5,5%</SelectItem>
@@ -157,16 +139,10 @@ export function ProductBasicFields({
           <FormItem>
             <FormLabel>Fournisseur *</FormLabel>
             <div className="flex gap-2">
-              <Select
-                onValueChange={field.onChange}
-                value={field.value}
-                disabled={loadingSuppliers}
-              >
+              <Select onValueChange={field.onChange} value={field.value} disabled={loadingSuppliers}>
                 <FormControl>
                   <SelectTrigger className="flex-1">
-                    <SelectValue
-                      placeholder={loadingSuppliers ? 'Chargement...' : 'Sélectionner'}
-                    />
+                    <SelectValue placeholder={loadingSuppliers ? 'Chargement...' : 'Sélectionner'} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -175,27 +151,35 @@ export function ProductBasicFields({
                       Aucun fournisseur pour cette catégorie
                     </div>
                   ) : (
-                    suppliers.map((supplier) => (
-                      <SelectItem key={supplier._id} value={supplier._id}>
-                        {supplier.name}
-                      </SelectItem>
+                    suppliers.map((s) => (
+                      <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
                     ))
                   )}
                 </SelectContent>
               </Select>
               {onCreateSupplier && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={onCreateSupplier}
-                  title="Créer un nouveau fournisseur"
-                >
+                <Button type="button" variant="outline" size="icon" onClick={onCreateSupplier} title="Créer un fournisseur">
                   <Plus className="h-4 w-4" />
                 </Button>
               )}
             </div>
             <FormDescription>Filtré par catégorie sélectionnée</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Supplier Reference */}
+      <FormField
+        control={control}
+        name="supplierReference"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Référence fournisseur</FormLabel>
+            <FormControl>
+              <Input placeholder="REF-12345" {...field} />
+            </FormControl>
+            <FormDescription>Référence catalogue du fournisseur (optionnel)</FormDescription>
             <FormMessage />
           </FormItem>
         )}

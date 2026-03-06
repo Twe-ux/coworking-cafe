@@ -7,6 +7,8 @@ import {
 } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"
 import { Product } from "@/models/inventory/product"
+import { PurchaseOrder } from "@/models/inventory/purchaseOrder"
+import { InventoryEntry } from "@/models/inventory/inventoryEntry"
 import { Supplier } from "@/models/inventory/supplier"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
 import { transformProductForAPI } from "@/lib/inventory/helpers"
@@ -70,8 +72,8 @@ export async function PUT(
     // Connect to database
     await connectMongoose()
 
-    // Parse body
-    const body = (await request.json()) as Partial<ProductFormData>
+    // Parse body (isActive allowed for reactivation)
+    const body = (await request.json()) as Partial<ProductFormData> & { isActive?: boolean }
 
     // Check if product exists
     const existingProduct = await Product.findById(params.id)
@@ -91,6 +93,17 @@ export async function PUT(
     if (minStock >= maxStock) {
       return errorResponse(
         'Le stock minimum doit être inférieur au stock maximum',
+        undefined,
+        400
+      )
+    }
+
+    // Validate packaging coherence
+    const packagingType = body.packagingType ?? existingProduct.packagingType ?? 'unit'
+    const unitsPerPkg = body.unitsPerPackage ?? existingProduct.unitsPerPackage ?? 1
+    if (packagingType !== 'pack' && unitsPerPkg > 1) {
+      return errorResponse(
+        'unitsPerPackage doit être 1 quand le conditionnement n\'est pas "pack"',
         undefined,
         400
       )
@@ -117,9 +130,16 @@ export async function PUT(
           ...(body.unitPriceHT !== undefined && { unitPriceHT: body.unitPriceHT }),
           ...(body.vatRate !== undefined && { vatRate: body.vatRate }),
           ...(body.supplierId && { supplierId: body.supplierId, supplierName }),
+          ...(body.supplierReference !== undefined && { supplierReference: body.supplierReference }),
+          ...(body.packagingType && { packagingType: body.packagingType }),
+          ...(body.unitsPerPackage !== undefined && { unitsPerPackage: body.unitsPerPackage }),
+          ...(body.packagingDescription !== undefined && { packagingDescription: body.packagingDescription }),
+          ...(body.minStockUnit && { minStockUnit: body.minStockUnit }),
+          ...(body.order !== undefined && { order: body.order }),
           ...(body.minStock !== undefined && { minStock: body.minStock }),
           ...(body.maxStock !== undefined && { maxStock: body.maxStock }),
           ...(body.hasShortDLC !== undefined && { hasShortDLC: body.hasShortDLC }),
+          ...(body.isActive !== undefined && { isActive: body.isActive }),
         },
       },
       { new: true, runValidators: true }
@@ -170,13 +190,30 @@ export async function DELETE(
       return notFoundResponse('Produit')
     }
 
+    // Check usage in orders and inventory entries
+    const [orderCount, inventoryCount] = await Promise.all([
+      PurchaseOrder.countDocuments({ 'items.productId': params.id }),
+      InventoryEntry.countDocuments({ 'items.productId': params.id }),
+    ])
+
     // Soft delete - set isActive to false
     await Product.findByIdAndUpdate(params.id, {
       $set: { isActive: false },
     })
 
+    const warnings: string[] = []
+    if (orderCount > 0) {
+      warnings.push(`Produit référencé dans ${orderCount} commande(s)`)
+    }
+    if (inventoryCount > 0) {
+      warnings.push(`Produit référencé dans ${inventoryCount} inventaire(s)`)
+    }
+
     return successResponse(
-      { message: 'Produit désactivé avec succès' },
+      {
+        message: 'Produit désactivé avec succès',
+        ...(warnings.length > 0 && { warnings }),
+      },
       'Produit désactivé avec succès'
     )
   } catch (error) {

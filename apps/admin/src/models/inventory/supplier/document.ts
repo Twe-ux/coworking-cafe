@@ -8,6 +8,7 @@ export interface SupplierDocument extends Document {
   phone?: string
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
+  order: number
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -48,6 +49,10 @@ export const SupplierSchema = new Schema<SupplierDocument>(
     notes: {
       type: String,
       trim: true,
+    },
+    order: {
+      type: Number,
+      default: 0,
     },
     isActive: {
       type: Boolean,

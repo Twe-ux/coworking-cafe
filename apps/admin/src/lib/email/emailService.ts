@@ -208,6 +208,8 @@ export async function sendPurchaseOrderEmail(
     supplierName: string;
     items: Array<{
       productName: string;
+      supplierReference?: string;
+      packagingDescription?: string;
       quantity: number;
       unit: string;
       unitPriceHT: number;

@@ -20,11 +20,17 @@ import type { Product, ProductFormData, Supplier, SupplierFormData } from '@/typ
 // Validation schema
 const productSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  category: z.enum(['food', 'cleaning']),
+  category: z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']),
   unit: z.enum(['kg', 'L', 'unit', 'pack']),
   unitPriceHT: z.number().min(0.01, 'Le prix doit être supérieur à 0'),
   vatRate: z.number().min(0).max(100),
   supplierId: z.string().min(1, 'Sélectionnez un fournisseur'),
+  supplierReference: z.string().optional(),
+  packagingType: z.enum(['pack', 'unit', 'kg', 'L']),
+  unitsPerPackage: z.number().min(1, 'Minimum 1 unité par conditionnement'),
+  packagingDescription: z.string().optional(),
+  minStockUnit: z.enum(['package', 'unit']),
+  order: z.number().min(0),
   minStock: z.number().min(0),
   maxStock: z.number().min(0),
   hasShortDLC: z.boolean(),
@@ -66,6 +72,12 @@ export function ProductDialog({
       unitPriceHT: 0,
       vatRate: 5.5,
       supplierId: '',
+      supplierReference: '',
+      packagingType: 'unit',
+      unitsPerPackage: 1,
+      packagingDescription: '',
+      minStockUnit: 'unit',
+      order: 0,
       minStock: 0,
       maxStock: 10,
       hasShortDLC: false,
@@ -102,6 +114,12 @@ export function ProductDialog({
         unitPriceHT: product.unitPriceHT,
         vatRate: product.vatRate,
         supplierId: product.supplierId,
+        supplierReference: product.supplierReference || '',
+        packagingType: product.packagingType || 'unit',
+        unitsPerPackage: product.unitsPerPackage || 1,
+        packagingDescription: product.packagingDescription || '',
+        minStockUnit: product.minStockUnit || 'unit',
+        order: product.order || 0,
         minStock: product.minStock,
         maxStock: product.maxStock,
         hasShortDLC: product.hasShortDLC,
@@ -192,7 +210,7 @@ export function ProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {mode === 'create' ? 'Nouveau Produit' : 'Modifier le Produit'}

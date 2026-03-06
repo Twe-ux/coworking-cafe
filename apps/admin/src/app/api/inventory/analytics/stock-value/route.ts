@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
 
     // Build match stage
     const match: Record<string, unknown> = { isActive: true }
-    if (category === 'food' || category === 'cleaning') {
+    const validCategories = ['food', 'cleaning', 'emballage', 'papeterie', 'divers']
+    if (category && validCategories.includes(category)) {
       match.category = category
     }
     if (supplierId) {

@@ -14,6 +14,7 @@ export interface Supplier {
   phone?: string
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
+  order: number
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -33,8 +34,10 @@ export interface SupplierFormData {
 // Product (Produit)
 // ----------------------------------------------------------------------------
 
-export type ProductCategory = "food" | "cleaning"
+export type ProductCategory = "food" | "cleaning" | "emballage" | "papeterie" | "divers"
 export type ProductUnit = "kg" | "L" | "unit" | "pack"
+export type PackagingType = "pack" | "unit" | "kg" | "L"
+export type MinStockUnit = "package" | "unit"
 
 export interface Product {
   _id: string
@@ -45,6 +48,12 @@ export interface Product {
   vatRate: number
   supplierId: string
   supplierName?: string
+  supplierReference?: string
+  packagingType: PackagingType
+  unitsPerPackage: number
+  packagingDescription?: string
+  minStockUnit: MinStockUnit
+  order: number
   minStock: number
   maxStock: number
   currentStock: number
@@ -61,6 +70,12 @@ export interface ProductFormData {
   unitPriceHT: number
   vatRate: number
   supplierId: string
+  supplierReference?: string
+  packagingType: PackagingType
+  unitsPerPackage: number
+  packagingDescription?: string
+  minStockUnit: MinStockUnit
+  order: number
   minStock: number
   maxStock: number
   hasShortDLC: boolean
@@ -199,9 +214,14 @@ export interface OrderSuggestion {
   productName: string
   unit: string
   currentStock: number
+  currentStockFormatted: string
   minStock: number
   maxStock: number
   suggestedQuantity: number
+  suggestedUnits: number
+  packagingType: PackagingType
+  packagingDescription?: string
+  supplierReference?: string
   unitPriceHT: number
   vatRate: number
 }
