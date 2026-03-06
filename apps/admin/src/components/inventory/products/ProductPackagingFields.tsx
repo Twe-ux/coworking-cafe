@@ -84,6 +84,7 @@ export function ProductPackagingFields({ control }: ProductPackagingFieldsProps)
                   {...field}
                   value={isPack ? field.value : 1}
                   onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  onFocus={(e) => e.target.select()}
                 />
               </FormControl>
               {!isPack && (

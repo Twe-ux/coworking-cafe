@@ -100,6 +100,7 @@ export function ProductBasicFields({
                   min="0"
                   {...field}
                   onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
                 />
               </FormControl>
               <FormMessage />

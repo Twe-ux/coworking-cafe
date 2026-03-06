@@ -71,6 +71,7 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                   min="0"
                   {...field}
                   onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                  onFocus={(e) => e.target.select()}
                 />
               </FormControl>
               <FormDescription>Position dans les listes</FormDescription>
