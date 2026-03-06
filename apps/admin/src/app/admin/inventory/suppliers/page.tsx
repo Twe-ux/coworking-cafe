@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Plus, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSuppliers } from '@/hooks/inventory/useSuppliers'
 import { SupplierDialog } from '@/components/inventory/suppliers/SupplierDialog'
@@ -10,6 +11,7 @@ import { SuppliersTable } from '@/components/inventory/suppliers/SuppliersTable'
 import type { Supplier, SupplierFormData } from '@/types/inventory'
 
 export default function SuppliersPage() {
+  const router = useRouter()
   const [filters, setFilters] = useState<{
     search?: string
     category?: string
@@ -67,10 +69,25 @@ export default function SuppliersPage() {
             Gestion des fournisseurs de stock
           </p>
         </div>
-        <Button onClick={handleCreateClick} size="lg">
-          <Plus className="mr-2 h-5 w-5" />
-          Nouveau Fournisseur
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+            onClick={() => router.push('/admin/inventory/products')}
+          >
+            <Package className="mr-2 h-4 w-4" />
+            Produits
+          </Button>
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50"
+            onClick={handleCreateClick}
+            size="lg"
+          >
+            <Plus className="mr-2 h-5 w-5" />
+            Nouveau Fournisseur
+          </Button>
+        </div>
       </div>
 
       {/* Error Display */}

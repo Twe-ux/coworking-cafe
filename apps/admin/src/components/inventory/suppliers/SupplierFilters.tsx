@@ -122,7 +122,11 @@ export function SupplierFilters({ onFilterChange }: SupplierFiltersProps) {
 
         {/* Reset Button */}
         {(search || category !== 'all' || activeStatus !== 'all') && (
-          <Button variant="outline" onClick={handleReset}>
+          <Button
+            variant="outline"
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+            onClick={handleReset}
+          >
             Réinitialiser
           </Button>
         )}
