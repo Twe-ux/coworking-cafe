@@ -64,15 +64,22 @@ export function SuppliersTable({
     }
   }
 
-  const getCategoryLabel = (category: 'food' | 'cleaning' | 'emballage' | 'papeterie' | 'divers') => {
+  const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
-      food: 'Alimentation',
-      cleaning: 'Entretien',
-      emballage: 'Emballage',
-      papeterie: 'Papeterie',
-      divers: 'Divers'
+      food: 'Alimentation', cleaning: 'Entretien', emballage: 'Emballage', papeterie: 'Papeterie', divers: 'Divers',
     }
     return labels[category] || category
+  }
+
+  const getCategoryBadgeClass = (category: string) => {
+    const colors: Record<string, string> = {
+      food: 'border-orange-500 bg-orange-50 text-orange-700',
+      cleaning: 'border-blue-500 bg-blue-50 text-blue-700',
+      emballage: 'border-purple-500 bg-purple-50 text-purple-700',
+      papeterie: 'border-pink-500 bg-pink-50 text-pink-700',
+      divers: 'border-gray-500 bg-gray-50 text-gray-700',
+    }
+    return colors[category] || 'border-gray-500 bg-gray-50 text-gray-700'
   }
 
   if (loading) {
@@ -124,7 +131,7 @@ export function SuppliersTable({
                 <TableCell>
                   <div className="flex gap-1 flex-wrap">
                     {supplier.categories.map((category) => (
-                      <Badge key={category} variant="secondary" className="text-[10px] px-1.5 py-0">
+                      <Badge key={category} variant="outline" className={`text-xs pointer-events-none ${getCategoryBadgeClass(category)}`}>
                         {getCategoryLabel(category)}
                       </Badge>
                     ))}
@@ -140,7 +147,7 @@ export function SuppliersTable({
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
+                      <Button variant="outline" size="icon" className="h-8 w-8 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700">
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">Actions</span>
                       </Button>
