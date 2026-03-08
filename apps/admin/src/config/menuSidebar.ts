@@ -5,19 +5,24 @@
  */
 
 import {
+  BarChart3,
   BookOpen,
   Building2,
   Calculator,
   Calendar,
   CalendarDays,
   Clock,
+  ClipboardList,
   Coins,
   Home,
   ListTodo,
   Mail,
+  Package,
   PartyPopper,
   ScanQrCode,
+  ShoppingCart,
   Terminal,
+  Truck,
   UserCog,
   Users,
   UtensilsCrossed,
@@ -282,6 +287,44 @@ export function getAdminMenu(
               title: "Empreintes capturées",
               url: "/admin/accounting/captured-deposits",
             },
+          ],
+        },
+      ],
+    },
+
+    // Section Stock & Inventory
+    {
+      label: "Stock",
+      items: [
+        {
+          title: "Inventaire",
+          url: "/admin/inventory",
+          icon: Package,
+          items: [
+            {
+              title: "Fournisseurs",
+              url: "/admin/inventory/suppliers",
+            },
+            {
+              title: "Produits",
+              url: "/admin/inventory/products",
+            },
+            {
+              title: "Inventaires",
+              url: "/admin/inventory/entries",
+            },
+            {
+              title: "Commandes",
+              url: "/admin/inventory/orders",
+            },
+            ...(isDev || isAdmin
+              ? [
+                  {
+                    title: "Analytics",
+                    url: "/admin/inventory/analytics",
+                  },
+                ]
+              : []),
           ],
         },
       ],

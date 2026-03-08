@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Delete } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Delete } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PINLoginProps {
-  onSubmit: (pin: string) => void
-  isLoading?: boolean
-  error?: string
-  title?: string
-  pinLength?: number
+  onSubmit: (pin: string) => void;
+  isLoading?: boolean;
+  error?: string;
+  title?: string;
+  pinLength?: number;
 }
 
 export function PINLogin({
@@ -20,39 +20,39 @@ export function PINLogin({
   title = "Connexion Admin",
   pinLength = 6,
 }: PINLoginProps) {
-  const [pin, setPin] = useState('')
+  const [pin, setPin] = useState("");
 
   // Reset le PIN quand il y a une erreur
   useEffect(() => {
     if (error) {
-      setPin('')
+      setPin("");
     }
-  }, [error])
+  }, [error]);
 
   const handleNumberPress = (number: string) => {
     if (pin.length < pinLength) {
-      const newPin = pin + number
-      setPin(newPin)
+      const newPin = pin + number;
+      setPin(newPin);
 
       // Auto-valider dès que 6 chiffres sont saisis
       if (newPin.length === pinLength) {
         setTimeout(() => {
-          onSubmit(newPin)
-        }, 100) // Petit délai pour feedback visuel
+          onSubmit(newPin);
+        }, 100); // Petit délai pour feedback visuel
       }
     }
-  }
+  };
 
   const handleClear = () => {
-    setPin('')
-  }
+    setPin("");
+  };
 
   const numbers = [
-    ['1', '2', '3'],
-    ['4', '5', '6'],
-    ['7', '8', '9'],
-    ['', '0', ''],
-  ]
+    ["1", "2", "3"],
+    ["4", "5", "6"],
+    ["7", "8", "9"],
+    ["", "0", ""],
+  ];
 
   return (
     <Card className="mx-auto w-full max-w-sm">
@@ -72,8 +72,8 @@ export function PINLogin({
                 key={index}
                 className={`h-4 w-4 rounded-full border-2 ${
                   index < pin.length
-                    ? 'border-primary bg-primary'
-                    : 'border-gray-300'
+                    ? "border-blue-500 bg-blue-500"
+                    : "border-blue-300"
                 }`}
               />
             ))}
@@ -88,10 +88,12 @@ export function PINLogin({
               {row.map((number, colIndex) => (
                 <Button
                   key={colIndex}
-                  variant={number ? 'outline' : 'ghost'}
+                  variant={number ? "outline" : "ghost"}
                   size="lg"
                   className={`h-16 w-16 text-xl font-semibold ${
-                    !number ? 'invisible' : 'border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500'
+                    !number
+                      ? "invisible"
+                      : "border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500"
                   }`}
                   onClick={() => number && handleNumberPress(number)}
                   disabled={isLoading || !number}
@@ -117,5 +119,5 @@ export function PINLogin({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

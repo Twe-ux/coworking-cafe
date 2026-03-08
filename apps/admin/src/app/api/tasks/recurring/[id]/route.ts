@@ -65,6 +65,7 @@ export async function PATCH(
       recurrenceType: template.recurrenceType,
       recurrenceDays: template.recurrenceDays,
       active: template.active,
+      metadata: template.metadata || {},
       createdBy: template.createdBy.toString(),
       createdAt: template.createdAt.toISOString(),
       updatedAt: template.updatedAt.toISOString(),

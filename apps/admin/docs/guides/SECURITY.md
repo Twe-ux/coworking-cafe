@@ -92,6 +92,158 @@ if (employee.employeeRole === 'Manager') { } // ✅ Rôle métier
 
 ---
 
+## 📦 Inventory Permissions
+
+### Matrice de Permissions
+
+| Action | Admin | Staff | Notes |
+|--------|-------|-------|-------|
+| **Fournisseurs** |
+| Voir fournisseurs | ✅ | ✅ | Staff en lecture seule |
+| Créer/modifier fournisseurs | ✅ | ❌ | Admin uniquement |
+| Supprimer fournisseurs | ✅ | ❌ | Admin uniquement |
+| **Produits** |
+| Voir produits | ✅ | ✅ | Tous |
+| Créer/modifier produits | ✅ | ❌ | Admin uniquement |
+| Supprimer produits | ✅ | ❌ | Admin uniquement |
+| **Inventaires** |
+| Voir inventaires | ✅ | ✅ | Tous |
+| Saisir inventaire | ✅ | ✅ | Staff via tâches assignées |
+| Finaliser inventaire | ✅ | ✅ | Tous |
+| **Mouvements Stock** |
+| Voir mouvements | ✅ | ✅ | Tous |
+| Créer mouvement manuel | ✅ | ✅ | Tous (ajustements) |
+| **Commandes Fournisseurs** |
+| Voir commandes | ✅ | ✅ | Tous |
+| Créer brouillon | ✅ | ✅ | Tous peuvent préparer |
+| Valider commande | ✅ | ❌ | Admin uniquement |
+| Envoyer au fournisseur | ✅ | ❌ | Admin uniquement |
+| Réceptionner stock | ✅ | ✅ | Tous |
+| **Analytics** |
+| Voir analytics | ✅ | ❌ | Admin uniquement |
+| Dashboard CA vs Stock | ✅ | ❌ | Admin uniquement |
+
+### Helpers Backend
+
+```typescript
+// /lib/inventory/permissions.ts
+import { getRequiredRoles, canManageSuppliers } from '@/lib/inventory/permissions'
+
+// Dans une route API
+export async function POST(request: NextRequest) {
+  // Vérifier auth pour gestion fournisseurs
+  const authResult = await requireAuth(getRequiredRoles('manageSuppliers'))
+  if (!authResult.authorized) return authResult.response
+
+  // Vérification additionnelle si nécessaire
+  const userRole = authResult.session.user.role
+  if (!canManageSuppliers(userRole)) {
+    return errorResponse('Accès refusé', 'Permission insuffisante', 403)
+  }
+
+  // Logique métier...
+}
+```
+
+### Composant UI React (PermissionGuard)
+
+```typescript
+// Dans un composant
+import { PermissionGuard } from '@/components/inventory'
+
+function SupplierList() {
+  return (
+    <div>
+      {/* Bouton visible uniquement pour admin */}
+      <PermissionGuard require="manageSuppliers">
+        <Button>Ajouter Fournisseur</Button>
+      </PermissionGuard>
+
+      {/* Message mode lecture seule avec fallback */}
+      <PermissionGuard
+        require="manageSuppliers"
+        fallback={
+          <Alert>
+            Mode lecture seule - Contactez un administrateur pour modifier
+          </Alert>
+        }
+      >
+        <Button>Modifier Fournisseur</Button>
+      </PermissionGuard>
+
+      {/* Liste fournisseurs (tous peuvent voir) */}
+      <SupplierTable suppliers={suppliers} />
+    </div>
+  )
+}
+```
+
+### Exemples API Routes
+
+#### Route Lecture (Tous)
+```typescript
+// GET /api/inventory/suppliers
+export async function GET(request: NextRequest) {
+  const authResult = await requireAuth(['dev', 'admin', 'staff'])
+  if (!authResult.authorized) return authResult.response
+
+  const suppliers = await Supplier.find({ isActive: true })
+  return successResponse(suppliers)
+}
+```
+
+#### Route Écriture (Admin uniquement)
+```typescript
+// POST /api/inventory/suppliers
+export async function POST(request: NextRequest) {
+  const authResult = await requireAuth(['dev', 'admin'])
+  if (!authResult.authorized) return authResult.response
+
+  const body = await request.json()
+  // Validation + création...
+  return successResponse(newSupplier, 201)
+}
+```
+
+#### Route Mixte (Staff brouillon, Admin validation)
+```typescript
+// POST /api/inventory/orders/[id]/validate
+export async function POST(request: NextRequest) {
+  const authResult = await requireAuth(['dev', 'admin', 'staff'])
+  if (!authResult.authorized) return authResult.response
+
+  const userRole = authResult.session.user.role
+
+  // Vérifier permission validation
+  if (!canValidateOrders(userRole)) {
+    return errorResponse(
+      'Permission refusée',
+      'Seuls les admins peuvent valider les commandes',
+      403
+    )
+  }
+
+  // Logique validation...
+}
+```
+
+### Logs Audit (Recommandé)
+
+Pour les opérations critiques (validation commandes, modifications fournisseurs), logger l'action :
+
+```typescript
+// Exemple log audit
+console.log({
+  action: 'VALIDATE_PURCHASE_ORDER',
+  orderId: order._id,
+  userId: session.user.id,
+  userRole: session.user.role,
+  timestamp: new Date().toISOString(),
+})
+```
+
+---
+
 ## 🌐 Routes Publiques (Exceptions)
 
 **Seules ces routes peuvent être publiques** :

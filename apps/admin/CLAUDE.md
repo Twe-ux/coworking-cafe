@@ -101,11 +101,121 @@ await sendEmail({
 ```
 **Exemples** : Effacer, Supprimer, Annuler, Réinitialiser
 
+### 🔘 **Boutons d'Actions (Listes/Tableaux)**
+
+Pour les boutons d'actions dans les listes de produits, tableaux, cards, etc., utiliser `size="sm"` avec **SEULEMENT l'icône** (pas de texte).
+
+**Pattern standard** :
+```typescript
+// Modifier (bleu)
+<Button
+  variant="outline"
+  size="sm"
+  className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+  onClick={() => onEdit(item)}
+  title="Modifier"
+>
+  <Edit className="h-4 w-4" />
+</Button>
+
+// Supprimer/Désactiver (rouge)
+<Button
+  variant="outline"
+  size="sm"
+  className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+  onClick={() => onDelete(item)}
+  title="Supprimer"
+>
+  <Trash2 className="h-4 w-4" />
+</Button>
+
+// Réactiver/Activer (vert)
+<Button
+  variant="outline"
+  size="sm"
+  className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+  onClick={() => onActivate(item)}
+  title="Réactiver"
+>
+  <RefreshCw className="h-4 w-4" />
+</Button>
+
+// Toggle status (gris)
+<Button
+  variant="outline"
+  size="sm"
+  className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 hover:text-gray-700"
+  onClick={() => onToggle(item)}
+  title="Changer statut"
+>
+  <Eye className="h-4 w-4" />
+</Button>
+```
+
+**Où l'appliquer** :
+- ProductCard (inventory)
+- ArticlesTable (blog)
+- EventsTable (events)
+- Toutes les listes avec actions inline
+
+**Règles spécifiques** :
+- ✅ Toujours `size="sm"` (pas `icon`)
+- ✅ Icône seule (pas de texte)
+- ✅ `title` pour tooltip
+- ✅ La couleur du texte **reste identique au hover** (pas de changement)
+- ✅ Groupe de boutons : `flex gap-2`
+
 ### ⚠️ **Important**
 - ✅ **TOUJOURS** `variant="outline"` (jamais `default`, `ghost`, etc.)
-- ✅ **TOUJOURS** ajouter l'icône avec `className="mr-2 h-4 w-4"`
+- ✅ **TOUJOURS** ajouter l'icône avec `className="mr-2 h-4 w-4"` (boutons avec texte) ou `className="h-4 w-4"` (boutons icon-only)
 - ✅ **TOUJOURS** utiliser les couleurs appropriées selon le type d'action
 - ❌ **JAMAIS** de boutons sans couleur ou avec des couleurs aléatoires
+
+---
+
+## 🔢 Inputs Numériques - Auto-sélection
+
+**RÈGLE CRITIQUE** : TOUS les inputs de type `number` doivent sélectionner automatiquement leur contenu au focus.
+
+### ❌ Comportement par défaut (MAUVAIS)
+```
+Input avec valeur 0
+User focus → tape "1"
+Résultat : 01 ❌
+```
+
+### ✅ Comportement souhaité (BON)
+```
+Input avec valeur 0
+User focus → contenu sélectionné → tape "1"
+Résultat : 1 ✅
+```
+
+### 📝 Pattern à appliquer PARTOUT
+
+```tsx
+<Input
+  type="number"
+  onFocus={(e) => e.target.select()}  // ← OBLIGATOIRE sur TOUS les inputs number
+  {...field}
+/>
+```
+
+### 🎯 Où appliquer
+
+**TOUS les formulaires avec inputs numériques** :
+- Prix (unitPriceHT, prices, amounts)
+- Quantités (stock, quantity, count)
+- Pourcentages (TVA, discounts)
+- Durées (minutes, hours, days)
+- Ordre d'affichage (order field)
+- TOUT champ de type `number`
+
+### ⚠️ Important
+
+- ✅ **TOUJOURS** ajouter `onFocus={(e) => e.target.select()}` sur `<Input type="number">`
+- ✅ Vérifier TOUS les formulaires existants et nouveaux
+- ❌ **JAMAIS** d'input number sans auto-sélection
 
 ---
 
@@ -272,6 +382,84 @@ import { DatePicker } from '@/components/ui/date-picker';
 - Création d'absence : dates de début/fin
 - Formulaires RH : dates diverses
 
+### 7. Collections MongoDB - Nomenclature avec Préfixe
+
+**RÈGLE** : TOUTES les collections MongoDB par module doivent utiliser un préfixe.
+
+### ❌ Nomenclature par défaut (MAUVAIS)
+```typescript
+// Sans préfixe - risque de collision et mauvaise organisation
+export const Supplier = mongoose.model('Supplier', SupplierSchema)
+export const Product = mongoose.model('Product', ProductSchema)
+// → Collections : suppliers, products (ambiguë)
+```
+
+### ✅ Nomenclature avec préfixe (BON)
+```typescript
+// Avec préfixe module - organisation claire
+export const Supplier = mongoose.model('Supplier', SupplierSchema, 'inventory-suppliers')
+export const Product = mongoose.model('Product', ProductSchema, 'inventory-products')
+// → Collections : inventory-suppliers, inventory-products (clair)
+```
+
+### 📋 Convention de Nommage
+
+**Collections globales** : Pas de préfixe
+```
+users
+sessions
+employees
+```
+
+**Collections par module** : Préfixe `module-`
+```
+inventory-suppliers
+inventory-products
+inventory-entries
+inventory-orders
+inventory-movements
+
+booking-reservations
+booking-payments
+booking-promotions
+
+hr-contracts
+hr-absences
+hr-timesheets
+```
+
+### 🎯 Pattern à appliquer
+
+```typescript
+// 3ème paramètre = nom de collection explicite
+export const Model = mongoose.models.ModelName ||
+  mongoose.model<DocumentType>(
+    'ModelName',           // Nom du modèle (pour mongoose.models)
+    Schema,                // Schema Mongoose
+    'module-collection'    // ← Nom explicite de la collection
+  )
+```
+
+### 🔄 Migration Progressive
+
+**Modules avec préfixe** : ✅
+- `inventory-*` (suppliers, products, entries, orders, movements)
+
+**Modules à migrer** : ⏳
+- HR (contracts, absences, timesheets)
+- Booking (reservations, payments)
+- Autres modules
+
+**Migration à faire module par module** pour éviter les régressions.
+
+### ⚠️ Important
+
+- ✅ **TOUJOURS** utiliser préfixe pour nouveaux modules
+- ✅ Améliore l'organisation dans MongoDB Compass/Atlas
+- ✅ Évite collisions entre modules
+- ✅ Facilite backups/restore par module
+- ❌ **JAMAIS** créer collection sans préfixe (sauf globales)
+
 ---
 
 ## 📚 Documentation Détaillée
@@ -362,6 +550,14 @@ import { DatePicker } from '@/components/ui/date-picker';
 - Performance
 - Secrets
 
+### 📦 Module Inventory
+→ **[docs/inventory/](./docs/inventory/)**
+- [ARCHITECTURE.md](./docs/inventory/ARCHITECTURE.md) - Structure, flows, relations models
+- [USER_GUIDE.md](./docs/inventory/USER_GUIDE.md) - Workflows par module
+- [DEV_GUIDE.md](./docs/inventory/DEV_GUIDE.md) - API routes, types, hooks, helpers
+- [FAQ.md](./docs/inventory/FAQ.md) - Questions, troubleshooting, patterns
+- [PERMISSIONS.md](./docs/inventory/PERMISSIONS.md) - Roles et permissions detaillees
+
 ---
 
 ## 🎯 Checklist Avant de Coder
@@ -411,6 +607,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 - ✅ Comptabilité (Caisse, CA, PDF)
 - ✅ Dashboard (Stats, Navigation)
 - ✅ Pages d'erreur (404, 403, 401, 500)
+- ✅ Inventory (Fournisseurs, Produits, Inventaires, Commandes, Analytics)
 
 ### Qualité
 
@@ -479,6 +676,12 @@ Total : 1-2 jours/module
 - [TESTING.md](./docs/guides/TESTING.md) - Tests manuels
 - [FAQ.md](./docs/guides/FAQ.md) - Questions fréquentes
 
+### Module Inventory
+- [ARCHITECTURE.md](./docs/inventory/ARCHITECTURE.md) - Structure et flows
+- [USER_GUIDE.md](./docs/inventory/USER_GUIDE.md) - Workflows utilisateur
+- [DEV_GUIDE.md](./docs/inventory/DEV_GUIDE.md) - API, types, hooks
+- [FAQ.md](./docs/inventory/FAQ.md) - Questions et troubleshooting
+
 ### Fichiers Importants
 - `/TESTING_CHECKLIST.md` - Checklist tests détaillée
 - `/docs/refactoring/REFACTORING_SUMMARY.txt` - Historique refactoring
@@ -510,9 +713,9 @@ pnpm exec tsc --noEmit        # Type check complet
 
 ---
 
-**Dernière mise à jour** : 2026-02-08
+**Dernière mise à jour** : 2026-02-28
 **Auteur** : Thierry + Claude
-**Version** : 1.1
+**Version** : 1.2
 
 ---
 

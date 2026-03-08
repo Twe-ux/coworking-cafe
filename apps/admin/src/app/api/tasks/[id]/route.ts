@@ -19,6 +19,7 @@ function formatTask(task: TaskDocument): TaskType {
     completedBy: task.completedBy?.toString(),
     completedAt: task.completedAt?.toISOString(),
     recurringTaskId: task.recurringTaskId?.toString(),
+    metadata: task.metadata || {},
     createdAt: task.createdAt.toISOString(),
     updatedAt: task.updatedAt.toISOString(),
   };

@@ -43,7 +43,7 @@ export async function POST(): Promise<NextResponse<ApiResponse<{ created: number
 
       if (existingToday) continue;
 
-      // Create new task instance
+      // Create new task instance (copy metadata from template)
       await Task.create({
         title: template.title,
         description: template.description,
@@ -52,6 +52,7 @@ export async function POST(): Promise<NextResponse<ApiResponse<{ created: number
         dueDate: today,
         recurringTaskId: template._id,
         createdBy: template.createdBy,
+        metadata: template.metadata || {},
       });
 
       created++;

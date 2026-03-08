@@ -18,6 +18,9 @@ export interface ArticleDocument extends Document {
   viewCount: number
   likeCount: number
   readingTime: number
+  isFeatured: boolean
+  isDeleted: boolean
+  deletedAt?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -89,6 +92,17 @@ export const ArticleSchema = new Schema<ArticleDocument>(
       type: Number,
       default: 0,
     },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    deletedAt: Date,
   },
   {
     timestamps: true,
@@ -99,6 +113,8 @@ export const ArticleSchema = new Schema<ArticleDocument>(
 ArticleSchema.index({ status: 1, publishedAt: -1 })
 ArticleSchema.index({ category: 1, status: 1 })
 ArticleSchema.index({ author: 1, createdAt: -1 })
+ArticleSchema.index({ isFeatured: 1, status: 1 })
+ArticleSchema.index({ isDeleted: 1 })
 
 // Générer le slug automatiquement avant save
 ArticleSchema.pre("save", function (next) {

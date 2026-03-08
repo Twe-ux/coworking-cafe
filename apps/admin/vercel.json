@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/dlc-alerts",
+      "schedule": "0 * * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/sw.js",

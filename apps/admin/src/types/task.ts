@@ -5,6 +5,16 @@
 export type TaskPriority = "high" | "medium" | "low";
 export type TaskStatus = "pending" | "completed";
 export type RecurrenceType = "weekly" | "monthly";
+/**
+ * Extensible metadata for task categorization
+ */
+export interface TaskMetadata {
+  type?: string;
+  inventoryType?: string;
+  inventoryEntryId?: string;
+  productId?: string;
+  [key: string]: unknown;
+}
 
 /**
  * Task instance
@@ -20,6 +30,7 @@ export interface Task {
   completedBy?: string;
   completedAt?: string;
   recurringTaskId?: string;
+  metadata?: TaskMetadata;
   createdAt: string;
   updatedAt: string;
 }
@@ -69,6 +80,7 @@ export interface RecurringTask {
   recurrenceType: RecurrenceType;
   recurrenceDays: number[];
   active: boolean;
+  metadata?: TaskMetadata;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -80,6 +92,7 @@ export interface RecurringTaskCreateData {
   priority: TaskPriority;
   recurrenceType: RecurrenceType;
   recurrenceDays: number[];
+  metadata?: TaskMetadata;
 }
 
 export interface RecurringTaskUpdateData {

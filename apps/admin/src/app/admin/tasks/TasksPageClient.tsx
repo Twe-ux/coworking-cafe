@@ -17,7 +17,7 @@ interface TasksPageClientProps {
   canCreate: boolean;
 }
 
-type TaskTabValue = "pending" | "completed";
+type TaskTabValue = "pending" | "completed" | "recurring";
 
 export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -89,36 +89,21 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
             Gerez les taches de l&apos;equipe
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {canCreate && (
-            <>
-              <Button
-                variant="outline"
-                className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
-                onClick={() => setRecurringManagerOpen(true)}
-              >
-                <Repeat className="h-4 w-4 mr-2" />
-                Recurrentes
-                {templates.length > 0 && (
-                  <span className="ml-1 text-xs">({templates.length})</span>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
-                onClick={() => setModalOpen(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Creer une tache
-              </Button>
-            </>
-          )}
-        </div>
+        {canCreate && (
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={() => setModalOpen(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Creer une tache
+          </Button>
+        )}
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TaskTabValue)}>
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="pending" className="flex items-center gap-2">
             <ListTodo className="h-4 w-4" />
             A faire
@@ -131,6 +116,13 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
             Completees
             {completedTasks.length > 0 && (
               <span className="ml-1 text-xs">({completedTasks.length})</span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="recurring" className="flex items-center gap-2">
+            <Repeat className="h-4 w-4" />
+            Recurrentes
+            {templates.length > 0 && (
+              <span className="ml-1 text-xs">({templates.length})</span>
             )}
           </TabsTrigger>
         </TabsList>
@@ -185,6 +177,42 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
                   showDeleteButton={canDelete}
                   canEdit={canEdit}
                   emptyMessage="Aucune tache completee"
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Recurring */}
+        <TabsContent value="recurring" className="mt-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg">Taches recurrentes</CardTitle>
+              {canCreate && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+                  onClick={() => setRecurringManagerOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouvelle recurrence
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent>
+              {templates.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  Aucune tache recurrente configuree
+                </p>
+              ) : (
+                <RecurringTasksManager
+                  open={false}
+                  onOpenChange={setRecurringManagerOpen}
+                  templates={templates}
+                  onUpdate={updateTemplate}
+                  onDelete={handleDeleteTemplate}
+                  inline={true}
                 />
               )}
             </CardContent>
