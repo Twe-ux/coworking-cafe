@@ -1,9 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type {
   InventoryEntry,
+  InventoryType,
   UpdateInventoryItemData,
   APIResponse,
 } from '@/types/inventory'
+
+interface InventoryMetadata {
+  type?: InventoryType
+  date?: string
+  title?: string
+}
 
 interface UseInventoryEntryReturn {
   entry: InventoryEntry | null
@@ -12,7 +19,8 @@ interface UseInventoryEntryReturn {
   saving: boolean
   finalizing: boolean
   handleQuantityChange: (productId: string, actualQuantity: number) => void
-  saveAll: () => Promise<boolean>
+  updateMetadata: (metadata: InventoryMetadata) => Promise<boolean>
+  saveAll: (title?: string) => Promise<boolean>
   finalize: () => Promise<boolean>
   refetch: () => Promise<void>
 }
@@ -120,10 +128,49 @@ export function useInventoryEntry(id: string | null): UseInventoryEntryReturn {
     debouncedSave()
   }, [debouncedSave])
 
+  // Update metadata (type, date, title) - only for draft entries
+  const updateMetadata = useCallback(async (
+    metadata: InventoryMetadata
+  ): Promise<boolean> => {
+    if (!id) return false
+    setSaving(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`/api/inventory/entries/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(metadata),
+      })
+
+      const result = (await res.json()) as APIResponse<InventoryEntry>
+
+      if (result.success && result.data) {
+        setEntry(result.data)
+        return true
+      } else {
+        setError(result.error || 'Erreur lors de la mise a jour')
+        return false
+      }
+    } catch (err) {
+      console.error('[useInventoryEntry] Update metadata error:', err)
+      setError('Erreur reseau lors de la mise a jour')
+      return false
+    } finally {
+      setSaving(false)
+    }
+  }, [id])
+
   // Save all items (manual save or pre-finalize)
-  const saveAll = useCallback(async (): Promise<boolean> => {
+  const saveAll = useCallback(async (title?: string): Promise<boolean> => {
     if (saveTimeout.current) clearTimeout(saveTimeout.current)
     if (!entry) return false
+
+    // Update title if provided
+    if (title !== undefined && title !== entry.title) {
+      const metadataSuccess = await updateMetadata({ title })
+      if (!metadataSuccess) return false
+    }
 
     const items = entry.items.map((item) => ({
       productId: item.productId,
@@ -134,7 +181,7 @@ export function useInventoryEntry(id: string | null): UseInventoryEntryReturn {
 
     pendingUpdates.current.clear()
     return updateQuantities(items)
-  }, [entry, updateQuantities])
+  }, [entry, updateQuantities, updateMetadata])
 
   const finalize = useCallback(async (): Promise<boolean> => {
     if (!id) return false
@@ -177,6 +224,7 @@ export function useInventoryEntry(id: string | null): UseInventoryEntryReturn {
     saving,
     finalizing,
     handleQuantityChange,
+    updateMetadata,
     saveAll,
     finalize,
     refetch: fetchEntry,

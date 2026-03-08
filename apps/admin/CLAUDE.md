@@ -101,9 +101,73 @@ await sendEmail({
 ```
 **Exemples** : Effacer, Supprimer, Annuler, Réinitialiser
 
+### 🔘 **Boutons d'Actions (Listes/Tableaux)**
+
+Pour les boutons d'actions dans les listes de produits, tableaux, cards, etc., utiliser `size="sm"` avec **SEULEMENT l'icône** (pas de texte).
+
+**Pattern standard** :
+```typescript
+// Modifier (bleu)
+<Button
+  variant="outline"
+  size="sm"
+  className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+  onClick={() => onEdit(item)}
+  title="Modifier"
+>
+  <Edit className="h-4 w-4" />
+</Button>
+
+// Supprimer/Désactiver (rouge)
+<Button
+  variant="outline"
+  size="sm"
+  className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+  onClick={() => onDelete(item)}
+  title="Supprimer"
+>
+  <Trash2 className="h-4 w-4" />
+</Button>
+
+// Réactiver/Activer (vert)
+<Button
+  variant="outline"
+  size="sm"
+  className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+  onClick={() => onActivate(item)}
+  title="Réactiver"
+>
+  <RefreshCw className="h-4 w-4" />
+</Button>
+
+// Toggle status (gris)
+<Button
+  variant="outline"
+  size="sm"
+  className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 hover:text-gray-700"
+  onClick={() => onToggle(item)}
+  title="Changer statut"
+>
+  <Eye className="h-4 w-4" />
+</Button>
+```
+
+**Où l'appliquer** :
+- ProductCard (inventory)
+- ArticlesTable (blog)
+- EventsTable (events)
+- Toutes les listes avec actions inline
+
+**Règles spécifiques** :
+- ✅ Toujours `size="sm"` (pas `icon`)
+- ✅ Icône seule (pas de texte)
+- ✅ `title` pour tooltip
+- ✅ La couleur du texte **reste identique au hover** (pas de changement)
+- ✅ Groupe de boutons : `flex gap-2`
+
 ### ⚠️ **Important**
 - ✅ **TOUJOURS** `variant="outline"` (jamais `default`, `ghost`, etc.)
-- ✅ **TOUJOURS** ajouter l'icône avec `className="mr-2 h-4 w-4"`
+- ✅ **TOUJOURS** ajouter l'icône avec `className="mr-2 h-4 w-4"` (boutons avec texte) ou `className="h-4 w-4"` (boutons icon-only)
 - ✅ **TOUJOURS** utiliser les couleurs appropriées selon le type d'action
 - ❌ **JAMAIS** de boutons sans couleur ou avec des couleurs aléatoires
 

@@ -8,6 +8,7 @@ import { Product } from "@/models/inventory/product"
 import { Task } from '@coworking-cafe/database'
 import { getRequiredRoles } from "@/lib/inventory/permissions"
 import { notifyTaskCompleted } from "@/lib/inventory/notifications"
+import { calculateCUMPBatch } from "@/lib/inventory/cumpCalculator"
 
 export const dynamic = 'force-dynamic'
 
@@ -54,15 +55,31 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     const dateStr = entry.date.toISOString().split('T')[0]
     const userId = authResult.session.user?.id || ''
 
+    // Calculate CUMP for all products in the inventory
+    // Period: from start of month to inventory date
+    const inventoryDate = new Date(entry.date)
+    const monthStart = new Date(inventoryDate.getFullYear(), inventoryDate.getMonth(), 1)
+    const monthStartStr = monthStart.toISOString().split('T')[0]
+    const monthEndStr = dateStr
+
+    const productIds = entry.items.map((item) => item.productId.toString())
+    const cumpResults = await calculateCUMPBatch(productIds, monthStartStr, monthEndStr)
+
     // Create StockMovements and update Product.currentStock for variances
     const movementPromises = entry.items
       .filter((item) => item.variance !== 0)
       .map(async (item) => {
-        // Create stock movement record
+        const productId = item.productId.toString()
+        const cumpData = cumpResults.get(productId)
+        const cump = cumpData?.cump || item.unitPriceHT
+
+        // Create stock movement record with CUMP
         await StockMovement.create({
           productId: item.productId,
           type: 'inventory_adjustment',
           quantity: item.variance,
+          unitPriceHT: cump,
+          totalValue: item.variance * cump,
           date: new Date(),
           reference: `INV-${dateStr}`,
           notes: `Inventaire du ${dateStr} - ${item.productName}`,
@@ -76,6 +93,20 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       })
 
     await Promise.all(movementPromises)
+
+    // Update varianceValue in inventory items with CUMP
+    for (const item of entry.items) {
+      const productId = item.productId.toString()
+      const cumpData = cumpResults.get(productId)
+      const cump = cumpData?.cump || item.unitPriceHT
+      item.varianceValue = item.variance * cump
+    }
+
+    // Recalculate total variance value
+    entry.totalVarianceValue = entry.items.reduce(
+      (sum, item) => sum + item.varianceValue,
+      0
+    )
 
     // Finalize the entry
     entry.status = 'finalized'

@@ -1,5 +1,11 @@
 import { Schema, Document } from "mongoose"
 
+export interface DLCAlertConfig {
+  enabled: boolean
+  days: number[] // 0=Dimanche, 1=Lundi, ..., 6=Samedi
+  time: string // Format "HH:mm"
+}
+
 /** Document of a Supplier, as stored in the database. */
 export interface SupplierDocument extends Document {
   name: string
@@ -10,6 +16,7 @@ export interface SupplierDocument extends Document {
   notes?: string
   order: number
   isActive: boolean
+  dlcAlertConfig?: DLCAlertConfig
   createdAt: Date
   updatedAt: Date
 }
@@ -57,6 +64,14 @@ export const SupplierSchema = new Schema<SupplierDocument>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    dlcAlertConfig: {
+      type: {
+        enabled: { type: Boolean, default: false },
+        days: { type: [Number], default: [] },
+        time: { type: String, default: "09:00" },
+      },
+      required: false,
     },
   },
   {

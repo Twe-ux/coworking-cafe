@@ -312,7 +312,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
                 <div className="flex-1">
                   <p className="font-medium">{item.productName}</p>
                   <p className="text-sm text-muted-foreground">
-                    Commandé : {item.quantity} {item.unit}
+                    Commandé : {item.quantity} {item.packagingType}
                   </p>
                 </div>
                 <div className="w-32">

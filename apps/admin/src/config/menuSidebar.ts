@@ -310,8 +310,8 @@ export function getAdminMenu(
               url: "/admin/inventory/products",
             },
             {
-              title: "Saisie inventaire",
-              url: "/admin/inventory/new",
+              title: "Inventaires",
+              url: "/admin/inventory/entries",
             },
             {
               title: "Commandes",

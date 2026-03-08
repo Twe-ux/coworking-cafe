@@ -14,7 +14,7 @@ interface DisplayItem {
   productId: string
   productName: string
   quantity: number
-  unit: string
+  packagingType: string
   unitPriceHT: number
 }
 
@@ -76,7 +76,7 @@ export function OrderItemsTable({
                       item.quantity
                     )}
                   </TableCell>
-                  <TableCell className="text-center">{item.unit}</TableCell>
+                  <TableCell className="text-center">{item.packagingType}</TableCell>
                   <TableCell className="text-right font-mono">
                     {item.unitPriceHT.toFixed(2)} €
                   </TableCell>

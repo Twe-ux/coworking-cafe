@@ -211,7 +211,7 @@ export async function sendPurchaseOrderEmail(
       supplierReference?: string;
       packagingDescription?: string;
       quantity: number;
-      unit: string;
+      packagingType: string;
       unitPriceHT: number;
       totalHT: number;
     }>;

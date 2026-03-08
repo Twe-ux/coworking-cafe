@@ -21,24 +21,33 @@ import type { Product, ProductFormData, Supplier, SupplierFormData } from '@/typ
 const productSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   category: z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']),
-  unit: z.enum(['kg', 'L', 'unit', 'pack']),
   unitPriceHT: z.number().min(0.01, 'Le prix doit être supérieur à 0'),
   vatRate: z.number().min(0).max(100),
   supplierId: z.string().min(1, 'Sélectionnez un fournisseur'),
   supplierReference: z.string().optional(),
-  packagingType: z.enum(['pack', 'unit', 'kg', 'L']),
+  packagingType: z.enum(['pack', 'unit']),
+  priceType: z.enum(['unit', 'pack']),
   unitsPerPackage: z.number().min(1, 'Minimum 1 unité par conditionnement'),
+  packageUnit: z.enum(['kg', 'L', 'unit']).optional(),
   packagingDescription: z.string().optional(),
-  minStockUnit: z.enum(['package', 'unit']),
-  order: z.number().min(0),
   minStock: z.number().min(0),
   maxStock: z.number().min(0),
-  hasShortDLC: z.boolean(),
+  dlcAlertConfig: z.object({
+    enabled: z.boolean(),
+    days: z.array(z.number().min(0).max(6)),
+    time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Format HH:mm requis'),
+  }).optional(),
 }).refine(
   (data) => data.minStock < data.maxStock,
   {
     message: 'Le stock minimum doit être inférieur au stock maximum',
     path: ['maxStock'],
+  }
+).refine(
+  (data) => !data.dlcAlertConfig?.enabled || (data.dlcAlertConfig?.days?.length ?? 0) > 0,
+  {
+    message: 'Sélectionnez au moins un jour pour les alertes',
+    path: ['dlcAlertConfig.days'],
   }
 )
 
@@ -68,19 +77,22 @@ export function ProductDialog({
     defaultValues: {
       name: '',
       category: 'food',
-      unit: 'kg',
       unitPriceHT: 0,
       vatRate: 5.5,
       supplierId: '',
       supplierReference: '',
       packagingType: 'unit',
+      priceType: 'unit',
       unitsPerPackage: 1,
+      packageUnit: 'unit',
       packagingDescription: '',
-      minStockUnit: 'unit',
-      order: 0,
       minStock: 0,
       maxStock: 10,
-      hasShortDLC: false,
+      dlcAlertConfig: {
+        enabled: false,
+        days: [],
+        time: '09:00',
+      },
     },
   })
 
@@ -107,22 +119,37 @@ export function ProductDialog({
   // Populate form when editing
   useEffect(() => {
     if (mode === 'edit' && product) {
+      // Calculate display price based on priceType
+      // In DB we store the real unit price, but we need to show the price according to priceType
+      const priceType = product.priceType || 'unit'
+      const unitsPerPackage = product.unitsPerPackage || 1
+      let displayPrice = product.unitPriceHT
+
+      if (priceType === 'pack' && unitsPerPackage > 1) {
+        // User entered price per pack, so show pack price
+        displayPrice = product.unitPriceHT * unitsPerPackage
+      }
+      // If priceType === 'unit', show unit price as-is
+
       form.reset({
         name: product.name,
         category: product.category,
-        unit: product.unit,
-        unitPriceHT: product.unitPriceHT,
+        unitPriceHT: displayPrice,
         vatRate: product.vatRate,
         supplierId: product.supplierId,
         supplierReference: product.supplierReference || '',
         packagingType: product.packagingType || 'unit',
+        priceType: product.priceType || 'unit',
         unitsPerPackage: product.unitsPerPackage || 1,
+        packageUnit: product.packageUnit || 'unit',
         packagingDescription: product.packagingDescription || '',
-        minStockUnit: product.minStockUnit || 'unit',
-        order: product.order || 0,
         minStock: product.minStock,
         maxStock: product.maxStock,
-        hasShortDLC: product.hasShortDLC,
+        dlcAlertConfig: product.dlcAlertConfig || {
+          enabled: false,
+          days: [],
+          time: '09:00',
+        },
       })
     } else if (mode === 'create') {
       form.reset()
@@ -210,7 +237,7 @@ export function ProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {mode === 'create' ? 'Nouveau Produit' : 'Modifier le Produit'}

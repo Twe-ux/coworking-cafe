@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           productId: product._id,
           productName: product.name,
           quantity: item.quantity,
-          unit: product.unit,
+          packagingType: product.packagingType,
           unitPriceHT: product.unitPriceHT,
           vatRate: product.vatRate,
           totalHT: Math.round(lineHT * 100) / 100,

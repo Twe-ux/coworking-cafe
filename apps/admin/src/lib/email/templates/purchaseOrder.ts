@@ -10,7 +10,7 @@ interface OrderItem {
   supplierReference?: string
   packagingDescription?: string
   quantity: number
-  unit: string
+  packagingType: string
   unitPriceHT: number
   totalHT: number
 }
@@ -47,7 +47,7 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
         ${item.quantity}
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: center;">
-        ${item.unit}
+        ${item.packagingType}
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: right; font-family: 'Courier New', monospace;">
         ${item.unitPriceHT.toFixed(2)} €

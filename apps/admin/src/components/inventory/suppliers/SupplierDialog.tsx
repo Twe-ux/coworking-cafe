@@ -26,6 +26,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/hooks/use-toast'
+import { SupplierDLCAlertFields } from './SupplierDLCAlertFields'
 import type { Supplier, SupplierFormData } from '@/types/inventory'
 
 // Validation schema
@@ -38,7 +39,18 @@ const supplierSchema = z.object({
     .array(z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']))
     .min(1, 'Sélectionnez au moins une catégorie'),
   notes: z.string().optional(),
-})
+  dlcAlertConfig: z.object({
+    enabled: z.boolean(),
+    days: z.array(z.number().min(0).max(6)),
+    time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Format HH:mm requis'),
+  }).optional(),
+}).refine(
+  (data) => !data.dlcAlertConfig?.enabled || (data.dlcAlertConfig?.days?.length ?? 0) > 0,
+  {
+    message: 'Sélectionnez au moins un jour pour les alertes',
+    path: ['dlcAlertConfig.days'],
+  }
+)
 
 interface SupplierDialogProps {
   open: boolean
@@ -69,6 +81,11 @@ export function SupplierDialog({
       phone: '',
       categories: [],
       notes: '',
+      dlcAlertConfig: {
+        enabled: false,
+        days: [],
+        time: '09:00',
+      },
     },
   })
 
@@ -128,6 +145,11 @@ export function SupplierDialog({
         phone: supplier.phone || '',
         categories: supplier.categories,
         notes: supplier.notes || '',
+        dlcAlertConfig: supplier.dlcAlertConfig || {
+          enabled: false,
+          days: [],
+          time: '09:00',
+        },
       })
       setEmailExists(false)
     } else if (mode === 'create') {
@@ -138,6 +160,11 @@ export function SupplierDialog({
         phone: '',
         categories: [],
         notes: '',
+        dlcAlertConfig: {
+          enabled: false,
+          days: [],
+          time: '09:00',
+        },
       })
       setEmailExists(false)
     }
@@ -436,6 +463,9 @@ export function SupplierDialog({
                 </FormItem>
               )}
             />
+
+            {/* DLC Alert Configuration */}
+            <SupplierDLCAlertFields control={form.control} />
 
             {/* Actions */}
             <div className="flex justify-end space-x-2 pt-4">

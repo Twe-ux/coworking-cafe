@@ -4,7 +4,7 @@ import { UseFormReturn } from 'react-hook-form'
 import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { ProductBasicFields } from './ProductBasicFields'
-import { ProductPackagingFields } from './ProductPackagingFields'
+import { ConditionnementFields } from './ConditionnementFields'
 import { ProductStockFields } from './ProductStockFields'
 import type { ProductFormData, Supplier } from '@/types/inventory'
 
@@ -31,21 +31,22 @@ export function ProductFormFields({
 }: ProductFormFieldsProps) {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <ProductBasicFields
-              control={form.control}
-              suppliers={suppliers}
-              loadingSuppliers={loadingSuppliers}
-              onCreateSupplier={onCreateSupplier}
-            />
-          </div>
-          <div className="space-y-4">
-            <ProductPackagingFields control={form.control} />
-            <ProductStockFields control={form.control} />
-          </div>
-        </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Basic Fields */}
+        <ProductBasicFields
+          control={form.control}
+          suppliers={suppliers}
+          loadingSuppliers={loadingSuppliers}
+          onCreateSupplier={onCreateSupplier}
+        />
+
+        {/* Conditionnement Fields */}
+        <ConditionnementFields control={form.control} />
+
+        {/* Stock Fields */}
+        <ProductStockFields control={form.control} />
+
+        {/* Action Buttons */}
         <div className="flex justify-end space-x-2 pt-4">
           <Button
             type="button"

@@ -1,24 +1,30 @@
 import { Schema, Document, Types } from "mongoose"
 
+export interface DLCAlertConfig {
+  enabled: boolean
+  days: number[] // 0=Dimanche, 1=Lundi, ..., 6=Samedi
+  time: string // Format "HH:mm"
+}
+
 /** Document of a Product, as stored in the database. */
 export interface ProductDocument extends Document {
   name: string
   category: "food" | "cleaning" | "emballage" | "papeterie" | "divers"
-  unit: "kg" | "L" | "unit" | "pack"
   unitPriceHT: number
   vatRate: number
   supplierId: Types.ObjectId
   supplierName?: string
   supplierReference?: string
-  packagingType: "pack" | "unit" | "kg" | "L"
+  packagingType: "pack" | "unit"
+  priceType: "unit" | "pack"
   unitsPerPackage: number
+  packageUnit?: "kg" | "L" | "unit"
   packagingDescription?: string
-  minStockUnit: "package" | "unit"
-  order: number
   minStock: number
   maxStock: number
   currentStock: number
   hasShortDLC: boolean
+  dlcAlertConfig?: DLCAlertConfig
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -36,11 +42,6 @@ export const ProductSchema = new Schema<ProductDocument>(
       type: String,
       enum: ["food", "cleaning", "emballage", "papeterie", "divers"],
       required: [true, "Category is required"],
-    },
-    unit: {
-      type: String,
-      enum: ["kg", "L", "unit", "pack"],
-      required: [true, "Unit is required"],
     },
     unitPriceHT: {
       type: Number,
@@ -68,7 +69,12 @@ export const ProductSchema = new Schema<ProductDocument>(
     },
     packagingType: {
       type: String,
-      enum: ["pack", "unit", "kg", "L"],
+      enum: ["pack", "unit"],
+      default: "unit",
+    },
+    priceType: {
+      type: String,
+      enum: ["unit", "pack"],
       default: "unit",
     },
     unitsPerPackage: {
@@ -76,18 +82,13 @@ export const ProductSchema = new Schema<ProductDocument>(
       default: 1,
       min: [1, "Units per package must be at least 1"],
     },
+    packageUnit: {
+      type: String,
+      enum: ["kg", "L", "unit"],
+    },
     packagingDescription: {
       type: String,
       trim: true,
-    },
-    minStockUnit: {
-      type: String,
-      enum: ["package", "unit"],
-      default: "unit",
-    },
-    order: {
-      type: Number,
-      default: 0,
     },
     minStock: {
       type: Number,
@@ -107,6 +108,27 @@ export const ProductSchema = new Schema<ProductDocument>(
     hasShortDLC: {
       type: Boolean,
       default: false,
+    },
+    dlcAlertConfig: {
+      type: {
+        enabled: { type: Boolean, default: false },
+        days: {
+          type: [Number],
+          validate: {
+            validator: (v: number[]) =>
+              v.every((day) => day >= 0 && day <= 6),
+            message: "Days must be between 0 (Sunday) and 6 (Saturday)",
+          },
+        },
+        time: {
+          type: String,
+          validate: {
+            validator: (v: string) => /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/.test(v),
+            message: "Time must be in HH:mm format (00:00 to 23:59)",
+          },
+        },
+      },
+      required: false,
     },
     isActive: {
       type: Boolean,

@@ -34,6 +34,7 @@ interface RecurringTasksManagerProps {
   templates: RecurringTask[];
   onUpdate: (id: string, data: RecurringTaskUpdateData) => void;
   onDelete: (id: string) => void;
+  inline?: boolean;
 }
 
 function formatDays(template: RecurringTask): string {
@@ -63,6 +64,7 @@ export function RecurringTasksManager({
   templates,
   onUpdate,
   onDelete,
+  inline = false,
 }: RecurringTasksManagerProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editState, setEditState] = useState<EditState>({
@@ -109,6 +111,206 @@ export function RecurringTasksManager({
 
   const monthDays = Array.from({ length: 31 }, (_, i) => i + 1);
 
+  // Extract list content to reuse in both modal and inline modes
+  const listContent = templates.length === 0 ? (
+    <p className="text-sm text-muted-foreground py-4 text-center">
+      Aucune tache recurrente configuree
+    </p>
+  ) : (
+    <div className="space-y-3">
+      {templates.map((template) =>
+        editingId === template.id ? (
+          /* Edit mode */
+          <div key={template.id} className="border rounded-lg p-3 space-y-3 border-primary">
+            <div className="space-y-2">
+              <Label className="text-xs">Titre</Label>
+              <Input
+                value={editState.title}
+                onChange={(e) => setEditState({ ...editState, title: e.target.value })}
+                maxLength={100}
+                className="h-8 text-sm"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs">Description</Label>
+              <Input
+                value={editState.description}
+                onChange={(e) => setEditState({ ...editState, description: e.target.value })}
+                placeholder="Optionnel"
+                className="h-8 text-sm"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <div className="space-y-2 flex-1">
+                <Label className="text-xs">Priorite</Label>
+                <Select
+                  value={editState.priority}
+                  onValueChange={(v: TaskPriority) =>
+                    setEditState({ ...editState, priority: v })
+                  }
+                >
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">{TASK_PRIORITY_LABELS.high}</SelectItem>
+                    <SelectItem value="medium">{TASK_PRIORITY_LABELS.medium}</SelectItem>
+                    <SelectItem value="low">{TASK_PRIORITY_LABELS.low}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2 flex-1">
+                <Label className="text-xs">Frequence</Label>
+                <Select
+                  value={editState.recurrenceType}
+                  onValueChange={(v: RecurrenceType) =>
+                    setEditState({ ...editState, recurrenceType: v, recurrenceDays: [] })
+                  }
+                >
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weekly">Hebdomadaire</SelectItem>
+                    <SelectItem value="monthly">Mensuel</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs">Jours</Label>
+              {editState.recurrenceType === "weekly" ? (
+                <div className="flex gap-1.5">
+                  {[1, 2, 3, 4, 5, 6, 0].map((day) => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => toggleDay(day)}
+                      className={cn(
+                        "w-9 h-9 rounded-lg text-xs font-medium border transition-colors",
+                        editState.recurrenceDays.includes(day)
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background hover:bg-muted border-input",
+                      )}
+                    >
+                      {WEEKDAY_LABELS[day]}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-7 gap-1">
+                  {monthDays.map((day) => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => toggleDay(day)}
+                      className={cn(
+                        "h-7 rounded text-xs font-medium border transition-colors",
+                        editState.recurrenceDays.includes(day)
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background hover:bg-muted border-input",
+                      )}
+                    >
+                      {day}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="outline" size="sm" onClick={cancelEdit} className="h-7">
+                <X className="w-3.5 h-3.5 mr-1" />
+                Annuler
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={saveEdit}
+                disabled={!editState.title.trim() || editState.recurrenceDays.length === 0}
+                className="h-7 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+              >
+                <Check className="w-3.5 h-3.5 mr-1" />
+                Enregistrer
+              </Button>
+            </div>
+          </div>
+        ) : (
+          /* Read mode */
+          <div
+            key={template.id}
+            className={cn(
+              "border rounded-lg p-3 space-y-2",
+              !template.active && "opacity-50",
+            )}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  className={cn(
+                    "w-2 h-2 rounded-full shrink-0",
+                    template.priority === "high" && "bg-red-500",
+                    template.priority === "medium" && "bg-orange-500",
+                    template.priority === "low" && "bg-green-500",
+                  )}
+                />
+                <span className="font-medium text-sm truncate">{template.title}</span>
+                <span className="text-xs text-muted-foreground shrink-0">
+                  ({TASK_PRIORITY_LABELS[template.priority]})
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => startEdit(template)}
+                  className="h-7 w-7 p-0 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+                <Switch
+                  checked={template.active}
+                  onCheckedChange={(active) => onUpdate(template.id, { active })}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onDelete(template.id)}
+                  className="h-7 w-7 p-0 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            {template.description && (
+              <p className="text-xs text-muted-foreground">{template.description}</p>
+            )}
+
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">
+                {template.recurrenceType === "weekly" ? "Hebdomadaire" : "Mensuel"}
+              </span>
+              {" : "}
+              {formatDays(template)}
+            </div>
+          </div>
+        ),
+      )}
+    </div>
+  );
+
+  // Inline mode: render content directly without Dialog wrapper
+  if (inline) {
+    return listContent;
+  }
+
+  // Modal mode: wrap content in Dialog
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
@@ -116,198 +318,9 @@ export function RecurringTasksManager({
           <DialogTitle>Taches recurrentes</DialogTitle>
         </DialogHeader>
 
-        {templates.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4 text-center">
-            Aucune tache recurrente configuree
-          </p>
-        ) : (
-          <div className="space-y-3 max-h-[65vh] overflow-y-auto py-2">
-            {templates.map((template) =>
-              editingId === template.id ? (
-                /* Edit mode */
-                <div key={template.id} className="border rounded-lg p-3 space-y-3 border-primary">
-                  <div className="space-y-2">
-                    <Label className="text-xs">Titre</Label>
-                    <Input
-                      value={editState.title}
-                      onChange={(e) => setEditState({ ...editState, title: e.target.value })}
-                      maxLength={100}
-                      className="h-8 text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-xs">Description</Label>
-                    <Input
-                      value={editState.description}
-                      onChange={(e) => setEditState({ ...editState, description: e.target.value })}
-                      placeholder="Optionnel"
-                      className="h-8 text-sm"
-                    />
-                  </div>
-
-                  <div className="flex gap-3">
-                    <div className="space-y-2 flex-1">
-                      <Label className="text-xs">Priorite</Label>
-                      <Select
-                        value={editState.priority}
-                        onValueChange={(v: TaskPriority) =>
-                          setEditState({ ...editState, priority: v })
-                        }
-                      >
-                        <SelectTrigger className="h-8 text-sm">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="high">{TASK_PRIORITY_LABELS.high}</SelectItem>
-                          <SelectItem value="medium">{TASK_PRIORITY_LABELS.medium}</SelectItem>
-                          <SelectItem value="low">{TASK_PRIORITY_LABELS.low}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2 flex-1">
-                      <Label className="text-xs">Frequence</Label>
-                      <Select
-                        value={editState.recurrenceType}
-                        onValueChange={(v: RecurrenceType) =>
-                          setEditState({ ...editState, recurrenceType: v, recurrenceDays: [] })
-                        }
-                      >
-                        <SelectTrigger className="h-8 text-sm">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="weekly">Hebdomadaire</SelectItem>
-                          <SelectItem value="monthly">Mensuel</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-xs">Jours</Label>
-                    {editState.recurrenceType === "weekly" ? (
-                      <div className="flex gap-1.5">
-                        {[1, 2, 3, 4, 5, 6, 0].map((day) => (
-                          <button
-                            key={day}
-                            type="button"
-                            onClick={() => toggleDay(day)}
-                            className={cn(
-                              "w-9 h-9 rounded-lg text-xs font-medium border transition-colors",
-                              editState.recurrenceDays.includes(day)
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background hover:bg-muted border-input",
-                            )}
-                          >
-                            {WEEKDAY_LABELS[day]}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-7 gap-1">
-                        {monthDays.map((day) => (
-                          <button
-                            key={day}
-                            type="button"
-                            onClick={() => toggleDay(day)}
-                            className={cn(
-                              "h-7 rounded text-xs font-medium border transition-colors",
-                              editState.recurrenceDays.includes(day)
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background hover:bg-muted border-input",
-                            )}
-                          >
-                            {day}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-1">
-                    <Button variant="outline" size="sm" onClick={cancelEdit} className="h-7">
-                      <X className="w-3.5 h-3.5 mr-1" />
-                      Annuler
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={saveEdit}
-                      disabled={!editState.title.trim() || editState.recurrenceDays.length === 0}
-                      className="h-7 border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
-                    >
-                      <Check className="w-3.5 h-3.5 mr-1" />
-                      Enregistrer
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                /* Read mode */
-                <div
-                  key={template.id}
-                  className={cn(
-                    "border rounded-lg p-3 space-y-2",
-                    !template.active && "opacity-50",
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span
-                        className={cn(
-                          "w-2 h-2 rounded-full shrink-0",
-                          template.priority === "high" && "bg-red-500",
-                          template.priority === "medium" && "bg-orange-500",
-                          template.priority === "low" && "bg-green-500",
-                        )}
-                      />
-                      <span className="font-medium text-sm truncate">{template.title}</span>
-                      <span className="text-xs text-muted-foreground shrink-0">
-                        ({TASK_PRIORITY_LABELS[template.priority]})
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startEdit(template)}
-                        className="h-7 w-7 p-0 border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </Button>
-                      <Switch
-                        checked={template.active}
-                        onCheckedChange={(active) => onUpdate(template.id, { active })}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onDelete(template.id)}
-                        className="h-7 w-7 p-0 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {template.description && (
-                    <p className="text-xs text-muted-foreground">{template.description}</p>
-                  )}
-
-                  <div className="text-xs text-muted-foreground">
-                    <span className="font-medium">
-                      {template.recurrenceType === "weekly" ? "Hebdomadaire" : "Mensuel"}
-                    </span>
-                    {" : "}
-                    {formatDays(template)}
-                  </div>
-                </div>
-              ),
-            )}
-          </div>
-        )}
+        <div className="max-h-[65vh] overflow-y-auto py-2">
+          {listContent}
+        </div>
       </DialogContent>
     </Dialog>
   );

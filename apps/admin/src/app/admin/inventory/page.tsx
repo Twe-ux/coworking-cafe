@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { useInventoryKpis } from '@/hooks/inventory/useInventoryKpis'
 import { useInventoryTasks } from '@/hooks/inventory/useInventoryTasks'
 import { PendingTasksBanner } from '@/components/inventory/tasks/PendingTasksBanner'
+import { createInventoryAuto } from '@/lib/inventory/createInventoryAuto'
 
 const sections = [
   {
@@ -51,12 +53,20 @@ const sections = [
 
 export default function InventoryPage() {
   const router = useRouter()
+  const [creatingTaskId, setCreatingTaskId] = useState<string | null>(null)
   const { totalProducts, stockValue, lowStockCount, loading: kpiLoading } =
     useInventoryKpis()
   const { pendingTasks, loading: tasksLoading } = useInventoryTasks()
 
-  const handleStartFromTask = (taskId: string, type: 'weekly' | 'monthly') => {
-    router.push(`/admin/inventory/new?taskId=${taskId}&type=${type}`)
+  const handleStartFromTask = async (taskId: string, type: 'weekly' | 'monthly') => {
+    setCreatingTaskId(taskId)
+    const result = await createInventoryAuto({ type, taskId })
+    if (result.success) {
+      router.push(`/admin/inventory/${result.inventoryId}`)
+    } else {
+      alert(result.error)
+      setCreatingTaskId(null)
+    }
   }
 
   return (

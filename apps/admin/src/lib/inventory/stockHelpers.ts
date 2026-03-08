@@ -1,4 +1,4 @@
-import type { PackagingType, MinStockUnit } from "@/types/inventory"
+import type { PackagingType, PackageUnit, MinStockUnit } from "@/types/inventory"
 
 /**
  * Convert a quantity in packages to individual units.
@@ -34,35 +34,18 @@ export function convertToPackages(
 }
 
 /**
- * Format stock display with packaging context.
- * Shows current stock with equivalent in the other unit.
+ * Format stock display with unit label.
  *
- * Example: formatStock(15, "pack", 8, "unit") => "15u (1.9 packs)"
- * Example: formatStock(3, "pack", 8, "package") => "3 packs (24u)"
- * Example: formatStock(5, "kg", 1, "unit") => "5 kg"
+ * Example: formatStock(150, "kg") => "150 kg"
+ * Example: formatStock(30, "unit") => "30 U"
+ * Example: formatStock(45, "L") => "45 L"
  */
 export function formatStock(
   currentStock: number,
-  packagingType: PackagingType,
-  unitsPerPackage: number,
-  minStockUnit: MinStockUnit
+  packageUnit?: PackageUnit
 ): string {
-  // For non-pack types, just show the value with unit label
-  if (packagingType !== "pack" || unitsPerPackage <= 1) {
-    const unitLabel = getUnitLabel(packagingType)
-    return `${currentStock} ${unitLabel}`
-  }
-
-  // For packs, show with conversion
-  if (minStockUnit === "package") {
-    const totalUnits = currentStock * unitsPerPackage
-    return `${currentStock} pack${currentStock !== 1 ? "s" : ""} (${totalUnits}u)`
-  }
-
-  // minStockUnit === "unit"
-  const packs = convertToPackages(currentStock, unitsPerPackage)
-  const packsFormatted = Number.isInteger(packs) ? packs : packs.toFixed(1)
-  return `${currentStock}u (${packsFormatted} pack${packs !== 1 ? "s" : ""})`
+  const unitLabel = getUnitLabel(packageUnit)
+  return `${currentStock} ${unitLabel}`
 }
 
 /**
@@ -136,12 +119,9 @@ export interface OrderSuggestion {
 
 // --- Internal helpers ---
 
-function getUnitLabel(packagingType: PackagingType): string {
-  const labels: Record<PackagingType, string> = {
-    pack: "pack",
-    unit: "u",
-    kg: "kg",
-    L: "L",
-  }
-  return labels[packagingType]
+export function getUnitLabel(packageUnit?: PackageUnit): string {
+  if (!packageUnit || packageUnit === "unit") return "U"
+  if (packageUnit === "kg") return "kg"
+  if (packageUnit === "L") return "L"
+  return "U"
 }

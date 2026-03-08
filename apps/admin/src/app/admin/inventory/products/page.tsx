@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import { Plus, AlertTriangle } from 'lucide-react'
+import { Plus, AlertTriangle, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -97,10 +98,21 @@ export default function ProductsPage() {
             </Badge>
           )}
         </div>
-        <Button variant="outline" className="border-green-500 text-green-700 hover:bg-green-50" onClick={handleCreate} size="lg">
-          <Plus className="mr-2 h-5 w-5" />
-          Nouveau Produit
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/admin/inventory/entries">
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+            >
+              Inventaires
+            </Button>
+          </Link>
+          <Button variant="outline" className="border-green-500 text-green-700 hover:bg-green-50" onClick={handleCreate} size="lg">
+            <Plus className="mr-2 h-5 w-5" />
+            Nouveau Produit
+          </Button>
+        </div>
       </div>
 
       {error && (

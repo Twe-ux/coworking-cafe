@@ -77,7 +77,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
           supplierReference: productData?.supplierReference || undefined,
           packagingDescription: productData?.packagingDescription || undefined,
           quantity: item.quantity,
-          unit: item.unit,
+          packagingType: item.packagingType,
           unitPriceHT: item.unitPriceHT,
           totalHT: item.totalHT,
         }

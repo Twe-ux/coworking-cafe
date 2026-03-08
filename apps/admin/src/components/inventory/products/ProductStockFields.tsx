@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
-import { Control, useWatch } from 'react-hook-form'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,
   FormDescription,
@@ -8,147 +9,178 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import type { ProductFormData } from '@/types/inventory'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { ProductFormData } from "@/types/inventory";
+import { Control, useWatch } from "react-hook-form";
 
 interface ProductStockFieldsProps {
-  control: Control<ProductFormData>
+  control: Control<ProductFormData>;
 }
 
+const DAYS_OF_WEEK = [
+  { value: 1, label: "Lun" },
+  { value: 2, label: "Mar" },
+  { value: 3, label: "Mer" },
+  { value: 4, label: "Jeu" },
+  { value: 5, label: "Ven" },
+  { value: 6, label: "Sam" },
+  { value: 0, label: "Dim" },
+];
+
 export function ProductStockFields({ control }: ProductStockFieldsProps) {
-  const minStockUnit = useWatch({ control, name: 'minStockUnit' })
-  const packagingType = useWatch({ control, name: 'packagingType' })
-  const unitsPerPackage = useWatch({ control, name: 'unitsPerPackage' })
-
-  const unitLabel = minStockUnit === 'package' ? 'packs' : 'unités'
-  const showConversionHelper = minStockUnit === 'package' && packagingType === 'pack' && unitsPerPackage > 1
-
+  const dlcAlertEnabled = useWatch({ control, name: "dlcAlertConfig.enabled" });
   return (
-    <div className="border rounded-lg p-4 space-y-4">
-      <h3 className="font-medium text-sm text-muted-foreground">Stocks & Seuils</h3>
-
-      {/* Min Stock Unit + Order */}
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={control}
-          name="minStockUnit"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Unité de référence stock *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Stocks & Seuils</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Stock thresholds */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="minStock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock minimum (unités) *</FormLabel>
                 <FormControl>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Input
+                    type="number"
+                    min="0"
+                    {...field}
+                    onChange={(e) =>
+                      field.onChange(parseInt(e.target.value) || 0)
+                    }
+                    onFocus={(e) => e.target.select()}
+                  />
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value="unit">Unité</SelectItem>
-                  <SelectItem value="package">Conditionnement (pack)</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>Unité utilisée pour les seuils min/max</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormDescription>Seuil d&apos;alerte</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={control}
-          name="order"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Ordre d&apos;affichage</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  min="0"
-                  {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                  onFocus={(e) => e.target.select()}
+          <FormField
+            control={control}
+            name="maxStock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock maximum (unités) *</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    {...field}
+                    onChange={(e) =>
+                      field.onChange(parseInt(e.target.value) || 0)
+                    }
+                    onFocus={(e) => e.target.select()}
+                  />
+                </FormControl>
+                <FormDescription>Stock idéal</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* DLC Alert Configuration */}
+        <Card className="border-orange-200 bg-orange-50/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base text-orange-700">
+              Alertes DLC
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex gap-4 ">
+            {/* Enable Alerts */}
+            <FormField
+              control={control}
+              name="dlcAlertConfig.enabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-2">
+                  <FormControl className="mt-2">
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Activer alertes automatiques DLC</FormLabel>
+                    <FormDescription>
+                      Créer automatiquement des tâches de comptage périodiques
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {/* Days of week (conditional) */}
+            {dlcAlertEnabled && (
+              <div className="flex gap-4">
+                <FormField
+                  control={control}
+                  name="dlcAlertConfig.days"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Jours d'alerte *</FormLabel>
+                      <FormDescription className="mb-2">
+                        Sélectionner un ou plusieurs jours
+                      </FormDescription>
+                      <div className="flex flex-wrap gap-2">
+                        {DAYS_OF_WEEK.map((day) => (
+                          <label
+                            key={day.value}
+                            className="flex items-center space-x-2 cursor-pointer"
+                          >
+                            <Checkbox
+                              checked={field.value?.includes(day.value)}
+                              onCheckedChange={(checked) => {
+                                const currentDays = field.value || [];
+                                if (checked) {
+                                  field.onChange([...currentDays, day.value]);
+                                } else {
+                                  field.onChange(
+                                    currentDays.filter(
+                                      (d: number) => d !== day.value,
+                                    ),
+                                  );
+                                }
+                              }}
+                            />
+                            <Label className="cursor-pointer text-sm font-normal">
+                              {day.label}
+                            </Label>
+                          </label>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </FormControl>
-              <FormDescription>Position dans les listes</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
 
-      {/* Stock thresholds */}
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={control}
-          name="minStock"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Stock minimum ({unitLabel}) *</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  min="0"
-                  {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                  onFocus={(e) => e.target.select()}
+                <FormField
+                  control={control}
+                  name="dlcAlertConfig.time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Heure d'alerte *</FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} className="w-40" />
+                      </FormControl>
+                      <FormDescription>
+                        Heure de création de la tâche (format 24h)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </FormControl>
-              <FormDescription>Seuil d&apos;alerte</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="maxStock"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Stock maximum ({unitLabel}) *</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  min="0"
-                  {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                  onFocus={(e) => e.target.select()}
-                />
-              </FormControl>
-              <FormDescription>Stock idéal</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      {/* Conversion helper */}
-      {showConversionHelper && (
-        <p className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
-          1 pack = {unitsPerPackage} unités. Les seuils ci-dessus sont exprimés en packs.
-        </p>
-      )}
-
-      {/* Short DLC */}
-      <FormField
-        control={control}
-        name="hasShortDLC"
-        render={({ field }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-            <FormControl>
-              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-            </FormControl>
-            <div className="space-y-1 leading-none">
-              <FormLabel>DLC courte</FormLabel>
-              <FormDescription>Inventaire hebdomadaire requis</FormDescription>
-            </div>
-          </FormItem>
-        )}
-      />
-    </div>
-  )
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </CardContent>
+    </Card>
+  );
 }

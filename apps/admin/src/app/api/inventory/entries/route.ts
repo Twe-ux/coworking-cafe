@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
     const newEntry = await InventoryEntry.create({
       date: new Date(body.date),
       type: body.type,
+      title: body.title || undefined,
       items,
       totalVarianceValue: 0,
       createdBy: authResult.session.user?.id || '',

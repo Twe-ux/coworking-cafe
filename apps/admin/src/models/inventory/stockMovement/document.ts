@@ -7,6 +7,8 @@ export interface StockMovementDocument extends Document {
   productId: Types.ObjectId
   type: MovementType
   quantity: number
+  unitPriceHT: number // Prix unitaire HT au moment du mouvement
+  totalValue: number // quantity × unitPriceHT
   date: Date
   reference?: string
   notes?: string
@@ -34,6 +36,15 @@ export const StockMovementSchema = new Schema<StockMovementDocument>(
         validator: (v: number) => v !== 0,
         message: 'Quantity cannot be zero',
       },
+    },
+    unitPriceHT: {
+      type: Number,
+      required: [true, 'Unit price HT is required'],
+      min: [0, 'Unit price must be positive'],
+    },
+    totalValue: {
+      type: Number,
+      required: [true, 'Total value is required'],
     },
     date: {
       type: Date,

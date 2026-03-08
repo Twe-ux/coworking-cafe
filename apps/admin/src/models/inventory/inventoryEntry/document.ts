@@ -16,6 +16,7 @@ export interface InventoryEntryItem {
 export interface InventoryEntryDocument extends Document {
   date: Date
   type: InventoryType
+  title?: string // Optional title (e.g., "Stock initial", "Inventaire annuel")
   items: InventoryEntryItem[]
   totalVarianceValue: number
 
@@ -83,6 +84,11 @@ export const InventoryEntrySchema = new Schema<InventoryEntryDocument>(
       type: String,
       enum: ['monthly', 'weekly'],
       required: [true, 'Inventory type is required'],
+    },
+    title: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Title cannot exceed 100 characters'],
     },
     items: {
       type: [InventoryEntryItemSchema],

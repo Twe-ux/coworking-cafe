@@ -57,32 +57,26 @@ export async function GET(request: NextRequest) {
     const suggestions = products.map((p) => {
       const packagingType = (p.packagingType || 'unit') as PackagingType
       const unitsPerPackage = p.unitsPerPackage || 1
-      const minStockUnit = (p.minStockUnit || 'unit') as MinStockUnit
 
+      // Stocks are always in units now
       const suggestion = calculateOrderSuggestion(
         p.currentStock,
         p.minStock,
         p.maxStock,
-        minStockUnit,
+        'unit',
         unitsPerPackage
       )
 
       return {
         productId: p._id.toString(),
         productName: p.name,
-        unit: p.unit,
+        packagingType,
         currentStock: p.currentStock,
-        currentStockFormatted: formatStock(
-          p.currentStock,
-          packagingType,
-          unitsPerPackage,
-          minStockUnit
-        ),
+        currentStockFormatted: formatStock(p.currentStock, p.packageUnit),
         minStock: p.minStock,
         maxStock: p.maxStock,
         suggestedQuantity: suggestion.suggestedPacks,
         suggestedUnits: suggestion.suggestedUnits,
-        packagingType,
         packagingDescription: p.packagingDescription || undefined,
         supplierReference: p.supplierReference || undefined,
         unitPriceHT: p.unitPriceHT,

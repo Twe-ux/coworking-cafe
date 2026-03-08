@@ -56,7 +56,7 @@ export async function POST(): Promise<NextResponse<ApiResponse<LowStockAlertResu
       // Create alert task
       await Task.create({
         title: `Stock bas: ${product.name}`,
-        description: `Stock actuel: ${product.currentStock} ${product.unit} (min: ${product.minStock})`,
+        description: `Stock actuel: ${product.currentStock} ${product.packagingType} (min: ${product.minStock})`,
         priority: 'high',
         status: 'pending',
         dueDate: new Date().toISOString().split('T')[0],

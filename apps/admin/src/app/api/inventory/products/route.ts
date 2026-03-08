@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
 
     // Parse query parameters
     const { searchParams } = new URL(request.url)
+    const ids = searchParams.get('ids') // Comma-separated IDs
     const search = searchParams.get('search')
     const category = searchParams.get('category')
     const supplierId = searchParams.get('supplierId')
@@ -35,6 +36,12 @@ export async function GET(request: NextRequest) {
 
     // Build filter
     const filter: Record<string, unknown> = {}
+
+    // Filter by IDs (for fetching specific products)
+    if (ids) {
+      const idArray = ids.split(',').filter(Boolean)
+      filter._id = { $in: idArray }
+    }
 
     // Search by name
     if (search) {
@@ -118,7 +125,7 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as ProductFormData
 
     // Validate required fields
-    if (!body.name || !body.category || !body.unit || !body.supplierId) {
+    if (!body.name || !body.category || !body.supplierId) {
       return errorResponse('Champs requis manquants', undefined, 400)
     }
 
@@ -134,9 +141,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate packaging coherence
+    // Validate packaging coherence and calculate real unit price
     const packagingType = body.packagingType || 'unit'
+    const priceType = body.priceType || 'unit'
     const unitsPerPackage = body.unitsPerPackage || 1
+
     if (packagingType !== 'pack' && unitsPerPackage > 1) {
       return errorResponse(
         'unitsPerPackage doit être 1 quand le conditionnement n\'est pas "pack"',
@@ -151,21 +160,29 @@ export async function POST(request: NextRequest) {
       return errorResponse('Fournisseur introuvable', undefined, 404)
     }
 
+    // Calculate real unit price based on priceType
+    let realUnitPriceHT = body.unitPriceHT
+
+    if (priceType === 'pack' && unitsPerPackage > 1) {
+      // Price entered is for the whole pack, calculate unit price
+      realUnitPriceHT = body.unitPriceHT / unitsPerPackage
+    }
+    // If priceType === 'unit', realUnitPriceHT is already the unit price
+
     // Create new product
     const newProduct = await Product.create({
       name: body.name,
       category: body.category,
-      unit: body.unit,
-      unitPriceHT: body.unitPriceHT,
+      unitPriceHT: realUnitPriceHT,
       vatRate: body.vatRate,
       supplierId: body.supplierId,
       supplierName: supplier.name,
       supplierReference: body.supplierReference || '',
       packagingType: body.packagingType || 'unit',
+      priceType: body.priceType || 'unit',
       unitsPerPackage: body.unitsPerPackage || 1,
+      packageUnit: body.packageUnit,
       packagingDescription: body.packagingDescription || '',
-      minStockUnit: body.minStockUnit || 'unit',
-      order: body.order || 0,
       minStock: body.minStock,
       maxStock: body.maxStock,
       currentStock: 0, // Start with 0, will be updated via stock movements

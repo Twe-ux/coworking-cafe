@@ -22,7 +22,7 @@ import type { Supplier, Product, CreatePurchaseOrderItemData, APIResponse } from
 interface ProductSuggestion {
   productId: string
   productName: string
-  unit: string
+  packagingType: string
   currentStock: number
   minStock: number
   suggestedQuantity: number
@@ -32,7 +32,7 @@ interface ProductSuggestion {
 
 interface OrderItemDisplay extends CreatePurchaseOrderItemData {
   productName: string
-  unit: string
+  packagingType: string
   unitPriceHT: number
   vatRate: number
 }
@@ -112,7 +112,7 @@ export default function NewOrderPage() {
           productId: s.productId,
           productName: s.productName,
           quantity: s.suggestedQuantity,
-          unit: s.unit,
+          packagingType: s.packagingType,
           unitPriceHT: s.unitPriceHT,
           vatRate: s.vatRate || 5.5,
         }))
@@ -139,7 +139,7 @@ export default function NewOrderPage() {
       productId: product._id,
       productName: product.name,
       quantity: product.maxStock - product.currentStock || 1,
-      unit: product.unit,
+      packagingType: product.packagingType,
       unitPriceHT: product.unitPriceHT,
       vatRate: product.vatRate,
     }
@@ -294,7 +294,7 @@ export default function NewOrderPage() {
                   ) : (
                     products.map((product) => (
                       <SelectItem key={product._id} value={product._id}>
-                        {product.name} ({product.unit}) - {product.unitPriceHT.toFixed(2)} €
+                        {product.name} ({product.packagingType}) - {product.unitPriceHT.toFixed(2)} €
                       </SelectItem>
                     ))
                   )}

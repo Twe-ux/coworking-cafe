@@ -1,15 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { Eye, Trash2, MoreHorizontal } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Eye, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -29,6 +26,41 @@ export function InventoryHistory({
 }: InventoryHistoryProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [entryToDelete, setEntryToDelete] = useState<InventoryEntry | null>(null)
+
+  // Sort entries and calculate reference periods
+  const sortedEntries = useMemo(() => {
+    // Sort for display: date DESC, then createdAt ASC (oldest first if same date)
+    const displaySorted = [...entries].sort((a, b) => {
+      const dateCompare = new Date(b.date).getTime() - new Date(a.date).getTime()
+      if (dateCompare !== 0) return dateCompare
+      // Same date: oldest first
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    })
+
+    // Sort chronologically (oldest first) to determine reference periods
+    const chronological = [...entries].sort((a, b) => {
+      const dateCompare = new Date(a.date).getTime() - new Date(b.date).getTime()
+      if (dateCompare !== 0) return dateCompare
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    })
+
+    return displaySorted.map((entry) => {
+      // Find position in chronological order
+      const chronoIndex = chronological.findIndex(e => e._id === entry._id)
+
+      if (chronoIndex === 0) {
+        // First inventory chronologically
+        return { ...entry, referencePeriod: 'Premier inventaire' }
+      }
+
+      // Get previous entry in chronological order
+      const prevEntry = chronological[chronoIndex - 1]
+      return {
+        ...entry,
+        referencePeriod: `${prevEntry.date} → ${entry.date}`
+      }
+    })
+  }, [entries])
 
   const handleDeleteClick = (entry: InventoryEntry) => {
     setEntryToDelete(entry)
@@ -68,25 +100,43 @@ export function InventoryHistory({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
+              <TableHead>Mois</TableHead>
+              <TableHead>Titre</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead className="text-center">Produits</TableHead>
+              <TableHead>Date de reference</TableHead>
               <TableHead className="text-right">Ecart total</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {entries.map((entry) => (
+            {sortedEntries.map((entry) => {
+              const monthYear = new Date(entry.date).toLocaleDateString('fr-FR', {
+                month: 'long',
+                year: 'numeric'
+              })
+              const formattedMonth = monthYear.charAt(0).toUpperCase() + monthYear.slice(1)
+
+              return (
               <TableRow key={entry._id}>
-                <TableCell className="font-medium">{entry.date}</TableCell>
+                <TableCell className="font-medium">{formattedMonth}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">
+                  {entry.title || `Inventaire du ${entry.date}`}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs pointer-events-none ${
+                      entry.type === 'monthly'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-purple-500 bg-purple-50 text-purple-700'
+                    }`}
+                  >
                     {entry.type === 'monthly' ? 'Mensuel' : 'Hebdomadaire'}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-center">
-                  {entry.items.length}
+                <TableCell className="text-sm text-muted-foreground font-mono">
+                  {entry.referencePeriod}
                 </TableCell>
                 <TableCell className="text-right font-mono">
                   <span className={entry.totalVarianceValue < 0
@@ -99,36 +149,44 @@ export function InventoryHistory({
                   </span>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={entry.status === 'finalized' ? 'default' : 'outline'}>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs pointer-events-none ${
+                      entry.status === 'finalized'
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-yellow-500 bg-yellow-50 text-yellow-700'
+                    }`}
+                  >
                     {entry.status === 'finalized' ? 'Finalise' : 'Brouillon'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                      onClick={() => onView(entry)}
+                      title={entry.status === 'draft' ? 'Continuer' : 'Voir detail'}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    {entry.status === 'draft' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+                        onClick={() => handleDeleteClick(entry)}
+                        title="Supprimer"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onView(entry)}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        {entry.status === 'draft' ? 'Continuer' : 'Voir detail'}
-                      </DropdownMenuItem>
-                      {entry.status === 'draft' && (
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteClick(entry)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Supprimer
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
-            ))}
+              )
+            })}
           </TableBody>
         </Table>
       </div>

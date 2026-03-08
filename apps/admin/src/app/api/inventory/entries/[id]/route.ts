@@ -119,6 +119,63 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 }
 
 /**
+ * PATCH /api/inventory/entries/[id] - Update metadata (title, type, date)
+ * Body: { title?: string, type?: 'monthly' | 'weekly', date?: string }
+ */
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
+  try {
+    const authResult = await requireAuth(getRequiredRoles('createInventory'))
+    if (!authResult.authorized) return authResult.response
+
+    await connectMongoose()
+
+    const { id } = await params
+    const entry = await InventoryEntry.findById(id)
+
+    if (!entry) {
+      return notFoundResponse('Inventaire')
+    }
+
+    if (entry.status === 'finalized') {
+      return errorResponse(
+        'Impossible de modifier un inventaire finalise',
+        undefined,
+        400
+      )
+    }
+
+    const body = (await request.json()) as {
+      title?: string
+      type?: 'monthly' | 'weekly'
+      date?: string
+    }
+
+    // Update metadata fields
+    if (body.title !== undefined) entry.title = body.title
+    if (body.type !== undefined) entry.type = body.type
+    if (body.date !== undefined) entry.date = body.date
+
+    await entry.save()
+
+    const transformed = transformEntry(entry.toObject() as unknown as Record<string, unknown>)
+
+    return successResponse(transformed, 'Metadonnees mises a jour')
+  } catch (error) {
+    console.error('[PATCH /api/inventory/entries/[id]] Error:', error)
+
+    if (isCastError(error)) {
+      return errorResponse('ID inventaire invalide', undefined, 400)
+    }
+
+    return errorResponse(
+      'Erreur lors de la mise a jour des metadonnees',
+      error instanceof Error ? error.message : undefined,
+      500
+    )
+  }
+}
+
+/**
  * DELETE /api/inventory/entries/[id] - Delete a draft entry
  */
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {

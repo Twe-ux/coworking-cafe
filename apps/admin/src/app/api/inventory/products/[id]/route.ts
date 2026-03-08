@@ -119,6 +119,21 @@ export async function PUT(
       supplierName = supplier.name
     }
 
+    // Calculate real unit price based on priceType if price is being updated
+    let realUnitPriceHT: number | undefined = undefined
+    if (body.unitPriceHT !== undefined) {
+      const priceType = body.priceType ?? existingProduct.priceType ?? 'unit'
+      const unitsPerPackage = body.unitsPerPackage ?? existingProduct.unitsPerPackage ?? 1
+
+      if (priceType === 'pack' && unitsPerPackage > 1) {
+        // Price entered is for the whole pack, calculate unit price
+        realUnitPriceHT = body.unitPriceHT / unitsPerPackage
+      } else {
+        // Price is already per unit
+        realUnitPriceHT = body.unitPriceHT
+      }
+    }
+
     // Update product
     const updatedProduct = await Product.findByIdAndUpdate(
       params.id,
@@ -126,16 +141,15 @@ export async function PUT(
         $set: {
           ...(body.name && { name: body.name }),
           ...(body.category && { category: body.category }),
-          ...(body.unit && { unit: body.unit }),
-          ...(body.unitPriceHT !== undefined && { unitPriceHT: body.unitPriceHT }),
+          ...(realUnitPriceHT !== undefined && { unitPriceHT: realUnitPriceHT }),
           ...(body.vatRate !== undefined && { vatRate: body.vatRate }),
           ...(body.supplierId && { supplierId: body.supplierId, supplierName }),
           ...(body.supplierReference !== undefined && { supplierReference: body.supplierReference }),
           ...(body.packagingType && { packagingType: body.packagingType }),
+          ...(body.priceType && { priceType: body.priceType }),
           ...(body.unitsPerPackage !== undefined && { unitsPerPackage: body.unitsPerPackage }),
+          ...(body.packageUnit !== undefined && { packageUnit: body.packageUnit }),
           ...(body.packagingDescription !== undefined && { packagingDescription: body.packagingDescription }),
-          ...(body.minStockUnit && { minStockUnit: body.minStockUnit }),
-          ...(body.order !== undefined && { order: body.order }),
           ...(body.minStock !== undefined && { minStock: body.minStock }),
           ...(body.maxStock !== undefined && { maxStock: body.maxStock }),
           ...(body.hasShortDLC !== undefined && { hasShortDLC: body.hasShortDLC }),

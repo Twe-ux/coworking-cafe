@@ -16,6 +16,7 @@ export interface Supplier {
   notes?: string
   order: number
   isActive: boolean
+  dlcAlertConfig?: DLCAlertConfig
   createdAt: string
   updatedAt: string
 }
@@ -28,6 +29,7 @@ export interface SupplierFormData {
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
   isActive?: boolean
+  dlcAlertConfig?: DLCAlertConfig
 }
 
 // ----------------------------------------------------------------------------
@@ -36,28 +38,36 @@ export interface SupplierFormData {
 
 export type ProductCategory = "food" | "cleaning" | "emballage" | "papeterie" | "divers"
 export type ProductUnit = "kg" | "L" | "unit" | "pack"
-export type PackagingType = "pack" | "unit" | "kg" | "L"
+export type PackagingType = "pack" | "unit"
+export type PackageUnit = "kg" | "L" | "unit"
+export type PriceType = "unit" | "pack"
 export type MinStockUnit = "package" | "unit"
+
+export interface DLCAlertConfig {
+  enabled: boolean
+  days: number[] // 0=Dimanche, 1=Lundi, ..., 6=Samedi
+  time: string // Format "HH:mm"
+}
 
 export interface Product {
   _id: string
   name: string
   category: ProductCategory
-  unit: ProductUnit
   unitPriceHT: number
   vatRate: number
   supplierId: string
   supplierName?: string
   supplierReference?: string
   packagingType: PackagingType
+  priceType: PriceType
   unitsPerPackage: number
+  packageUnit?: PackageUnit
   packagingDescription?: string
-  minStockUnit: MinStockUnit
-  order: number
   minStock: number
   maxStock: number
   currentStock: number
   hasShortDLC: boolean
+  dlcAlertConfig?: DLCAlertConfig
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -66,19 +76,18 @@ export interface Product {
 export interface ProductFormData {
   name: string
   category: ProductCategory
-  unit: ProductUnit
   unitPriceHT: number
   vatRate: number
   supplierId: string
   supplierReference?: string
   packagingType: PackagingType
+  priceType: PriceType
   unitsPerPackage: number
+  packageUnit?: PackageUnit
   packagingDescription?: string
-  minStockUnit: MinStockUnit
-  order: number
   minStock: number
   maxStock: number
-  hasShortDLC: boolean
+  dlcAlertConfig?: DLCAlertConfig
 }
 
 // ----------------------------------------------------------------------------
@@ -101,6 +110,7 @@ export interface InventoryEntry {
   _id: string
   date: string
   type: InventoryType
+  title?: string
   items: InventoryEntryItem[]
   totalVarianceValue: number
   createdBy?: string
@@ -116,6 +126,7 @@ export interface InventoryEntry {
 export interface CreateInventoryEntryData {
   type: InventoryType
   date: string
+  title?: string
 }
 
 export interface UpdateInventoryItemData {
@@ -139,6 +150,8 @@ export interface StockMovement {
   productName?: string
   type: MovementType
   quantity: number
+  unitPriceHT: number
+  totalValue: number
   date: string
   reference?: string
   notes?: string
@@ -156,7 +169,7 @@ export interface PurchaseOrderItem {
   productId: string
   productName: string
   quantity: number
-  unit: string
+  packagingType: PackagingType
   unitPriceHT: number
   totalHT: number
   vatRate: number
@@ -212,7 +225,6 @@ export interface ReceiveOrderData {
 export interface OrderSuggestion {
   productId: string
   productName: string
-  unit: string
   currentStock: number
   currentStockFormatted: string
   minStock: number

@@ -1,80 +1,176 @@
-'use client'
+"use client";
 
-import { Edit, Trash2, RefreshCw } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { LowStockBadge } from './LowStockBadge'
-import { formatStock } from '@/lib/inventory/stockHelpers'
-import type { Product } from '@/types/inventory'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { formatStock } from "@/lib/inventory/stockHelpers";
+import type { Product } from "@/types/inventory";
+import { Edit, RefreshCw, Trash2 } from "lucide-react";
+import { LowStockBadge } from "./LowStockBadge";
 
 const CATEGORY_LABELS: Record<string, string> = {
-  food: 'Alimentation',
-  cleaning: 'Entretien',
-  emballage: 'Emballage',
-  papeterie: 'Papeterie',
-  divers: 'Divers',
-}
+  food: "Alimentation",
+  cleaning: "Entretien",
+  emballage: "Emballage",
+  papeterie: "Papeterie",
+  divers: "Divers",
+};
+
+const getCategoryBadgeClass = (category: string) => {
+  const colors: Record<string, string> = {
+    food: "border-orange-500 bg-orange-50 text-orange-700",
+    cleaning: "border-blue-500 bg-blue-50 text-blue-700",
+    emballage: "border-purple-500 bg-purple-50 text-purple-700",
+    papeterie: "border-pink-500 bg-pink-50 text-pink-700",
+    divers: "border-gray-500 bg-gray-50 text-gray-700",
+  };
+  return colors[category] || "border-gray-500 bg-gray-50 text-gray-700";
+};
+
+const getUnitLabel = (packageUnit?: string) => {
+  if (!packageUnit) return "U";
+  if (packageUnit === "kg") return "kg";
+  if (packageUnit === "L") return "L";
+  return "U";
+};
 
 interface ProductCardProps {
-  product: Product
-  onEdit: (product: Product) => void
-  onDeactivate: (product: Product) => void
-  onReactivate: (id: string) => Promise<boolean>
+  product: Product;
+  onEdit: (product: Product) => void;
+  onDeactivate: (product: Product) => void;
+  onReactivate: (id: string) => Promise<boolean>;
 }
 
-export function ProductCard({ product, onEdit, onDeactivate, onReactivate }: ProductCardProps) {
-  const stockDisplay = formatStock(
-    product.currentStock,
-    product.packagingType,
-    product.unitsPerPackage,
-    product.minStockUnit
-  )
+export function ProductCard({
+  product,
+  onEdit,
+  onDeactivate,
+  onReactivate,
+}: ProductCardProps) {
+  // Display stock with appropriate unit label
+  const stockDisplay = formatStock(product.currentStock, product.packageUnit);
+
+  const packagingLabel = product.packagingType === "pack" ? "Pack" : "Unité";
 
   return (
-    <div className={`flex items-center justify-between gap-3 px-3 py-1.5 hover:bg-muted/50 rounded-sm transition-colors ${
-      !product.isActive ? 'opacity-60' : ''
-    }`}>
-      {/* Product info */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <span className="font-medium text-sm truncate w-48 shrink-0">{product.name}</span>
-        <div className="flex items-center gap-1.5">
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shrink-0">{CATEGORY_LABELS[product.category]}</Badge>
-          {product.hasShortDLC && <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">DLC</Badge>}
-          {!product.isActive && <Badge variant="destructive" className="text-[10px] px-1.5 py-0 shrink-0">Inactif</Badge>}
+    <div
+      className={`grid grid-cols-[220px_160px_140px_1fr_auto] items-center gap-4 px-4 py-1.5 border-b last:border-b-0 hover:bg-muted/50 transition-colors  ${
+        !product.isActive ? "opacity-60" : ""
+      }`}
+    >
+      {/* Product name */}
+      <div>
+        <span className="font-semibold text-sm">{product.name}</span>
+      </div>
+
+      {/* Badges */}
+      <div className="flex items-center gap-2">
+        <Badge
+          variant="outline"
+          className={`text-xs px-2 py-0.5 pointer-events-none ${getCategoryBadgeClass(product.category)}`}
+        >
+          {CATEGORY_LABELS[product.category]}
+        </Badge>
+        {product.hasShortDLC && (
+          <Badge variant="outline" className="text-xs px-2 py-0.5">
+            DLC
+          </Badge>
+        )}
+        {!product.isActive && (
+          <Badge variant="destructive" className="text-xs px-2 py-0.5">
+            Inactif
+          </Badge>
+        )}
+      </div>
+
+      {/* Packaging info */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Type:</span>
+        <span className="text-sm font-medium">{packagingLabel}</span>
+        {(product.packagingType === "pack" ||
+          product.packagingType === "unit") &&
+          product.unitsPerPackage > 1 && (
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm text-orange-600 font-semibold">
+                ×
+              </span>
+              <span className="text-sm text-orange-600 font-semibold font-mono text-right w-6">
+                {product.unitsPerPackage}
+              </span>
+              <span className="text-sm text-orange-600 font-semibold w-6">
+                {getUnitLabel(product.packageUnit)}
+              </span>
+            </div>
+          )}
+      </div>
+
+      {/* Stock info - All on one line */}
+      <div className="flex items-center gap-6 ml-12">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
+            Min:
+          </span>
+          <span className="text-sm font-mono text-right w-8">{product.minStock}</span>
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
+            Max:
+          </span>
+          <span className="text-sm font-mono text-right w-8">{product.maxStock}</span>
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-xs font-medium text-muted-foreground">
+            Stock:
+          </span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm font-mono font-semibold text-foreground text-right w-8">
+              {product.currentStock}
+            </span>
+            <span className="text-sm font-semibold w-6">
+              {getUnitLabel(product.packageUnit)}
+            </span>
+            <div className="w-28">
+              <LowStockBadge
+                currentStock={product.currentStock}
+                minStock={product.minStock}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Stock + actions */}
-      <div className="flex items-center gap-3 shrink-0">
-        <span className="text-sm font-mono text-muted-foreground">{stockDisplay}</span>
-        <LowStockBadge currentStock={product.currentStock} minStock={product.minStock} />
-        <div className="flex items-center gap-1">
+      {/* Actions */}
+      <div className="flex items-center gap-2 justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+          onClick={() => onEdit(product)}
+          title="Modifier"
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        {product.isActive ? (
           <Button
-            variant="outline" size="icon"
-            className="h-7 w-7 border-blue-500 text-blue-700 hover:bg-blue-50"
-            onClick={() => onEdit(product)} title="Modifier"
+            variant="outline"
+            size="sm"
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+            onClick={() => onDeactivate(product)}
+            title="Désactiver"
           >
-            <Edit className="h-3 w-3" />
+            <Trash2 className="h-4 w-4" />
           </Button>
-          {product.isActive ? (
-            <Button
-              variant="outline" size="icon"
-              className="h-7 w-7 border-red-500 text-red-700 hover:bg-red-50"
-              onClick={() => onDeactivate(product)} title="Désactiver"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
-          ) : (
-            <Button
-              variant="outline" size="icon"
-              className="h-7 w-7 border-green-500 text-green-700 hover:bg-green-50"
-              onClick={() => onReactivate(product._id)} title="Réactiver"
-            >
-              <RefreshCw className="h-3 w-3" />
-            </Button>
-          )}
-        </div>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={() => onReactivate(product._id)}
+            title="Réactiver"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </div>
-  )
+  );
 }

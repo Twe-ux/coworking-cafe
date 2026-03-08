@@ -6,7 +6,7 @@ export interface PurchaseOrderItem {
   productId: Types.ObjectId
   productName: string
   quantity: number
-  unit: string
+  packagingType: 'pack' | 'unit' | 'kg' | 'L'
   unitPriceHT: number
   totalHT: number
   vatRate: number
@@ -49,9 +49,9 @@ const PurchaseOrderItemSchema = new Schema<PurchaseOrderItem>(
       required: [true, 'Quantity is required'],
       min: 0.01,
     },
-    unit: {
+    packagingType: {
       type: String,
-      required: [true, 'Unit is required'],
+      required: [true, 'Packaging type is required'],
       enum: ['kg', 'L', 'unit', 'pack'],
     },
     unitPriceHT: {
