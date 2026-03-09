@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatStock } from "@/lib/inventory/stockHelpers";
 import type { Product } from "@/types/inventory";
-import { Edit, RefreshCw, Trash2 } from "lucide-react";
+import { Edit, RefreshCw, Trash2, Bell } from "lucide-react";
 import { LowStockBadge } from "./LowStockBadge";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -73,6 +73,16 @@ export function ProductCard({
         {product.hasShortDLC && (
           <Badge variant="outline" className="text-xs px-2 py-0.5">
             DLC
+          </Badge>
+        )}
+        {product.dlcAlertConfig?.enabled && (
+          <Badge
+            variant="outline"
+            className="text-xs px-2 py-0.5 border-amber-500 bg-amber-50 text-amber-700"
+            title={`Alerte configurée : ${product.dlcAlertConfig.time || '09:00'}`}
+          >
+            <Bell className="h-3 w-3 mr-1" />
+            Alerte
           </Badge>
         )}
         {!product.isActive && (
