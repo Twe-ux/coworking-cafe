@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Eye } from 'lucide-react'
+import { Plus, Eye, ShoppingCart, CheckCircle2, Send, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -12,13 +12,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
   Table,
   TableBody,
   TableCell,
@@ -27,22 +20,68 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
 import { OrderStatusBadge } from '@/components/inventory/orders'
 import { useOrders } from '@/hooks/inventory/useOrders'
 import type { OrderStatus } from '@/types/inventory'
+import { cn } from '@/lib/utils'
+
+const STATUS_CARDS = [
+  {
+    value: 'draft' as OrderStatus,
+    label: 'En attente',
+    description: 'Commandes à valider',
+    icon: ShoppingCart,
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-50',
+    borderColor: 'border-orange-200',
+  },
+  {
+    value: 'validated' as OrderStatus,
+    label: 'Validées',
+    description: 'Prêtes à envoyer',
+    icon: CheckCircle2,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+  },
+  {
+    value: 'sent' as OrderStatus,
+    label: 'Envoyées',
+    description: 'En cours de livraison',
+    icon: Send,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50',
+    borderColor: 'border-purple-200',
+  },
+  {
+    value: 'received' as OrderStatus,
+    label: 'Reçues',
+    description: 'Livrées et stockées',
+    icon: Package,
+    color: 'text-green-600',
+    bgColor: 'bg-green-50',
+    borderColor: 'border-green-200',
+  },
+]
 
 export default function OrdersPage() {
   const router = useRouter()
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all')
+  const [statusFilter, setStatusFilter] = useState<OrderStatus>('draft')
 
-  const { orders, loading } = useOrders({
-    status: statusFilter === 'all' ? undefined : statusFilter,
-  })
+  // Load all orders once and filter client-side to avoid flash
+  const { orders: allOrders, loading } = useOrders({})
+
+  // Filter orders by selected status
+  const orders = allOrders.filter((order) => order.status === statusFilter)
+
+  const selectedCard = STATUS_CARDS.find((c) => c.value === statusFilter)
 
   if (loading) {
     return (
       <div className="container mx-auto p-6 space-y-4">
         <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-32 w-full" />
         <Skeleton className="h-64 w-full" />
       </div>
     )
@@ -58,35 +97,62 @@ export default function OrdersPage() {
             Créer et gérer les commandes fournisseurs
           </p>
         </div>
-        <Button onClick={() => router.push('/admin/inventory/orders/new')}>
+        <Button
+          variant="outline"
+          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+          onClick={() => router.push('/admin/inventory/orders/new')}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nouvelle commande
         </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-4">
-        <Select
-          value={statusFilter}
-          onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}
-        >
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filtrer par status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les statuts</SelectItem>
-            <SelectItem value="draft">Brouillons</SelectItem>
-            <SelectItem value="validated">Validées</SelectItem>
-            <SelectItem value="sent">Envoyées</SelectItem>
-            <SelectItem value="received">Reçues</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Status Filter Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {STATUS_CARDS.map((card) => {
+          const Icon = card.icon
+          const isSelected = statusFilter === card.value
+          const count = allOrders.filter((o) => o.status === card.value).length
+          const isDraftCard = card.value === 'draft'
+          const showRedBadge = isDraftCard && count > 0
+
+          return (
+            <Card
+              key={card.value}
+              className={cn(
+                'cursor-pointer transition-all hover:shadow-md',
+                isSelected
+                  ? `${card.bgColor} ${card.borderColor} border-2 shadow-md`
+                  : 'hover:bg-muted/50'
+              )}
+              onClick={() => setStatusFilter(card.value)}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <Icon className={cn('h-5 w-5', isSelected ? card.color : 'text-muted-foreground')} />
+                  {count > 0 && (
+                    <Badge variant={showRedBadge ? 'destructive' : isSelected ? 'default' : 'secondary'}>
+                      {count}
+                    </Badge>
+                  )}
+                </div>
+                <CardTitle className="text-lg">{card.label}</CardTitle>
+                <CardDescription className="text-xs">
+                  {card.description}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          )
+        })}
       </div>
 
       {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Liste des commandes</CardTitle>
+          <div className="flex items-center gap-2">
+            {selectedCard && <selectedCard.icon className={cn('h-5 w-5', selectedCard.color)} />}
+            <CardTitle>{selectedCard?.label || 'Commandes'}</CardTitle>
+          </div>
           <CardDescription>
             {orders.length} commande{orders.length > 1 ? 's' : ''}
           </CardDescription>
@@ -94,13 +160,13 @@ export default function OrdersPage() {
         <CardContent>
           {orders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              Aucune commande trouvée
+              Aucune commande {selectedCard?.label.toLowerCase()} trouvée
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>N° Commande</TableHead>
+                  <TableHead>Date de création</TableHead>
                   <TableHead>Fournisseur</TableHead>
                   <TableHead className="text-center">Nb Produits</TableHead>
                   <TableHead className="text-right">Total TTC</TableHead>
@@ -115,7 +181,9 @@ export default function OrdersPage() {
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => router.push(`/admin/inventory/orders/${order._id}`)}
                   >
-                    <TableCell className="font-medium">{order.orderNumber}</TableCell>
+                    <TableCell className="font-medium">
+                      {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                    </TableCell>
                     <TableCell>{order.supplierName}</TableCell>
                     <TableCell className="text-center">{order.items.length}</TableCell>
                     <TableCell className="text-right">
@@ -126,15 +194,16 @@ export default function OrdersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
+                        variant="outline"
                         size="sm"
-                        variant="ghost"
+                        className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
                         onClick={(e) => {
                           e.stopPropagation()
                           router.push(`/admin/inventory/orders/${order._id}`)
                         }}
+                        title="Voir les détails"
                       >
-                        <Eye className="mr-2 h-4 w-4" />
-                        Voir
+                        <Eye className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>

@@ -2,22 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Plus, Sparkles } from 'lucide-react'
+import { Package, RefreshCw, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { OrderItemsTable } from '@/components/inventory/orders'
+import { ProductDialog } from '@/components/inventory/products/ProductDialog'
 import { useOrderActions } from '@/hooks/inventory/useOrderActions'
-import type { Supplier, Product, CreatePurchaseOrderItemData, APIResponse } from '@/types/inventory'
+import { useProducts } from '@/hooks/inventory/useProducts'
+import type { Supplier, Product, CreatePurchaseOrderItemData, ProductFormData, APIResponse } from '@/types/inventory'
 
 interface ProductSuggestion {
   productId: string
@@ -35,14 +36,21 @@ interface OrderItemDisplay extends CreatePurchaseOrderItemData {
   packagingType: string
   unitPriceHT: number
   vatRate: number
+  minStock: number
+  maxStock: number
+  currentStock: number
+  realStock?: number // Stock réel saisi par l'utilisateur
+  unitsPerPackage: number
 }
 
 export default function NewOrderPage() {
   const router = useRouter()
   const { creating, createOrder } = useOrderActions()
+  const { createProduct, reactivateProduct } = useProducts({})
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [products, setProducts] = useState<Product[]>([])
+  const [inactiveProducts, setInactiveProducts] = useState<Product[]>([])
   const [loadingSuppliers, setLoadingSuppliers] = useState(true)
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingSuggestions, setLoadingSuggestions] = useState(false)
@@ -50,6 +58,10 @@ export default function NewOrderPage() {
   const [selectedSupplierId, setSelectedSupplierId] = useState('')
   const [items, setItems] = useState<OrderItemDisplay[]>([])
   const [notes, setNotes] = useState('')
+
+  // Dialog states
+  const [productDialogOpen, setProductDialogOpen] = useState(false)
+  const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false)
 
   // Fetch suppliers on mount
   useEffect(() => {
@@ -80,12 +92,38 @@ export default function NewOrderPage() {
   const fetchProducts = async (supplierId: string) => {
     setLoadingProducts(true)
     try {
-      const res = await fetch(
+      // Fetch active products
+      const resActive = await fetch(
         `/api/inventory/products?supplierId=${supplierId}&active=true`
       )
-      const data = (await res.json()) as APIResponse<Product[]>
-      if (data.success && data.data) {
-        setProducts(data.data)
+      const dataActive = (await resActive.json()) as APIResponse<Product[]>
+      if (dataActive.success && dataActive.data) {
+        setProducts(dataActive.data)
+
+        // Automatically add all products to the order with quantity set to 0
+        // User will enter real stock to calculate suggested quantity
+        const newItems: OrderItemDisplay[] = dataActive.data.map((product) => ({
+          productId: product._id,
+          productName: product.name,
+          quantity: 0, // Start with 0, user will enter real stock
+          packagingType: product.packagingType,
+          unitPriceHT: product.unitPriceHT,
+          vatRate: product.vatRate,
+          minStock: product.minStock,
+          maxStock: product.maxStock,
+          currentStock: product.currentStock,
+          unitsPerPackage: product.unitsPerPackage || 1,
+        }))
+        setItems(newItems)
+      }
+
+      // Fetch inactive products
+      const resInactive = await fetch(
+        `/api/inventory/products?supplierId=${supplierId}&active=false`
+      )
+      const dataInactive = (await resInactive.json()) as APIResponse<Product[]>
+      if (dataInactive.success && dataInactive.data) {
+        setInactiveProducts(dataInactive.data)
       }
     } catch (err) {
       console.error('Error fetching products:', err)
@@ -151,6 +189,37 @@ export default function NewOrderPage() {
     setItems(items.filter((i) => i.productId !== productId))
   }
 
+  /**
+   * Calcule la quantité à commander en fonction du stock réel et des contraintes pack
+   * @param realStock - Stock réel saisi
+   * @param minStock - Stock minimum
+   * @param maxStock - Stock maximum
+   * @param packagingType - Type de conditionnement ('pack' ou 'unit')
+   * @param unitsPerPackage - Nombre d'unités par pack
+   */
+  const calculateOrderQuantity = (
+    realStock: number,
+    minStock: number,
+    maxStock: number,
+    packagingType: string,
+    unitsPerPackage: number
+  ): number => {
+    // Si stock réel >= minStock, pas besoin de commander
+    if (realStock >= minStock) return 0
+
+    // Calculer le besoin brut
+    const need = maxStock - realStock
+
+    // Si commande en packs, arrondir au pack supérieur
+    if (packagingType === 'pack' && unitsPerPackage > 1) {
+      const packs = Math.ceil(need / unitsPerPackage)
+      return packs
+    }
+
+    // Sinon retourner le besoin en unités
+    return need
+  }
+
   const updateQuantity = (productId: string, quantity: number) => {
     setItems(
       items.map((i) =>
@@ -159,15 +228,58 @@ export default function NewOrderPage() {
     )
   }
 
+  const updateRealStock = (productId: string, realStock: number | undefined) => {
+    setItems(
+      items.map((i) => {
+        if (i.productId === productId) {
+          // Si realStock est undefined (champ vide), ne pas calculer de suggestion
+          if (realStock === undefined) {
+            return { ...i, realStock: undefined }
+          }
+          // Calculer automatiquement la quantité suggérée
+          const suggestedQty = calculateOrderQuantity(
+            realStock,
+            i.minStock,
+            i.maxStock,
+            i.packagingType,
+            i.unitsPerPackage
+          )
+          return { ...i, realStock, quantity: suggestedQty }
+        }
+        return i
+      })
+    )
+  }
+
   const calculateTotals = () => {
-    const totalHT = items.reduce((sum, item) => sum + item.quantity * item.unitPriceHT, 0)
+    // Only calculate for items with quantity > 0
+    const itemsWithQty = items.filter((item) => item.quantity > 0)
+    const totalHT = itemsWithQty.reduce((sum, item) => sum + item.quantity * item.unitPriceHT, 0)
     // Calculate TTC using actual VAT rate of each product
-    const totalTTC = items.reduce((sum, item) => {
+    const totalTTC = itemsWithQty.reduce((sum, item) => {
       const itemTotalHT = item.quantity * item.unitPriceHT
       const itemTotalTTC = itemTotalHT * (1 + item.vatRate / 100)
       return sum + itemTotalTTC
     }, 0)
-    return { totalHT, totalTTC }
+    return { totalHT, totalTTC, itemsCount: itemsWithQty.length }
+  }
+
+  const handleCreateProduct = async (data: ProductFormData): Promise<boolean> => {
+    const success = await createProduct(data)
+    if (success) {
+      // Reload products for the selected supplier
+      await fetchProducts(selectedSupplierId)
+    }
+    return success
+  }
+
+  const handleReactivateProduct = async (productId: string) => {
+    const success = await reactivateProduct(productId)
+    if (success) {
+      // Reload products for the selected supplier
+      await fetchProducts(selectedSupplierId)
+      setReactivateDialogOpen(false)
+    }
   }
 
   const handleCreate = async () => {
@@ -176,13 +288,16 @@ export default function NewOrderPage() {
       return
     }
 
-    if (items.length === 0) {
-      alert('Veuillez ajouter au moins un produit')
+    // Filter items with quantity > 0
+    const itemsToOrder = items.filter((item) => item.quantity > 0)
+
+    if (itemsToOrder.length === 0) {
+      alert('Veuillez saisir au moins un produit avec une quantité > 0')
       return
     }
 
     // Convert to API format (only productId + quantity)
-    const orderItems: CreatePurchaseOrderItemData[] = items.map((item) => ({
+    const orderItems: CreatePurchaseOrderItemData[] = itemsToOrder.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
     }))
@@ -200,7 +315,7 @@ export default function NewOrderPage() {
     }
   }
 
-  const { totalHT, totalTTC } = calculateTotals()
+  const { totalHT, totalTTC, itemsCount } = calculateTotals()
   const selectedSupplier = suppliers.find((s) => s._id === selectedSupplierId)
 
   if (loadingSuppliers) {
@@ -215,50 +330,60 @@ export default function NewOrderPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => router.push('/admin/inventory/orders')}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Retour
-        </Button>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
         <div>
           <h1 className="text-3xl font-bold">Nouvelle Commande Fournisseur</h1>
           <p className="text-muted-foreground mt-1">
             Créer un brouillon de commande
           </p>
         </div>
+        <Button
+          variant="outline"
+          className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+          onClick={() => router.push('/admin/inventory/orders')}
+        >
+          <Package className="mr-2 h-4 w-4" />
+          Commandes
+        </Button>
       </div>
 
       {/* Supplier Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Fournisseur</CardTitle>
-          <CardDescription>Sélectionnez le fournisseur pour cette commande</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="supplier">Fournisseur *</Label>
-            <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
-              <SelectTrigger id="supplier">
-                <SelectValue placeholder="Choisir un fournisseur" />
-              </SelectTrigger>
-              <SelectContent>
-                {suppliers.map((supplier) => (
-                  <SelectItem key={supplier._id} value={supplier._id}>
-                    {supplier.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold">Sélectionner un Fournisseur</h2>
+          <p className="text-sm text-muted-foreground">
+            Choisissez le fournisseur pour cette commande
+          </p>
+        </div>
 
-          {selectedSupplier && (
-            <div className="text-sm space-y-1 p-4 bg-muted rounded">
-              <p><strong>Contact:</strong> {selectedSupplier.contact}</p>
-              <p><strong>Email:</strong> {selectedSupplier.email}</p>
-              <p><strong>Téléphone:</strong> {selectedSupplier.phone}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {suppliers.map((supplier) => {
+            const isSelected = selectedSupplierId === supplier._id
+            return (
+              <Card
+                key={supplier._id}
+                className={`cursor-pointer transition-all hover:shadow-md ${
+                  isSelected
+                    ? 'bg-green-50 border-green-200 border-2 shadow-md'
+                    : 'hover:bg-muted/50'
+                }`}
+                onClick={() => setSelectedSupplierId(supplier._id)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <Package className={`h-5 w-5 ${isSelected ? 'text-green-600' : 'text-muted-foreground'}`} />
+                  </div>
+                  <CardTitle className="text-lg">{supplier.name}</CardTitle>
+                  <CardDescription className="text-xs space-y-1">
+                    <div><strong>Contact:</strong> {supplier.contact}</div>
+                    <div><strong>Tél:</strong> {supplier.phone}</div>
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            )
+          })}
+        </div>
+      </div>
 
       {/* Products */}
       {selectedSupplierId && (
@@ -267,56 +392,66 @@ export default function NewOrderPage() {
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle>Produits</CardTitle>
-                <CardDescription>Ajouter des produits à la commande</CardDescription>
+                <CardDescription>
+                  {loadingProducts
+                    ? 'Chargement des produits...'
+                    : `${items.length} produit(s) disponible(s) - Ajustez les quantités nécessaires`}
+                </CardDescription>
               </div>
-              <Button
-                variant="outline"
-                onClick={loadSuggestions}
-                disabled={loadingSuggestions}
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                {loadingSuggestions ? 'Chargement...' : 'Suggestions auto'}
-              </Button>
+              <div className="flex gap-2">
+                {inactiveProducts.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
+                    onClick={() => setReactivateDialogOpen(true)}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Réactiver
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+                  onClick={() => setProductDialogOpen(true)}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nouveau produit
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Add Product */}
-            <div className="flex gap-2">
-              <Select onValueChange={(value) => addProduct(value)}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Ajouter un produit..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingProducts ? (
-                    <div className="p-2 text-center text-sm text-muted-foreground">
-                      Chargement...
-                    </div>
-                  ) : (
-                    products.map((product) => (
-                      <SelectItem key={product._id} value={product._id}>
-                        {product.name} ({product.packagingType}) - {product.unitPriceHT.toFixed(2)} €
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              <Button variant="outline" disabled>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
             {/* Items Table */}
-            <OrderItemsTable
-              items={items}
-              editable
-              onRemove={removeItem}
-              onQuantityChange={updateQuantity}
-            />
+            {loadingProducts ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Chargement des produits...
+              </div>
+            ) : (
+              <>
+                <div className="text-sm text-muted-foreground mb-2">
+                  💡 <strong>Astuce:</strong> Saisissez le stock réel pour calculer automatiquement la quantité à commander (selon min/max et conditionnement pack).
+                  Vous pouvez aussi saisir directement la quantité.
+                </div>
+                <OrderItemsTable
+                  items={items}
+                  editable
+                  showStockInfo
+                  onRemove={removeItem}
+                  onQuantityChange={updateQuantity}
+                  onRealStockChange={updateRealStock}
+                />
+              </>
+            )}
 
             {/* Totals */}
-            {items.length > 0 && (
+            {itemsCount > 0 && (
               <div className="flex justify-end">
-                <div className="space-y-2 min-w-[200px]">
+                <div className="space-y-2 min-w-[250px]">
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>{itemsCount} produit(s) à commander</span>
+                  </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Total HT</span>
                     <span className="font-medium">{totalHT.toFixed(2)} €</span>
@@ -358,11 +493,58 @@ export default function NewOrderPage() {
           >
             Annuler
           </Button>
-          <Button onClick={handleCreate} disabled={creating || items.length === 0}>
+          <Button onClick={handleCreate} disabled={creating || itemsCount === 0}>
             {creating ? 'Création...' : 'Créer la commande'}
           </Button>
         </div>
       )}
+
+      {/* Product Creation Dialog */}
+      <ProductDialog
+        open={productDialogOpen}
+        onClose={() => setProductDialogOpen(false)}
+        onSubmit={handleCreateProduct}
+        mode="create"
+      />
+
+      {/* Reactivate Product Dialog */}
+      <Dialog open={reactivateDialogOpen} onOpenChange={setReactivateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Réactiver un produit</DialogTitle>
+            <DialogDescription>
+              Sélectionnez un produit désactivé à réactiver
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            {inactiveProducts.map((product) => (
+              <Card
+                key={product._id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleReactivateProduct(product._id)}
+              >
+                <CardHeader className="py-3 px-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="text-sm">{product.name}</CardTitle>
+                      <CardDescription className="text-xs">
+                        {product.packagingType} - {product.unitPriceHT.toFixed(2)} €
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
