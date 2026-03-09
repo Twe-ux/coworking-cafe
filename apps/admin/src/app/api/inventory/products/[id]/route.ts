@@ -153,6 +153,7 @@ export async function PUT(
           ...(body.minStock !== undefined && { minStock: body.minStock }),
           ...(body.maxStock !== undefined && { maxStock: body.maxStock }),
           ...(body.hasShortDLC !== undefined && { hasShortDLC: body.hasShortDLC }),
+          ...(body.dlcAlertConfig !== undefined && { dlcAlertConfig: body.dlcAlertConfig }),
           ...(body.isActive !== undefined && { isActive: body.isActive }),
         },
       },

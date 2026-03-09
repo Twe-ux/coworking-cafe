@@ -187,6 +187,7 @@ export async function POST(request: NextRequest) {
       maxStock: body.maxStock,
       currentStock: 0, // Start with 0, will be updated via stock movements
       hasShortDLC: body.hasShortDLC || false,
+      ...(body.dlcAlertConfig && { dlcAlertConfig: body.dlcAlertConfig }),
       isActive: true,
     })
 
