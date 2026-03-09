@@ -140,9 +140,12 @@ export function AbsenceWeekPreview({
 
   // Get week start (Monday)
   function getWeekStart(dateStr: string): Date {
-    const date = new Date(dateStr);
-    const day = date.getDay();
-    const diff = day === 0 ? -6 : 1 - day; // Sunday = 0, adjust to Monday
+    // Parse date as local time, not UTC to avoid timezone issues
+    // Input format: "YYYY-MM-DD"
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const dayOfWeek = date.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Sunday = 0, adjust to Monday
     const monday = new Date(date);
     monday.setDate(date.getDate() + diff);
     monday.setHours(0, 0, 0, 0);
