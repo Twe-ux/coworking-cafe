@@ -1,7 +1,7 @@
 "use client";
 
-import PINKeypad from "@/components/clocking/PINKeypad";
 import { JustificationDialog } from "@/components/clocking/JustificationDialog";
+import PINKeypad from "@/components/clocking/PINKeypad";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -10,11 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useActiveTimeEntry } from "@/hooks/useActiveTimeEntry";
 import { type Employee } from "@/types/hr";
 import { Loader2, Play, Square } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useActiveTimeEntry } from "@/hooks/useActiveTimeEntry";
 
 interface TimeTrackingCardCompactProps {
   employee: Employee;
@@ -120,7 +120,8 @@ export function TimeTrackingCardCompact({
       }
     } catch (error: unknown) {
       console.error("Clock-out error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Erreur de connexion";
+      const errorMessage =
+        error instanceof Error ? error.message : "Erreur de connexion";
       toast.error(errorMessage, { id: "clock-out" });
     }
   };
@@ -200,7 +201,8 @@ export function TimeTrackingCardCompact({
           setJustificationData({
             action: pinAction,
             pin,
-            clockTime: result.details.clockInTime || result.details.clockOutTime,
+            clockTime:
+              result.details.clockInTime || result.details.clockOutTime,
             scheduledShifts: result.details.scheduledShifts || [],
           });
           setShowJustificationDialog(true);
@@ -214,7 +216,8 @@ export function TimeTrackingCardCompact({
       }
     } catch (error: unknown) {
       console.error("Clock action error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Erreur de connexion";
+      const errorMessage =
+        error instanceof Error ? error.message : "Erreur de connexion";
       setError(errorMessage);
       toast.error(errorMessage, { id: "clock-action" });
     }
@@ -229,7 +232,9 @@ export function TimeTrackingCardCompact({
   const handleJustificationSubmit = async (justification: string) => {
     if (!justificationData) return;
 
-    toast.loading("Enregistrement du pointage...", { id: "clock-justification" });
+    toast.loading("Enregistrement du pointage...", {
+      id: "clock-justification",
+    });
 
     try {
       const requestBody: {
@@ -280,7 +285,8 @@ export function TimeTrackingCardCompact({
       }
     } catch (error: unknown) {
       console.error("Clock justification error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Erreur de connexion";
+      const errorMessage =
+        error instanceof Error ? error.message : "Erreur de connexion";
       toast.error(errorMessage, { id: "clock-justification" });
     }
   };
@@ -321,7 +327,7 @@ export function TimeTrackingCardCompact({
                 handleClockAction("clock-out");
               }}
               variant="outline"
-              className="h-8 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+              className="h-8 border-red-500 text-white bg-red-500 hover:bg-red-400 hover:text-white"
               disabled={isLoading}
             >
               {isLoading ? (

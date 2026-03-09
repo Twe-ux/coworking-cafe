@@ -115,24 +115,30 @@ export async function GET(request: NextRequest) {
       59
     )
 
+    // Format today's date as YYYY-MM-DD string (required by Task model)
+    const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+
     const existingTask = await Task.findOne({
       title: { $regex: 'Compter stock DLC courte' },
-      status: { $in: ['pending', 'in_progress'] },
+      status: { $in: ['pending', 'completed'] },
       createdAt: { $gte: todayStart, $lte: todayEnd },
     })
 
     let taskId = null
 
     if (!existingTask) {
+      // Get system user ID from env (required by Task model)
+      const systemUserId = process.env.SYSTEM_USER_ID || '000000000000000000000000'
+
       // Create task for DLC stock count
       const productsList = Array.from(productsToCount.values())
       const task = await Task.create({
         title: 'Compter stock DLC courte',
         description: `Compter le stock des produits à DLC courte et vérifier si commandes nécessaires.\n\nProduits concernés : ${productsList.map((p) => p.productName).join(', ')}`,
-        category: 'inventory',
         priority: 'medium',
         status: 'pending',
-        dueDate: todayEnd,
+        dueDate: todayDateStr, // String format YYYY-MM-DD (required)
+        createdBy: systemUserId, // Required by Task model
         metadata: {
           type: 'dlc_stock_count',
           productIds: productsList.map((p) => p.productId),
