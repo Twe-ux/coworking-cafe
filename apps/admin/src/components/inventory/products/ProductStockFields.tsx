@@ -12,6 +12,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ProductFormData } from "@/types/inventory";
 import { Control, useWatch } from "react-hook-form";
 
@@ -27,6 +34,12 @@ const DAYS_OF_WEEK = [
   { value: 5, label: "Ven" },
   { value: 6, label: "Sam" },
   { value: 0, label: "Dim" },
+];
+
+const ALERT_HOURS = [
+  "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
+  "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
+  "18:00", "19:00", "20:00", "21:00", "22:00", "23:00",
 ];
 
 export function ProductStockFields({ control }: ProductStockFieldsProps) {
@@ -166,11 +179,22 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Heure d'alerte *</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} className="w-40" />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-40">
+                            <SelectValue placeholder="Sélectionner" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {ALERT_HOURS.map((hour) => (
+                            <SelectItem key={hour} value={hour}>
+                              {hour}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormDescription>
-                        Heure de création de la tâche (format 24h)
+                        Heure de création de la tâche
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
