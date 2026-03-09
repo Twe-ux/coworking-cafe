@@ -53,7 +53,7 @@ export function ProductCard({
 
   return (
     <div
-      className={`grid grid-cols-[220px_160px_140px_1fr_auto] items-center gap-4 px-4 py-1.5 border-b last:border-b-0 hover:bg-muted/50 transition-colors  ${
+      className={`grid grid-cols-[220px_160px_140px_1fr_100px_auto] items-center gap-4 px-4 py-1.5 border-b last:border-b-0 hover:bg-muted/50 transition-colors  ${
         !product.isActive ? "opacity-60" : ""
       }`}
     >
@@ -73,16 +73,6 @@ export function ProductCard({
         {product.hasShortDLC && (
           <Badge variant="outline" className="text-xs px-2 py-0.5">
             DLC
-          </Badge>
-        )}
-        {product.dlcAlertConfig?.enabled && (
-          <Badge
-            variant="outline"
-            className="text-xs px-2 py-0.5 border-amber-500 bg-amber-50 text-amber-700"
-            title={`Alerte configurée : ${product.dlcAlertConfig.time || '09:00'}`}
-          >
-            <Bell className="h-3 w-3 mr-1" />
-            Alerte
           </Badge>
         )}
         {!product.isActive && (
@@ -146,6 +136,20 @@ export function ProductCard({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* DLC Alert Badge */}
+      <div className="flex items-center justify-center">
+        {product.dlcAlertConfig?.enabled && (
+          <Badge
+            variant="outline"
+            className="text-xs px-2 py-0.5 border-amber-500 bg-amber-50 text-amber-700"
+            title={`Alerte configurée : ${product.dlcAlertConfig.time || '09:00'}`}
+          >
+            <Bell className="h-3 w-3 mr-1" />
+            Alerte
+          </Badge>
+        )}
       </div>
 
       {/* Actions */}
