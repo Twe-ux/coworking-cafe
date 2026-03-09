@@ -13,8 +13,10 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { useInventoryKpis } from '@/hooks/inventory/useInventoryKpis'
 import { useInventoryTasks } from '@/hooks/inventory/useInventoryTasks'
+import { useSidebarCounts } from '@/hooks/useSidebarCounts'
 import { PendingTasksBanner } from '@/components/inventory/tasks/PendingTasksBanner'
 import { createInventoryAuto } from '@/lib/inventory/createInventoryAuto'
 
@@ -57,6 +59,7 @@ export default function InventoryPage() {
   const { totalProducts, stockValue, lowStockCount, loading: kpiLoading } =
     useInventoryKpis()
   const { pendingTasks, loading: tasksLoading } = useInventoryTasks()
+  const { counts } = useSidebarCounts()
 
   const handleStartFromTask = async (taskId: string, type: 'weekly' | 'monthly') => {
     setCreatingTaskId(taskId)
@@ -140,7 +143,14 @@ export default function InventoryPage() {
                 <div className="flex items-center gap-2">
                   <section.icon className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="mt-4">{section.title}</CardTitle>
+                <div className="flex items-center gap-2 mt-4">
+                  <CardTitle>{section.title}</CardTitle>
+                  {section.title === 'Commandes' && counts.draftOrders > 0 && (
+                    <Badge variant="destructive" className="ml-2">
+                      {counts.draftOrders}
+                    </Badge>
+                  )}
+                </div>
                 <CardDescription>{section.description}</CardDescription>
               </CardHeader>
             </Card>

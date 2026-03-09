@@ -91,6 +91,7 @@ export interface MenuSection {
  * @param pendingAbsences - Nombre de demandes d'absence en attente
  * @param pendingBookings - Nombre de réservations en attente
  * @param pendingJustifications - Nombre de pointages avec justification
+ * @param draftOrders - Nombre de commandes en brouillon
  * @param isDev - Si l'utilisateur est dev (pour afficher Dev Tools)
  * @param isAdmin - Si l'utilisateur est admin (pour afficher Dev Tools)
  */
@@ -99,6 +100,7 @@ export function getAdminMenu(
   pendingAbsences: number,
   pendingBookings: number,
   pendingJustifications: number,
+  draftOrders: number,
   isDev: boolean,
   isAdmin: boolean,
 ): MenuSection[] {
@@ -300,6 +302,7 @@ export function getAdminMenu(
           title: "Inventaire",
           url: "/admin/inventory",
           icon: Package,
+          badge: draftOrders > 0 ? draftOrders : undefined,
           items: [
             {
               title: "Fournisseurs",
@@ -316,6 +319,7 @@ export function getAdminMenu(
             {
               title: "Commandes",
               url: "/admin/inventory/orders",
+              badge: draftOrders > 0 ? draftOrders : undefined,
             },
             ...(isDev || isAdmin
               ? [

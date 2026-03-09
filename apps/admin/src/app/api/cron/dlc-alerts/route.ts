@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
       const task = await Task.create({
         title: 'Compter stock DLC courte',
         description: `Compter le stock des produits à DLC courte et vérifier si commandes nécessaires.\n\nProduits concernés : ${productsList.map((p) => p.productName).join(', ')}`,
-        priority: 'medium',
+        priority: 'high',
         status: 'pending',
         dueDate: todayDateStr, // String format YYYY-MM-DD (required)
         createdBy: systemUserId, // Required by Task model

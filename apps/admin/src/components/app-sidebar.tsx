@@ -43,6 +43,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         counts.pendingAbsences,
         counts.pendingBookings,
         counts.pendingJustifications,
+        counts.draftOrders,
         isDev,
         isAdmin,
       );

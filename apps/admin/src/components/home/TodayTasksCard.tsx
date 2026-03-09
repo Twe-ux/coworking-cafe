@@ -4,12 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { CheckSquare, Plus, ArrowRight, ListTodo } from "lucide-react";
 import { TaskList } from "@/components/tasks/TaskList";
 import { TaskCreateModal } from "@/components/tasks/TaskCreateModal";
+import { DLCStockCountForm } from "@/components/tasks/DLCStockCountForm";
 import { useTasks } from "@/hooks/useTasks";
 import { useRole } from "@/hooks/useRole";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Task } from "@/types/task";
 
 /**
  * Card affichant les tâches à faire aujourd'hui
@@ -17,10 +25,13 @@ import { Skeleton } from "@/components/ui/skeleton";
  */
 export function TodayTasksCard() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [dlcModalOpen, setDlcModalOpen] = useState(false);
+  const [selectedDLCTask, setSelectedDLCTask] = useState<Task | null>(null);
   const { isDev, isAdmin } = useRole();
-  const { tasks, loading, error, createTask, toggleTaskStatus } = useTasks({
-    status: "pending",
-  });
+  const { tasks, loading, error, createTask, toggleTaskStatus, refetch } =
+    useTasks({
+      status: "pending",
+    });
 
   // Seuls dev et admin peuvent créer des tâches
   const canCreate = isDev || isAdmin;
@@ -31,6 +42,25 @@ export function TodayTasksCard() {
 
   const handleCreateTask = async (data: Parameters<typeof createTask>[0]) => {
     await createTask(data);
+  };
+
+  const handleTaskClick = (task: Task) => {
+    // Check if it's a DLC stock count task
+    if (
+      task.metadata &&
+      typeof task.metadata === "object" &&
+      "type" in task.metadata &&
+      task.metadata.type === "dlc_stock_count"
+    ) {
+      setSelectedDLCTask(task);
+      setDlcModalOpen(true);
+    }
+  };
+
+  const handleDLCComplete = () => {
+    setDlcModalOpen(false);
+    setSelectedDLCTask(null);
+    refetch(); // Refresh tasks after completion
   };
 
   if (loading) {
@@ -112,6 +142,7 @@ export function TodayTasksCard() {
               <TaskList
                 tasks={displayedTasks}
                 onToggle={toggleTaskStatus}
+                onTaskClick={handleTaskClick}
                 emptyMessage="Aucune tâche"
               />
 
@@ -136,6 +167,24 @@ export function TodayTasksCard() {
           onOpenChange={setModalOpen}
           onSubmit={handleCreateTask}
         />
+      )}
+
+      {selectedDLCTask && (
+        <Dialog open={dlcModalOpen} onOpenChange={setDlcModalOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedDLCTask.title}</DialogTitle>
+            </DialogHeader>
+            <DLCStockCountForm
+              taskId={selectedDLCTask.id}
+              productIds={
+                (selectedDLCTask.metadata as { productIds?: string[] })
+                  ?.productIds || []
+              }
+              onComplete={handleDLCComplete}
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

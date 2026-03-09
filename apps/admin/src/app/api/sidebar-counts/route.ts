@@ -7,12 +7,14 @@ import { ContactMail } from "@/models/contactMail";
 import Absence from "@/models/absence";
 import TimeEntry from "@/models/timeEntry";
 import { Booking } from "@coworking-cafe/database";
+import { PurchaseOrder } from "@/models/inventory/purchaseOrder";
 
 interface SidebarCounts {
   pendingBookings: number;
   unreadMessages: number;
   pendingAbsences: number;
   pendingJustifications: number;
+  draftOrders: number;
 }
 
 /**
@@ -43,8 +45,8 @@ export async function GET(
       bookingsQuery.createdAt = { $gt: new Date(bookingsSeenAt) };
     }
 
-    // Run all 4 count queries in parallel
-    const [unreadMessages, pendingAbsences, pendingBookings, pendingJustifications] =
+    // Run all 5 count queries in parallel
+    const [unreadMessages, pendingAbsences, pendingBookings, pendingJustifications, draftOrders] =
       await Promise.all([
         ContactMail.countDocuments({ status: "unread" }),
         Absence.countDocuments({ status: "pending", isActive: true }),
@@ -54,6 +56,7 @@ export async function GET(
           justificationRead: { $ne: true }, // Only count unread justifications
           isActive: true,
         }),
+        PurchaseOrder.countDocuments({ status: "draft" }),
       ]);
 
     const counts: SidebarCounts = {
@@ -61,6 +64,7 @@ export async function GET(
       unreadMessages,
       pendingAbsences,
       pendingJustifications,
+      draftOrders,
     };
 
     return successResponse(counts);

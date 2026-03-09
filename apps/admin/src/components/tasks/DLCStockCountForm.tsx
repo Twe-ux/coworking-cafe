@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, PackageCheck } from 'lucide-react'
 import type { Product } from '@/types/inventory'
+import { triggerSidebarRefresh } from '@/lib/events/sidebar-refresh'
 
 interface DLCStockCountFormProps {
   taskId: string
@@ -42,9 +43,21 @@ export function DLCStockCountForm({
     try {
       setLoading(true)
       const response = await fetch(
-        `/api/inventory/products?ids=${productIds.join(',')}`
+        `/api/tasks/products?ids=${productIds.join(',')}`
       )
+
+      console.log('Response status:', response.status)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('API Error:', response.status, errorText)
+        setError(`Erreur ${response.status}: ${response.statusText}`)
+        setLoading(false)
+        return
+      }
+
       const data = await response.json()
+      console.log('API Response:', data)
 
       if (data.success && data.data) {
         const entries: StockEntry[] = data.data.map((p: Product) => ({
@@ -58,11 +71,12 @@ export function DLCStockCountForm({
         }))
         setProducts(entries)
       } else {
-        setError('Erreur lors du chargement des produits')
+        console.error('Invalid data format:', data)
+        setError(data.error || 'Erreur lors du chargement des produits')
       }
     } catch (err) {
       console.error('Error fetching products:', err)
-      setError('Erreur réseau')
+      setError(`Erreur réseau: ${err instanceof Error ? err.message : 'Unknown'}`)
     } finally {
       setLoading(false)
     }
@@ -106,6 +120,8 @@ export function DLCStockCountForm({
       const data = await response.json()
 
       if (data.success) {
+        // Trigger sidebar refresh to update badge immediately
+        triggerSidebarRefresh()
         onComplete()
       } else {
         setError(data.error || 'Erreur lors de la soumission')

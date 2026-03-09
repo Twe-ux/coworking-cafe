@@ -8,6 +8,7 @@ interface TaskListProps {
   onToggle: (task: Task) => void;
   onUpdate?: (taskId: string, data: TaskUpdateData) => void;
   onDelete?: (taskId: string) => void;
+  onTaskClick?: (task: Task) => void;
   showDeleteButton?: boolean;
   canEdit?: boolean;
   emptyMessage?: string;
@@ -18,6 +19,7 @@ export function TaskList({
   onToggle,
   onUpdate,
   onDelete,
+  onTaskClick,
   showDeleteButton = false,
   canEdit = false,
   emptyMessage = "Aucune tâche",
@@ -39,6 +41,7 @@ export function TaskList({
           onToggle={onToggle}
           onUpdate={onUpdate}
           onDelete={onDelete}
+          onTaskClick={onTaskClick}
           showDeleteButton={showDeleteButton}
           canEdit={canEdit}
         />

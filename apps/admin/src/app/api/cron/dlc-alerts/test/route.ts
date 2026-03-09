@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
       const task = await Task.create({
         title: 'Compter stock DLC courte (TEST)',
         description: `[TEST MODE] Compter le stock des produits à DLC courte.\n\nProduits : ${productsList.map((p) => p.productName).join(', ')}`,
-        priority: 'medium',
+        priority: 'high',
         status: 'pending',
         dueDate: todayDateStr,
         createdBy: systemUserId,

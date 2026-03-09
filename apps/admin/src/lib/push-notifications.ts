@@ -32,7 +32,8 @@ export type NotificationType =
   | "support"
   | "system"
   | "booking"
-  | "justification";
+  | "justification"
+  | "order";
 
 /**
  * Configuration des types de notifications
@@ -73,6 +74,12 @@ export const NOTIFICATION_CONFIGS = {
     badge: "/web-app-manifest-192x192.png",
     tag: "justification-notification",
     url: "/admin/hr/clocking-admin",
+  },
+  order: {
+    icon: "/web-app-manifest-512x512.png",
+    badge: "/web-app-manifest-192x192.png",
+    tag: "order-notification",
+    url: "/admin/inventory/orders",
   },
 } as const;
 
@@ -374,4 +381,29 @@ export async function sendNewJustificationNotification(data: {
   });
 
   console.log("[Push] Justification notification result:", result);
+}
+
+/**
+ * Envoie une notification pour une nouvelle commande en brouillon
+ */
+export async function sendNewPurchaseOrderNotification(data: {
+  id: string;
+  orderNumber: string;
+  supplierName: string;
+  itemsCount: number;
+  draftCount: number;
+}): Promise<void> {
+  const itemsText = data.itemsCount === 1 ? "1 article" : `${data.itemsCount} articles`;
+  const body = `Commande ${data.orderNumber} - ${data.supplierName} (${itemsText})`;
+  const truncatedBody =
+    body.length > 120 ? body.substring(0, 117) + "..." : body;
+
+  const result = await sendTypedNotification("order", {
+    body: truncatedBody,
+    messageId: data.id,
+    unreadCount: data.draftCount,
+    requireInteraction: true,
+  });
+
+  console.log("[Push] Order notification result:", result);
 }

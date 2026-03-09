@@ -3,14 +3,22 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, ListTodo, CheckCircle2, Repeat } from "lucide-react";
 import { TaskList } from "@/components/tasks/TaskList";
 import { TaskCreateModal } from "@/components/tasks/TaskCreateModal";
+import { DLCStockCountForm } from "@/components/tasks/DLCStockCountForm";
 import { RecurringTasksManager } from "@/components/tasks/RecurringTasksManager";
 import { useTasks } from "@/hooks/useTasks";
 import { useRecurringTasks } from "@/hooks/useRecurringTasks";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Task } from "@/types/task";
 
 interface TasksPageClientProps {
   userRole: string;
@@ -22,6 +30,8 @@ type TaskTabValue = "pending" | "completed" | "recurring";
 export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [recurringManagerOpen, setRecurringManagerOpen] = useState(false);
+  const [dlcModalOpen, setDlcModalOpen] = useState(false);
+  const [selectedDLCTask, setSelectedDLCTask] = useState<Task | null>(null);
   const [activeTab, setActiveTab] = useState<TaskTabValue>("pending");
 
   const canEdit = ["dev", "admin"].includes(userRole);
@@ -69,6 +79,25 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
   const handleDeleteTemplate = async (id: string) => {
     await deleteTemplate(id);
     await refetchPending();
+  };
+
+  const handleTaskClick = (task: Task) => {
+    // Check if it's a DLC stock count task
+    if (
+      task.metadata &&
+      typeof task.metadata === "object" &&
+      "type" in task.metadata &&
+      task.metadata.type === "dlc_stock_count"
+    ) {
+      setSelectedDLCTask(task);
+      setDlcModalOpen(true);
+    }
+  };
+
+  const handleDLCComplete = () => {
+    setDlcModalOpen(false);
+    setSelectedDLCTask(null);
+    refetchPending(); // Refresh tasks after completion
   };
 
   const handleToggle =
@@ -146,6 +175,7 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
                   onToggle={handleToggle}
                   onUpdate={canEdit ? handleUpdate : undefined}
                   onDelete={canDelete ? handleDelete : undefined}
+                  onTaskClick={handleTaskClick}
                   showDeleteButton={canDelete}
                   canEdit={canEdit}
                   emptyMessage="Aucune tache a faire ! 🎉"
@@ -237,6 +267,25 @@ export function TasksPageClient({ userRole, canCreate }: TasksPageClientProps) {
             onDelete={handleDeleteTemplate}
           />
         </>
+      )}
+
+      {/* DLC Stock Count Modal */}
+      {selectedDLCTask && (
+        <Dialog open={dlcModalOpen} onOpenChange={setDlcModalOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedDLCTask.title}</DialogTitle>
+            </DialogHeader>
+            <DLCStockCountForm
+              taskId={selectedDLCTask.id}
+              productIds={
+                (selectedDLCTask.metadata as { productIds?: string[] })
+                  ?.productIds || []
+              }
+              onComplete={handleDLCComplete}
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

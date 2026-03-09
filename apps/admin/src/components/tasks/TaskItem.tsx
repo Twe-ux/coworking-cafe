@@ -4,6 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Task, TaskUpdateData, TaskPriority } from "@/types/task";
 import { TASK_PRIORITY_COLORS, TASK_PRIORITY_LABELS } from "@/types/task";
@@ -16,6 +22,7 @@ interface TaskItemProps {
   onToggle: (task: Task) => void;
   onUpdate?: (taskId: string, data: TaskUpdateData) => void;
   onDelete?: (taskId: string) => void;
+  onTaskClick?: (task: Task) => void;
   showDeleteButton?: boolean;
   canEdit?: boolean;
 }
@@ -31,6 +38,7 @@ export function TaskItem({
   onToggle,
   onUpdate,
   onDelete,
+  onTaskClick,
   showDeleteButton = false,
   canEdit = false,
 }: TaskItemProps) {
@@ -42,6 +50,12 @@ export function TaskItem({
   const isCompleted = task.status === "completed";
   const borderColor = TASK_PRIORITY_COLORS[task.priority];
   const isRecurring = !!task.recurringTaskId;
+  const isDLCTask =
+    task.metadata &&
+    typeof task.metadata === "object" &&
+    "type" in task.metadata &&
+    task.metadata.type === "dlc_stock_count";
+  const isDLCClickable = isDLCTask && !isCompleted && onTaskClick;
 
   // Focus input when editing starts
   useEffect(() => {
@@ -105,11 +119,18 @@ export function TaskItem({
   return (
     <div
       className={cn(
-        "border rounded-lg border-l-4 py-2.5 px-3 hover:bg-green-50 transition-all duration-300",
+        "border rounded-lg border-l-4 py-2.5 px-3 transition-all duration-300",
         borderColor,
         isCompleted && "opacity-60",
         isToggling && "opacity-50",
+        isDLCClickable && "hover:bg-amber-50 cursor-pointer",
+        !isDLCClickable && "hover:bg-green-50",
       )}
+      onClick={() => {
+        if (isDLCClickable) {
+          onTaskClick(task);
+        }
+      }}
     >
       <div className="flex flex-row gap-3">
         {/* Checkbox */}
@@ -146,16 +167,25 @@ export function TaskItem({
                 maxLength={100}
               />
             ) : (
-              <h4
-                className={cn(
-                  "font-medium text-sm truncate",
-                  isCompleted && "line-through text-gray-500",
-                  canEdit && !isCompleted && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
-                )}
-                onClick={() => startEdit("title")}
-              >
-                {task.title}
-              </h4>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h4
+                      className={cn(
+                        "font-medium text-sm truncate",
+                        isCompleted && "line-through text-gray-500",
+                        canEdit && !isCompleted && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
+                      )}
+                      onClick={() => startEdit("title")}
+                    >
+                      {task.title}
+                    </h4>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">{task.title}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
 
             {/* Description */}
@@ -169,6 +199,25 @@ export function TaskItem({
                 className="h-6 text-xs py-0 px-1 max-w-[200px]"
                 placeholder="Description..."
               />
+            ) : task.description ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className={cn(
+                        "text-xs text-gray-600 truncate",
+                        canEdit && !isCompleted && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
+                      )}
+                      onClick={() => startEdit("description")}
+                    >
+                      {task.description}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs whitespace-pre-wrap">{task.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             ) : (
               <span
                 className={cn(
@@ -178,7 +227,7 @@ export function TaskItem({
                 )}
                 onClick={() => startEdit("description")}
               >
-                {task.description || (canEdit && !isCompleted ? "+" : "")}
+                {canEdit && !isCompleted ? "+" : ""}
               </span>
             )}
           </div>
@@ -200,7 +249,7 @@ export function TaskItem({
                   />
                 ))}
               </div>
-            ) : (
+            ) : task.priority !== "medium" ? (
               <button
                 className={cn(
                   "flex items-center gap-1 text-xs px-1.5 py-0.5 rounded",
@@ -221,7 +270,7 @@ export function TaskItem({
                   {TASK_PRIORITY_LABELS[task.priority]}
                 </span>
               </button>
-            )}
+            ) : null}
 
             {/* Due date */}
             {editingField === "dueDate" ? (
