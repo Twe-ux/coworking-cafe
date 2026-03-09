@@ -79,9 +79,15 @@ export function AbsenceWeekPreview({
         const shifts: Shift[] = [];
 
         for (let i = 0; i < 7; i++) {
-          const currentDate = new Date(monday);
-          currentDate.setDate(currentDate.getDate() + i);
-          const dateStr = currentDate.toISOString().split("T")[0];
+          // Calculate date string manually to avoid timezone issues (like getAllDatesInMonth)
+          const year = monday.getFullYear();
+          const month = monday.getMonth();
+          const day = monday.getDate();
+          const targetDate = new Date(year, month, day + i);
+          const dateStr = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
+
+          // Create date with noon technique to avoid timezone issues in calendar
+          const currentDate = new Date(dateStr + 'T12:00:00');
 
           employeesList.forEach((employee) => {
             const dayKey = getDayKey(currentDate);
@@ -153,16 +159,21 @@ export function AbsenceWeekPreview({
   }
 
   // Get day key for availability (monday, tuesday, wednesday, etc.)
+  // Using European week system: 0=Monday, 1=Tuesday, ..., 6=Sunday (like AvailabilityCalendarTab)
   function getDayKey(date: Date): string {
-    const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-    return days[date.getDay()];
+    const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+    const jsDay = date.getDay(); // JavaScript: 0=Sunday, 1=Monday, ..., 6=Saturday
+    const euDay = jsDay === 0 ? 6 : jsDay - 1; // Convert to European: 0=Monday, ..., 6=Sunday
+    return days[euDay];
   }
 
   // Position shifts by employee for WeekCard
   function getShiftsPositionedByEmployee(date: Date) {
-    const dateStr = date.toISOString().split("T")[0];
+    // Build date string locally to avoid timezone issues
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const dayShifts = virtualShifts.filter((shift) => {
-      const shiftDateStr = new Date(shift.date).toISOString().split("T")[0];
+      const shiftDate = new Date(shift.date);
+      const shiftDateStr = `${shiftDate.getFullYear()}-${String(shiftDate.getMonth() + 1).padStart(2, '0')}-${String(shiftDate.getDate()).padStart(2, '0')}`;
       return shiftDateStr === dateStr;
     });
 

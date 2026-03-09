@@ -63,7 +63,7 @@ function ipToInt(ip: string): number {
 /**
  * Vérifier la protection IP pour les routes /(dashboard)
  */
-function checkIPAccess(req: NextRequest): NextResponse | null {
+async function checkIPAccess(req: NextRequest): Promise<NextResponse | null> {
   const { pathname } = req.nextUrl;
 
   // Routes /(dashboard) qui nécessitent vérification IP
@@ -77,6 +77,23 @@ function checkIPAccess(req: NextRequest): NextResponse | null {
   // Si pas dans /(dashboard), pas de vérification IP
   if (!isDashboardRoute) {
     return null; // Continuer sans bloquer
+  }
+
+  // Exception: Admins/Dev peuvent accéder aux routes /(dashboard) sans vérification IP
+  try {
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      cookieName: 'next-auth.session-token.admin',
+    });
+
+    if (token?.role && ['dev', 'admin'].includes(token.role as string)) {
+      console.log(`[IP CHECK] ✅ Admin/Dev bypass IP check: ${token.email} → ${pathname}`);
+      return null; // Admins/Dev bypass IP check
+    }
+  } catch (error) {
+    // Si erreur lors de la récupération du token, continuer avec vérification IP normale
+    console.log('[IP CHECK] Unable to check token, continuing with IP verification');
   }
 
   // Récupérer IPs autorisées depuis env
@@ -126,8 +143,8 @@ export default withAuth(
     const path = req.nextUrl.pathname;
 
     // 1️⃣ VÉRIFICATION IP pour /(dashboard)
-    // Bloquer accès si IP non autorisée
-    const ipCheckResult = checkIPAccess(req);
+    // Bloquer accès si IP non autorisée (sauf admins/dev)
+    const ipCheckResult = await checkIPAccess(req);
     if (ipCheckResult) {
       return ipCheckResult; // Redirect vers /403
     }

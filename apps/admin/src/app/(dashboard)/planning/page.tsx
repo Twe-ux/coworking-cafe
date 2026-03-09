@@ -12,6 +12,10 @@ export default function StaffSchedulePage() {
   const { data: session } = useSession();
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // Get user role from session
+  const userRole = (session?.user as any)?.role || 'staff';
+  const isStaff = userRole === 'staff';
+
   // Calculate date range: current week +/- 2 weeks, rounded to full weeks (Monday-Sunday)
   // This ensures we always display complete weeks, even if they extend beyond the 2-week window
   const dateRange = useMemo(() => {
@@ -106,9 +110,9 @@ export default function StaffSchedulePage() {
         key={refreshKey}
         employees={employees}
         shifts={shifts}
-        unavailabilities={unavailabilities}
+        unavailabilities={isStaff ? [] : unavailabilities}
         readOnly={true}
-        userRole="staff"
+        userRole={userRole}
       />
     </div>
   );

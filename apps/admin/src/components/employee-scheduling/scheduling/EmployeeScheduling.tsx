@@ -47,8 +47,10 @@ export function EmployeeScheduling({
 
   const { timeEntries, fetchTimeEntries } = useTimeEntries({ currentDate });
 
-  // Staff-only view
-  if (userRole === "staff") {
+  // Staff view (also accessible to admin/dev)
+  const hasAccess = ['staff', 'admin', 'dev'].includes(userRole);
+
+  if (hasAccess) {
     const weeksWithShifts = getWeeksWithShifts();
 
     if (weeksWithShifts.length === 0) {
@@ -64,19 +66,25 @@ export function EmployeeScheduling({
           {/* Header */}
           <div className="flex flex-row justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Mon Planning</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {userRole === 'staff' ? 'Mon Planning' : 'Planning Staff'}
+              </h1>
               <p className="mt-1 text-gray-600">
-                Vos creneaux de travail par semaine
+                {userRole === 'staff'
+                  ? 'Vos creneaux de travail par semaine'
+                  : 'Creneaux de travail de l\'equipe par semaine'}
               </p>
             </div>
-            <Button
-              variant="outline"
-              className="gap-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
-              onClick={() => setUnavailabilityModalOpen(true)}
-            >
-              <CalendarOff className="w-4 h-4" />
-              Demander une indispo
-            </Button>
+            {userRole === 'staff' && (
+              <Button
+                variant="outline"
+                className="gap-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+                onClick={() => setUnavailabilityModalOpen(true)}
+              >
+                <CalendarOff className="w-4 h-4" />
+                Demander une indispo
+              </Button>
+            )}
           </div>
 
           {/* Weeks with Shifts */}
