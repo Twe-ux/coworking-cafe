@@ -16,6 +16,9 @@ export const dynamic = 'force-dynamic'
  *
  * Product config takes priority over supplier config.
  *
+ * IMPORTANT: All times are in French timezone (Europe/Paris).
+ * The cron automatically converts UTC to French time.
+ *
  * Security: Should be called by Vercel Cron or protected by auth token
  */
 export async function GET(request: NextRequest) {
@@ -31,9 +34,12 @@ export async function GET(request: NextRequest) {
     await connectMongoose()
 
     const now = new Date()
-    const currentDay = now.getDay() // 0=Sunday, 1=Monday, ..., 6=Saturday
-    const currentHour = now.getHours()
-    const currentMinute = now.getMinutes()
+
+    // Convert UTC time to French time (Europe/Paris timezone)
+    const frenchTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
+    const currentDay = frenchTime.getDay() // 0=Sunday, 1=Monday, ..., 6=Saturday
+    const currentHour = frenchTime.getHours()
+    const currentMinute = frenchTime.getMinutes()
     const currentTime = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`
 
     // Find products to count (two sources):
@@ -175,6 +181,8 @@ export async function GET(request: NextRequest) {
 /**
  * Check if current time matches configured time (within 1-hour window)
  * Allows triggering within the same hour as configured
+ *
+ * Both times are in French timezone (Europe/Paris)
  */
 function isTimeMatch(currentTime: string, configTime: string): boolean {
   if (!configTime) return false

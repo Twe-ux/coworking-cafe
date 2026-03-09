@@ -11,19 +11,20 @@ export const dynamic = 'force-dynamic'
  * GET /api/cron/dlc-alerts/test?time=12:00&day=1 - Test DLC alerts with custom time/day
  *
  * Query params:
- * - time: HH:mm format (e.g., "12:00") - defaults to current time
- * - day: 0-6 (0=Sunday, 1=Monday, etc.) - defaults to current day
+ * - time: HH:mm format in French timezone (e.g., "14:00") - defaults to current French time
+ * - day: 0-6 (0=Sunday, 1=Monday, etc.) - defaults to current day in French timezone
  *
- * Example: /api/cron/dlc-alerts/test?time=12:00&day=1
+ * Example: /api/cron/dlc-alerts/test?time=14:00&day=1
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
 
-    // Get test parameters from query or use current time
+    // Get test parameters from query or use current French time
     const now = new Date()
-    const testTime = searchParams.get('time') || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-    const testDay = searchParams.get('day') ? parseInt(searchParams.get('day')!) : now.getDay()
+    const frenchTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
+    const testTime = searchParams.get('time') || `${String(frenchTime.getHours()).padStart(2, '0')}:${String(frenchTime.getMinutes()).padStart(2, '0')}`
+    const testDay = searchParams.get('day') ? parseInt(searchParams.get('day')!) : frenchTime.getDay()
 
     console.log(`[TEST] Simulating time: ${testTime}, day: ${testDay}`)
 
