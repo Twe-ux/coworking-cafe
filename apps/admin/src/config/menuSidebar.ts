@@ -321,6 +321,10 @@ export function getAdminMenu(
               url: "/admin/inventory/orders",
               badge: draftOrders > 0 ? draftOrders : undefined,
             },
+            {
+              title: "Achats directs",
+              url: "/admin/inventory/direct-purchases",
+            },
             ...(isDev || isAdmin
               ? [
                   {

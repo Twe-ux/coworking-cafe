@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Eye, ShoppingCart, CheckCircle2, Send, Package } from 'lucide-react'
+import { Plus, Eye, ShoppingBag, ShoppingCart, CheckCircle2, Send, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -95,14 +95,24 @@ export default function OrdersPage() {
             Créer et gérer les commandes fournisseurs
           </p>
         </div>
-        <Button
-          variant="outline"
-          className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
-          onClick={() => router.push('/admin/inventory/orders/new')}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nouvelle commande
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+            onClick={() => router.push('/admin/inventory/direct-purchases/new')}
+          >
+            <ShoppingBag className="mr-2 h-4 w-4" />
+            Achat Direct
+          </Button>
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={() => router.push('/admin/inventory/orders/new')}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nouvelle commande
+          </Button>
+        </div>
       </div>
 
       {/* Status Filter Cards */}
