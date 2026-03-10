@@ -11,6 +11,7 @@ export interface PurchaseOrderItem {
   totalHT: number
   vatRate: number
   totalTTC: number
+  unitsPerPackage?: number // For pack type: number of units in the pack
 }
 
 /** Document of a PurchaseOrder, as stored in the database. */
@@ -72,6 +73,10 @@ const PurchaseOrderItemSchema = new Schema<PurchaseOrderItem>(
       type: Number,
       required: [true, 'Total TTC is required'],
       min: 0,
+    },
+    unitsPerPackage: {
+      type: Number,
+      min: 1,
     },
   },
   { _id: false }

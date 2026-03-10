@@ -174,6 +174,7 @@ export interface PurchaseOrderItem {
   totalHT: number
   vatRate: number
   totalTTC: number
+  unitsPerPackage?: number
 }
 
 export interface PurchaseOrder {

@@ -82,7 +82,13 @@ export async function POST(request: NextRequest) {
           throw new Error(`Produit ${item.productId} introuvable`)
         }
 
-        const lineHT = item.quantity * product.unitPriceHT
+        // Calculate price per item: for packs, multiply unitPrice by unitsPerPackage
+        const pricePerItem =
+          product.packagingType === 'pack' && product.unitsPerPackage
+            ? product.unitPriceHT * product.unitsPerPackage
+            : product.unitPriceHT
+
+        const lineHT = item.quantity * pricePerItem
         const lineTTC = lineHT * (1 + product.vatRate / 100)
 
         totalHT += lineHT
@@ -97,6 +103,7 @@ export async function POST(request: NextRequest) {
           vatRate: product.vatRate,
           totalHT: Math.round(lineHT * 100) / 100,
           totalTTC: Math.round(lineTTC * 100) / 100,
+          unitsPerPackage: product.unitsPerPackage || undefined,
         }
       })
     )

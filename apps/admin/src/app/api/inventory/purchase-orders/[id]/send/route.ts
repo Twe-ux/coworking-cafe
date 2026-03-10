@@ -16,8 +16,8 @@ interface RouteParams {
 }
 
 /**
- * POST /api/inventory/purchase-orders/[id]/send-email
- * Send purchase order to supplier via email (validated → sent).
+ * POST /api/inventory/purchase-orders/[id]/send
+ * Send purchase order to supplier via email (draft/validated → sent).
  * Only admin/dev can send.
  */
 export async function POST(_request: NextRequest, { params }: RouteParams) {
@@ -34,9 +34,10 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       return notFoundResponse('Commande')
     }
 
-    if (order.status !== 'validated') {
+    // Accept both 'draft' and 'validated' status (new simplified workflow)
+    if (order.status !== 'draft' && order.status !== 'validated') {
       return errorResponse(
-        'Seules les commandes validees peuvent etre envoyees',
+        'Seules les commandes en brouillon ou validees peuvent etre envoyees',
         undefined,
         400
       )
@@ -102,7 +103,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
     return successResponse(transformed, 'Commande envoyee')
   } catch (error) {
-    console.error('[POST /api/inventory/purchase-orders/[id]/send-email] Error:', error)
+    console.error('[POST /api/inventory/purchase-orders/[id]/send] Error:', error)
     return errorResponse(
       "Erreur lors de l'envoi de la commande",
       error instanceof Error ? error.message : undefined,

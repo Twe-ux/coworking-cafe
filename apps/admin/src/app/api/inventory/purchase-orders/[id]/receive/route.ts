@@ -54,26 +54,57 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const receptionPromises = body.items
       .filter((item) => item.receivedQty > 0)
       .map(async (item) => {
-        // Find matching product name from order for notes
+        // Find matching order item for pricing info
         const orderItem = order.items.find(
           (oi) => oi.productId.toString() === item.productId
         )
-        const productName = orderItem?.productName || item.productId
 
-        // Create StockMovement record
+        if (!orderItem) {
+          throw new Error(`Product ${item.productId} not found in order`)
+        }
+
+        const productName = orderItem.productName
+
+        // Get product to check packaging
+        const product = await Product.findById(item.productId).lean()
+        if (!product) {
+          throw new Error(`Product ${item.productId} not found`)
+        }
+
+        // Calculate unit price considering packaging (same logic as order creation)
+        const unitPriceHT =
+          product.packagingType === 'pack' && product.unitsPerPackage
+            ? orderItem.unitPriceHT * product.unitsPerPackage
+            : orderItem.unitPriceHT
+
+        const totalValue = item.receivedQty * unitPriceHT
+
+        // Calculate quantity in units (if pack, multiply by unitsPerPackage)
+        const quantityInUnits =
+          product.packagingType === 'pack' && product.unitsPerPackage
+            ? item.receivedQty * product.unitsPerPackage
+            : item.receivedQty
+
+        // Create StockMovement record (in units)
         await StockMovement.create({
           productId: item.productId,
           type: 'purchase_reception',
-          quantity: item.receivedQty,
+          quantity: quantityInUnits,
+          unitPriceHT,
+          totalValue,
           date: new Date(),
           reference: order.orderNumber,
-          notes: `Reception ${order.orderNumber} - ${productName}`,
+          notes: `Reception ${order.orderNumber} - ${productName}${
+            product.packagingType === 'pack' && product.unitsPerPackage
+              ? ` (${item.receivedQty} pack(s) × ${product.unitsPerPackage} unités)`
+              : ''
+          }`,
           createdBy: userId,
         })
 
-        // Update Product currentStock
+        // Update Product currentStock (in units)
         await Product.findByIdAndUpdate(item.productId, {
-          $inc: { currentStock: item.receivedQty },
+          $inc: { currentStock: quantityInUnits },
         })
       })
 

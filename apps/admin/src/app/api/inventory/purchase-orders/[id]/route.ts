@@ -32,7 +32,31 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       return notFoundResponse('Commande')
     }
 
-    return successResponse(transformOrder(order as unknown as Record<string, unknown>))
+    // Enrich items with unitsPerPackage from products if missing
+    const enrichedItems = await Promise.all(
+      order.items.map(async (item) => {
+        // If unitsPerPackage is already present, return as-is
+        if (item.unitsPerPackage !== undefined && item.unitsPerPackage !== null) {
+          return item
+        }
+
+        // Otherwise, fetch from product
+        try {
+          const product = await Product.findById(item.productId).lean()
+          return {
+            ...item,
+            unitsPerPackage: product?.unitsPerPackage || 1,
+          }
+        } catch (error) {
+          console.error(`Error fetching product ${item.productId}:`, error)
+          return { ...item, unitsPerPackage: 1 }
+        }
+      })
+    )
+
+    const enrichedOrder = { ...order, items: enrichedItems }
+
+    return successResponse(transformOrder(enrichedOrder as unknown as Record<string, unknown>))
   } catch (error) {
     console.error('[GET /api/inventory/purchase-orders/[id]] Error:', error)
     return errorResponse(
@@ -84,7 +108,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             throw new Error(`Produit ${item.productId} introuvable`)
           }
 
-          const lineHT = item.quantity * product.unitPriceHT
+          // Calculate price per item: for packs, multiply unitPrice by unitsPerPackage
+          const pricePerItem =
+            product.packagingType === 'pack' && product.unitsPerPackage
+              ? product.unitPriceHT * product.unitsPerPackage
+              : product.unitPriceHT
+
+          const lineHT = item.quantity * pricePerItem
           const lineTTC = lineHT * (1 + product.vatRate / 100)
 
           totalHT += lineHT
@@ -99,6 +129,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             vatRate: product.vatRate,
             totalHT: Math.round(lineHT * 100) / 100,
             totalTTC: Math.round(lineTTC * 100) / 100,
+            unitsPerPackage: product.unitsPerPackage || undefined,
           }
         })
       )
@@ -123,6 +154,51 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     console.error('[PUT /api/inventory/purchase-orders/[id]] Error:', error)
     return errorResponse(
       'Erreur lors de la mise a jour de la commande',
+      error instanceof Error ? error.message : undefined,
+      500
+    )
+  }
+}
+
+/**
+ * DELETE /api/inventory/purchase-orders/[id]
+ * Delete a draft purchase order.
+ * Only drafts can be deleted.
+ */
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+  try {
+    const authResult = await requireAuth(getRequiredRoles('createOrderDraft'))
+    if (!authResult.authorized) return authResult.response
+
+    await connectMongoose()
+
+    const { id } = await params
+    const order = await PurchaseOrder.findById(id)
+
+    if (!order) {
+      return notFoundResponse('Commande')
+    }
+
+    if (order.status !== 'draft') {
+      return errorResponse(
+        'Seuls les brouillons peuvent etre supprimes',
+        undefined,
+        400
+      )
+    }
+
+    // Hard delete for drafts
+    await PurchaseOrder.findByIdAndDelete(id)
+
+    return successResponse(
+      { message: 'Commande supprimee avec succes' },
+      'Commande supprimee avec succes'
+    )
+  } catch (error) {
+    const { id } = await params
+    console.error(`[DELETE /api/inventory/purchase-orders/${id}] Error:`, error)
+    return errorResponse(
+      'Erreur lors de la suppression de la commande',
       error instanceof Error ? error.message : undefined,
       500
     )

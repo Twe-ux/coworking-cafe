@@ -16,13 +16,17 @@ import type { ProductFormData } from "@/types/inventory"
 
 export const dynamic = 'force-dynamic'
 
+interface RouteParams {
+  params: Promise<{ id: string }>
+}
+
 /**
  * GET /api/inventory/products/[id] - Get a single product by ID
  * Auth: requireAuth(['admin', 'staff', 'dev'])
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     // Auth check
@@ -32,8 +36,10 @@ export async function GET(
     // Connect to database
     await connectMongoose()
 
+    const { id } = await params
+
     // Fetch product with supplier info
-    const product = await Product.findById(params.id)
+    const product = await Product.findById(id)
       .populate('supplierId', 'name')
       .lean()
 
@@ -46,7 +52,8 @@ export async function GET(
 
     return successResponse(transformedProduct)
   } catch (error) {
-    console.error(`[GET /api/inventory/products/${params.id}] Error:`, error)
+    const { id } = await params
+    console.error(`[GET /api/inventory/products/${id}] Error:`, error)
     return errorResponse(
       'Erreur lors de la récupération du produit',
       error instanceof Error ? error.message : undefined,
@@ -62,7 +69,7 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     // Auth check - Only admin and dev can update
@@ -72,11 +79,13 @@ export async function PUT(
     // Connect to database
     await connectMongoose()
 
+    const { id } = await params
+
     // Parse body (isActive allowed for reactivation)
     const body = (await request.json()) as Partial<ProductFormData> & { isActive?: boolean }
 
     // Check if product exists
-    const existingProduct = await Product.findById(params.id)
+    const existingProduct = await Product.findById(id)
     if (!existingProduct) {
       return notFoundResponse('Produit')
     }
@@ -136,7 +145,7 @@ export async function PUT(
 
     // Update product
     const updatedProduct = await Product.findByIdAndUpdate(
-      params.id,
+      id,
       {
         $set: {
           ...(body.name && { name: body.name }),
@@ -174,7 +183,8 @@ export async function PUT(
       'Produit mis à jour avec succès'
     )
   } catch (error) {
-    console.error(`[PUT /api/inventory/products/${params.id}] Error:`, error)
+    const { id } = await params
+    console.error(`[PUT /api/inventory/products/${id}] Error:`, error)
     return errorResponse(
       'Erreur lors de la mise à jour du produit',
       error instanceof Error ? error.message : undefined,
@@ -189,7 +199,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     // Auth check - Only admin and dev can delete
@@ -199,20 +209,22 @@ export async function DELETE(
     // Connect to database
     await connectMongoose()
 
+    const { id } = await params
+
     // Check if product exists
-    const existingProduct = await Product.findById(params.id)
+    const existingProduct = await Product.findById(id)
     if (!existingProduct) {
       return notFoundResponse('Produit')
     }
 
     // Check usage in orders and inventory entries
     const [orderCount, inventoryCount] = await Promise.all([
-      PurchaseOrder.countDocuments({ 'items.productId': params.id }),
-      InventoryEntry.countDocuments({ 'items.productId': params.id }),
+      PurchaseOrder.countDocuments({ 'items.productId': id }),
+      InventoryEntry.countDocuments({ 'items.productId': id }),
     ])
 
     // Soft delete - set isActive to false
-    await Product.findByIdAndUpdate(params.id, {
+    await Product.findByIdAndUpdate(id, {
       $set: { isActive: false },
     })
 
@@ -232,8 +244,9 @@ export async function DELETE(
       'Produit désactivé avec succès'
     )
   } catch (error) {
+    const { id } = await params
     console.error(
-      `[DELETE /api/inventory/products/${params.id}] Error:`,
+      `[DELETE /api/inventory/products/${id}] Error:`,
       error
     )
     return errorResponse(

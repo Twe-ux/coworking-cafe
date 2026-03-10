@@ -1,104 +1,118 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Package, RefreshCw, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/textarea'
-import { Skeleton } from '@/components/ui/skeleton'
+import { OrderItemsTable } from "@/components/inventory/orders";
+import { ProductDialog } from "@/components/inventory/products/ProductDialog";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { OrderItemsTable } from '@/components/inventory/orders'
-import { ProductDialog } from '@/components/inventory/products/ProductDialog'
-import { useOrderActions } from '@/hooks/inventory/useOrderActions'
-import { useProducts } from '@/hooks/inventory/useProducts'
-import type { Supplier, Product, CreatePurchaseOrderItemData, ProductFormData, APIResponse } from '@/types/inventory'
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { useOrderActions } from "@/hooks/inventory/useOrderActions";
+import { useProducts } from "@/hooks/inventory/useProducts";
+import type {
+  APIResponse,
+  CreatePurchaseOrderItemData,
+  Product,
+  ProductFormData,
+  Supplier,
+} from "@/types/inventory";
+import { Package, Plus, RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface ProductSuggestion {
-  productId: string
-  productName: string
-  packagingType: string
-  currentStock: number
-  minStock: number
-  suggestedQuantity: number
-  unitPriceHT: number
-  vatRate: number
+  productId: string;
+  productName: string;
+  packagingType: string;
+  currentStock: number;
+  minStock: number;
+  suggestedQuantity: number;
+  unitPriceHT: number;
+  vatRate: number;
 }
 
 interface OrderItemDisplay extends CreatePurchaseOrderItemData {
-  productName: string
-  packagingType: string
-  unitPriceHT: number
-  vatRate: number
-  minStock: number
-  maxStock: number
-  currentStock: number
-  realStock?: number // Stock réel saisi par l'utilisateur
-  unitsPerPackage: number
+  productName: string;
+  packagingType: string;
+  unitPriceHT: number;
+  vatRate: number;
+  minStock: number;
+  maxStock: number;
+  currentStock: number;
+  realStock?: number; // Stock réel saisi par l'utilisateur
+  unitsPerPackage: number;
+  totalHT: number;
+  totalTTC: number;
 }
 
 export default function NewOrderPage() {
-  const router = useRouter()
-  const { creating, createOrder } = useOrderActions()
-  const { createProduct, reactivateProduct } = useProducts({})
+  const router = useRouter();
+  const { creating, createOrder } = useOrderActions();
+  const { createProduct, reactivateProduct } = useProducts({});
 
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
-  const [products, setProducts] = useState<Product[]>([])
-  const [inactiveProducts, setInactiveProducts] = useState<Product[]>([])
-  const [loadingSuppliers, setLoadingSuppliers] = useState(true)
-  const [loadingProducts, setLoadingProducts] = useState(false)
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [inactiveProducts, setInactiveProducts] = useState<Product[]>([]);
+  const [loadingSuppliers, setLoadingSuppliers] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
-  const [selectedSupplierId, setSelectedSupplierId] = useState('')
-  const [items, setItems] = useState<OrderItemDisplay[]>([])
-  const [notes, setNotes] = useState('')
+  const [selectedSupplierId, setSelectedSupplierId] = useState("");
+  const [items, setItems] = useState<OrderItemDisplay[]>([]);
+  const [notes, setNotes] = useState("");
 
   // Dialog states
-  const [productDialogOpen, setProductDialogOpen] = useState(false)
-  const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false)
+  const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false);
 
   // Fetch suppliers on mount
   useEffect(() => {
-    fetchSuppliers()
-  }, [])
+    fetchSuppliers();
+  }, []);
 
   // Fetch products when supplier changes
   useEffect(() => {
     if (selectedSupplierId) {
-      fetchProducts(selectedSupplierId)
+      fetchProducts(selectedSupplierId);
     }
-  }, [selectedSupplierId])
+  }, [selectedSupplierId]);
 
   const fetchSuppliers = async () => {
     try {
-      const res = await fetch('/api/inventory/suppliers')
-      const data = (await res.json()) as APIResponse<Supplier[]>
+      const res = await fetch("/api/inventory/suppliers");
+      const data = (await res.json()) as APIResponse<Supplier[]>;
       if (data.success && data.data) {
-        setSuppliers(data.data.filter((s) => s.isActive))
+        setSuppliers(data.data.filter((s) => s.isActive));
       }
     } catch (err) {
-      console.error('Error fetching suppliers:', err)
+      console.error("Error fetching suppliers:", err);
     } finally {
-      setLoadingSuppliers(false)
+      setLoadingSuppliers(false);
     }
-  }
+  };
 
   const fetchProducts = async (supplierId: string) => {
-    setLoadingProducts(true)
+    setLoadingProducts(true);
     try {
       // Fetch active products
       const resActive = await fetch(
-        `/api/inventory/products?supplierId=${supplierId}&active=true`
-      )
-      const dataActive = (await resActive.json()) as APIResponse<Product[]>
+        `/api/inventory/products?supplierId=${supplierId}&active=true`,
+      );
+      const dataActive = (await resActive.json()) as APIResponse<Product[]>;
       if (dataActive.success && dataActive.data) {
-        setProducts(dataActive.data)
+        setProducts(dataActive.data);
 
         // Automatically add all products to the order with quantity set to 0
         // User will enter real stock to calculate suggested quantity
@@ -113,37 +127,39 @@ export default function NewOrderPage() {
           maxStock: product.maxStock,
           currentStock: product.currentStock,
           unitsPerPackage: product.unitsPerPackage || 1,
-        }))
-        setItems(newItems)
+          totalHT: 0,
+          totalTTC: 0,
+        }));
+        setItems(newItems);
       }
 
       // Fetch inactive products
       const resInactive = await fetch(
-        `/api/inventory/products?supplierId=${supplierId}&active=false`
-      )
-      const dataInactive = (await resInactive.json()) as APIResponse<Product[]>
+        `/api/inventory/products?supplierId=${supplierId}&active=false`,
+      );
+      const dataInactive = (await resInactive.json()) as APIResponse<Product[]>;
       if (dataInactive.success && dataInactive.data) {
-        setInactiveProducts(dataInactive.data)
+        setInactiveProducts(dataInactive.data);
       }
     } catch (err) {
-      console.error('Error fetching products:', err)
+      console.error("Error fetching products:", err);
     } finally {
-      setLoadingProducts(false)
+      setLoadingProducts(false);
     }
-  }
+  };
 
   const loadSuggestions = async () => {
-    if (!selectedSupplierId) return
+    if (!selectedSupplierId) return;
 
-    setLoadingSuggestions(true)
+    setLoadingSuggestions(true);
     try {
       const res = await fetch(
-        `/api/inventory/purchase-orders/suggestions?supplierId=${selectedSupplierId}`
-      )
+        `/api/inventory/purchase-orders/suggestions?supplierId=${selectedSupplierId}`,
+      );
       const data = (await res.json()) as APIResponse<{
-        supplier: Supplier
-        suggestions: ProductSuggestion[]
-      }>
+        supplier: Supplier;
+        suggestions: ProductSuggestion[];
+      }>;
 
       if (data.success && data.data) {
         const newItems: OrderItemDisplay[] = data.data.suggestions.map((s) => ({
@@ -153,24 +169,30 @@ export default function NewOrderPage() {
           packagingType: s.packagingType,
           unitPriceHT: s.unitPriceHT,
           vatRate: s.vatRate || 5.5,
-        }))
-        setItems(newItems)
+          minStock: 0,
+          maxStock: 0,
+          currentStock: 0,
+          unitsPerPackage: 1,
+          totalHT: 0,
+          totalTTC: 0,
+        }));
+        setItems(newItems);
       }
     } catch (err) {
-      console.error('Error loading suggestions:', err)
+      console.error("Error loading suggestions:", err);
     } finally {
-      setLoadingSuggestions(false)
+      setLoadingSuggestions(false);
     }
-  }
+  };
 
   const addProduct = (productId: string) => {
-    const product = products.find((p) => p._id === productId)
-    if (!product) return
+    const product = products.find((p) => p._id === productId);
+    if (!product) return;
 
     // Check if already added
     if (items.some((i) => i.productId === productId)) {
-      alert('Ce produit est déjà dans la commande')
-      return
+      alert("Ce produit est déjà dans la commande");
+      return;
     }
 
     const newItem: OrderItemDisplay = {
@@ -180,14 +202,20 @@ export default function NewOrderPage() {
       packagingType: product.packagingType,
       unitPriceHT: product.unitPriceHT,
       vatRate: product.vatRate,
-    }
+      minStock: product.minStock,
+      maxStock: product.maxStock,
+      currentStock: product.currentStock,
+      unitsPerPackage: product.unitsPerPackage || 1,
+      totalHT: 0,
+      totalTTC: 0,
+    };
 
-    setItems([...items, newItem])
-  }
+    setItems([...items, newItem]);
+  };
 
   const removeItem = (productId: string) => {
-    setItems(items.filter((i) => i.productId !== productId))
-  }
+    setItems(items.filter((i) => i.productId !== productId));
+  };
 
   /**
    * Calcule la quantité à commander en fonction du stock réel et des contraintes pack
@@ -202,39 +230,40 @@ export default function NewOrderPage() {
     minStock: number,
     maxStock: number,
     packagingType: string,
-    unitsPerPackage: number
+    unitsPerPackage: number,
   ): number => {
     // Si stock réel >= minStock, pas besoin de commander
-    if (realStock >= minStock) return 0
+    if (realStock >= minStock) return 0;
 
     // Calculer le besoin brut
-    const need = maxStock - realStock
+    const need = maxStock - realStock;
 
     // Si commande en packs, arrondir au pack supérieur
-    if (packagingType === 'pack' && unitsPerPackage > 1) {
-      const packs = Math.ceil(need / unitsPerPackage)
-      return packs
+    if (packagingType === "pack" && unitsPerPackage > 1) {
+      const packs = Math.ceil(need / unitsPerPackage);
+      return packs;
     }
 
     // Sinon retourner le besoin en unités
-    return need
-  }
+    return need;
+  };
 
   const updateQuantity = (productId: string, quantity: number) => {
     setItems(
-      items.map((i) =>
-        i.productId === productId ? { ...i, quantity } : i
-      )
-    )
-  }
+      items.map((i) => (i.productId === productId ? { ...i, quantity } : i)),
+    );
+  };
 
-  const updateRealStock = (productId: string, realStock: number | undefined) => {
+  const updateRealStock = (
+    productId: string,
+    realStock: number | undefined,
+  ) => {
     setItems(
       items.map((i) => {
         if (i.productId === productId) {
           // Si realStock est undefined (champ vide), ne pas calculer de suggestion
           if (realStock === undefined) {
-            return { ...i, realStock: undefined }
+            return { ...i, realStock: undefined };
           }
           // Calculer automatiquement la quantité suggérée
           const suggestedQty = calculateOrderQuantity(
@@ -242,81 +271,96 @@ export default function NewOrderPage() {
             i.minStock,
             i.maxStock,
             i.packagingType,
-            i.unitsPerPackage
-          )
-          return { ...i, realStock, quantity: suggestedQty }
+            i.unitsPerPackage,
+          );
+          return { ...i, realStock, quantity: suggestedQty };
         }
-        return i
-      })
-    )
-  }
+        return i;
+      }),
+    );
+  };
 
   const calculateTotals = () => {
     // Only calculate for items with quantity > 0
-    const itemsWithQty = items.filter((item) => item.quantity > 0)
-    const totalHT = itemsWithQty.reduce((sum, item) => sum + item.quantity * item.unitPriceHT, 0)
+    const itemsWithQty = items.filter((item) => item.quantity > 0);
+    const totalHT = itemsWithQty.reduce((sum, item) => {
+      // If pack, multiply unitPrice by unitsPerPackage
+      const pricePerItem =
+        item.packagingType === "pack" && item.unitsPerPackage
+          ? item.unitPriceHT * item.unitsPerPackage
+          : item.unitPriceHT;
+      return sum + item.quantity * pricePerItem;
+    }, 0);
     // Calculate TTC using actual VAT rate of each product
     const totalTTC = itemsWithQty.reduce((sum, item) => {
-      const itemTotalHT = item.quantity * item.unitPriceHT
-      const itemTotalTTC = itemTotalHT * (1 + item.vatRate / 100)
-      return sum + itemTotalTTC
-    }, 0)
-    return { totalHT, totalTTC, itemsCount: itemsWithQty.length }
-  }
+      const pricePerItem =
+        item.packagingType === "pack" && item.unitsPerPackage
+          ? item.unitPriceHT * item.unitsPerPackage
+          : item.unitPriceHT;
+      const itemTotalHT = item.quantity * pricePerItem;
+      const itemTotalTTC = itemTotalHT * (1 + item.vatRate / 100);
+      return sum + itemTotalTTC;
+    }, 0);
+    return { totalHT, totalTTC, itemsCount: itemsWithQty.length };
+  };
 
-  const handleCreateProduct = async (data: ProductFormData): Promise<boolean> => {
-    const success = await createProduct(data)
+  const handleCreateProduct = async (
+    data: ProductFormData,
+  ): Promise<boolean> => {
+    const success = await createProduct(data);
     if (success) {
       // Reload products for the selected supplier
-      await fetchProducts(selectedSupplierId)
+      await fetchProducts(selectedSupplierId);
     }
-    return success
-  }
+    return success;
+  };
 
   const handleReactivateProduct = async (productId: string) => {
-    const success = await reactivateProduct(productId)
+    const success = await reactivateProduct(productId);
     if (success) {
       // Reload products for the selected supplier
-      await fetchProducts(selectedSupplierId)
-      setReactivateDialogOpen(false)
+      await fetchProducts(selectedSupplierId);
+      setReactivateDialogOpen(false);
     }
-  }
+  };
 
   const handleCreate = async () => {
     if (!selectedSupplierId) {
-      alert('Veuillez sélectionner un fournisseur')
-      return
+      alert("Veuillez sélectionner un fournisseur");
+      return;
     }
 
     // Filter items with quantity > 0
-    const itemsToOrder = items.filter((item) => item.quantity > 0)
+    const itemsToOrder = items.filter((item) => item.quantity > 0);
 
     if (itemsToOrder.length === 0) {
-      alert('Veuillez saisir au moins un produit avec une quantité > 0')
-      return
+      alert("Veuillez saisir au moins un produit avec une quantité > 0");
+      return;
     }
 
     // Convert to API format (only productId + quantity)
-    const orderItems: CreatePurchaseOrderItemData[] = itemsToOrder.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-    }))
+    const orderItems: CreatePurchaseOrderItemData[] = itemsToOrder.map(
+      (item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      }),
+    );
 
     const result = await createOrder({
       supplierId: selectedSupplierId,
       items: orderItems,
       notes,
-    })
+    });
 
     if (result.success && result.orderId) {
-      router.push(`/admin/inventory/orders/${result.orderId}`)
+      router.push(`/admin/inventory/orders/${result.orderId}`);
     } else {
-      alert(`Erreur: ${result.error || 'Erreur inconnue'}`)
+      alert(`Erreur: ${result.error || "Erreur inconnue"}`);
     }
-  }
+  };
 
-  const { totalHT, totalTTC, itemsCount } = calculateTotals()
-  const selectedSupplier = suppliers.find((s) => s._id === selectedSupplierId)
+  const { totalHT, totalTTC, itemsCount } = calculateTotals();
+  const selectedSupplier = suppliers.find((s) => s._id === selectedSupplierId);
 
   if (loadingSuppliers) {
     return (
@@ -324,7 +368,7 @@ export default function NewOrderPage() {
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-64 w-full" />
       </div>
-    )
+    );
   }
 
   return (
@@ -340,7 +384,7 @@ export default function NewOrderPage() {
         <Button
           variant="outline"
           className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
-          onClick={() => router.push('/admin/inventory/orders')}
+          onClick={() => router.push("/admin/inventory/orders")}
         >
           <Package className="mr-2 h-4 w-4" />
           Commandes
@@ -358,29 +402,35 @@ export default function NewOrderPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {suppliers.map((supplier) => {
-            const isSelected = selectedSupplierId === supplier._id
+            const isSelected = selectedSupplierId === supplier._id;
             return (
               <Card
                 key={supplier._id}
                 className={`cursor-pointer transition-all hover:shadow-md ${
                   isSelected
-                    ? 'bg-green-50 border-green-200 border-2 shadow-md'
-                    : 'hover:bg-muted/50'
+                    ? "bg-green-50 border-green-200 border-2 shadow-md"
+                    : "hover:bg-muted/50"
                 }`}
                 onClick={() => setSelectedSupplierId(supplier._id)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <Package className={`h-5 w-5 ${isSelected ? 'text-green-600' : 'text-muted-foreground'}`} />
+                    <Package
+                      className={`h-5 w-5 ${isSelected ? "text-green-600" : "text-muted-foreground"}`}
+                    />
                   </div>
                   <CardTitle className="text-lg">{supplier.name}</CardTitle>
                   <CardDescription className="text-xs space-y-1">
-                    <div><strong>Contact:</strong> {supplier.contact}</div>
-                    <div><strong>Tél:</strong> {supplier.phone}</div>
+                    <div>
+                      <strong>Contact:</strong> {supplier.contact}
+                    </div>
+                    <div>
+                      <strong>Tél:</strong> {supplier.phone}
+                    </div>
                   </CardDescription>
                 </CardHeader>
               </Card>
-            )
+            );
           })}
         </div>
       </div>
@@ -394,16 +444,16 @@ export default function NewOrderPage() {
                 <CardTitle>Produits</CardTitle>
                 <CardDescription>
                   {loadingProducts
-                    ? 'Chargement des produits...'
+                    ? "Chargement des produits..."
                     : `${items.length} produit(s) disponible(s) - Ajustez les quantités nécessaires`}
                 </CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 {inactiveProducts.length > 0 && (
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
+                    className="border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700 whitespace-nowrap"
                     onClick={() => setReactivateDialogOpen(true)}
                   >
                     <RefreshCw className="mr-2 h-4 w-4" />
@@ -413,7 +463,7 @@ export default function NewOrderPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+                  className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700 whitespace-nowrap"
                   onClick={() => setProductDialogOpen(true)}
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -431,8 +481,10 @@ export default function NewOrderPage() {
             ) : (
               <>
                 <div className="text-sm text-muted-foreground mb-2">
-                  💡 <strong>Astuce:</strong> Saisissez le stock réel pour calculer automatiquement la quantité à commander (selon min/max et conditionnement pack).
-                  Vous pouvez aussi saisir directement la quantité.
+                  💡 <strong>Astuce:</strong> Saisissez le stock réel pour
+                  calculer automatiquement la quantité à commander (selon
+                  min/max et conditionnement pack). Vous pouvez aussi saisir
+                  directement la quantité.
                 </div>
                 <OrderItemsTable
                   items={items}
@@ -486,15 +538,21 @@ export default function NewOrderPage() {
 
       {/* Actions */}
       {selectedSupplierId && (
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col sm:flex-row justify-end gap-2">
           <Button
             variant="outline"
-            onClick={() => router.push('/admin/inventory/orders')}
+            className="border-red-300 text-red-700 hover:border-red-500 hover:bg-red-50 hover:text-red-700"
+            onClick={() => router.push("/admin/inventory/orders")}
           >
             Annuler
           </Button>
-          <Button onClick={handleCreate} disabled={creating || itemsCount === 0}>
-            {creating ? 'Création...' : 'Créer la commande'}
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            onClick={handleCreate}
+            disabled={creating || itemsCount === 0}
+          >
+            {creating ? "Création..." : "Créer la commande"}
           </Button>
         </div>
       )}
@@ -508,7 +566,10 @@ export default function NewOrderPage() {
       />
 
       {/* Reactivate Product Dialog */}
-      <Dialog open={reactivateDialogOpen} onOpenChange={setReactivateDialogOpen}>
+      <Dialog
+        open={reactivateDialogOpen}
+        onOpenChange={setReactivateDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Réactiver un produit</DialogTitle>
@@ -528,7 +589,8 @@ export default function NewOrderPage() {
                     <div>
                       <CardTitle className="text-sm">{product.name}</CardTitle>
                       <CardDescription className="text-xs">
-                        {product.packagingType} - {product.unitPriceHT.toFixed(2)} €
+                        {product.packagingType} -{" "}
+                        {product.unitPriceHT.toFixed(2)} €
                       </CardDescription>
                     </div>
                     <Button
@@ -546,5 +608,5 @@ export default function NewOrderPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

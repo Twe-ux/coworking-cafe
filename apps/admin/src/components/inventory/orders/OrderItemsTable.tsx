@@ -40,7 +40,14 @@ export function OrderItemsTable({
   onQuantityChange,
   onRealStockChange,
 }: OrderItemsTableProps) {
-  const colSpan = editable ? (showStockInfo ? 6 : 6) : (showStockInfo ? 5 : 5)
+  // Calculate colspan based on mode
+  // editable + showStockInfo: 8 columns (Produit, Stock Réel, Commande prev, Sep, Commande, Prix, Total, Actions)
+  // editable + !showStockInfo: 6 columns (Produit, Quantité stock, Sep, Commande, Prix, Total, Actions) - NOT USED
+  // !editable + showStockInfo: 7 columns (Produit, Stock Réel, Commande prev, Sep, Commande, Prix, Total)
+  // !editable + !showStockInfo: 4 columns (Produit, Commande, Prix, Total) - READ-ONLY DETAIL MODE
+  const colSpan = editable
+    ? (showStockInfo ? 8 : 6)
+    : (showStockInfo ? 7 : 4)
 
   return (
     <div className="rounded-md border overflow-x-auto">
@@ -55,9 +62,14 @@ export function OrderItemsTable({
                 <TableHead className="border-l-2 border-muted"></TableHead>
               </>
             )}
-            {!showStockInfo && <TableHead className="text-center">Quantité</TableHead>}
-            <TableHead className="text-center">Commande réel</TableHead>
-            <TableHead className="text-right">Prix HT</TableHead>
+            {!showStockInfo && editable && (
+              <>
+                <TableHead className="text-center">Quantité en stock / Unité</TableHead>
+                <TableHead className="border-l-2 border-muted"></TableHead>
+              </>
+            )}
+            <TableHead className="text-center">Commande</TableHead>
+            <TableHead className="text-right">Prix HT / Unité</TableHead>
             <TableHead className="text-right">Total HT</TableHead>
             {editable && <TableHead className="w-[50px]"></TableHead>}
           </TableRow>
@@ -71,13 +83,19 @@ export function OrderItemsTable({
             </TableRow>
           ) : (
             items.map((item) => {
-              const total = item.quantity * item.unitPriceHT
+              // Calculate total: if pack, multiply by unitsPerPackage
+              const unitsPerPack = ('unitsPerPackage' in item ? item.unitsPerPackage : undefined) ?? 1
+              const pricePerItem = item.packagingType === 'pack'
+                ? item.unitPriceHT * unitsPerPack
+                : item.unitPriceHT
+              const total = item.quantity * pricePerItem
+
               // Show pack info if it's a pack type
-              const unitDisplay = item.packagingType === 'pack' && item.unitsPerPackage
-                ? `${item.packagingType}`
-                : item.packagingType
-              const packInfo = item.packagingType === 'pack' && item.unitsPerPackage
-                ? `(${item.unitsPerPackage}/pack)`
+              const unitDisplay = item.packagingType === 'pack'
+                ? 'pack'
+                : 'Unité(s)'
+              const packInfo = item.packagingType === 'pack' && unitsPerPack > 1
+                ? `(${unitsPerPack}/pack)`
                 : ''
               return (
                 <TableRow key={item.productId}>
@@ -91,7 +109,7 @@ export function OrderItemsTable({
                               type="number"
                               min="0"
                               step="0.1"
-                              value={item.realStock ?? ''}
+                              value={'realStock' in item ? item.realStock ?? '' : ''}
                               placeholder="Stock"
                               onChange={(e) => {
                                 const value = e.target.value
@@ -112,11 +130,11 @@ export function OrderItemsTable({
                                   onRealStockChange(item.productId, undefined)
                                 }
                               }}
-                              className="w-20 px-2 py-1 border rounded text-center font-mono"
+                              className="w-20 min-h-[44px] px-2 py-2 border rounded text-center font-mono touch-manipulation"
                             />
                           </div>
                         ) : (
-                          <span className="font-mono">{item.realStock ?? '-'}</span>
+                          <span className="font-mono">{'realStock' in item ? item.realStock ?? '-' : '-'}</span>
                         )}
                       </TableCell>
                       <TableCell className="text-center bg-blue-50">
@@ -147,7 +165,7 @@ export function OrderItemsTable({
                                   onQuantityChange(item.productId, 0)
                                 }
                               }}
-                              className="w-20 px-2 py-1 border rounded text-center font-mono"
+                              className="w-20 min-h-[44px] px-2 py-2 border rounded text-center font-mono touch-manipulation"
                             />
                           </div>
                         ) : (
@@ -157,27 +175,30 @@ export function OrderItemsTable({
                       <TableCell className="border-l-2 border-muted"></TableCell>
                     </>
                   )}
-                  {!showStockInfo && (
-                    <TableCell className="text-center font-mono">
-                      {editable && onQuantityChange ? (
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.1"
-                          value={item.quantity}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value)
-                            if (!isNaN(val) && val >= 0) {
-                              onQuantityChange(item.productId, val)
-                            }
-                          }}
-                          onFocus={(e) => e.target.select()}
-                          className="w-20 px-2 py-1 border rounded text-center"
-                        />
-                      ) : (
-                        item.quantity
-                      )}
-                    </TableCell>
+                  {!showStockInfo && editable && (
+                    <>
+                      <TableCell className="text-center font-mono">
+                        {onQuantityChange ? (
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value)
+                              if (!isNaN(val) && val >= 0) {
+                                onQuantityChange(item.productId, val)
+                              }
+                            }}
+                            onFocus={(e) => e.target.select()}
+                            className="w-20 px-2 py-1 border rounded text-center"
+                          />
+                        ) : (
+                          item.quantity
+                        )}
+                      </TableCell>
+                      <TableCell className="border-l-2 border-muted"></TableCell>
+                    </>
                   )}
                   <TableCell className="text-center">
                     {showStockInfo ? (
@@ -212,7 +233,7 @@ export function OrderItemsTable({
                     )}
                   </TableCell>
                   <TableCell className="text-right font-mono">
-                    {item.unitPriceHT.toFixed(2)} €
+                    {pricePerItem.toFixed(2)} €
                   </TableCell>
                   <TableCell className="text-right font-mono font-medium">
                     {total.toFixed(2)} €

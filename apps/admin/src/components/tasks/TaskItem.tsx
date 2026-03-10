@@ -50,6 +50,7 @@ export function TaskItem({
   const isCompleted = task.status === "completed";
   const borderColor = TASK_PRIORITY_COLORS[task.priority];
   const isRecurring = !!task.recurringTaskId;
+  const isHighPriority = task.priority === "high" && !isCompleted;
   const isDLCTask =
     task.metadata &&
     typeof task.metadata === "object" &&
@@ -121,10 +122,13 @@ export function TaskItem({
       className={cn(
         "border rounded-lg border-l-4 py-2.5 px-3 transition-all duration-300",
         borderColor,
+        isHighPriority && "bg-red-500 text-white",
         isCompleted && "opacity-60",
         isToggling && "opacity-50",
-        isDLCClickable && "hover:bg-amber-50 cursor-pointer",
-        !isDLCClickable && "hover:bg-green-50",
+        isDLCClickable && !isHighPriority && "hover:bg-amber-50 cursor-pointer",
+        isDLCClickable && isHighPriority && "hover:bg-red-600 cursor-pointer",
+        !isDLCClickable && !isHighPriority && "hover:bg-green-50",
+        !isDLCClickable && isHighPriority && "hover:bg-red-600",
       )}
       onClick={() => {
         if (isDLCClickable) {
@@ -136,13 +140,13 @@ export function TaskItem({
         {/* Checkbox */}
         <div className="pt-0.5 relative">
           {isToggling ? (
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <Loader2 className={cn("h-5 w-5 animate-spin", isHighPriority ? "text-white" : "text-primary")} />
           ) : (
             <Checkbox
               checked={isCompleted}
               onCheckedChange={handleToggle}
               disabled={isToggling}
-              className="h-5 w-5"
+              className={cn("h-5 w-5", isHighPriority && "border-white data-[state=checked]:bg-white data-[state=checked]:text-red-500")}
             />
           )}
         </div>
@@ -152,7 +156,7 @@ export function TaskItem({
           <div className="flex flex-row gap-3 items-center min-w-0 flex-1">
             {/* Recurring badge */}
             {isRecurring && (
-              <Repeat className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <Repeat className={cn("w-3.5 h-3.5 shrink-0", isHighPriority ? "text-white" : "text-blue-500")} />
             )}
 
             {/* Title */}
@@ -174,7 +178,9 @@ export function TaskItem({
                       className={cn(
                         "font-medium text-sm truncate",
                         isCompleted && "line-through text-gray-500",
-                        canEdit && !isCompleted && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
+                        isHighPriority && "text-white",
+                        canEdit && !isCompleted && !isHighPriority && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
+                        canEdit && !isCompleted && isHighPriority && "cursor-pointer hover:bg-red-600 rounded px-1 -mx-1",
                       )}
                       onClick={() => startEdit("title")}
                     >
@@ -205,8 +211,10 @@ export function TaskItem({
                   <TooltipTrigger asChild>
                     <span
                       className={cn(
-                        "text-xs text-gray-600 truncate",
-                        canEdit && !isCompleted && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
+                        "text-xs truncate",
+                        isHighPriority ? "text-white opacity-90" : "text-gray-600",
+                        canEdit && !isCompleted && !isHighPriority && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
+                        canEdit && !isCompleted && isHighPriority && "cursor-pointer hover:bg-red-600 rounded px-1 -mx-1",
                       )}
                       onClick={() => startEdit("description")}
                     >
@@ -221,9 +229,11 @@ export function TaskItem({
             ) : (
               <span
                 className={cn(
-                  "text-xs text-gray-600 truncate",
-                  canEdit && !isCompleted && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
-                  !task.description && canEdit && !isCompleted && "text-gray-400 italic",
+                  "text-xs truncate",
+                  isHighPriority ? "text-white opacity-70" : "text-gray-600",
+                  canEdit && !isCompleted && !isHighPriority && "cursor-pointer hover:bg-blue-50 rounded px-1 -mx-1",
+                  canEdit && !isCompleted && isHighPriority && "cursor-pointer hover:bg-red-600 rounded px-1 -mx-1",
+                  !task.description && canEdit && !isCompleted && !isHighPriority && "text-gray-400 italic",
                 )}
                 onClick={() => startEdit("description")}
               >
@@ -253,7 +263,8 @@ export function TaskItem({
               <button
                 className={cn(
                   "flex items-center gap-1 text-xs px-1.5 py-0.5 rounded",
-                  canEdit && !isCompleted && "cursor-pointer hover:bg-blue-50",
+                  canEdit && !isCompleted && !isHighPriority && "cursor-pointer hover:bg-blue-50",
+                  canEdit && !isCompleted && isHighPriority && "cursor-pointer hover:bg-red-600",
                 )}
                 onClick={() => startEdit("priority")}
                 disabled={!canEdit || isCompleted}
@@ -261,12 +272,13 @@ export function TaskItem({
                 <span
                   className={cn(
                     "w-2 h-2 rounded-full",
-                    task.priority === "high" && "bg-red-500",
+                    task.priority === "high" && isHighPriority && "bg-white",
+                    task.priority === "high" && !isHighPriority && "bg-red-500",
                     task.priority === "medium" && "bg-orange-500",
                     task.priority === "low" && "bg-green-500",
                   )}
                 />
-                <span className="text-gray-500 hidden sm:inline">
+                <span className={cn("hidden sm:inline", isHighPriority ? "text-white" : "text-gray-500")}>
                   {TASK_PRIORITY_LABELS[task.priority]}
                 </span>
               </button>
@@ -288,8 +300,10 @@ export function TaskItem({
             ) : task.dueDate ? (
               <div
                 className={cn(
-                  "flex items-center gap-1 text-xs text-gray-500",
-                  canEdit && !isCompleted && "cursor-pointer hover:bg-blue-50 rounded px-1",
+                  "flex items-center gap-1 text-xs",
+                  isHighPriority ? "text-white opacity-90" : "text-gray-500",
+                  canEdit && !isCompleted && !isHighPriority && "cursor-pointer hover:bg-blue-50 rounded px-1",
+                  canEdit && !isCompleted && isHighPriority && "cursor-pointer hover:bg-red-600 rounded px-1",
                 )}
                 onClick={() => startEdit("dueDate")}
               >
@@ -298,7 +312,10 @@ export function TaskItem({
               </div>
             ) : canEdit && !isCompleted ? (
               <button
-                className="flex items-center gap-1 text-xs text-gray-400 hover:bg-blue-50 rounded px-1"
+                className={cn(
+                  "flex items-center gap-1 text-xs rounded px-1",
+                  isHighPriority ? "text-white opacity-70 hover:bg-red-600" : "text-gray-400 hover:bg-blue-50",
+                )}
                 onClick={() => startEdit("dueDate")}
               >
                 <Calendar className="w-3 h-3" />

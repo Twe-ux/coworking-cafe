@@ -37,22 +37,13 @@ const STATUS_CARDS = [
     borderColor: 'border-orange-200',
   },
   {
-    value: 'validated' as OrderStatus,
-    label: 'Validées',
-    description: 'Prêtes à envoyer',
-    icon: CheckCircle2,
+    value: 'sent' as OrderStatus,
+    label: 'Envoyées',
+    description: 'Validées et envoyées',
+    icon: Send,
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
     borderColor: 'border-blue-200',
-  },
-  {
-    value: 'sent' as OrderStatus,
-    label: 'Envoyées',
-    description: 'En cours de livraison',
-    icon: Send,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-200',
   },
   {
     value: 'received' as OrderStatus,
@@ -73,7 +64,14 @@ export default function OrdersPage() {
   const { orders: allOrders, loading } = useOrders({})
 
   // Filter orders by selected status
-  const orders = allOrders.filter((order) => order.status === statusFilter)
+  // Note: 'validated' orders are shown in 'sent' category (legacy support)
+  const orders = allOrders.filter((order) => {
+    if (statusFilter === 'sent') {
+      // Show both 'sent' and 'validated' in "Envoyées" category
+      return order.status === 'sent' || order.status === 'validated'
+    }
+    return order.status === statusFilter
+  })
 
   const selectedCard = STATUS_CARDS.find((c) => c.value === statusFilter)
 
@@ -112,7 +110,10 @@ export default function OrdersPage() {
         {STATUS_CARDS.map((card) => {
           const Icon = card.icon
           const isSelected = statusFilter === card.value
-          const count = allOrders.filter((o) => o.status === card.value).length
+          // Count orders: 'sent' card includes both 'sent' and 'validated' (legacy)
+          const count = card.value === 'sent'
+            ? allOrders.filter((o) => o.status === 'sent' || o.status === 'validated').length
+            : allOrders.filter((o) => o.status === card.value).length
           const isDraftCard = card.value === 'draft'
           const showRedBadge = isDraftCard && count > 0
 

@@ -113,8 +113,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     await order.save()
 
     // Transform for response
+    const orderObj = order.toObject()
     const transformed = {
-      ...order.toObject(),
+      ...orderObj,
       _id: order._id.toString(),
       supplierId: order.supplierId.toString(),
       validatedAt: order.validatedAt?.toISOString().split('T')[0],
@@ -122,8 +123,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       receivedAt: order.receivedAt?.toISOString().split('T')[0],
       createdAt: order.createdAt?.toISOString().split('T')[0],
       updatedAt: order.updatedAt?.toISOString().split('T')[0],
-      items: order.items.map((item) => ({
-        ...item.toObject(),
+      items: orderObj.items.map((item) => ({
+        ...item,
         productId: item.productId.toString(),
       })),
     }
