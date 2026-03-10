@@ -175,7 +175,7 @@ export function Sidebar({
       <aside
         ref={sidebarRef}
         className={cn(
-          "bg-sidebar text-sidebar-foreground group/sidebar flex shrink-0 flex-col transition-all duration-300 ease-in-out z-40",
+          "bg-sidebar text-sidebar-foreground group/sidebar flex shrink-0 flex-col transition-all duration-300 ease-in-out z-40 overflow-hidden",
           // Width and height based on state, collapsible setting, and mobile
           state === "collapsed" && collapsible === "icon"
             ? isMobile
@@ -208,7 +208,9 @@ export function Sidebar({
         aria-label="Navigation principale"
         {...props}
       >
-        {children}
+        <div className="flex flex-col h-full overflow-y-auto">
+          {children}
+        </div>
       </aside>
     </>
   );
