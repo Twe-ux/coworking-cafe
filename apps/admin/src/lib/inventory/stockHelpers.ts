@@ -100,6 +100,8 @@ export function calculateOrderSuggestion(
   const packsNeeded = Math.ceil(unitsNeeded / unitsPerPackage)
   const unitsOrdered = packsNeeded * unitsPerPackage
 
+  console.log(`[calculateOrderSuggestion] current=${currentStock}, min=${minInUnits}, max=${maxInUnits}, unitsNeeded=${unitsNeeded}, unitsPerPack=${unitsPerPackage}, packsNeeded=${packsNeeded}`)
+
   return {
     needsOrder: true,
     suggestedPacks: packsNeeded,

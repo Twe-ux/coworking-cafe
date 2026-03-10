@@ -245,6 +245,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
                   vatRate: product.vatRate,
                   totalHT: Math.round(itemHT * 100) / 100,
                   totalTTC: Math.round(itemTTC * 100) / 100,
+                  unitsPerPackage: product.unitsPerPackage || 1,
                 }
               })
             )

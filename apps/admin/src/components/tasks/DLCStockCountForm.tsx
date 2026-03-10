@@ -23,6 +23,8 @@ interface StockEntry {
   minStock: number
   maxStock: number
   packageUnit?: string
+  packagingType: string
+  unitsPerPackage: number
 }
 
 export function DLCStockCountForm({
@@ -68,6 +70,8 @@ export function DLCStockCountForm({
           minStock: p.minStock,
           maxStock: p.maxStock,
           packageUnit: p.packageUnit,
+          packagingType: p.packagingType || 'unit',
+          unitsPerPackage: p.unitsPerPackage || 1,
         }))
         setProducts(entries)
       } else {
@@ -92,10 +96,22 @@ export function DLCStockCountForm({
   }
 
   const calculateOrderSuggestion = (entry: StockEntry) => {
-    if (entry.countedStock < entry.minStock) {
-      return entry.maxStock - entry.countedStock
+    // If stock is above minimum, no need to order
+    if (entry.countedStock >= entry.minStock) {
+      return 0
     }
-    return 0
+
+    // Calculate need in units
+    const need = entry.maxStock - entry.countedStock
+
+    // If ordering in packs, round up to next pack
+    if (entry.packagingType === 'pack' && entry.unitsPerPackage > 1) {
+      const packs = Math.ceil(need / entry.unitsPerPackage)
+      return packs
+    }
+
+    // Otherwise return need in units
+    return need
   }
 
   const handleSubmit = async () => {
@@ -184,8 +200,8 @@ export function DLCStockCountForm({
                       variant="outline"
                       className="mt-2 border-orange-500 bg-orange-50 text-orange-700"
                     >
-                      Suggestion : Commander {suggestion.toFixed(1)}{' '}
-                      {entry.packageUnit || 'unités'}
+                      Suggestion : Commander {suggestion.toFixed(0)}{' '}
+                      {entry.packagingType === 'pack' ? 'pack(s)' : entry.packageUnit || 'unités'}
                     </Badge>
                   )}
                 </div>

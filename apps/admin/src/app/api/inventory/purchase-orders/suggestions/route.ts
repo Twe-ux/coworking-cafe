@@ -58,12 +58,12 @@ export async function GET(request: NextRequest) {
       const packagingType = (p.packagingType || 'unit') as PackagingType
       const unitsPerPackage = p.unitsPerPackage || 1
 
-      // Stocks are always in units now
+      // All stocks (current, min, max) are stored in units
       const suggestion = calculateOrderSuggestion(
         p.currentStock,
         p.minStock,
         p.maxStock,
-        'unit',
+        'unit', // Stocks are always in units
         unitsPerPackage
       )
 
