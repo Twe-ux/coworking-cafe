@@ -17,9 +17,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DatePicker } from "@/components/ui/date-picker";
+import { ProductDialog } from "@/components/inventory/products/ProductDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useProducts } from "@/hooks/inventory/useProducts";
 import type {
   Product,
+  ProductFormData,
   APIResponse,
   CreateDirectPurchaseData,
   CreateDirectPurchaseItemData,
@@ -44,6 +47,7 @@ export function DirectPurchaseForm({
 }: DirectPurchaseFormProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { createProduct } = useProducts({});
 
   const [date, setDate] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -52,6 +56,7 @@ export function DirectPurchaseForm({
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [productDialogOpen, setProductDialogOpen] = useState(false);
 
   // Set default date to today
   useEffect(() => {
@@ -63,26 +68,38 @@ export function DirectPurchaseForm({
   }, []);
 
   // Fetch products for selected supplier
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(
-          `/api/inventory/products?supplierId=${supplierId}&active=true`
-        );
-        const data = (await res.json()) as APIResponse<Product[]>;
-        if (data.success && data.data) {
-          setProducts(data.data);
-        }
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoadingProducts(false);
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const res = await fetch(
+        `/api/inventory/products?supplierId=${supplierId}&active=true`
+      );
+      const data = (await res.json()) as APIResponse<Product[]>;
+      if (data.success && data.data) {
+        setProducts(data.data);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  useEffect(() => {
     if (supplierId) {
       fetchProducts();
     }
   }, [supplierId]);
+
+  const handleCreateProduct = async (
+    data: ProductFormData
+  ): Promise<boolean> => {
+    const success = await createProduct(data);
+    if (success) {
+      await fetchProducts();
+    }
+    return success;
+  };
 
   const addItem = (productId: string) => {
     if (!productId) return;
@@ -214,6 +231,15 @@ export function DirectPurchaseForm({
         <CardHeader>
           <div className="flex justify-between items-start">
             <CardTitle>Produits</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+              onClick={() => setProductDialogOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nouveau produit
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -388,6 +414,14 @@ export function DirectPurchaseForm({
           )}
         </Button>
       </div>
+
+      {/* Product Creation Dialog */}
+      <ProductDialog
+        open={productDialogOpen}
+        onClose={() => setProductDialogOpen(false)}
+        onSubmit={handleCreateProduct}
+        mode="create"
+      />
     </div>
   );
 }
