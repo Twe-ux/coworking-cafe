@@ -326,18 +326,26 @@ export default function OrderDetailClient({ id }: { id: string }) {
               const priceDiff = ((currentPrice - originalPrice) / originalPrice) * 100
               const hasPriceChange = Math.abs(priceDiff) > 0.01
 
+              const isPack = item.packagingType === 'pack'
+              const priceLabel = isPack ? 'Prix par pack HT (€)' : 'Prix unitaire HT (€)'
+              const packInfo = isPack && item.unitsPerPackage
+                ? ` (${item.unitsPerPackage} unités/pack)`
+                : ''
+
               return (
                 <div key={item.productId} className="border rounded-lg p-4 space-y-3">
                   <div>
                     <p className="font-medium">{item.productName}</p>
                     <p className="text-sm text-muted-foreground">
-                      Commandé: {item.quantity} {item.packagingType === 'pack' ? 'pack(s)' : 'unité(s)'}
+                      Commandé: {item.quantity} {isPack ? 'pack(s)' : 'unité(s)'}{packInfo}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor={`received-qty-${item.productId}`}>Quantité reçue</Label>
+                      <Label htmlFor={`received-qty-${item.productId}`}>
+                        Quantité reçue {isPack ? '(packs)' : '(unités)'}
+                      </Label>
                       <Input
                         id={`received-qty-${item.productId}`}
                         type="number"
@@ -360,7 +368,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
 
                     <div>
                       <Label htmlFor={`received-price-${item.productId}`}>
-                        Prix unitaire HT (€)
+                        {priceLabel}
                         {hasPriceChange && (
                           <span className={`ml-2 text-xs ${priceDiff > 0 ? 'text-red-600' : 'text-green-600'}`}>
                             {priceDiff > 0 ? '+' : ''}{priceDiff.toFixed(1)}%
@@ -387,7 +395,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
                       />
                       {hasPriceChange && (
                         <p className="text-xs text-orange-600 mt-1">
-                          Prix commandé: {originalPrice.toFixed(2)} €
+                          {isPack ? 'Prix pack' : 'Prix'} commandé: {originalPrice.toFixed(2)} €
                         </p>
                       )}
                     </div>
