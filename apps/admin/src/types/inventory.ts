@@ -243,6 +243,7 @@ export interface UpdatePurchaseOrderData {
 export interface ReceiveOrderItemData {
   productId: string
   receivedQty: number
+  receivedPrice?: number // Prix unitaire HT reçu (peut différer du prix commandé)
 }
 
 export interface ReceiveOrderData {

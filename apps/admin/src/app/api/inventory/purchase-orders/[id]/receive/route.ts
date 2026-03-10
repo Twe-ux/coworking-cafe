@@ -71,11 +71,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           throw new Error(`Product ${item.productId} not found`)
         }
 
+        // Use receivedPrice if provided, otherwise use orderItem price
+        const receivedUnitPriceHT = item.receivedPrice ?? orderItem.unitPriceHT
+        const priceChanged = item.receivedPrice && Math.abs(item.receivedPrice - orderItem.unitPriceHT) > 0.01
+
         // Calculate unit price considering packaging (same logic as order creation)
         const unitPriceHT =
           product.packagingType === 'pack' && product.unitsPerPackage
-            ? orderItem.unitPriceHT * product.unitsPerPackage
-            : orderItem.unitPriceHT
+            ? receivedUnitPriceHT * product.unitsPerPackage
+            : receivedUnitPriceHT
 
         const totalValue = item.receivedQty * unitPriceHT
 
@@ -84,6 +88,16 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           product.packagingType === 'pack' && product.unitsPerPackage
             ? item.receivedQty * product.unitsPerPackage
             : item.receivedQty
+
+        // Update Product.unitPriceHT if received price is different
+        if (priceChanged) {
+          await Product.findByIdAndUpdate(item.productId, {
+            unitPriceHT: receivedUnitPriceHT,
+          })
+          console.log(
+            `[Receive Order] Updated price for ${productName}: ${orderItem.unitPriceHT} → ${receivedUnitPriceHT} EUR HT`
+          )
+        }
 
         // Create StockMovement record (in units)
         await StockMovement.create({
@@ -97,6 +111,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           notes: `Reception ${order.orderNumber} - ${productName}${
             product.packagingType === 'pack' && product.unitsPerPackage
               ? ` (${item.receivedQty} pack(s) × ${product.unitsPerPackage} unités)`
+              : ''
+          }${
+            priceChanged
+              ? ` - Prix mis à jour: ${orderItem.unitPriceHT.toFixed(2)} → ${receivedUnitPriceHT.toFixed(2)} EUR HT`
               : ''
           }`,
           createdBy: userId,

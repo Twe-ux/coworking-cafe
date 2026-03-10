@@ -43,6 +43,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
   const [validateDialogOpen, setValidateDialogOpen] = useState(false)
   const [receiveDialogOpen, setReceiveDialogOpen] = useState(false)
   const [receivedQuantities, setReceivedQuantities] = useState<Record<string, number>>({})
+  const [receivedPrices, setReceivedPrices] = useState<Record<string, number>>({})
   const [validating2, setValidating2] = useState(false)
 
   const handleDelete = async () => {
@@ -89,10 +90,13 @@ export default function OrderDetailClient({ id }: { id: string }) {
   const openReceiveDialog = () => {
     if (!order) return
     const quantities: Record<string, number> = {}
+    const prices: Record<string, number> = {}
     order.items.forEach((item) => {
       quantities[item.productId] = item.quantity
+      prices[item.productId] = item.unitPriceHT
     })
     setReceivedQuantities(quantities)
+    setReceivedPrices(prices)
     setReceiveDialogOpen(true)
   }
 
@@ -102,6 +106,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
     const items = order.items.map((item) => ({
       productId: item.productId,
       receivedQty: receivedQuantities[item.productId] ?? item.quantity,
+      receivedPrice: receivedPrices[item.productId] ?? item.unitPriceHT,
     }))
 
     const success = await fetch(`/api/inventory/purchase-orders/${id}/receive`, {
@@ -310,43 +315,94 @@ export default function OrderDetailClient({ id }: { id: string }) {
 
       {/* Receive Dialog */}
       <Dialog open={receiveDialogOpen} onOpenChange={setReceiveDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Réceptionner la commande</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            {order.items.map((item) => (
-              <div key={item.productId} className="flex items-center justify-between gap-4 border-b pb-4">
-                <div className="flex-1">
-                  <p className="font-medium">{item.productName}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Commandé: {item.quantity} {item.packagingType === 'pack' ? 'pack(s)' : 'unité(s)'}
-                  </p>
+            {order.items.map((item) => {
+              const currentPrice = receivedPrices[item.productId] ?? item.unitPriceHT
+              const originalPrice = item.unitPriceHT
+              const priceDiff = ((currentPrice - originalPrice) / originalPrice) * 100
+              const hasPriceChange = Math.abs(priceDiff) > 0.01
+
+              return (
+                <div key={item.productId} className="border rounded-lg p-4 space-y-3">
+                  <div>
+                    <p className="font-medium">{item.productName}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Commandé: {item.quantity} {item.packagingType === 'pack' ? 'pack(s)' : 'unité(s)'}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor={`received-qty-${item.productId}`}>Quantité reçue</Label>
+                      <Input
+                        id={`received-qty-${item.productId}`}
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={receivedQuantities[item.productId] ?? item.quantity}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value)
+                          if (!isNaN(val) && val >= 0) {
+                            setReceivedQuantities({
+                              ...receivedQuantities,
+                              [item.productId]: val,
+                            })
+                          }
+                        }}
+                        onFocus={(e) => e.target.select()}
+                        className="font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor={`received-price-${item.productId}`}>
+                        Prix unitaire HT (€)
+                        {hasPriceChange && (
+                          <span className={`ml-2 text-xs ${priceDiff > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {priceDiff > 0 ? '+' : ''}{priceDiff.toFixed(1)}%
+                          </span>
+                        )}
+                      </Label>
+                      <Input
+                        id={`received-price-${item.productId}`}
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={currentPrice}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value)
+                          if (!isNaN(val) && val >= 0) {
+                            setReceivedPrices({
+                              ...receivedPrices,
+                              [item.productId]: val,
+                            })
+                          }
+                        }}
+                        onFocus={(e) => e.target.select()}
+                        className={`font-mono ${hasPriceChange ? 'border-orange-400 bg-orange-50' : ''}`}
+                      />
+                      {hasPriceChange && (
+                        <p className="text-xs text-orange-600 mt-1">
+                          Prix commandé: {originalPrice.toFixed(2)} €
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="w-32">
-                  <Label htmlFor={`received-${item.productId}`}>Reçu</Label>
-                  <Input
-                    id={`received-${item.productId}`}
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={receivedQuantities[item.productId] ?? item.quantity}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value)
-                      if (!isNaN(val) && val >= 0) {
-                        setReceivedQuantities({
-                          ...receivedQuantities,
-                          [item.productId]: val,
-                        })
-                      }
-                    }}
-                    onFocus={(e) => e.target.select()}
-                    className="text-center font-mono"
-                  />
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-800">
+              💡 <strong>Info:</strong> Si le prix est modifié, il sera mis à jour dans la fiche produit pour les futures commandes.
+            </p>
+          </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setReceiveDialogOpen(false)} disabled={receiving}>
               Annuler
