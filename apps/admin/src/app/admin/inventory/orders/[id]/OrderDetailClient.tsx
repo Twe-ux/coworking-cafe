@@ -93,7 +93,11 @@ export default function OrderDetailClient({ id }: { id: string }) {
     const prices: Record<string, number> = {}
     order.items.forEach((item) => {
       quantities[item.productId] = item.quantity
-      prices[item.productId] = item.unitPriceHT
+      // Calculate displayed price: if pack, multiply by unitsPerPackage
+      const displayPrice = item.packagingType === 'pack' && item.unitsPerPackage
+        ? item.unitPriceHT * item.unitsPerPackage
+        : item.unitPriceHT
+      prices[item.productId] = displayPrice
     })
     setReceivedQuantities(quantities)
     setReceivedPrices(prices)
@@ -103,11 +107,24 @@ export default function OrderDetailClient({ id }: { id: string }) {
   const handleReceive = async () => {
     if (!order) return
 
-    const items = order.items.map((item) => ({
-      productId: item.productId,
-      receivedQty: receivedQuantities[item.productId] ?? item.quantity,
-      receivedPrice: receivedPrices[item.productId] ?? item.unitPriceHT,
-    }))
+    const items = order.items.map((item) => {
+      const displayedPrice = receivedPrices[item.productId] ?? (
+        item.packagingType === 'pack' && item.unitsPerPackage
+          ? item.unitPriceHT * item.unitsPerPackage
+          : item.unitPriceHT
+      )
+
+      // Convert back to unit price for API: if pack, divide by unitsPerPackage
+      const unitPrice = item.packagingType === 'pack' && item.unitsPerPackage
+        ? displayedPrice / item.unitsPerPackage
+        : displayedPrice
+
+      return {
+        productId: item.productId,
+        receivedQty: receivedQuantities[item.productId] ?? item.quantity,
+        receivedPrice: unitPrice,
+      }
+    })
 
     const success = await fetch(`/api/inventory/purchase-orders/${id}/receive`, {
       method: 'POST',
@@ -321,12 +338,17 @@ export default function OrderDetailClient({ id }: { id: string }) {
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             {order.items.map((item) => {
-              const currentPrice = receivedPrices[item.productId] ?? item.unitPriceHT
-              const originalPrice = item.unitPriceHT
-              const priceDiff = ((currentPrice - originalPrice) / originalPrice) * 100
+              const isPack = item.packagingType === 'pack'
+
+              // Calculate displayed prices (pack price if applicable)
+              const originalDisplayPrice = isPack && item.unitsPerPackage
+                ? item.unitPriceHT * item.unitsPerPackage
+                : item.unitPriceHT
+
+              const currentPrice = receivedPrices[item.productId] ?? originalDisplayPrice
+              const priceDiff = ((currentPrice - originalDisplayPrice) / originalDisplayPrice) * 100
               const hasPriceChange = Math.abs(priceDiff) > 0.01
 
-              const isPack = item.packagingType === 'pack'
               const priceLabel = isPack ? 'Prix par pack HT (€)' : 'Prix unitaire HT (€)'
               const packInfo = isPack && item.unitsPerPackage
                 ? ` (${item.unitsPerPackage} unités/pack)`
@@ -395,7 +417,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
                       />
                       {hasPriceChange && (
                         <p className="text-xs text-orange-600 mt-1">
-                          {isPack ? 'Prix pack' : 'Prix'} commandé: {originalPrice.toFixed(2)} €
+                          {isPack ? 'Prix pack' : 'Prix'} commandé: {originalDisplayPrice.toFixed(2)} €
                         </p>
                       )}
                     </div>
