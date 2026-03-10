@@ -111,20 +111,33 @@ export async function POST(request: NextRequest) {
           (p) => p._id.toString() === item.productId
         )
         const unitPriceHT = product?.unitPriceHT || 0
-        const quantity = item.orderSuggestion
-        const totalHT = unitPriceHT * quantity
+        const packagingType = product?.packagingType || 'unit'
+        const unitsPerPackage = product?.unitsPerPackage || 1
+
+        // Convert orderSuggestion (in units) to packs if needed
+        const quantityInPacks = packagingType === 'pack' && unitsPerPackage > 1
+          ? Math.ceil(item.orderSuggestion / unitsPerPackage)
+          : item.orderSuggestion
+
+        // Calculate price per item (pack or unit)
+        const pricePerItem = packagingType === 'pack' && unitsPerPackage > 1
+          ? unitPriceHT * unitsPerPackage
+          : unitPriceHT
+
+        const totalHT = pricePerItem * quantityInPacks
         const vatRate = product?.vatRate || 5.5
         const totalTTC = totalHT * (1 + vatRate / 100)
 
         return {
           productId: item.productId,
           productName: product?.name || 'Unknown',
-          quantity,
-          packagingType: product?.packagingType || 'unit',
+          quantity: quantityInPacks,
+          packagingType,
           unitPriceHT,
           totalHT,
           vatRate,
           totalTTC,
+          unitsPerPackage,
         }
       })
 
