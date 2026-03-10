@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatStock } from "@/lib/inventory/stockHelpers";
 import type { Product } from "@/types/inventory";
-import { Edit, RefreshCw, Trash2, Bell } from "lucide-react";
+import { AlertTriangle, Edit, RefreshCw, Trash2, Bell } from "lucide-react";
 import { LowStockBadge } from "./LowStockBadge";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -38,6 +38,7 @@ interface ProductCardProps {
   onEdit: (product: Product) => void;
   onDeactivate: (product: Product) => void;
   onReactivate: (id: string) => Promise<boolean>;
+  onDeclareLoss?: (product: Product) => void;
 }
 
 export function ProductCard({
@@ -45,6 +46,7 @@ export function ProductCard({
   onEdit,
   onDeactivate,
   onReactivate,
+  onDeclareLoss,
 }: ProductCardProps) {
   // Display stock with appropriate unit label
   const stockDisplay = formatStock(product.currentStock, product.packageUnit);
@@ -163,6 +165,17 @@ export function ProductCard({
         >
           <Edit className="h-4 w-4" />
         </Button>
+        {onDeclareLoss && product.isActive && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+            onClick={() => onDeclareLoss(product)}
+            title="Declarer une perte"
+          >
+            <AlertTriangle className="h-4 w-4" />
+          </Button>
+        )}
         {product.isActive ? (
           <Button
             variant="outline"

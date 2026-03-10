@@ -1,6 +1,6 @@
 import { Schema, Document, Types } from 'mongoose'
 
-export type MovementType = 'inventory_adjustment' | 'purchase_reception' | 'manual'
+export type MovementType = 'inventory_adjustment' | 'purchase_reception' | 'manual' | 'loss' | 'direct_purchase'
 
 /** Document of a StockMovement, as stored in the database. */
 export interface StockMovementDocument extends Document {
@@ -26,7 +26,7 @@ export const StockMovementSchema = new Schema<StockMovementDocument>(
     },
     type: {
       type: String,
-      enum: ['inventory_adjustment', 'purchase_reception', 'manual'],
+      enum: ['inventory_adjustment', 'purchase_reception', 'manual', 'loss', 'direct_purchase'],
       required: [true, 'Movement type is required'],
     },
     quantity: {

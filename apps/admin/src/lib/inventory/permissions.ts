@@ -25,6 +25,13 @@ export const INVENTORY_PERMISSIONS = {
   viewMovements: ['dev', 'admin', 'staff'],
   createMovement: ['dev', 'admin', 'staff'],
 
+  // Losses
+  declareLoss: ['dev', 'admin'],
+
+  // Direct Purchases
+  viewDirectPurchases: ['dev', 'admin', 'staff'],
+  createDirectPurchase: ['dev', 'admin'],
+
   // Purchase Orders
   viewOrders: ['dev', 'admin', 'staff'],
   createOrderDraft: ['dev', 'admin', 'staff'],

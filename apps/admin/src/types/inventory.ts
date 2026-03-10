@@ -142,7 +142,7 @@ export interface UpdateInventoryItemsData {
 // Stock Movement (Mouvement)
 // ----------------------------------------------------------------------------
 
-export type MovementType = "inventory_adjustment" | "purchase_reception" | "manual"
+export type MovementType = "inventory_adjustment" | "purchase_reception" | "manual" | "loss" | "direct_purchase"
 
 export interface StockMovement {
   _id: string
@@ -157,6 +157,33 @@ export interface StockMovement {
   notes?: string
   createdBy: string
   createdAt: string
+}
+
+// ----------------------------------------------------------------------------
+// Product Loss (Perte)
+// ----------------------------------------------------------------------------
+
+export type LossReason = "expiration" | "damage" | "theft" | "error" | "other"
+
+export interface ProductLoss {
+  _id: string
+  productId: string
+  productName: string
+  quantity: number
+  reason: LossReason
+  notes?: string
+  unitPriceHT: number
+  totalValue: number
+  date: string
+  createdBy: string
+  createdAt: string
+}
+
+export interface CreateProductLossData {
+  quantity: number
+  reason: LossReason
+  notes?: string
+  date: string
 }
 
 // ----------------------------------------------------------------------------
@@ -243,6 +270,51 @@ export interface OrderSuggestionsResponse {
   supplierId: string
   suggestions: OrderSuggestion[]
   total: number
+}
+
+// ----------------------------------------------------------------------------
+// Direct Purchase (Achat Direct)
+// ----------------------------------------------------------------------------
+
+export interface DirectPurchaseItem {
+  productId: string
+  productName: string
+  quantity: number
+  packagingType: PackagingType
+  unitPriceHT: number
+  totalHT: number
+  vatRate: number
+  totalTTC: number
+  unitsPerPackage?: number
+}
+
+export interface DirectPurchase {
+  _id: string
+  purchaseNumber: string
+  supplier: string
+  items: DirectPurchaseItem[]
+  totalHT: number
+  totalTTC: number
+  date: string
+  invoiceNumber?: string
+  notes?: string
+  createdBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateDirectPurchaseItemData {
+  productId: string
+  quantity: number
+  unitPriceHT: number
+}
+
+export interface CreateDirectPurchaseData {
+  supplier: string
+  items: CreateDirectPurchaseItemData[]
+  date: string
+  invoiceNumber?: string
+  notes?: string
 }
 
 // ----------------------------------------------------------------------------

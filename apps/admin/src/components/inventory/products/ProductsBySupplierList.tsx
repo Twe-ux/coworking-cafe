@@ -37,6 +37,7 @@ interface ProductsBySupplierListProps {
   onEdit: (product: Product) => void;
   onDeactivate: (product: Product) => void;
   onReactivate: (id: string) => Promise<boolean>;
+  onDeclareLoss?: (product: Product) => void;
   onReorder?: (reorderedGroups: SupplierGroup[]) => void;
 }
 
@@ -104,6 +105,7 @@ export function ProductsBySupplierList({
   onEdit,
   onDeactivate,
   onReactivate,
+  onDeclareLoss,
   onReorder,
 }: ProductsBySupplierListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -159,6 +161,7 @@ export function ProductsBySupplierList({
           onEdit={onEdit}
           onDeactivate={onDeactivate}
           onReactivate={onReactivate}
+          onDeclareLoss={onDeclareLoss}
         />
       ))}
     </CardContent>

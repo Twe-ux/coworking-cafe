@@ -14,6 +14,7 @@ import { ProductDialog } from '@/components/inventory/products/ProductDialog'
 import { ProductStatsCards } from '@/components/inventory/products/ProductStatsCards'
 import { ProductSearchBar } from '@/components/inventory/products/ProductSearchBar'
 import { ProductsBySupplierList } from '@/components/inventory/products/ProductsBySupplierList'
+import { LossDeclarationModal } from '@/components/inventory/products/LossDeclarationModal'
 import { useSupplierOrder } from '@/hooks/inventory/useSupplierOrder'
 import type { Product, ProductFormData, ProductCategory } from '@/types/inventory'
 
@@ -27,6 +28,8 @@ export default function ProductsPage() {
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false)
   const [productToDeactivate, setProductToDeactivate] = useState<Product | null>(null)
+  const [lossModalOpen, setLossModalOpen] = useState(false)
+  const [lossProduct, setLossProduct] = useState<Product | null>(null)
   const { getOrder, reorder } = useSupplierOrder()
 
   // Build API filters (category handled client-side via StatsCards)
@@ -39,7 +42,7 @@ export default function ProductsPage() {
   }, [search, activeStatus, lowStockOnly])
 
   const {
-    products, loading, error, lowStockCount,
+    products, loading, error, lowStockCount, refetch,
     createProduct, updateProduct, deleteProduct, reactivateProduct,
   } = useProducts(apiFilters)
 
@@ -76,6 +79,7 @@ export default function ProductsPage() {
     if (editingProduct) return updateProduct(editingProduct._id, data)
     return false
   }
+  const handleDeclareLoss = (p: Product) => { setLossProduct(p); setLossModalOpen(true) }
   const handleDeactivateClick = (p: Product) => { setProductToDeactivate(p); setDeactivateDialogOpen(true) }
   const handleConfirmDeactivate = async () => {
     if (!productToDeactivate) return
@@ -133,6 +137,7 @@ export default function ProductsPage() {
       <ProductsBySupplierList
         groups={supplierGroups} loading={loading} onReorder={handleReorder}
         onEdit={handleEdit} onDeactivate={handleDeactivateClick} onReactivate={reactivateProduct}
+        onDeclareLoss={handleDeclareLoss}
       />
 
       <ProductDialog open={dialogOpen} onClose={handleDialogClose} onSubmit={handleDialogSubmit} product={editingProduct} mode={dialogMode} />
@@ -151,6 +156,15 @@ export default function ProductsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {lossProduct && (
+        <LossDeclarationModal
+          product={lossProduct}
+          open={lossModalOpen}
+          onClose={() => { setLossModalOpen(false); setLossProduct(null) }}
+          onSuccess={refetch}
+        />
+      )}
     </div>
   )
 }
