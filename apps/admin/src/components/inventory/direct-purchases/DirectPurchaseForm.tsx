@@ -34,6 +34,8 @@ interface FormItem {
   quantity: number;
   unitPriceHT: number;
   vatRate: number;
+  packagingType: string;
+  unitsPerPackage: number;
 }
 
 interface DirectPurchaseFormProps {
@@ -123,6 +125,8 @@ export function DirectPurchaseForm({
         quantity: 1,
         unitPriceHT: product.unitPriceHT,
         vatRate: product.vatRate,
+        packagingType: product.packagingType,
+        unitsPerPackage: product.unitsPerPackage || 1,
       },
     ]);
   };
@@ -141,11 +145,22 @@ export function DirectPurchaseForm({
     );
   };
 
-  const totalHT = items.reduce((sum, i) => sum + i.quantity * i.unitPriceHT, 0);
-  const totalTTC = items.reduce(
-    (sum, i) => sum + i.quantity * i.unitPriceHT * (1 + i.vatRate / 100),
-    0,
-  );
+  const totalHT = items.reduce((sum, i) => {
+    // If pack, multiply unitPrice by unitsPerPackage
+    const pricePerItem =
+      i.packagingType === "pack" && i.unitsPerPackage
+        ? i.unitPriceHT * i.unitsPerPackage
+        : i.unitPriceHT;
+    return sum + i.quantity * pricePerItem;
+  }, 0);
+
+  const totalTTC = items.reduce((sum, i) => {
+    const pricePerItem =
+      i.packagingType === "pack" && i.unitsPerPackage
+        ? i.unitPriceHT * i.unitsPerPackage
+        : i.unitPriceHT;
+    return sum + i.quantity * pricePerItem * (1 + i.vatRate / 100);
+  }, 0);
 
   const canSubmit = date !== "" && items.length > 0 && !submitting;
 
@@ -330,7 +345,13 @@ export function DirectPurchaseForm({
                       />
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {(item.quantity * item.unitPriceHT).toFixed(2)} EUR
+                      {(() => {
+                        const pricePerItem =
+                          item.packagingType === "pack" && item.unitsPerPackage
+                            ? item.unitPriceHT * item.unitsPerPackage
+                            : item.unitPriceHT;
+                        return (item.quantity * pricePerItem).toFixed(2);
+                      })()} EUR
                     </TableCell>
                     <TableCell>
                       <Button
