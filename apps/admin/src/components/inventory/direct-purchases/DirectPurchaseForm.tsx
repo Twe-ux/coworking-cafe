@@ -33,11 +33,18 @@ interface FormItem {
   vatRate: number;
 }
 
-export function DirectPurchaseForm() {
+interface DirectPurchaseFormProps {
+  supplierId: string;
+  supplierName: string;
+}
+
+export function DirectPurchaseForm({
+  supplierId,
+  supplierName,
+}: DirectPurchaseFormProps) {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [supplier, setSupplier] = useState("");
   const [date, setDate] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [notes, setNotes] = useState("");
@@ -55,11 +62,13 @@ export function DirectPurchaseForm() {
     setDate(`${y}-${m}-${d}`);
   }, []);
 
-  // Fetch all active products
+  // Fetch products for selected supplier
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("/api/inventory/products?active=true");
+        const res = await fetch(
+          `/api/inventory/products?supplierId=${supplierId}&active=true`
+        );
         const data = (await res.json()) as APIResponse<Product[]>;
         if (data.success && data.data) {
           setProducts(data.data);
@@ -70,8 +79,10 @@ export function DirectPurchaseForm() {
         setLoadingProducts(false);
       }
     };
-    fetchProducts();
-  }, []);
+    if (supplierId) {
+      fetchProducts();
+    }
+  }, [supplierId]);
 
   const addItem = (productId: string) => {
     if (!productId) return;
@@ -119,8 +130,7 @@ export function DirectPurchaseForm() {
     0,
   );
 
-  const canSubmit =
-    supplier.trim() !== "" && date !== "" && items.length > 0 && !submitting;
+  const canSubmit = date !== "" && items.length > 0 && !submitting;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -134,7 +144,7 @@ export function DirectPurchaseForm() {
       }));
 
       const body: CreateDirectPurchaseData = {
-        supplier: supplier.trim(),
+        supplier: supplierName,
         items: apiItems,
         date,
         invoiceNumber: invoiceNumber.trim() || undefined,
@@ -178,32 +188,23 @@ export function DirectPurchaseForm() {
       {/* Info Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Informations</CardTitle>
+          <CardTitle>Informations Achat - {supplierName}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="supplier">Fournisseur *</Label>
-              <Input
-                id="supplier"
-                placeholder="Nom du fournisseur"
-                value={supplier}
-                onChange={(e) => setSupplier(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
               <Label>Date *</Label>
               <DatePicker date={date} onDateChange={setDate} />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="invoiceNumber">N de facture (optionnel)</Label>
-            <Input
-              id="invoiceNumber"
-              placeholder="Ex: FAC-2026-001"
-              value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.target.value)}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="invoiceNumber">N° de facture (optionnel)</Label>
+              <Input
+                id="invoiceNumber"
+                placeholder="Ex: FAC-2026-001"
+                value={invoiceNumber}
+                onChange={(e) => setInvoiceNumber(e.target.value)}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
