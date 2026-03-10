@@ -40,7 +40,7 @@ export function SidebarFooter({ className, ...props }: React.ComponentProps<"div
 export function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("flex min-h-0 flex-1 flex-col gap-2 pt-4", className)}
+      className={cn("flex min-h-0 flex-1 flex-col gap-2 pt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent", className)}
       {...props}
     />
   );

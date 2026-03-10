@@ -208,9 +208,7 @@ export function Sidebar({
         aria-label="Navigation principale"
         {...props}
       >
-        <div className="flex flex-col h-full overflow-y-auto">
-          {children}
-        </div>
+        {children}
       </aside>
     </>
   );
