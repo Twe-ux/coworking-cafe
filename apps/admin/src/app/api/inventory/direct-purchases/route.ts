@@ -65,31 +65,15 @@ export async function GET(request: NextRequest) {
 
     await connectMongoose()
 
-    const { searchParams } = new URL(request.url)
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100)
-    const offset = parseInt(searchParams.get('offset') || '0', 10)
-    const sortBy = searchParams.get('sortBy') || 'createdAt'
-    const sortOrder = searchParams.get('sortOrder') === 'asc' ? 1 : -1
-
-    const [purchases, total] = await Promise.all([
-      DirectPurchase.find()
-        .sort({ [sortBy]: sortOrder })
-        .skip(offset)
-        .limit(limit)
-        .lean(),
-      DirectPurchase.countDocuments(),
-    ])
+    const purchases = await DirectPurchase.find()
+      .sort({ date: -1, createdAt: -1 })
+      .lean()
 
     const transformed = purchases.map((p) =>
       transformDirectPurchase(p as unknown as Record<string, unknown>)
     )
 
-    return successResponse({
-      data: transformed,
-      total,
-      limit,
-      offset,
-    })
+    return successResponse(transformed)
   } catch (error) {
     console.error('[GET /api/inventory/direct-purchases] Error:', error)
     return errorResponse(
