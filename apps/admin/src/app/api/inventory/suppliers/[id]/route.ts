@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { z } from "zod"
 import { requireAuth } from "@/lib/api/auth"
 import {
   successResponse,
@@ -8,7 +9,7 @@ import {
 import { connectMongoose } from "@/lib/mongodb"
 import { Supplier } from "@/models/inventory/supplier"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
-import type { SupplierFormData } from "@/types/inventory"
+import { supplierUpdateSchema, formatZodError } from "@/lib/inventory/validation"
 
 export const dynamic = 'force-dynamic'
 
@@ -71,8 +72,18 @@ export async function PUT(
     // Connect to database
     await connectMongoose()
 
-    // Parse body
-    const body = (await request.json()) as Partial<SupplierFormData>
+    // Parse and validate body
+    const body = await request.json()
+
+    let validated: z.infer<typeof supplierUpdateSchema>
+    try {
+      validated = supplierUpdateSchema.parse(body)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return errorResponse('Validation échouée', formatZodError(err), 400)
+      }
+      throw err
+    }
 
     // Check if supplier exists
     const existingSupplier = await Supplier.findById(params.id)
@@ -81,8 +92,8 @@ export async function PUT(
     }
 
     // If email is being updated, check for duplicates
-    if (body.email && body.email !== existingSupplier.email) {
-      const duplicateEmail = await Supplier.findOne({ email: body.email })
+    if (validated.email && validated.email !== existingSupplier.email) {
+      const duplicateEmail = await Supplier.findOne({ email: validated.email })
       if (duplicateEmail) {
         return errorResponse(
           'Un fournisseur avec cet email existe déjà',
@@ -92,20 +103,17 @@ export async function PUT(
       }
     }
 
-    // Update supplier
+    // Update supplier - only set fields that are provided
+    const updateFields: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(validated)) {
+      if (value !== undefined) {
+        updateFields[key] = value
+      }
+    }
+
     const updatedSupplier = await Supplier.findByIdAndUpdate(
       params.id,
-      {
-        $set: {
-          ...(body.name && { name: body.name }),
-          ...(body.contact && { contact: body.contact }),
-          ...(body.email && { email: body.email }),
-          ...(body.phone !== undefined && { phone: body.phone }),
-          ...(body.categories && { categories: body.categories }),
-          ...(body.notes !== undefined && { notes: body.notes }),
-          ...('isActive' in body && { isActive: body.isActive }),
-        },
-      },
+      { $set: updateFields },
       { new: true, runValidators: true }
     ).lean()
 

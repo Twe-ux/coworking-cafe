@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { z } from "zod"
 import { requireAuth } from "@/lib/api/auth"
 import {
   successResponse,
@@ -12,7 +13,7 @@ import { InventoryEntry } from "@/models/inventory/inventoryEntry"
 import { Supplier } from "@/models/inventory/supplier"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
 import { transformProductForAPI } from "@/lib/inventory/helpers"
-import type { ProductFormData } from "@/types/inventory"
+import { productUpdateSchema, formatZodError } from "@/lib/inventory/validation"
 
 export const dynamic = 'force-dynamic'
 
@@ -81,8 +82,18 @@ export async function PUT(
 
     const { id } = await params
 
-    // Parse body (isActive allowed for reactivation)
-    const body = (await request.json()) as Partial<ProductFormData> & { isActive?: boolean }
+    // Parse and validate body
+    const body = await request.json()
+
+    let validated: z.infer<typeof productUpdateSchema>
+    try {
+      validated = productUpdateSchema.parse(body)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return errorResponse('Validation échouée', formatZodError(err), 400)
+      }
+      throw err
+    }
 
     // Check if product exists
     const existingProduct = await Product.findById(id)
@@ -90,14 +101,9 @@ export async function PUT(
       return notFoundResponse('Produit')
     }
 
-    // Validate price if provided
-    if (body.unitPriceHT !== undefined && body.unitPriceHT <= 0) {
-      return errorResponse('Le prix doit être supérieur à 0', undefined, 400)
-    }
-
     // Validate stock thresholds if provided
-    const minStock = body.minStock ?? existingProduct.minStock
-    const maxStock = body.maxStock ?? existingProduct.maxStock
+    const minStock = validated.minStock ?? existingProduct.minStock
+    const maxStock = validated.maxStock ?? existingProduct.maxStock
 
     if (minStock >= maxStock) {
       return errorResponse(
@@ -108,8 +114,8 @@ export async function PUT(
     }
 
     // Validate packaging coherence
-    const packagingType = body.packagingType ?? existingProduct.packagingType ?? 'unit'
-    const unitsPerPkg = body.unitsPerPackage ?? existingProduct.unitsPerPackage ?? 1
+    const packagingType = validated.packagingType ?? existingProduct.packagingType ?? 'unit'
+    const unitsPerPkg = validated.unitsPerPackage ?? existingProduct.unitsPerPackage ?? 1
     if (packagingType !== 'pack' && unitsPerPkg > 1) {
       return errorResponse(
         'unitsPerPackage doit être 1 quand le conditionnement n\'est pas "pack"',
@@ -120,8 +126,8 @@ export async function PUT(
 
     // If supplier is being updated, check it exists and update supplier name
     let supplierName = existingProduct.supplierName
-    if (body.supplierId && body.supplierId !== existingProduct.supplierId.toString()) {
-      const supplier = await Supplier.findById(body.supplierId)
+    if (validated.supplierId && validated.supplierId !== existingProduct.supplierId.toString()) {
+      const supplier = await Supplier.findById(validated.supplierId)
       if (!supplier) {
         return errorResponse('Fournisseur introuvable', undefined, 404)
       }
@@ -130,42 +136,35 @@ export async function PUT(
 
     // Calculate real unit price based on priceType if price is being updated
     let realUnitPriceHT: number | undefined = undefined
-    if (body.unitPriceHT !== undefined) {
-      const priceType = body.priceType ?? existingProduct.priceType ?? 'unit'
-      const unitsPerPackage = body.unitsPerPackage ?? existingProduct.unitsPerPackage ?? 1
+    if (validated.unitPriceHT !== undefined) {
+      const priceType = validated.priceType ?? existingProduct.priceType ?? 'unit'
+      const unitsPerPackage = validated.unitsPerPackage ?? existingProduct.unitsPerPackage ?? 1
 
       if (priceType === 'pack' && unitsPerPackage > 1) {
-        // Price entered is for the whole pack, calculate unit price
-        realUnitPriceHT = body.unitPriceHT / unitsPerPackage
+        realUnitPriceHT = validated.unitPriceHT / unitsPerPackage
       } else {
-        // Price is already per unit
-        realUnitPriceHT = body.unitPriceHT
+        realUnitPriceHT = validated.unitPriceHT
       }
+    }
+
+    // Build update fields from validated data
+    const updateFields: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(validated)) {
+      if (value !== undefined && key !== 'unitPriceHT') {
+        updateFields[key] = value
+      }
+    }
+    if (realUnitPriceHT !== undefined) {
+      updateFields.unitPriceHT = realUnitPriceHT
+    }
+    if (validated.supplierId) {
+      updateFields.supplierName = supplierName
     }
 
     // Update product
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      {
-        $set: {
-          ...(body.name && { name: body.name }),
-          ...(body.category && { category: body.category }),
-          ...(realUnitPriceHT !== undefined && { unitPriceHT: realUnitPriceHT }),
-          ...(body.vatRate !== undefined && { vatRate: body.vatRate }),
-          ...(body.supplierId && { supplierId: body.supplierId, supplierName }),
-          ...(body.supplierReference !== undefined && { supplierReference: body.supplierReference }),
-          ...(body.packagingType && { packagingType: body.packagingType }),
-          ...(body.priceType && { priceType: body.priceType }),
-          ...(body.unitsPerPackage !== undefined && { unitsPerPackage: body.unitsPerPackage }),
-          ...(body.packageUnit !== undefined && { packageUnit: body.packageUnit }),
-          ...(body.packagingDescription !== undefined && { packagingDescription: body.packagingDescription }),
-          ...(body.minStock !== undefined && { minStock: body.minStock }),
-          ...(body.maxStock !== undefined && { maxStock: body.maxStock }),
-          ...(body.hasShortDLC !== undefined && { hasShortDLC: body.hasShortDLC }),
-          ...(body.dlcAlertConfig !== undefined && { dlcAlertConfig: body.dlcAlertConfig }),
-          ...(body.isActive !== undefined && { isActive: body.isActive }),
-        },
-      },
+      { $set: updateFields },
       { new: true, runValidators: true }
     )
       .populate('supplierId', 'name')

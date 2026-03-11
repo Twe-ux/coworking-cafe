@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { z } from "zod"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse, notFoundResponse } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"
@@ -6,6 +7,7 @@ import { Product } from "@/models/inventory/product"
 import { StockMovement } from "@/models/inventory/stockMovement"
 import { calculateCUMP } from "@/lib/inventory/cumpCalculator"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
+import { productLossSchema, formatZodError } from "@/lib/inventory/validation"
 import type { LossReason } from "@/types/inventory"
 
 export const dynamic = 'force-dynamic'
@@ -48,28 +50,18 @@ export async function POST(
 
     // Parse and validate body
     const body = await request.json()
-    const { quantity, reason, notes, date } = body as {
-      quantity: number
-      reason: LossReason
-      notes?: string
-      date: string
+
+    let validated: z.infer<typeof productLossSchema>
+    try {
+      validated = productLossSchema.parse(body)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return errorResponse('Validation échouée', formatZodError(err), 400)
+      }
+      throw err
     }
 
-    if (!quantity || quantity <= 0) {
-      return errorResponse('La quantité doit être supérieure à 0', undefined, 400)
-    }
-
-    if (!reason || !VALID_REASONS.includes(reason)) {
-      return errorResponse(
-        `Raison invalide. Valeurs acceptées : ${VALID_REASONS.join(', ')}`,
-        undefined,
-        400
-      )
-    }
-
-    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return errorResponse('Date requise au format YYYY-MM-DD', undefined, 400)
-    }
+    const { quantity, reason, notes, date } = validated
 
     // Fetch product
     const product = await Product.findById(id)

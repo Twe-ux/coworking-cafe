@@ -1,11 +1,12 @@
 import { NextRequest } from "next/server"
+import { z } from "zod"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"
 import { InventoryEntry } from "@/models/inventory/inventoryEntry"
 import { Product } from "@/models/inventory/product"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
-import type { CreateInventoryEntryData, InventoryType } from "@/types/inventory"
+import { inventoryEntryCreateSchema, formatZodError } from "@/lib/inventory/validation"
 
 export const dynamic = 'force-dynamic'
 
@@ -78,19 +79,21 @@ export async function POST(request: NextRequest) {
 
     await connectMongoose()
 
-    const body = (await request.json()) as CreateInventoryEntryData & { taskId?: string }
+    const body = await request.json()
 
-    if (!body.type || !body.date) {
-      return errorResponse('Type et date requis', undefined, 400)
-    }
-
-    if (body.type !== 'monthly' && body.type !== 'weekly') {
-      return errorResponse('Type invalide (monthly ou weekly)', undefined, 400)
+    let validated: z.infer<typeof inventoryEntryCreateSchema>
+    try {
+      validated = inventoryEntryCreateSchema.parse(body)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return errorResponse('Validation échouée', formatZodError(err), 400)
+      }
+      throw err
     }
 
     // Prevent duplicate drafts for same date
     const existingDraft = await InventoryEntry.findOne({
-      date: new Date(body.date),
+      date: new Date(validated.date),
       status: 'draft',
     })
 
@@ -106,7 +109,7 @@ export async function POST(request: NextRequest) {
     const productFilter: { isActive: boolean; hasShortDLC?: boolean } = {
       isActive: true,
     }
-    if (body.type === 'weekly') {
+    if (validated.type === 'weekly') {
       productFilter.hasShortDLC = true
     }
 
@@ -134,14 +137,14 @@ export async function POST(request: NextRequest) {
     }))
 
     const newEntry = await InventoryEntry.create({
-      date: new Date(body.date),
-      type: body.type,
-      title: body.title || undefined,
+      date: new Date(validated.date),
+      type: validated.type,
+      title: validated.title || undefined,
       items,
       totalVarianceValue: 0,
       createdBy: authResult.session.user?.id || '',
       staffName: authResult.session.user?.name || '',
-      taskId: body.taskId || undefined,
+      taskId: validated.taskId || undefined,
       status: 'draft',
     })
 

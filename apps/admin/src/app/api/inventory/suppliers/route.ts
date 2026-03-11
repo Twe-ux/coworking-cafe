@@ -1,10 +1,11 @@
 import { NextRequest } from "next/server"
+import { z } from "zod"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"
 import { Supplier } from "@/models/inventory/supplier"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
-import type { SupplierFormData } from "@/types/inventory"
+import { supplierCreateSchema, formatZodError } from "@/lib/inventory/validation"
 
 /**
  * GET /api/inventory/suppliers - List all suppliers with optional filters
@@ -106,23 +107,20 @@ export async function POST(request: NextRequest) {
     await connectMongoose()
 
     // Parse and validate body
-    const body = (await request.json()) as SupplierFormData
+    const body = await request.json()
 
-    // Validate required fields
-    if (!body.name || !body.contact || !body.email) {
-      return errorResponse('Champs requis manquants (nom, contact, email)', undefined, 400)
-    }
-
-    if (!body.categories || body.categories.length === 0) {
-      return errorResponse(
-        'Au moins une catégorie est requise',
-        undefined,
-        400
-      )
+    let validated: z.infer<typeof supplierCreateSchema>
+    try {
+      validated = supplierCreateSchema.parse(body)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return errorResponse('Validation échouée', formatZodError(err), 400)
+      }
+      throw err
     }
 
     // Check if supplier with same email already exists
-    const existingSupplier = await Supplier.findOne({ email: body.email })
+    const existingSupplier = await Supplier.findOne({ email: validated.email })
     if (existingSupplier) {
       return errorResponse(
         'Un fournisseur avec cet email existe déjà',
@@ -133,12 +131,7 @@ export async function POST(request: NextRequest) {
 
     // Create new supplier
     const newSupplier = await Supplier.create({
-      name: body.name,
-      contact: body.contact,
-      email: body.email,
-      ...(body.phone && { phone: body.phone }),
-      categories: body.categories,
-      ...(body.notes && { notes: body.notes }),
+      ...validated,
       isActive: true,
     })
 

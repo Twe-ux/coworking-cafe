@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { z } from "zod"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"
@@ -6,7 +7,7 @@ import { Product } from "@/models/inventory/product"
 import { Supplier } from "@/models/inventory/supplier"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
 import { transformProductForAPI } from "@/lib/inventory/helpers"
-import type { ProductFormData } from "@/types/inventory"
+import { productCreateSchema, formatZodError } from "@/lib/inventory/validation"
 
 /**
  * GET /api/inventory/products - List all products with optional filters
@@ -122,29 +123,22 @@ export async function POST(request: NextRequest) {
     await connectMongoose()
 
     // Parse and validate body
-    const body = (await request.json()) as ProductFormData
+    const body = await request.json()
 
-    // Validate required fields
-    if (!body.name || !body.category || !body.supplierId) {
-      return errorResponse('Champs requis manquants', undefined, 400)
+    let validated: z.infer<typeof productCreateSchema>
+    try {
+      validated = productCreateSchema.parse(body)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return errorResponse('Validation échouée', formatZodError(err), 400)
+      }
+      throw err
     }
 
-    if (body.unitPriceHT <= 0) {
-      return errorResponse('Le prix doit être supérieur à 0', undefined, 400)
-    }
-
-    if (body.minStock >= body.maxStock) {
-      return errorResponse(
-        'Le stock minimum doit être inférieur au stock maximum',
-        undefined,
-        400
-      )
-    }
-
-    // Validate packaging coherence and calculate real unit price
-    const packagingType = body.packagingType || 'unit'
-    const priceType = body.priceType || 'unit'
-    const unitsPerPackage = body.unitsPerPackage || 1
+    // Validate packaging coherence
+    const packagingType = validated.packagingType
+    const priceType = validated.priceType
+    const unitsPerPackage = validated.unitsPerPackage
 
     if (packagingType !== 'pack' && unitsPerPackage > 1) {
       return errorResponse(
@@ -155,39 +149,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if supplier exists
-    const supplier = await Supplier.findById(body.supplierId)
+    const supplier = await Supplier.findById(validated.supplierId)
     if (!supplier) {
       return errorResponse('Fournisseur introuvable', undefined, 404)
     }
 
     // Calculate real unit price based on priceType
-    let realUnitPriceHT = body.unitPriceHT
+    let realUnitPriceHT = validated.unitPriceHT
 
     if (priceType === 'pack' && unitsPerPackage > 1) {
-      // Price entered is for the whole pack, calculate unit price
-      realUnitPriceHT = body.unitPriceHT / unitsPerPackage
+      realUnitPriceHT = validated.unitPriceHT / unitsPerPackage
     }
-    // If priceType === 'unit', realUnitPriceHT is already the unit price
 
     // Create new product
     const newProduct = await Product.create({
-      name: body.name,
-      category: body.category,
+      ...validated,
       unitPriceHT: realUnitPriceHT,
-      vatRate: body.vatRate,
-      supplierId: body.supplierId,
       supplierName: supplier.name,
-      supplierReference: body.supplierReference || '',
-      packagingType: body.packagingType || 'unit',
-      priceType: body.priceType || 'unit',
-      unitsPerPackage: body.unitsPerPackage || 1,
-      packageUnit: body.packageUnit,
-      packagingDescription: body.packagingDescription || '',
-      minStock: body.minStock,
-      maxStock: body.maxStock,
-      currentStock: 0, // Start with 0, will be updated via stock movements
-      hasShortDLC: body.hasShortDLC || false,
-      ...(body.dlcAlertConfig && { dlcAlertConfig: body.dlcAlertConfig }),
+      supplierReference: validated.supplierReference || '',
+      packagingDescription: validated.packagingDescription || '',
+      currentStock: 0,
+      hasShortDLC: validated.hasShortDLC || false,
       isActive: true,
     })
 
