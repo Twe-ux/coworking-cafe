@@ -20,6 +20,9 @@ export function ImageUpload({ value, onChange, disabled, folder = "produits" }: 
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset input to allow re-uploading same file (Safari fix)
+    e.target.value = '';
+
     // Validation
     if (!file.type.startsWith("image/")) {
       setError("Le fichier doit être une image");
@@ -177,7 +180,7 @@ export function ImageUpload({ value, onChange, disabled, folder = "produits" }: 
               id="image-upload"
               type="file"
               className="hidden"
-              accept="image/*"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
               onChange={handleUpload}
               disabled={disabled || uploading}
             />
