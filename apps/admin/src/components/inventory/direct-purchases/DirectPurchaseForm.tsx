@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,25 +16,7 @@ import {
 } from "@/components/ui/table";
 import { DatePicker } from "@/components/ui/date-picker";
 import { ProductDialog } from "@/components/inventory/products/ProductDialog";
-import { useToast } from "@/hooks/use-toast";
-import { useProducts } from "@/hooks/inventory/useProducts";
-import type {
-  Product,
-  ProductFormData,
-  APIResponse,
-  CreateDirectPurchaseData,
-  CreateDirectPurchaseItemData,
-} from "@/types/inventory";
-
-interface FormItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  unitPriceHT: number;
-  vatRate: number;
-  packagingType: string;
-  unitsPerPackage: number;
-}
+import { useDirectPurchaseForm } from "@/hooks/inventory/useDirectPurchaseForm";
 
 interface DirectPurchaseFormProps {
   supplierId: string;
@@ -47,173 +27,22 @@ export function DirectPurchaseForm({
   supplierId,
   supplierName,
 }: DirectPurchaseFormProps) {
-  const router = useRouter();
-  const { toast } = useToast();
-  const { createProduct } = useProducts({});
-
-  const [date, setDate] = useState("");
-  const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [notes, setNotes] = useState("");
-  const [items, setItems] = useState<FormItem[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [productDialogOpen, setProductDialogOpen] = useState(false);
-
-  // Set default date to today
-  useEffect(() => {
-    const today = new Date();
-    const y = today.getFullYear();
-    const m = String(today.getMonth() + 1).padStart(2, "0");
-    const d = String(today.getDate()).padStart(2, "0");
-    setDate(`${y}-${m}-${d}`);
-  }, []);
-
-  // Fetch products for selected supplier
-  const fetchProducts = async () => {
-    setLoadingProducts(true);
-    try {
-      const res = await fetch(
-        `/api/inventory/products?supplierId=${supplierId}&active=true`
-      );
-      const data = (await res.json()) as APIResponse<Product[]>;
-      if (data.success && data.data) {
-        setProducts(data.data);
-      }
-    } catch (err) {
-      console.error("Error fetching products:", err);
-    } finally {
-      setLoadingProducts(false);
-    }
-  };
-
-  useEffect(() => {
-    if (supplierId) {
-      fetchProducts();
-    }
-  }, [supplierId]);
-
-  const handleCreateProduct = async (
-    data: ProductFormData
-  ): Promise<boolean> => {
-    const success = await createProduct(data);
-    if (success) {
-      await fetchProducts();
-    }
-    return success;
-  };
-
-  const addItem = (productId: string) => {
-    if (!productId) return;
-    if (items.some((i) => i.productId === productId)) {
-      toast({
-        title: "Produit deja ajoute",
-        description: "Ce produit est deja dans la liste",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const product = products.find((p) => p._id === productId);
-    if (!product) return;
-
-    setItems([
-      ...items,
-      {
-        productId: product._id,
-        productName: product.name,
-        quantity: 1,
-        unitPriceHT: product.unitPriceHT,
-        vatRate: product.vatRate,
-        packagingType: product.packagingType,
-        unitsPerPackage: product.unitsPerPackage || 1,
-      },
-    ]);
-  };
-
-  const removeItem = (productId: string) => {
-    setItems(items.filter((i) => i.productId !== productId));
-  };
-
-  const updateItem = (
-    productId: string,
-    field: "quantity" | "unitPriceHT",
-    value: number,
-  ) => {
-    setItems(
-      items.map((i) => (i.productId === productId ? { ...i, [field]: value } : i)),
-    );
-  };
-
-  const totalHT = items.reduce((sum, i) => {
-    // If pack, multiply unitPrice by unitsPerPackage
-    const pricePerItem =
-      i.packagingType === "pack" && i.unitsPerPackage
-        ? i.unitPriceHT * i.unitsPerPackage
-        : i.unitPriceHT;
-    return sum + i.quantity * pricePerItem;
-  }, 0);
-
-  const totalTTC = items.reduce((sum, i) => {
-    const pricePerItem =
-      i.packagingType === "pack" && i.unitsPerPackage
-        ? i.unitPriceHT * i.unitsPerPackage
-        : i.unitPriceHT;
-    return sum + i.quantity * pricePerItem * (1 + i.vatRate / 100);
-  }, 0);
-
-  const canSubmit = date !== "" && items.length > 0 && !submitting;
-
-  const handleSubmit = async () => {
-    if (!canSubmit) return;
-
-    setSubmitting(true);
-    try {
-      const apiItems: CreateDirectPurchaseItemData[] = items.map((i) => ({
-        productId: i.productId,
-        quantity: i.quantity,
-        unitPriceHT: i.unitPriceHT,
-      }));
-
-      const body: CreateDirectPurchaseData = {
-        supplier: supplierName,
-        items: apiItems,
-        date,
-        invoiceNumber: invoiceNumber.trim() || undefined,
-        notes: notes.trim() || undefined,
-      };
-
-      const res = await fetch("/api/inventory/direct-purchases", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      const data = (await res.json()) as APIResponse<unknown>;
-
-      if (data.success) {
-        toast({
-          title: "Achat enregistre",
-          description: `${items.length} produit(s) - ${totalTTC.toFixed(2)} EUR TTC`,
-        });
-        router.push("/admin/inventory/direct-purchases");
-      } else {
-        toast({
-          title: "Erreur",
-          description: data.error || "Impossible d'enregistrer l'achat",
-          variant: "destructive",
-        });
-      }
-    } catch {
-      toast({
-        title: "Erreur",
-        description: "Erreur de connexion au serveur",
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const {
+    date, setDate,
+    invoiceNumber, setInvoiceNumber,
+    notes, setNotes,
+    items,
+    addItem, removeItem, updateItem,
+    getItemTotalHT,
+    totalHT, totalTTC,
+    canSubmit,
+    handleSubmit, submitting,
+    cancel,
+    products,
+    loadingProducts,
+    productDialogOpen, setProductDialogOpen,
+    handleCreateProduct,
+  } = useDirectPurchaseForm(supplierId, supplierName);
 
   return (
     <div className="space-y-6">
@@ -279,14 +108,11 @@ export function DirectPurchaseForm({
                     ? "Chargement..."
                     : "-- Selectionner un produit --"}
                 </option>
-                {products
-                  .filter((p) => !items.some((i) => i.productId === p._id))
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((p) => (
-                    <option key={p._id} value={p._id}>
-                      {p.name} ({p.unitPriceHT.toFixed(2)} EUR HT)
-                    </option>
-                  ))}
+                {products.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name} ({p.unitPriceHT.toFixed(2)} EUR HT)
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -345,13 +171,7 @@ export function DirectPurchaseForm({
                       />
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {(() => {
-                        const pricePerItem =
-                          item.packagingType === "pack" && item.unitsPerPackage
-                            ? item.unitPriceHT * item.unitsPerPackage
-                            : item.unitPriceHT;
-                        return (item.quantity * pricePerItem).toFixed(2);
-                      })()} EUR
+                      {getItemTotalHT(item).toFixed(2)} EUR
                     </TableCell>
                     <TableCell>
                       <Button
@@ -414,7 +234,7 @@ export function DirectPurchaseForm({
         <Button
           variant="outline"
           className="border-red-300 text-red-700 hover:border-red-500 hover:bg-red-50 hover:text-red-700"
-          onClick={() => router.push("/admin/inventory/direct-purchases")}
+          onClick={cancel}
           disabled={submitting}
         >
           Annuler
