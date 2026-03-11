@@ -60,6 +60,7 @@ export async function PUT(
     }
 
     const body = await request.json()
+    console.log('[PUT /api/blog/articles/[id]] Body received:', JSON.stringify(body, null, 2))
     const {
       title,
       slug,
@@ -74,6 +75,7 @@ export async function PUT(
       metaKeywords,
       ogImage,
     } = body
+    console.log('[PUT /api/blog/articles/[id]] imgAlt extracted:', imgAlt)
 
     // Vérifier que la catégorie existe si fournie
     if (categoryId) {

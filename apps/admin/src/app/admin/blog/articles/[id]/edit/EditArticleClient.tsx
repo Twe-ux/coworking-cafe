@@ -85,6 +85,9 @@ export function EditArticleClient({ articleId }: EditArticleClientProps) {
         categoryId: category, // Map category to categoryId for API
       };
 
+      console.log('[EditArticleClient] Data from form:', data);
+      console.log('[EditArticleClient] API data to send:', apiData);
+
       const response = await fetch(`/api/blog/articles/${articleId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
