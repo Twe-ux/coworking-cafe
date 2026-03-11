@@ -76,5 +76,6 @@ export const StockMovementSchema = new Schema<StockMovementDocument>(
 StockMovementSchema.index({ productId: 1, date: -1 })
 StockMovementSchema.index({ type: 1 })
 StockMovementSchema.index({ date: -1 })
+StockMovementSchema.index({ type: 1, date: -1 }) // Compound index for analytics queries
 StockMovementSchema.index({ reference: 1 })
 StockMovementSchema.index({ createdBy: 1 })

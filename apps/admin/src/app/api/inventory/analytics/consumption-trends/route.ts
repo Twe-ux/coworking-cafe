@@ -9,24 +9,30 @@ import type { ConsumptionTrendDirection } from "@/types/inventory"
 
 export const dynamic = 'force-dynamic'
 
-interface MovementAggResult {
+interface MonthlyItem {
   _id: { productId: mongoose.Types.ObjectId; month: string }
   productName: string
   totalConsumed: number
   totalValue: number
 }
 
-interface TopConsumedAggResult {
+interface TopItem {
   _id: mongoose.Types.ObjectId
   productName: string
   totalConsumed: number
   totalValue: number
 }
 
+interface FacetResult {
+  monthly: MonthlyItem[]
+  topConsumed: TopItem[]
+}
+
 /**
  * GET /api/inventory/analytics/consumption-trends
  * Analyzes StockMovements (inventory_adjustment with qty < 0)
- * Query: ?months=6&productId=xxx&category=xxx
+ * Uses $facet to run both monthly + top aggregations in a single query.
+ * Query: ?months=6&productId=xxx
  */
 export async function GET(request: NextRequest) {
   try {
@@ -54,33 +60,60 @@ export async function GET(request: NextRequest) {
       match.productId = new mongoose.Types.ObjectId(productId)
     }
 
-    // Aggregate by product and month
-    const monthlyData = await StockMovement.aggregate<MovementAggResult>([
+    // Single aggregation with $facet for both monthly trends and top consumed
+    const lookupStage = {
+      $lookup: {
+        from: 'products',
+        localField: 'productId',
+        foreignField: '_id',
+        as: 'product',
+      },
+    }
+    const unwindStage = {
+      $unwind: { path: '$product', preserveNullAndEmptyArrays: true },
+    }
+
+    const [result] = await StockMovement.aggregate<FacetResult>([
       { $match: match },
+      lookupStage,
+      unwindStage,
       {
-        $lookup: {
-          from: 'products',
-          localField: 'productId',
-          foreignField: '_id',
-          as: 'product',
+        $facet: {
+          monthly: [
+            {
+              $group: {
+                _id: {
+                  productId: '$productId',
+                  month: { $dateToString: { format: '%Y-%m', date: '$date' } },
+                },
+                productName: { $first: '$product.name' },
+                totalConsumed: { $sum: { $abs: '$quantity' } },
+                totalValue: {
+                  $sum: { $abs: { $multiply: ['$quantity', '$product.unitPriceHT'] } },
+                },
+              },
+            },
+            { $sort: { '_id.month': 1 } },
+          ],
+          topConsumed: [
+            {
+              $group: {
+                _id: '$productId',
+                productName: { $first: '$product.name' },
+                totalConsumed: { $sum: { $abs: '$quantity' } },
+                totalValue: {
+                  $sum: { $abs: { $multiply: ['$quantity', '$product.unitPriceHT'] } },
+                },
+              },
+            },
+            { $sort: { totalConsumed: -1 } },
+            { $limit: 10 },
+          ],
         },
       },
-      { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
-      {
-        $group: {
-          _id: {
-            productId: '$productId',
-            month: { $dateToString: { format: '%Y-%m', date: '$date' } },
-          },
-          productName: { $first: '$product.name' },
-          totalConsumed: { $sum: { $abs: '$quantity' } },
-          totalValue: {
-            $sum: { $abs: { $multiply: ['$quantity', '$product.unitPriceHT'] } },
-          },
-        },
-      },
-      { $sort: { '_id.month': 1 } },
     ])
+
+    const { monthly: monthlyData, topConsumed } = result
 
     // Group by product for trends
     const productMap = new Map<string, {
@@ -127,32 +160,6 @@ export async function GET(request: NextRequest) {
         avgMonthly: Math.round(avgMonthly * 10) / 10,
       }
     })
-
-    // Top 10 consumed products
-    const topConsumed = await StockMovement.aggregate<TopConsumedAggResult>([
-      { $match: match },
-      {
-        $lookup: {
-          from: 'products',
-          localField: 'productId',
-          foreignField: '_id',
-          as: 'product',
-        },
-      },
-      { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
-      {
-        $group: {
-          _id: '$productId',
-          productName: { $first: '$product.name' },
-          totalConsumed: { $sum: { $abs: '$quantity' } },
-          totalValue: {
-            $sum: { $abs: { $multiply: ['$quantity', '$product.unitPriceHT'] } },
-          },
-        },
-      },
-      { $sort: { totalConsumed: -1 } },
-      { $limit: 10 },
-    ])
 
     return successResponse({
       trends,
