@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { requireAuth } from '@/lib/api/auth'
 import { successResponse, errorResponse } from '@/lib/api/response'
+import { toRecord, toRecordArray } from '@/lib/api/casting'
 import { connectMongoose } from '@/lib/mongodb'
 import { PurchaseOrder } from '@/models/inventory/purchaseOrder'
 import { Product } from '@/models/inventory/product'
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 })
       .lean()
 
-    const transformed = (orders as Array<Record<string, unknown>>).map(transformOrder)
+    const transformed = toRecordArray(orders).map(transformOrder)
 
     return successResponse(transformed)
   } catch (error) {
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
     })
 
     const transformed = transformOrder(
-      order.toObject() as unknown as Record<string, unknown>
+      toRecord(order.toObject())
     )
 
     return successResponse(transformed, 'Commande creee', 201)

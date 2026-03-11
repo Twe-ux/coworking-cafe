@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { requireAuth } from '@/lib/api/auth'
 import { successResponse, errorResponse, notFoundResponse } from '@/lib/api/response'
+import { toRecord } from '@/lib/api/casting'
 import { connectMongoose } from '@/lib/mongodb'
 import { PurchaseOrder } from '@/models/inventory/purchaseOrder'
 import { Product } from '@/models/inventory/product'
@@ -98,7 +99,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     await order.save()
 
     const transformed = transformOrder(
-      order.toObject() as unknown as Record<string, unknown>
+      toRecord(order.toObject())
     )
 
     return successResponse(transformed, 'Commande envoyee')

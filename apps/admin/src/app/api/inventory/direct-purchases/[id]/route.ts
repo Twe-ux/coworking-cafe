@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse, notFoundResponse } from "@/lib/api/response"
+import { toRecord } from "@/lib/api/casting"
 import { connectMongoose } from "@/lib/mongodb"
 import { DirectPurchase } from "@/models/inventory/directPurchase"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
@@ -53,7 +54,7 @@ export async function GET(
     }
 
     const transformed = transformDirectPurchase(
-      purchase as unknown as Record<string, unknown>
+      toRecord(purchase)
     )
 
     return successResponse(transformed)

@@ -1,12 +1,14 @@
 import { NextRequest } from "next/server"
+import { z } from "zod"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse } from "@/lib/api/response"
+import { toRecord } from "@/lib/api/casting"
 import { connectMongoose } from "@/lib/mongodb"
 import { DirectPurchase } from "@/models/inventory/directPurchase"
 import { Product } from "@/models/inventory/product"
 import { StockMovement } from "@/models/inventory/stockMovement"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
-import type { CreateDirectPurchaseData } from "@/types/inventory"
+import { directPurchaseSchema, formatZodError } from "@/lib/inventory/validation"
 
 export const dynamic = 'force-dynamic'
 
@@ -70,7 +72,7 @@ export async function GET(request: NextRequest) {
       .lean()
 
     const transformed = purchases.map((p) =>
-      transformDirectPurchase(p as unknown as Record<string, unknown>)
+      transformDirectPurchase(toRecord(p))
     )
 
     return successResponse(transformed)
@@ -98,30 +100,29 @@ export async function POST(request: NextRequest) {
     await connectMongoose()
 
     const userId = authResult.session.user?.id || ''
-    const body = (await request.json()) as CreateDirectPurchaseData
+    const body = await request.json()
 
-    // Validate required fields
-    if (!body.supplier || !body.supplier.trim()) {
-      return errorResponse('Le nom du fournisseur est requis', undefined, 400)
-    }
-    if (!body.date || !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
-      return errorResponse('Date requise au format YYYY-MM-DD', undefined, 400)
-    }
-    if (!body.items || body.items.length === 0) {
-      return errorResponse('Au moins un article est requis', undefined, 400)
+    let validated: z.infer<typeof directPurchaseSchema>
+    try {
+      validated = directPurchaseSchema.parse(body)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return errorResponse('Validation échouée', formatZodError(err), 400)
+      }
+      throw err
     }
 
-    const purchaseNumber = await generatePurchaseNumber(body.date)
+    const purchaseNumber = await generatePurchaseNumber(validated.date)
 
     console.log(`[POST /api/inventory/direct-purchases] Creating ${purchaseNumber}:`, {
-      supplier: body.supplier,
-      itemCount: body.items.length,
-      date: body.date,
+      supplier: validated.supplier,
+      itemCount: validated.items.length,
+      date: validated.date,
     })
 
     // Process each item
     const processedItems = await Promise.all(
-      body.items.map(async (item) => {
+      validated.items.map(async (item) => {
         const product = await Product.findById(item.productId)
         if (!product) {
           throw new Error(`Produit ${item.productId} introuvable`)
@@ -151,7 +152,7 @@ export async function POST(request: NextRequest) {
           quantity: quantityInUnits,
           unitPriceHT: unitPriceHTForMovement,
           totalValue: totalHT,
-          date: new Date(body.date),
+          date: new Date(validated.date),
           reference: purchaseNumber,
           notes: `Achat direct ${purchaseNumber} - ${product.name}`,
           createdBy: userId,
@@ -189,13 +190,13 @@ export async function POST(request: NextRequest) {
     // Create DirectPurchase document
     const directPurchase = await DirectPurchase.create({
       purchaseNumber,
-      supplier: body.supplier.trim(),
+      supplier: validated.supplier.trim(),
       items: processedItems,
       totalHT,
       totalTTC,
-      date: new Date(body.date),
-      invoiceNumber: body.invoiceNumber?.trim() || undefined,
-      notes: body.notes?.trim() || undefined,
+      date: new Date(validated.date),
+      invoiceNumber: validated.invoiceNumber?.trim() || undefined,
+      notes: validated.notes?.trim() || undefined,
       createdBy: userId,
     })
 
@@ -207,7 +208,7 @@ export async function POST(request: NextRequest) {
     })
 
     const transformed = transformDirectPurchase(
-      directPurchase.toObject() as unknown as Record<string, unknown>
+      toRecord(directPurchase.toObject())
     )
 
     return successResponse(transformed, 'Achat direct créé avec succès', 201)

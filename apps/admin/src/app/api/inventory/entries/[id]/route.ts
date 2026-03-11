@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse, notFoundResponse } from "@/lib/api/response"
+import { toRecord } from "@/lib/api/casting"
 import { connectMongoose } from "@/lib/mongodb"
 import { InventoryEntry } from "@/models/inventory/inventoryEntry"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
@@ -100,7 +101,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     await entry.save()
 
-    const transformed = transformEntry(entry.toObject() as unknown as Record<string, unknown>)
+    const transformed = transformEntry(toRecord(entry.toObject()))
 
     return successResponse(transformed, 'Quantites mises a jour')
   } catch (error) {
@@ -153,11 +154,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Update metadata fields
     if (body.title !== undefined) entry.title = body.title
     if (body.type !== undefined) entry.type = body.type
-    if (body.date !== undefined) entry.date = body.date
+    if (body.date !== undefined) entry.date = new Date(body.date)
 
     await entry.save()
 
-    const transformed = transformEntry(entry.toObject() as unknown as Record<string, unknown>)
+    const transformed = transformEntry(toRecord(entry.toObject()))
 
     return successResponse(transformed, 'Metadonnees mises a jour')
   } catch (error) {

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { requireAuth } from "@/lib/api/auth"
 import { successResponse, errorResponse, notFoundResponse } from "@/lib/api/response"
+import { toRecord } from "@/lib/api/casting"
 import { connectMongoose } from "@/lib/mongodb"
 import { InventoryEntry } from "@/models/inventory/inventoryEntry"
 import { StockMovement } from "@/models/inventory/stockMovement"
@@ -307,7 +308,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     }
 
     // Transform for response
-    const obj = entry.toObject() as unknown as Record<string, unknown>
+    const obj = toRecord(entry.toObject())
     const items = (obj.items || []) as Array<Record<string, unknown>>
 
     const transformed = {
