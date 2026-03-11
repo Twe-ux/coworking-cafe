@@ -1,9 +1,5 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import {
   Dialog,
@@ -25,32 +21,17 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useToast } from '@/hooks/use-toast'
 import { SupplierDLCAlertFields } from './SupplierDLCAlertFields'
+import { useSupplierForm } from '@/hooks/inventory/useSupplierForm'
 import type { Supplier, SupplierFormData } from '@/types/inventory'
 
-// Validation schema
-const supplierSchema = z.object({
-  name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  contact: z.string().min(2, 'Le contact doit contenir au moins 2 caractères'),
-  email: z.string().email('Email invalide'),
-  phone: z.string().optional(),
-  categories: z
-    .array(z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']))
-    .min(1, 'Sélectionnez au moins une catégorie'),
-  notes: z.string().optional(),
-  dlcAlertConfig: z.object({
-    enabled: z.boolean(),
-    days: z.array(z.number().min(0).max(6)),
-    time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Format HH:mm requis'),
-  }).optional(),
-}).refine(
-  (data) => !data.dlcAlertConfig?.enabled || (data.dlcAlertConfig?.days?.length ?? 0) > 0,
-  {
-    message: 'Sélectionnez au moins un jour pour les alertes',
-    path: ['dlcAlertConfig.days'],
-  }
-)
+const CATEGORY_OPTIONS = [
+  { value: 'food' as const, label: 'Alimentation' },
+  { value: 'cleaning' as const, label: 'Entretien' },
+  { value: 'emballage' as const, label: 'Emballage' },
+  { value: 'papeterie' as const, label: 'Papeterie' },
+  { value: 'divers' as const, label: 'Divers' },
+]
 
 interface SupplierDialogProps {
   open: boolean
@@ -67,140 +48,12 @@ export function SupplierDialog({
   supplier,
   mode = 'create',
 }: SupplierDialogProps) {
-  const [loading, setLoading] = useState(false)
-  const [checkingEmail, setCheckingEmail] = useState(false)
-  const [emailExists, setEmailExists] = useState(false)
-  const { toast } = useToast()
-
-  const form = useForm<SupplierFormData>({
-    resolver: zodResolver(supplierSchema),
-    defaultValues: {
-      name: '',
-      contact: '',
-      email: '',
-      phone: '',
-      categories: [],
-      notes: '',
-      dlcAlertConfig: {
-        enabled: false,
-        days: [],
-        time: '09:00',
-      },
-    },
+  const { form, loading, checkingEmail, emailExists, handleSubmit } = useSupplierForm({
+    supplier,
+    mode,
+    onSubmit,
+    onClose,
   })
-
-  // Check if email already exists (debounced)
-  const checkEmailAvailability = useCallback(async (email: string) => {
-    if (!email || mode === 'edit') {
-      setEmailExists(false)
-      return
-    }
-
-    // Simple email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      setEmailExists(false)
-      return
-    }
-
-    setCheckingEmail(true)
-    try {
-      const res = await fetch(`/api/inventory/suppliers?search=${encodeURIComponent(email)}`)
-      const data = await res.json()
-
-      if (data.success && data.data) {
-        // Check if exact email match exists
-        const exactMatch = data.data.some(
-          (s: Supplier) => s.email.toLowerCase() === email.toLowerCase()
-        )
-        setEmailExists(exactMatch)
-      } else {
-        setEmailExists(false)
-      }
-    } catch (error) {
-      console.error('Error checking email:', error)
-      setEmailExists(false)
-    } finally {
-      setCheckingEmail(false)
-    }
-  }, [mode])
-
-  // Debounce email check
-  useEffect(() => {
-    const email = form.watch('email')
-    const timeoutId = setTimeout(() => {
-      checkEmailAvailability(email)
-    }, 500)
-
-    return () => clearTimeout(timeoutId)
-  }, [form.watch('email'), checkEmailAvailability, form])
-
-  // Populate form when editing
-  useEffect(() => {
-    if (mode === 'edit' && supplier) {
-      form.reset({
-        name: supplier.name,
-        contact: supplier.contact,
-        email: supplier.email,
-        phone: supplier.phone || '',
-        categories: supplier.categories,
-        notes: supplier.notes || '',
-        dlcAlertConfig: supplier.dlcAlertConfig || {
-          enabled: false,
-          days: [],
-          time: '09:00',
-        },
-      })
-      setEmailExists(false)
-    } else if (mode === 'create') {
-      form.reset({
-        name: '',
-        contact: '',
-        email: '',
-        phone: '',
-        categories: [],
-        notes: '',
-        dlcAlertConfig: {
-          enabled: false,
-          days: [],
-          time: '09:00',
-        },
-      })
-      setEmailExists(false)
-    }
-  }, [mode, supplier, form])
-
-  const handleSubmit = async (data: SupplierFormData) => {
-    setLoading(true)
-    try {
-      const success = await onSubmit(data)
-      if (success) {
-        toast({
-          title: 'Succès',
-          description:
-            mode === 'create'
-              ? 'Fournisseur créé avec succès'
-              : 'Fournisseur mis à jour avec succès',
-        })
-        onClose()
-        form.reset()
-      } else {
-        toast({
-          title: 'Erreur',
-          description: 'Une erreur est survenue',
-          variant: 'destructive',
-        })
-      }
-    } catch (error) {
-      toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue',
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -321,124 +174,25 @@ export function SupplierDialog({
                     <FormLabel className="text-base">Catégories *</FormLabel>
                   </div>
                   <div className="flex flex-col space-y-2">
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={form
-                            .watch('categories')
-                            ?.includes('food')}
-                          onCheckedChange={(checked) => {
-                            const current = form.getValues('categories') || []
-                            if (checked) {
-                              form.setValue('categories', [...current, 'food'])
-                            } else {
+                    {CATEGORY_OPTIONS.map((cat) => (
+                      <FormItem key={cat.value} className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={form.watch('categories')?.includes(cat.value)}
+                            onCheckedChange={(checked) => {
+                              const current = form.getValues('categories') || []
                               form.setValue(
                                 'categories',
-                                current.filter((c) => c !== 'food')
+                                checked
+                                  ? [...current, cat.value]
+                                  : current.filter((c) => c !== cat.value)
                               )
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        Alimentation
-                      </FormLabel>
-                    </FormItem>
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={form
-                            .watch('categories')
-                            ?.includes('cleaning')}
-                          onCheckedChange={(checked) => {
-                            const current = form.getValues('categories') || []
-                            if (checked) {
-                              form.setValue('categories', [
-                                ...current,
-                                'cleaning',
-                              ])
-                            } else {
-                              form.setValue(
-                                'categories',
-                                current.filter((c) => c !== 'cleaning')
-                              )
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">Entretien</FormLabel>
-                    </FormItem>
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={form
-                            .watch('categories')
-                            ?.includes('emballage')}
-                          onCheckedChange={(checked) => {
-                            const current = form.getValues('categories') || []
-                            if (checked) {
-                              form.setValue('categories', [...current, 'emballage'])
-                            } else {
-                              form.setValue(
-                                'categories',
-                                current.filter((c) => c !== 'emballage')
-                              )
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        Emballage
-                      </FormLabel>
-                    </FormItem>
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={form
-                            .watch('categories')
-                            ?.includes('papeterie')}
-                          onCheckedChange={(checked) => {
-                            const current = form.getValues('categories') || []
-                            if (checked) {
-                              form.setValue('categories', [
-                                ...current,
-                                'papeterie',
-                              ])
-                            } else {
-                              form.setValue(
-                                'categories',
-                                current.filter((c) => c !== 'papeterie')
-                              )
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">Papeterie</FormLabel>
-                    </FormItem>
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={form
-                            .watch('categories')
-                            ?.includes('divers')}
-                          onCheckedChange={(checked) => {
-                            const current = form.getValues('categories') || []
-                            if (checked) {
-                              form.setValue('categories', [
-                                ...current,
-                                'divers',
-                              ])
-                            } else {
-                              form.setValue(
-                                'categories',
-                                current.filter((c) => c !== 'divers')
-                              )
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">Divers</FormLabel>
-                    </FormItem>
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal">{cat.label}</FormLabel>
+                      </FormItem>
+                    ))}
                   </div>
                   <FormMessage />
                 </FormItem>
