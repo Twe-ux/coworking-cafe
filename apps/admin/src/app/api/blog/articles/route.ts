@@ -94,7 +94,6 @@ export async function POST(
     await connectMongoose()
 
     const body = await request.json()
-    console.log('[POST /api/blog/articles] Body received:', JSON.stringify(body, null, 2))
     const {
       title,
       content,
@@ -108,7 +107,6 @@ export async function POST(
       metaKeywords,
       ogImage,
     } = body
-    console.log('[POST /api/blog/articles] imgAlt extracted:', imgAlt)
 
     // Validation
     if (!title || !content) {

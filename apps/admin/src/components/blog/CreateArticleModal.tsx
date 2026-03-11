@@ -39,9 +39,6 @@ export function CreateArticleModal({
         categoryId: category, // Map category to categoryId for API
       };
 
-      console.log('[CreateArticleModal] Data from form:', data);
-      console.log('[CreateArticleModal] API data to send:', apiData);
-
       const response = await fetch("/api/blog/articles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

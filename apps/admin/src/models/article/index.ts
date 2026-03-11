@@ -3,6 +3,9 @@ import { ArticleSchema, type ArticleDocument } from "./document"
 
 export type { ArticleDocument }
 
-export const Article =
-  (mongoose.models.Article as mongoose.Model<ArticleDocument>) ||
-  mongoose.model<ArticleDocument>("Article", ArticleSchema)
+// Force model recompilation when schema changes
+if (mongoose.models.Article) {
+  delete mongoose.models.Article
+}
+
+export const Article = mongoose.model<ArticleDocument>("Article", ArticleSchema)
