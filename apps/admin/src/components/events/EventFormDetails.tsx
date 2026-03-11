@@ -115,6 +115,7 @@ export function EventFormDetails({
               onChange={(e) =>
                 handleChange("maxParticipants", e.target.value ? parseInt(e.target.value) : undefined)
               }
+              onFocus={(e) => e.target.select()}
               placeholder="Ex: 20"
               className={errors.maxParticipants ? "border-destructive" : ""}
             />
@@ -162,6 +163,7 @@ export function EventFormDetails({
               onChange={(e) =>
                 handleChange("price", e.target.value ? parseFloat(e.target.value) : undefined)
               }
+              onFocus={(e) => e.target.select()}
               placeholder="Ex: 15.00"
             />
             <p className="text-sm text-muted-foreground">
