@@ -66,6 +66,7 @@ export async function PUT(
       content,
       excerpt,
       featuredImage,
+      imgAlt,
       categoryId,
       status,
       metaTitle,
@@ -120,6 +121,7 @@ export async function PUT(
     if (content !== undefined) updateData.content = content
     if (excerpt !== undefined) updateData.excerpt = excerpt
     if (featuredImage !== undefined) updateData.featuredImage = featuredImage
+    if (imgAlt !== undefined) updateData.imgAlt = imgAlt
     if (categoryId !== undefined) updateData.category = categoryId || null
     if (status !== undefined) {
       updateData.status = status

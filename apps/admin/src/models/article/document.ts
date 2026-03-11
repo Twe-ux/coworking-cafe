@@ -6,6 +6,7 @@ export interface ArticleDocument extends Document {
   content: string
   excerpt?: string
   featuredImage?: string
+  imgAlt?: string
   author: Types.ObjectId
   category?: Types.ObjectId
   status: "draft" | "published" | "archived" | "scheduled"
@@ -49,6 +50,7 @@ export const ArticleSchema = new Schema<ArticleDocument>(
       maxlength: 500,
     },
     featuredImage: String,
+    imgAlt: String,
     author: {
       type: Schema.Types.ObjectId,
       ref: "User",

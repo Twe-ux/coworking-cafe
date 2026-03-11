@@ -32,7 +32,7 @@ export function CreateArticleModal({
       setError(null);
 
       // Map form fields to API fields
-      const { imgSrc, imgAlt, category, ...rest } = data;
+      const { imgSrc, category, ...rest } = data;
       const apiData = {
         ...rest,
         featuredImage: imgSrc,
