@@ -289,6 +289,10 @@ export function getAdminMenu(
               title: "Empreintes capturées",
               url: "/admin/accounting/captured-deposits",
             },
+            {
+              title: "Analyse",
+              url: "/admin/accounting/analytics",
+            },
           ],
         },
       ],

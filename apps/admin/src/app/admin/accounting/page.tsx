@@ -42,10 +42,22 @@ export default function AccountingPage() {
               className="h-32 w-full flex flex-col gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
             >
               <CreditCard className="h-8 w-8 text-primary" />
-              <span className="text-lg font-semibold">Empreintes Capturées</span>
+              <span className="text-lg font-semibold">
+                Empreintes Capturées
+              </span>
               <span className="text-sm text-muted-foreground">
                 Suivi des no-show et annulations
               </span>
+            </Button>
+          </Link>
+          <Link href="/admin/accounting/analytics">
+            <Button
+              variant="outline"
+              className="h-32 w-full flex flex-col gap-2 border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+            >
+              <CreditCard className="h-8 w-8 text-primary" />
+              <span className="text-lg font-semibold">Analyse détaillé</span>
+              <span className="text-sm text-muted-foreground">??</span>
             </Button>
           </Link>
         </div>
