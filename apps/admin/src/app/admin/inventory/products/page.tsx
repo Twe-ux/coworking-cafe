@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Plus, AlertTriangle, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -16,9 +16,16 @@ import { ProductSearchBar } from '@/components/inventory/products/ProductSearchB
 import { ProductsBySupplierList } from '@/components/inventory/products/ProductsBySupplierList'
 import { LossDeclarationModal } from '@/components/inventory/products/LossDeclarationModal'
 import { useSupplierOrder } from '@/hooks/inventory/useSupplierOrder'
+import { markBadgeSeen } from '@/lib/utils/badge-seen'
+import { triggerSidebarRefresh } from '@/lib/events/sidebar-refresh'
 import type { Product, ProductFormData, ProductCategory } from '@/types/inventory'
 
 export default function ProductsPage() {
+  // Mark products as seen when page loads → clears sidebar badge
+  useEffect(() => {
+    markBadgeSeen('products')
+    triggerSidebarRefresh()
+  }, [])
   const [search, setSearch] = useState('')
   const [activeStatus, setActiveStatus] = useState<string>('active')
   const [lowStockOnly, setLowStockOnly] = useState(false)

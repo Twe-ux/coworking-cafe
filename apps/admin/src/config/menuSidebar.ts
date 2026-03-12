@@ -44,8 +44,10 @@ export interface MenuItem {
 /**
  * Menu pour les STAFF (employés)
  * Visible pour: staff et utilisateurs non connectés
+ *
+ * @param outOfStockCount - Nombre de produits en rupture de stock
  */
-export function getStaffMenu(): MenuItem[] {
+export function getStaffMenu(outOfStockCount?: number): MenuItem[] {
   return [
     {
       title: "Accueil",
@@ -71,6 +73,7 @@ export function getStaffMenu(): MenuItem[] {
       title: "Produits & Recettes",
       url: "/produits",
       icon: UtensilsCrossed,
+      badge: outOfStockCount && outOfStockCount > 0 ? outOfStockCount : undefined,
     },
   ];
 }
@@ -92,6 +95,7 @@ export interface MenuSection {
  * @param pendingBookings - Nombre de réservations en attente
  * @param pendingJustifications - Nombre de pointages avec justification
  * @param draftOrders - Nombre de commandes en brouillon
+ * @param outOfStockCount - Nombre de produits en rupture de stock
  * @param isDev - Si l'utilisateur est dev (pour afficher Dev Tools)
  * @param isAdmin - Si l'utilisateur est admin (pour afficher Dev Tools)
  */
@@ -101,6 +105,7 @@ export function getAdminMenu(
   pendingBookings: number,
   pendingJustifications: number,
   draftOrders: number,
+  outOfStockCount: number,
   isDev: boolean,
   isAdmin: boolean,
 ): MenuSection[] {
@@ -306,7 +311,7 @@ export function getAdminMenu(
           title: "Inventaire",
           url: "/admin/inventory",
           icon: Package,
-          badge: draftOrders > 0 ? draftOrders : undefined,
+          badge: (draftOrders > 0 || outOfStockCount > 0) ? (draftOrders + outOfStockCount) : undefined,
           items: [
             {
               title: "Fournisseurs",
@@ -315,6 +320,7 @@ export function getAdminMenu(
             {
               title: "Produits",
               url: "/admin/inventory/products",
+              badge: outOfStockCount > 0 ? outOfStockCount : undefined,
             },
             {
               title: "Inventaires",

@@ -8,6 +8,7 @@ import { HomePageHeader } from "@/components/home/HomePageHeader";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayReservationsCard } from "@/components/booking/TodayReservationsCard";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
+import { OutOfStockAlert } from "@/components/home/OutOfStockAlert";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
@@ -71,7 +72,14 @@ export default function HomePage() {
     <div className="min-h-screen bg-background px-4">
       <HomePageHeader />
       <CardContent className="space-y-4 p-4">
-        <PointagesSection employees={employees} onStatusChange={refetch} />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+          <div className="lg:col-span-8">
+            <PointagesSection employees={employees} onStatusChange={refetch} />
+          </div>
+          <div className="lg:col-span-4">
+            <OutOfStockAlert />
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3">
           <div className="lg:col-span-5">
             <TodayReservationsCard variant="admin" />

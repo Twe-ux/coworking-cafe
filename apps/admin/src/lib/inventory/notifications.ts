@@ -43,3 +43,27 @@ export function notifyInventoryOverdue(
     `[Inventory Notification] Overdue ${type} inventory, due: ${dueDate}`
   )
 }
+
+/**
+ * Notify admin when a product is reported out of stock by staff
+ */
+export function notifyOutOfStock(
+  productId: string,
+  productName: string,
+  previousStock: number,
+  reportedBy: string
+): void {
+  console.log(
+    `[Inventory Notification] Out of stock alert: "${productName}" (${productId})`,
+    {
+      previousStock,
+      newStock: 0,
+      reportedBy,
+      timestamp: new Date().toISOString(),
+    }
+  )
+  // TODO: Implement actual notification system
+  // - Email to admin
+  // - Push notification (PWA)
+  // - In-app notification center
+}

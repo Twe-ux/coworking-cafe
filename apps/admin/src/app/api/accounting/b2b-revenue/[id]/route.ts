@@ -126,6 +126,14 @@ export async function PUT(
       entry.revenueHT = body.revenueHT;
     }
 
+    if (body.isMonthlyDistribution !== undefined) {
+      entry.isMonthlyDistribution = body.isMonthlyDistribution;
+    }
+
+    if (body.distributionMonth !== undefined) {
+      entry.distributionMonth = body.distributionMonth;
+    }
+
     await entry.save();
 
     return NextResponse.json({

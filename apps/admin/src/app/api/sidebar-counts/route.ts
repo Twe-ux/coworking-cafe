@@ -8,6 +8,7 @@ import Absence from "@/models/absence";
 import TimeEntry from "@/models/timeEntry";
 import { Booking } from "@coworking-cafe/database";
 import { PurchaseOrder } from "@/models/inventory/purchaseOrder";
+import { Product } from "@/models/inventory/product";
 
 interface SidebarCounts {
   pendingBookings: number;
@@ -15,6 +16,7 @@ interface SidebarCounts {
   pendingAbsences: number;
   pendingJustifications: number;
   draftOrders: number;
+  outOfStockCount: number;
 }
 
 /**
@@ -36,17 +38,26 @@ export async function GET(
     // Connect both drivers in parallel
     await Promise.all([connectMongoose(), connectDB()]);
 
-    // Optional: only count bookings created after this timestamp (for "last seen" badge)
+    // Optional: only count bookings/products updated after this timestamp (for "last seen" badge)
     const { searchParams } = new URL(request.url);
     const bookingsSeenAt = searchParams.get("bookingsSeenAt");
+    const productsSeenAt = searchParams.get("productsSeenAt");
 
     const bookingsQuery: Record<string, unknown> = { status: "pending" };
     if (bookingsSeenAt) {
       bookingsQuery.createdAt = { $gt: new Date(bookingsSeenAt) };
     }
 
-    // Run all 5 count queries in parallel
-    const [unreadMessages, pendingAbsences, pendingBookings, pendingJustifications, draftOrders] =
+    const productsQuery: Record<string, unknown> = {
+      currentStock: 0,
+      isActive: true
+    };
+    if (productsSeenAt) {
+      productsQuery.updatedAt = { $gt: new Date(productsSeenAt) };
+    }
+
+    // Run all 6 count queries in parallel
+    const [unreadMessages, pendingAbsences, pendingBookings, pendingJustifications, draftOrders, outOfStockCount] =
       await Promise.all([
         ContactMail.countDocuments({ status: "unread" }),
         Absence.countDocuments({ status: "pending", isActive: true }),
@@ -57,6 +68,7 @@ export async function GET(
           isActive: true,
         }),
         PurchaseOrder.countDocuments({ status: "draft" }),
+        Product.countDocuments(productsQuery),
       ]);
 
     const counts: SidebarCounts = {
@@ -65,6 +77,7 @@ export async function GET(
       pendingAbsences,
       pendingJustifications,
       draftOrders,
+      outOfStockCount,
     };
 
     return successResponse(counts);

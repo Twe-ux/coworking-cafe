@@ -44,13 +44,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         counts.pendingBookings,
         counts.pendingJustifications,
         counts.draftOrders,
+        counts.outOfStockCount,
         isDev,
         isAdmin,
       );
     }
 
     // Menu STAFF pour les autres (format section pour compatibilité)
-    return [{ items: getStaffMenu() }];
+    return [{ items: getStaffMenu(counts.outOfStockCount) }];
   }, [isDev, isAdmin, counts, isLoading]);
 
   // Déterminer le label de rôle (afficher admin par défaut pendant chargement)

@@ -121,16 +121,25 @@ export function B2BRevenueDialog({ open, onOpenChange, editData }: B2BRevenueDia
       (data.revenueHT_10 || 0) +
       (data.revenueHT_20 || 0);
 
-    // Mode édition : mise à jour simple
+    // Mode édition : mise à jour
     if (isEditMode && editData) {
+      // Si facture mensuelle, recalculer distributionMonth
+      let distributionMonth;
+      if (data.isMonthly && data.year && data.month) {
+        const monthPadded = String(data.month).padStart(2, '0');
+        distributionMonth = `${data.year}-${monthPadded}`;
+      }
+
       const payload = {
-        serviceDate: data.serviceDate || '',
+        serviceDate: data.isMonthly ? '' : (data.serviceDate || ''),
         invoiceDate: data.invoiceDate,
         client: data.client,
         revenueHT_5_5: data.revenueHT_5_5 || 0,
         revenueHT_10: data.revenueHT_10 || 0,
         revenueHT_20: data.revenueHT_20 || 0,
         revenueHT: total,
+        isMonthlyDistribution: data.isMonthly || false,
+        distributionMonth: distributionMonth || undefined,
       };
 
       updateRevenue(

@@ -33,7 +33,8 @@ export type NotificationType =
   | "system"
   | "booking"
   | "justification"
-  | "order";
+  | "order"
+  | "stock-alert";
 
 /**
  * Configuration des types de notifications
@@ -80,6 +81,12 @@ export const NOTIFICATION_CONFIGS = {
     badge: "/web-app-manifest-192x192.png",
     tag: "order-notification",
     url: "/admin/inventory/orders",
+  },
+  "stock-alert": {
+    icon: "/web-app-manifest-512x512.png",
+    badge: "/web-app-manifest-192x192.png",
+    tag: "stock-alert-notification",
+    url: "/produits",
   },
 } as const;
 
@@ -406,4 +413,28 @@ export async function sendNewPurchaseOrderNotification(data: {
   });
 
   console.log("[Push] Order notification result:", result);
+}
+
+/**
+ * Envoie une notification pour un produit signalé en rupture de stock
+ */
+export async function sendOutOfStockNotification(data: {
+  id: string;
+  productName: string;
+  previousStock: number;
+  reportedBy: string;
+  outOfStockCount: number;
+}): Promise<void> {
+  const body = `Rupture de stock - ${data.productName} signalé par ${data.reportedBy}`;
+  const truncatedBody =
+    body.length > 120 ? body.substring(0, 117) + "..." : body;
+
+  const result = await sendTypedNotification("stock-alert", {
+    body: truncatedBody,
+    messageId: data.id,
+    unreadCount: data.outOfStockCount,
+    requireInteraction: true,
+  });
+
+  console.log("[Push] Stock alert notification result:", result);
 }

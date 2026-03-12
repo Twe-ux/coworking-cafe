@@ -8,6 +8,7 @@ interface SidebarCounts {
   pendingAbsences: number;
   pendingJustifications: number;
   draftOrders: number;
+  outOfStockCount: number;
 }
 
 interface UseSidebarCountsReturn {
@@ -23,6 +24,7 @@ const DEFAULT_COUNTS: SidebarCounts = {
   pendingAbsences: 0,
   pendingJustifications: 0,
   draftOrders: 0,
+  outOfStockCount: 0,
 };
 
 const POLLING_INTERVAL = 300_000; // 5 minutes
@@ -60,6 +62,9 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
       const bookingsSeenAt = getBadgeSeenAt("bookings");
       if (bookingsSeenAt) params.set("bookingsSeenAt", bookingsSeenAt);
 
+      const productsSeenAt = getBadgeSeenAt("products");
+      if (productsSeenAt) params.set("productsSeenAt", productsSeenAt);
+
       const url = params.toString()
         ? `/api/sidebar-counts?${params}`
         : "/api/sidebar-counts";
@@ -83,6 +88,7 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
         pendingAbsences: data.data?.pendingAbsences || 0,
         pendingJustifications: data.data?.pendingJustifications || 0,
         draftOrders: data.data?.draftOrders || 0,
+        outOfStockCount: data.data?.outOfStockCount || 0,
       };
 
       setCounts(newCounts);
@@ -92,7 +98,8 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
         newCounts.unreadMessages +
         newCounts.pendingAbsences +
         newCounts.pendingJustifications +
-        newCounts.draftOrders;
+        newCounts.draftOrders +
+        newCounts.outOfStockCount;
       updatePWABadge(total);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
