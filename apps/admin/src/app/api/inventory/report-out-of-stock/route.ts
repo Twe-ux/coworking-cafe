@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { requireAuth } from "@/lib/api/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { Product } from "@/models/inventory/product";
@@ -16,13 +17,13 @@ const reportSchema = z.object({
  * POST /api/inventory/report-out-of-stock
  * Report a product as out of stock (sets currentStock to 0 and notifies admin)
  * Body: { productId: string }
- * Auth: requireAuth(['admin', 'staff', 'dev'])
+ * Auth: Public (accessible au staff sans rôle strict)
  */
 export async function POST(request: NextRequest) {
   try {
-    // Auth check - All authenticated users can report out of stock
-    const authResult = await requireAuth(["dev", "admin", "staff"]);
-    if (!authResult.authorized) return authResult.response;
+    // Optional auth - Get session if available, otherwise use "Staff" as default
+    const session = await getServerSession(authOptions);
+    const reportedByName = session?.user?.name || "Staff";
 
     // Connect to database
     await connectMongoose();
@@ -35,11 +36,8 @@ export async function POST(request: NextRequest) {
       validated = reportSchema.parse(body);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        return errorResponse(
-          "Validation échouée",
-          err.errors.map((e) => e.message).join(", "),
-          400
-        );
+        const errorMessages = err.issues.map((issue) => issue.message).join(", ");
+        return errorResponse("Validation échouée", errorMessages, 400);
       }
       throw err;
     }
@@ -68,7 +66,7 @@ export async function POST(request: NextRequest) {
       id: product._id.toString(),
       productName: product.name,
       previousStock,
-      reportedBy: authResult.user?.name || "Utilisateur",
+      reportedBy: reportedByName,
       outOfStockCount,
     });
 

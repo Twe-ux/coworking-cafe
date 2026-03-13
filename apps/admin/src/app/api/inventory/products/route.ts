@@ -18,21 +18,31 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    // Auth check
-    const authResult = await requireAuth(getRequiredRoles('viewProducts'))
-    if (!authResult.authorized) return authResult.response
+    // Parse query parameters first
+    const { searchParams } = new URL(request.url)
+    const search = searchParams.get('search')
+    const active = searchParams.get('active')
+
+    // Public access for simple search (for out-of-stock widget)
+    // Only requires search param and active=true
+    const isPublicSearch = search && active === 'true'
+
+    // Auth check - skip for public search
+    let isAuthenticated = false
+    if (!isPublicSearch) {
+      const authResult = await requireAuth(getRequiredRoles('viewProducts'))
+      if (!authResult.authorized) return authResult.response
+      isAuthenticated = true
+    }
 
     // Connect to database
     await connectMongoose()
 
-    // Parse query parameters
-    const { searchParams } = new URL(request.url)
+    // Parse remaining query parameters
     const ids = searchParams.get('ids') // Comma-separated IDs
-    const search = searchParams.get('search')
     const category = searchParams.get('category')
     const supplierId = searchParams.get('supplierId')
     const lowStock = searchParams.get('lowStock')
-    const active = searchParams.get('active')
     const sortBy = searchParams.get('sortBy')
 
     // Build filter
@@ -92,10 +102,24 @@ export async function GET(request: NextRequest) {
       .sort(sortOrder)
       .lean()
 
-    // Transform dates to strings and populate supplier name
-    const transformedProducts = products.map((product: {
-      [key: string]: unknown
-    }) => transformProductForAPI(product))
+    // Transform products based on authentication status
+    let transformedProducts
+    if (isPublicSearch) {
+      // Public access: return only basic info (no prices, no supplier details)
+      transformedProducts = products.map((product: {
+        [key: string]: unknown
+      }) => ({
+        _id: product._id?.toString() || '',
+        name: product.name || '',
+        currentStock: product.currentStock || 0,
+        category: product.category || '',
+      }))
+    } else {
+      // Authenticated access: return full details
+      transformedProducts = products.map((product: {
+        [key: string]: unknown
+      }) => transformProductForAPI(product))
+    }
 
     return successResponse(transformedProducts)
   } catch (error) {

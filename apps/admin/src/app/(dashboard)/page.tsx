@@ -1,18 +1,18 @@
 "use client";
 
+import { TodayReservationsCard } from "@/components/booking/TodayReservationsCard";
 import { WeekCard } from "@/components/employee-scheduling/scheduling/WeekCard";
 import type { WeekData } from "@/components/employee-scheduling/scheduling/types";
 import { useScheduleData } from "@/components/employee-scheduling/scheduling/useScheduleData";
 import { CashRegisterWidget } from "@/components/home/CashRegisterWidget";
 import { HomePageHeader } from "@/components/home/HomePageHeader";
-import { PointagesSection } from "@/components/home/PointagesSection";
-import { TodayReservationsCard } from "@/components/booking/TodayReservationsCard";
-import { TodayTasksCard } from "@/components/home/TodayTasksCard";
 import { OutOfStockAlert } from "@/components/home/OutOfStockAlert";
+import { PointagesSection } from "@/components/home/PointagesSection";
+import { TodayTasksCard } from "@/components/home/TodayTasksCard";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
-import { useMemo, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 /**
  * Page d'accueil "/" - Vue fullscreen sans sidebar
@@ -30,15 +30,15 @@ export default function HomePage() {
   // Refetch immédiat quand la fenêtre redevient active
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         refetch();
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [refetch]);
 
@@ -73,11 +73,8 @@ export default function HomePage() {
       <HomePageHeader />
       <CardContent className="space-y-4 p-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-10">
             <PointagesSection employees={employees} onStatusChange={refetch} />
-          </div>
-          <div className="lg:col-span-4">
-            <OutOfStockAlert />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3">
@@ -87,8 +84,11 @@ export default function HomePage() {
           <div className="lg:col-span-5">
             <TodayTasksCard />
           </div>
-          <div className="lg:col-span-2">
-            <CashRegisterWidget />
+          <div className="lg:col-span-2 ">
+            <div className="flex flex-col h-full gap-2">
+              <OutOfStockAlert />
+              <CashRegisterWidget />
+            </div>
           </div>
         </div>
         {currentWeek && (
