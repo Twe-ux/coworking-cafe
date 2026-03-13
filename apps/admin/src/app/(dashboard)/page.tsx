@@ -9,6 +9,7 @@ import { HomePageHeader } from "@/components/home/HomePageHeader";
 import { OutOfStockAlert } from "@/components/home/OutOfStockAlert";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
+import { OutOfStockList } from "@/components/inventory/OutOfStockList";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
@@ -90,6 +91,10 @@ export default function HomePage() {
               <CashRegisterWidget />
             </div>
           </div>
+        </div>
+        {/* Liste de courses - visible si ruptures */}
+        <div className="max-w-md">
+          <OutOfStockList variant="compact" />
         </div>
         {currentWeek && (
           <WeekCard
