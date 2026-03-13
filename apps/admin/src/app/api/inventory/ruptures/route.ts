@@ -9,14 +9,10 @@ export const dynamic = "force-dynamic";
 
 /**
  * GET /api/inventory/ruptures - Liste des produits en rupture de stock
- * Query params: ?includeHandled=true (pour afficher aussi les produits traités)
- * Auth: requireAuth(['admin', 'staff', 'dev'])
+ * Auth: Public (accessible sans authentification pour staff)
  */
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await requireAuth(getRequiredRoles("viewProducts"));
-    if (!authResult.authorized) return authResult.response;
-
     await connectMongoose();
 
     const { searchParams } = new URL(request.url);
