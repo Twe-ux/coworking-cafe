@@ -147,26 +147,8 @@ export function OutOfStockList({
 
   // Compact variant (mobile view)
   if (variant === "compact") {
-    if (isLoading) {
-      return (
-        <Card className="border-orange-400">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4" />
-              Liste de Courses
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-10 w-full" />
-            ))}
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Ne rien afficher s'il n'y a pas de ruptures
-    if (products.length === 0) {
+    // Ne rien afficher pendant le chargement OU s'il n'y a pas de ruptures
+    if (isLoading || products.length === 0) {
       return null;
     }
 

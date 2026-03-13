@@ -93,9 +93,7 @@ export default function HomePage() {
           </div>
         </div>
         {/* Liste de courses - visible si ruptures */}
-        <div className="max-w-md">
-          <OutOfStockList variant="compact" />
-        </div>
+        <OutOfStockList variant="compact" />
         {currentWeek && (
           <WeekCard
             week={currentWeek}
