@@ -9,7 +9,6 @@ import { HomePageHeader } from "@/components/home/HomePageHeader";
 import { OutOfStockAlert } from "@/components/home/OutOfStockAlert";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
-import { OutOfStockList } from "@/components/inventory/OutOfStockList";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
@@ -93,7 +92,7 @@ export default function HomePage() {
           </div>
         </div>
         {/* Liste de courses - visible si ruptures */}
-        <OutOfStockList variant="compact" />
+        {/* <OutOfStockList variant="compact" /> */}
         {currentWeek && (
           <WeekCard
             week={currentWeek}
