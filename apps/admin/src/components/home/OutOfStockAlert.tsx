@@ -121,13 +121,13 @@ export function OutOfStockAlert() {
     <Card className="border-orange-400 border">
       <CardContent className="p-3 ">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-orange-600 shrink-0" />
+          {/* <AlertTriangle className="h-4 w-4 text-orange-600 shrink-0" /> */}
 
           <div className="flex-1 relative">
             <div className="relative">
               <Input
                 type="text"
-                placeholder="Recherche ..."
+                placeholder="Rechercher un produit ..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() =>
