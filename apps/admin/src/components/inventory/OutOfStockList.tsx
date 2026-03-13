@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, ShoppingCart, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
+import {
+  Check,
+  ShoppingCart,
+  AlertCircle,
+  RefreshCw,
+  Loader2,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,17 +49,29 @@ export function OutOfStockList({
   const isPulling = useRef(false);
 
   // Fetch out-of-stock products
-  const { data: products = [], isLoading, refetch, error } = useQuery<OutOfStockProduct[]>({
+  const {
+    data: products = [],
+    isLoading,
+    refetch,
+    error,
+  } = useQuery<OutOfStockProduct[]>({
     queryKey: ["out-of-stock"],
     queryFn: async () => {
       console.log("[OutOfStockList] Fetching out-of-stock products...");
       const res = await fetch("/api/inventory/ruptures");
       if (!res.ok) {
-        console.error("[OutOfStockList] Fetch failed:", res.status, res.statusText);
+        console.error(
+          "[OutOfStockList] Fetch failed:",
+          res.status,
+          res.statusText,
+        );
         throw new Error("Failed to fetch out-of-stock products");
       }
       const result = await res.json();
-      console.log("[OutOfStockList] Fetched products:", result.data?.length || 0);
+      console.log(
+        "[OutOfStockList] Fetched products:",
+        result.data?.length || 0,
+      );
       return result.data || [];
     },
     refetchInterval: 10000, // Refresh every 10s (faster)
@@ -87,7 +105,7 @@ export function OutOfStockList({
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["out-of-stock"] });
       toast.success(
-        variables.marked ? "Produit marqué pour achat" : "Produit décoché"
+        variables.marked ? "Produit marqué pour achat" : "Produit décoché",
       );
     },
     onError: (error: Error) => {
@@ -169,11 +187,20 @@ export function OutOfStockList({
 
     // Ne rien afficher pendant le chargement OU s'il n'y a pas de ruptures
     if (isLoading || products.length === 0) {
-      console.log("[OutOfStockList] Not showing - isLoading:", isLoading, "products:", products.length);
+      console.log(
+        "[OutOfStockList] Not showing - isLoading:",
+        isLoading,
+        "products:",
+        products.length,
+      );
       return null;
     }
 
-    console.log("[OutOfStockList] Rendering compact view with", products.length, "products");
+    console.log(
+      "[OutOfStockList] Rendering compact view with",
+      products.length,
+      "products",
+    );
 
     // Séparer les produits cochés et non cochés pour l'affichage
     const uncheckedProducts = products.filter((p) => !p.purchaseMarked);
@@ -185,9 +212,13 @@ export function OutOfStockList({
         {pullDistance > 0 && (
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full transition-transform"
-            style={{ transform: `translateX(-50%) translateY(${pullDistance - 100}%)` }}
+            style={{
+              transform: `translateX(-50%) translateY(${pullDistance - 100}%)`,
+            }}
           >
-            <Loader2 className={`h-5 w-5 text-orange-600 ${pullDistance > 60 ? "animate-spin" : ""}`} />
+            <Loader2
+              className={`h-5 w-5 text-orange-600 ${pullDistance > 60 ? "animate-spin" : ""}`}
+            />
           </div>
         )}
 
@@ -196,7 +227,7 @@ export function OutOfStockList({
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm flex items-center gap-2">
                 <ShoppingCart className="h-4 w-4" />
-                Liste de Courses
+                Liste de Courses / Ruptures
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Badge variant="destructive">{products.length}</Badge>
@@ -207,61 +238,65 @@ export function OutOfStockList({
                   disabled={isRefreshing}
                   className="h-6 w-6 p-0"
                 >
-                  <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+                  <RefreshCw
+                    className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
+                  />
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-1.5 max-h-[200px] overflow-y-auto">
-          {/* Produits non cochés d'abord */}
-          {uncheckedProducts.slice(0, 5).map((product) => (
-            <div
-              key={product._id}
-              className="flex items-center gap-2 py-1.5 px-2 hover:bg-muted/50 rounded"
-            >
-              <Checkbox
-                checked={false}
-                onCheckedChange={() => handleToggle(product._id, false)}
-                disabled={toggleMutation.isPending}
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{product.name}</p>
-                <p className="text-xs text-muted-foreground truncate">
+            {/* Produits non cochés d'abord */}
+            {uncheckedProducts.slice(0, 5).map((product) => (
+              <div
+                key={product._id}
+                className="flex items-center gap-2 py-1.5 px-2 hover:bg-muted/50 rounded"
+              >
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={() => handleToggle(product._id, false)}
+                  disabled={toggleMutation.isPending}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{product.name}</p>
+                  {/* <p className="text-xs text-muted-foreground truncate">
                   {categoryLabels[product.category] || product.category}
-                </p>
+                </p> */}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {/* Produits cochés (marqués pour achat) - affichage différent */}
-          {checkedProducts.slice(0, Math.max(0, 5 - uncheckedProducts.length)).map((product) => (
-            <div
-              key={product._id}
-              className="flex items-center gap-2 py-1.5 px-2 hover:bg-muted/50 rounded opacity-50"
-            >
-              <Checkbox
-                checked={true}
-                onCheckedChange={() => handleToggle(product._id, true)}
-                disabled={toggleMutation.isPending}
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate line-through">
-                  {product.name}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {categoryLabels[product.category] || product.category}
-                </p>
-              </div>
-            </div>
-          ))}
+            {/* Produits cochés (marqués pour achat) - affichage différent */}
+            {checkedProducts
+              .slice(0, Math.max(0, 5 - uncheckedProducts.length))
+              .map((product) => (
+                <div
+                  key={product._id}
+                  className="flex items-center gap-2 py-1.5 px-2 hover:bg-muted/50 rounded opacity-50"
+                >
+                  <Checkbox
+                    checked={true}
+                    onCheckedChange={() => handleToggle(product._id, true)}
+                    disabled={toggleMutation.isPending}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate line-through">
+                      {product.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {categoryLabels[product.category] || product.category}
+                    </p>
+                  </div>
+                </div>
+              ))}
 
-          {products.length > 5 && (
-            <p className="text-xs text-muted-foreground text-center pt-2">
-              +{products.length - 5} autres produits
-            </p>
-          )}
-        </CardContent>
-      </Card>
+            {products.length > 5 && (
+              <p className="text-xs text-muted-foreground text-center pt-2">
+                +{products.length - 5} autres produits
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -319,7 +354,9 @@ export function OutOfStockList({
           disabled={isRefreshing}
           className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50"
         >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+          />
           Actualiser
         </Button>
       </div>
@@ -328,7 +365,10 @@ export function OutOfStockList({
       {unmarkedProducts.length > 0 && (
         <div className="space-y-2">
           {unmarkedProducts.map((product) => (
-            <Card key={product._id} className="hover:bg-muted/50 transition-colors">
+            <Card
+              key={product._id}
+              className="hover:bg-muted/50 transition-colors"
+            >
               <CardContent className="py-4">
                 <div className="flex items-center gap-4">
                   <Checkbox
@@ -357,7 +397,9 @@ export function OutOfStockList({
                         Signalé le
                       </p>
                       <p className="text-sm">
-                        {new Date(product.updatedAt).toLocaleDateString("fr-FR")}
+                        {new Date(product.updatedAt).toLocaleDateString(
+                          "fr-FR",
+                        )}
                       </p>
                     </div>
                   </div>
@@ -408,7 +450,9 @@ export function OutOfStockList({
                         Signalé le
                       </p>
                       <p className="text-sm">
-                        {new Date(product.updatedAt).toLocaleDateString("fr-FR")}
+                        {new Date(product.updatedAt).toLocaleDateString(
+                          "fr-FR",
+                        )}
                       </p>
                     </div>
                   </div>
