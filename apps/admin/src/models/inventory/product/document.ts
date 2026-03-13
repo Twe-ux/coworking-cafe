@@ -26,7 +26,8 @@ export interface ProductDocument extends Document {
   hasShortDLC: boolean
   dlcAlertConfig?: DLCAlertConfig
   isActive: boolean
-  outOfStockHandledAt?: Date // Date de traitement de la rupture
+  outOfStockHandledAt?: Date // Date de traitement de la rupture (dans commande/achat)
+  purchaseMarked?: boolean // Indicateur visuel "marqué pour achat" (checkbox)
   createdAt: Date
   updatedAt: Date
 }
@@ -138,6 +139,10 @@ export const ProductSchema = new Schema<ProductDocument>(
     outOfStockHandledAt: {
       type: Date,
       required: false,
+    },
+    purchaseMarked: {
+      type: Boolean,
+      default: false,
     },
   },
   {

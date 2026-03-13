@@ -52,6 +52,11 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      {/* Liste de courses - visible uniquement en mobile et si ruptures */}
+      <div className="block md:hidden px-3">
+        <OutOfStockList variant="compact" />
+      </div>
+
       {/* Section financière - Visible uniquement pour dev + admin */}
       <RoleGuard
         allowedRoles={["dev", "admin"]}
@@ -83,13 +88,9 @@ export default function DashboardPage() {
         </div>
         <PointagesSection employees={employees} onStatusChange={refetch} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
           <TodayTasksCard />
           <CashRegisterWidget />
-          {/* Liste de courses - visible uniquement en mobile */}
-          <div className="block md:hidden">
-            <OutOfStockList variant="compact" />
-          </div>
         </div>
       </RoleGuard>
     </div>

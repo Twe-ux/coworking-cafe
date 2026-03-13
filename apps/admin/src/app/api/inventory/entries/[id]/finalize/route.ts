@@ -123,7 +123,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
     await Promise.all(movementPromises)
 
-    // Remove out-of-stock flag for products that are now in stock after inventory adjustment
+    // Remove out-of-stock flags for products that are now in stock after inventory adjustment
     const adjustedProductIds = entry.items
       .filter((item) => item.variance !== 0)
       .map((item) => item.productId)
@@ -133,9 +133,11 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
         {
           _id: { $in: adjustedProductIds },
           currentStock: { $gt: 0 },
-          outOfStockHandledAt: { $exists: true },
         },
-        { $unset: { outOfStockHandledAt: 1 } }
+        {
+          $unset: { outOfStockHandledAt: 1 },
+          $set: { purchaseMarked: false }
+        }
       )
     }
 

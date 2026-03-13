@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, ShoppingCart, AlertCircle, RefreshCw } from "lucide-react";
+import { Check, ShoppingCart, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,7 +15,7 @@ interface OutOfStockProduct {
   name: string;
   category: string;
   supplierName: string;
-  outOfStockHandledAt?: string;
+  purchaseMarked?: boolean;
   updatedAt: string;
 }
 
@@ -37,35 +37,38 @@ export function OutOfStockList({
   showHandled = false,
 }: OutOfStockListProps) {
   const queryClient = useQueryClient();
-  const [includeHandled, setIncludeHandled] = useState(showHandled);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const touchStartY = useRef(0);
+  const isPulling = useRef(false);
 
   // Fetch out-of-stock products
-  const { data: products = [], isLoading } = useQuery<OutOfStockProduct[]>({
-    queryKey: ["out-of-stock", includeHandled],
+  const { data: products = [], isLoading, refetch } = useQuery<OutOfStockProduct[]>({
+    queryKey: ["out-of-stock"],
     queryFn: async () => {
-      const res = await fetch(
-        `/api/inventory/ruptures?includeHandled=${includeHandled}`
-      );
+      const res = await fetch("/api/inventory/ruptures");
       if (!res.ok) throw new Error("Failed to fetch out-of-stock products");
       const result = await res.json();
       return result.data || [];
     },
-    refetchInterval: 30000, // Refresh every 30s
+    refetchInterval: 10000, // Refresh every 10s (faster)
+    refetchOnWindowFocus: true, // Refresh when window regains focus
+    refetchOnMount: true, // Refresh on component mount
   });
 
-  // Toggle handled status mutation
+  // Toggle purchase marked status mutation
   const toggleMutation = useMutation({
     mutationFn: async ({
       productId,
-      handled,
+      marked,
     }: {
       productId: string;
-      handled: boolean;
+      marked: boolean;
     }) => {
       const res = await fetch("/api/inventory/ruptures", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, handled }),
+        body: JSON.stringify({ productId, marked }),
       });
 
       if (!res.ok) {
@@ -77,9 +80,8 @@ export function OutOfStockList({
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["out-of-stock"] });
-      queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] });
       toast.success(
-        variables.handled ? "Produit marqué comme traité" : "Produit non traité"
+        variables.marked ? "Produit marqué pour achat" : "Produit décoché"
       );
     },
     onError: (error: Error) => {
@@ -87,9 +89,61 @@ export function OutOfStockList({
     },
   });
 
-  const handleToggle = (productId: string, currentlyHandled: boolean) => {
-    toggleMutation.mutate({ productId, handled: !currentlyHandled });
+  const handleToggle = (productId: string, currentlyMarked: boolean) => {
+    toggleMutation.mutate({ productId, marked: !currentlyMarked });
   };
+
+  // Manual refresh with animation
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    queryClient.invalidateQueries({ queryKey: ["sidebar-counts"] });
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
+
+  // Pull-to-refresh for mobile
+  useEffect(() => {
+    if (variant !== "compact") return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (window.scrollY === 0) {
+        touchStartY.current = e.touches[0].clientY;
+        isPulling.current = true;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isPulling.current) return;
+
+      const touchY = e.touches[0].clientY;
+      const distance = touchY - touchStartY.current;
+
+      if (distance > 0 && distance < 100) {
+        setPullDistance(distance);
+      }
+    };
+
+    const handleTouchEnd = async () => {
+      if (!isPulling.current) return;
+
+      if (pullDistance > 60) {
+        await handleManualRefresh();
+      }
+
+      isPulling.current = false;
+      setPullDistance(0);
+    };
+
+    document.addEventListener("touchstart", handleTouchStart);
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [variant, pullDistance, refetch, queryClient]);
 
   // Compact variant (mobile view)
   if (variant === "compact") {
@@ -111,40 +165,51 @@ export function OutOfStockList({
       );
     }
 
-    const pendingProducts = products.filter((p) => !p.outOfStockHandledAt);
-
-    if (pendingProducts.length === 0) {
-      return (
-        <Card className="border-orange-400">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4" />
-              Liste de Courses
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Check className="h-4 w-4 text-green-600" />
-              Aucune rupture en attente
-            </div>
-          </CardContent>
-        </Card>
-      );
+    // Ne rien afficher s'il n'y a pas de ruptures
+    if (products.length === 0) {
+      return null;
     }
 
+    // Séparer les produits cochés et non cochés pour l'affichage
+    const uncheckedProducts = products.filter((p) => !p.purchaseMarked);
+    const checkedProducts = products.filter((p) => p.purchaseMarked);
+
     return (
-      <Card className="border-orange-400">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4" />
-              Liste de Courses
-            </CardTitle>
-            <Badge variant="destructive">{pendingProducts.length}</Badge>
+      <div className="relative">
+        {/* Pull-to-refresh indicator */}
+        {pullDistance > 0 && (
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full transition-transform"
+            style={{ transform: `translateX(-50%) translateY(${pullDistance - 100}%)` }}
+          >
+            <Loader2 className={`h-5 w-5 text-orange-600 ${pullDistance > 60 ? "animate-spin" : ""}`} />
           </div>
-        </CardHeader>
-        <CardContent className="space-y-1.5 max-h-[200px] overflow-y-auto">
-          {pendingProducts.slice(0, 5).map((product) => (
+        )}
+
+        <Card className="border-orange-400">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4" />
+                Liste de Courses
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Badge variant="destructive">{products.length}</Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleManualRefresh}
+                  disabled={isRefreshing}
+                  className="h-6 w-6 p-0"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-1.5 max-h-[200px] overflow-y-auto">
+          {/* Produits non cochés d'abord */}
+          {uncheckedProducts.slice(0, 5).map((product) => (
             <div
               key={product._id}
               className="flex items-center gap-2 py-1.5 px-2 hover:bg-muted/50 rounded"
@@ -162,13 +227,37 @@ export function OutOfStockList({
               </div>
             </div>
           ))}
-          {pendingProducts.length > 5 && (
+
+          {/* Produits cochés (marqués pour achat) - affichage différent */}
+          {checkedProducts.slice(0, Math.max(0, 5 - uncheckedProducts.length)).map((product) => (
+            <div
+              key={product._id}
+              className="flex items-center gap-2 py-1.5 px-2 hover:bg-muted/50 rounded opacity-50"
+            >
+              <Checkbox
+                checked={true}
+                onCheckedChange={() => handleToggle(product._id, true)}
+                disabled={toggleMutation.isPending}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate line-through">
+                  {product.name}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {categoryLabels[product.category] || product.category}
+                </p>
+              </div>
+            </div>
+          ))}
+
+          {products.length > 5 && (
             <p className="text-xs text-muted-foreground text-center pt-2">
-              +{pendingProducts.length - 5} autres produits
+              +{products.length - 5} autres produits
             </p>
           )}
         </CardContent>
       </Card>
+      </div>
     );
   }
 
@@ -205,34 +294,35 @@ export function OutOfStockList({
     );
   }
 
-  const pendingProducts = products.filter((p) => !p.outOfStockHandledAt);
-  const handledProducts = products.filter((p) => p.outOfStockHandledAt);
+  const unmarkedProducts = products.filter((p) => !p.purchaseMarked);
+  const markedProducts = products.filter((p) => p.purchaseMarked);
 
   return (
     <div className="space-y-6">
-      {/* Toggle handled products */}
+      {/* Header with count */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <AlertCircle className="h-5 w-5 text-orange-600" />
           <h2 className="text-lg font-semibold">
-            Produits en rupture ({pendingProducts.length})
+            Produits en rupture ({products.length})
           </h2>
         </div>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setIncludeHandled(!includeHandled)}
+          onClick={handleManualRefresh}
+          disabled={isRefreshing}
           className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50"
         >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          {includeHandled ? "Masquer traités" : "Afficher traités"}
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+          Actualiser
         </Button>
       </div>
 
-      {/* Pending products */}
-      {pendingProducts.length > 0 && (
+      {/* Unmarked products (prioritaires) */}
+      {unmarkedProducts.length > 0 && (
         <div className="space-y-2">
-          {pendingProducts.map((product) => (
+          {unmarkedProducts.map((product) => (
             <Card key={product._id} className="hover:bg-muted/50 transition-colors">
               <CardContent className="py-4">
                 <div className="flex items-center gap-4">
@@ -273,17 +363,17 @@ export function OutOfStockList({
         </div>
       )}
 
-      {/* Handled products (if shown) */}
-      {includeHandled && handledProducts.length > 0 && (
+      {/* Marked products (marqués pour achat) */}
+      {markedProducts.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <Check className="h-4 w-4" />
-            Produits traités ({handledProducts.length})
+            Produits marqués pour achat ({markedProducts.length})
           </h3>
-          {handledProducts.map((product) => (
+          {markedProducts.map((product) => (
             <Card
               key={product._id}
-              className="opacity-60 hover:opacity-100 transition-opacity"
+              className="opacity-50 hover:opacity-100 transition-opacity"
             >
               <CardContent className="py-4">
                 <div className="flex items-center gap-4">
@@ -309,13 +399,11 @@ export function OutOfStockList({
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Traité le</p>
-                      <p className="text-sm text-green-600">
-                        {product.outOfStockHandledAt
-                          ? new Date(product.outOfStockHandledAt).toLocaleDateString(
-                              "fr-FR"
-                            )
-                          : "-"}
+                      <p className="text-sm text-muted-foreground">
+                        Signalé le
+                      </p>
+                      <p className="text-sm">
+                        {new Date(product.updatedAt).toLocaleDateString("fr-FR")}
                       </p>
                     </div>
                   </div>

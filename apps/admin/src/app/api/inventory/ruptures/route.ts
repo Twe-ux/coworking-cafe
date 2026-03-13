@@ -22,16 +22,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const includeHandled = searchParams.get("includeHandled") === "true";
 
-    // Build filter: produits avec stock = 0 et actifs
+    // Build filter: produits avec stock = 0, actifs, et non traités
+    // outOfStockHandledAt = produit dans une commande/achat (suppression de la liste)
     const filter: Record<string, unknown> = {
       currentStock: 0,
       isActive: true,
+      outOfStockHandledAt: { $exists: false },
     };
-
-    // Si on ne veut pas les produits déjà traités
-    if (!includeHandled) {
-      filter.outOfStockHandledAt = { $exists: false };
-    }
 
     const products = await Product.find(filter)
       .populate("supplierId", "name")
@@ -46,9 +43,7 @@ export async function GET(request: NextRequest) {
       category: product.category || "",
       supplierName: product.supplierName ||
         ((product.supplierId as { name?: string })?.name) || "",
-      outOfStockHandledAt: product.outOfStockHandledAt
-        ? (product.outOfStockHandledAt as Date).toISOString()
-        : undefined,
+      purchaseMarked: product.purchaseMarked || false,
       updatedAt: product.updatedAt
         ? (product.updatedAt as Date).toISOString()
         : "",
@@ -66,8 +61,8 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * PATCH /api/inventory/ruptures - Marquer un produit comme traité/non-traité
- * Body: { productId: string, handled: boolean }
+ * PATCH /api/inventory/ruptures - Toggle checkbox "marqué pour achat"
+ * Body: { productId: string, marked: boolean }
  * Auth: requireAuth(['admin', 'staff', 'dev'])
  */
 export async function PATCH(request: NextRequest) {
@@ -78,10 +73,10 @@ export async function PATCH(request: NextRequest) {
     await connectMongoose();
 
     const body = await request.json();
-    const { productId, handled } = body;
+    const { productId, marked } = body;
 
-    if (!productId || typeof handled !== "boolean") {
-      return errorResponse("productId et handled sont requis", undefined, 400);
+    if (!productId || typeof marked !== "boolean") {
+      return errorResponse("productId et marked sont requis", undefined, 400);
     }
 
     const product = await Product.findById(productId);
@@ -89,25 +84,19 @@ export async function PATCH(request: NextRequest) {
       return errorResponse("Produit introuvable", undefined, 404);
     }
 
-    // Marquer comme traité ou non-traité
-    if (handled) {
-      product.outOfStockHandledAt = new Date();
-    } else {
-      product.outOfStockHandledAt = undefined;
-    }
-
+    // Toggle checkbox (indicateur visuel "marqué pour achat")
+    product.purchaseMarked = marked;
     await product.save();
 
     return successResponse(
       {
         productId: product._id.toString(),
         productName: product.name,
-        handled,
-        outOfStockHandledAt: product.outOfStockHandledAt?.toISOString(),
+        purchaseMarked: product.purchaseMarked,
       },
-      handled
-        ? `${product.name} marqué comme traité`
-        : `${product.name} marqué comme non-traité`
+      marked
+        ? `${product.name} marqué pour achat`
+        : `${product.name} décoché`
     );
   } catch (error) {
     console.error("[PATCH /api/inventory/ruptures] Error:", error);

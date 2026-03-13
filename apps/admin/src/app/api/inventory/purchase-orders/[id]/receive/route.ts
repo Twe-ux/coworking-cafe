@@ -129,7 +129,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     await Promise.all(receptionPromises)
 
-    // Remove out-of-stock flag for products that are now in stock
+    // Remove out-of-stock flags for products that are now in stock
     const receivedProductIds = body.items
       .filter((item) => item.receivedQty > 0)
       .map((item) => item.productId)
@@ -139,9 +139,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         {
           _id: { $in: receivedProductIds },
           currentStock: { $gt: 0 },
-          outOfStockHandledAt: { $exists: true },
         },
-        { $unset: { outOfStockHandledAt: 1 } }
+        {
+          $unset: { outOfStockHandledAt: 1 },
+          $set: { purchaseMarked: false }
+        }
       )
     }
 
