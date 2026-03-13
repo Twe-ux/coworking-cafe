@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { Product } from "@/models/inventory/product";
+import { Supplier } from "@/models/inventory/supplier";
 import { getRequiredRoles } from "@/lib/inventory/permissions";
 
 export const dynamic = "force-dynamic";
