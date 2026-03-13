@@ -63,13 +63,10 @@ export async function GET(request: NextRequest) {
 /**
  * PATCH /api/inventory/ruptures - Toggle checkbox "marqué pour achat"
  * Body: { productId: string, marked: boolean }
- * Auth: requireAuth(['admin', 'staff', 'dev'])
+ * Auth: Public (accessible sans authentification pour staff)
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const authResult = await requireAuth(getRequiredRoles("manageProducts"));
-    if (!authResult.authorized) return authResult.response;
-
     await connectMongoose();
 
     const body = await request.json();
