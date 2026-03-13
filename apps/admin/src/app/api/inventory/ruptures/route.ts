@@ -3,7 +3,6 @@ import { requireAuth } from "@/lib/api/auth";
 import { successResponse, errorResponse } from "@/lib/api/response";
 import { connectMongoose } from "@/lib/mongodb";
 import { Product } from "@/models/inventory/product";
-import { Supplier } from "@/models/inventory/supplier";
 import { getRequiredRoles } from "@/lib/inventory/permissions";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +30,6 @@ export async function GET(request: NextRequest) {
     console.log("[GET /api/inventory/ruptures] Filter:", JSON.stringify(filter));
 
     const products = await Product.find(filter)
-      .populate("supplierId", "name")
       .sort({ updatedAt: -1 }) // Plus récents d'abord
       .lean();
 
@@ -43,8 +41,7 @@ export async function GET(request: NextRequest) {
       _id: product._id?.toString() || "",
       name: product.name || "",
       category: product.category || "",
-      supplierName: product.supplierName ||
-        ((product.supplierId as { name?: string })?.name) || "",
+      supplierName: (product.supplierName as string) || "",
       purchaseMarked: product.purchaseMarked || false,
       updatedAt: product.updatedAt
         ? (product.updatedAt as Date).toISOString()
