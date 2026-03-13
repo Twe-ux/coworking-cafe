@@ -73,7 +73,8 @@ export function getStaffMenu(outOfStockCount?: number): MenuItem[] {
       title: "Produits & Recettes",
       url: "/produits",
       icon: UtensilsCrossed,
-      badge: outOfStockCount && outOfStockCount > 0 ? outOfStockCount : undefined,
+      badge:
+        outOfStockCount && outOfStockCount > 0 ? outOfStockCount : undefined,
     },
   ];
 }
@@ -311,7 +312,10 @@ export function getAdminMenu(
           title: "Inventaire",
           url: "/admin/inventory",
           icon: Package,
-          badge: (draftOrders > 0 || outOfStockCount > 0) ? (draftOrders + outOfStockCount) : undefined,
+          badge:
+            draftOrders > 0 || outOfStockCount > 0
+              ? draftOrders + outOfStockCount
+              : undefined,
           items: [
             {
               title: "Fournisseurs",
@@ -334,6 +338,11 @@ export function getAdminMenu(
             {
               title: "Achats directs",
               url: "/admin/inventory/direct-purchases",
+            },
+            {
+              title: "Ruptures",
+              url: "/admin/inventory/ruptures",
+              badge: outOfStockCount > 0 ? outOfStockCount : undefined,
             },
             ...(isDev || isAdmin
               ? [

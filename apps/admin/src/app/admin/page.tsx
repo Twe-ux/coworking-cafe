@@ -8,6 +8,7 @@ import SwitchWithText from "@/components/dashboard/SwitchWithText";
 import { CashRegisterWidget } from "@/components/home/CashRegisterWidget";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
+import { OutOfStockList } from "@/components/inventory/OutOfStockList";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useSession } from "next-auth/react";
@@ -82,9 +83,13 @@ export default function DashboardPage() {
         </div>
         <PointagesSection employees={employees} onStatusChange={refetch} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           <TodayTasksCard />
           <CashRegisterWidget />
+          {/* Liste de courses - visible uniquement en mobile */}
+          <div className="block md:hidden">
+            <OutOfStockList variant="compact" />
+          </div>
         </div>
       </RoleGuard>
     </div>

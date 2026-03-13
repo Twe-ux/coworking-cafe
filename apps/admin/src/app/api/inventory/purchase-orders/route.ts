@@ -128,6 +128,20 @@ export async function POST(request: NextRequest) {
       notes: body.notes?.trim(),
     })
 
+    // Auto-mark out-of-stock products as handled
+    const outOfStockProductIds = await Product.find({
+      _id: { $in: body.items.map((item) => item.productId) },
+      currentStock: 0,
+      outOfStockHandledAt: { $exists: false },
+    }).distinct('_id')
+
+    if (outOfStockProductIds.length > 0) {
+      await Product.updateMany(
+        { _id: { $in: outOfStockProductIds } },
+        { outOfStockHandledAt: new Date() }
+      )
+    }
+
     const transformed = transformOrder(
       toRecord(order.toObject())
     )

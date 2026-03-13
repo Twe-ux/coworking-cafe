@@ -123,6 +123,22 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
     await Promise.all(movementPromises)
 
+    // Remove out-of-stock flag for products that are now in stock after inventory adjustment
+    const adjustedProductIds = entry.items
+      .filter((item) => item.variance !== 0)
+      .map((item) => item.productId)
+
+    if (adjustedProductIds.length > 0) {
+      await Product.updateMany(
+        {
+          _id: { $in: adjustedProductIds },
+          currentStock: { $gt: 0 },
+          outOfStockHandledAt: { $exists: true },
+        },
+        { $unset: { outOfStockHandledAt: 1 } }
+      )
+    }
+
     // Update varianceValue in inventory items with CUMP
     for (const item of entry.items) {
       const productId = item.productId.toString()

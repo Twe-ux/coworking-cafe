@@ -26,6 +26,7 @@ export interface ProductDocument extends Document {
   hasShortDLC: boolean
   dlcAlertConfig?: DLCAlertConfig
   isActive: boolean
+  outOfStockHandledAt?: Date // Date de traitement de la rupture
   createdAt: Date
   updatedAt: Date
 }
@@ -133,6 +134,10 @@ export const ProductSchema = new Schema<ProductDocument>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    outOfStockHandledAt: {
+      type: Date,
+      required: false,
     },
   },
   {

@@ -34,6 +34,13 @@ const sections = [
     href: '/admin/inventory/products',
   },
   {
+    title: 'Ruptures de Stock',
+    description: 'Liste de courses des produits en rupture',
+    icon: AlertTriangle,
+    href: '/admin/inventory/ruptures',
+    badgeKey: 'outOfStockCount',
+  },
+  {
     title: 'Inventaires',
     description: 'Saisir et consulter les inventaires hebdomadaires/mensuels',
     icon: ClipboardList,
@@ -148,6 +155,11 @@ export default function InventoryPage() {
                   {section.title === 'Commandes' && counts.draftOrders > 0 && (
                     <Badge variant="destructive" className="ml-2">
                       {counts.draftOrders}
+                    </Badge>
+                  )}
+                  {section.badgeKey === 'outOfStockCount' && counts.outOfStockCount > 0 && (
+                    <Badge variant="destructive" className="ml-2">
+                      {counts.outOfStockCount}
                     </Badge>
                   )}
                 </div>

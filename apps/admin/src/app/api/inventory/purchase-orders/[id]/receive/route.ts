@@ -129,6 +129,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     await Promise.all(receptionPromises)
 
+    // Remove out-of-stock flag for products that are now in stock
+    const receivedProductIds = body.items
+      .filter((item) => item.receivedQty > 0)
+      .map((item) => item.productId)
+
+    if (receivedProductIds.length > 0) {
+      await Product.updateMany(
+        {
+          _id: { $in: receivedProductIds },
+          currentStock: { $gt: 0 },
+          outOfStockHandledAt: { $exists: true },
+        },
+        { $unset: { outOfStockHandledAt: 1 } }
+      )
+    }
+
     // Mark order as received
     order.status = 'received'
     order.receivedAt = new Date()
