@@ -43,17 +43,23 @@ export function OutOfStockList({
   const isPulling = useRef(false);
 
   // Fetch out-of-stock products
-  const { data: products = [], isLoading, refetch } = useQuery<OutOfStockProduct[]>({
+  const { data: products = [], isLoading, refetch, error } = useQuery<OutOfStockProduct[]>({
     queryKey: ["out-of-stock"],
     queryFn: async () => {
+      console.log("[OutOfStockList] Fetching out-of-stock products...");
       const res = await fetch("/api/inventory/ruptures");
-      if (!res.ok) throw new Error("Failed to fetch out-of-stock products");
+      if (!res.ok) {
+        console.error("[OutOfStockList] Fetch failed:", res.status, res.statusText);
+        throw new Error("Failed to fetch out-of-stock products");
+      }
       const result = await res.json();
+      console.log("[OutOfStockList] Fetched products:", result.data?.length || 0);
       return result.data || [];
     },
     refetchInterval: 10000, // Refresh every 10s (faster)
     refetchOnWindowFocus: true, // Refresh when window regains focus
     refetchOnMount: true, // Refresh on component mount
+    retry: 3, // Retry 3 times on failure
   });
 
   // Toggle purchase marked status mutation
@@ -147,10 +153,27 @@ export function OutOfStockList({
 
   // Compact variant (mobile view)
   if (variant === "compact") {
+    // Afficher erreur si échec de chargement (debug)
+    if (error) {
+      console.error("[OutOfStockList] Error:", error);
+      return (
+        <Card className="border-red-400">
+          <CardContent className="py-4">
+            <p className="text-sm text-red-600">
+              Erreur de chargement de la liste de courses
+            </p>
+          </CardContent>
+        </Card>
+      );
+    }
+
     // Ne rien afficher pendant le chargement OU s'il n'y a pas de ruptures
     if (isLoading || products.length === 0) {
+      console.log("[OutOfStockList] Not showing - isLoading:", isLoading, "products:", products.length);
       return null;
     }
+
+    console.log("[OutOfStockList] Rendering compact view with", products.length, "products");
 
     // Séparer les produits cochés et non cochés pour l'affichage
     const uncheckedProducts = products.filter((p) => !p.purchaseMarked);

@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(request: NextRequest) {
   try {
+    console.log("[GET /api/inventory/ruptures] Starting request");
     await connectMongoose();
 
     const { searchParams } = new URL(request.url);
@@ -26,10 +27,14 @@ export async function GET(request: NextRequest) {
       outOfStockHandledAt: { $exists: false },
     };
 
+    console.log("[GET /api/inventory/ruptures] Filter:", JSON.stringify(filter));
+
     const products = await Product.find(filter)
       .populate("supplierId", "name")
       .sort({ updatedAt: -1 }) // Plus récents d'abord
       .lean();
+
+    console.log("[GET /api/inventory/ruptures] Found", products.length, "products");
 
     const transformedProducts = products.map((product: {
       [key: string]: unknown;
@@ -45,6 +50,7 @@ export async function GET(request: NextRequest) {
         : "",
     }));
 
+    console.log("[GET /api/inventory/ruptures] Returning", transformedProducts.length, "transformed products");
     return successResponse(transformedProducts);
   } catch (error) {
     console.error("[GET /api/inventory/ruptures] Error:", error);
