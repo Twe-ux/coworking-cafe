@@ -25,15 +25,20 @@ export function useNumberInput({ field, min = 0, allowDecimals = true }: UseNumb
   }, [])
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    // During typing, just update local value without conversion
-    setLocalValue(e.target.value)
+    // Accept both comma and dot as decimal separator
+    // Replace comma with dot for French users (1,5 → 1.5)
+    const normalizedValue = e.target.value.replace(',', '.')
+    setLocalValue(normalizedValue)
   }, [])
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false)
 
+    // Normalize: replace comma with dot for French decimal separator
+    const normalizedValue = localValue.replace(',', '.')
+
     // Convert to number on blur
-    const numValue = localValue === '' || localValue === undefined ? 0 : parseFloat(localValue)
+    const numValue = normalizedValue === '' || normalizedValue === undefined ? 0 : parseFloat(normalizedValue)
     const finalValue = isNaN(numValue) ? 0 : Math.max(min, numValue)
 
     // Update field value
