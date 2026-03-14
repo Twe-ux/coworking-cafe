@@ -13,7 +13,7 @@ const dlcAlertConfigSchema = z.object({
 export const supplierCreateSchema = z.object({
   name: z.string().min(2, 'Nom min 2 caractères').max(100),
   contact: z.string().min(2, 'Contact min 2 caractères').max(100),
-  email: z.string().email('Email invalide').max(100),
+  email: z.string().email('Email invalide').max(100).optional().or(z.literal('')),
   phone: z.string().max(20).optional(),
   categories: z.array(categoryEnum)
     .min(1, 'Au moins une catégorie requise')
