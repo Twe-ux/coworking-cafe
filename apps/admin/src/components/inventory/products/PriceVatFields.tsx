@@ -64,7 +64,7 @@ export function PriceVatFields({
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                value={field.value ?? ''}
+                value={field.value === 0 ? '' : field.value}
                 onChange={(e) => {
                   const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
                   field.onChange(isNaN(val) ? 0 : val)
@@ -76,12 +76,6 @@ export function PriceVatFields({
                 onMouseUp={(e) => {
                   // Prevent Safari from deselecting on mouse up
                   e.preventDefault()
-                }}
-                onKeyDown={(e) => {
-                  // If Backspace/Delete pressed and value is 0, select all to delete
-                  if ((e.key === 'Backspace' || e.key === 'Delete') && parseFloat(e.currentTarget.value) === 0) {
-                    e.currentTarget.select()
-                  }
                 }}
                 onBlur={field.onBlur}
                 name={field.name}
