@@ -91,6 +91,12 @@ export function ConditionnementFields({ control }: ConditionnementFieldsProps) {
                           // Prevent Safari from deselecting on mouse up
                           e.preventDefault()
                         }}
+                        onKeyDown={(e) => {
+                          // If Backspace/Delete pressed, select all to allow easy replacement
+                          if (e.key === 'Backspace' || e.key === 'Delete') {
+                            e.currentTarget.select()
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

@@ -92,6 +92,12 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                       // Prevent Safari from deselecting on mouse up
                       e.preventDefault()
                     }}
+                    onKeyDown={(e) => {
+                      // If Backspace/Delete pressed and value is 0, select all to delete
+                      if ((e.key === 'Backspace' || e.key === 'Delete') && parseFloat(e.currentTarget.value) === 0) {
+                        e.currentTarget.select()
+                      }
+                    }}
                     onBlur={field.onBlur}
                     name={field.name}
                     ref={field.ref}
@@ -127,6 +133,12 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                     onMouseUp={(e) => {
                       // Prevent Safari from deselecting on mouse up
                       e.preventDefault()
+                    }}
+                    onKeyDown={(e) => {
+                      // If Backspace/Delete pressed and value is 0, select all to delete
+                      if ((e.key === 'Backspace' || e.key === 'Delete') && parseFloat(e.currentTarget.value) === 0) {
+                        e.currentTarget.select()
+                      }
                     }}
                     onBlur={field.onBlur}
                     name={field.name}
