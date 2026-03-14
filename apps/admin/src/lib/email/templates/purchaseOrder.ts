@@ -33,15 +33,21 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
     !notes.includes('Commande DLC générée automatiquement') &&
     !notes.includes('Référence tâche:')
 
-  // Translate packaging types to French
-  const translatePackagingType = (type: string): string => {
-    const translations: Record<string, string> = {
-      'unit': 'unité',
-      'pack': 'pack',
-      'kg': 'kg',
-      'L': 'L'
+  // Translate packaging types to French with plural support
+  const translatePackagingType = (type: string, quantity: number): string => {
+    const isPlural = quantity > 1
+
+    const translations: Record<string, { singular: string; plural: string }> = {
+      'unit': { singular: 'unité', plural: 'unités' },
+      'pack': { singular: 'pack', plural: 'packs' },
+      'kg': { singular: 'kg', plural: 'kg' },
+      'L': { singular: 'L', plural: 'L' }
     }
-    return translations[type] || type
+
+    const translation = translations[type]
+    if (!translation) return type
+
+    return isPlural ? translation.plural : translation.singular
   }
 
   // Generate items rows HTML
@@ -63,7 +69,7 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
         ${item.quantity}
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: center;">
-        ${translatePackagingType(item.packagingType)}
+        ${translatePackagingType(item.packagingType, item.quantity)}
       </td>
     </tr>
   `
