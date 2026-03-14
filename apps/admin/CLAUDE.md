@@ -241,6 +241,8 @@ const numberInputProps = useNumberInput({
 - ✅ Gère une valeur locale pendant la saisie
 - ✅ Permet de taper ".5", "0.", etc. librement
 - ✅ Permet de supprimer le "0" dans "0.5" → ".5" ✓
+- ✅ **Accepte virgule ET point** : "1,5" ou "1.5" → converti en 1.5 ✓
+- ✅ Conversion automatique virgule → point (UX française)
 - ✅ Conversion en number seulement au blur (quand on quitte le champ)
 - ✅ Auto-sélection Safari-compatible intégrée
 - ✅ Validation min/max automatique
@@ -362,8 +364,18 @@ const form = useForm<ProductFormData>({
 - ✅ Code beaucoup plus court et lisible
 - ✅ Comportement cohérent sur tous les navigateurs
 - ✅ Permet de taper "0.5" puis supprimer le "0" → ".5" naturellement
+- ✅ **Accepte "1,5" ET "1.5"** → converti automatiquement en 1.5
 - ✅ Auto-sélection Safari-compatible automatique
 - ✅ Réutilisable partout
+
+**Exemples de saisie supportée** :
+```
+User tape "1,5"  → Converti en "1.5" → Sauvegardé comme 1.5 ✓
+User tape "1.5"  → Reste "1.5"      → Sauvegardé comme 1.5 ✓
+User tape "0,25" → Converti en "0.25" → Sauvegardé comme 0.25 ✓
+User tape ".5"   → Reste ".5"       → Sauvegardé comme 0.5 ✓
+User tape ",5"   → Converti en ".5" → Sauvegardé comme 0.5 ✓
+```
 
 ---
 
