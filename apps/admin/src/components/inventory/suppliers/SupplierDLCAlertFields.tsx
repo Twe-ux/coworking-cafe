@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
-import { Control, useWatch } from 'react-hook-form'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,
   FormDescription,
@@ -8,46 +9,58 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { SupplierFormData } from '@/types/inventory'
+} from "@/components/ui/select";
+import type { SupplierFormData } from "@/types/inventory";
+import { Control, useWatch } from "react-hook-form";
 
 interface SupplierDLCAlertFieldsProps {
-  control: Control<SupplierFormData>
+  control: Control<SupplierFormData>;
 }
 
 const DAYS_OF_WEEK = [
-  { value: 1, label: 'Lun' },
-  { value: 2, label: 'Mar' },
-  { value: 3, label: 'Mer' },
-  { value: 4, label: 'Jeu' },
-  { value: 5, label: 'Ven' },
-  { value: 6, label: 'Sam' },
-  { value: 0, label: 'Dim' },
-]
+  { value: 1, label: "Lun" },
+  { value: 2, label: "Mar" },
+  { value: 3, label: "Mer" },
+  { value: 4, label: "Jeu" },
+  { value: 5, label: "Ven" },
+  { value: 6, label: "Sam" },
+  { value: 0, label: "Dim" },
+];
 
 const ALERT_HOURS = [
-  '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
-  '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
-  '18:00', '19:00', '20:00', '21:00', '22:00', '23:00',
-]
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+];
 
-export function SupplierDLCAlertFields({ control }: SupplierDLCAlertFieldsProps) {
-  const dlcAlertEnabled = useWatch({ control, name: 'dlcAlertConfig.enabled' })
+export function SupplierDLCAlertFields({
+  control,
+}: SupplierDLCAlertFieldsProps) {
+  const dlcAlertEnabled = useWatch({ control, name: "dlcAlertConfig.enabled" });
 
   return (
     <Card className="border-orange-200 bg-orange-50/50">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base text-orange-700">Alertes DLC (pour tous les produits)</CardTitle>
+        <CardTitle className="text-base text-orange-700">
+          Alerte Commande (pour tous les produits)
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Enable Alerts */}
@@ -57,12 +70,18 @@ export function SupplierDLCAlertFields({ control }: SupplierDLCAlertFieldsProps)
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>Activer alertes DLC pour ce fournisseur</FormLabel>
+                <FormLabel>
+                  Activer alerte Commande pour ce fournisseur
+                </FormLabel>
                 <FormDescription>
-                  Tous les produits de ce fournisseur auront des alertes DLC automatiques
+                  Tous les produits de ce fournisseur auront des alertes de
+                  commande automatiques
                 </FormDescription>
               </div>
             </FormItem>
@@ -78,7 +97,9 @@ export function SupplierDLCAlertFields({ control }: SupplierDLCAlertFieldsProps)
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Jours d'alerte *</FormLabel>
-                  <FormDescription className="mb-2">Sélectionner un ou plusieurs jours</FormDescription>
+                  <FormDescription className="mb-2">
+                    Sélectionner un ou plusieurs jours
+                  </FormDescription>
                   <div className="flex flex-wrap gap-2">
                     {DAYS_OF_WEEK.map((day) => (
                       <label
@@ -88,15 +109,21 @@ export function SupplierDLCAlertFields({ control }: SupplierDLCAlertFieldsProps)
                         <Checkbox
                           checked={field.value?.includes(day.value)}
                           onCheckedChange={(checked) => {
-                            const currentDays = field.value || []
+                            const currentDays = field.value || [];
                             if (checked) {
-                              field.onChange([...currentDays, day.value])
+                              field.onChange([...currentDays, day.value]);
                             } else {
-                              field.onChange(currentDays.filter((d: number) => d !== day.value))
+                              field.onChange(
+                                currentDays.filter(
+                                  (d: number) => d !== day.value,
+                                ),
+                              );
                             }
                           }}
                         />
-                        <Label className="cursor-pointer text-sm font-normal">{day.label}</Label>
+                        <Label className="cursor-pointer text-sm font-normal">
+                          {day.label}
+                        </Label>
                       </label>
                     ))}
                   </div>
@@ -125,7 +152,9 @@ export function SupplierDLCAlertFields({ control }: SupplierDLCAlertFieldsProps)
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>Heure de création de la tâche</FormDescription>
+                  <FormDescription>
+                    Heure de création de la tâche
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -134,5 +163,5 @@ export function SupplierDLCAlertFields({ control }: SupplierDLCAlertFieldsProps)
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
