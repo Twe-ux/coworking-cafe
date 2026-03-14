@@ -57,12 +57,39 @@ export default function OrderDetailClient({ id }: { id: string }) {
     }
   }
 
-  const handleValidateClick = () => {
-    // Check if supplier has email
-    if (!order?.supplierEmail) {
-      setNoEmailDialogOpen(true)
-    } else {
-      setValidateDialogOpen(true)
+  const handleValidateClick = async () => {
+    if (!order) return
+
+    // Fetch current supplier info to check if email exists
+    try {
+      const response = await fetch(`/api/inventory/suppliers/${order.supplierId}`)
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        const currentSupplierEmail = result.data.email
+
+        // Check if supplier has email (use current email, not stored one)
+        if (!currentSupplierEmail || currentSupplierEmail.trim() === '') {
+          setNoEmailDialogOpen(true)
+        } else {
+          setValidateDialogOpen(true)
+        }
+      } else {
+        // Fallback to stored email if supplier fetch fails
+        if (!order.supplierEmail) {
+          setNoEmailDialogOpen(true)
+        } else {
+          setValidateDialogOpen(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching supplier:', error)
+      // Fallback to stored email if fetch fails
+      if (!order.supplierEmail) {
+        setNoEmailDialogOpen(true)
+      } else {
+        setValidateDialogOpen(true)
+      }
     }
   }
 
