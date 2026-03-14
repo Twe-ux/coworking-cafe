@@ -83,7 +83,14 @@ export function ConditionnementFields({ control }: ConditionnementFieldsProps) {
                         onChange={(e) =>
                           field.onChange(parseInt(e.target.value) || 1)
                         }
-                        onFocus={(e) => e.target.select()}
+                        onFocus={(e) => {
+                          // Safari fix: setTimeout to prevent auto-deselect
+                          setTimeout(() => e.target.select(), 0)
+                        }}
+                        onMouseUp={(e) => {
+                          // Prevent Safari from deselecting on mouse up
+                          e.preventDefault()
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

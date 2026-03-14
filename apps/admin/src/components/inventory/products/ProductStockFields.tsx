@@ -84,7 +84,14 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
                       field.onChange(isNaN(val) ? 0 : val)
                     }}
-                    onFocus={(e) => e.target.select()}
+                    onFocus={(e) => {
+                      // Safari fix: setTimeout to prevent auto-deselect
+                      setTimeout(() => e.target.select(), 0)
+                    }}
+                    onMouseUp={(e) => {
+                      // Prevent Safari from deselecting on mouse up
+                      e.preventDefault()
+                    }}
                     onBlur={field.onBlur}
                     name={field.name}
                     ref={field.ref}
@@ -113,7 +120,14 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
                       field.onChange(isNaN(val) ? 0 : val)
                     }}
-                    onFocus={(e) => e.target.select()}
+                    onFocus={(e) => {
+                      // Safari fix: setTimeout to prevent auto-deselect
+                      setTimeout(() => e.target.select(), 0)
+                    }}
+                    onMouseUp={(e) => {
+                      // Prevent Safari from deselecting on mouse up
+                      e.preventDefault()
+                    }}
                     onBlur={field.onBlur}
                     name={field.name}
                     ref={field.ref}
