@@ -263,19 +263,19 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
           <tr>
             <td class="footer" style="background: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p class="footer-text" style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #1f2937;">
-                CoworKing Café
-              </p>
-              <p class="footer-text" style="margin: 0 0 4px 0; font-size: 13px; color: #6b7280;">
-                Espace de coworking et café à Strasbourg
+                CoworKing Café by Anticafé
               </p>
               <p class="footer-text" style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
-                📍 4 rue de la Krutenau, 67000 Strasbourg
+                📍 1 rue de la Division Leclerc, 67000 Strasbourg
               </p>
               <p class="footer-text" style="margin: 0 0 4px 0; font-size: 13px; color: #6b7280;">
-                📞 03 88 00 00 00
+                📞 09 87 33 45 19
               </p>
-              <p class="footer-text" style="margin: 0 0 12px 0; font-size: 13px; color: #6b7280;">
-                ✉️ contact@coworkingcafe.fr
+              <p class="footer-text" style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
+                ✉️ strasbourg@coworkingcafe.fr
+              </p>
+              <p class="footer-text" style="margin: 0 0 4px 0; font-size: 13px; color: #6b7280;">
+                L-V: 09h-20h | S-D & JF: 10h-20h
               </p>
               <p class="footer-text" style="margin: 0; font-size: 12px; color: #9ca3af;">
                 Commande générée automatiquement
