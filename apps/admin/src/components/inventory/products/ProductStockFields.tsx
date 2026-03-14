@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import type { ProductFormData } from "@/types/inventory";
 import { Control, useWatch } from "react-hook-form";
+import { useNumberInput } from "@/hooks/inventory/useNumberInput";
 
 interface ProductStockFieldsProps {
   control: Control<ProductFormData>;
@@ -70,73 +71,49 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
           <FormField
             control={control}
             name="minStock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock minimum (unités) *</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    placeholder="0"
-                    value={field.value ?? ''}
-                    onChange={(e) => {
-                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
-                      field.onChange(isNaN(val) ? 0 : val)
-                    }}
-                    onFocus={(e) => {
-                      // Safari fix: setTimeout to prevent auto-deselect
-                      setTimeout(() => e.target.select(), 0)
-                    }}
-                    onMouseUp={(e) => {
-                      // Prevent Safari from deselecting on mouse up
-                      e.preventDefault()
-                    }}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                  />
-                </FormControl>
-                <FormDescription>Seuil d&apos;alerte</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const numberInputProps = useNumberInput({ field, min: 0 });
+              return (
+                <FormItem>
+                  <FormLabel>Stock minimum (unités) *</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      placeholder="0"
+                      {...numberInputProps}
+                    />
+                  </FormControl>
+                  <FormDescription>Seuil d&apos;alerte</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           <FormField
             control={control}
             name="maxStock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock maximum (unités) *</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    placeholder="0"
-                    value={field.value ?? ''}
-                    onChange={(e) => {
-                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
-                      field.onChange(isNaN(val) ? 0 : val)
-                    }}
-                    onFocus={(e) => {
-                      // Safari fix: setTimeout to prevent auto-deselect
-                      setTimeout(() => e.target.select(), 0)
-                    }}
-                    onMouseUp={(e) => {
-                      // Prevent Safari from deselecting on mouse up
-                      e.preventDefault()
-                    }}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                  />
-                </FormControl>
-                <FormDescription>Stock idéal</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const numberInputProps = useNumberInput({ field, min: 0 });
+              return (
+                <FormItem>
+                  <FormLabel>Stock maximum (unités) *</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      placeholder="0"
+                      {...numberInputProps}
+                    />
+                  </FormControl>
+                  <FormDescription>Stock idéal</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
         </div>
 

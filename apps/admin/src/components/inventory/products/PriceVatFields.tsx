@@ -18,6 +18,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import type { ProductFormData } from "@/types/inventory";
 import { Control } from "react-hook-form";
+import { useNumberInput } from "@/hooks/inventory/useNumberInput";
 
 interface PriceVatFieldsProps {
   control: Control<ProductFormData>;
@@ -35,56 +36,44 @@ export function PriceVatFields({
       <FormField
         control={control}
         name="unitPriceHT"
-        render={({ field }) => (
-          <FormItem>
-            <div className="flex items-center justify-between gap-2">
-              <FormLabel>{priceLabel}</FormLabel>
-              {showPriceTypeSwitch && (
-                <FormField
-                  control={control}
-                  name="priceType"
-                  render={({ field: switchField }) => (
-                    <FormItem className="flex items-center gap-2 space-y-0">
-                      <FormControl>
-                        <Switch
-                          checked={switchField.value === "pack"}
-                          onCheckedChange={(checked) =>
-                            switchField.onChange(checked ? "pack" : "unit")
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
+        render={({ field }) => {
+          const numberInputProps = useNumberInput({ field, min: 0 });
+          return (
+            <FormItem>
+              <div className="flex items-center justify-between gap-2">
+                <FormLabel>{priceLabel}</FormLabel>
+                {showPriceTypeSwitch && (
+                  <FormField
+                    control={control}
+                    name="priceType"
+                    render={({ field: switchField }) => (
+                      <FormItem className="flex items-center gap-2 space-y-0">
+                        <FormControl>
+                          <Switch
+                            checked={switchField.value === "pack"}
+                            onCheckedChange={(checked) =>
+                              switchField.onChange(checked ? "pack" : "unit")
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  {...numberInputProps}
                 />
-              )}
-            </div>
-            <FormControl>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={field.value ?? ''}
-                onChange={(e) => {
-                  const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
-                  field.onChange(isNaN(val) ? 0 : val)
-                }}
-                onFocus={(e) => {
-                  // Safari fix: setTimeout to prevent auto-deselect
-                  setTimeout(() => e.target.select(), 0)
-                }}
-                onMouseUp={(e) => {
-                  // Prevent Safari from deselecting on mouse up
-                  e.preventDefault()
-                }}
-                onBlur={field.onBlur}
-                name={field.name}
-                ref={field.ref}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          );
+        }}
       />
 
       <FormField
