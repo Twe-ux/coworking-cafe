@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
       orderNumber,
       supplierId: body.supplierId,
       supplierName: supplier.name,
+      supplierEmail: supplier.email || undefined,
       items: itemsWithDetails,
       status: 'draft',
       totalHT: Math.round(totalHT * 100) / 100,

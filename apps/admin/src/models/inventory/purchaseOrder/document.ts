@@ -19,6 +19,7 @@ export interface PurchaseOrderDocument extends Document {
   orderNumber: string
   supplierId: Types.ObjectId
   supplierName: string
+  supplierEmail?: string
   items: PurchaseOrderItem[]
   status: OrderStatus
   totalHT: number
@@ -98,6 +99,10 @@ export const PurchaseOrderSchema = new Schema<PurchaseOrderDocument>(
     supplierName: {
       type: String,
       required: [true, 'Supplier name is required'],
+      trim: true,
+    },
+    supplierEmail: {
+      type: String,
       trim: true,
     },
     items: {

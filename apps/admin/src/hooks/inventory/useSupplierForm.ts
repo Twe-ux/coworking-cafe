@@ -11,7 +11,7 @@ import type { Supplier, SupplierFormData } from '@/types/inventory'
 const supplierSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   contact: z.string().min(2, 'Le contact doit contenir au moins 2 caractères'),
-  email: z.string().email('Email invalide'),
+  email: z.string().email('Email invalide').optional().or(z.literal('')),
   phone: z.string().optional(),
   categories: z
     .array(z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']))

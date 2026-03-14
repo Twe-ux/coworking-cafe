@@ -41,10 +41,12 @@ export default function OrderDetailClient({ id }: { id: string }) {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [validateDialogOpen, setValidateDialogOpen] = useState(false)
+  const [noEmailDialogOpen, setNoEmailDialogOpen] = useState(false)
   const [receiveDialogOpen, setReceiveDialogOpen] = useState(false)
   const [receivedQuantities, setReceivedQuantities] = useState<Record<string, number>>({})
   const [receivedPrices, setReceivedPrices] = useState<Record<string, number>>({})
   const [validating2, setValidating2] = useState(false)
+  const [temporaryEmail, setTemporaryEmail] = useState('')
 
   const handleDelete = async () => {
     const success = await deleteOrder(id)
@@ -55,7 +57,16 @@ export default function OrderDetailClient({ id }: { id: string }) {
     }
   }
 
-  const handleValidateAndSend = async () => {
+  const handleValidateClick = () => {
+    // Check if supplier has email
+    if (!order?.supplierEmail) {
+      setNoEmailDialogOpen(true)
+    } else {
+      setValidateDialogOpen(true)
+    }
+  }
+
+  const handleValidateAndSend = async (emailToUse?: string) => {
     setValidating2(true)
     try {
       // Step 1: Validate
@@ -67,9 +78,11 @@ export default function OrderDetailClient({ id }: { id: string }) {
         throw new Error('Erreur lors de la validation')
       }
 
-      // Step 2: Send email
+      // Step 2: Send email (with optional temporary email)
       const sendRes = await fetch(`/api/inventory/purchase-orders/${id}/send`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: emailToUse ? JSON.stringify({ temporaryEmail: emailToUse }) : undefined,
       })
 
       if (!sendRes.ok) {
@@ -77,10 +90,35 @@ export default function OrderDetailClient({ id }: { id: string }) {
       }
 
       setValidateDialogOpen(false)
+      setNoEmailDialogOpen(false)
+      setTemporaryEmail('')
       await refetch()
       alert('Commande validée et envoyée au fournisseur !')
     } catch (error) {
       console.error('Error validating and sending order:', error)
+      alert(error instanceof Error ? error.message : 'Erreur lors de la validation')
+    } finally {
+      setValidating2(false)
+    }
+  }
+
+  const handleValidateWithoutSending = async () => {
+    setValidating2(true)
+    try {
+      // Only validate, don't send email
+      const validateRes = await fetch(`/api/inventory/purchase-orders/${id}/validate`, {
+        method: 'POST',
+      })
+
+      if (!validateRes.ok) {
+        throw new Error('Erreur lors de la validation')
+      }
+
+      setNoEmailDialogOpen(false)
+      await refetch()
+      alert('Commande validée (non envoyée par email)')
+    } catch (error) {
+      console.error('Error validating order:', error)
       alert(error instanceof Error ? error.message : 'Erreur lors de la validation')
     } finally {
       setValidating2(false)
@@ -265,7 +303,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
             </Button>
             <Button
               variant="outline"
-              onClick={() => setValidateDialogOpen(true)}
+              onClick={handleValidateClick}
               disabled={validating2}
               className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             >
@@ -312,7 +350,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Validate Dialog */}
+      {/* Validate Dialog (with email) */}
       <AlertDialog open={validateDialogOpen} onOpenChange={setValidateDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -323,12 +361,74 @@ export default function OrderDetailClient({ id }: { id: string }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={validating2}>Retour</AlertDialogCancel>
-            <AlertDialogAction onClick={handleValidateAndSend} disabled={validating2} className="bg-green-500 hover:bg-green-600">
+            <AlertDialogAction onClick={() => handleValidateAndSend()} disabled={validating2} className="bg-green-500 hover:bg-green-600">
               {validating2 ? 'Envoi en cours...' : 'Valider & Envoyer'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* No Email Dialog */}
+      <Dialog open={noEmailDialogOpen} onOpenChange={setNoEmailDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Aucun email référencé</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Le fournisseur <strong>{order.supplierName}</strong> n'a pas d'email enregistré.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="temporary-email">Email temporaire (optionnel)</Label>
+              <Input
+                id="temporary-email"
+                type="email"
+                placeholder="contact@fournisseur.com"
+                value={temporaryEmail}
+                onChange={(e) => setTemporaryEmail(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Vous pouvez saisir un email pour envoyer cette commande uniquement
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="flex-col sm:flex-col gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (temporaryEmail && temporaryEmail.includes('@')) {
+                  handleValidateAndSend(temporaryEmail)
+                } else {
+                  alert('Veuillez saisir un email valide')
+                }
+              }}
+              disabled={validating2 || !temporaryEmail || !temporaryEmail.includes('@')}
+              className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            >
+              {validating2 ? 'Envoi...' : 'Valider & Envoyer avec cet email'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleValidateWithoutSending}
+              disabled={validating2}
+              className="w-full border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
+            >
+              {validating2 ? 'Validation...' : 'Valider sans envoi (transmission manuelle)'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setNoEmailDialogOpen(false)
+                setTemporaryEmail('')
+              }}
+              disabled={validating2}
+              className="w-full"
+            >
+              Annuler
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Receive Dialog */}
       <Dialog open={receiveDialogOpen} onOpenChange={setReceiveDialogOpen}>

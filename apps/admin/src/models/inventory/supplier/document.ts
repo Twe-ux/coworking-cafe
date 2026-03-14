@@ -10,7 +10,7 @@ export interface DLCAlertConfig {
 export interface SupplierDocument extends Document {
   name: string
   contact: string
-  email: string
+  email?: string
   phone?: string
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
@@ -36,7 +36,6 @@ export const SupplierSchema = new Schema<SupplierDocument>(
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
       trim: true,
       lowercase: true,
     },

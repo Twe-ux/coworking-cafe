@@ -10,7 +10,7 @@ export interface Supplier {
   _id: string
   name: string
   contact: string
-  email: string
+  email?: string
   phone?: string
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
@@ -24,7 +24,7 @@ export interface Supplier {
 export interface SupplierFormData {
   name: string
   contact: string
-  email: string
+  email?: string
   phone?: string
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
@@ -209,6 +209,7 @@ export interface PurchaseOrder {
   orderNumber: string
   supplierId: string
   supplierName: string
+  supplierEmail?: string
   items: PurchaseOrderItem[]
   status: OrderStatus
   totalHT: number

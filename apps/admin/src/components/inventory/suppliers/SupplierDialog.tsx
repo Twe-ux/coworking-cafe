@@ -113,7 +113,7 @@ export function SupplierDialog({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email *</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -144,6 +144,9 @@ export function SupplierDialog({
                         Cet email est déjà utilisé par un autre fournisseur
                       </FormDescription>
                     )}
+                    <FormDescription>
+                      Requis uniquement pour l'envoi automatique des commandes
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

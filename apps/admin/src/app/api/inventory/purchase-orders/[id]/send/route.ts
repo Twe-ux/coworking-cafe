@@ -20,8 +20,9 @@ interface RouteParams {
  * POST /api/inventory/purchase-orders/[id]/send
  * Send purchase order to supplier via email (draft/validated → sent).
  * Only admin/dev can send.
+ * Body: { temporaryEmail?: string } - Optional email override
  */
-export async function POST(_request: NextRequest, { params }: RouteParams) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const authResult = await requireAuth(getRequiredRoles('sendOrder'))
     if (!authResult.authorized) return authResult.response
@@ -44,10 +45,25 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Fetch supplier email
+    // Parse body for optional temporary email
+    let temporaryEmail: string | undefined
+    try {
+      const body = await request.json()
+      temporaryEmail = body.temporaryEmail
+    } catch {
+      // No body or invalid JSON, continue without temporary email
+    }
+
+    // Fetch supplier
     const supplier = await Supplier.findById(order.supplierId).lean()
     if (!supplier) {
       return errorResponse('Fournisseur introuvable', undefined, 404)
+    }
+
+    // Determine which email to use
+    const emailToUse = temporaryEmail || supplier.email
+    if (!emailToUse) {
+      return errorResponse('Aucun email disponible pour envoyer la commande', undefined, 400)
     }
 
     // Format order date
@@ -69,7 +85,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     )
 
     // Send email to supplier
-    const emailSent = await sendPurchaseOrderEmail(supplier.email, {
+    const emailSent = await sendPurchaseOrderEmail(emailToUse, {
       orderNumber: order.orderNumber,
       supplierName: supplier.name,
       items: order.items.map((item) => {
