@@ -196,59 +196,64 @@ Résultat : 1.20 ✅
 
 ### 📝 Pattern COMPLET à appliquer PARTOUT
 
+**Utiliser le hook personnalisé `useNumberInput`** pour gérer la saisie flexible :
+
 ```tsx
-<Input
-  type="number"
-  step="0.01"  // ou "0.1" selon besoin (prix = 0.01, quantités = 0.1 ou 1)
-  min="0"
-  placeholder="0.00"  // ou "0" selon contexte
-  value={field.value ?? ''}  // ← CRITIQUE: vide si undefined, sinon valeur réelle
-  onChange={(e) => {
-    const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
-    field.onChange(isNaN(val) ? 0 : val)
+import { useNumberInput } from "@/hooks/inventory/useNumberInput";
+
+<FormField
+  control={control}
+  name="unitPriceHT"
+  render={({ field }) => {
+    const numberInputProps = useNumberInput({ field, min: 0 });
+    return (
+      <FormItem>
+        <FormLabel>Prix unitaire HT (€) *</FormLabel>
+        <FormControl>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            {...numberInputProps}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
   }}
-  onFocus={(e) => {
-    // Safari fix: setTimeout to prevent auto-deselect
-    setTimeout(() => e.target.select(), 0)
-  }}
-  onMouseUp={(e) => {
-    // Prevent Safari from deselecting on mouse up
-    e.preventDefault()
-  }}
-  onBlur={field.onBlur}
-  name={field.name}
-  ref={field.ref}
 />
 ```
 
 ### 🎯 Règles Essentielles
 
-**1. Champ vide au chargement**
+**1. Utiliser le hook `useNumberInput`**
+```tsx
+import { useNumberInput } from "@/hooks/inventory/useNumberInput";
+
+const numberInputProps = useNumberInput({
+  field,      // React Hook Form field
+  min: 0,     // Minimum value (default: 0)
+});
+```
+
+**Avantages du hook** :
+- ✅ Gère une valeur locale pendant la saisie
+- ✅ Permet de taper ".5", "0.", etc. librement
+- ✅ Permet de supprimer le "0" dans "0.5" → ".5" ✓
+- ✅ Conversion en number seulement au blur (quand on quitte le champ)
+- ✅ Auto-sélection Safari-compatible intégrée
+- ✅ Validation min/max automatique
+
+**2. Champ vide au chargement**
 ```tsx
 // Dans defaultValues
 unitPriceHT: undefined as unknown as number
 minStock: undefined as unknown as number
-
-// Dans l'input
-value={field.value ?? ''}
 ```
-- ✅ Champ vide au chargement (undefined → '')
-- ✅ User peut taper "0.5" normalement
-- ✅ Auto-sélection fonctionne (champ vide → rien à sélectionner)
+- ✅ Champ vide au chargement
+- ✅ User peut taper "0.5", ".5", "0." normalement
 - ✅ Conversion en 0 si champ vide à la soumission
-
-**2. Auto-sélection (Safari compatible)**
-```tsx
-onFocus={(e) => {
-  setTimeout(() => e.target.select(), 0)
-}}
-onMouseUp={(e) => {
-  e.preventDefault()
-}}
-```
-- ✅ Fonctionne sur Chrome, Safari, Firefox, Edge
-- ✅ setTimeout nécessaire pour Safari
-- ✅ preventDefault sur mouseUp pour Safari
 
 **3. Step adapté au contexte**
 ```tsx
@@ -262,16 +267,7 @@ step="0.1"
 step="1"
 ```
 
-**4. Conversion sécurisée**
-```tsx
-onChange={(e) => {
-  const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
-  field.onChange(isNaN(val) ? 0 : val)
-}}
-```
-- ✅ Champ vide → 0 en interne
-- ✅ Protection contre NaN
-- ✅ parseFloat pour décimales (parseInt pour entiers)
+**Note** : Le hook `useNumberInput` gère automatiquement la conversion, la validation min/max, et l'auto-sélection Safari. Plus besoin de gérer manuellement onChange/onBlur/onFocus.
 
 ### 🎯 Où appliquer
 
@@ -285,65 +281,89 @@ onChange={(e) => {
 
 ### ⚠️ Important
 
-- ✅ **TOUJOURS** `value={field.value ?? ''}` pour afficher vide si undefined
+- ✅ **TOUJOURS** utiliser le hook `useNumberInput` pour les inputs number
 - ✅ **TOUJOURS** `defaultValues: undefined as unknown as number` pour champs vides au chargement
-- ✅ **TOUJOURS** auto-sélection Safari-compatible (setTimeout + preventDefault)
 - ✅ **TOUJOURS** step approprié (0.01 pour prix, 0.1 pour quantités décimales, 1 pour entiers)
 - ✅ **TOUJOURS** placeholder pour indiquer le format attendu
-- ✅ **TOUJOURS** permettre la saisie de "0.5" (ne pas masquer le 0 pendant la saisie)
-- ❌ **JAMAIS** `value={field.value === 0 ? '' : field.value}` (empêche de taper 0.5)
-- ❌ **JAMAIS** d'input number sans ce pattern complet
+- ✅ Le hook gère automatiquement : valeur locale, auto-sélection Safari, conversion au blur
+- ✅ Permet de taper librement ".5", "0.", "0.5" et de supprimer le "0" dans "0.5"
+- ❌ **JAMAIS** gérer manuellement onChange/onBlur/onFocus (le hook s'en charge)
+- ❌ **JAMAIS** `value={field.value === 0 ? '' : field.value}` (le hook gère ça)
 
 ### 💡 Exemple Complet (Produit Inventory)
 
 ```tsx
+import { useNumberInput } from "@/hooks/inventory/useNumberInput";
+
 // Dans ProductDialog.tsx - defaultValues
+const defaultFormValues: ProductFormData = {
+  unitPriceHT: undefined as unknown as number,  // ← Champ vide au chargement
+  minStock: undefined as unknown as number,
+  maxStock: undefined as unknown as number,
+  // ... autres champs
+};
+
 const form = useForm<ProductFormData>({
   resolver: zodResolver(productSchema),
-  defaultValues: {
-    unitPriceHT: undefined as unknown as number,  // ← Champ vide au chargement
-    minStock: undefined as unknown as number,
-    maxStock: undefined as unknown as number,
-    // ... autres champs
-  },
-})
+  defaultValues: defaultFormValues,
+});
 
-// Prix unitaire HT
-<Input
-  type="number"
-  step="0.01"
-  min="0"
-  placeholder="0.00"
-  value={field.value ?? ''}  // ← undefined → '', sinon valeur réelle
-  onChange={(e) => {
-    const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
-    field.onChange(isNaN(val) ? 0 : val)
+// Dans le composant - Prix unitaire HT
+<FormField
+  control={control}
+  name="unitPriceHT"
+  render={({ field }) => {
+    const numberInputProps = useNumberInput({ field, min: 0 });
+    return (
+      <FormItem>
+        <FormLabel>Prix unitaire HT (€) *</FormLabel>
+        <FormControl>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            {...numberInputProps}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
   }}
-  onFocus={(e) => setTimeout(() => e.target.select(), 0)}
-  onMouseUp={(e) => e.preventDefault()}
-  onBlur={field.onBlur}
-  name={field.name}
-  ref={field.ref}
 />
 
 // Stock minimum (décimales autorisées : 0.5, 1.5, etc.)
-<Input
-  type="number"
-  step="0.1"
-  min="0"
-  placeholder="0"
-  value={field.value ?? ''}  // ← undefined → '', sinon valeur réelle
-  onChange={(e) => {
-    const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
-    field.onChange(isNaN(val) ? 0 : val)
+<FormField
+  control={control}
+  name="minStock"
+  render={({ field }) => {
+    const numberInputProps = useNumberInput({ field, min: 0 });
+    return (
+      <FormItem>
+        <FormLabel>Stock minimum (unités) *</FormLabel>
+        <FormControl>
+          <Input
+            type="number"
+            step="0.1"
+            min="0"
+            placeholder="0"
+            {...numberInputProps}
+          />
+        </FormControl>
+        <FormDescription>Seuil d'alerte</FormDescription>
+        <FormMessage />
+      </FormItem>
+    );
   }}
-  onFocus={(e) => setTimeout(() => e.target.select(), 0)}
-  onMouseUp={(e) => e.preventDefault()}
-  onBlur={field.onBlur}
-  name={field.name}
-  ref={field.ref}
 />
 ```
+
+**Avantages de cette approche** :
+- ✅ Code beaucoup plus court et lisible
+- ✅ Comportement cohérent sur tous les navigateurs
+- ✅ Permet de taper "0.5" puis supprimer le "0" → ".5" naturellement
+- ✅ Auto-sélection Safari-compatible automatique
+- ✅ Réutilisable partout
 
 ---
 
