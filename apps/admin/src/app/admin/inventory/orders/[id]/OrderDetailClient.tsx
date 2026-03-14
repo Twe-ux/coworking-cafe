@@ -227,8 +227,10 @@ export default function OrderDetailClient({ id }: { id: string }) {
   }
 
   const isDraft = order.status === 'draft'
+  const isValidated = order.status === 'validated'
   const isSent = order.status === 'sent'
   const isReceived = order.status === 'received'
+  const canReceive = isValidated || isSent
 
   return (
     <div className="space-y-6 pb-24">
@@ -340,7 +342,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
           </>
         )}
 
-        {isSent && (
+        {canReceive && (
           <Button
             variant="outline"
             onClick={openReceiveDialog}

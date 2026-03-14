@@ -18,8 +18,9 @@ interface RouteParams {
 
 /**
  * POST /api/inventory/purchase-orders/[id]/receive
- * Receive a purchase order (sent → received).
+ * Receive a purchase order (validated/sent → received).
  * Creates StockMovements and updates Product.currentStock for each received item.
+ * Accepts both 'validated' (manual transmission) and 'sent' (email sent) statuses.
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
@@ -35,9 +36,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return notFoundResponse('Commande')
     }
 
-    if (order.status !== 'sent') {
+    if (order.status !== 'sent' && order.status !== 'validated') {
       return errorResponse(
-        'Seules les commandes envoyees peuvent etre receptionnees',
+        'Seules les commandes validees ou envoyees peuvent etre receptionnees',
         undefined,
         400
       )
