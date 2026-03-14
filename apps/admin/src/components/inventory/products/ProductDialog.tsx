@@ -59,6 +59,28 @@ interface ProductDialogProps {
   mode?: 'create' | 'edit'
 }
 
+// Default form values (used for reset)
+const defaultFormValues: ProductFormData = {
+  name: '',
+  category: 'food',
+  unitPriceHT: undefined as unknown as number,
+  vatRate: 5.5,
+  supplierId: '',
+  supplierReference: '',
+  packagingType: 'unit',
+  priceType: 'unit',
+  unitsPerPackage: 1,
+  packageUnit: 'unit',
+  packagingDescription: '',
+  minStock: undefined as unknown as number,
+  maxStock: undefined as unknown as number,
+  dlcAlertConfig: {
+    enabled: false,
+    days: [],
+    time: '09:00',
+  },
+}
+
 export function ProductDialog({
   open,
   onClose,
@@ -74,26 +96,7 @@ export function ProductDialog({
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
-      name: '',
-      category: 'food',
-      unitPriceHT: undefined as unknown as number,
-      vatRate: 5.5,
-      supplierId: '',
-      supplierReference: '',
-      packagingType: 'unit',
-      priceType: 'unit',
-      unitsPerPackage: 1,
-      packageUnit: 'unit',
-      packagingDescription: '',
-      minStock: undefined as unknown as number,
-      maxStock: undefined as unknown as number,
-      dlcAlertConfig: {
-        enabled: false,
-        days: [],
-        time: '09:00',
-      },
-    },
+    defaultValues: defaultFormValues,
   })
 
   // Fetch suppliers
@@ -116,7 +119,7 @@ export function ProductDialog({
     }
   }, [open, fetchSuppliers])
 
-  // Populate form when editing
+  // Populate form when editing or reset when creating
   useEffect(() => {
     if (mode === 'edit' && product) {
       // Calculate display price based on priceType
@@ -152,7 +155,8 @@ export function ProductDialog({
         },
       })
     } else if (mode === 'create') {
-      form.reset()
+      // Reset to default values explicitly
+      form.reset(defaultFormValues)
     }
   }, [mode, product, form])
 
@@ -169,7 +173,7 @@ export function ProductDialog({
               : 'Produit mis à jour avec succès',
         })
         onClose()
-        form.reset()
+        form.reset(defaultFormValues)
       } else {
         toast({
           title: 'Erreur',
