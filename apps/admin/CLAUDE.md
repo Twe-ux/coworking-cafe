@@ -173,49 +173,156 @@ Pour les boutons d'actions dans les listes de produits, tableaux, cards, etc., u
 
 ---
 
-## 🔢 Inputs Numériques - Auto-sélection
+## 🔢 Inputs Numériques - Pattern Obligatoire
 
-**RÈGLE CRITIQUE** : TOUS les inputs de type `number` doivent sélectionner automatiquement leur contenu au focus.
+**RÈGLE CRITIQUE** : TOUS les inputs de type `number` doivent suivre ce pattern exact pour une UX optimale.
 
 ### ❌ Comportement par défaut (MAUVAIS)
 ```
-Input avec valeur 0
+Input avec valeur 0 affichée
 User focus → tape "1"
 Résultat : 01 ❌
 ```
 
 ### ✅ Comportement souhaité (BON)
 ```
-Input avec valeur 0
-User focus → contenu sélectionné → tape "1"
-Résultat : 1 ✅
+Input vide visuellement (0 en interne)
+User focus → tape "1.20"
+Résultat : 1.20 ✅
 ```
 
-### 📝 Pattern à appliquer PARTOUT
+### 📝 Pattern COMPLET à appliquer PARTOUT
 
 ```tsx
 <Input
   type="number"
-  onFocus={(e) => e.target.select()}  // ← OBLIGATOIRE sur TOUS les inputs number
-  {...field}
+  step="0.01"  // ou "0.1" selon besoin (prix = 0.01, quantités = 0.1 ou 1)
+  min="0"
+  placeholder="0.00"  // ou "0" selon contexte
+  value={field.value === 0 ? '' : field.value}  // ← CRITIQUE: masquer le 0
+  onChange={(e) => {
+    const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
+    field.onChange(isNaN(val) ? 0 : val)
+  }}
+  onFocus={(e) => {
+    // Safari fix: setTimeout to prevent auto-deselect
+    setTimeout(() => e.target.select(), 0)
+  }}
+  onMouseUp={(e) => {
+    // Prevent Safari from deselecting on mouse up
+    e.preventDefault()
+  }}
+  onBlur={field.onBlur}
+  name={field.name}
+  ref={field.ref}
 />
 ```
+
+### 🎯 Règles Essentielles
+
+**1. Masquage du 0**
+```tsx
+value={field.value === 0 ? '' : field.value}
+```
+- ✅ Le 0 **ne s'affiche JAMAIS** à l'écran
+- ✅ Champ vide visuellement (placeholder gris)
+- ✅ User peut taper directement sans effacer
+- ✅ Backspace/Delete fonctionnent naturellement
+
+**2. Auto-sélection (Safari compatible)**
+```tsx
+onFocus={(e) => {
+  setTimeout(() => e.target.select(), 0)
+}}
+onMouseUp={(e) => {
+  e.preventDefault()
+}}
+```
+- ✅ Fonctionne sur Chrome, Safari, Firefox, Edge
+- ✅ setTimeout nécessaire pour Safari
+- ✅ preventDefault sur mouseUp pour Safari
+
+**3. Step adapté au contexte**
+```tsx
+// Prix en euros avec centimes
+step="0.01"
+
+// Quantités avec décimales (1.5 kg)
+step="0.1"
+
+// Quantités entières uniquement
+step="1"
+```
+
+**4. Conversion sécurisée**
+```tsx
+onChange={(e) => {
+  const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
+  field.onChange(isNaN(val) ? 0 : val)
+}}
+```
+- ✅ Champ vide → 0 en interne
+- ✅ Protection contre NaN
+- ✅ parseFloat pour décimales (parseInt pour entiers)
 
 ### 🎯 Où appliquer
 
 **TOUS les formulaires avec inputs numériques** :
-- Prix (unitPriceHT, prices, amounts)
-- Quantités (stock, quantity, count)
-- Pourcentages (TVA, discounts)
-- Durées (minutes, hours, days)
-- Ordre d'affichage (order field)
-- TOUT champ de type `number`
+- ✅ Prix (unitPriceHT, prices, amounts) → step="0.01"
+- ✅ Quantités (stock, quantity, count) → step="0.1" ou step="1"
+- ✅ Pourcentages (TVA, discounts) → step="0.01"
+- ✅ Durées (minutes, hours, days) → step="1"
+- ✅ Ordre d'affichage (order field) → step="1"
+- ✅ TOUT champ de type `number`
 
 ### ⚠️ Important
 
-- ✅ **TOUJOURS** ajouter `onFocus={(e) => e.target.select()}` sur `<Input type="number">`
-- ✅ Vérifier TOUS les formulaires existants et nouveaux
-- ❌ **JAMAIS** d'input number sans auto-sélection
+- ✅ **TOUJOURS** masquer le 0 avec `value={field.value === 0 ? '' : field.value}`
+- ✅ **TOUJOURS** auto-sélection Safari-compatible (setTimeout + preventDefault)
+- ✅ **TOUJOURS** step approprié (0.01 pour prix, 0.1 pour quantités décimales, 1 pour entiers)
+- ✅ **TOUJOURS** placeholder pour indiquer le format
+- ❌ **JAMAIS** afficher "0" dans un input number
+- ❌ **JAMAIS** d'input number sans ce pattern complet
+
+### 💡 Exemple Complet (Produit Inventory)
+
+```tsx
+// Prix unitaire HT
+<Input
+  type="number"
+  step="0.01"
+  min="0"
+  placeholder="0.00"
+  value={field.value === 0 ? '' : field.value}
+  onChange={(e) => {
+    const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
+    field.onChange(isNaN(val) ? 0 : val)
+  }}
+  onFocus={(e) => setTimeout(() => e.target.select(), 0)}
+  onMouseUp={(e) => e.preventDefault()}
+  onBlur={field.onBlur}
+  name={field.name}
+  ref={field.ref}
+/>
+
+// Stock minimum (décimales autorisées)
+<Input
+  type="number"
+  step="0.1"
+  min="0"
+  placeholder="0"
+  value={field.value === 0 ? '' : field.value}
+  onChange={(e) => {
+    const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
+    field.onChange(isNaN(val) ? 0 : val)
+  }}
+  onFocus={(e) => setTimeout(() => e.target.select(), 0)}
+  onMouseUp={(e) => e.preventDefault()}
+  onBlur={field.onBlur}
+  name={field.name}
+  ref={field.ref}
+/>
+```
 
 ---
 
