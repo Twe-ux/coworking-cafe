@@ -79,7 +79,7 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                     step="0.1"
                     min="0"
                     placeholder="0"
-                    value={field.value === 0 ? '' : field.value}
+                    value={field.value ?? ''}
                     onChange={(e) => {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
                       field.onChange(isNaN(val) ? 0 : val)
@@ -115,7 +115,7 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                     step="0.1"
                     min="0"
                     placeholder="0"
-                    value={field.value === 0 ? '' : field.value}
+                    value={field.value ?? ''}
                     onChange={(e) => {
                       const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
                       field.onChange(isNaN(val) ? 0 : val)

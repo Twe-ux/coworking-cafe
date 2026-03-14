@@ -186,8 +186,11 @@ Résultat : 01 ❌
 
 ### ✅ Comportement souhaité (BON)
 ```
-Input vide visuellement (0 en interne)
-User focus → tape "1.20"
+Input vide au chargement (undefined en interne)
+User tape "0.5"
+Résultat : 0.5 ✅
+
+User tape "1.20"
 Résultat : 1.20 ✅
 ```
 
@@ -199,7 +202,7 @@ Résultat : 1.20 ✅
   step="0.01"  // ou "0.1" selon besoin (prix = 0.01, quantités = 0.1 ou 1)
   min="0"
   placeholder="0.00"  // ou "0" selon contexte
-  value={field.value === 0 ? '' : field.value}  // ← CRITIQUE: masquer le 0
+  value={field.value ?? ''}  // ← CRITIQUE: vide si undefined, sinon valeur réelle
   onChange={(e) => {
     const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
     field.onChange(isNaN(val) ? 0 : val)
@@ -220,14 +223,19 @@ Résultat : 1.20 ✅
 
 ### 🎯 Règles Essentielles
 
-**1. Masquage du 0**
+**1. Champ vide au chargement**
 ```tsx
-value={field.value === 0 ? '' : field.value}
+// Dans defaultValues
+unitPriceHT: undefined as unknown as number
+minStock: undefined as unknown as number
+
+// Dans l'input
+value={field.value ?? ''}
 ```
-- ✅ Le 0 **ne s'affiche JAMAIS** à l'écran
-- ✅ Champ vide visuellement (placeholder gris)
-- ✅ User peut taper directement sans effacer
-- ✅ Backspace/Delete fonctionnent naturellement
+- ✅ Champ vide au chargement (undefined → '')
+- ✅ User peut taper "0.5" normalement
+- ✅ Auto-sélection fonctionne (champ vide → rien à sélectionner)
+- ✅ Conversion en 0 si champ vide à la soumission
 
 **2. Auto-sélection (Safari compatible)**
 ```tsx
@@ -277,23 +285,36 @@ onChange={(e) => {
 
 ### ⚠️ Important
 
-- ✅ **TOUJOURS** masquer le 0 avec `value={field.value === 0 ? '' : field.value}`
+- ✅ **TOUJOURS** `value={field.value ?? ''}` pour afficher vide si undefined
+- ✅ **TOUJOURS** `defaultValues: undefined as unknown as number` pour champs vides au chargement
 - ✅ **TOUJOURS** auto-sélection Safari-compatible (setTimeout + preventDefault)
 - ✅ **TOUJOURS** step approprié (0.01 pour prix, 0.1 pour quantités décimales, 1 pour entiers)
-- ✅ **TOUJOURS** placeholder pour indiquer le format
-- ❌ **JAMAIS** afficher "0" dans un input number
+- ✅ **TOUJOURS** placeholder pour indiquer le format attendu
+- ✅ **TOUJOURS** permettre la saisie de "0.5" (ne pas masquer le 0 pendant la saisie)
+- ❌ **JAMAIS** `value={field.value === 0 ? '' : field.value}` (empêche de taper 0.5)
 - ❌ **JAMAIS** d'input number sans ce pattern complet
 
 ### 💡 Exemple Complet (Produit Inventory)
 
 ```tsx
+// Dans ProductDialog.tsx - defaultValues
+const form = useForm<ProductFormData>({
+  resolver: zodResolver(productSchema),
+  defaultValues: {
+    unitPriceHT: undefined as unknown as number,  // ← Champ vide au chargement
+    minStock: undefined as unknown as number,
+    maxStock: undefined as unknown as number,
+    // ... autres champs
+  },
+})
+
 // Prix unitaire HT
 <Input
   type="number"
   step="0.01"
   min="0"
   placeholder="0.00"
-  value={field.value === 0 ? '' : field.value}
+  value={field.value ?? ''}  // ← undefined → '', sinon valeur réelle
   onChange={(e) => {
     const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
     field.onChange(isNaN(val) ? 0 : val)
@@ -305,13 +326,13 @@ onChange={(e) => {
   ref={field.ref}
 />
 
-// Stock minimum (décimales autorisées)
+// Stock minimum (décimales autorisées : 0.5, 1.5, etc.)
 <Input
   type="number"
   step="0.1"
   min="0"
   placeholder="0"
-  value={field.value === 0 ? '' : field.value}
+  value={field.value ?? ''}  // ← undefined → '', sinon valeur réelle
   onChange={(e) => {
     const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
     field.onChange(isNaN(val) ? 0 : val)
