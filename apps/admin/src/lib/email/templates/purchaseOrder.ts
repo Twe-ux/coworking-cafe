@@ -33,6 +33,17 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
     !notes.includes('Commande DLC générée automatiquement') &&
     !notes.includes('Référence tâche:')
 
+  // Translate packaging types to French
+  const translatePackagingType = (type: string): string => {
+    const translations: Record<string, string> = {
+      'unit': 'unité',
+      'pack': 'pack',
+      'kg': 'kg',
+      'L': 'L'
+    }
+    return translations[type] || type
+  }
+
   // Generate items rows HTML
   const itemsHtml = items
     .map((item) => {
@@ -52,7 +63,7 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
         ${item.quantity}
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: center;">
-        ${item.packagingType}
+        ${translatePackagingType(item.packagingType)}
       </td>
     </tr>
   `
