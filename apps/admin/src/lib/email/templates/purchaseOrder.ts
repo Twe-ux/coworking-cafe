@@ -26,7 +26,12 @@ interface PurchaseOrderEmailData {
 }
 
 export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string {
-  const { orderNumber, supplierName, items, totalHT, totalTTC, notes, createdAt } = data
+  const { orderNumber, supplierName, items, notes, createdAt } = data
+
+  // Filter out auto-generated notes (DLC task notes)
+  const shouldShowNotes = notes &&
+    !notes.includes('Commande DLC générée automatiquement') &&
+    !notes.includes('Référence tâche:')
 
   // Generate items rows HTML
   const itemsHtml = items
@@ -48,12 +53,6 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: center;">
         ${item.packagingType}
-      </td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: right; font-family: 'Courier New', monospace;">
-        ${item.unitPriceHT.toFixed(2)} €
-      </td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600;">
-        ${item.totalHT.toFixed(2)} €
       </td>
     </tr>
   `
@@ -203,12 +202,6 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
                     <th style="background: #f9fafb; padding: 12px; text-align: center; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb;">
                       Unité
                     </th>
-                    <th style="background: #f9fafb; padding: 12px; text-align: right; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb;">
-                      Prix HT
-                    </th>
-                    <th style="background: #f9fafb; padding: 12px; text-align: right; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb;">
-                      Total HT
-                    </th>
                   </tr>
                 </thead>
                 <!-- Table Body -->
@@ -217,34 +210,8 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
                 </tbody>
               </table>
 
-              <!-- Totals Box -->
-              <table class="totals-box" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin: 0 0 24px 0;">
-                <tr>
-                  <td style="padding: 20px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                      <tr>
-                        <td style="padding: 8px 0; font-size: 15px; color: #6b7280; text-align: right;">
-                          Total HT
-                        </td>
-                        <td style="padding: 8px 0; font-size: 15px; font-weight: 600; color: #1f2937; text-align: right; font-family: 'Courier New', monospace; min-width: 120px;">
-                          ${totalHT.toFixed(2)} €
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 8px 0; border-top: 2px solid #e5e7eb; font-size: 17px; font-weight: 700; color: #1f2937; text-align: right;">
-                          Total TTC
-                        </td>
-                        <td style="padding: 8px 0; border-top: 2px solid #e5e7eb; font-size: 17px; font-weight: 700; color: #1f2937; text-align: right; font-family: 'Courier New', monospace;">
-                          ${totalTTC.toFixed(2)} €
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-
               ${
-                notes
+                shouldShowNotes
                   ? `
               <!-- Notes Box -->
               <table class="notes-box" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: #fff7ed; border-left: 4px solid #F97316; border-radius: 8px; margin: 0 0 24px 0;">
@@ -262,10 +229,6 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
               }
 
               <!-- Call to Action -->
-              <p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.6; color: #1f2937;">
-                Merci de nous confirmer la réception de cette commande et de nous indiquer les délais de livraison estimés.
-              </p>
-
               <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #1f2937;">
                 Pour toute question, n'hésitez pas à nous contacter.
               </p>
@@ -286,10 +249,19 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
                 CoworKing Café
               </p>
               <p class="footer-text" style="margin: 0 0 4px 0; font-size: 13px; color: #6b7280;">
-                Espace de coworking à Strasbourg
+                Espace de coworking et café à Strasbourg
+              </p>
+              <p class="footer-text" style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
+                📍 4 rue de la Krutenau, 67000 Strasbourg
+              </p>
+              <p class="footer-text" style="margin: 0 0 4px 0; font-size: 13px; color: #6b7280;">
+                📞 03 88 00 00 00
+              </p>
+              <p class="footer-text" style="margin: 0 0 12px 0; font-size: 13px; color: #6b7280;">
+                ✉️ contact@coworkingcafe.fr
               </p>
               <p class="footer-text" style="margin: 0; font-size: 12px; color: #9ca3af;">
-                Commande générée automatiquement - Ne pas répondre à cet email
+                Commande générée automatiquement
               </p>
             </td>
           </tr>
