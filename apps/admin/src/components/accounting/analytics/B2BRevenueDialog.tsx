@@ -245,7 +245,7 @@ export function B2BRevenueDialog({ open, onOpenChange, editData }: B2BRevenueDia
                 <div>
                   <Label htmlFor="year">Année</Label>
                   <Select
-                    defaultValue={new Date().getFullYear().toString()}
+                    value={watch('year')?.toString() || new Date().getFullYear().toString()}
                     onValueChange={(value) => setValue('year', parseInt(value))}
                   >
                     <SelectTrigger id="year">
@@ -267,7 +267,7 @@ export function B2BRevenueDialog({ open, onOpenChange, editData }: B2BRevenueDia
                 <div>
                   <Label htmlFor="month">Mois</Label>
                   <Select
-                    defaultValue={(new Date().getMonth() + 1).toString()}
+                    value={watch('month')?.toString() || (new Date().getMonth() + 1).toString()}
                     onValueChange={(value) => setValue('month', parseInt(value))}
                   >
                     <SelectTrigger id="month">
@@ -311,18 +311,12 @@ export function B2BRevenueDialog({ open, onOpenChange, editData }: B2BRevenueDia
 
             <div className="space-y-2">
               <Label>CA HT par taux de TVA</Label>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="revenueHT_5_5" className="text-sm text-muted-foreground">
-                    TVA 5.5%
-                  </Label>
+              <div className="grid grid-cols-2 gap-4">
+                {/* TVA 5.5% masquée - garde la valeur backend à 0 */}
+                <div className="hidden">
                   <Input
                     id="revenueHT_5_5"
                     type="number"
-                    step="0.01"
-                    min={0}
-                    placeholder="0.00"
-                    onFocus={(e) => e.target.select()}
                     {...register('revenueHT_5_5', { valueAsNumber: true })}
                   />
                 </div>

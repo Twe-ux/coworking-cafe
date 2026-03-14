@@ -72,6 +72,13 @@ function formatMonth(monthString: string): string {
   return `${monthName} ${year}`;
 }
 
+function calculateTTC(entry: B2BEntry): number {
+  const ttc_5_5 = (entry.revenueHT_5_5 || 0) * 1.055;
+  const ttc_10 = (entry.revenueHT_10 || 0) * 1.10;
+  const ttc_20 = (entry.revenueHT_20 || 0) * 1.20;
+  return ttc_5_5 + ttc_10 + ttc_20;
+}
+
 export function B2BListView() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -196,10 +203,10 @@ export function B2BListView() {
                 <TableHead>Date Prestation</TableHead>
                 <TableHead>Date Facturation</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead className="text-right">TVA 5.5%</TableHead>
-                <TableHead className="text-right">TVA 10%</TableHead>
-                <TableHead className="text-right">TVA 20%</TableHead>
+                <TableHead className="text-right">HT 10%</TableHead>
+                <TableHead className="text-right">HT 20%</TableHead>
                 <TableHead className="text-right font-semibold">Total HT</TableHead>
+                <TableHead className="text-right font-semibold">Total TTC</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -218,9 +225,6 @@ export function B2BListView() {
                   <TableCell>{formatDate(entry.invoiceDate)}</TableCell>
                   <TableCell className="font-medium">{entry.client}</TableCell>
                   <TableCell className="text-right text-sm">
-                    {entry.revenueHT_5_5 ? formatCurrency(entry.revenueHT_5_5) : '-'}
-                  </TableCell>
-                  <TableCell className="text-right text-sm">
                     {entry.revenueHT_10 ? formatCurrency(entry.revenueHT_10) : '-'}
                   </TableCell>
                   <TableCell className="text-right text-sm">
@@ -228,6 +232,9 @@ export function B2BListView() {
                   </TableCell>
                   <TableCell className="text-right font-semibold">
                     {formatCurrency(entry.revenueHT)}
+                  </TableCell>
+                  <TableCell className="text-right font-semibold">
+                    {formatCurrency(calculateTTC(entry))}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -258,9 +265,6 @@ export function B2BListView() {
             <TableRow className="bg-slate-100 font-bold">
               <TableCell colSpan={3}>Total</TableCell>
               <TableCell className="text-right">
-                {formatCurrency(data.reduce((sum, e) => sum + (e.revenueHT_5_5 || 0), 0))}
-              </TableCell>
-              <TableCell className="text-right">
                 {formatCurrency(data.reduce((sum, e) => sum + (e.revenueHT_10 || 0), 0))}
               </TableCell>
               <TableCell className="text-right">
@@ -268,6 +272,9 @@ export function B2BListView() {
               </TableCell>
               <TableCell className="text-right text-lg">
                 {formatCurrency(total)}
+              </TableCell>
+              <TableCell className="text-right text-lg">
+                {formatCurrency(data.reduce((sum, e) => sum + calculateTTC(e), 0))}
               </TableCell>
               <TableCell />
             </TableRow>
