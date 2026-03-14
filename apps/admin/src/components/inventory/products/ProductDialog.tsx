@@ -30,8 +30,8 @@ const productSchema = z.object({
   unitsPerPackage: z.number().min(1, 'Minimum 1 unité par conditionnement'),
   packageUnit: z.enum(['kg', 'L', 'unit']).optional(),
   packagingDescription: z.string().optional(),
-  minStock: z.number().min(0),
-  maxStock: z.number().min(0),
+  minStock: z.number().min(0, 'Le stock minimum doit être >= 0'),
+  maxStock: z.number().min(0, 'Le stock maximum doit être >= 0'),
   dlcAlertConfig: z.object({
     enabled: z.boolean(),
     days: z.array(z.number().min(0).max(6)),
@@ -77,7 +77,7 @@ export function ProductDialog({
     defaultValues: {
       name: '',
       category: 'food',
-      unitPriceHT: 0,
+      unitPriceHT: undefined as unknown as number,
       vatRate: 5.5,
       supplierId: '',
       supplierReference: '',
@@ -86,8 +86,8 @@ export function ProductDialog({
       unitsPerPackage: 1,
       packageUnit: 'unit',
       packagingDescription: '',
-      minStock: 0,
-      maxStock: 10,
+      minStock: undefined as unknown as number,
+      maxStock: undefined as unknown as number,
       dlcAlertConfig: {
         enabled: false,
         days: [],

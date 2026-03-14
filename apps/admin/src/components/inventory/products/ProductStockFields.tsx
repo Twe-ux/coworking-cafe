@@ -76,12 +76,18 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                 <FormControl>
                   <Input
                     type="number"
+                    step="0.1"
                     min="0"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(parseInt(e.target.value) || 0)
-                    }
+                    placeholder="0"
+                    value={field.value ?? ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
+                      field.onChange(isNaN(val) ? 0 : val)
+                    }}
                     onFocus={(e) => e.target.select()}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
                   />
                 </FormControl>
                 <FormDescription>Seuil d&apos;alerte</FormDescription>
@@ -99,12 +105,18 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
                 <FormControl>
                   <Input
                     type="number"
+                    step="0.1"
                     min="0"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(parseInt(e.target.value) || 0)
-                    }
+                    placeholder="0"
+                    value={field.value ?? ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value)
+                      field.onChange(isNaN(val) ? 0 : val)
+                    }}
                     onFocus={(e) => e.target.select()}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
                   />
                 </FormControl>
                 <FormDescription>Stock idéal</FormDescription>
