@@ -155,6 +155,7 @@ export function ProductDialog({
           days: [],
           time: '09:00',
         },
+        criticalStockAlert: product.criticalStockAlert || false,
       })
     } else if (mode === 'create') {
       // Reset to default values explicitly
