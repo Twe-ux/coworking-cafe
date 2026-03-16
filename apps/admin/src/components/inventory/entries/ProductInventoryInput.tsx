@@ -84,9 +84,9 @@ export function ProductInventoryInput({
   if (isFinalized) {
     return (
       <TableRow className="text-sm">
-        <TableCell className="font-medium py-2 w-[320px]">
-          <div className="flex items-center justify-between">
-            <span className="w-[180px]">{item.productName}</span>
+        <TableCell className="font-medium py-2 pl-0 w-[320px] ">
+          <div className="flex items-center gap-2">
+            <span className="w-full truncate ">{item.productName}</span>
             {categoryBadge && (
               <Badge
                 variant="outline"
@@ -124,9 +124,9 @@ export function ProductInventoryInput({
 
   return (
     <TableRow className="text-sm hover:bg-transparent">
-      <TableCell className="font-medium py-2 w-[320px] bg-red-500">
-        <div className="flex items-center justify-between">
-          <span className="w-[180px] bg-blue-300">{item.productName}</span>
+      <TableCell className="font-medium py-2 pl-0 w-[320px] ">
+        <div className="flex items-center gap-2">
+          <span className="w-full truncate">{item.productName}</span>
           {categoryBadge && (
             <Badge
               variant="outline"
