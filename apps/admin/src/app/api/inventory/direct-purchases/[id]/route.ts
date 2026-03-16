@@ -99,3 +99,55 @@ export async function DELETE(
     )
   }
 }
+
+/**
+ * PUT /api/inventory/direct-purchases/[id] - Update a direct purchase
+ * Auth: requireAuth(['dev', 'admin'])
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  try {
+    const authResult = await requireAuth(getRequiredRoles('createDirectPurchase'))
+    if (!authResult.authorized) return authResult.response
+
+    await connectMongoose()
+
+    const { id } = await params
+    const body = await request.json()
+
+    const purchase = await DirectPurchase.findById(id)
+    if (!purchase) {
+      return notFoundResponse('Achat direct')
+    }
+
+    // Update fields
+    if (body.date) purchase.date = body.date
+    if (body.invoiceNumber !== undefined) purchase.invoiceNumber = body.invoiceNumber
+    if (body.notes !== undefined) purchase.notes = body.notes
+    if (body.items) {
+      purchase.items = body.items
+      // Recalculate totals
+      purchase.totalHT = body.items.reduce((sum: number, item: { quantity: number; unitPriceHT: number }) =>
+        sum + (item.quantity * item.unitPriceHT), 0
+      )
+      purchase.totalTTC = body.items.reduce((sum: number, item: { quantity: number; unitPriceHT: number; vatRate: number }) =>
+        sum + (item.quantity * item.unitPriceHT * (1 + item.vatRate / 100)), 0
+      )
+    }
+
+    await purchase.save()
+
+    const transformed = transformDirectPurchase(toRecord(purchase.toObject()))
+
+    return successResponse(transformed)
+  } catch (error) {
+    console.error('[PUT /api/inventory/direct-purchases/[id]] Error:', error)
+    return errorResponse(
+      'Erreur lors de la modification de l\'achat direct',
+      error instanceof Error ? error.message : undefined,
+      500
+    )
+  }
+}
