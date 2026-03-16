@@ -4,6 +4,7 @@ import { NumberInput } from "@/components/inventory/NumberInput";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { getUnitLabel } from "@/lib/inventory/stockHelpers";
+import { getCategoryBadgeColors } from "@/lib/inventory/categoryColors";
 import type {
   InventoryEntryItem,
   PackageUnit,
@@ -37,7 +38,7 @@ export function ProductInventoryInput({
 }: ProductInventoryInputProps) {
   const isPack = packagingType === "pack" && unitsPerPackage > 1;
   const unitLabel = getUnitLabel(packageUnit);
-  const categoryBadge = getCategoryBadge(category);
+  const categoryBadge = getCategoryBadgeColors(category);
 
   // Decompose actualQty into packs + loose units (initial value only)
   const [packs, setPacks] = useState(() =>
@@ -187,25 +188,6 @@ export function ProductInventoryInput({
       </TableCell>
     </TableRow>
   );
-}
-
-// --- Helper functions ---
-
-function getCategoryBadge(category?: ProductCategory) {
-  if (!category) return null;
-
-  const categoryMap = {
-    food: { label: "Alimentaire", color: "text-orange-700 border-orange-300" },
-    cleaning: { label: "Entretien", color: "text-blue-700 border-blue-300" },
-    emballage: { label: "Emballage", color: "text-gray-700 border-gray-300" },
-    papeterie: {
-      label: "Papeterie",
-      color: "text-yellow-700 border-yellow-300",
-    },
-    divers: { label: "Divers", color: "text-gray-700 border-gray-300" },
-  };
-
-  return categoryMap[category];
 }
 
 // --- Variance display helpers ---

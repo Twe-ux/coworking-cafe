@@ -2,22 +2,16 @@
 
 import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  UtensilsCrossed,
-  Sparkles,
-  Package,
-  FileText,
-  Shapes,
-  Layers,
-} from 'lucide-react'
+import { Layers } from 'lucide-react'
+import { CATEGORY_COLORS } from '@/lib/inventory/categoryColors'
 import type { Product, ProductCategory } from '@/types/inventory'
 
 const CATEGORY_CARDS = [
-  { key: 'food' as ProductCategory, label: 'Alimentation', icon: UtensilsCrossed, ringClass: 'ring-orange-500', iconClass: 'text-orange-500' },
-  { key: 'cleaning' as ProductCategory, label: 'Entretien', icon: Sparkles, ringClass: 'ring-blue-500', iconClass: 'text-blue-500' },
-  { key: 'emballage' as ProductCategory, label: 'Emballage', icon: Package, ringClass: 'ring-amber-500', iconClass: 'text-amber-500' },
-  { key: 'papeterie' as ProductCategory, label: 'Papeterie', icon: FileText, ringClass: 'ring-purple-500', iconClass: 'text-purple-500' },
-  { key: 'divers' as ProductCategory, label: 'Divers', icon: Shapes, ringClass: 'ring-gray-500', iconClass: 'text-gray-500' },
+  { key: 'food' as ProductCategory, ...CATEGORY_COLORS.food },
+  { key: 'cleaning' as ProductCategory, ...CATEGORY_COLORS.cleaning },
+  { key: 'emballage' as ProductCategory, ...CATEGORY_COLORS.emballage },
+  { key: 'papeterie' as ProductCategory, ...CATEGORY_COLORS.papeterie },
+  { key: 'divers' as ProductCategory, ...CATEGORY_COLORS.divers },
 ] as const
 
 interface ProductStatsCardsProps {
@@ -41,17 +35,17 @@ export function ProductStatsCards({
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-      {CATEGORY_CARDS.map(({ key, label, icon: Icon, ringClass, iconClass }) => (
+      {CATEGORY_CARDS.map(({ key, label, icon: Icon, ring, iconColor }) => (
         <Card
           key={key}
           className={`cursor-pointer transition-all hover:shadow-md ${
-            selectedCategory === key ? `ring-2 ${ringClass}` : ''
+            selectedCategory === key ? `ring-2 ${ring}` : ''
           }`}
           onClick={() => onSelectCategory(selectedCategory === key ? 'all' : key)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{label}</CardTitle>
-            <Icon className={`w-4 h-4 ${iconClass}`} />
+            <Icon className={`w-4 h-4 ${iconColor}`} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats[key]}</div>
