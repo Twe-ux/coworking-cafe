@@ -20,20 +20,22 @@ export default function DirectPurchasesPage() {
   const [purchases, setPurchases] = useState<DirectPurchase[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPurchases = async () => {
-      try {
-        const res = await fetch("/api/inventory/direct-purchases");
-        const data = (await res.json()) as APIResponse<DirectPurchase[]>;
-        if (data.success && data.data) {
-          setPurchases(data.data);
-        }
-      } catch (err) {
-        console.error("Error fetching direct purchases:", err);
-      } finally {
-        setLoading(false);
+  const fetchPurchases = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/inventory/direct-purchases");
+      const data = (await res.json()) as APIResponse<DirectPurchase[]>;
+      if (data.success && data.data) {
+        setPurchases(data.data);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching direct purchases:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchPurchases();
   }, []);
 
@@ -106,7 +108,11 @@ export default function DirectPurchasesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <DirectPurchaseList purchases={purchases} loading={false} />
+          <DirectPurchaseList
+            purchases={purchases}
+            loading={false}
+            onRefresh={fetchPurchases}
+          />
         </CardContent>
       </Card>
     </div>

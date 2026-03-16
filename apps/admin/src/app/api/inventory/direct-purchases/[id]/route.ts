@@ -67,3 +67,35 @@ export async function GET(
     )
   }
 }
+
+/**
+ * DELETE /api/inventory/direct-purchases/[id] - Delete a direct purchase
+ * Auth: requireAuth(['dev', 'admin'])
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  try {
+    const authResult = await requireAuth(getRequiredRoles('createDirectPurchase'))
+    if (!authResult.authorized) return authResult.response
+
+    await connectMongoose()
+
+    const { id } = await params
+
+    const purchase = await DirectPurchase.findByIdAndDelete(id)
+    if (!purchase) {
+      return notFoundResponse('Achat direct')
+    }
+
+    return successResponse({ message: 'Achat direct supprimé avec succès' })
+  } catch (error) {
+    console.error('[DELETE /api/inventory/direct-purchases/[id]] Error:', error)
+    return errorResponse(
+      'Erreur lors de la suppression de l\'achat direct',
+      error instanceof Error ? error.message : undefined,
+      500
+    )
+  }
+}
