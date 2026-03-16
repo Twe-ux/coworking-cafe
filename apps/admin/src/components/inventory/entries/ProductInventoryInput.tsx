@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { NumberInput } from "@/components/inventory/NumberInput";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { NumberInput } from "@/components/inventory/NumberInput";
 import { getUnitLabel } from "@/lib/inventory/stockHelpers";
 import type {
   InventoryEntryItem,
-  PackagingType,
   PackageUnit,
+  PackagingType,
   ProductCategory,
 } from "@/types/inventory";
+import { useCallback, useState } from "react";
 
 interface ProductInventoryInputProps {
   item: InventoryEntryItem;
@@ -84,9 +84,9 @@ export function ProductInventoryInput({
   if (isFinalized) {
     return (
       <TableRow className="text-sm">
-        <TableCell className="font-medium py-2 w-[960px]">
-          <div className="flex items-center gap-2">
-            <span className="w-[540px] truncate">{item.productName}</span>
+        <TableCell className="font-medium py-2 w-[320px]">
+          <div className="flex items-center justify-between">
+            <span className="w-[180px] truncate">{item.productName}</span>
             {categoryBadge && (
               <Badge
                 variant="outline"
@@ -124,9 +124,9 @@ export function ProductInventoryInput({
 
   return (
     <TableRow className="text-sm hover:bg-transparent">
-      <TableCell className="font-medium py-2 w-[960px]">
-        <div className="flex items-center gap-2">
-          <span className="w-[540px] truncate">{item.productName}</span>
+      <TableCell className="font-medium py-2 w-[320px]">
+        <div className="flex items-center justify-between">
+          <span className="w-[180px] truncate">{item.productName}</span>
           {categoryBadge && (
             <Badge
               variant="outline"
