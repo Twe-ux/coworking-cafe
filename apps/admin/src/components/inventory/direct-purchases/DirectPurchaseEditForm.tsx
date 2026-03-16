@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,10 @@ import {
 } from "@/components/ui/table";
 import { DatePicker } from "@/components/ui/date-picker";
 import { NumberInput } from "@/components/inventory/NumberInput";
+import { ProductDialog } from "@/components/inventory/products/ProductDialog";
 import { useToast } from "@/hooks/use-toast";
-import type { DirectPurchase, APIResponse } from "@/types/inventory";
+import { useProducts } from "@/hooks/inventory/useProducts";
+import type { DirectPurchase, APIResponse, Product, ProductFormData } from "@/types/inventory";
 
 interface DirectPurchaseEditFormProps {
   purchase: DirectPurchase;
@@ -28,11 +30,105 @@ interface DirectPurchaseEditFormProps {
 export function DirectPurchaseEditForm({ purchase }: DirectPurchaseEditFormProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { createProduct } = useProducts({});
   const [date, setDate] = useState(purchase.date);
   const [invoiceNumber, setInvoiceNumber] = useState(purchase.invoiceNumber || "");
   const [notes, setNotes] = useState(purchase.notes || "");
   const [items, setItems] = useState(purchase.items);
   const [submitting, setSubmitting] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [supplierId, setSupplierId] = useState<string>("");
+
+  // Fetch supplier ID by name
+  const fetchSupplierId = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/inventory/suppliers`);
+      const data = (await res.json()) as APIResponse<{ _id: string; name: string }[]>;
+      if (data.success && data.data) {
+        const supplier = data.data.find(s => s.name === purchase.supplier);
+        if (supplier) {
+          setSupplierId(supplier._id);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching supplier:", err);
+    }
+  }, [purchase.supplier]);
+
+  useEffect(() => {
+    fetchSupplierId();
+  }, [fetchSupplierId]);
+
+  // Fetch products for the supplier
+  const fetchProducts = useCallback(async () => {
+    if (!supplierId) return;
+    setLoadingProducts(true);
+    try {
+      const res = await fetch(`/api/inventory/products?supplierId=${supplierId}&active=true`);
+      const data = (await res.json()) as APIResponse<Product[]>;
+      if (data.success && data.data) {
+        setProducts(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoadingProducts(false);
+    }
+  }, [supplierId]);
+
+  useEffect(() => {
+    if (supplierId) {
+      fetchProducts();
+    }
+  }, [supplierId, fetchProducts]);
+
+  // Handle product creation
+  const handleCreateProduct = useCallback(async (
+    data: ProductFormData
+  ): Promise<boolean> => {
+    const success = await createProduct(data);
+    if (success) {
+      await fetchProducts();
+    }
+    return success;
+  }, [createProduct, fetchProducts]);
+
+  // Add a product to the list
+  const addItem = useCallback((productId: string) => {
+    if (!productId) return;
+    if (items.some((i) => i.productId === productId)) {
+      toast({
+        title: "Produit déjà ajouté",
+        description: "Ce produit est déjà dans la liste",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const product = products.find((p) => p._id === productId);
+    if (!product) return;
+
+    setItems((prev) => [
+      ...prev,
+      {
+        productId: product._id,
+        productName: product.name,
+        quantity: 1,
+        unitPriceHT: product.unitPriceHT,
+        vatRate: product.vatRate,
+      },
+    ]);
+  }, [items, products, toast]);
+
+  // Available products (not yet added)
+  const availableProducts = useMemo(
+    () => products
+      .filter((p) => !items.some((i) => i.productId === p._id))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+    [products, items]
+  );
 
   const updateItem = (productId: string, field: "quantity" | "unitPriceHT", value: number) => {
     setItems((prev) =>
@@ -133,9 +229,50 @@ export function DirectPurchaseEditForm({ purchase }: DirectPurchaseEditFormProps
       {/* Products Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Produits</CardTitle>
+          <div className="flex justify-between items-start">
+            <CardTitle>Produits</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+              onClick={() => setProductDialogOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nouveau produit
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Product selector */}
+          <div className="flex gap-2 items-end">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="add-product">Ajouter un produit</Label>
+              <select
+                id="add-product"
+                className="w-full h-10 pl-3 pr-8 border border-input bg-background rounded-md text-sm appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M10.293%203.293L6%207.586%201.707%203.293A1%201%200%2000.293%204.707l5%205a1%201%200%20001.414%200l5-5a1%201%200%2010-1.414-1.414z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[position:right_0.5rem_center] bg-no-repeat"
+                onChange={(e) => {
+                  if (e.target.value) {
+                    addItem(e.target.value);
+                    e.target.value = "";
+                  }
+                }}
+                defaultValue=""
+                disabled={loadingProducts}
+              >
+                <option value="">
+                  {loadingProducts
+                    ? "Chargement..."
+                    : "-- Sélectionner un produit --"}
+                </option>
+                {availableProducts.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name} ({p.unitPriceHT.toFixed(2)} EUR HT)
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {/* Items Table */}
           {items.length > 0 && (
             <Table>
@@ -263,6 +400,14 @@ export function DirectPurchaseEditForm({ purchase }: DirectPurchaseEditFormProps
           )}
         </Button>
       </div>
+
+      {/* Product Creation Dialog */}
+      <ProductDialog
+        open={productDialogOpen}
+        onClose={() => setProductDialogOpen(false)}
+        onSubmit={handleCreateProduct}
+        mode="create"
+      />
     </div>
   );
 }
