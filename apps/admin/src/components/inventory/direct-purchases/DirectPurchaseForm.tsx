@@ -144,7 +144,7 @@ export function DirectPurchaseForm({
                         onChange={(value) =>
                           updateItem(item.productId, "quantity", value)
                         }
-                        min={1}
+                        min={0.1}
                         placeholder="1"
                         className="w-[100px]"
                       />

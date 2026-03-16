@@ -40,16 +40,24 @@ export function NumberInput({
 
   return (
     <Input
-      type="number"
-      step={step}
-      min={min}
+      type="text"
+      inputMode="decimal"
       placeholder={placeholder}
       value={displayValue}
       disabled={disabled}
       onChange={(e) => {
+        const value = e.target.value;
         // Accept both comma and dot as decimal separator
-        const normalizedValue = e.target.value.replace(",", ".");
-        setLocalValue(normalizedValue);
+        const normalizedValue = value.replace(",", ".");
+
+        // Allow empty, partial decimals like ".", ",", "0.", ".5", ",5", "1."
+        if (
+          normalizedValue === "" ||
+          normalizedValue === "." ||
+          /^\d*\.?\d*$/.test(normalizedValue)
+        ) {
+          setLocalValue(value); // Keep original with comma if user typed comma
+        }
       }}
       onFocus={(e) => {
         setIsFocused(true);
@@ -67,7 +75,7 @@ export function NumberInput({
         const normalizedValue = localValue.replace(",", ".");
         // Convert to number on blur
         const numValue =
-          normalizedValue === "" || normalizedValue === undefined
+          normalizedValue === "" || normalizedValue === undefined || normalizedValue === "."
             ? 0
             : parseFloat(normalizedValue);
         const finalValue = isNaN(numValue) ? 0 : Math.max(min, numValue);
