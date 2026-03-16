@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Package, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ export default function NewDirectPurchasePage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState(true);
   const [selectedSupplierId, setSelectedSupplierId] = useState("");
+  const formRef = useRef<HTMLDivElement>(null);
 
   // Fetch suppliers on mount
   useEffect(() => {
@@ -38,6 +39,15 @@ export default function NewDirectPurchasePage() {
     };
     fetchSuppliers();
   }, []);
+
+  // Auto-scroll to form when supplier is selected
+  useEffect(() => {
+    if (selectedSupplierId && formRef.current) {
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [selectedSupplierId]);
 
   const selectedSupplier = suppliers.find((s) => s._id === selectedSupplierId);
 
@@ -116,10 +126,12 @@ export default function NewDirectPurchasePage() {
 
       {/* Form */}
       {selectedSupplier && (
-        <DirectPurchaseForm
-          supplierId={selectedSupplier._id}
-          supplierName={selectedSupplier.name}
-        />
+        <div ref={formRef}>
+          <DirectPurchaseForm
+            supplierId={selectedSupplier._id}
+            supplierName={selectedSupplier.name}
+          />
+        </div>
       )}
     </div>
   );
