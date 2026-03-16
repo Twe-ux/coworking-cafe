@@ -2,8 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { NumberInput } from "@/components/inventory/NumberInput";
 import { getUnitLabel } from "@/lib/inventory/stockHelpers";
 import type {
   InventoryEntryItem,
@@ -146,34 +146,13 @@ export function ProductInventoryInput({
           <div className="flex items-center gap-1.5 justify-self-end">
             {isPack ? (
               <>
-                <Input
-                  type="number"
+                <NumberInput
+                  value={packs}
+                  onChange={handlePacksChange}
                   min={0}
-                  step={1}
-                  value={packs || ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "") {
-                      handlePacksChange(0);
-                    } else {
-                      // Accept both comma and dot as decimal separator (though packs should be integers)
-                      const normalizedValue = value.replace(',', '.');
-                      const val = parseInt(normalizedValue);
-                      if (!isNaN(val)) {
-                        handlePacksChange(val);
-                      }
-                    }
-                  }}
-                  onFocus={(e) => {
-                    // Safari fix: setTimeout to prevent auto-deselect
-                    setTimeout(() => e.target.select(), 0);
-                  }}
-                  onMouseUp={(e) => {
-                    // Prevent Safari from deselecting on mouse up
-                    e.preventDefault();
-                  }}
-                  className="w-20 h-8 text-right font-mono text-sm"
+                  step="1"
                   placeholder="0"
+                  className="w-20 h-8 text-right font-mono text-sm"
                 />
                 <span className="text-xs font-medium whitespace-nowrap">
                   Packs
@@ -186,34 +165,13 @@ export function ProductInventoryInput({
 
           {/* Column 2: Units (always aligned) */}
           <div className="flex items-center gap-1.5 justify-self-start">
-            <Input
-              type="number"
+            <NumberInput
+              value={units}
+              onChange={handleUnitsChange}
               min={0}
-              step={0.1}
-              value={units || ""}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === "") {
-                  handleUnitsChange(0);
-                } else {
-                  // Accept both comma and dot as decimal separator
-                  const normalizedValue = value.replace(',', '.');
-                  const val = parseFloat(normalizedValue);
-                  if (!isNaN(val)) {
-                    handleUnitsChange(val);
-                  }
-                }
-              }}
-              onFocus={(e) => {
-                // Safari fix: setTimeout to prevent auto-deselect
-                setTimeout(() => e.target.select(), 0);
-              }}
-              onMouseUp={(e) => {
-                // Prevent Safari from deselecting on mouse up
-                e.preventDefault();
-              }}
-              className="w-20 h-8 text-right font-mono text-sm"
+              step="0.1"
               placeholder="0"
+              className="w-20 h-8 text-right font-mono text-sm"
             />
             <span className="text-xs font-medium whitespace-nowrap">
               {unitLabel}

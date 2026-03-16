@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
+import { NumberInput } from '@/components/inventory/NumberInput'
 import type { PurchaseOrderItem } from '@/types/inventory'
 
 interface DisplayItem {
@@ -105,41 +106,13 @@ export function OrderItemsTable({
                       <TableCell className="text-center bg-blue-50">
                         {editable && onRealStockChange ? (
                           <div className="flex items-center justify-center gap-1">
-                            <input
-                              type="number"
-                              min="0"
+                            <NumberInput
+                              value={'realStock' in item ? (item.realStock ?? 0) : 0}
+                              onChange={(val) => onRealStockChange(item.productId, val)}
+                              min={0}
                               step="0.1"
-                              value={'realStock' in item ? item.realStock ?? '' : ''}
                               placeholder="Stock"
-                              onChange={(e) => {
-                                const value = e.target.value
-                                if (value === '') {
-                                  // Allow clearing the field - set to undefined to show placeholder
-                                  onRealStockChange(item.productId, undefined)
-                                } else {
-                                  // Accept both comma and dot as decimal separator
-                                  const normalizedValue = value.replace(',', '.')
-                                  const val = parseFloat(normalizedValue)
-                                  if (!isNaN(val) && val >= 0) {
-                                    onRealStockChange(item.productId, val)
-                                  }
-                                }
-                              }}
-                              onFocus={(e) => {
-                                // Safari fix: setTimeout to prevent auto-deselect
-                                setTimeout(() => e.target.select(), 0)
-                              }}
-                              onMouseUp={(e) => {
-                                // Prevent Safari from deselecting on mouse up
-                                e.preventDefault()
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
-                                  e.currentTarget.value = ''
-                                  onRealStockChange(item.productId, undefined)
-                                }
-                              }}
-                              className="w-20 min-h-[44px] px-2 py-2 border rounded text-center font-mono touch-manipulation"
+                              className="w-20 min-h-[44px] text-center font-mono touch-manipulation"
                             />
                           </div>
                         ) : (
@@ -149,41 +122,13 @@ export function OrderItemsTable({
                       <TableCell className="text-center bg-blue-50">
                         {editable && onQuantityChange ? (
                           <div className="flex items-center justify-center gap-1">
-                            <input
-                              type="number"
-                              min="0"
+                            <NumberInput
+                              value={item.quantity || 0}
+                              onChange={(val) => onQuantityChange(item.productId, val)}
+                              min={0}
                               step="0.1"
-                              value={item.quantity || ''}
                               placeholder="Qté"
-                              onChange={(e) => {
-                                const value = e.target.value
-                                if (value === '') {
-                                  // Allow clearing the field
-                                  onQuantityChange(item.productId, 0)
-                                } else {
-                                  // Accept both comma and dot as decimal separator
-                                  const normalizedValue = value.replace(',', '.')
-                                  const val = parseFloat(normalizedValue)
-                                  if (!isNaN(val) && val >= 0) {
-                                    onQuantityChange(item.productId, val)
-                                  }
-                                }
-                              }}
-                              onFocus={(e) => {
-                                // Safari fix: setTimeout to prevent auto-deselect
-                                setTimeout(() => e.target.select(), 0)
-                              }}
-                              onMouseUp={(e) => {
-                                // Prevent Safari from deselecting on mouse up
-                                e.preventDefault()
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
-                                  e.currentTarget.value = ''
-                                  onQuantityChange(item.productId, 0)
-                                }
-                              }}
-                              className="w-20 min-h-[44px] px-2 py-2 border rounded text-center font-mono touch-manipulation"
+                              className="w-20 min-h-[44px] text-center font-mono touch-manipulation"
                             />
                           </div>
                         ) : (
@@ -197,28 +142,12 @@ export function OrderItemsTable({
                     <>
                       <TableCell className="text-center font-mono">
                         {onQuantityChange ? (
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.1"
+                          <NumberInput
                             value={item.quantity}
-                            onChange={(e) => {
-                              // Accept both comma and dot as decimal separator
-                              const normalizedValue = e.target.value.replace(',', '.')
-                              const val = parseFloat(normalizedValue)
-                              if (!isNaN(val) && val >= 0) {
-                                onQuantityChange(item.productId, val)
-                              }
-                            }}
-                            onFocus={(e) => {
-                              // Safari fix: setTimeout to prevent auto-deselect
-                              setTimeout(() => e.target.select(), 0)
-                            }}
-                            onMouseUp={(e) => {
-                              // Prevent Safari from deselecting on mouse up
-                              e.preventDefault()
-                            }}
-                            className="w-20 px-2 py-1 border rounded text-center"
+                            onChange={(val) => onQuantityChange(item.productId, val)}
+                            min={0}
+                            step="0.1"
+                            className="w-20 text-center"
                           />
                         ) : (
                           item.quantity
@@ -237,28 +166,12 @@ export function OrderItemsTable({
                     ) : (
                       <>
                         {editable && onQuantityChange ? (
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.1"
+                          <NumberInput
                             value={item.quantity}
-                            onChange={(e) => {
-                              // Accept both comma and dot as decimal separator
-                              const normalizedValue = e.target.value.replace(',', '.')
-                              const val = parseFloat(normalizedValue)
-                              if (!isNaN(val) && val >= 0) {
-                                onQuantityChange(item.productId, val)
-                              }
-                            }}
-                            onFocus={(e) => {
-                              // Safari fix: setTimeout to prevent auto-deselect
-                              setTimeout(() => e.target.select(), 0)
-                            }}
-                            onMouseUp={(e) => {
-                              // Prevent Safari from deselecting on mouse up
-                              e.preventDefault()
-                            }}
-                            className="w-20 px-2 py-1 border rounded text-center font-mono mr-2"
+                            onChange={(val) => onQuantityChange(item.productId, val)}
+                            min={0}
+                            step="0.1"
+                            className="w-20 text-center font-mono mr-2 inline-block"
                           />
                         ) : (
                           <span className="font-mono mr-2">{item.quantity}</span>

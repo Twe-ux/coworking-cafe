@@ -1,8 +1,8 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 import { TableCell, TableRow } from '@/components/ui/table'
+import { NumberInput } from '@/components/inventory/NumberInput'
 import type { InventoryEntryItem } from '@/types/inventory'
 
 interface ProductInventoryRowProps {
@@ -32,32 +32,13 @@ export function ProductInventoryRow({
         {isFinalized ? (
           <span className="font-mono">{item.actualQty}</span>
         ) : (
-          <Input
-            type="number"
+          <NumberInput
+            value={item.actualQty || 0}
+            onChange={(val) => onQuantityChange(item.productId, val)}
             min={0}
-            step={0.1}
-            value={item.actualQty || ''}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === '') {
-                onQuantityChange(item.productId, 0);
-              } else {
-                // Accept both comma and dot as decimal separator
-                const normalizedValue = value.replace(',', '.');
-                const val = parseFloat(normalizedValue);
-                onQuantityChange(item.productId, isNaN(val) ? 0 : val);
-              }
-            }}
-            onFocus={(e) => {
-              // Safari fix: setTimeout to prevent auto-deselect
-              setTimeout(() => e.target.select(), 0);
-            }}
-            onMouseUp={(e) => {
-              // Prevent Safari from deselecting on mouse up
-              e.preventDefault();
-            }}
-            className="w-24 mx-auto text-center font-mono"
+            step="0.1"
             placeholder="0"
+            className="w-24 mx-auto text-center font-mono"
           />
         )}
       </TableCell>

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { DatePicker } from "@/components/ui/date-picker";
 import { ProductDialog } from "@/components/inventory/products/ProductDialog";
+import { NumberInput } from "@/components/inventory/NumberInput";
 import { useDirectPurchaseForm } from "@/hooks/inventory/useDirectPurchaseForm";
 
 interface DirectPurchaseFormProps {
@@ -138,84 +139,24 @@ export function DirectPurchaseForm({
                       {item.productName}
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="text"
-                        inputMode="decimal"
+                      <NumberInput
                         value={item.quantity}
+                        onChange={(value) =>
+                          updateItem(item.productId, "quantity", value)
+                        }
+                        min={1}
                         placeholder="1"
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // Accept both comma and dot as decimal separator
-                          const normalizedValue = value.replace(',', '.');
-
-                          // Allow empty, partial decimals like "0.", ".5", "1."
-                          if (normalizedValue === '' || normalizedValue === '.' || /^\d*\.?\d*$/.test(normalizedValue)) {
-                            const numValue = parseFloat(normalizedValue);
-                            if (normalizedValue === '' || normalizedValue === '.') {
-                              // Temporarily allow empty for user to type
-                              updateItem(item.productId, "quantity", 1);
-                            } else if (!isNaN(numValue) && numValue > 0) {
-                              updateItem(item.productId, "quantity", numValue);
-                            }
-                          }
-                        }}
-                        onBlur={(e) => {
-                          // On blur, ensure minimum value of 1
-                          const value = e.target.value.replace(',', '.');
-                          const numValue = parseFloat(value);
-                          if (isNaN(numValue) || numValue < 1) {
-                            updateItem(item.productId, "quantity", 1);
-                          }
-                        }}
-                        onFocus={(e) => {
-                          // Safari fix: setTimeout to prevent auto-deselect
-                          setTimeout(() => e.target.select(), 0);
-                        }}
-                        onMouseUp={(e) => {
-                          // Prevent Safari from deselecting on mouse up
-                          e.preventDefault();
-                        }}
                         className="w-[100px]"
                       />
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="text"
-                        inputMode="decimal"
+                      <NumberInput
                         value={item.unitPriceHT}
+                        onChange={(value) =>
+                          updateItem(item.productId, "unitPriceHT", value)
+                        }
+                        min={0}
                         placeholder="0.00"
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // Accept both comma and dot as decimal separator
-                          const normalizedValue = value.replace(',', '.');
-
-                          // Allow empty, partial decimals like "0.", ".5", "1."
-                          if (normalizedValue === '' || normalizedValue === '.' || /^\d*\.?\d*$/.test(normalizedValue)) {
-                            const numValue = parseFloat(normalizedValue);
-                            if (normalizedValue === '' || normalizedValue === '.') {
-                              // Temporarily allow empty for user to type
-                              updateItem(item.productId, "unitPriceHT", 0);
-                            } else if (!isNaN(numValue) && numValue >= 0) {
-                              updateItem(item.productId, "unitPriceHT", numValue);
-                            }
-                          }
-                        }}
-                        onBlur={(e) => {
-                          // On blur, ensure valid value (minimum 0)
-                          const value = e.target.value.replace(',', '.');
-                          const numValue = parseFloat(value);
-                          if (isNaN(numValue) || numValue < 0) {
-                            updateItem(item.productId, "unitPriceHT", 0);
-                          }
-                        }}
-                        onFocus={(e) => {
-                          // Safari fix: setTimeout to prevent auto-deselect
-                          setTimeout(() => e.target.select(), 0);
-                        }}
-                        onMouseUp={(e) => {
-                          // Prevent Safari from deselecting on mouse up
-                          e.preventDefault();
-                        }}
                         className="w-[120px]"
                       />
                     </TableCell>
