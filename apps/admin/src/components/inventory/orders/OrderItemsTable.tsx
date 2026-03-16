@@ -117,13 +117,22 @@ export function OrderItemsTable({
                                   // Allow clearing the field - set to undefined to show placeholder
                                   onRealStockChange(item.productId, undefined)
                                 } else {
-                                  const val = parseFloat(value)
+                                  // Accept both comma and dot as decimal separator
+                                  const normalizedValue = value.replace(',', '.')
+                                  const val = parseFloat(normalizedValue)
                                   if (!isNaN(val) && val >= 0) {
                                     onRealStockChange(item.productId, val)
                                   }
                                 }
                               }}
-                              onFocus={(e) => e.target.select()}
+                              onFocus={(e) => {
+                                // Safari fix: setTimeout to prevent auto-deselect
+                                setTimeout(() => e.target.select(), 0)
+                              }}
+                              onMouseUp={(e) => {
+                                // Prevent Safari from deselecting on mouse up
+                                e.preventDefault()
+                              }}
                               onKeyDown={(e) => {
                                 if (e.key === 'Escape') {
                                   e.currentTarget.value = ''
@@ -152,13 +161,22 @@ export function OrderItemsTable({
                                   // Allow clearing the field
                                   onQuantityChange(item.productId, 0)
                                 } else {
-                                  const val = parseFloat(value)
+                                  // Accept both comma and dot as decimal separator
+                                  const normalizedValue = value.replace(',', '.')
+                                  const val = parseFloat(normalizedValue)
                                   if (!isNaN(val) && val >= 0) {
                                     onQuantityChange(item.productId, val)
                                   }
                                 }
                               }}
-                              onFocus={(e) => e.target.select()}
+                              onFocus={(e) => {
+                                // Safari fix: setTimeout to prevent auto-deselect
+                                setTimeout(() => e.target.select(), 0)
+                              }}
+                              onMouseUp={(e) => {
+                                // Prevent Safari from deselecting on mouse up
+                                e.preventDefault()
+                              }}
                               onKeyDown={(e) => {
                                 if (e.key === 'Escape') {
                                   e.currentTarget.value = ''
@@ -185,12 +203,21 @@ export function OrderItemsTable({
                             step="0.1"
                             value={item.quantity}
                             onChange={(e) => {
-                              const val = parseFloat(e.target.value)
+                              // Accept both comma and dot as decimal separator
+                              const normalizedValue = e.target.value.replace(',', '.')
+                              const val = parseFloat(normalizedValue)
                               if (!isNaN(val) && val >= 0) {
                                 onQuantityChange(item.productId, val)
                               }
                             }}
-                            onFocus={(e) => e.target.select()}
+                            onFocus={(e) => {
+                              // Safari fix: setTimeout to prevent auto-deselect
+                              setTimeout(() => e.target.select(), 0)
+                            }}
+                            onMouseUp={(e) => {
+                              // Prevent Safari from deselecting on mouse up
+                              e.preventDefault()
+                            }}
                             className="w-20 px-2 py-1 border rounded text-center"
                           />
                         ) : (
@@ -216,12 +243,21 @@ export function OrderItemsTable({
                             step="0.1"
                             value={item.quantity}
                             onChange={(e) => {
-                              const val = parseFloat(e.target.value)
+                              // Accept both comma and dot as decimal separator
+                              const normalizedValue = e.target.value.replace(',', '.')
+                              const val = parseFloat(normalizedValue)
                               if (!isNaN(val) && val >= 0) {
                                 onQuantityChange(item.productId, val)
                               }
                             }}
-                            onFocus={(e) => e.target.select()}
+                            onFocus={(e) => {
+                              // Safari fix: setTimeout to prevent auto-deselect
+                              setTimeout(() => e.target.select(), 0)
+                            }}
+                            onMouseUp={(e) => {
+                              // Prevent Safari from deselecting on mouse up
+                              e.preventDefault()
+                            }}
                             className="w-20 px-2 py-1 border rounded text-center font-mono mr-2"
                           />
                         ) : (

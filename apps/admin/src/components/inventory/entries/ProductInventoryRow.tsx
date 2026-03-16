@@ -38,10 +38,24 @@ export function ProductInventoryRow({
             step={0.1}
             value={item.actualQty || ''}
             onChange={(e) => {
-              const val = parseFloat(e.target.value)
-              onQuantityChange(item.productId, isNaN(val) ? 0 : val)
+              const value = e.target.value;
+              if (value === '') {
+                onQuantityChange(item.productId, 0);
+              } else {
+                // Accept both comma and dot as decimal separator
+                const normalizedValue = value.replace(',', '.');
+                const val = parseFloat(normalizedValue);
+                onQuantityChange(item.productId, isNaN(val) ? 0 : val);
+              }
             }}
-            onFocus={(e) => e.target.select()}
+            onFocus={(e) => {
+              // Safari fix: setTimeout to prevent auto-deselect
+              setTimeout(() => e.target.select(), 0);
+            }}
+            onMouseUp={(e) => {
+              // Prevent Safari from deselecting on mouse up
+              e.preventDefault();
+            }}
             className="w-24 mx-auto text-center font-mono"
             placeholder="0"
           />

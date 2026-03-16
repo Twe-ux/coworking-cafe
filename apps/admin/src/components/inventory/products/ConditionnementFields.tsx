@@ -19,6 +19,7 @@ import {
 import type { ProductFormData } from "@/types/inventory";
 import { Control, useWatch } from "react-hook-form";
 import { PriceVatFields } from "./PriceVatFields";
+import { useNumberInput } from "@/hooks/inventory/useNumberInput";
 
 interface ConditionnementFieldsProps {
   control: Control<ProductFormData>;
@@ -72,30 +73,24 @@ export function ConditionnementFields({ control }: ConditionnementFieldsProps) {
               <FormField
                 control={control}
                 name="unitsPerPackage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantité *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="1"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 1)
-                        }
-                        onFocus={(e) => {
-                          // Safari fix: setTimeout to prevent auto-deselect
-                          setTimeout(() => e.target.select(), 0)
-                        }}
-                        onMouseUp={(e) => {
-                          // Prevent Safari from deselecting on mouse up
-                          e.preventDefault()
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const numberInputProps = useNumberInput({ field, min: 1 });
+                  return (
+                    <FormItem>
+                      <FormLabel>Quantité *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          step="1"
+                          placeholder="1"
+                          {...numberInputProps}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
               <FormField
                 control={control}

@@ -152,11 +152,26 @@ export function ProductInventoryInput({
                   step={1}
                   value={packs || ""}
                   onChange={(e) => {
-                    const val =
-                      e.target.value === "" ? 0 : parseInt(e.target.value);
-                    handlePacksChange(val);
+                    const value = e.target.value;
+                    if (value === "") {
+                      handlePacksChange(0);
+                    } else {
+                      // Accept both comma and dot as decimal separator (though packs should be integers)
+                      const normalizedValue = value.replace(',', '.');
+                      const val = parseInt(normalizedValue);
+                      if (!isNaN(val)) {
+                        handlePacksChange(val);
+                      }
+                    }
                   }}
-                  onFocus={(e) => e.target.select()}
+                  onFocus={(e) => {
+                    // Safari fix: setTimeout to prevent auto-deselect
+                    setTimeout(() => e.target.select(), 0);
+                  }}
+                  onMouseUp={(e) => {
+                    // Prevent Safari from deselecting on mouse up
+                    e.preventDefault();
+                  }}
                   className="w-20 h-8 text-right font-mono text-sm"
                   placeholder="0"
                 />
@@ -177,11 +192,26 @@ export function ProductInventoryInput({
               step={0.1}
               value={units || ""}
               onChange={(e) => {
-                const val =
-                  e.target.value === "" ? 0 : parseFloat(e.target.value);
-                handleUnitsChange(val);
+                const value = e.target.value;
+                if (value === "") {
+                  handleUnitsChange(0);
+                } else {
+                  // Accept both comma and dot as decimal separator
+                  const normalizedValue = value.replace(',', '.');
+                  const val = parseFloat(normalizedValue);
+                  if (!isNaN(val)) {
+                    handleUnitsChange(val);
+                  }
+                }
               }}
-              onFocus={(e) => e.target.select()}
+              onFocus={(e) => {
+                // Safari fix: setTimeout to prevent auto-deselect
+                setTimeout(() => e.target.select(), 0);
+              }}
+              onMouseUp={(e) => {
+                // Prevent Safari from deselecting on mouse up
+                e.preventDefault();
+              }}
               className="w-20 h-8 text-right font-mono text-sm"
               placeholder="0"
             />

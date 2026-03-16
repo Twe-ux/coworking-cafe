@@ -141,15 +141,24 @@ export function DirectPurchaseForm({
                       <Input
                         type="number"
                         min={1}
+                        step="0.1"
                         value={item.quantity}
-                        onChange={(e) =>
-                          updateItem(
-                            item.productId,
-                            "quantity",
-                            Number(e.target.value),
-                          )
-                        }
-                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          // Accept both comma and dot as decimal separator
+                          const normalizedValue = e.target.value.replace(',', '.');
+                          const numValue = parseFloat(normalizedValue);
+                          if (!isNaN(numValue) && numValue >= 1) {
+                            updateItem(item.productId, "quantity", numValue);
+                          }
+                        }}
+                        onFocus={(e) => {
+                          // Safari fix: setTimeout to prevent auto-deselect
+                          setTimeout(() => e.target.select(), 0);
+                        }}
+                        onMouseUp={(e) => {
+                          // Prevent Safari from deselecting on mouse up
+                          e.preventDefault();
+                        }}
                         className="w-[100px]"
                       />
                     </TableCell>
@@ -158,15 +167,24 @@ export function DirectPurchaseForm({
                         type="number"
                         min={0}
                         step={0.01}
+                        placeholder="0.00"
                         value={item.unitPriceHT}
-                        onChange={(e) =>
-                          updateItem(
-                            item.productId,
-                            "unitPriceHT",
-                            Number(e.target.value),
-                          )
-                        }
-                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          // Accept both comma and dot as decimal separator
+                          const normalizedValue = e.target.value.replace(',', '.');
+                          const numValue = parseFloat(normalizedValue);
+                          if (!isNaN(numValue) && numValue >= 0) {
+                            updateItem(item.productId, "unitPriceHT", numValue);
+                          }
+                        }}
+                        onFocus={(e) => {
+                          // Safari fix: setTimeout to prevent auto-deselect
+                          setTimeout(() => e.target.select(), 0);
+                        }}
+                        onMouseUp={(e) => {
+                          // Prevent Safari from deselecting on mouse up
+                          e.preventDefault();
+                        }}
                         className="w-[120px]"
                       />
                     </TableCell>

@@ -128,9 +128,27 @@ export function LossDeclarationModal({
               id="loss-quantity"
               type="number"
               min={1}
+              step="0.1"
+              placeholder="1"
               value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              onFocus={(e) => e.target.select()}
+              onChange={(e) => {
+                // Accept both comma and dot as decimal separator
+                const normalizedValue = e.target.value.replace(',', '.');
+                const numValue = parseFloat(normalizedValue);
+                if (!isNaN(numValue) && numValue >= 1) {
+                  setQuantity(numValue);
+                } else if (e.target.value === '') {
+                  setQuantity(1);
+                }
+              }}
+              onFocus={(e) => {
+                // Safari fix: setTimeout to prevent auto-deselect
+                setTimeout(() => e.target.select(), 0);
+              }}
+              onMouseUp={(e) => {
+                // Prevent Safari from deselecting on mouse up
+                e.preventDefault();
+              }}
             />
           </div>
 
