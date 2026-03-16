@@ -55,10 +55,12 @@ export function OutOfStockList({
     refetch,
     error,
   } = useQuery<OutOfStockProduct[]>({
-    queryKey: ["out-of-stock"],
+    queryKey: ["out-of-stock", variant],
     queryFn: async () => {
       console.log("[OutOfStockList] Fetching out-of-stock products...");
-      const res = await fetch("/api/inventory/ruptures");
+      // Pour variant="compact" (staff), filtrer seulement les produits critiques
+      const criticalOnlyParam = variant === "compact" ? "?criticalOnly=true" : "";
+      const res = await fetch(`/api/inventory/ruptures${criticalOnlyParam}`);
       if (!res.ok) {
         console.error(
           "[OutOfStockList] Fetch failed:",

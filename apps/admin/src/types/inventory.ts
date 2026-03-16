@@ -68,6 +68,7 @@ export interface Product {
   currentStock: number
   hasShortDLC: boolean
   dlcAlertConfig?: DLCAlertConfig
+  criticalStockAlert: boolean
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -88,6 +89,7 @@ export interface ProductFormData {
   minStock: number
   maxStock: number
   dlcAlertConfig?: DLCAlertConfig
+  criticalStockAlert?: boolean
 }
 
 // ----------------------------------------------------------------------------

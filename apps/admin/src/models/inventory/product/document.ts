@@ -25,6 +25,7 @@ export interface ProductDocument extends Document {
   currentStock: number
   hasShortDLC: boolean
   dlcAlertConfig?: DLCAlertConfig
+  criticalStockAlert: boolean // Afficher l'alerte rupture au staff (produit essentiel)
   isActive: boolean
   outOfStockHandledAt?: Date // Date de traitement de la rupture (dans commande/achat)
   purchaseMarked?: boolean // Indicateur visuel "marqué pour achat" (checkbox)
@@ -131,6 +132,10 @@ export const ProductSchema = new Schema<ProductDocument>(
         },
       },
       required: false,
+    },
+    criticalStockAlert: {
+      type: Boolean,
+      default: false,
     },
     isActive: {
       type: Boolean,

@@ -47,6 +47,7 @@ export const productCreateSchema = z.object({
   maxStock: z.number().min(0, 'Stock max doit être >= 0'),
   hasShortDLC: z.boolean().optional(),
   dlcAlertConfig: dlcAlertConfigSchema.optional(),
+  criticalStockAlert: z.boolean().optional().default(false),
 }).refine(data => data.minStock < data.maxStock, {
   message: 'Stock min doit être inférieur au stock max',
   path: ['minStock'],
@@ -68,6 +69,7 @@ export const productUpdateSchema = z.object({
   maxStock: z.number().min(0).optional(),
   hasShortDLC: z.boolean().optional(),
   dlcAlertConfig: dlcAlertConfigSchema.optional(),
+  criticalStockAlert: z.boolean().optional(),
   isActive: z.boolean().optional(),
 })
 

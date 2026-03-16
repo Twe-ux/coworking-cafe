@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * GET /api/inventory/ruptures - Liste des produits en rupture de stock
+ * Query params: ?criticalOnly=true (pour afficher seulement les produits essentiels au staff)
  * Auth: Public (accessible sans authentification pour staff)
  */
 export async function GET(request: NextRequest) {
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const includeHandled = searchParams.get("includeHandled") === "true";
+    const criticalOnly = searchParams.get("criticalOnly") === "true";
 
     // Build filter: produits avec stock = 0, actifs, et non traités
     // outOfStockHandledAt = produit dans une commande/achat (suppression de la liste)
@@ -26,6 +28,11 @@ export async function GET(request: NextRequest) {
       isActive: true,
       outOfStockHandledAt: { $exists: false },
     };
+
+    // Si criticalOnly=true, filtrer seulement les produits avec alerte critique (pour staff)
+    if (criticalOnly) {
+      filter.criticalStockAlert = true;
+    }
 
     console.log("[GET /api/inventory/ruptures] Filter:", JSON.stringify(filter));
 

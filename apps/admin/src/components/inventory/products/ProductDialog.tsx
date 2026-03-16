@@ -37,6 +37,7 @@ const productSchema = z.object({
     days: z.array(z.number().min(0).max(6)),
     time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Format HH:mm requis'),
   }).optional(),
+  criticalStockAlert: z.boolean().optional(),
 }).refine(
   (data) => data.minStock < data.maxStock,
   {
@@ -79,6 +80,7 @@ const defaultFormValues: ProductFormData = {
     days: [],
     time: '09:00',
   },
+  criticalStockAlert: false,
 }
 
 export function ProductDialog({

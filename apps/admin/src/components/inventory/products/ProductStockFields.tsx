@@ -117,6 +117,30 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
           />
         </div>
 
+        {/* Critical Stock Alert */}
+        <FormField
+          control={control}
+          name="criticalStockAlert"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-orange-300 bg-orange-50 p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel className="text-orange-700">
+                  Alerte rupture
+                </FormLabel>
+                <FormDescription>
+                  Afficher ce produit dans la liste de courses du staff quand il est en rupture de stock. Décocher pour les produits non essentiels.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+
         {/* DLC Alert Configuration */}
         <Card className="border-orange-200 bg-orange-50/50">
           <CardHeader className="pb-3">
