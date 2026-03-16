@@ -1,20 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import {
-  Check,
-  ShoppingCart,
-  AlertCircle,
-  RefreshCw,
-  Loader2,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  Check,
+  Loader2,
+  RefreshCw,
+  ShoppingCart,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 interface OutOfStockProduct {
   _id: string;
@@ -59,7 +59,8 @@ export function OutOfStockList({
     queryFn: async () => {
       console.log("[OutOfStockList] Fetching out-of-stock products...");
       // Pour variant="compact" (staff), filtrer seulement les produits critiques
-      const criticalOnlyParam = variant === "compact" ? "?criticalOnly=true" : "";
+      const criticalOnlyParam =
+        variant === "compact" ? "?criticalOnly=true" : "";
       const res = await fetch(`/api/inventory/ruptures${criticalOnlyParam}`);
       if (!res.ok) {
         console.error(
