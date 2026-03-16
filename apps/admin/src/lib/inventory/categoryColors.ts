@@ -10,6 +10,13 @@ import {
 /**
  * Centralized category color configuration
  * Used consistently across badges, cards, and filters
+ *
+ * Color scheme:
+ * - Alimentaire: Orange
+ * - Entretien: Blue
+ * - Emballage: Green
+ * - Papeterie: Purple
+ * - Divers: Gray
  */
 export const CATEGORY_COLORS = {
   food: {
@@ -36,20 +43,20 @@ export const CATEGORY_COLORS = {
   emballage: {
     label: 'Emballage',
     icon: Package,
-    badgeText: 'text-gray-700',
-    badgeBorder: 'border-gray-300',
-    ring: 'ring-gray-300',
-    iconColor: 'text-gray-700',
-    bgHover: 'hover:bg-gray-50',
+    badgeText: 'text-green-700',
+    badgeBorder: 'border-green-300',
+    ring: 'ring-green-300',
+    iconColor: 'text-green-700',
+    bgHover: 'hover:bg-green-50',
   },
   papeterie: {
     label: 'Papeterie',
     icon: FileText,
-    badgeText: 'text-yellow-700',
-    badgeBorder: 'border-yellow-300',
-    ring: 'ring-yellow-300',
-    iconColor: 'text-yellow-700',
-    bgHover: 'hover:bg-yellow-50',
+    badgeText: 'text-purple-700',
+    badgeBorder: 'border-purple-300',
+    ring: 'ring-purple-300',
+    iconColor: 'text-purple-700',
+    bgHover: 'hover:bg-purple-50',
   },
   divers: {
     label: 'Divers',
