@@ -50,7 +50,12 @@ export function useNumberInput({ field, min = 0, allowDecimals = true }: UseNumb
   }, [localValue, field, min])
 
   // Display value: local value if focused, field value otherwise
-  const displayValue = isFocused ? localValue : (field.value ?? '')
+  // Safari fix: convert 0 to empty string to avoid displaying "0" in empty fields
+  const displayValue = isFocused
+    ? localValue
+    : (field.value === 0 || field.value === undefined || field.value === null
+        ? ''
+        : field.value.toString())
 
   return {
     value: displayValue,
