@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Eye, ShoppingBag, ShoppingCart, CheckCircle2, Send, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -22,8 +22,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { OrderStatusBadge } from '@/components/inventory/orders'
+import { DirectPurchaseList } from '@/components/inventory/direct-purchases'
 import { useOrders } from '@/hooks/inventory/useOrders'
-import type { OrderStatus } from '@/types/inventory'
+import type { OrderStatus, DirectPurchase, APIResponse } from '@/types/inventory'
 import { cn } from '@/lib/utils'
 
 const STATUS_CARDS = [
@@ -59,9 +60,31 @@ const STATUS_CARDS = [
 export default function OrdersPage() {
   const router = useRouter()
   const [statusFilter, setStatusFilter] = useState<OrderStatus>('draft')
+  const [directPurchases, setDirectPurchases] = useState<DirectPurchase[]>([])
+  const [loadingPurchases, setLoadingPurchases] = useState(true)
 
   // Load all orders once and filter client-side to avoid flash
   const { orders: allOrders, loading } = useOrders({})
+
+  // Fetch direct purchases
+  const fetchDirectPurchases = async () => {
+    setLoadingPurchases(true)
+    try {
+      const res = await fetch('/api/inventory/direct-purchases')
+      const data = (await res.json()) as APIResponse<DirectPurchase[]>
+      if (data.success && data.data) {
+        setDirectPurchases(data.data)
+      }
+    } catch (err) {
+      console.error('Error fetching direct purchases:', err)
+    } finally {
+      setLoadingPurchases(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchDirectPurchases()
+  }, [])
 
   // Filter orders by selected status
   // Note: 'validated' orders are shown in 'sent' category (legacy support)
@@ -222,6 +245,26 @@ export default function OrdersPage() {
               </TableBody>
             </Table>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Direct Purchases Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="h-5 w-5 text-blue-600" />
+            <CardTitle>Achats Directs</CardTitle>
+          </div>
+          <CardDescription>
+            {directPurchases.length} achat{directPurchases.length > 1 ? 's' : ''} direct{directPurchases.length > 1 ? 's' : ''}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DirectPurchaseList
+            purchases={directPurchases}
+            loading={loadingPurchases}
+            onRefresh={fetchDirectPurchases}
+          />
         </CardContent>
       </Card>
     </div>
