@@ -5,6 +5,7 @@ import { toRecord } from "@/lib/api/casting"
 import { connectMongoose } from "@/lib/mongodb"
 import { DirectPurchase } from "@/models/inventory/directPurchase"
 import { Product } from "@/models/inventory/product"
+import { StockMovement } from "@/models/inventory/stockMovement"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
 
 export const dynamic = 'force-dynamic'
@@ -123,11 +124,25 @@ export async function PUT(
       return notFoundResponse('Achat direct')
     }
 
+    const userId = authResult.session.user?.id || ''
+
     // Update fields
     if (body.date) purchase.date = body.date
     if (body.invoiceNumber !== undefined) purchase.invoiceNumber = body.invoiceNumber
     if (body.notes !== undefined) purchase.notes = body.notes
     if (body.items) {
+      // Save old items to calculate stock differences
+      const oldItemsMap = new Map(
+        purchase.items.map((item) => [
+          item.productId.toString(),
+          {
+            quantity: item.quantity,
+            packagingType: item.packagingType,
+            unitsPerPackage: item.unitsPerPackage || 1,
+          },
+        ])
+      )
+
       // Enrich items with product data from database
       const enrichedItems = await Promise.all(
         body.items.map(async (item: {
@@ -161,6 +176,86 @@ export async function PUT(
           }
         })
       )
+
+      // Calculate stock adjustments
+      const newItemsMap = new Map(
+        enrichedItems.map((item) => [
+          item.productId,
+          {
+            quantity: item.quantity,
+            packagingType: item.packagingType,
+            unitsPerPackage: item.unitsPerPackage || 1,
+          },
+        ])
+      )
+
+      // Process stock adjustments
+      const allProductIds = new Set([
+        ...oldItemsMap.keys(),
+        ...newItemsMap.keys(),
+      ])
+
+      for (const productId of allProductIds) {
+        const oldItem = oldItemsMap.get(productId)
+        const newItem = newItemsMap.get(productId)
+
+        let stockDiff = 0
+
+        if (!oldItem && newItem) {
+          // Product added to purchase
+          stockDiff =
+            newItem.packagingType === 'pack' && newItem.unitsPerPackage > 1
+              ? newItem.quantity * newItem.unitsPerPackage
+              : newItem.quantity
+        } else if (oldItem && !newItem) {
+          // Product removed from purchase
+          stockDiff =
+            oldItem.packagingType === 'pack' && oldItem.unitsPerPackage > 1
+              ? -(oldItem.quantity * oldItem.unitsPerPackage)
+              : -oldItem.quantity
+        } else if (oldItem && newItem) {
+          // Product quantity changed
+          const oldQtyInUnits =
+            oldItem.packagingType === 'pack' && oldItem.unitsPerPackage > 1
+              ? oldItem.quantity * oldItem.unitsPerPackage
+              : oldItem.quantity
+
+          const newQtyInUnits =
+            newItem.packagingType === 'pack' && newItem.unitsPerPackage > 1
+              ? newItem.quantity * newItem.unitsPerPackage
+              : newItem.quantity
+
+          stockDiff = newQtyInUnits - oldQtyInUnits
+        }
+
+        // Apply stock adjustment if needed
+        if (stockDiff !== 0) {
+          const product = await Product.findById(productId)
+          if (product) {
+            await Product.findByIdAndUpdate(productId, {
+              $inc: { currentStock: stockDiff },
+            })
+
+            // Create adjustment stock movement
+            await StockMovement.create({
+              productId,
+              type: 'direct_purchase',
+              quantity: stockDiff,
+              unitPriceHT:
+                newItem?.packagingType === 'pack' && newItem.unitsPerPackage > 1
+                  ? (enrichedItems.find((i) => i.productId === productId)
+                      ?.unitPriceHT || 0) / newItem.unitsPerPackage
+                  : enrichedItems.find((i) => i.productId === productId)
+                      ?.unitPriceHT || 0,
+              totalValue: Math.abs(stockDiff) * product.unitPriceHT,
+              date: new Date(),
+              reference: `${purchase.purchaseNumber}-EDIT`,
+              notes: `Ajustement achat direct ${purchase.purchaseNumber} - ${product.name}`,
+              createdBy: userId,
+            })
+          }
+        }
+      }
 
       purchase.items = enrichedItems
       // Recalculate totals
