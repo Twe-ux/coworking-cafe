@@ -4,6 +4,7 @@ import { successResponse, errorResponse, notFoundResponse } from "@/lib/api/resp
 import { toRecord } from "@/lib/api/casting"
 import { connectMongoose } from "@/lib/mongodb"
 import { DirectPurchase } from "@/models/inventory/directPurchase"
+import { Product } from "@/models/inventory/product"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
 
 export const dynamic = 'force-dynamic'
@@ -127,14 +128,48 @@ export async function PUT(
     if (body.invoiceNumber !== undefined) purchase.invoiceNumber = body.invoiceNumber
     if (body.notes !== undefined) purchase.notes = body.notes
     if (body.items) {
-      purchase.items = body.items
+      // Enrich items with product data from database
+      const enrichedItems = await Promise.all(
+        body.items.map(async (item: {
+          productId: string;
+          productName: string;
+          quantity: number;
+          unitPriceHT: number;
+          vatRate: number;
+        }) => {
+          // Fetch product to get packaging info
+          const product = await Product.findById(item.productId)
+          if (!product) {
+            throw new Error(`Produit ${item.productId} introuvable`)
+          }
+
+          const totalHT = Math.round(item.quantity * item.unitPriceHT * 100) / 100
+          const totalTTC = Math.round(totalHT * (1 + item.vatRate / 100) * 100) / 100
+
+          return {
+            productId: item.productId,
+            productName: item.productName,
+            quantity: item.quantity,
+            packagingType: product.packagingType,
+            unitPriceHT: item.unitPriceHT,
+            totalHT,
+            vatRate: item.vatRate,
+            totalTTC,
+            ...(product.packagingType === 'pack' && product.unitsPerPackage && {
+              unitsPerPackage: product.unitsPerPackage,
+            }),
+          }
+        })
+      )
+
+      purchase.items = enrichedItems
       // Recalculate totals
-      purchase.totalHT = body.items.reduce((sum: number, item: { quantity: number; unitPriceHT: number }) =>
-        sum + (item.quantity * item.unitPriceHT), 0
-      )
-      purchase.totalTTC = body.items.reduce((sum: number, item: { quantity: number; unitPriceHT: number; vatRate: number }) =>
-        sum + (item.quantity * item.unitPriceHT * (1 + item.vatRate / 100)), 0
-      )
+      purchase.totalHT = Math.round(
+        enrichedItems.reduce((sum, item) => sum + item.totalHT, 0) * 100
+      ) / 100
+      purchase.totalTTC = Math.round(
+        enrichedItems.reduce((sum, item) => sum + item.totalTTC, 0) * 100
+      ) / 100
     }
 
     await purchase.save()

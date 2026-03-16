@@ -35,11 +35,11 @@ export function ProductStatsCards({
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-      {CATEGORY_CARDS.map(({ key, label, icon: Icon, ring, iconColor }) => (
+      {CATEGORY_CARDS.map(({ key, label, icon: Icon, border, ring, iconColor }) => (
         <Card
           key={key}
           className={`cursor-pointer transition-all hover:shadow-md ${
-            selectedCategory === key ? `ring-2 ${ring}` : ''
+            selectedCategory === key ? `border-2 ${border}` : ''
           }`}
           onClick={() => onSelectCategory(selectedCategory === key ? 'all' : key)}
         >
@@ -59,7 +59,7 @@ export function ProductStatsCards({
       {/* Total card */}
       <Card
         className={`cursor-pointer transition-all hover:shadow-md ${
-          selectedCategory === 'all' ? 'ring-2 ring-primary' : ''
+          selectedCategory === 'all' ? 'border-2 border-primary' : ''
         }`}
         onClick={() => onSelectCategory('all')}
       >

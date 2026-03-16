@@ -25,10 +25,10 @@ export const CATEGORY_COLORS = {
     // Badge colors
     badgeText: 'text-orange-700',
     badgeBorder: 'border-orange-300',
-    // Card/Ring colors (matching badge)
+    // Card colors
+    border: 'border-orange-300',
     ring: 'ring-orange-300',
     iconColor: 'text-orange-700',
-    // Background color for cards
     bgHover: 'hover:bg-orange-50',
   },
   cleaning: {
@@ -36,6 +36,7 @@ export const CATEGORY_COLORS = {
     icon: Sparkles,
     badgeText: 'text-blue-700',
     badgeBorder: 'border-blue-300',
+    border: 'border-blue-300',
     ring: 'ring-blue-300',
     iconColor: 'text-blue-700',
     bgHover: 'hover:bg-blue-50',
@@ -45,6 +46,7 @@ export const CATEGORY_COLORS = {
     icon: Package,
     badgeText: 'text-green-700',
     badgeBorder: 'border-green-300',
+    border: 'border-green-300',
     ring: 'ring-green-300',
     iconColor: 'text-green-700',
     bgHover: 'hover:bg-green-50',
@@ -54,6 +56,7 @@ export const CATEGORY_COLORS = {
     icon: FileText,
     badgeText: 'text-purple-700',
     badgeBorder: 'border-purple-300',
+    border: 'border-purple-300',
     ring: 'ring-purple-300',
     iconColor: 'text-purple-700',
     bgHover: 'hover:bg-purple-50',
@@ -63,6 +66,7 @@ export const CATEGORY_COLORS = {
     icon: Shapes,
     badgeText: 'text-gray-700',
     badgeBorder: 'border-gray-300',
+    border: 'border-gray-300',
     ring: 'ring-gray-300',
     iconColor: 'text-gray-700',
     bgHover: 'hover:bg-gray-50',
