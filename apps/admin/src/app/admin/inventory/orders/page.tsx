@@ -57,9 +57,11 @@ const STATUS_CARDS = [
   },
 ]
 
+type ViewMode = OrderStatus | 'direct-purchases'
+
 export default function OrdersPage() {
   const router = useRouter()
-  const [statusFilter, setStatusFilter] = useState<OrderStatus>('draft')
+  const [viewMode, setViewMode] = useState<ViewMode>('draft')
   const [directPurchases, setDirectPurchases] = useState<DirectPurchase[]>([])
   const [loadingPurchases, setLoadingPurchases] = useState(true)
 
@@ -89,14 +91,16 @@ export default function OrdersPage() {
   // Filter orders by selected status
   // Note: 'validated' orders are shown in 'sent' category (legacy support)
   const orders = allOrders.filter((order) => {
-    if (statusFilter === 'sent') {
+    if (viewMode === 'direct-purchases') return false // No orders when viewing direct purchases
+    if (viewMode === 'sent') {
       // Show both 'sent' and 'validated' in "Envoyées" category
       return order.status === 'sent' || order.status === 'validated'
     }
-    return order.status === statusFilter
+    return order.status === viewMode
   })
 
-  const selectedCard = STATUS_CARDS.find((c) => c.value === statusFilter)
+  const selectedCard = STATUS_CARDS.find((c) => c.value === viewMode)
+  const isDirectPurchasesView = viewMode === 'direct-purchases'
 
   if (loading) {
     return (
@@ -142,7 +146,7 @@ export default function OrdersPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {STATUS_CARDS.map((card) => {
           const Icon = card.icon
-          const isSelected = statusFilter === card.value
+          const isSelected = viewMode === card.value
           // Count orders: 'sent' card includes both 'sent' and 'validated' (legacy)
           const count = card.value === 'sent'
             ? allOrders.filter((o) => o.status === 'sent' || o.status === 'validated').length
@@ -159,7 +163,7 @@ export default function OrdersPage() {
                   ? `${card.bgColor} ${card.borderColor} border-2 shadow-md`
                   : 'hover:bg-muted/50'
               )}
-              onClick={() => setStatusFilter(card.value)}
+              onClick={() => setViewMode(card.value)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -178,21 +182,67 @@ export default function OrdersPage() {
             </Card>
           )
         })}
+
+        {/* Direct Purchases Card */}
+        <Card
+          className={cn(
+            'cursor-pointer transition-all hover:shadow-md',
+            isDirectPurchasesView
+              ? 'bg-blue-50 border-blue-200 border-2 shadow-md'
+              : 'hover:bg-muted/50'
+          )}
+          onClick={() => setViewMode('direct-purchases')}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <ShoppingBag className={cn('h-5 w-5', isDirectPurchasesView ? 'text-blue-600' : 'text-muted-foreground')} />
+              {directPurchases.length > 0 && (
+                <Badge variant={isDirectPurchasesView ? 'default' : 'secondary'}>
+                  {directPurchases.length}
+                </Badge>
+              )}
+            </div>
+            <CardTitle className="text-lg">Achats Directs</CardTitle>
+            <CardDescription className="text-xs">
+              Achats hors commandes
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
 
-      {/* Orders Table */}
+      {/* Orders Table or Direct Purchases */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            {selectedCard && <selectedCard.icon className={cn('h-5 w-5', selectedCard.color)} />}
-            <CardTitle>{selectedCard?.label || 'Commandes'}</CardTitle>
+            {isDirectPurchasesView ? (
+              <ShoppingBag className="h-5 w-5 text-blue-600" />
+            ) : (
+              selectedCard && <selectedCard.icon className={cn('h-5 w-5', selectedCard.color)} />
+            )}
+            <CardTitle>
+              {isDirectPurchasesView ? 'Achats Directs' : (selectedCard?.label || 'Commandes')}
+            </CardTitle>
           </div>
           <CardDescription>
-            {orders.length} commande{orders.length > 1 ? 's' : ''}
+            {isDirectPurchasesView ? (
+              <>
+                {directPurchases.length} achat{directPurchases.length > 1 ? 's' : ''} direct{directPurchases.length > 1 ? 's' : ''}
+              </>
+            ) : (
+              <>
+                {orders.length} commande{orders.length > 1 ? 's' : ''}
+              </>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {orders.length === 0 ? (
+          {isDirectPurchasesView ? (
+            <DirectPurchaseList
+              purchases={directPurchases}
+              loading={loadingPurchases}
+              onRefresh={fetchDirectPurchases}
+            />
+          ) : orders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               Aucune commande {selectedCard?.label.toLowerCase()} trouvée
             </div>
@@ -245,26 +295,6 @@ export default function OrdersPage() {
               </TableBody>
             </Table>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Direct Purchases Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-blue-600" />
-            <CardTitle>Achats Directs</CardTitle>
-          </div>
-          <CardDescription>
-            {directPurchases.length} achat{directPurchases.length > 1 ? 's' : ''} direct{directPurchases.length > 1 ? 's' : ''}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DirectPurchaseList
-            purchases={directPurchases}
-            loading={loadingPurchases}
-            onRefresh={fetchDirectPurchases}
-          />
         </CardContent>
       </Card>
     </div>
