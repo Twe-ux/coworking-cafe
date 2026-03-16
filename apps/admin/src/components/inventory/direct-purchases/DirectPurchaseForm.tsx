@@ -139,16 +139,32 @@ export function DirectPurchaseForm({
                     </TableCell>
                     <TableCell>
                       <Input
-                        type="number"
-                        min={1}
-                        step="0.1"
+                        type="text"
+                        inputMode="decimal"
                         value={item.quantity}
+                        placeholder="1"
                         onChange={(e) => {
+                          const value = e.target.value;
                           // Accept both comma and dot as decimal separator
-                          const normalizedValue = e.target.value.replace(',', '.');
-                          const numValue = parseFloat(normalizedValue);
-                          if (!isNaN(numValue) && numValue >= 1) {
-                            updateItem(item.productId, "quantity", numValue);
+                          const normalizedValue = value.replace(',', '.');
+
+                          // Allow empty, partial decimals like "0.", ".5", "1."
+                          if (normalizedValue === '' || normalizedValue === '.' || /^\d*\.?\d*$/.test(normalizedValue)) {
+                            const numValue = parseFloat(normalizedValue);
+                            if (normalizedValue === '' || normalizedValue === '.') {
+                              // Temporarily allow empty for user to type
+                              updateItem(item.productId, "quantity", 1);
+                            } else if (!isNaN(numValue) && numValue > 0) {
+                              updateItem(item.productId, "quantity", numValue);
+                            }
+                          }
+                        }}
+                        onBlur={(e) => {
+                          // On blur, ensure minimum value of 1
+                          const value = e.target.value.replace(',', '.');
+                          const numValue = parseFloat(value);
+                          if (isNaN(numValue) || numValue < 1) {
+                            updateItem(item.productId, "quantity", 1);
                           }
                         }}
                         onFocus={(e) => {
@@ -164,17 +180,32 @@ export function DirectPurchaseForm({
                     </TableCell>
                     <TableCell>
                       <Input
-                        type="number"
-                        min={0}
-                        step={0.01}
-                        placeholder="0.00"
+                        type="text"
+                        inputMode="decimal"
                         value={item.unitPriceHT}
+                        placeholder="0.00"
                         onChange={(e) => {
+                          const value = e.target.value;
                           // Accept both comma and dot as decimal separator
-                          const normalizedValue = e.target.value.replace(',', '.');
-                          const numValue = parseFloat(normalizedValue);
-                          if (!isNaN(numValue) && numValue >= 0) {
-                            updateItem(item.productId, "unitPriceHT", numValue);
+                          const normalizedValue = value.replace(',', '.');
+
+                          // Allow empty, partial decimals like "0.", ".5", "1."
+                          if (normalizedValue === '' || normalizedValue === '.' || /^\d*\.?\d*$/.test(normalizedValue)) {
+                            const numValue = parseFloat(normalizedValue);
+                            if (normalizedValue === '' || normalizedValue === '.') {
+                              // Temporarily allow empty for user to type
+                              updateItem(item.productId, "unitPriceHT", 0);
+                            } else if (!isNaN(numValue) && numValue >= 0) {
+                              updateItem(item.productId, "unitPriceHT", numValue);
+                            }
+                          }
+                        }}
+                        onBlur={(e) => {
+                          // On blur, ensure valid value (minimum 0)
+                          const value = e.target.value.replace(',', '.');
+                          const numValue = parseFloat(value);
+                          if (isNaN(numValue) || numValue < 0) {
+                            updateItem(item.productId, "unitPriceHT", 0);
                           }
                         }}
                         onFocus={(e) => {
