@@ -27,8 +27,8 @@ interface EnrichedItem extends InventoryEntryItem {
 export default function InventoryEntryClient({ id }: { id: string }) {
   const router = useRouter()
   const {
-    entry, loading: entryLoading, error, finalizing,
-    handleQuantityChange, updateMetadata, finalize,
+    entry, loading: entryLoading, error, finalizing, unfinalizing,
+    handleQuantityChange, updateMetadata, finalize, unfinalize,
   } = useInventoryEntry(id)
   const { products, loading: productsLoading } = useProducts()
   const { valorization, loading: valorizationLoading } = useInventoryValorization(
@@ -38,6 +38,7 @@ export default function InventoryEntryClient({ id }: { id: string }) {
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>('all')
   const [search, setSearch] = useState('')
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false)
+  const [unfinalizeDialogOpen, setUnfinalizeDialogOpen] = useState(false)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
   const toggleSupplier = useCallback((supplierId: string) => {
@@ -96,6 +97,11 @@ export default function InventoryEntryClient({ id }: { id: string }) {
     if (success) setFinalizeDialogOpen(false)
   }
 
+  const handleUnfinalize = async () => {
+    const success = await unfinalize()
+    if (success) setUnfinalizeDialogOpen(false)
+  }
+
   const isDraft = entry?.status === 'draft'
 
   if (entryLoading || productsLoading) {
@@ -129,9 +135,11 @@ export default function InventoryEntryClient({ id }: { id: string }) {
       <InventoryEntryHeader
         entry={entry}
         finalizing={finalizing}
+        unfinalizing={unfinalizing}
         onBack={() => router.push('/admin/inventory/entries')}
         onUpdateTitle={(title) => updateMetadata({ title })}
         onFinalize={() => setFinalizeDialogOpen(true)}
+        onUnfinalize={() => setUnfinalizeDialogOpen(true)}
         valorization={valorization}
       />
 
@@ -194,6 +202,26 @@ export default function InventoryEntryClient({ id }: { id: string }) {
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={handleFinalize} disabled={finalizing}>
               {finalizing ? 'Finalisation...' : 'Finaliser'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={unfinalizeDialogOpen} onOpenChange={setUnfinalizeDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Définaliser l&apos;inventaire</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action annulera tous les effets de la finalisation :
+              les ajustements de stock seront annulés, les mouvements de stock supprimés,
+              et les commandes d&apos;achat auto-générées seront supprimées.
+              Vous pourrez ensuite modifier les quantités et re-finaliser l&apos;inventaire.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUnfinalize} disabled={unfinalizing}>
+              {unfinalizing ? 'Définalisation...' : 'Définaliser'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

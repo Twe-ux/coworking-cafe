@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, CheckCircle, FileDown } from "lucide-react";
+import { ArrowLeft, CheckCircle, FileDown, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -12,9 +12,11 @@ import type { InventoryEntry } from "@/types/inventory";
 interface InventoryEntryHeaderProps {
   entry: InventoryEntry;
   finalizing: boolean;
+  unfinalizing?: boolean;
   onBack: () => void;
   onUpdateTitle: (title: string) => Promise<void>;
   onFinalize: () => void;
+  onUnfinalize?: () => void;
   valorization?: {
     stockFinalValue: number;
     consumptionValue: number;
@@ -25,9 +27,11 @@ interface InventoryEntryHeaderProps {
 export function InventoryEntryHeader({
   entry,
   finalizing,
+  unfinalizing = false,
   onBack,
   onUpdateTitle,
   onFinalize,
+  onUnfinalize,
   valorization,
 }: InventoryEntryHeaderProps) {
   const isDraft = entry.status === "draft";
@@ -133,6 +137,18 @@ export function InventoryEntryHeader({
         </div>
 
         <div className="flex justify-end gap-2">
+          {!isDraft && onUnfinalize && entry.canUnfinalize && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
+              onClick={onUnfinalize}
+              disabled={unfinalizing}
+            >
+              <Undo2 className="mr-2 h-4 w-4" />
+              {unfinalizing ? 'Définalisation...' : 'Définaliser'}
+            </Button>
+          )}
           {!isDraft && (
             <Button
               variant="outline"

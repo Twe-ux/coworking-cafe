@@ -123,6 +123,7 @@ export interface InventoryEntry {
   finalizedAt?: string
   createdAt: string
   updatedAt: string
+  canUnfinalize?: boolean
 }
 
 export interface CreateInventoryEntryData {

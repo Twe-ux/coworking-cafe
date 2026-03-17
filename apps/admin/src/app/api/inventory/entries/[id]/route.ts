@@ -30,7 +30,19 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       return notFoundResponse('Inventaire')
     }
 
-    const transformed = transformEntry(entry as Record<string, unknown>)
+    // Check if this entry can be unfinalized (only the last finalized inventory)
+    let canUnfinalize = false
+    if (entry.status === 'finalized') {
+      const lastFinalizedInventory = await InventoryEntry.findOne({
+        status: 'finalized',
+      })
+        .sort({ finalizedAt: -1 })
+        .lean()
+
+      canUnfinalize = lastFinalizedInventory?._id.toString() === entry._id.toString()
+    }
+
+    const transformed = transformEntry(entry as Record<string, unknown>, canUnfinalize)
 
     return successResponse(transformed)
   } catch (error) {
@@ -230,7 +242,7 @@ function isCastError(error: unknown): boolean {
 }
 
 // Transform DB document to API response format
-function transformEntry(entry: Record<string, unknown>) {
+function transformEntry(entry: Record<string, unknown>, canUnfinalize = false) {
   const date = entry.date as Date | undefined
   const finalizedAt = entry.finalizedAt as Date | undefined
   const createdAt = entry.createdAt as Date | undefined
@@ -250,5 +262,6 @@ function transformEntry(entry: Record<string, unknown>) {
       ...item,
       productId: (item.productId as { toString(): string })?.toString() || '',
     })),
+    canUnfinalize,
   }
 }

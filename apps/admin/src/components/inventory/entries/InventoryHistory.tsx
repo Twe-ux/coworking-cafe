@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Eye, Trash2 } from 'lucide-react'
+import { Eye, Trash2, Undo2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,13 +19,16 @@ interface InventoryHistoryProps {
   loading: boolean
   onView: (entry: InventoryEntry) => void
   onDelete: (id: string) => Promise<boolean>
+  onUnfinalize?: (id: string) => Promise<boolean>
 }
 
 export function InventoryHistory({
-  entries, loading, onView, onDelete,
+  entries, loading, onView, onDelete, onUnfinalize,
 }: InventoryHistoryProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [unfinalizeDialogOpen, setUnfinalizeDialogOpen] = useState(false)
   const [entryToDelete, setEntryToDelete] = useState<InventoryEntry | null>(null)
+  const [entryToUnfinalize, setEntryToUnfinalize] = useState<InventoryEntry | null>(null)
 
   // Sort entries and calculate reference periods
   const sortedEntries = useMemo(() => {
@@ -72,6 +75,19 @@ export function InventoryHistory({
       await onDelete(entryToDelete._id)
       setDeleteDialogOpen(false)
       setEntryToDelete(null)
+    }
+  }
+
+  const handleUnfinalizeClick = (entry: InventoryEntry) => {
+    setEntryToUnfinalize(entry)
+    setUnfinalizeDialogOpen(true)
+  }
+
+  const handleConfirmUnfinalize = async () => {
+    if (entryToUnfinalize && onUnfinalize) {
+      await onUnfinalize(entryToUnfinalize._id)
+      setUnfinalizeDialogOpen(false)
+      setEntryToUnfinalize(null)
     }
   }
 
@@ -171,6 +187,17 @@ export function InventoryHistory({
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
+                    {entry.canUnfinalize && onUnfinalize && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
+                        onClick={() => handleUnfinalizeClick(entry)}
+                        title="Définaliser"
+                      >
+                        <Undo2 className="h-4 w-4" />
+                      </Button>
+                    )}
                     {entry.status === 'draft' && (
                       <Button
                         variant="outline"
@@ -205,6 +232,25 @@ export function InventoryHistory({
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmDelete}>
               Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={unfinalizeDialogOpen} onOpenChange={setUnfinalizeDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Définaliser l&apos;inventaire</AlertDialogTitle>
+            <AlertDialogDescription>
+              Définaliser l&apos;inventaire du{' '}
+              <strong>{entryToUnfinalize?.date}</strong> ?
+              Les ajustements de stock seront annulés et vous pourrez modifier les quantités.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmUnfinalize}>
+              Définaliser
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

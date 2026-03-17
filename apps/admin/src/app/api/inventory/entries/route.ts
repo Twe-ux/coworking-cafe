@@ -53,8 +53,22 @@ export async function GET(request: NextRequest) {
       .sort({ date: -1 })
       .lean()
 
+    // Get last finalized inventory to determine which one can be unfinalized
+    const lastFinalizedInventory = await InventoryEntry.findOne({
+      status: 'finalized',
+    })
+      .sort({ finalizedAt: -1 })
+      .lean()
+
+    const lastFinalizedId = lastFinalizedInventory?._id.toString()
+
     const transformedEntries = (entries as Array<Record<string, unknown>>).map(
-      (entry) => transformEntry(entry)
+      (entry) => {
+        const canUnfinalize =
+          entry.status === 'finalized' &&
+          (entry._id as { toString(): string }).toString() === lastFinalizedId
+        return transformEntry(entry, canUnfinalize)
+      }
     )
 
     return successResponse(transformedEntries)
@@ -164,7 +178,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Transform DB document to API response format
-function transformEntry(entry: Record<string, unknown>) {
+function transformEntry(entry: Record<string, unknown>, canUnfinalize = false) {
   const date = entry.date as Date | undefined
   const finalizedAt = entry.finalizedAt as Date | undefined
   const createdAt = entry.createdAt as Date | undefined
@@ -184,5 +198,6 @@ function transformEntry(entry: Record<string, unknown>) {
       ...item,
       productId: (item.productId as { toString(): string })?.toString() || '',
     })),
+    canUnfinalize,
   }
 }

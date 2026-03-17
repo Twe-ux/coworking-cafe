@@ -51,7 +51,7 @@ export default function InventoryEntriesPage() {
     }
   }, [yearFilter])
 
-  const { entries, loading, deleteEntry } = useInventoryEntries({
+  const { entries, loading, deleteEntry, unfinalizeEntry, refetch } = useInventoryEntries({
     status: statusFilter === 'all' ? undefined : statusFilter,
     type: typeFilter === 'all' ? undefined : typeFilter,
     ...dateRange,
@@ -63,6 +63,14 @@ export default function InventoryEntriesPage() {
 
   const handleDelete = async (id: string): Promise<boolean> => {
     const success = await deleteEntry(id)
+    return success
+  }
+
+  const handleUnfinalize = async (id: string): Promise<boolean> => {
+    const success = await unfinalizeEntry(id)
+    if (success) {
+      await refetch()
+    }
     return success
   }
 
@@ -148,6 +156,7 @@ export default function InventoryEntriesPage() {
         loading={loading}
         onView={handleView}
         onDelete={handleDelete}
+        onUnfinalize={handleUnfinalize}
       />
     </div>
   )

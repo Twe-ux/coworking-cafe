@@ -18,10 +18,12 @@ interface UseInventoryEntryReturn {
   error: string | null
   saving: boolean
   finalizing: boolean
+  unfinalizing: boolean
   handleQuantityChange: (productId: string, actualQuantity: number) => void
   updateMetadata: (metadata: InventoryMetadata) => Promise<boolean>
   saveAll: (title?: string) => Promise<boolean>
   finalize: () => Promise<boolean>
+  unfinalize: () => Promise<boolean>
   refetch: () => Promise<void>
 }
 
@@ -35,6 +37,7 @@ export function useInventoryEntry(id: string | null): UseInventoryEntryReturn {
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [finalizing, setFinalizing] = useState(false)
+  const [unfinalizing, setUnfinalizing] = useState(false)
   const pendingUpdates = useRef<Map<string, number>>(new Map())
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -213,6 +216,34 @@ export function useInventoryEntry(id: string | null): UseInventoryEntryReturn {
     }
   }, [id, saveAll])
 
+  const unfinalize = useCallback(async (): Promise<boolean> => {
+    if (!id) return false
+
+    setUnfinalizing(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`/api/inventory/entries/${id}/unfinalize`, {
+        method: 'POST',
+      })
+      const result = (await res.json()) as APIResponse<InventoryEntry>
+
+      if (result.success && result.data) {
+        setEntry(result.data)
+        return true
+      } else {
+        setError(result.error || 'Erreur lors de la définalisation')
+        return false
+      }
+    } catch (err) {
+      console.error('[useInventoryEntry] Unfinalize error:', err)
+      setError('Erreur reseau lors de la définalisation')
+      return false
+    } finally {
+      setUnfinalizing(false)
+    }
+  }, [id])
+
   useEffect(() => {
     fetchEntry()
   }, [fetchEntry])
@@ -223,10 +254,12 @@ export function useInventoryEntry(id: string | null): UseInventoryEntryReturn {
     error,
     saving,
     finalizing,
+    unfinalizing,
     handleQuantityChange,
     updateMetadata,
     saveAll,
     finalize,
+    unfinalize,
     refetch: fetchEntry,
   }
 }

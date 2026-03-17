@@ -17,6 +17,7 @@ interface UseInventoryEntriesReturn {
   loading: boolean
   error: string | null
   deleteEntry: (id: string) => Promise<boolean>
+  unfinalizeEntry: (id: string) => Promise<boolean>
   refetch: () => Promise<void>
 }
 
@@ -79,6 +80,26 @@ export function useInventoryEntries(
     }
   }
 
+  const unfinalizeEntry = async (id: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/inventory/entries/${id}/unfinalize`, {
+        method: 'POST',
+      })
+      const result = (await res.json()) as APIResponse<InventoryEntry>
+
+      if (result.success) {
+        return true
+      } else {
+        setError(result.error || 'Erreur lors de la définalisation')
+        return false
+      }
+    } catch (err) {
+      console.error('[useInventoryEntries] Unfinalize error:', err)
+      setError('Erreur reseau lors de la définalisation')
+      return false
+    }
+  }
+
   useEffect(() => {
     fetchEntries()
   }, [fetchEntries])
@@ -88,6 +109,7 @@ export function useInventoryEntries(
     loading,
     error,
     deleteEntry,
+    unfinalizeEntry,
     refetch: fetchEntries,
   }
 }
