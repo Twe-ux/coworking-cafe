@@ -250,8 +250,21 @@ export async function PUT(
     if (data.color !== undefined) updateData.color = data.color
     if (data.clockingCode !== undefined) updateData.clockingCode = data.clockingCode
 
-    // Other data
-    if (data.availability !== undefined) updateData.availability = data.availability
+    // Other data - Clean slots when day becomes unavailable
+    if (data.availability !== undefined) {
+      const cleanedAvailability: Record<string, unknown> = {}
+      for (const day in data.availability) {
+        const dayData = data.availability[day] as Record<string, unknown>
+        if (typeof dayData === 'object' && dayData !== null) {
+          cleanedAvailability[day] = {
+            ...dayData,
+            // Clear slots array when available is false
+            slots: dayData.available === false ? [] : dayData.slots || [],
+          }
+        }
+      }
+      updateData.availability = cleanedAvailability
+    }
     if (data.onboardingStatus !== undefined) updateData.onboardingStatus = data.onboardingStatus
     if (data.workSchedule !== undefined) updateData.workSchedule = data.workSchedule
     if (data.bankDetails !== undefined) updateData.bankDetails = data.bankDetails
