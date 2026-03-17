@@ -101,23 +101,41 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 2: Calculate affected shifts
-    const daysCount = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const hoursPerDay = employee.contractualHours / 5; // Assuming 5-day work week
-    const totalHours = daysCount * hoursPerDay;
+    // Get all business days (Monday-Saturday, exclude Sunday)
+    const businessDays: string[] = [];
+    const currentDate = new Date(start);
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getDay();
+      const isSunday = dayOfWeek === 0;
+      const dateStr = currentDate.toISOString().split('T')[0];
 
-    // Create affected shifts array (simplified)
-    const affectedShifts = [];
-    for (let i = 0; i < daysCount; i++) {
-      const date = new Date(start);
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+      if (!isSunday) {
+        businessDays.push(dateStr);
+      }
 
-      affectedShifts.push({
-        date: dateStr,
-        shiftNumber: 1 as const,
-        scheduledHours: hoursPerDay,
-      });
+      currentDate.setDate(currentDate.getDate() + 1);
     }
+
+    // Calculate hours based on absence type
+    let totalHours: number;
+    let hoursPerDay: number;
+
+    if (body.type === 'paid_leave') {
+      // CP: Use French legal formula (independent of planning)
+      totalHours = (businessDays.length / 6) * employee.contractualHours;
+      hoursPerDay = businessDays.length > 0 ? totalHours / businessDays.length : 0;
+    } else {
+      // Unavailability: 0 hours (unpaid, no hours tracked)
+      totalHours = 0;
+      hoursPerDay = 0;
+    }
+
+    // Create affected shifts array
+    const affectedShifts = businessDays.map(dateStr => ({
+      date: dateStr,
+      shiftNumber: 1 as const,
+      scheduledHours: hoursPerDay,
+    }));
 
     // Step 3: Create absence
     const absence = new Absence({
