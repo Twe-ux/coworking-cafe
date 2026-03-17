@@ -344,7 +344,7 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
     paidLeaveBalance: {
       type: Number,
       default: 0,
-      min: [0, 'Le solde de congés payés ne peut pas être négatif'],
+      // Allow negative balance (CP taken in advance)
     },
     paidLeaveAcquired: {
       type: Number,
