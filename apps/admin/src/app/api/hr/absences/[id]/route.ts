@@ -5,6 +5,10 @@ import { connectMongoose } from '@/lib/mongodb';
 import Absence from '@/models/absence';
 import Employee from '@/models/employee';
 import type { UpdateAbsenceStatusRequest } from '@/types/absence';
+import {
+  sendUnavailabilityApprovedEmail,
+  sendUnavailabilityRejectedEmail,
+} from '@/lib/email/emailService';
 
 /**
  * GET /api/hr/absences/[id]
@@ -94,6 +98,36 @@ export async function PATCH(
         absence.rejectedBy = authResult.userId as unknown as typeof absence.rejectedBy;
         absence.rejectedAt = new Date();
         absence.rejectionReason = body.rejectionReason;
+      }
+
+      // Send email notification after status update
+      const employee = await Employee.findById(absence.employeeId);
+      if (employee && employee.email) {
+        // Map absence type to email template type
+        const emailType = absence.type === 'paid_leave'
+          ? 'vacation'
+          : absence.type === 'sick_leave'
+          ? 'sick'
+          : 'personal';
+
+        if (body.status === 'approved') {
+          await sendUnavailabilityApprovedEmail(employee.email, {
+            employeeName: `${employee.firstName} ${employee.lastName}`,
+            type: emailType as 'vacation' | 'sick' | 'personal' | 'other',
+            startDate: absence.startDate,
+            endDate: absence.endDate,
+            reason: absence.reason,
+          });
+        } else if (body.status === 'rejected' && body.rejectionReason) {
+          await sendUnavailabilityRejectedEmail(employee.email, {
+            employeeName: `${employee.firstName} ${employee.lastName}`,
+            type: emailType as 'vacation' | 'sick' | 'personal' | 'other',
+            startDate: absence.startDate,
+            endDate: absence.endDate,
+            reason: absence.reason,
+            rejectionReason: body.rejectionReason,
+          });
+        }
       }
     }
 

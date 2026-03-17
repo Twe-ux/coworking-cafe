@@ -6,6 +6,8 @@ import {
 } from '@coworking-cafe/email';
 import { accountActivationEmail } from './templates/accountActivation';
 import { generatePurchaseOrderEmail } from './templates/purchaseOrder';
+import { generateUnavailabilityApprovedEmail } from './templates/unavailabilityApproved';
+import { generateUnavailabilityRejectedEmail } from './templates/unavailabilityRejected';
 
 interface SendEmailParams {
   to: string;
@@ -238,6 +240,90 @@ export async function sendPurchaseOrderEmail(
     subject,
     html,
   });
+
+  return result.success;
+}
+
+/**
+ * Send unavailability approved email to employee
+ */
+export async function sendUnavailabilityApprovedEmail(
+  email: string,
+  data: {
+    employeeName: string;
+    type: 'vacation' | 'sick' | 'personal' | 'other';
+    startDate: string;
+    endDate: string;
+    reason?: string;
+  }
+): Promise<boolean> {
+  console.log(`[Email] Préparation email approbation absence pour: ${email}`);
+  const subject = '✅ Demande d\'absence approuvée - CoworKing Café';
+
+  const html = generateUnavailabilityApprovedEmail({
+    employeeName: data.employeeName,
+    type: data.type,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    reason: data.reason,
+    contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
+  });
+
+  console.log(`[Email] Envoi email approbation absence à: ${email}`);
+  const result = await sendEmail({
+    to: email,
+    subject,
+    html,
+  });
+
+  if (result.success) {
+    console.log(`✅ [Email] Email approbation absence envoyé avec succès à: ${email}`);
+  } else {
+    console.error(`❌ [Email] Échec envoi email approbation absence à: ${email}`);
+  }
+
+  return result.success;
+}
+
+/**
+ * Send unavailability rejected email to employee
+ */
+export async function sendUnavailabilityRejectedEmail(
+  email: string,
+  data: {
+    employeeName: string;
+    type: 'vacation' | 'sick' | 'personal' | 'other';
+    startDate: string;
+    endDate: string;
+    reason?: string;
+    rejectionReason: string;
+  }
+): Promise<boolean> {
+  console.log(`[Email] Préparation email refus absence pour: ${email}`);
+  const subject = '❌ Demande d\'absence refusée - CoworKing Café';
+
+  const html = generateUnavailabilityRejectedEmail({
+    employeeName: data.employeeName,
+    type: data.type,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    reason: data.reason,
+    rejectionReason: data.rejectionReason,
+    contactEmail: process.env.CONTACT_EMAIL || 'strasbourg@coworkingcafe.fr',
+  });
+
+  console.log(`[Email] Envoi email refus absence à: ${email}`);
+  const result = await sendEmail({
+    to: email,
+    subject,
+    html,
+  });
+
+  if (result.success) {
+    console.log(`✅ [Email] Email refus absence envoyé avec succès à: ${email}`);
+  } else {
+    console.error(`❌ [Email] Échec envoi email refus absence à: ${email}`);
+  }
 
   return result.success;
 }
