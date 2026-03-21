@@ -27,17 +27,23 @@ export interface EmployeeShiftPosition {
  * Ensures we fetch shifts for end of previous month and start of next month
  */
 export function getCalendarDateRange(date: Date): CalendarDateRange {
-  // Get first day of month
-  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  // Normalize input date to midnight local time to avoid timezone issues
+  const normalizedDate = new Date(date);
+  normalizedDate.setHours(0, 0, 0, 0);
+
+  // Get first day of month (using normalized date to ensure correct month)
+  const year = normalizedDate.getFullYear();
+  const month = normalizedDate.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1);
 
   // Calculate first Monday visible (may be in previous month)
   const dayOfWeek = firstDayOfMonth.getDay();
   const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
   const startDate = new Date(firstDayOfMonth);
   startDate.setDate(startDate.getDate() - daysToSubtract);
 
   // Calculate last day visible (6 complete weeks)
-  // If calendar shows until Sunday Apr 5, we need to include that day
   const endDate = new Date(startDate);
   endDate.setDate(endDate.getDate() + (6 * 7)); // 42 days to cover all visible days
 
