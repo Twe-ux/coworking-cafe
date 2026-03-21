@@ -140,14 +140,40 @@ export function useScheduleData(): UseScheduleDataReturn {
               status: "approved",
             });
 
-            const response = await fetch(`/api/unavailability?${params.toString()}`);
+            // Use /api/hr/absences (same as useUnavailabilities hook) for cache consistency
+            const response = await fetch(`/api/hr/absences?${params.toString()}`);
             const result = await response.json();
 
             if (!result.success) {
               throw new Error(result.error || "Error prefetching unavailabilities");
             }
 
-            return result.data || [];
+            // Convert to same format as useUnavailabilities
+            const absences = result.data || [];
+            return absences.map((absence: any) => ({
+              _id: absence._id,
+              employeeId: typeof absence.employeeId === 'string'
+                ? absence.employeeId
+                : (absence.employeeId._id || absence.employeeId.id),
+              startDate: absence.startDate,
+              endDate: absence.endDate,
+              reason: absence.reason || '',
+              type: absence.type,
+              status: absence.status,
+              requestedBy: 'employee',
+              approvedBy: absence.approvedBy,
+              approvedAt: absence.approvedAt,
+              rejectionReason: absence.rejectionReason,
+              notificationSent: true,
+              createdAt: absence.createdAt,
+              updatedAt: absence.updatedAt,
+              employee: typeof absence.employeeId === 'object' ? {
+                _id: absence.employeeId._id || absence.employeeId.id,
+                firstName: absence.employeeId.firstName,
+                lastName: absence.employeeId.lastName,
+                email: absence.employeeId.email,
+              } : undefined,
+            }));
           },
         }),
       ]);
@@ -159,17 +185,27 @@ export function useScheduleData(): UseScheduleDataReturn {
     return () => clearTimeout(timeoutId);
   }, [currentDate, queryClient]);
 
-  // Fetch employees active during the current month
+  // Fetch employees active during the DISPLAYED MONTH (not the full calendar range)
+  // This avoids showing employees who start next month when viewing current month
   const fetchEmployees = useCallback(async () => {
     try {
       setIsLoadingEmployees(true);
 
-      // Format current month as YYYY-MM for filtering
+      // Use MONTH range (not calendar range) to filter employees correctly
+      // Example: January calendar shows Dec 29 → Feb 9, but we only want employees active IN JANUARY
       const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-      const monthParam = `${year}-${month}`;
+      const month = currentDate.getMonth(); // 0-indexed
 
-      const response = await fetch(`/api/hr/employees?month=${monthParam}`);
+      // First and last day of the DISPLAYED month
+      const monthStart = new Date(year, month, 1);
+      const monthEnd = new Date(year, month + 1, 0); // Last day of month
+
+      const startDateParam = formatDateToYMD(monthStart);
+      const endDateParam = formatDateToYMD(monthEnd);
+
+      // Include inactive employees to show historical shifts from employees who left
+      // The date range filters to only those active during the displayed month
+      const response = await fetch(`/api/hr/employees?startDate=${startDateParam}&endDate=${endDateParam}&includeInactive=true`);
       const result: ApiResponse<Employee[]> = await response.json();
 
       if (result.success && result.data) {

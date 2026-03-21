@@ -108,6 +108,8 @@ export async function GET(request: NextRequest) {
     const active = searchParams.get('active')
     const search = searchParams.get('search')
     const month = searchParams.get('month') // Format YYYY-MM pour filtrer par mois actif
+    const startDate = searchParams.get('startDate') // Format YYYY-MM-DD pour plage personnalisée
+    const endDate = searchParams.get('endDate') // Format YYYY-MM-DD pour plage personnalisée
 
     // Paramètre pour inclure ou non les brouillons
     const includeDrafts = searchParams.get('includeDrafts') === 'true'
@@ -167,9 +169,41 @@ export async function GET(request: NextRequest) {
       // On ne filtre pas ici car on va gérer cela après en vérifiant la date
     }
 
-    // 🗓️ FILTRE PAR MOIS - Employés actifs pendant le mois spécifié
-    // Retourne les employés qui étaient actifs pendant au moins une partie du mois
-    if (month) {
+    // 🗓️ FILTRE PAR PÉRIODE - Employés actifs pendant la période spécifiée
+    // Priorité : startDate/endDate > month
+    // Retourne les employés qui étaient actifs pendant au moins une partie de la période
+    if (startDate && endDate) {
+      // Valider le format YYYY-MM-DD
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+        return Response.json(
+          { error: { message: 'Format de date invalide. Utilisez YYYY-MM-DD' } },
+          { status: 400 }
+        )
+      }
+
+      console.log(`🗓️ [FILTRE PÉRIODE] Recherche employés actifs pour ${startDate} à ${endDate}`)
+
+      // Employé actif pendant la période si :
+      // 1. Embauché avant ou pendant la période (hireDate <= fin de période)
+      // 2. ET (pas de démission OU démission après le début de période)
+      query.hireDate = { $lte: endDate }
+
+      // Ajouter condition sur endDate dans $and
+      const endDateCondition = {
+        $or: [
+          { endDate: { $exists: false } }, // Pas de date de fin
+          { endDate: null }, // Ou endDate explicitement null
+          { endDate: { $gte: startDate } }, // Ou date de fin >= début de période
+        ],
+      }
+
+      if (query.$and) {
+        query.$and.push(endDateCondition)
+      } else {
+        query.$and = [endDateCondition]
+      }
+    } else if (month) {
+      // Fallback : FILTRE PAR MOIS si startDate/endDate non fournis
       // Valider le format YYYY-MM
       if (!/^\d{4}-\d{2}$/.test(month)) {
         return Response.json(
