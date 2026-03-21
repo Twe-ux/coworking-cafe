@@ -19,7 +19,7 @@ interface StockEntry {
   productId: string
   productName: string
   currentStock: number
-  countedStock: number
+  countedStock: number | undefined // undefined = not yet counted, 0 = no stock
   minStock: number
   maxStock: number
   packageUnit?: string
@@ -66,7 +66,7 @@ export function DLCStockCountForm({
           productId: p._id,
           productName: p.name,
           currentStock: p.currentStock,
-          countedStock: 0,
+          countedStock: undefined, // Start undefined so user must enter a value (even 0)
           minStock: p.minStock,
           maxStock: p.maxStock,
           packageUnit: p.packageUnit,
@@ -87,7 +87,7 @@ export function DLCStockCountForm({
   }
 
   const handleQuantityChange = (productId: string, value: string) => {
-    const quantity = value === '' ? 0 : parseFloat(value)
+    const quantity = value === '' ? undefined : parseFloat(value)
     setProducts((prev) =>
       prev.map((p) =>
         p.productId === productId ? { ...p, countedStock: quantity } : p
@@ -96,6 +96,11 @@ export function DLCStockCountForm({
   }
 
   const calculateOrderSuggestion = (entry: StockEntry) => {
+    // If countedStock not entered yet, can't calculate
+    if (entry.countedStock === undefined || entry.countedStock === null) {
+      return 0
+    }
+
     // If stock is above minimum, no need to order
     if (entry.countedStock >= entry.minStock) {
       return 0
@@ -150,7 +155,11 @@ export function DLCStockCountForm({
     }
   }
 
-  const allCounted = products.every((p) => p.countedStock > 0)
+  // Check if all products have been counted (value entered, even if 0)
+  // countedStock is initialized to 0, so we check if user has interacted
+  const allCounted = products.every((p) =>
+    p.countedStock !== undefined && p.countedStock !== null
+  )
 
   if (loading) {
     return (
@@ -195,13 +204,21 @@ export function DLCStockCountForm({
                     Stock actuel système : {entry.currentStock}{' '}
                     {entry.packageUnit || 'unités'}
                   </p>
-                  {entry.countedStock > 0 && suggestion > 0 && (
+                  {entry.countedStock !== undefined && suggestion > 0 && (
                     <Badge
                       variant="outline"
                       className="mt-2 border-orange-500 bg-orange-50 text-orange-700"
                     >
                       Suggestion : Commander {suggestion.toFixed(0)}{' '}
                       {entry.packagingType === 'pack' ? 'pack(s)' : entry.packageUnit || 'unités'}
+                    </Badge>
+                  )}
+                  {entry.countedStock !== undefined && entry.countedStock === 0 && (
+                    <Badge
+                      variant="outline"
+                      className="mt-2 border-red-500 bg-red-50 text-red-700"
+                    >
+                      Stock épuisé
                     </Badge>
                   )}
                 </div>

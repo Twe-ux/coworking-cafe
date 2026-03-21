@@ -46,10 +46,10 @@ export default function OrderEditClient({ id }: { id: string }) {
     active: true
   });
 
-  // Load order data into state and enrich with product details
+  // Load order data into state and enrich with ALL supplier products (not just order items)
   useEffect(() => {
-    const loadOrderWithProductDetails = async () => {
-      if (!order) return;
+    const loadOrderWithAllProducts = async () => {
+      if (!order || !products || products.length === 0) return;
 
       // Check if order is draft
       if (order.status !== "draft") {
@@ -58,42 +58,57 @@ export default function OrderEditClient({ id }: { id: string }) {
         return;
       }
 
-      // Enrich order items with product details (minStock, maxStock, etc.)
-      const enrichedItems = await Promise.all(
-        order.items.map(async (item) => {
-          try {
-            const response = await fetch(`/api/inventory/products/${item.productId}`);
-            const data = await response.json();
+      // Create a map of all supplier products for easy lookup
+      const productsMap = new Map(products.map(p => [p._id, p]));
 
-            if (data.success && data.data) {
-              const product = data.data;
-              return {
-                ...item,
-                productName: item.productName || product.name,
-                unitsPerPackage: product.unitsPerPackage || 1,
-                minStock: product.minStock,
-                maxStock: product.maxStock,
-                currentStock: product.currentStock,
-                realStock: undefined, // Start empty, user will input
-              } as OrderItemDisplay;
-            }
-          } catch (error) {
-            console.error(`Error loading product ${item.productId}:`, error);
-          }
-          // Fallback if product load fails
+      // Start with order items (those with quantities > 0)
+      const orderItems = order.items.map((item) => {
+        const product = productsMap.get(item.productId);
+        if (product) {
           return {
             ...item,
-            realStock: undefined,
+            productName: item.productName || product.name,
+            unitsPerPackage: product.unitsPerPackage || 1,
+            minStock: product.minStock,
+            maxStock: product.maxStock,
+            currentStock: product.currentStock,
+            realStock: undefined, // User will input
           } as OrderItemDisplay;
-        })
-      );
+        }
+        // Fallback if product not found
+        return {
+          ...item,
+          realStock: undefined,
+        } as OrderItemDisplay;
+      });
 
-      setItems(enrichedItems);
+      // Add ALL other supplier products (with quantity = 0) for visibility
+      const orderProductIds = new Set(order.items.map(i => i.productId));
+      const otherProducts = products
+        .filter(p => !orderProductIds.has(p._id))
+        .map(p => ({
+          productId: p._id,
+          productName: p.name,
+          quantity: 0, // Not ordered yet
+          packagingType: p.packagingType,
+          unitPriceHT: p.unitPriceHT,
+          vatRate: p.vatRate,
+          totalHT: 0,
+          totalTTC: 0,
+          minStock: p.minStock,
+          maxStock: p.maxStock,
+          currentStock: p.currentStock,
+          unitsPerPackage: p.unitsPerPackage || 1,
+          realStock: undefined,
+        } as OrderItemDisplay));
+
+      // Combine: order items first, then other products
+      setItems([...orderItems, ...otherProducts]);
       setNotes(order.notes || "");
     };
 
-    loadOrderWithProductDetails();
-  }, [order, id, router]);
+    loadOrderWithAllProducts();
+  }, [order, products, id, router]);
 
   /**
    * Calculate order quantity based on real stock and pack constraints
@@ -377,40 +392,15 @@ export default function OrderEditClient({ id }: { id: string }) {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Add Product Selector */}
-          {!loadingProducts && products.length > 0 && (
-            <div className="flex gap-2 items-center p-4 bg-muted/50 rounded-lg">
-              <Label htmlFor="add-product" className="whitespace-nowrap">
-                Ajouter un produit existant :
-              </Label>
-              <select
-                id="add-product"
-                className="flex-1 h-10 px-3 border border-input bg-background rounded-md text-sm"
-                onChange={(e) => {
-                  if (e.target.value) {
-                    addProduct(e.target.value);
-                    e.target.value = "";
-                  }
-                }}
-                defaultValue=""
-              >
-                <option value="">-- Sélectionner un produit --</option>
-                {products
-                  .filter((p) => !items.some((i) => i.productId === p._id))
-                  .map((product) => (
-                    <option key={product._id} value={product._id}>
-                      {product.name} - {product.currentStock} en stock
-                    </option>
-                  ))}
-              </select>
-            </div>
-          )}
-
-          {/* Hint */}
-          <div className="text-sm text-muted-foreground">
-            💡 <strong>Astuce:</strong> Saisissez le stock réel pour calculer
-            automatiquement la quantité à commander (selon stock min/max et
-            conditionnement).
+          {/* Info Banner */}
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-900">
+              <strong>📦 Tous les produits du fournisseur sont affichés.</strong>
+              <br />
+              💡 <strong>Astuce:</strong> Saisissez le stock réel pour calculer
+              automatiquement la quantité à commander (selon stock min/max et
+              conditionnement).
+            </p>
           </div>
 
           {/* Items Table */}
