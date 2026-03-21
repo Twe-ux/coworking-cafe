@@ -1,5 +1,6 @@
 "use client";
 
+import { RequestUnavailabilityModal } from "@/components/staff/RequestUnavailabilityModal";
 import { Button } from "@/components/ui/button";
 import { CalendarOff } from "lucide-react";
 import { useState } from "react";
@@ -9,7 +10,6 @@ import { DEFAULT_EMPLOYEES } from "./types";
 import { useScheduleData } from "./useScheduleData";
 import { useTimeEntries } from "./useTimeEntries";
 import { WeekCard } from "./WeekCard";
-import { RequestUnavailabilityModal } from "@/components/staff/RequestUnavailabilityModal";
 
 /**
  * EmployeeScheduling - Staff weekly schedule view
@@ -48,7 +48,7 @@ export function EmployeeScheduling({
   const { timeEntries, fetchTimeEntries } = useTimeEntries({ currentDate });
 
   // Staff view (also accessible to admin/dev)
-  const hasAccess = ['staff', 'admin', 'dev'].includes(userRole);
+  const hasAccess = ["staff", "admin", "dev"].includes(userRole);
 
   if (hasAccess) {
     const weeksWithShifts = getWeeksWithShifts();
@@ -67,15 +67,15 @@ export function EmployeeScheduling({
           <div className="flex flex-row justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {userRole === 'staff' ? 'Mon Planning' : 'Planning Staff'}
+                {userRole === "staff" ? "Mon Planning" : "Planning Staff"}
               </h1>
               <p className="mt-1 text-gray-600">
-                {userRole === 'staff'
-                  ? 'Vos creneaux de travail par semaine'
-                  : 'Creneaux de travail de l\'equipe par semaine'}
+                {userRole === "staff"
+                  ? "Vos creneaux de travail par semaine"
+                  : "Creneaux de travail de l'equipe par semaine"}
               </p>
             </div>
-            {userRole === 'staff' && (
+            {userRole === "staff" && (
               <Button
                 variant="outline"
                 className="gap-2 border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
