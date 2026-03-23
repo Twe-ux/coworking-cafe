@@ -6,59 +6,62 @@
  */
 
 interface OrderItem {
-  productName: string
-  supplierReference?: string
-  packagingDescription?: string
-  quantity: number
-  packagingType: string
-  unitPriceHT: number
-  totalHT: number
+  productName: string;
+  supplierReference?: string;
+  packagingDescription?: string;
+  quantity: number;
+  packagingType: string;
+  unitPriceHT: number;
+  totalHT: number;
 }
 
 interface PurchaseOrderEmailData {
-  orderNumber: string
-  supplierName: string
-  items: OrderItem[]
-  totalHT: number
-  totalTTC: number
-  notes?: string
-  createdAt: string
+  orderNumber: string;
+  supplierName: string;
+  items: OrderItem[];
+  totalHT: number;
+  totalTTC: number;
+  notes?: string;
+  createdAt: string;
 }
 
-export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string {
-  const { orderNumber, supplierName, items, notes, createdAt } = data
+export function generatePurchaseOrderEmail(
+  data: PurchaseOrderEmailData,
+): string {
+  const { orderNumber, supplierName, items, notes, createdAt } = data;
 
   // Filter out auto-generated notes (DLC task notes)
-  const shouldShowNotes = notes &&
-    !notes.includes('Commande DLC générée automatiquement') &&
-    !notes.includes('Référence tâche:')
+  const shouldShowNotes =
+    notes &&
+    !notes.includes("Commande DLC générée automatiquement") &&
+    !notes.includes("Référence tâche:");
 
   // Translate packaging types to French with plural support
   const translatePackagingType = (type: string, quantity: number): string => {
-    const isPlural = quantity > 1
+    const isPlural = quantity > 1;
 
     const translations: Record<string, { singular: string; plural: string }> = {
-      'unit': { singular: 'unité', plural: 'unités' },
-      'pack': { singular: 'pack', plural: 'packs' },
-      'kg': { singular: 'kg', plural: 'kg' },
-      'L': { singular: 'L', plural: 'L' }
-    }
+      unit: { singular: "unité", plural: "unités" },
+      pack: { singular: "pack", plural: "packs" },
+      kg: { singular: "kg", plural: "kg" },
+      L: { singular: "L", plural: "L" },
+    };
 
-    const translation = translations[type]
-    if (!translation) return type
+    const translation = translations[type];
+    if (!translation) return type;
 
-    return isPlural ? translation.plural : translation.singular
-  }
+    return isPlural ? translation.plural : translation.singular;
+  };
 
   // Generate items rows HTML
   const itemsHtml = items
     .map((item) => {
       const refLine = item.supplierReference
         ? `<br><span style="color: #6b7280; font-size: 12px;">Réf: ${item.supplierReference}</span>`
-        : ''
+        : "";
       const packLine = item.packagingDescription
         ? `<br><span style="color: #6b7280; font-size: 12px;">${item.packagingDescription}</span>`
-        : ''
+        : "";
 
       return `
     <tr>
@@ -72,9 +75,9 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
         ${translatePackagingType(item.packagingType, item.quantity)}
       </td>
     </tr>
-  `
+  `;
     })
-    .join('')
+    .join("");
 
   return `
 <!DOCTYPE html>
@@ -188,7 +191,7 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
           <tr>
             <td class="email-header" style="background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); padding: 32px 24px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">
-                📦 Nouvelle Commande Fournisseur
+                📦 Nouvelle Commande CoworKing Café
               </h1>
             </td>
           </tr>
@@ -202,7 +205,7 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
               </p>
 
               <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #1f2937;">
-                Nous vous transmettons notre commande <strong>${orderNumber}</strong> en date du <strong>${createdAt}</strong>.
+                Nous vous transmettons notre commande en date du <strong>${createdAt}</strong>.
               </p>
 
               <!-- Order Details Table -->
@@ -242,7 +245,7 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
                 </tr>
               </table>
               `
-                  : ''
+                  : ""
               }
 
               <!-- Call to Action -->
@@ -289,5 +292,5 @@ export function generatePurchaseOrderEmail(data: PurchaseOrderEmailData): string
   </table>
 </body>
 </html>
-  `
+  `;
 }
