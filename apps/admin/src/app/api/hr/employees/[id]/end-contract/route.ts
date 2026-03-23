@@ -10,7 +10,7 @@ import type { SessionUser } from '@/types/session'
 /** Max resignation letter file size: 5MB */
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
 
-interface ResignationLetterPayload {
+interface TerminationLetterPayload {
   filename: string
   contentBase64: string
 }
@@ -25,17 +25,23 @@ interface EmployeeDocument {
     uploadedAt: Date
     uploadedBy: string
   }
+  trialPeriodTerminationLetter?: {
+    filename: string
+    contentBase64: string
+    uploadedAt: Date
+    uploadedBy: string
+  }
   isActive: boolean
   deletedAt?: Date
   save: () => Promise<EmployeeDocument>
 }
 
 /**
- * Validate resignation letter PDF payload.
+ * Validate termination letter PDF payload (resignation or trial period termination).
  * Returns an error message string if invalid, or null if valid.
  */
-function validateResignationLetter(
-  letter: ResignationLetterPayload
+function validateTerminationLetter(
+  letter: TerminationLetterPayload
 ): string | null {
   if (!letter.filename || typeof letter.filename !== 'string') {
     return 'Le nom du fichier est requis'
@@ -98,7 +104,7 @@ export async function PUT(
       )
     }
 
-    const { endDate, endContractReason, resignationLetter } = await request.json()
+    const { endDate, endContractReason, resignationLetter, trialPeriodTerminationLetter } = await request.json()
 
     if (!endDate || !endContractReason) {
       return NextResponse.json(
@@ -110,9 +116,13 @@ export async function PUT(
       )
     }
 
-    // Validate resignation letter if provided
-    if (resignationLetter) {
-      const validationError = validateResignationLetter(resignationLetter)
+    // Validate termination letter if provided
+    const letterToValidate = endContractReason === 'démission'
+      ? resignationLetter
+      : trialPeriodTerminationLetter
+
+    if (letterToValidate) {
+      const validationError = validateTerminationLetter(letterToValidate)
       if (validationError) {
         return NextResponse.json(
           { success: false, error: validationError },
@@ -138,11 +148,18 @@ export async function PUT(
     employee.isActive = false
     employee.deletedAt = new Date() // deletedAt reste en Date (timestamp)
 
-    // Store resignation letter if provided
-    if (resignationLetter) {
+    // Store termination letter based on reason
+    if (endContractReason === 'démission' && resignationLetter) {
       employee.resignationLetter = {
         filename: resignationLetter.filename.trim(),
         contentBase64: resignationLetter.contentBase64,
+        uploadedAt: new Date(),
+        uploadedBy: session.user.id,
+      }
+    } else if (endContractReason === 'fin-periode-essai' && trialPeriodTerminationLetter) {
+      employee.trialPeriodTerminationLetter = {
+        filename: trialPeriodTerminationLetter.filename.trim(),
+        contentBase64: trialPeriodTerminationLetter.contentBase64,
         uploadedAt: new Date(),
         uploadedBy: session.user.id,
       }
@@ -159,6 +176,7 @@ export async function PUT(
         endContractReason: employee.endContractReason,
         isActive: employee.isActive,
         hasResignationLetter: !!employee.resignationLetter,
+        hasTrialPeriodTerminationLetter: !!employee.trialPeriodTerminationLetter,
       },
     })
   } catch (error: unknown) {

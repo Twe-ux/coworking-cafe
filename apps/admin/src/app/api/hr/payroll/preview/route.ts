@@ -16,7 +16,7 @@ interface PreviewPayload {
 interface AttachmentPreview {
   filename: string;
   size: number; // Size in bytes
-  type: "payroll" | "contract" | "dpae" | "resignation";
+  type: "payroll" | "contract" | "dpae" | "resignation" | "trial-termination";
 }
 
 interface PreviewResponse {
@@ -26,6 +26,7 @@ interface PreviewResponse {
   attachments?: AttachmentPreview[];
   hasContract?: boolean;
   hasResignation?: boolean;
+  hasTrialTermination?: boolean;
   hasDpae?: boolean;
   error?: string;
 }
@@ -76,6 +77,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PreviewRe
     console.log(`[Payroll Preview] Month: ${month}/${year}`);
     console.log(`[Payroll Preview] New employees found: ${monthlyChanges.newEmployees.length}`);
     console.log(`[Payroll Preview] Resignations found: ${monthlyChanges.resignations.length}`);
+    console.log(`[Payroll Preview] Trial period terminations found: ${monthlyChanges.trialPeriodTerminations.length}`);
 
     // Log details of new employees
     monthlyChanges.newEmployees.forEach((emp) => {
@@ -97,6 +99,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PreviewRe
 
     let hasContract = false;
     let hasResignation = false;
+    let hasTrialTermination = false;
     let hasDpae = false;
 
     // Add contract attachments for ALL new employees
@@ -136,12 +139,27 @@ export async function POST(request: NextRequest): Promise<NextResponse<PreviewRe
       }
     });
 
+    // Add trial period termination letters for ALL terminations
+    monthlyChanges.trialPeriodTerminations.forEach((trialTermination) => {
+      const nameSlug = `${trialTermination.employee.firstName}-${trialTermination.employee.lastName}`.toLowerCase();
+
+      if (trialTermination.trialPeriodTerminationLetter && trialTermination.trialPeriodTerminationLetter.length > 0) {
+        attachments.push({
+          filename: `rupture-periode-essai-${nameSlug}.pdf`,
+          size: trialTermination.trialPeriodTerminationLetter.length,
+          type: "trial-termination",
+        });
+        hasTrialTermination = true;
+      }
+    });
+
     // Build email subject and body
     const subject = buildPayrollSubject({
       monthName,
       year,
       hasContract,
       hasResignation,
+      hasTrialTermination,
       hasDpae,
     });
 
@@ -150,6 +168,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PreviewRe
       year,
       hasContract,
       hasResignation,
+      hasTrialTermination,
       hasDpae,
     });
 
@@ -160,6 +179,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PreviewRe
       attachments,
       hasContract,
       hasResignation,
+      hasTrialTermination,
       hasDpae,
     });
   } catch (error) {

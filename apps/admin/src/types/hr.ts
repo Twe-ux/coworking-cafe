@@ -107,6 +107,12 @@ export interface Employee {
     uploadedAt: Date | string;
     uploadedBy: string;
   };
+  trialPeriodTerminationLetter?: {
+    filename: string;
+    contentBase64: string;
+    uploadedAt: Date | string;
+    uploadedBy: string;
+  };
   dpae?: {
     completed: boolean;
     completedAt?: Date | string;

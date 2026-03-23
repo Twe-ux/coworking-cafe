@@ -18,9 +18,15 @@ interface EmployeeWithResignation {
   resignationLetter?: Buffer;
 }
 
+interface EmployeeWithTrialTermination {
+  employee: Employee;
+  trialPeriodTerminationLetter?: Buffer;
+}
+
 export interface MonthlyChanges {
   newEmployees: EmployeeWithContract[];
   resignations: EmployeeWithResignation[];
+  trialPeriodTerminations: EmployeeWithTrialTermination[];
 }
 
 // ==================== HELPERS ====================
@@ -82,6 +88,16 @@ function decodeResignationLetter(
 }
 
 /**
+ * Decode a base64 trial period termination letter to Buffer
+ */
+function decodeTrialPeriodTerminationLetter(
+  trialPeriodTerminationLetter: Employee['trialPeriodTerminationLetter']
+): Buffer | undefined {
+  if (!trialPeriodTerminationLetter?.contentBase64) return undefined;
+  return Buffer.from(trialPeriodTerminationLetter.contentBase64, 'base64');
+}
+
+/**
  * Decode a base64 DPAE PDF to Buffer
  */
 function decodeDpaePdf(
@@ -94,10 +110,11 @@ function decodeDpaePdf(
 // ==================== MAIN FUNCTION ====================
 
 /**
- * Detect new employees and resignations for a given month
+ * Detect new employees, resignations, and trial period terminations for a given month
  *
  * - New employees: hireDate within the month, not drafts
  * - Resignations: endDate within the month AND endContractReason === "démission"
+ * - Trial period terminations: endDate within the month AND endContractReason === "fin-periode-essai"
  */
 export async function detectMonthlyChanges(
   month: number,
@@ -128,6 +145,14 @@ export async function detectMonthlyChanges(
   });
 
   console.log(`[detectMonthlyChanges] Found ${resignationDocs.length} resignations`);
+
+  // Query trial period terminations this month
+  const trialTerminationDocs = await EmployeeModel.find({
+    endDate: { $regex: `^${monthPrefix}` },
+    endContractReason: 'fin-periode-essai',
+  });
+
+  console.log(`[detectMonthlyChanges] Found ${trialTerminationDocs.length} trial period terminations`);
 
   // Process new employees - retrieve contract from DB (stored during client-side generation)
   const newEmployees: EmployeeWithContract[] = await Promise.all(
@@ -161,5 +186,16 @@ export async function detectMonthlyChanges(
     }
   );
 
-  return { newEmployees, resignations };
+  // Process trial period terminations with letter decoding
+  const trialPeriodTerminations: EmployeeWithTrialTermination[] = trialTerminationDocs.map(
+    (doc) => {
+      const employee = doc.toObject() as unknown as Employee;
+      const trialPeriodTerminationLetter = decodeTrialPeriodTerminationLetter(
+        employee.trialPeriodTerminationLetter
+      );
+      return { employee, trialPeriodTerminationLetter };
+    }
+  );
+
+  return { newEmployees, resignations, trialPeriodTerminations };
 }

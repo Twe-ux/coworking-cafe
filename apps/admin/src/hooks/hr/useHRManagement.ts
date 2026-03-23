@@ -147,7 +147,8 @@ export function useHRManagement() {
   const handleEndContractConfirm = async (
     endDate: string,
     reason: string,
-    resignationLetter?: { filename: string; contentBase64: string }
+    resignationLetter?: { filename: string; contentBase64: string },
+    trialPeriodTerminationLetter?: { filename: string; contentBase64: string }
   ) => {
     if (!selectedEmployee) return;
 
@@ -161,6 +162,7 @@ export function useHRManagement() {
             endDate,
             endContractReason: reason,
             resignationLetter,
+            trialPeriodTerminationLetter,
           }),
         }
       );

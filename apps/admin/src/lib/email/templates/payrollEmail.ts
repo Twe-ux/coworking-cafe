@@ -1,5 +1,5 @@
 /**
- * Email template for monthly payroll with optional contract/resignation attachments
+ * Email template for monthly payroll with optional contract/resignation/trial termination attachments
  * Blue theme (#1e40af) for payroll communications
  */
 
@@ -8,6 +8,7 @@ interface PayrollEmailOptions {
   year: number;
   hasContract: boolean;
   hasResignation: boolean;
+  hasTrialTermination?: boolean;
   hasDpae?: boolean;
 }
 
@@ -19,12 +20,14 @@ export function buildPayrollSubject({
   year,
   hasContract,
   hasResignation,
+  hasTrialTermination,
   hasDpae,
 }: PayrollEmailOptions): string {
   let subject = `Récapitulatif Paie - ${monthName} ${year}`;
   if (hasContract) subject += " [+ Contrat]";
   if (hasDpae) subject += " [+ DPAE]";
   if (hasResignation) subject += " [+ Démission]";
+  if (hasTrialTermination) subject += " [+ Rupture P.E.]";
   return subject;
 }
 
@@ -34,9 +37,10 @@ export function buildPayrollSubject({
 function buildAttachmentSection(
   hasContract: boolean,
   hasResignation: boolean,
+  hasTrialTermination?: boolean,
   hasDpae?: boolean
 ): string {
-  if (!hasContract && !hasResignation && !hasDpae) return "";
+  if (!hasContract && !hasResignation && !hasTrialTermination && !hasDpae) return "";
 
   const sections: string[] = [];
 
@@ -82,6 +86,23 @@ function buildAttachmentSection(
     `);
   }
 
+  // Trial period termination section
+  if (hasTrialTermination) {
+    sections.push(`
+      <div style="margin: 20px 0; padding: 15px; background-color: #fee2e2; border-left: 4px solid #ef4444; border-radius: 4px;">
+        <p style="margin: 0 0 8px 0; font-weight: bold; color: #ef4444;">
+          🚫 Rupture de période d'essai ce mois-ci
+        </p>
+        <p style="margin: 0 0 8px 0; color: #374151;">
+          Un employé a été licencié durant sa période d'essai. Vous trouverez en pièce jointe :
+        </p>
+        <ul style="margin: 0; padding-left: 20px; line-height: 1.8; color: #374151;">
+          <li><strong>Lettre de rupture de période d'essai</strong> (scan original)</li>
+        </ul>
+      </div>
+    `);
+  }
+
   return sections.join("\n");
 }
 
@@ -93,9 +114,10 @@ export function buildPayrollEmailHtml({
   year,
   hasContract,
   hasResignation,
+  hasTrialTermination,
   hasDpae,
 }: PayrollEmailOptions): string {
-  const attachmentSection = buildAttachmentSection(hasContract, hasResignation, hasDpae);
+  const attachmentSection = buildAttachmentSection(hasContract, hasResignation, hasTrialTermination, hasDpae);
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

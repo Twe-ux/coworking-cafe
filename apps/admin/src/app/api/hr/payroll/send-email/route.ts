@@ -28,7 +28,7 @@ const MONTH_NAMES = [
 ];
 
 /**
- * Build attachments array: always payroll PDF, optionally contract and resignation letter
+ * Build attachments array: always payroll PDF, optionally contract, resignation letter, and trial termination letter
  */
 async function buildAttachments(
   payload: SendEmailPayload,
@@ -37,6 +37,7 @@ async function buildAttachments(
   attachments: PayrollAttachment[];
   hasContract: boolean;
   hasResignation: boolean;
+  hasTrialTermination: boolean;
   hasDpae: boolean;
 }> {
   const { month, year, employeeId, employeeName } = payload;
@@ -51,6 +52,7 @@ async function buildAttachments(
 
   let hasContract = false;
   let hasResignation = false;
+  let hasTrialTermination = false;
   let hasDpae = false;
 
   const monthlyChanges = await detectMonthlyChanges(month, year);
@@ -86,6 +88,17 @@ async function buildAttachments(
       });
       hasResignation = true;
     }
+
+    const trialTermination = monthlyChanges.trialPeriodTerminations.find(
+      (e) => String(e.employee._id) === String(employeeId)
+    );
+    if (trialTermination?.trialPeriodTerminationLetter) {
+      attachments.push({
+        filename: `rupture-periode-essai-${nameSlug}.pdf`,
+        content: trialTermination.trialPeriodTerminationLetter,
+      });
+      hasTrialTermination = true;
+    }
   } else {
     // No employeeId → attach ALL contracts and resignations for the month
     monthlyChanges.newEmployees.forEach((newEmp) => {
@@ -119,9 +132,21 @@ async function buildAttachments(
         hasResignation = true;
       }
     });
+
+    monthlyChanges.trialPeriodTerminations.forEach((trialTermination) => {
+      const empNameSlug = `${trialTermination.employee.firstName}-${trialTermination.employee.lastName}`.toLowerCase();
+
+      if (trialTermination.trialPeriodTerminationLetter && trialTermination.trialPeriodTerminationLetter.length > 0) {
+        attachments.push({
+          filename: `rupture-periode-essai-${empNameSlug}.pdf`,
+          content: trialTermination.trialPeriodTerminationLetter,
+        });
+        hasTrialTermination = true;
+      }
+    });
   }
 
-  return { attachments, hasContract, hasResignation, hasDpae };
+  return { attachments, hasContract, hasResignation, hasTrialTermination, hasDpae };
 }
 
 /**
@@ -168,8 +193,8 @@ export async function POST(request: NextRequest) {
     const monthName = MONTH_NAMES[month - 1];
     const pdfBuffer = Buffer.from(pdfBase64, "base64");
 
-    // Build attachments with optional contract/resignation letter/DPAE
-    const { attachments, hasContract, hasResignation, hasDpae } =
+    // Build attachments with optional contract/resignation letter/trial termination letter/DPAE
+    const { attachments, hasContract, hasResignation, hasTrialTermination, hasDpae } =
       await buildAttachments(payload, pdfBuffer);
 
     console.log(
@@ -177,7 +202,8 @@ export async function POST(request: NextRequest) {
         `${attachments.length} attachment(s)` +
         `${hasContract ? " [+contract]" : ""}` +
         `${hasDpae ? " [+DPAE]" : ""}` +
-        `${hasResignation ? " [+resignation]" : ""}`
+        `${hasResignation ? " [+resignation]" : ""}` +
+        `${hasTrialTermination ? " [+trial termination]" : ""}`
     );
 
     const subject = buildPayrollSubject({
@@ -185,6 +211,7 @@ export async function POST(request: NextRequest) {
       year,
       hasContract,
       hasResignation,
+      hasTrialTermination,
       hasDpae,
     });
     const html = buildPayrollEmailHtml({
@@ -192,6 +219,7 @@ export async function POST(request: NextRequest) {
       year,
       hasContract,
       hasResignation,
+      hasTrialTermination,
       hasDpae,
     });
 
@@ -220,6 +248,7 @@ export async function POST(request: NextRequest) {
       attachmentCount: attachments.length,
       hasContract,
       hasResignation,
+      hasTrialTermination,
       hasDpae,
     });
   } catch (error) {

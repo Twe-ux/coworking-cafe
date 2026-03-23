@@ -100,6 +100,14 @@ export interface EmployeeDocument extends Document {
     uploadedBy: string;
   };
 
+  // Lettre de rupture de période d'essai
+  trialPeriodTerminationLetter?: {
+    filename: string;
+    contentBase64: string;
+    uploadedAt: Date;
+    uploadedBy: string;
+  };
+
   // DPAE (Déclaration Préalable À l'Embauche)
   dpae?: {
     completed: boolean;
@@ -359,6 +367,18 @@ export const EmployeeSchema = new Schema<EmployeeDocument>(
 
     // Lettre de démission
     resignationLetter: {
+      type: {
+        filename: { type: String, trim: true },
+        contentBase64: { type: String },
+        uploadedAt: { type: Date },
+        uploadedBy: { type: String, trim: true },
+      },
+      required: false,
+      _id: false,
+    },
+
+    // Lettre de rupture de période d'essai
+    trialPeriodTerminationLetter: {
       type: {
         filename: { type: String, trim: true },
         contentBase64: { type: String },

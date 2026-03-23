@@ -25,7 +25,7 @@ import type { Employee } from '@/types/hr'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
-interface ResignationLetterData {
+interface TerminationLetterData {
   filename: string
   contentBase64: string
 }
@@ -37,7 +37,8 @@ interface EndContractModalProps {
   onConfirm: (
     endDate: string,
     reason: string,
-    resignationLetter?: ResignationLetterData
+    resignationLetter?: TerminationLetterData,
+    trialPeriodTerminationLetter?: TerminationLetterData
   ) => Promise<void>
 }
 
@@ -73,7 +74,7 @@ export function EndContractModal({
   })
 
   const endContractReason = watch('endContractReason')
-  const showFileUpload = endContractReason === 'démission'
+  const showFileUpload = endContractReason === 'démission' || endContractReason === 'fin-periode-essai'
 
   const resetFileState = useCallback(() => {
     setSelectedFile(null)
@@ -127,14 +128,17 @@ export function EndContractModal({
   const onSubmit = async (data: EndContractFormData) => {
     if (!employee) return
 
-    const resignationLetter =
+    const terminationLetter =
       showFileUpload && selectedFile && fileBase64
         ? { filename: selectedFile.name, contentBase64: fileBase64 }
         : undefined
 
+    const resignationLetter = data.endContractReason === 'démission' ? terminationLetter : undefined
+    const trialPeriodTerminationLetter = data.endContractReason === 'fin-periode-essai' ? terminationLetter : undefined
+
     setLoading(true)
     try {
-      await onConfirm(data.endDate, data.endContractReason, resignationLetter)
+      await onConfirm(data.endDate, data.endContractReason, resignationLetter, trialPeriodTerminationLetter)
       reset()
       resetFileState()
       onClose()
@@ -215,7 +219,11 @@ export function EndContractModal({
 
           {showFileUpload && (
             <div className="space-y-2">
-              <Label>Lettre de démission (PDF)</Label>
+              <Label>
+                {endContractReason === 'démission'
+                  ? 'Lettre de démission (PDF)'
+                  : 'Lettre de rupture de période d\'essai (PDF)'}
+              </Label>
               {selectedFile ? (
                 <div className="flex items-center gap-3 rounded-md border border-gray-300 p-3">
                   <FileText className="h-5 w-5 shrink-0 text-blue-600" />
