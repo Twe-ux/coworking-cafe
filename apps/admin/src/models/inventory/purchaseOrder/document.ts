@@ -12,6 +12,8 @@ export interface PurchaseOrderItem {
   vatRate: number
   totalTTC: number
   unitsPerPackage?: number // For pack type: number of units in the pack
+  realStockCounted?: number // Stock counted by staff (DLC or Inventory)
+  systemStockBeforeCount?: number // System stock before counting
 }
 
 /** Document of a PurchaseOrder, as stored in the database. */
@@ -78,6 +80,14 @@ const PurchaseOrderItemSchema = new Schema<PurchaseOrderItem>(
     unitsPerPackage: {
       type: Number,
       min: 1,
+    },
+    realStockCounted: {
+      type: Number,
+      min: 0,
+    },
+    systemStockBeforeCount: {
+      type: Number,
+      min: 0,
     },
   },
   { _id: false }
