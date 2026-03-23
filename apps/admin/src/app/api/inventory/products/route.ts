@@ -206,9 +206,9 @@ export async function POST(request: NextRequest) {
       realUnitPriceHT = validated.unitPriceHT / unitsPerPackage
     }
 
-    // Set stock values (0 if not required)
-    const minStock = requiresStockManagement ? validated.minStock! : 0
-    const maxStock = requiresStockManagement ? validated.maxStock! : 0
+    // Set stock values (0 if not required or not provided)
+    const minStock = requiresStockManagement ? (validated.minStock ?? 0) : 0
+    const maxStock = requiresStockManagement ? (validated.maxStock ?? 0) : 0
 
     // Create new product
     const newProduct = await Product.create({

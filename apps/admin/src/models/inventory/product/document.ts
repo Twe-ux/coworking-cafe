@@ -164,9 +164,12 @@ ProductSchema.index({ supplierId: 1 })
 ProductSchema.index({ isActive: 1 })
 ProductSchema.index({ currentStock: 1, minStock: 1 }) // For low stock queries
 
-// Validation: minStock must be less than maxStock
+// Validation: minStock must be less than maxStock (except when both are 0 = no stock management)
 ProductSchema.pre("save", function (next) {
-  if (this.minStock >= this.maxStock) {
+  // Allow both to be 0 (supplier without stock management)
+  if (this.minStock === 0 && this.maxStock === 0) {
+    next()
+  } else if (this.minStock >= this.maxStock) {
     next(new Error("Minimum stock must be less than maximum stock"))
   } else {
     next()
