@@ -110,11 +110,23 @@ export async function POST(request: NextRequest) {
     )
 
     // Generate order number: PO-YYYYMMDD-XXX
+    // Find the last order number for today and increment
     const today = new Date().toISOString().split('T')[0].replace(/-/g, '')
-    const countToday = await PurchaseOrder.countDocuments({
+    const lastOrder = await PurchaseOrder.findOne({
       orderNumber: { $regex: `^PO-${today}` },
     })
-    const orderNumber = `PO-${today}-${String(countToday + 1).padStart(3, '0')}`
+      .sort({ orderNumber: -1 })
+      .select('orderNumber')
+      .lean()
+
+    let nextNumber = 1
+    if (lastOrder?.orderNumber) {
+      // Extract the last number from "PO-YYYYMMDD-XXX"
+      const lastNumber = parseInt(lastOrder.orderNumber.split('-').pop() || '0', 10)
+      nextNumber = lastNumber + 1
+    }
+
+    const orderNumber = `PO-${today}-${String(nextNumber).padStart(3, '0')}`
 
     const order = await PurchaseOrder.create({
       orderNumber,
