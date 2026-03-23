@@ -1,30 +1,31 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, PackageCheck } from 'lucide-react'
-import type { Product } from '@/types/inventory'
-import { triggerSidebarRefresh } from '@/lib/events/sidebar-refresh'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, PackageCheck } from "lucide-react";
+import type { Product } from "@/types/inventory";
+import { triggerSidebarRefresh } from "@/lib/events/sidebar-refresh";
 
 interface DLCStockCountFormProps {
-  taskId: string
-  productIds: string[]
-  onComplete: () => void
+  taskId: string;
+  productIds: string[];
+  onComplete: () => void;
 }
 
 interface StockEntry {
-  productId: string
-  productName: string
-  currentStock: number
-  countedStock: number | undefined // undefined = not yet counted, 0 = no stock
-  minStock: number
-  maxStock: number
-  packageUnit?: string
-  packagingType: string
-  unitsPerPackage: number
+  productId: string;
+  productName: string;
+  currentStock: number;
+  countedStock: number | undefined; // undefined = not yet counted, 0 = no stock
+  minStock: number;
+  maxStock: number;
+  packageUnit?: string;
+  packagingType: string;
+  unitsPerPackage: number;
 }
 
 export function DLCStockCountForm({
@@ -32,34 +33,35 @@ export function DLCStockCountForm({
   productIds,
   onComplete,
 }: DLCStockCountFormProps) {
-  const [products, setProducts] = useState<StockEntry[]>([])
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const [products, setProducts] = useState<StockEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProducts()
-  }, [productIds])
+    fetchProducts();
+  }, [productIds]);
 
   const fetchProducts = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await fetch(
-        `/api/tasks/products?ids=${productIds.join(',')}`
-      )
+        `/api/tasks/products?ids=${productIds.join(",")}`,
+      );
 
-      console.log('Response status:', response.status)
+      console.log("Response status:", response.status);
 
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error('API Error:', response.status, errorText)
-        setError(`Erreur ${response.status}: ${response.statusText}`)
-        setLoading(false)
-        return
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+        setError(`Erreur ${response.status}: ${response.statusText}`);
+        setLoading(false);
+        return;
       }
 
-      const data = await response.json()
-      console.log('API Response:', data)
+      const data = await response.json();
+      console.log("API Response:", data);
 
       if (data.success && data.data) {
         const entries: StockEntry[] = data.data.map((p: Product) => ({
@@ -70,64 +72,66 @@ export function DLCStockCountForm({
           minStock: p.minStock,
           maxStock: p.maxStock,
           packageUnit: p.packageUnit,
-          packagingType: p.packagingType || 'unit',
+          packagingType: p.packagingType || "unit",
           unitsPerPackage: p.unitsPerPackage || 1,
-        }))
-        setProducts(entries)
+        }));
+        setProducts(entries);
       } else {
-        console.error('Invalid data format:', data)
-        setError(data.error || 'Erreur lors du chargement des produits')
+        console.error("Invalid data format:", data);
+        setError(data.error || "Erreur lors du chargement des produits");
       }
     } catch (err) {
-      console.error('Error fetching products:', err)
-      setError(`Erreur réseau: ${err instanceof Error ? err.message : 'Unknown'}`)
+      console.error("Error fetching products:", err);
+      setError(
+        `Erreur réseau: ${err instanceof Error ? err.message : "Unknown"}`,
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleQuantityChange = (productId: string, value: string) => {
-    const quantity = value === '' ? undefined : parseFloat(value)
+    const quantity = value === "" ? undefined : parseFloat(value);
     setProducts((prev) =>
       prev.map((p) =>
-        p.productId === productId ? { ...p, countedStock: quantity } : p
-      )
-    )
-  }
+        p.productId === productId ? { ...p, countedStock: quantity } : p,
+      ),
+    );
+  };
 
   const calculateOrderSuggestion = (entry: StockEntry) => {
     // If countedStock not entered yet, can't calculate
     if (entry.countedStock === undefined || entry.countedStock === null) {
-      return 0
+      return 0;
     }
 
     // If stock is above minimum, no need to order
     if (entry.countedStock >= entry.minStock) {
-      return 0
+      return 0;
     }
 
     // Calculate need in units
-    const need = entry.maxStock - entry.countedStock
+    const need = entry.maxStock - entry.countedStock;
 
     // If ordering in packs, round up to next pack
-    if (entry.packagingType === 'pack' && entry.unitsPerPackage > 1) {
-      const packs = Math.ceil(need / entry.unitsPerPackage)
-      return packs
+    if (entry.packagingType === "pack" && entry.unitsPerPackage > 1) {
+      const packs = Math.ceil(need / entry.unitsPerPackage);
+      return packs;
     }
 
     // Otherwise return need in units
-    return need
-  }
+    return need;
+  };
 
   const handleSubmit = async () => {
     try {
-      setSubmitting(true)
-      setError(null)
+      setSubmitting(true);
+      setError(null);
 
       // Submit stock counts
-      const response = await fetch('/api/tasks/dlc-stock-count', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/tasks/dlc-stock-count", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           taskId,
           products: products.map((p) => ({
@@ -136,30 +140,33 @@ export function DLCStockCountForm({
             orderSuggestion: calculateOrderSuggestion(p),
           })),
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
         // Trigger sidebar refresh to update badge immediately
-        triggerSidebarRefresh()
-        onComplete()
+        triggerSidebarRefresh();
+
+        // Always close modal after successful submission
+        // Notification admin is handled by the backend
+        onComplete();
       } else {
-        setError(data.error || 'Erreur lors de la soumission')
+        setError(data.error || "Erreur lors de la soumission");
       }
     } catch (err) {
-      console.error('Error submitting stock counts:', err)
-      setError('Erreur lors de la soumission')
+      console.error("Error submitting stock counts:", err);
+      setError("Erreur lors de la soumission");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   // Check if all products have been counted (value entered, even if 0)
   // countedStock is initialized to 0, so we check if user has interacted
-  const allCounted = products.every((p) =>
-    p.countedStock !== undefined && p.countedStock !== null
-  )
+  const allCounted = products.every(
+    (p) => p.countedStock !== undefined && p.countedStock !== null,
+  );
 
   if (loading) {
     return (
@@ -168,7 +175,7 @@ export function DLCStockCountForm({
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -192,7 +199,7 @@ export function DLCStockCountForm({
 
         <div className="space-y-3">
           {products.map((entry) => {
-            const suggestion = calculateOrderSuggestion(entry)
+            const suggestion = calculateOrderSuggestion(entry);
             return (
               <div
                 key={entry.productId}
@@ -201,26 +208,29 @@ export function DLCStockCountForm({
                 <div className="flex-1">
                   <p className="font-medium">{entry.productName}</p>
                   <p className="text-sm text-muted-foreground">
-                    Stock actuel système : {entry.currentStock}{' '}
-                    {entry.packageUnit || 'unités'}
+                    Stock actuel système : {entry.currentStock}{" "}
+                    {entry.packageUnit || "unités"}
                   </p>
                   {entry.countedStock !== undefined && suggestion > 0 && (
                     <Badge
                       variant="outline"
                       className="mt-2 border-orange-500 bg-orange-50 text-orange-700"
                     >
-                      Suggestion : Commander {suggestion.toFixed(0)}{' '}
-                      {entry.packagingType === 'pack' ? 'pack(s)' : entry.packageUnit || 'unités'}
+                      Suggestion : Commander {suggestion.toFixed(0)}{" "}
+                      {entry.packagingType === "pack"
+                        ? "pack(s)"
+                        : entry.packageUnit || "unités"}
                     </Badge>
                   )}
-                  {entry.countedStock !== undefined && entry.countedStock === 0 && (
-                    <Badge
-                      variant="outline"
-                      className="mt-2 border-red-500 bg-red-50 text-red-700"
-                    >
-                      Stock épuisé
-                    </Badge>
-                  )}
+                  {entry.countedStock !== undefined &&
+                    entry.countedStock === 0 && (
+                      <Badge
+                        variant="outline"
+                        className="mt-2 border-red-500 bg-red-50 text-red-700"
+                      >
+                        Stock épuisé
+                      </Badge>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -228,20 +238,22 @@ export function DLCStockCountForm({
                     type="number"
                     min={0}
                     step={0.1}
-                    value={entry.countedStock || ''}
+                    value={
+                      entry.countedStock !== undefined ? entry.countedStock : ""
+                    }
                     onChange={(e) =>
                       handleQuantityChange(entry.productId, e.target.value)
                     }
                     onFocus={(e) => e.target.select()}
-                    placeholder="Quantité comptée"
+                    placeholder=" "
                     className="w-32 text-right"
                   />
                   <span className="text-sm text-muted-foreground min-w-[60px]">
-                    {entry.packageUnit || 'unités'}
+                    {entry.packageUnit || "unités"}
                   </span>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
@@ -257,7 +269,7 @@ export function DLCStockCountForm({
               Envoi en cours...
             </>
           ) : (
-            'Soumettre et Notifier Admin'
+            "Soumettre et Notifier Admin"
           )}
         </Button>
 
@@ -268,5 +280,5 @@ export function DLCStockCountForm({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

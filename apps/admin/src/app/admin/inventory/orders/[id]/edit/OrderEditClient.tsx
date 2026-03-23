@@ -34,6 +34,7 @@ export default function OrderEditClient({ id }: { id: string }) {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [stockCounts, setStockCounts] = useState<Record<string, number>>({});
 
   // Load products for adding to order
   const {
@@ -45,6 +46,31 @@ export default function OrderEditClient({ id }: { id: string }) {
     supplierId: order?.supplierId,
     active: true
   });
+
+  // Load stock counts from DLC task (if this order comes from DLC counting)
+  useEffect(() => {
+    const fetchStockCounts = async () => {
+      if (!id) return;
+
+      try {
+        const response = await fetch(`/api/inventory/purchase-orders/${id}/stock-counts`);
+        const data = await response.json();
+
+        if (data.success && data.data?.stockCounts) {
+          // Convert array to map for easy lookup: productId -> countedStock
+          const countsMap: Record<string, number> = {};
+          data.data.stockCounts.forEach((item: any) => {
+            countsMap[item.productId] = item.countedStock;
+          });
+          setStockCounts(countsMap);
+        }
+      } catch (error) {
+        console.error('Error fetching stock counts:', error);
+      }
+    };
+
+    fetchStockCounts();
+  }, [id]);
 
   // Load order data into state and enrich with ALL supplier products (not just order items)
   useEffect(() => {
@@ -64,6 +90,9 @@ export default function OrderEditClient({ id }: { id: string }) {
       // Start with order items (those with quantities > 0)
       const orderItems = order.items.map((item) => {
         const product = productsMap.get(item.productId);
+        // Get stock count from DLC task (if exists)
+        const countedStock = stockCounts[item.productId];
+
         if (product) {
           return {
             ...item,
@@ -72,13 +101,13 @@ export default function OrderEditClient({ id }: { id: string }) {
             minStock: product.minStock,
             maxStock: product.maxStock,
             currentStock: product.currentStock,
-            realStock: undefined, // User will input
+            realStock: countedStock, // Stock counted by staff from DLC task
           } as OrderItemDisplay;
         }
         // Fallback if product not found
         return {
           ...item,
-          realStock: undefined,
+          realStock: countedStock,
         } as OrderItemDisplay;
       });
 
@@ -86,21 +115,26 @@ export default function OrderEditClient({ id }: { id: string }) {
       const orderProductIds = new Set(order.items.map(i => i.productId));
       const otherProducts = products
         .filter(p => !orderProductIds.has(p._id))
-        .map(p => ({
-          productId: p._id,
-          productName: p.name,
-          quantity: 0, // Not ordered yet
-          packagingType: p.packagingType,
-          unitPriceHT: p.unitPriceHT,
-          vatRate: p.vatRate,
-          totalHT: 0,
-          totalTTC: 0,
-          minStock: p.minStock,
-          maxStock: p.maxStock,
-          currentStock: p.currentStock,
-          unitsPerPackage: p.unitsPerPackage || 1,
-          realStock: undefined,
-        } as OrderItemDisplay));
+        .map(p => {
+          // Get stock count from DLC task (if exists)
+          const countedStock = stockCounts[p._id];
+
+          return {
+            productId: p._id,
+            productName: p.name,
+            quantity: 0, // Not ordered yet
+            packagingType: p.packagingType,
+            unitPriceHT: p.unitPriceHT,
+            vatRate: p.vatRate,
+            totalHT: 0,
+            totalTTC: 0,
+            minStock: p.minStock,
+            maxStock: p.maxStock,
+            currentStock: p.currentStock,
+            unitsPerPackage: p.unitsPerPackage || 1,
+            realStock: countedStock, // Stock counted by staff from DLC task
+          } as OrderItemDisplay;
+        });
 
       // Combine: order items first, then other products
       setItems([...orderItems, ...otherProducts]);
@@ -108,7 +142,7 @@ export default function OrderEditClient({ id }: { id: string }) {
     };
 
     loadOrderWithAllProducts();
-  }, [order, products, id, router]);
+  }, [order, products, id, router, stockCounts]);
 
   /**
    * Calculate order quantity based on real stock and pack constraints

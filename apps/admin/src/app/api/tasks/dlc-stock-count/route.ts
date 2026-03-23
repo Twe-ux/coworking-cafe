@@ -138,6 +138,9 @@ export async function POST(request: NextRequest) {
           vatRate,
           totalTTC,
           unitsPerPackage,
+          // Store real stock counted by staff for reference
+          realStockCounted: item.countedStock,
+          systemStockBeforeCount: product?.currentStock || 0,
         }
       })
 

@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
 
     const existingTask = await Task.findOne({
       title: { $regex: 'Compter stock DLC courte' },
-      status: { $in: ['pending', 'completed'] },
+      status: 'pending', // Only check pending tasks in test mode
       createdAt: { $gte: todayStart, $lte: todayEnd },
     })
 

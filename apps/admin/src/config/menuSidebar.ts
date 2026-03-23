@@ -5,14 +5,12 @@
  */
 
 import {
-  BarChart3,
   BookOpen,
   Building2,
   Calculator,
   Calendar,
   CalendarDays,
   Clock,
-  ClipboardList,
   Coins,
   Home,
   ListTodo,
@@ -20,9 +18,7 @@ import {
   Package,
   PartyPopper,
   ScanQrCode,
-  ShoppingCart,
   Terminal,
-  Truck,
   UserCog,
   Users,
   UtensilsCrossed,
@@ -120,10 +116,15 @@ export function getAdminMenu(
         //   icon: Home,
         // },
         {
-          title: "Dashboard",
-          url: "/admin",
+          title: "STAFF",
+          url: "/",
           icon: Home,
         },
+        // {
+        //   title: "Dashboard",
+        //   url: "/admin",
+        //   icon: Home,
+        // },
       ],
     },
 

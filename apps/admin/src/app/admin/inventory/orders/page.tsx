@@ -263,7 +263,12 @@ export default function OrdersPage() {
                   <TableRow
                     key={order._id}
                     className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => router.push(`/admin/inventory/orders/${order._id}`)}
+                    onClick={() => {
+                      const targetUrl = order.status === 'draft'
+                        ? `/admin/inventory/orders/${order._id}/edit`
+                        : `/admin/inventory/orders/${order._id}`;
+                      router.push(targetUrl);
+                    }}
                   >
                     <TableCell className="font-medium">
                       {new Date(order.createdAt).toLocaleDateString('fr-FR')}
@@ -283,7 +288,10 @@ export default function OrdersPage() {
                         className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
                         onClick={(e) => {
                           e.stopPropagation()
-                          router.push(`/admin/inventory/orders/${order._id}`)
+                          const targetUrl = order.status === 'draft'
+                            ? `/admin/inventory/orders/${order._id}/edit`
+                            : `/admin/inventory/orders/${order._id}`;
+                          router.push(targetUrl);
                         }}
                         title="Voir les détails"
                       >

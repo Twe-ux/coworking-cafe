@@ -116,7 +116,7 @@ export function OrderItemsTable({
                             />
                           </div>
                         ) : (
-                          <span className="font-mono">{'realStock' in item ? item.realStock ?? '-' : '-'}</span>
+                          <span className="font-mono">{'realStock' in item ? (item.realStock !== undefined ? item.realStock : '-') : '-'}</span>
                         )}
                       </TableCell>
                       <TableCell className="text-center bg-blue-50">
