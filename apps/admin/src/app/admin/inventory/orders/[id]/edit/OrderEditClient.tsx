@@ -35,6 +35,7 @@ export default function OrderEditClient({ id }: { id: string }) {
   const [saving, setSaving] = useState(false);
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [stockCounts, setStockCounts] = useState<Record<string, number>>({});
+  const [isCountingOrder, setIsCountingOrder] = useState(false); // True if from DLC/inventory counting
 
   // Load products for adding to order
   const {
@@ -141,6 +142,13 @@ export default function OrderEditClient({ id }: { id: string }) {
       // Combine: order items first, then other products
       setItems([...orderItems, ...otherProducts]);
       setNotes(order.notes || "");
+
+      // Detect if this is a counting order (DLC or inventory)
+      // by checking if any item has counted stock or if stockCounts exist
+      const hasCountedStocks =
+        Object.keys(stockCounts).length > 0 ||
+        orderItems.some(item => item.realStock !== undefined);
+      setIsCountingOrder(hasCountedStocks);
     };
 
     loadOrderWithAllProducts();
@@ -445,6 +453,7 @@ export default function OrderEditClient({ id }: { id: string }) {
             editable={true}
             showStockInfo={true}
             onQuantityChange={handleQuantityChange}
+            onRealStockChange={isCountingOrder ? undefined : handleRealStockChange}
             onRemove={removeItem}
           />
         </CardContent>
