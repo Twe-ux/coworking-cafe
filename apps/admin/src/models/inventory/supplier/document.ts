@@ -16,6 +16,7 @@ export interface SupplierDocument extends Document {
   notes?: string
   order: number
   isActive: boolean
+  requiresStockManagement: boolean // Indicates if products from this supplier need min/max stock tracking
   dlcAlertConfig?: DLCAlertConfig
   createdAt: Date
   updatedAt: Date
@@ -61,6 +62,10 @@ export const SupplierSchema = new Schema<SupplierDocument>(
       default: 0,
     },
     isActive: {
+      type: Boolean,
+      default: true,
+    },
+    requiresStockManagement: {
       type: Boolean,
       default: true,
     },

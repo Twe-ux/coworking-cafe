@@ -17,6 +17,7 @@ const supplierSchema = z.object({
     .array(z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']))
     .min(1, 'Sélectionnez au moins une catégorie'),
   notes: z.string().optional(),
+  requiresStockManagement: z.boolean().optional(),
   dlcAlertConfig: z.object({
     enabled: z.boolean(),
     days: z.array(z.number().min(0).max(6)),
@@ -37,6 +38,7 @@ const DEFAULT_FORM_VALUES: SupplierFormData = {
   phone: '',
   categories: [],
   notes: '',
+  requiresStockManagement: true,
   dlcAlertConfig: {
     enabled: false,
     days: [],
@@ -87,7 +89,7 @@ export function useSupplierForm({
 
       if (data.success && data.data) {
         const exactMatch = data.data.some(
-          (s: Supplier) => s.email.toLowerCase() === email.toLowerCase()
+          (s: Supplier) => s.email?.toLowerCase() === email.toLowerCase()
         )
         setEmailExists(exactMatch)
       } else {
@@ -105,7 +107,9 @@ export function useSupplierForm({
   useEffect(() => {
     const email = form.watch('email')
     const timeoutId = setTimeout(() => {
-      checkEmailAvailability(email)
+      if (email) {
+        checkEmailAvailability(email)
+      }
     }, 500)
 
     return () => clearTimeout(timeoutId)
@@ -121,6 +125,7 @@ export function useSupplierForm({
         phone: supplier.phone || '',
         categories: supplier.categories,
         notes: supplier.notes || '',
+        requiresStockManagement: supplier.requiresStockManagement ?? true,
         dlcAlertConfig: supplier.dlcAlertConfig || {
           enabled: false,
           days: [],

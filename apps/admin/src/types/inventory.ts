@@ -16,6 +16,7 @@ export interface Supplier {
   notes?: string
   order: number
   isActive: boolean
+  requiresStockManagement: boolean
   dlcAlertConfig?: DLCAlertConfig
   createdAt: string
   updatedAt: string
@@ -29,6 +30,7 @@ export interface SupplierFormData {
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
   isActive?: boolean
+  requiresStockManagement?: boolean
   dlcAlertConfig?: DLCAlertConfig
 }
 

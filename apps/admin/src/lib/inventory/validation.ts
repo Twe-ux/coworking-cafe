@@ -20,6 +20,7 @@ export const supplierCreateSchema = z.object({
     .max(5),
   notes: z.string().max(500).optional(),
   isActive: z.boolean().optional(),
+  requiresStockManagement: z.boolean().optional().default(true),
   dlcAlertConfig: dlcAlertConfigSchema.optional(),
 })
 
