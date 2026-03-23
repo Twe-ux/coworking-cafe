@@ -10,6 +10,7 @@ import { OutOfStockAlert } from "@/components/home/OutOfStockAlert";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
 import { OutOfStockList } from "@/components/inventory/OutOfStockList";
+import { ReceiveOrderButton } from "@/components/inventory/orders/ReceiveOrderButton";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
@@ -88,6 +89,7 @@ export default function HomePage() {
           <div className="lg:col-span-2">
             <div className="flex flex-col h-full gap-2">
               <OutOfStockAlert />
+              <ReceiveOrderButton />
               <CashRegisterWidget />
             </div>
           </div>
