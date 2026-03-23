@@ -90,8 +90,10 @@ export default function OrderEditClient({ id }: { id: string }) {
       // Start with order items (those with quantities > 0)
       const orderItems = order.items.map((item) => {
         const product = productsMap.get(item.productId);
-        // Get stock count from DLC task (if exists)
-        const countedStock = stockCounts[item.productId];
+        // Get stock count from:
+        // 1. DLC task (stockCounts from task.metadata.stockCounts)
+        // 2. Inventory (realStockCounted directly in order item)
+        const countedStock = stockCounts[item.productId] ?? (item as any).realStockCounted;
 
         if (product) {
           return {
@@ -101,7 +103,7 @@ export default function OrderEditClient({ id }: { id: string }) {
             minStock: product.minStock,
             maxStock: product.maxStock,
             currentStock: product.currentStock,
-            realStock: countedStock, // Stock counted by staff from DLC task
+            realStock: countedStock, // Stock counted by staff (DLC or Inventory)
           } as OrderItemDisplay;
         }
         // Fallback if product not found

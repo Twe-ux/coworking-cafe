@@ -243,6 +243,12 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
                 const product = await Product.findById(item.productId)
                 if (!product) return null
 
+                // Find actual qty from inventory entry
+                const inventoryItem = entry.items.find(
+                  (invItem) => invItem.productId.toString() === item.productId
+                )
+                const actualQty = inventoryItem?.actualQty ?? 0
+
                 // Calculate price per item (consider packs)
                 const pricePerItem =
                   product.packagingType === 'pack' && product.unitsPerPackage
@@ -265,6 +271,9 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
                   totalHT: Math.round(itemHT * 100) / 100,
                   totalTTC: Math.round(itemTTC * 100) / 100,
                   unitsPerPackage: product.unitsPerPackage || 1,
+                  // Store actual stock counted during inventory
+                  realStockCounted: actualQty,
+                  systemStockBeforeCount: product.currentStock,
                 }
               })
             )
@@ -283,7 +292,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
               totalHT,
               totalTTC,
               status: 'draft',
-              notes: `Commande générée automatiquement suite à l'inventaire du ${dateStr}`,
+              notes: `Commande générée automatiquement suite à l'inventaire du ${dateStr}\n\nRéférence inventaire: ${entry._id.toString()}`,
               createdBy: userId,
             })
 
