@@ -17,40 +17,61 @@ import { ProductFormFields } from './ProductFormFields'
 import { SupplierDialog } from '../suppliers/SupplierDialog'
 import type { Product, ProductFormData, Supplier, SupplierFormData } from '@/types/inventory'
 
-// Validation schema
-const productSchema = z.object({
-  name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  category: z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']),
-  unitPriceHT: z.number().min(0.01, 'Le prix doit être supérieur à 0'),
-  vatRate: z.number().min(0).max(100),
-  supplierId: z.string().min(1, 'Sélectionnez un fournisseur'),
-  supplierReference: z.string().optional(),
-  packagingType: z.enum(['pack', 'unit']),
-  priceType: z.enum(['unit', 'pack']),
-  unitsPerPackage: z.number().min(1, 'Minimum 1 unité par conditionnement'),
-  packageUnit: z.enum(['kg', 'L', 'unit']).optional(),
-  packagingDescription: z.string().optional(),
-  minStock: z.number().min(0, 'Le stock minimum doit être >= 0'),
-  maxStock: z.number().min(0, 'Le stock maximum doit être >= 0'),
-  dlcAlertConfig: z.object({
-    enabled: z.boolean(),
-    days: z.array(z.number().min(0).max(6)),
-    time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Format HH:mm requis'),
-  }).optional(),
-  criticalStockAlert: z.boolean().optional(),
-}).refine(
-  (data) => data.minStock < data.maxStock,
-  {
-    message: 'Le stock minimum doit être inférieur au stock maximum',
-    path: ['maxStock'],
+// Create dynamic validation schema based on supplier settings
+const createProductSchema = (requiresStockManagement: boolean) => {
+  const baseSchema = z.object({
+    name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+    category: z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']),
+    unitPriceHT: z.number().min(0.01, 'Le prix doit être supérieur à 0'),
+    vatRate: z.number().min(0).max(100),
+    supplierId: z.string().min(1, 'Sélectionnez un fournisseur'),
+    supplierReference: z.string().optional(),
+    packagingType: z.enum(['pack', 'unit']),
+    priceType: z.enum(['unit', 'pack']),
+    unitsPerPackage: z.number().min(1, 'Minimum 1 unité par conditionnement'),
+    packageUnit: z.enum(['kg', 'L', 'unit']).optional(),
+    packagingDescription: z.string().optional(),
+    minStock: requiresStockManagement
+      ? z.number().min(0, 'Le stock minimum doit être >= 0')
+      : z.number().optional(),
+    maxStock: requiresStockManagement
+      ? z.number().min(0, 'Le stock maximum doit être >= 0')
+      : z.number().optional(),
+    dlcAlertConfig: z.object({
+      enabled: z.boolean(),
+      days: z.array(z.number().min(0).max(6)),
+      time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Format HH:mm requis'),
+    }).optional(),
+    criticalStockAlert: z.boolean().optional(),
+  })
+
+  // Add stock validation only if required
+  if (requiresStockManagement) {
+    return baseSchema
+      .refine(
+        (data) => (data.minStock ?? 0) < (data.maxStock ?? 0),
+        {
+          message: 'Le stock minimum doit être inférieur au stock maximum',
+          path: ['maxStock'],
+        }
+      )
+      .refine(
+        (data) => !data.dlcAlertConfig?.enabled || (data.dlcAlertConfig?.days?.length ?? 0) > 0,
+        {
+          message: 'Sélectionnez au moins un jour pour les alertes',
+          path: ['dlcAlertConfig.days'],
+        }
+      )
   }
-).refine(
-  (data) => !data.dlcAlertConfig?.enabled || (data.dlcAlertConfig?.days?.length ?? 0) > 0,
-  {
-    message: 'Sélectionnez au moins un jour pour les alertes',
-    path: ['dlcAlertConfig.days'],
-  }
-)
+
+  return baseSchema.refine(
+    (data) => !data.dlcAlertConfig?.enabled || (data.dlcAlertConfig?.days?.length ?? 0) > 0,
+    {
+      message: 'Sélectionnez au moins un jour pour les alertes',
+      path: ['dlcAlertConfig.days'],
+    }
+  )
+}
 
 interface ProductDialogProps {
   open: boolean
@@ -96,10 +117,25 @@ export function ProductDialog({
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false)
   const { toast } = useToast()
 
+  // Watch selected supplier to adjust validation
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>('')
+  const selectedSupplier = suppliers.find((s) => s._id === selectedSupplierId)
+  const requiresStockManagement = selectedSupplier?.requiresStockManagement ?? true
+
   const form = useForm<ProductFormData>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(createProductSchema(requiresStockManagement)),
     defaultValues: defaultFormValues,
   })
+
+  // Track supplier changes
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'supplierId' && value.supplierId) {
+        setSelectedSupplierId(value.supplierId)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   // Fetch suppliers
   const fetchSuppliers = useCallback(async () => {
@@ -265,6 +301,7 @@ export function ProductDialog({
           onCancel={onClose}
           mode={mode}
           onCreateSupplier={handleCreateSupplier}
+          selectedSupplier={selectedSupplier}
         />
       </DialogContent>
 

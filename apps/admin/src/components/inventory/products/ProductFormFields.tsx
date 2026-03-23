@@ -17,6 +17,7 @@ interface ProductFormFieldsProps {
   onCancel: () => void
   mode: 'create' | 'edit'
   onCreateSupplier?: () => void
+  selectedSupplier?: Supplier
 }
 
 export function ProductFormFields({
@@ -28,6 +29,7 @@ export function ProductFormFields({
   onCancel,
   mode,
   onCreateSupplier,
+  selectedSupplier,
 }: ProductFormFieldsProps) {
   return (
     <Form {...form}>
@@ -44,7 +46,10 @@ export function ProductFormFields({
         <ConditionnementFields control={form.control} />
 
         {/* Stock Fields */}
-        <ProductStockFields control={form.control} />
+        <ProductStockFields
+          control={form.control}
+          requiresStockManagement={selectedSupplier?.requiresStockManagement ?? true}
+        />
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-2 pt-4">

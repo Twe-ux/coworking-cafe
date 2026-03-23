@@ -101,11 +101,19 @@ export async function PUT(
       return notFoundResponse('Produit')
     }
 
-    // Validate stock thresholds if provided
+    // Check supplier's stock management requirement
+    const supplierId = validated.supplierId ?? existingProduct.supplierId
+    const supplier = await Supplier.findById(supplierId)
+    if (!supplier) {
+      return errorResponse('Fournisseur introuvable', undefined, 404)
+    }
+    const requiresStockManagement = supplier.requiresStockManagement ?? true
+
+    // Validate stock thresholds if required
     const minStock = validated.minStock ?? existingProduct.minStock
     const maxStock = validated.maxStock ?? existingProduct.maxStock
 
-    if (minStock >= maxStock) {
+    if (requiresStockManagement && minStock >= maxStock) {
       return errorResponse(
         'Le stock minimum doit être inférieur au stock maximum',
         undefined,
@@ -124,13 +132,9 @@ export async function PUT(
       )
     }
 
-    // If supplier is being updated, check it exists and update supplier name
+    // Update supplier name if supplier changed
     let supplierName = existingProduct.supplierName
     if (validated.supplierId && validated.supplierId !== existingProduct.supplierId.toString()) {
-      const supplier = await Supplier.findById(validated.supplierId)
-      if (!supplier) {
-        return errorResponse('Fournisseur introuvable', undefined, 404)
-      }
       supplierName = supplier.name
     }
 

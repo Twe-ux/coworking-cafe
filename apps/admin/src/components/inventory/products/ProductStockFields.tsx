@@ -25,6 +25,7 @@ import { useNumberInput } from "@/hooks/inventory/useNumberInput";
 
 interface ProductStockFieldsProps {
   control: Control<ProductFormData>;
+  requiresStockManagement: boolean;
 }
 
 const DAYS_OF_WEEK = [
@@ -58,7 +59,7 @@ const ALERT_HOURS = [
   "23:00",
 ];
 
-export function ProductStockFields({ control }: ProductStockFieldsProps) {
+export function ProductStockFields({ control, requiresStockManagement }: ProductStockFieldsProps) {
   const dlcAlertEnabled = useWatch({ control, name: "dlcAlertConfig.enabled" });
   return (
     <Card>
@@ -66,8 +67,9 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
         <CardTitle className="text-lg">Stocks & Seuils</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Stock thresholds */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Stock thresholds - Only show if supplier requires stock management */}
+        {requiresStockManagement ? (
+          <div className="grid grid-cols-2 gap-4">
           <FormField
             control={control}
             name="minStock"
@@ -115,10 +117,20 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
               );
             }}
           />
-        </div>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm text-gray-600">
+              <span className="font-medium">Gestion du stock désactivée</span> —
+              Le fournisseur sélectionné ne nécessite pas de suivi du stock min/max
+              (fournisseur occasionnel).
+            </p>
+          </div>
+        )}
 
-        {/* Critical Stock Alert */}
-        <FormField
+        {/* Critical Stock Alert - Only show if stock management enabled */}
+        {requiresStockManagement && (
+          <FormField
           control={control}
           name="criticalStockAlert"
           render={({ field }) => (
@@ -140,6 +152,7 @@ export function ProductStockFields({ control }: ProductStockFieldsProps) {
             </FormItem>
           )}
         />
+        )}
 
         {/* DLC Alert Configuration */}
         <Card className="border-orange-200 bg-orange-50/50">

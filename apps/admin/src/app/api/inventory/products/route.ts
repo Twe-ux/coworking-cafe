@@ -178,12 +178,37 @@ export async function POST(request: NextRequest) {
       return errorResponse('Fournisseur introuvable', undefined, 404)
     }
 
+    // Check if supplier requires stock management
+    const requiresStockManagement = supplier.requiresStockManagement ?? true
+
+    // Validate stock fields if required
+    if (requiresStockManagement) {
+      if (validated.minStock === undefined || validated.maxStock === undefined) {
+        return errorResponse(
+          'Stock min et max requis pour ce fournisseur',
+          undefined,
+          400
+        )
+      }
+      if (validated.minStock >= validated.maxStock) {
+        return errorResponse(
+          'Le stock minimum doit être inférieur au stock maximum',
+          undefined,
+          400
+        )
+      }
+    }
+
     // Calculate real unit price based on priceType
     let realUnitPriceHT = validated.unitPriceHT
 
     if (priceType === 'pack' && unitsPerPackage > 1) {
       realUnitPriceHT = validated.unitPriceHT / unitsPerPackage
     }
+
+    // Set stock values (0 if not required)
+    const minStock = requiresStockManagement ? validated.minStock! : 0
+    const maxStock = requiresStockManagement ? validated.maxStock! : 0
 
     // Create new product
     const newProduct = await Product.create({
@@ -192,6 +217,8 @@ export async function POST(request: NextRequest) {
       supplierName: supplier.name,
       supplierReference: validated.supplierReference || '',
       packagingDescription: validated.packagingDescription || '',
+      minStock,
+      maxStock,
       currentStock: 0,
       hasShortDLC: validated.hasShortDLC || false,
       isActive: true,
