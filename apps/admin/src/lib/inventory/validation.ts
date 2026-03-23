@@ -44,15 +44,24 @@ export const productCreateSchema = z.object({
   unitsPerPackage: z.number().int().min(1).max(1000).optional().default(1),
   packageUnit: packageUnitEnum.optional(),
   packagingDescription: z.string().max(200).optional(),
-  minStock: z.number().min(0, 'Stock min doit être >= 0'),
-  maxStock: z.number().min(0, 'Stock max doit être >= 0'),
+  minStock: z.number().min(0, 'Stock min doit être >= 0').optional(),
+  maxStock: z.number().min(0, 'Stock max doit être >= 0').optional(),
   hasShortDLC: z.boolean().optional(),
   dlcAlertConfig: dlcAlertConfigSchema.optional(),
   criticalStockAlert: z.boolean().optional().default(false),
-}).refine(data => data.minStock < data.maxStock, {
-  message: 'Stock min doit être inférieur au stock max',
-  path: ['minStock'],
-})
+}).refine(
+  data => {
+    // Only validate stock comparison if both are provided
+    if (data.minStock !== undefined && data.maxStock !== undefined) {
+      return data.minStock < data.maxStock
+    }
+    return true
+  },
+  {
+    message: 'Stock min doit être inférieur au stock max',
+    path: ['minStock'],
+  }
+)
 
 export const productUpdateSchema = z.object({
   name: z.string().min(2).max(100).optional(),
