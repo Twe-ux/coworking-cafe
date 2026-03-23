@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/api/auth'
 import { successResponse, errorResponse } from '@/lib/api/response'
 import { connectMongoose } from '@/lib/mongodb'
 import { Product } from '@/models/inventory/product'
+import { Supplier } from '@/models/inventory/supplier'
 import { getRequiredRoles } from '@/lib/inventory/permissions'
 import {
   calculateOrderSuggestion,
@@ -31,6 +32,22 @@ export async function GET(request: NextRequest) {
     const supplierId = request.nextUrl.searchParams.get('supplierId')
     if (!supplierId) {
       return errorResponse('supplierId requis', undefined, 400)
+    }
+
+    // Check if supplier requires stock management
+    const supplier = await Supplier.findById(supplierId)
+    if (!supplier) {
+      return errorResponse('Fournisseur introuvable', undefined, 404)
+    }
+
+    // If supplier doesn't require stock management, return empty suggestions
+    if (!supplier.requiresStockManagement) {
+      const result: OrderSuggestionsResponse = {
+        supplierId,
+        suggestions: [],
+        total: 0,
+      }
+      return successResponse(result)
     }
 
     // Fetch active products from this supplier

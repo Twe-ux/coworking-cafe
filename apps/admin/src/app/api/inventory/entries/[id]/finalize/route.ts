@@ -226,6 +226,11 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
               console.log(`[finalize] Supplier ${supplier.name} is inactive, skipping order`)
               return
             }
+            // Skip suppliers that don't require stock management (occasional suppliers)
+            if (!supplier.requiresStockManagement) {
+              console.log(`[finalize] Supplier ${supplier.name} doesn't require stock management, skipping order`)
+              return
+            }
 
             console.log(`[finalize] Creating order for supplier ${supplier.name} with ${items.length} products`)
 
