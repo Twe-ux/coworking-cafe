@@ -445,7 +445,6 @@ export default function OrderEditClient({ id }: { id: string }) {
             editable={true}
             showStockInfo={true}
             onQuantityChange={handleQuantityChange}
-            onRealStockChange={handleRealStockChange}
             onRemove={removeItem}
           />
         </CardContent>
