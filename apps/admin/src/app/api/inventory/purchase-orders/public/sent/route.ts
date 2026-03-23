@@ -9,7 +9,11 @@ export const dynamic = 'force-dynamic'
 
 /**
  * GET /api/inventory/purchase-orders/public/sent
- * List purchase orders with status "sent" (sent to supplier, waiting for reception)
+ * List purchase orders with status "sent" OR "validated" (ready for reception)
+ *
+ * Includes:
+ * - "sent": Orders sent by email to supplier
+ * - "validated": Orders validated but not sent by email (phone orders, etc.)
  *
  * PUBLIC ROUTE - No authentication required (for staff page)
  */
@@ -17,8 +21,10 @@ export async function GET(_request: NextRequest) {
   try {
     await connectMongoose()
 
-    const orders = await PurchaseOrder.find({ status: 'sent' })
-      .sort({ sentAt: -1, createdAt: -1 })
+    const orders = await PurchaseOrder.find({
+      status: { $in: ['sent', 'validated'] }
+    })
+      .sort({ sentAt: -1, validatedAt: -1, createdAt: -1 })
       .lean()
 
     const transformed = toRecordArray(orders).map(transformOrder)
