@@ -49,22 +49,33 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
     // Check if supplier has a delivery reminder message
     const supplier = await Supplier.findById(order.supplierId)
+    console.log('[Validate Order] Supplier found:', supplier?.name)
+    console.log('[Validate Order] Delivery reminder message:', supplier?.deliveryReminderMessage)
+
     if (supplier?.deliveryReminderMessage) {
-      // Create automatic reminder task
-      await Task.create({
-        title: `Rappel livraison: ${supplier.name}`,
-        description: supplier.deliveryReminderMessage,
-        priority: 'low',
-        status: 'pending',
-        dueDate: new Date().toISOString().split('T')[0],
-        metadata: {
-          type: 'inventory',
-          subType: 'delivery-reminder',
-          supplierId: supplier._id.toString(),
-          orderId: order._id.toString(),
-        },
-        createdBy: authResult.session.user?.id || 'system',
-      })
+      try {
+        console.log('[Validate Order] Creating delivery reminder task...')
+        const task = await Task.create({
+          title: `Rappel livraison: ${supplier.name}`,
+          description: supplier.deliveryReminderMessage,
+          priority: 'low',
+          status: 'pending',
+          dueDate: new Date().toISOString().split('T')[0],
+          metadata: {
+            type: 'inventory',
+            subType: 'delivery-reminder',
+            supplierId: supplier._id.toString(),
+            orderId: order._id.toString(),
+          },
+          createdBy: authResult.session.user?.id || 'system',
+        })
+        console.log('[Validate Order] Task created successfully:', task._id.toString())
+      } catch (taskError) {
+        console.error('[Validate Order] Failed to create task:', taskError)
+        // Don't fail the order validation if task creation fails
+      }
+    } else {
+      console.log('[Validate Order] No delivery reminder message configured for this supplier')
     }
 
     const transformed = transformOrder(
