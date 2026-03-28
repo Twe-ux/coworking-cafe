@@ -4,6 +4,8 @@ import { successResponse, errorResponse, notFoundResponse } from '@/lib/api/resp
 import { toRecord } from '@/lib/api/casting'
 import { connectMongoose } from '@/lib/mongodb'
 import { PurchaseOrder } from '@/models/inventory/purchaseOrder'
+import { Supplier } from '@/models/inventory/supplier'
+import { Task } from '@coworking-cafe/database'
 import { getRequiredRoles } from '@/lib/inventory/permissions'
 import { transformOrder } from '@/lib/inventory/orderHelpers'
 
@@ -44,6 +46,26 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     order.validatedBy = authResult.session.user?.id || ''
     order.validatedAt = new Date()
     await order.save()
+
+    // Check if supplier has a delivery reminder message
+    const supplier = await Supplier.findById(order.supplierId)
+    if (supplier?.deliveryReminderMessage) {
+      // Create automatic reminder task
+      await Task.create({
+        title: `Rappel livraison: ${supplier.name}`,
+        description: supplier.deliveryReminderMessage,
+        priority: 'low',
+        status: 'pending',
+        dueDate: new Date().toISOString().split('T')[0],
+        metadata: {
+          type: 'inventory',
+          subType: 'delivery-reminder',
+          supplierId: supplier._id.toString(),
+          orderId: order._id.toString(),
+        },
+        createdBy: authResult.session.user?.id || 'system',
+      })
+    }
 
     const transformed = transformOrder(
       toRecord(order.toObject())

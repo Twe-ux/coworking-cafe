@@ -50,56 +50,50 @@ export async function GET(request: NextRequest) {
       return successResponse(result)
     }
 
-    // Fetch active products from this supplier
-    // Low stock check accounts for minStockUnit (package vs unit)
+    // Fetch ALL active products from this supplier (not just low stock)
+    // We'll include all products in suggestions to complete order up to maxStock
     const products = await Product.find({
       supplierId,
       isActive: true,
-      $expr: {
-        $lt: [
-          '$currentStock',
-          {
-            $cond: {
-              if: { $eq: ['$minStockUnit', 'package'] },
-              then: { $multiply: ['$minStock', { $ifNull: ['$unitsPerPackage', 1] }] },
-              else: '$minStock',
-            },
-          },
-        ],
-      },
     })
       .sort({ order: 1, name: 1 })
       .lean()
 
-    const suggestions = products.map((p) => {
-      const packagingType = (p.packagingType || 'unit') as PackagingType
-      const unitsPerPackage = p.unitsPerPackage || 1
+    const suggestions = products
+      .map((p) => {
+        const packagingType = (p.packagingType || 'unit') as PackagingType
+        const unitsPerPackage = p.unitsPerPackage || 1
 
-      // All stocks (current, min, max) are stored in units
-      const suggestion = calculateOrderSuggestion(
-        p.currentStock,
-        p.minStock,
-        p.maxStock,
-        'unit', // Stocks are always in units
-        unitsPerPackage
-      )
+        // Calculate quantity to reach maxStock (not just minStock)
+        // Formula: maxStock - currentStock
+        const qtyNeeded = Math.max(0, p.maxStock - p.currentStock)
 
-      return {
-        productId: p._id.toString(),
-        productName: p.name,
-        packagingType,
-        currentStock: p.currentStock,
-        currentStockFormatted: formatStock(p.currentStock, p.packageUnit),
-        minStock: p.minStock,
-        maxStock: p.maxStock,
-        suggestedQuantity: suggestion.suggestedPacks,
-        suggestedUnits: suggestion.suggestedUnits,
-        packagingDescription: p.packagingDescription || undefined,
-        supplierReference: p.supplierReference || undefined,
-        unitPriceHT: p.unitPriceHT,
-        vatRate: p.vatRate,
-      }
-    })
+        // If no quantity needed, skip this product
+        if (qtyNeeded <= 0) {
+          return null
+        }
+
+        // Convert units to packs if needed
+        const suggestedPacks = Math.ceil(qtyNeeded / unitsPerPackage)
+        const suggestedUnits = suggestedPacks * unitsPerPackage
+
+        return {
+          productId: p._id.toString(),
+          productName: p.name,
+          packagingType,
+          currentStock: p.currentStock,
+          currentStockFormatted: formatStock(p.currentStock, p.packageUnit),
+          minStock: p.minStock,
+          maxStock: p.maxStock,
+          suggestedQuantity: suggestedPacks,
+          suggestedUnits: suggestedUnits,
+          packagingDescription: p.packagingDescription || undefined,
+          supplierReference: p.supplierReference || undefined,
+          unitPriceHT: p.unitPriceHT,
+          vatRate: p.vatRate,
+        }
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null) // Remove null entries
 
     const result: OrderSuggestionsResponse = {
       supplierId,

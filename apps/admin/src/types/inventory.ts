@@ -14,6 +14,7 @@ export interface Supplier {
   phone?: string
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
+  deliveryReminderMessage?: string
   order: number
   isActive: boolean
   requiresStockManagement: boolean
@@ -29,6 +30,7 @@ export interface SupplierFormData {
   phone?: string
   categories: ("food" | "cleaning" | "emballage" | "papeterie" | "divers")[]
   notes?: string
+  deliveryReminderMessage?: string
   isActive?: boolean
   requiresStockManagement?: boolean
   dlcAlertConfig?: DLCAlertConfig

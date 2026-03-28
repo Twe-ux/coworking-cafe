@@ -18,6 +18,7 @@ export interface SupplierDocument extends Document {
   isActive: boolean
   requiresStockManagement: boolean // Indicates if products from this supplier need min/max stock tracking
   dlcAlertConfig?: DLCAlertConfig
+  deliveryReminderMessage?: string // Message to display as a task when order is validated (e.g., "Rendre cagette plastique")
   createdAt: Date
   updatedAt: Date
 }
@@ -75,6 +76,11 @@ export const SupplierSchema = new Schema<SupplierDocument>(
         days: { type: [Number], default: [] },
         time: { type: String, default: "09:00" },
       },
+      required: false,
+    },
+    deliveryReminderMessage: {
+      type: String,
+      trim: true,
       required: false,
     },
   },

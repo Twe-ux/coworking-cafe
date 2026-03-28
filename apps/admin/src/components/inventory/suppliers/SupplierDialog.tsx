@@ -222,6 +222,27 @@ export function SupplierDialog({
               )}
             />
 
+            {/* Delivery Reminder Message */}
+            <FormField
+              control={form.control}
+              name="deliveryReminderMessage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Message de rappel livraison</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Ex: Rendre cagette plastique"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Message affiché automatiquement dans les tâches lors de la validation d'une commande
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Stock Management Option */}
             <FormField
               control={form.control}

@@ -17,6 +17,7 @@ const supplierSchema = z.object({
     .array(z.enum(['food', 'cleaning', 'emballage', 'papeterie', 'divers']))
     .min(1, 'Sélectionnez au moins une catégorie'),
   notes: z.string().optional(),
+  deliveryReminderMessage: z.string().optional(),
   requiresStockManagement: z.boolean().optional(),
   dlcAlertConfig: z.object({
     enabled: z.boolean(),
@@ -38,6 +39,7 @@ const DEFAULT_FORM_VALUES: SupplierFormData = {
   phone: '',
   categories: [],
   notes: '',
+  deliveryReminderMessage: '',
   requiresStockManagement: true,
   dlcAlertConfig: {
     enabled: false,
