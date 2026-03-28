@@ -187,6 +187,15 @@ export function Step4Administrative() {
     }
   };
 
+  const handleContractModalClose = (open: boolean) => {
+    setShowContractModal(open);
+    // Rediriger vers la liste des employés quand on ferme la modal
+    if (!open && mode === "create") {
+      toast.success("Employé créé avec succès");
+      router.push("/admin/hr/employees");
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {error && (
@@ -554,7 +563,7 @@ export function Step4Administrative() {
       {createdEmployee && (
         <ContractGenerationModal
           open={showContractModal}
-          onOpenChange={setShowContractModal}
+          onOpenChange={handleContractModalClose}
           employee={createdEmployee}
         />
       )}
