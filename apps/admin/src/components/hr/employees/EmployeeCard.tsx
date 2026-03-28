@@ -103,7 +103,13 @@ export function EmployeeCard({
   const getBorderClass = () => {
     if (employee.isDraft) return "border-gray-300";
 
-    // Vérifier d'abord employmentStatus
+    // PRIORITÉ : Vérifier hireDate EN PREMIER
+    // Un employé avec date future doit TOUJOURS avoir bordure bleue
+    if (employee.hireDate && isInFuture(employee.hireDate)) {
+      return "border-l-4 border-l-blue-500";
+    }
+
+    // Ensuite vérifier employmentStatus
     if (employee.employmentStatus) {
       switch (employee.employmentStatus) {
         case "draft":
@@ -117,11 +123,6 @@ export function EmployeeCard({
         default:
           return "border-l-4 border-l-green-500";
       }
-    }
-
-    // Fallback : vérifier hireDate directement
-    if (employee.hireDate && isInFuture(employee.hireDate)) {
-      return "border-l-4 border-l-blue-500";
     }
 
     // Par défaut : actif (vert)
