@@ -103,18 +103,29 @@ export function EmployeeCard({
   const getBorderClass = () => {
     if (employee.isDraft) return "border-gray-300";
 
-    switch (employee.employmentStatus) {
-      case "draft":
-        return "border-gray-300";
-      case "waiting":
-        return "border-l-4 border-l-blue-500";
-      case "active":
-        return "border-l-4 border-l-green-500";
-      case "inactive":
-        return "border-l-4 border-l-red-500";
-      default:
-        return "border-l-4 border-l-green-500";
+    // Vérifier d'abord employmentStatus
+    if (employee.employmentStatus) {
+      switch (employee.employmentStatus) {
+        case "draft":
+          return "border-gray-300";
+        case "waiting":
+          return "border-l-4 border-l-blue-500";
+        case "active":
+          return "border-l-4 border-l-green-500";
+        case "inactive":
+          return "border-l-4 border-l-red-500";
+        default:
+          return "border-l-4 border-l-green-500";
+      }
     }
+
+    // Fallback : vérifier hireDate directement
+    if (employee.hireDate && isInFuture(employee.hireDate)) {
+      return "border-l-4 border-l-blue-500";
+    }
+
+    // Par défaut : actif (vert)
+    return "border-l-4 border-l-green-500";
   };
 
   // Vue active complète
@@ -143,21 +154,41 @@ export function EmployeeCard({
                     : "N/A"}
                 </Badge>
                 {/* Badge de statut : Actif OU Entrée le XX/XX */}
-                {employee.employmentStatus === "waiting" ? (
-                  <Badge
-                    variant="outline"
-                    className="border-blue-500 text-blue-700 bg-blue-50 font-medium"
-                  >
-                    Entrée le {formatDateFR(employee.hireDate)}
-                  </Badge>
-                ) : (
-                  <Badge
-                    variant="outline"
-                    className="border-green-600 text-green-700 bg-green-50 font-medium"
-                  >
-                    {statusBadge.label}
-                  </Badge>
-                )}
+                {(() => {
+                  // Vérifier d'abord employmentStatus
+                  if (employee.employmentStatus === "waiting") {
+                    return (
+                      <Badge
+                        variant="outline"
+                        className="border-blue-500 text-blue-700 bg-blue-50 font-medium"
+                      >
+                        Entrée le {formatDateFR(employee.hireDate)}
+                      </Badge>
+                    );
+                  }
+
+                  // Fallback : vérifier hireDate directement
+                  if (employee.hireDate && isInFuture(employee.hireDate)) {
+                    return (
+                      <Badge
+                        variant="outline"
+                        className="border-blue-500 text-blue-700 bg-blue-50 font-medium"
+                      >
+                        Entrée le {formatDateFR(employee.hireDate)}
+                      </Badge>
+                    );
+                  }
+
+                  // Employé actif
+                  return (
+                    <Badge
+                      variant="outline"
+                      className="border-green-600 text-green-700 bg-green-50 font-medium"
+                    >
+                      {statusBadge.label}
+                    </Badge>
+                  );
+                })()}
               </div>
             </div>
           </div>
