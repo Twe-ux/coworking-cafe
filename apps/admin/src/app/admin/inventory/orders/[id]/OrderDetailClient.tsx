@@ -1,13 +1,20 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, Package, Edit, Trash2, CheckCircle, Truck } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Package,
+  Edit,
+  Trash2,
+  CheckCircle,
+  Truck,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,194 +24,223 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { OrderItemsTable, OrderSummarySimple, OrderStatusBadge } from '@/components/inventory/orders'
-import { useOrder } from '@/hooks/inventory/useOrder'
-import { useOrderActions } from '@/hooks/inventory/useOrderActions'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  OrderItemsTable,
+  OrderSummarySimple,
+  OrderStatusBadge,
+} from "@/components/inventory/orders";
+import { useOrder } from "@/hooks/inventory/useOrder";
+import { useOrderActions } from "@/hooks/inventory/useOrderActions";
 
 export default function OrderDetailClient({ id }: { id: string }) {
-  const router = useRouter()
-  const { order, loading, refetch } = useOrder(id)
-  const {
-    validating,
-    receiving,
-    deleteOrder,
-  } = useOrderActions()
+  const router = useRouter();
+  const { order, loading, refetch } = useOrder(id);
+  const { validating, receiving, deleteOrder } = useOrderActions();
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [validateDialogOpen, setValidateDialogOpen] = useState(false)
-  const [noEmailDialogOpen, setNoEmailDialogOpen] = useState(false)
-  const [receiveDialogOpen, setReceiveDialogOpen] = useState(false)
-  const [receivedQuantities, setReceivedQuantities] = useState<Record<string, number>>({})
-  const [receivedPrices, setReceivedPrices] = useState<Record<string, number>>({})
-  const [validating2, setValidating2] = useState(false)
-  const [temporaryEmail, setTemporaryEmail] = useState('')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [validateDialogOpen, setValidateDialogOpen] = useState(false);
+  const [noEmailDialogOpen, setNoEmailDialogOpen] = useState(false);
+  const [receiveDialogOpen, setReceiveDialogOpen] = useState(false);
+  const [receivedQuantities, setReceivedQuantities] = useState<
+    Record<string, number>
+  >({});
+  const [receivedPrices, setReceivedPrices] = useState<Record<string, number>>(
+    {},
+  );
+  const [validating2, setValidating2] = useState(false);
+  const [temporaryEmail, setTemporaryEmail] = useState("");
+
+  // Local state for input values (string) - for comma/dot support
+  const [localQtyValues, setLocalQtyValues] = useState<Record<string, string>>({});
+  const [localPriceValues, setLocalPriceValues] = useState<Record<string, string>>({});
+  const [focusedQtyInput, setFocusedQtyInput] = useState<string | null>(null);
+  const [focusedPriceInput, setFocusedPriceInput] = useState<string | null>(null);
 
   const handleDelete = async () => {
-    const success = await deleteOrder(id)
+    const success = await deleteOrder(id);
     if (success) {
-      router.push('/admin/inventory/orders')
+      router.push("/admin/inventory/orders");
     } else {
-      alert('Erreur lors de la suppression')
+      alert("Erreur lors de la suppression");
     }
-  }
+  };
 
   const handleValidateClick = async () => {
-    if (!order) return
+    if (!order) return;
 
     // Fetch current supplier info to check if email exists
     try {
-      const response = await fetch(`/api/inventory/suppliers/${order.supplierId}`)
-      const result = await response.json()
+      const response = await fetch(
+        `/api/inventory/suppliers/${order.supplierId}`,
+      );
+      const result = await response.json();
 
       if (result.success && result.data) {
-        const currentSupplierEmail = result.data.email
+        const currentSupplierEmail = result.data.email;
 
         // Check if supplier has email (use current email, not stored one)
-        if (!currentSupplierEmail || currentSupplierEmail.trim() === '') {
-          setNoEmailDialogOpen(true)
+        if (!currentSupplierEmail || currentSupplierEmail.trim() === "") {
+          setNoEmailDialogOpen(true);
         } else {
-          setValidateDialogOpen(true)
+          setValidateDialogOpen(true);
         }
       } else {
         // Fallback to stored email if supplier fetch fails
         if (!order.supplierEmail) {
-          setNoEmailDialogOpen(true)
+          setNoEmailDialogOpen(true);
         } else {
-          setValidateDialogOpen(true)
+          setValidateDialogOpen(true);
         }
       }
     } catch (error) {
-      console.error('Error fetching supplier:', error)
+      console.error("Error fetching supplier:", error);
       // Fallback to stored email if fetch fails
       if (!order.supplierEmail) {
-        setNoEmailDialogOpen(true)
+        setNoEmailDialogOpen(true);
       } else {
-        setValidateDialogOpen(true)
+        setValidateDialogOpen(true);
       }
     }
-  }
+  };
 
   const handleValidateAndSend = async (emailToUse?: string) => {
-    setValidating2(true)
+    setValidating2(true);
     try {
       // Step 1: Validate
-      const validateRes = await fetch(`/api/inventory/purchase-orders/${id}/validate`, {
-        method: 'POST',
-      })
+      const validateRes = await fetch(
+        `/api/inventory/purchase-orders/${id}/validate`,
+        {
+          method: "POST",
+        },
+      );
 
       if (!validateRes.ok) {
-        throw new Error('Erreur lors de la validation')
+        throw new Error("Erreur lors de la validation");
       }
 
       // Step 2: Send email (with optional temporary email)
       const sendRes = await fetch(`/api/inventory/purchase-orders/${id}/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: emailToUse ? JSON.stringify({ temporaryEmail: emailToUse }) : undefined,
-      })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: emailToUse
+          ? JSON.stringify({ temporaryEmail: emailToUse })
+          : undefined,
+      });
 
       if (!sendRes.ok) {
-        throw new Error('Erreur lors de l\'envoi de l\'email')
+        throw new Error("Erreur lors de l'envoi de l'email");
       }
 
-      setValidateDialogOpen(false)
-      setNoEmailDialogOpen(false)
-      setTemporaryEmail('')
-      await refetch()
-      alert('Commande validée et envoyée au fournisseur !')
+      setValidateDialogOpen(false);
+      setNoEmailDialogOpen(false);
+      setTemporaryEmail("");
+      await refetch();
+      alert("Commande validée et envoyée au fournisseur !");
     } catch (error) {
-      console.error('Error validating and sending order:', error)
-      alert(error instanceof Error ? error.message : 'Erreur lors de la validation')
+      console.error("Error validating and sending order:", error);
+      alert(
+        error instanceof Error ? error.message : "Erreur lors de la validation",
+      );
     } finally {
-      setValidating2(false)
+      setValidating2(false);
     }
-  }
+  };
 
   const handleValidateWithoutSending = async () => {
-    setValidating2(true)
+    setValidating2(true);
     try {
       // Only validate, don't send email
-      const validateRes = await fetch(`/api/inventory/purchase-orders/${id}/validate`, {
-        method: 'POST',
-      })
+      const validateRes = await fetch(
+        `/api/inventory/purchase-orders/${id}/validate`,
+        {
+          method: "POST",
+        },
+      );
 
       if (!validateRes.ok) {
-        throw new Error('Erreur lors de la validation')
+        throw new Error("Erreur lors de la validation");
       }
 
-      setNoEmailDialogOpen(false)
-      await refetch()
-      alert('Commande validée (non envoyée par email)')
+      setNoEmailDialogOpen(false);
+      await refetch();
+      alert("Commande validée (non envoyée par email)");
     } catch (error) {
-      console.error('Error validating order:', error)
-      alert(error instanceof Error ? error.message : 'Erreur lors de la validation')
+      console.error("Error validating order:", error);
+      alert(
+        error instanceof Error ? error.message : "Erreur lors de la validation",
+      );
     } finally {
-      setValidating2(false)
+      setValidating2(false);
     }
-  }
+  };
 
   const openReceiveDialog = () => {
-    if (!order) return
-    const quantities: Record<string, number> = {}
-    const prices: Record<string, number> = {}
+    if (!order) return;
+    const quantities: Record<string, number> = {};
+    const prices: Record<string, number> = {};
     order.items.forEach((item) => {
-      quantities[item.productId] = item.quantity
+      quantities[item.productId] = item.quantity;
       // Calculate displayed price: if pack, multiply by unitsPerPackage
-      const displayPrice = item.packagingType === 'pack' && item.unitsPerPackage
-        ? item.unitPriceHT * item.unitsPerPackage
-        : item.unitPriceHT
-      prices[item.productId] = displayPrice
-    })
-    setReceivedQuantities(quantities)
-    setReceivedPrices(prices)
-    setReceiveDialogOpen(true)
-  }
+      const displayPrice =
+        item.packagingType === "pack" && item.unitsPerPackage
+          ? item.unitPriceHT * item.unitsPerPackage
+          : item.unitPriceHT;
+      prices[item.productId] = displayPrice;
+    });
+    setReceivedQuantities(quantities);
+    setReceivedPrices(prices);
+    setReceiveDialogOpen(true);
+  };
 
   const handleReceive = async () => {
-    if (!order) return
+    if (!order) return;
 
     const items = order.items.map((item) => {
-      const displayedPrice = receivedPrices[item.productId] ?? (
-        item.packagingType === 'pack' && item.unitsPerPackage
+      const displayedPrice =
+        receivedPrices[item.productId] ??
+        (item.packagingType === "pack" && item.unitsPerPackage
           ? item.unitPriceHT * item.unitsPerPackage
-          : item.unitPriceHT
-      )
+          : item.unitPriceHT);
 
       // Convert back to unit price for API: if pack, divide by unitsPerPackage
-      const unitPrice = item.packagingType === 'pack' && item.unitsPerPackage
-        ? displayedPrice / item.unitsPerPackage
-        : displayedPrice
+      const unitPrice =
+        item.packagingType === "pack" && item.unitsPerPackage
+          ? displayedPrice / item.unitsPerPackage
+          : displayedPrice;
 
       return {
         productId: item.productId,
         receivedQty: receivedQuantities[item.productId] ?? item.quantity,
         receivedPrice: unitPrice,
-      }
-    })
+      };
+    });
 
-    const success = await fetch(`/api/inventory/purchase-orders/${id}/receive`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items }),
-    })
+    const success = await fetch(
+      `/api/inventory/purchase-orders/${id}/receive`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      },
+    );
 
     if (success.ok) {
-      setReceiveDialogOpen(false)
-      await refetch()
-      alert('Commande réceptionnée avec succès !')
+      setReceiveDialogOpen(false);
+      await refetch();
+      alert("Commande réceptionnée avec succès !");
     } else {
-      alert('Erreur lors de la réception')
+      alert("Erreur lors de la réception");
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -215,7 +251,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
         </div>
         <Skeleton className="h-64 w-full" />
       </div>
-    )
+    );
   }
 
   if (!order) {
@@ -223,14 +259,14 @@ export default function OrderDetailClient({ id }: { id: string }) {
       <div className="text-center py-12">
         <p className="text-muted-foreground">Commande introuvable</p>
       </div>
-    )
+    );
   }
 
-  const isDraft = order.status === 'draft'
-  const isValidated = order.status === 'validated'
-  const isSent = order.status === 'sent'
-  const isReceived = order.status === 'received'
-  const canReceive = isValidated || isSent
+  const isDraft = order.status === "draft";
+  const isValidated = order.status === "validated";
+  const isSent = order.status === "sent";
+  const isReceived = order.status === "received";
+  const canReceive = isValidated || isSent;
 
   return (
     <div className="space-y-6 pb-24">
@@ -240,7 +276,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.push('/admin/inventory/orders')}
+            onClick={() => router.push("/admin/inventory/orders")}
             className="border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -248,7 +284,9 @@ export default function OrderDetailClient({ id }: { id: string }) {
           <div>
             <h1 className="text-2xl font-bold">Détail Commande</h1>
             <div className="flex items-center gap-2 mt-1">
-              <p className="text-sm text-muted-foreground">{order.orderNumber}</p>
+              <p className="text-sm text-muted-foreground">
+                {order.orderNumber}
+              </p>
               <OrderStatusBadge status={order.status} />
             </div>
           </div>
@@ -256,7 +294,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
         <Button
           variant="outline"
           className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
-          onClick={() => router.push('/admin/inventory/orders')}
+          onClick={() => router.push("/admin/inventory/orders")}
         >
           <Package className="mr-2 h-4 w-4" />
           Commandes
@@ -284,7 +322,9 @@ export default function OrderDetailClient({ id }: { id: string }) {
       </Card>
 
       {/* Notes & Summary - Side by side */}
-      <div className={`grid grid-cols-1 gap-6 ${order.notes ? 'lg:grid-cols-3' : ''}`}>
+      <div
+        className={`grid grid-cols-1 gap-6 ${order.notes ? "lg:grid-cols-3" : ""}`}
+      >
         {/* Notes - 2/3 (only if exists) */}
         {order.notes && (
           <Card className="lg:col-span-2 h-full">
@@ -292,13 +332,15 @@ export default function OrderDetailClient({ id }: { id: string }) {
               <CardTitle>Notes</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{order.notes}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {order.notes}
+              </p>
             </CardContent>
           </Card>
         )}
 
         {/* Summary - 1/3 (full width if no notes) */}
-        <div className={`h-full ${order.notes ? 'lg:col-span-1' : ''}`}>
+        <div className={`h-full ${order.notes ? "lg:col-span-1" : ""}`}>
           <OrderSummarySimple
             totalHT={order.totalHT}
             totalTTC={order.totalTTC}
@@ -337,7 +379,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
               className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             >
               <CheckCircle className="mr-2 h-4 w-4" />
-              {validating2 ? 'Validation...' : 'Valider & Envoyer'}
+              {validating2 ? "Validation..." : "Valider & Envoyer"}
             </Button>
           </>
         )}
@@ -350,7 +392,7 @@ export default function OrderDetailClient({ id }: { id: string }) {
             className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
           >
             <Truck className="mr-2 h-4 w-4" />
-            {receiving ? 'Réception...' : 'Réceptionner'}
+            {receiving ? "Réception..." : "Réceptionner"}
           </Button>
         )}
 
@@ -367,12 +409,16 @@ export default function OrderDetailClient({ id }: { id: string }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer la commande ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action supprimera définitivement cette commande. Cette action est irréversible.
+              Cette action supprimera définitivement cette commande. Cette
+              action est irréversible.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Retour</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-500 hover:bg-red-600"
+            >
               Supprimer la commande
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -380,18 +426,28 @@ export default function OrderDetailClient({ id }: { id: string }) {
       </AlertDialog>
 
       {/* Validate Dialog (with email) */}
-      <AlertDialog open={validateDialogOpen} onOpenChange={setValidateDialogOpen}>
+      <AlertDialog
+        open={validateDialogOpen}
+        onOpenChange={setValidateDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Valider et envoyer la commande ?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Valider et envoyer la commande ?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              La commande sera validée et un email sera automatiquement envoyé au fournisseur ({order.supplierName}).
+              La commande sera validée et un email sera automatiquement envoyé
+              au fournisseur ({order.supplierName}).
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={validating2}>Retour</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleValidateAndSend()} disabled={validating2} className="bg-green-500 hover:bg-green-600">
-              {validating2 ? 'Envoi en cours...' : 'Valider & Envoyer'}
+            <AlertDialogAction
+              onClick={() => handleValidateAndSend()}
+              disabled={validating2}
+              className="bg-green-500 hover:bg-green-600"
+            >
+              {validating2 ? "Envoi en cours..." : "Valider & Envoyer"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -405,10 +461,13 @@ export default function OrderDetailClient({ id }: { id: string }) {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Le fournisseur <strong>{order.supplierName}</strong> n'a pas d'email enregistré.
+              Le fournisseur <strong>{order.supplierName}</strong> n'a pas
+              d'email enregistré.
             </p>
             <div className="space-y-2">
-              <Label htmlFor="temporary-email">Email temporaire (optionnel)</Label>
+              <Label htmlFor="temporary-email">
+                Email temporaire (optionnel)
+              </Label>
               <Input
                 id="temporary-email"
                 type="email"
@@ -417,7 +476,8 @@ export default function OrderDetailClient({ id }: { id: string }) {
                 onChange={(e) => setTemporaryEmail(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Vous pouvez saisir un email pour envoyer cette commande uniquement
+                Vous pouvez saisir un email pour envoyer cette commande
+                uniquement
               </p>
             </div>
           </div>
@@ -425,16 +485,18 @@ export default function OrderDetailClient({ id }: { id: string }) {
             <Button
               variant="outline"
               onClick={() => {
-                if (temporaryEmail && temporaryEmail.includes('@')) {
-                  handleValidateAndSend(temporaryEmail)
+                if (temporaryEmail && temporaryEmail.includes("@")) {
+                  handleValidateAndSend(temporaryEmail);
                 } else {
-                  alert('Veuillez saisir un email valide')
+                  alert("Veuillez saisir un email valide");
                 }
               }}
-              disabled={validating2 || !temporaryEmail || !temporaryEmail.includes('@')}
+              disabled={
+                validating2 || !temporaryEmail || !temporaryEmail.includes("@")
+              }
               className="w-full border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             >
-              {validating2 ? 'Envoi...' : 'Valider & Envoyer avec cet email'}
+              {validating2 ? "Envoi..." : "Valider & Envoyer avec cet email"}
             </Button>
             <Button
               variant="outline"
@@ -442,13 +504,15 @@ export default function OrderDetailClient({ id }: { id: string }) {
               disabled={validating2}
               className="w-full border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
             >
-              {validating2 ? 'Validation...' : 'Valider sans envoi (transmission manuelle)'}
+              {validating2
+                ? "Validation..."
+                : "Valider sans envoi (transmission manuelle)"}
             </Button>
             <Button
               variant="outline"
               onClick={() => {
-                setNoEmailDialogOpen(false)
-                setTemporaryEmail('')
+                setNoEmailDialogOpen(false);
+                setTemporaryEmail("");
               }}
               disabled={validating2}
               className="w-full"
@@ -467,52 +531,92 @@ export default function OrderDetailClient({ id }: { id: string }) {
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             {order.items.map((item) => {
-              const isPack = item.packagingType === 'pack'
+              const isPack = item.packagingType === "pack";
 
               // Calculate displayed prices (pack price if applicable)
-              const originalDisplayPrice = isPack && item.unitsPerPackage
-                ? item.unitPriceHT * item.unitsPerPackage
-                : item.unitPriceHT
+              const originalDisplayPrice =
+                isPack && item.unitsPerPackage
+                  ? item.unitPriceHT * item.unitsPerPackage
+                  : item.unitPriceHT;
 
-              const currentPrice = receivedPrices[item.productId] ?? originalDisplayPrice
-              const priceDiff = ((currentPrice - originalDisplayPrice) / originalDisplayPrice) * 100
-              const hasPriceChange = Math.abs(priceDiff) > 0.01
+              const currentPrice =
+                receivedPrices[item.productId] ?? originalDisplayPrice;
+              const priceDiff =
+                ((currentPrice - originalDisplayPrice) / originalDisplayPrice) *
+                100;
+              const hasPriceChange = Math.abs(priceDiff) > 0.01;
 
-              const priceLabel = isPack ? 'Prix par pack HT (€)' : 'Prix unitaire HT (€)'
-              const packInfo = isPack && item.unitsPerPackage
-                ? ` (${item.unitsPerPackage} unités/pack)`
-                : ''
+              const priceLabel = isPack
+                ? "Prix par pack HT (€)"
+                : "Prix unitaire HT (€)";
+              const packInfo =
+                isPack && item.unitsPerPackage
+                  ? ` (${item.unitsPerPackage} unités/pack)`
+                  : "";
 
               return (
-                <div key={item.productId} className="border rounded-lg p-4 space-y-3">
+                <div
+                  key={item.productId}
+                  className="border rounded-lg p-4 space-y-3"
+                >
                   <div>
                     <p className="font-medium">{item.productName}</p>
                     <p className="text-sm text-muted-foreground">
-                      Commandé: {item.quantity} {isPack ? 'pack(s)' : 'unité(s)'}{packInfo}
+                      Commandé: {item.quantity}{" "}
+                      {isPack ? "pack(s)" : "unité(s)"}
+                      {packInfo}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor={`received-qty-${item.productId}`}>
-                        Quantité reçue {isPack ? '(packs)' : '(unités)'}
+                        Quantité reçue {isPack ? "(packs)" : "(unités)"}
                       </Label>
                       <Input
                         id={`received-qty-${item.productId}`}
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        value={receivedQuantities[item.productId] ?? item.quantity}
+                        type="text"
+                        inputMode="decimal"
+                        value={
+                          focusedQtyInput === item.productId
+                            ? (localQtyValues[item.productId] ??
+                               (receivedQuantities[item.productId] ?? item.quantity).toString())
+                            : ((receivedQuantities[item.productId] ?? item.quantity) === 0
+                               ? ''
+                               : (receivedQuantities[item.productId] ?? item.quantity).toString())
+                        }
                         onChange={(e) => {
-                          const val = parseFloat(e.target.value)
+                          setLocalQtyValues(prev => ({
+                            ...prev,
+                            [item.productId]: e.target.value
+                          }));
+                        }}
+                        onFocus={(e) => {
+                          setFocusedQtyInput(item.productId);
+                          const currentValue = receivedQuantities[item.productId] ?? item.quantity;
+                          setLocalQtyValues(prev => ({
+                            ...prev,
+                            [item.productId]: currentValue.toString()
+                          }));
+                          setTimeout(() => e.target.select(), 0);
+                        }}
+                        onBlur={() => {
+                          setFocusedQtyInput(null);
+                          const strValue = localQtyValues[item.productId] || '0';
+                          const normalized = strValue.replace(/,/g, '.');
+                          const val = parseFloat(normalized);
                           if (!isNaN(val) && val >= 0) {
                             setReceivedQuantities({
                               ...receivedQuantities,
                               [item.productId]: val,
-                            })
+                            });
                           }
+                          setLocalQtyValues(prev => {
+                            const copy = { ...prev };
+                            delete copy[item.productId];
+                            return copy;
+                          });
                         }}
-                        onFocus={(e) => e.target.select()}
                         className="font-mono"
                       />
                     </div>
@@ -521,57 +625,90 @@ export default function OrderDetailClient({ id }: { id: string }) {
                       <Label htmlFor={`received-price-${item.productId}`}>
                         {priceLabel}
                         {hasPriceChange && (
-                          <span className={`ml-2 text-xs ${priceDiff > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                            {priceDiff > 0 ? '+' : ''}{priceDiff.toFixed(1)}%
+                          <span
+                            className={`ml-2 text-xs ${priceDiff > 0 ? "text-red-600" : "text-green-600"}`}
+                          >
+                            {priceDiff > 0 ? "+" : ""}
+                            {priceDiff.toFixed(1)}%
                           </span>
                         )}
                       </Label>
                       <Input
                         id={`received-price-${item.productId}`}
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={currentPrice}
+                        type="text"
+                        inputMode="decimal"
+                        value={
+                          focusedPriceInput === item.productId
+                            ? (localPriceValues[item.productId] ?? currentPrice.toString())
+                            : (currentPrice === 0 ? '' : currentPrice.toString())
+                        }
                         onChange={(e) => {
-                          const val = parseFloat(e.target.value)
+                          setLocalPriceValues(prev => ({
+                            ...prev,
+                            [item.productId]: e.target.value
+                          }));
+                        }}
+                        onFocus={(e) => {
+                          setFocusedPriceInput(item.productId);
+                          setLocalPriceValues(prev => ({
+                            ...prev,
+                            [item.productId]: currentPrice.toString()
+                          }));
+                          setTimeout(() => e.target.select(), 0);
+                        }}
+                        onBlur={() => {
+                          setFocusedPriceInput(null);
+                          const strValue = localPriceValues[item.productId] || '0';
+                          const normalized = strValue.replace(/,/g, '.');
+                          const val = parseFloat(normalized);
                           if (!isNaN(val) && val >= 0) {
                             setReceivedPrices({
                               ...receivedPrices,
                               [item.productId]: val,
-                            })
+                            });
                           }
+                          setLocalPriceValues(prev => {
+                            const copy = { ...prev };
+                            delete copy[item.productId];
+                            return copy;
+                          });
                         }}
-                        onFocus={(e) => e.target.select()}
-                        className={`font-mono ${hasPriceChange ? 'border-orange-400 bg-orange-50' : ''}`}
+                        className={`font-mono ${hasPriceChange ? "border-orange-400 bg-orange-50" : ""}`}
                       />
                       {hasPriceChange && (
                         <p className="text-xs text-orange-600 mt-1">
-                          {isPack ? 'Prix pack' : 'Prix'} commandé: {originalDisplayPrice.toFixed(2)} €
+                          {isPack ? "Prix pack" : "Prix"} commandé:{" "}
+                          {originalDisplayPrice.toFixed(2)} €
                         </p>
                       )}
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-sm text-blue-800">
-              💡 <strong>Info:</strong> Si le prix est modifié, il sera mis à jour dans la fiche produit pour les futures commandes.
+              💡 <strong>Info:</strong> Si le prix est modifié, il sera mis à
+              jour dans la fiche produit pour les futures commandes.
             </p>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReceiveDialogOpen(false)} disabled={receiving}>
+            <Button
+              variant="outline"
+              onClick={() => setReceiveDialogOpen(false)}
+              disabled={receiving}
+            >
               Annuler
             </Button>
             <Button onClick={handleReceive} disabled={receiving}>
-              {receiving ? 'Réception...' : 'Confirmer la réception'}
+              {receiving ? "Réception..." : "Confirmer la réception"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
