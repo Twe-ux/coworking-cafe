@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   BarChart3,
   AlertTriangle,
+  Settings,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -57,6 +58,12 @@ const sections = [
     description: 'Tableaux de bord, valeur stock, tendances consommation',
     icon: BarChart3,
     href: '/admin/inventory/analytics',
+  },
+  {
+    title: 'Paramètres',
+    description: 'Configurer les inventaires récurrents automatiques',
+    icon: Settings,
+    href: '/admin/inventory/settings',
   },
 ]
 
