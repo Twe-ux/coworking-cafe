@@ -19,6 +19,7 @@ export const supplierCreateSchema = z.object({
     .min(1, 'Au moins une catégorie requise')
     .max(5),
   notes: z.string().max(500).optional(),
+  deliveryReminderMessage: z.string().max(500).optional(),
   isActive: z.boolean().optional(),
   requiresStockManagement: z.boolean().optional().default(true),
   dlcAlertConfig: dlcAlertConfigSchema.optional(),
