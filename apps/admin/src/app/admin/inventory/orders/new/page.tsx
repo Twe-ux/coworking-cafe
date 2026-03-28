@@ -218,9 +218,9 @@ export default function NewOrderPage() {
   };
 
   /**
-   * Calcule la quantité à commander en fonction du stock réel et des contraintes pack
+   * Calcule la quantité à commander pour atteindre le stock maximum
    * @param realStock - Stock réel saisi
-   * @param minStock - Stock minimum
+   * @param minStock - Stock minimum (non utilisé, conservé pour compatibilité)
    * @param maxStock - Stock maximum
    * @param packagingType - Type de conditionnement ('pack' ou 'unit')
    * @param unitsPerPackage - Nombre d'unités par pack
@@ -232,10 +232,10 @@ export default function NewOrderPage() {
     packagingType: string,
     unitsPerPackage: number,
   ): number => {
-    // Si stock réel >= minStock, pas besoin de commander
-    if (realStock >= minStock) return 0;
+    // Si stock réel >= maxStock, pas besoin de commander
+    if (realStock >= maxStock) return 0;
 
-    // Calculer le besoin brut
+    // Calculer le besoin pour atteindre maxStock
     const need = maxStock - realStock;
 
     // Si commande en packs, arrondir au pack supérieur
