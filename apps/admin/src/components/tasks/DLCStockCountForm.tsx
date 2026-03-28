@@ -105,12 +105,12 @@ export function DLCStockCountForm({
       return 0;
     }
 
-    // If stock is above minimum, no need to order
-    if (entry.countedStock >= entry.minStock) {
+    // If stock is above maximum, no need to order
+    if (entry.countedStock >= entry.maxStock) {
       return 0;
     }
 
-    // Calculate need in units
+    // Calculate need to reach maxStock
     const need = entry.maxStock - entry.countedStock;
 
     // If ordering in packs, round up to next pack
