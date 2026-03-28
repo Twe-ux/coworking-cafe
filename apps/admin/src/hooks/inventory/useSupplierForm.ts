@@ -127,6 +127,7 @@ export function useSupplierForm({
         phone: supplier.phone || '',
         categories: supplier.categories,
         notes: supplier.notes || '',
+        deliveryReminderMessage: supplier.deliveryReminderMessage || '',
         requiresStockManagement: supplier.requiresStockManagement ?? true,
         dlcAlertConfig: supplier.dlcAlertConfig || {
           enabled: false,
