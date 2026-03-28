@@ -1,46 +1,149 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Calendar, CheckCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, Calendar, CheckCircle, Loader2, Save, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useInventoryTasks } from '@/hooks/inventory/useInventoryTasks'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
+import { useToast } from '@/hooks/use-toast'
+
+interface Template {
+  id: string
+  title: string
+  description: string
+  priority: string
+  recurrenceType: 'weekly' | 'monthly'
+  recurrenceDays: number[]
+  active: boolean
+  inventoryType: 'weekly' | 'monthly'
+}
+
+const DAYS_OF_WEEK = [
+  { value: 1, label: 'Lundi' },
+  { value: 2, label: 'Mardi' },
+  { value: 3, label: 'Mercredi' },
+  { value: 4, label: 'Jeudi' },
+  { value: 5, label: 'Vendredi' },
+  { value: 6, label: 'Samedi' },
+  { value: 0, label: 'Dimanche' },
+]
+
+const DAYS_OF_MONTH = Array.from({ length: 31 }, (_, i) => ({
+  value: i + 1,
+  label: `${i + 1}`,
+}))
 
 export default function InventorySettingsPage() {
   const router = useRouter()
-  const { setupTemplates } = useInventoryTasks()
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<{
-    created: number
-    existing: number
-    message: string
-  } | null>(null)
+  const { toast } = useToast()
+  const [templates, setTemplates] = useState<Template[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
 
-  const handleSetup = async () => {
-    setLoading(true)
-    setResult(null)
+  useEffect(() => {
+    fetchTemplates()
+  }, [])
+
+  const fetchTemplates = async () => {
     try {
-      const success = await setupTemplates()
-      if (success) {
-        // Fetch result details by calling the API again to get the response
-        const res = await fetch('/api/inventory/tasks/setup', { method: 'POST' })
-        const data = await res.json()
-        if (data.success) {
-          setResult({
-            created: data.data.created,
-            existing: data.data.existing,
-            message: data.message,
-          })
-        }
+      const res = await fetch('/api/inventory/tasks/templates')
+      const data = await res.json()
+      if (data.success) {
+        setTemplates(data.data || [])
       }
     } catch (error) {
-      console.error('Error setting up templates:', error)
+      console.error('Error fetching templates:', error)
     } finally {
       setLoading(false)
     }
   }
+
+  const handleCreate = async () => {
+    setCreating(true)
+    try {
+      const res = await fetch('/api/inventory/tasks/setup', { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        toast({
+          title: 'Templates créés',
+          description: `${data.data.created} template(s) créé(s), ${data.data.existing} existant(s)`,
+        })
+        await fetchTemplates()
+      }
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de créer les templates',
+        variant: 'destructive',
+      })
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const handleSave = async (template: Template) => {
+    setSaving(template.id)
+    try {
+      const res = await fetch(`/api/inventory/tasks/templates/${template.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recurrenceDays: template.recurrenceDays,
+          active: template.active,
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        toast({
+          title: 'Sauvegardé',
+          description: 'Configuration mise à jour avec succès',
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de sauvegarder',
+        variant: 'destructive',
+      })
+    } finally {
+      setSaving(null)
+    }
+  }
+
+  const handleToggleDay = (templateId: string, day: number) => {
+    setTemplates((prev) =>
+      prev.map((t) => {
+        if (t.id === templateId) {
+          const days = t.recurrenceDays.includes(day)
+            ? t.recurrenceDays.filter((d) => d !== day)
+            : [...t.recurrenceDays, day].sort((a, b) => a - b)
+          return { ...t, recurrenceDays: days }
+        }
+        return t
+      })
+    )
+  }
+
+  const handleToggleActive = (templateId: string) => {
+    setTemplates((prev) =>
+      prev.map((t) => (t.id === templateId ? { ...t, active: !t.active } : t))
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  const weeklyTemplate = templates.find((t) => t.inventoryType === 'weekly')
+  const monthlyTemplate = templates.find((t) => t.inventoryType === 'monthly')
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -62,104 +165,206 @@ export default function InventorySettingsPage() {
         </div>
       </div>
 
-      {/* Configuration Card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
-            <CardTitle>Inventaires Récurrents</CardTitle>
-          </div>
-          <CardDescription>
-            Créer des tâches automatiques pour les inventaires hebdomadaires et mensuels
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Current Templates Info */}
-          <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">Inventaire Hebdomadaire</h3>
-                <Badge variant="secondary">Haute priorité</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">
-                Inventaire hebdomadaire des produits à DLC courte
-              </p>
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Tous les <strong>lundis</strong></span>
-              </div>
-            </div>
-
-            <div className="border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">Inventaire Mensuel</h3>
-                <Badge variant="secondary">Priorité normale</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-2">
-                Inventaire mensuel complet de tous les produits
-              </p>
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Le <strong>1er de chaque mois</strong></span>
-              </div>
-            </div>
-          </div>
-
-          {/* Result Message */}
-          {result && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-medium text-green-900">Configuration réussie !</p>
-                <p className="text-sm text-green-700 mt-1">
-                  {result.created > 0 && `${result.created} template(s) créé(s). `}
-                  {result.existing > 0 && `${result.existing} template(s) déjà existant(s).`}
-                </p>
-                <p className="text-xs text-green-600 mt-2">
-                  Les tâches seront générées automatiquement chaque semaine/mois.
-                  Elles apparaîtront dans le banner de la page Inventaire.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Setup Button */}
-          <div className="flex flex-col gap-3 pt-4">
+      {/* No templates yet */}
+      {templates.length === 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Aucun template configuré</CardTitle>
+            <CardDescription>
+              Créez les templates pour activer les inventaires récurrents
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <Button
-              onClick={handleSetup}
-              disabled={loading}
+              onClick={handleCreate}
+              disabled={creating}
               variant="outline"
               className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
             >
-              {loading ? (
+              {creating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Configuration en cours...
+                  Création...
                 </>
               ) : (
                 <>
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Activer les inventaires récurrents
+                  <Plus className="mr-2 h-4 w-4" />
+                  Créer les templates
                 </>
               )}
             </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              Cette action est idempotente : si les templates existent déjà, ils ne seront pas recréés.
-            </p>
-          </div>
+          </CardContent>
+        </Card>
+      )}
 
-          {/* Info Box */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
-            <p className="font-medium text-blue-900 mb-2">ℹ️ Comment ça fonctionne ?</p>
-            <ul className="space-y-1 text-blue-700">
-              <li>• Les tâches sont générées automatiquement selon la récurrence configurée</li>
-              <li>• Un banner apparaît sur /admin/inventory avec les inventaires planifiés</li>
-              <li>• Cliquez sur "Démarrer" pour créer l'inventaire pré-rempli</li>
-              <li>• Plus besoin de créer manuellement les inventaires chaque semaine/mois</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Weekly Template */}
+      {weeklyTemplate && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                <CardTitle>Inventaire Hebdomadaire</CardTitle>
+                <Badge variant="destructive">Haute priorité</Badge>
+                {weeklyTemplate.active && (
+                  <Badge variant="default" className="bg-green-600">
+                    Actif
+                  </Badge>
+                )}
+              </div>
+              <Switch
+                checked={weeklyTemplate.active}
+                onCheckedChange={() => handleToggleActive(weeklyTemplate.id)}
+              />
+            </div>
+            <CardDescription>
+              Inventaire hebdomadaire des produits à DLC courte
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Jours de la semaine
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {DAYS_OF_WEEK.map((day) => (
+                  <div key={day.value} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`week-${day.value}`}
+                      checked={weeklyTemplate.recurrenceDays.includes(day.value)}
+                      onCheckedChange={() =>
+                        handleToggleDay(weeklyTemplate.id, day.value)
+                      }
+                    />
+                    <label
+                      htmlFor={`week-${day.value}`}
+                      className="text-sm cursor-pointer"
+                    >
+                      {day.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Button
+              onClick={() => handleSave(weeklyTemplate)}
+              disabled={saving === weeklyTemplate.id}
+              variant="outline"
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            >
+              {saving === weeklyTemplate.id ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sauvegarde...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Sauvegarder
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Monthly Template */}
+      {monthlyTemplate && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                <CardTitle>Inventaire Mensuel</CardTitle>
+                <Badge variant="secondary">Priorité normale</Badge>
+                {monthlyTemplate.active && (
+                  <Badge variant="default" className="bg-green-600">
+                    Actif
+                  </Badge>
+                )}
+              </div>
+              <Switch
+                checked={monthlyTemplate.active}
+                onCheckedChange={() => handleToggleActive(monthlyTemplate.id)}
+              />
+            </div>
+            <CardDescription>
+              Inventaire mensuel complet de tous les produits
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Jours du mois
+              </label>
+              <div className="grid grid-cols-7 gap-2">
+                {DAYS_OF_MONTH.map((day) => (
+                  <div key={day.value} className="flex items-center gap-1">
+                    <Checkbox
+                      id={`month-${day.value}`}
+                      checked={monthlyTemplate.recurrenceDays.includes(day.value)}
+                      onCheckedChange={() =>
+                        handleToggleDay(monthlyTemplate.id, day.value)
+                      }
+                    />
+                    <label
+                      htmlFor={`month-${day.value}`}
+                      className="text-sm cursor-pointer"
+                    >
+                      {day.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Button
+              onClick={() => handleSave(monthlyTemplate)}
+              disabled={saving === monthlyTemplate.id}
+              variant="outline"
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            >
+              {saving === monthlyTemplate.id ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sauvegarde...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Sauvegarder
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Info Box */}
+      {templates.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
+          <p className="font-medium text-blue-900 mb-2">ℹ️ Comment ça fonctionne ?</p>
+          <ul className="space-y-1 text-blue-700">
+            <li>
+              • <strong>Activer/Désactiver</strong> : Toggle pour activer ou désactiver
+              temporairement
+            </li>
+            <li>
+              • <strong>Jours</strong> : Sélectionnez un ou plusieurs jours pour la
+              récurrence
+            </li>
+            <li>
+              • <strong>Banner</strong> : Les tâches apparaissent automatiquement sur
+              /admin/inventory
+            </li>
+            <li>
+              • <strong>Démarrer</strong> : Cliquez sur "Démarrer" pour créer
+              l'inventaire pré-rempli
+            </li>
+          </ul>
+        </div>
+      )}
     </div>
   )
 }
