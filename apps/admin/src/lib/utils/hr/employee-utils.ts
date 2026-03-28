@@ -76,6 +76,23 @@ export function getEmployeeStatusBadge(employee: Employee): {
   variant: "default" | "destructive" | "secondary" | "outline";
   label: string;
 } {
+  // Vérifier d'abord le statut d'emploi
+  if (employee.employmentStatus === 'waiting') {
+    return { variant: "secondary", label: "En attente" };
+  }
+
+  // Fallback : vérifier la date d'embauche directement
+  if (employee.hireDate) {
+    const hireDate = new Date(employee.hireDate);
+    const today = new Date();
+    hireDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    if (hireDate > today) {
+      return { variant: "secondary", label: "En attente" };
+    }
+  }
+
   if (!employee.isActive) {
     return { variant: "destructive", label: "Archivé" };
   }
