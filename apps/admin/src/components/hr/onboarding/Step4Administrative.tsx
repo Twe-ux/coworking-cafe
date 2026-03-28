@@ -162,10 +162,13 @@ export function Step4Administrative() {
 
   // Le bouton est activé uniquement si toutes les checkboxes sont cochées
   // ET que la date DPAE est renseignée
+  // ET que le fichier DPAE est uploadé
   // ET que le choix mutuelle est fait (checkbox cochée + OUI/NON sélectionné)
+  const dpaePdfUploaded = watch("dpaePdfBase64");
   const allAdminTasksCompleted =
     dpaeCompleted &&
     dpaeCompletedAt &&
+    dpaePdfUploaded && // Fichier DPAE obligatoire
     medicalVisitCompleted &&
     mutuelleCompleted &&
     mutuelleWanted !== undefined &&
@@ -184,6 +187,15 @@ export function Step4Administrative() {
         setCreatedEmployee(employee);
         setShowContractModal(true);
       }
+    }
+  };
+
+  const handleContractModalClose = (open: boolean) => {
+    setShowContractModal(open);
+    // Rediriger vers la liste des employés quand on ferme la modal
+    if (!open && mode === "create") {
+      toast.success("Employé créé avec succès");
+      router.push("/admin/hr/employees");
     }
   };
 
@@ -339,8 +351,8 @@ export function Step4Administrative() {
                 {/* PDF Upload - shown when DPAE is checked */}
                 {dpaeCompleted && (
                   <div className="ml-7 space-y-2">
-                    <Label className="text-sm text-muted-foreground">
-                      Document DPAE (PDF, optionnel)
+                    <Label className="text-sm font-medium">
+                      Document DPAE (PDF) <span className="text-destructive">*</span>
                     </Label>
                     {dpaeFile || watch("dpaePdfFilename") ? (
                       <div className="flex items-center gap-3 rounded-md border border-gray-300 p-3">
@@ -526,8 +538,9 @@ export function Step4Administrative() {
       <div className="space-y-3">
         {!allAdminTasksCompleted && (
           <StyledAlert variant="info">
-            Veuillez cocher toutes les étapes du suivi administratif avant de
-            créer l'employé.
+            {!dpaePdfUploaded
+              ? "Veuillez uploader le document DPAE (PDF obligatoire) avant de créer l'employé."
+              : "Veuillez cocher toutes les étapes du suivi administratif avant de créer l'employé."}
           </StyledAlert>
         )}
 
@@ -554,7 +567,7 @@ export function Step4Administrative() {
       {createdEmployee && (
         <ContractGenerationModal
           open={showContractModal}
-          onOpenChange={setShowContractModal}
+          onOpenChange={handleContractModalClose}
           employee={createdEmployee}
         />
       )}

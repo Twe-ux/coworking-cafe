@@ -35,6 +35,11 @@ interface EmployeeDraftData {
   monthlySalary?: number
   employeeRole?: string
   availability?: WeeklyAvailability
+  workSchedule?: {
+    weeklyDistribution?: Record<string, Record<string, string>>
+    timeSlots?: Record<string, unknown>
+    weeklyDistributionData?: Record<string, Record<string, string>>
+  }
   clockingCode?: string
   color?: string
   role?: string
@@ -68,6 +73,11 @@ interface EmployeeDraftResponse {
   monthlySalary?: number
   employeeRole?: string
   availability?: WeeklyAvailability
+  workSchedule?: {
+    weeklyDistribution?: Record<string, Record<string, string>>
+    timeSlots?: Record<string, unknown>
+    weeklyDistributionData?: Record<string, Record<string, string>>
+  }
   clockingCode?: string
   color?: string
   role?: string
@@ -100,6 +110,11 @@ interface DraftPayload {
   monthlySalary?: number
   employeeRole?: string
   availability?: WeeklyAvailability
+  workSchedule?: {
+    weeklyDistribution?: Record<string, Record<string, string>>
+    timeSlots?: Record<string, unknown>
+    weeklyDistributionData?: Record<string, Record<string, string>>
+  }
   clockingCode?: string
   color?: string
   bankDetails?: {
@@ -177,6 +192,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
         monthlySalary: typedDraft.monthlySalary,
         employeeRole: typedDraft.employeeRole,
         availability: typedDraft.availability,
+        workSchedule: typedDraft.workSchedule,
         clockingCode: typedDraft.clockingCode,
         color: typedDraft.color,
         role: typedDraft.role,
@@ -258,6 +274,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     if (data.monthlySalary) draftData.monthlySalary = data.monthlySalary
     if (data.employeeRole) draftData.employeeRole = data.employeeRole as EmployeeType['employeeRole']
     if (data.availability) draftData.availability = data.availability
+    if (data.workSchedule) (draftData as any).workSchedule = data.workSchedule
     if (data.clockingCode) draftData.clockingCode = data.clockingCode
     if (data.color) draftData.color = data.color
     if (data.bankDetails) draftData.bankDetails = data.bankDetails

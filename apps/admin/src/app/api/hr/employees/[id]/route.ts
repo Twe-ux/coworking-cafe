@@ -342,6 +342,16 @@ export async function PUT(
     if (data.isDraft !== undefined) updateData.isDraft = data.isDraft
     if (data.deletedAt !== undefined) updateData.deletedAt = data.deletedAt
 
+    // Clean up old drafts with same email before finalizing
+    // This prevents E11000 duplicate key errors when converting draft to active employee
+    if (updateData.isDraft === false && updateData.email) {
+      await Employee.deleteMany({
+        _id: { $ne: params.id },
+        isDraft: true,
+        email: updateData.email,
+      })
+    }
+
     const updatedEmployee = await Employee.findByIdAndUpdate(
       params.id,
       updateData,
