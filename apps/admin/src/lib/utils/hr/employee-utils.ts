@@ -100,6 +100,19 @@ export function isArchived(employee: Employee): boolean {
     return false;
   }
 
+  // Vérifier directement la date d'embauche (fallback si employmentStatus absent)
+  if (employee.hireDate) {
+    const hireDate = new Date(employee.hireDate);
+    const today = new Date();
+    hireDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    if (hireDate > today) {
+      // Date d'embauche future = pas archivé
+      return false;
+    }
+  }
+
   // Si l'employé est inactif, il est archivé
   return !employee.isActive;
 }
