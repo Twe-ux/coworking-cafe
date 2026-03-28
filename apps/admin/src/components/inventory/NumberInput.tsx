@@ -41,23 +41,13 @@ export function NumberInput({
   return (
     <Input
       type="text"
-      inputMode="decimal"
       placeholder={placeholder}
       value={displayValue}
       disabled={disabled}
       onChange={(e) => {
-        const value = e.target.value;
-        // Accept both comma and dot as decimal separator
-        const normalizedValue = value.replace(",", ".");
-
-        // Allow empty, partial decimals like ".", ",", "0.", ".5", ",5", "1."
-        if (
-          normalizedValue === "" ||
-          normalizedValue === "." ||
-          /^\d*\.?\d*$/.test(normalizedValue)
-        ) {
-          setLocalValue(value); // Keep original with comma if user typed comma
-        }
+        // Keep the value as-is, don't normalize yet
+        // This allows Safari to display commas and dots properly
+        setLocalValue(e.target.value);
       }}
       onFocus={(e) => {
         setIsFocused(true);
@@ -71,8 +61,8 @@ export function NumberInput({
       }}
       onBlur={() => {
         setIsFocused(false);
-        // Normalize: replace comma with dot
-        const normalizedValue = localValue.replace(",", ".");
+        // Normalize: replace ALL commas with dots (French decimal separator)
+        const normalizedValue = localValue.replace(/,/g, ".");
         // Convert to number on blur
         const numValue =
           normalizedValue === "" || normalizedValue === undefined || normalizedValue === "."
