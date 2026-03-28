@@ -79,6 +79,12 @@ export default function InventoryPage() {
     }
   }
 
+  // Filter pending tasks to only show actual inventory tasks (weekly/monthly)
+  // Exclude delivery reminders, low stock alerts, and DLC tasks
+  const inventoryTasksOnly = pendingTasks.filter(
+    (task) => task.inventoryType === 'weekly' || task.inventoryType === 'monthly'
+  )
+
   return (
     <div className="space-y-6 p-6">
       <div>
@@ -133,10 +139,10 @@ export default function InventoryPage() {
         </Card>
       </div>
 
-      {/* Pending inventory tasks */}
-      {!tasksLoading && pendingTasks.length > 0 && (
+      {/* Pending inventory tasks - Only show actual inventories (weekly/monthly) */}
+      {!tasksLoading && inventoryTasksOnly.length > 0 && (
         <PendingTasksBanner
-          tasks={pendingTasks}
+          tasks={inventoryTasksOnly}
           onStartInventory={handleStartFromTask}
         />
       )}
