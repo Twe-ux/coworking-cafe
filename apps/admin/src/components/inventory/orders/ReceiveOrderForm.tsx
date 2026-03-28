@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { ArrowLeft, Loader2, Package } from 'lucide-react'
 import { toast } from 'sonner'
 import type { PurchaseOrder } from '@/types/inventory'
-import { NumberInput } from '@/components/inventory/NumberInput'
 
 interface ReceiveOrderFormProps {
   order: PurchaseOrder
@@ -46,6 +45,10 @@ export function ReceiveOrderForm({
   )
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  // Local state for input values (string) - one per product
+  const [localValues, setLocalValues] = useState<Record<string, string>>({})
+  const [focusedInput, setFocusedInput] = useState<string | null>(null)
 
   const handleQuantityChange = (index: number, value: number) => {
     setItems((prev) =>
@@ -141,11 +144,38 @@ export function ReceiveOrderForm({
                   <Label className="text-sm shrink-0">
                     Reçu :
                   </Label>
-                  <NumberInput
-                    value={item.receivedQty}
-                    onChange={(val) => handleQuantityChange(index, val)}
-                    min={0}
-                    step={item.packagingType === 'pack' ? '1' : '0.1'}
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={
+                      focusedInput === item.productId
+                        ? (localValues[item.productId] ?? item.receivedQty.toString())
+                        : (item.receivedQty === 0 ? '' : item.receivedQty.toString())
+                    }
+                    onChange={(e) => {
+                      // Store string value locally while typing
+                      setLocalValues(prev => ({ ...prev, [item.productId]: e.target.value }))
+                    }}
+                    onFocus={(e) => {
+                      setFocusedInput(item.productId)
+                      setLocalValues(prev => ({ ...prev, [item.productId]: item.receivedQty.toString() }))
+                      // Safari fix: select all on focus
+                      setTimeout(() => e.target.select(), 0)
+                    }}
+                    onBlur={() => {
+                      setFocusedInput(null)
+                      // Normalize comma to dot and convert to number
+                      const strValue = localValues[item.productId] || '0'
+                      const normalized = strValue.replace(/,/g, '.')
+                      const numValue = parseFloat(normalized) || 0
+                      handleQuantityChange(index, Math.max(0, numValue))
+                      // Clear local value
+                      setLocalValues(prev => {
+                        const copy = { ...prev }
+                        delete copy[item.productId]
+                        return copy
+                      })
+                    }}
                     className="w-24 text-center"
                   />
                   <span className="text-sm text-muted-foreground shrink-0">
