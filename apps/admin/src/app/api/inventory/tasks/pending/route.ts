@@ -22,6 +22,7 @@ export async function GET(): Promise<NextResponse<ApiResponse<InventoryPendingTa
 
     const tasks = await Task.find({
       'metadata.type': 'inventory',
+      'metadata.inventoryType': { $exists: true }, // Only tasks with explicit inventoryType
       status: 'pending',
     })
       .sort({ priority: -1, dueDate: 1 })
