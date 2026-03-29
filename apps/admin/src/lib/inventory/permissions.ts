@@ -20,6 +20,7 @@ export const INVENTORY_PERMISSIONS = {
   // Inventory
   viewInventory: ['dev', 'admin', 'staff'],
   createInventory: ['dev', 'admin', 'staff'],
+  manageInventory: ['dev', 'admin'], // Manage recurring templates
 
   // Stock Movements
   viewMovements: ['dev', 'admin', 'staff'],
