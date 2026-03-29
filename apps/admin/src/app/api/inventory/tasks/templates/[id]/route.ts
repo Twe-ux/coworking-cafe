@@ -127,35 +127,23 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    console.log('[DELETE template] Starting...')
-
     const authResult = await requireAuth(getRequiredRoles('manageInventory'))
-    if (!authResult.authorized) {
-      console.log('[DELETE template] Auth failed')
-      return authResult.response
-    }
-    console.log('[DELETE template] Auth OK')
+    if (!authResult.authorized) return authResult.response
 
     await connectMongoose()
-    console.log('[DELETE template] MongoDB connected')
 
     const { id } = await params
-    console.log('[DELETE template] Template ID:', id)
 
     const template = await RecurringTask.findById(id)
-    console.log('[DELETE template] Template found:', template ? 'YES' : 'NO')
-
     if (!template) {
       return notFoundResponse('Template')
     }
 
     await RecurringTask.findByIdAndDelete(id)
-    console.log('[DELETE template] Template deleted successfully')
 
     return successResponse({ id }, 'Template supprimé avec succès')
   } catch (error) {
     console.error('[DELETE /api/inventory/tasks/templates/[id]] Error:', error)
-    console.error('[DELETE template] Stack:', error instanceof Error ? error.stack : 'N/A')
     return errorResponse(
       'Erreur lors de la suppression du template',
       error instanceof Error ? error.message : undefined,
