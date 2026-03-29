@@ -83,7 +83,7 @@ export default function InventorySettingsPage() {
       if (data.success) {
         setSuppliers(
           (data.data || []).map((s: any) => ({
-            id: s.id,
+            id: s._id || s.id, // API returns _id
             name: s.name,
             isActive: s.isActive,
           }))
@@ -168,16 +168,12 @@ export default function InventorySettingsPage() {
   }
 
   const handleToggleSupplier = (templateId: string, supplierId: string) => {
-    console.log('🔍 Toggle supplier:', { templateId, supplierId })
     setTemplates((prev) =>
       prev.map((t) => {
         if (t.id === templateId) {
-          console.log('📋 Current supplierIds:', t.supplierIds)
-          console.log('✅ Includes?', t.supplierIds.includes(supplierId))
           const supplierIds = t.supplierIds.includes(supplierId)
             ? t.supplierIds.filter((id) => id !== supplierId)
             : [...t.supplierIds, supplierId]
-          console.log('📝 New supplierIds:', supplierIds)
           return { ...t, supplierIds }
         }
         return t
