@@ -120,3 +120,34 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     )
   }
 }
+
+/**
+ * DELETE /api/inventory/tasks/templates/[id]
+ * Delete a recurring task template
+ */
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  try {
+    const authResult = await requireAuth(getRequiredRoles('manageInventory'))
+    if (!authResult.authorized) return authResult.response
+
+    await connectMongoose()
+
+    const { id } = await params
+
+    const template = await RecurringTask.findById(id)
+    if (!template) {
+      return notFoundResponse('Template')
+    }
+
+    await RecurringTask.findByIdAndDelete(id)
+
+    return successResponse(null, 'Template supprimé avec succès')
+  } catch (error) {
+    console.error('[DELETE /api/inventory/tasks/templates/[id]] Error:', error)
+    return errorResponse(
+      'Erreur lors de la suppression du template',
+      error instanceof Error ? error.message : undefined,
+      500
+    )
+  }
+}
