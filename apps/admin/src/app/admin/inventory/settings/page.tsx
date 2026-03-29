@@ -62,7 +62,12 @@ export default function InventorySettingsPage() {
       const res = await fetch('/api/inventory/tasks/templates')
       const data = await res.json()
       if (data.success) {
-        setTemplates(data.data || [])
+        // Ensure supplierIds is always an array
+        const templatesWithDefaults = (data.data || []).map((t: Template) => ({
+          ...t,
+          supplierIds: t.supplierIds || [],
+        }))
+        setTemplates(templatesWithDefaults)
       }
     } catch (error) {
       console.error('Error fetching templates:', error)
@@ -163,12 +168,16 @@ export default function InventorySettingsPage() {
   }
 
   const handleToggleSupplier = (templateId: string, supplierId: string) => {
+    console.log('🔍 Toggle supplier:', { templateId, supplierId })
     setTemplates((prev) =>
       prev.map((t) => {
         if (t.id === templateId) {
+          console.log('📋 Current supplierIds:', t.supplierIds)
+          console.log('✅ Includes?', t.supplierIds.includes(supplierId))
           const supplierIds = t.supplierIds.includes(supplierId)
             ? t.supplierIds.filter((id) => id !== supplierId)
             : [...t.supplierIds, supplierId]
+          console.log('📝 New supplierIds:', supplierIds)
           return { ...t, supplierIds }
         }
         return t
