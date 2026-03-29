@@ -14,7 +14,7 @@ interface RouteParams {
 /**
  * PUT /api/inventory/tasks/templates/[id]
  * Update a recurring task template
- * Body: { recurrenceDays?: number[], active?: boolean, title?: string, description?: string, priority?: string }
+ * Body: { recurrenceDays?: number[], active?: boolean, title?: string, description?: string, priority?: string, supplierIds?: string[] }
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
@@ -48,6 +48,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       template.priority = body.priority
     }
 
+    // Update supplier filter in metadata
+    if (body.supplierIds !== undefined) {
+      const currentMetadata = (template.metadata || {}) as Record<string, unknown>
+      template.metadata = {
+        ...currentMetadata,
+        supplierIds: body.supplierIds,
+      }
+      template.markModified('metadata')
+    }
+
     await template.save()
 
     const metadata = (template.metadata || {}) as Record<string, unknown>
@@ -60,6 +70,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       recurrenceDays: template.recurrenceDays || [],
       active: template.active,
       inventoryType: metadata.inventoryType as 'weekly' | 'monthly',
+      supplierIds: (metadata.supplierIds as string[]) || [],
       updatedAt: template.updatedAt?.toISOString(),
     }
 

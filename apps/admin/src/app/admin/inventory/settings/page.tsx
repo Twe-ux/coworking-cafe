@@ -19,6 +19,13 @@ interface Template {
   recurrenceDays: number[]
   active: boolean
   inventoryType: 'weekly' | 'monthly'
+  supplierIds: string[]
+}
+
+interface Supplier {
+  id: string
+  name: string
+  isActive: boolean
 }
 
 const DAYS_OF_WEEK = [
@@ -40,12 +47,14 @@ export default function InventorySettingsPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [templates, setTemplates] = useState<Template[]>([])
+  const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
 
   useEffect(() => {
     fetchTemplates()
+    fetchSuppliers()
   }, [])
 
   const fetchTemplates = async () => {
@@ -59,6 +68,24 @@ export default function InventorySettingsPage() {
       console.error('Error fetching templates:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchSuppliers = async () => {
+    try {
+      const res = await fetch('/api/inventory/suppliers')
+      const data = await res.json()
+      if (data.success) {
+        setSuppliers(
+          (data.data || []).map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            isActive: s.isActive,
+          }))
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching suppliers:', error)
     }
   }
 
@@ -94,6 +121,7 @@ export default function InventorySettingsPage() {
         body: JSON.stringify({
           recurrenceDays: template.recurrenceDays,
           active: template.active,
+          supplierIds: template.supplierIds,
         }),
       })
       const data = await res.json()
@@ -131,6 +159,20 @@ export default function InventorySettingsPage() {
   const handleToggleActive = (templateId: string) => {
     setTemplates((prev) =>
       prev.map((t) => (t.id === templateId ? { ...t, active: !t.active } : t))
+    )
+  }
+
+  const handleToggleSupplier = (templateId: string, supplierId: string) => {
+    setTemplates((prev) =>
+      prev.map((t) => {
+        if (t.id === templateId) {
+          const supplierIds = t.supplierIds.includes(supplierId)
+            ? t.supplierIds.filter((id) => id !== supplierId)
+            : [...t.supplierIds, supplierId]
+          return { ...t, supplierIds }
+        }
+        return t
+      })
     )
   }
 
@@ -247,6 +289,44 @@ export default function InventorySettingsPage() {
               </div>
             </div>
 
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Fournisseurs à inventorier
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {suppliers
+                  .filter((s) => s.isActive)
+                  .map((supplier) => (
+                    <div key={supplier.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`week-supplier-${supplier.id}`}
+                        checked={weeklyTemplate.supplierIds.includes(supplier.id)}
+                        onCheckedChange={() =>
+                          handleToggleSupplier(weeklyTemplate.id, supplier.id)
+                        }
+                      />
+                      <label
+                        htmlFor={`week-supplier-${supplier.id}`}
+                        className="text-sm cursor-pointer"
+                      >
+                        {supplier.name}
+                      </label>
+                    </div>
+                  ))}
+              </div>
+              {suppliers.filter((s) => s.isActive).length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Aucun fournisseur actif
+                </p>
+              )}
+              {weeklyTemplate.supplierIds.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Si aucun fournisseur sélectionné, tous les fournisseurs seront
+                  inclus
+                </p>
+              )}
+            </div>
+
             <Button
               onClick={() => handleSave(weeklyTemplate)}
               disabled={saving === weeklyTemplate.id}
@@ -317,6 +397,44 @@ export default function InventorySettingsPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Fournisseurs à inventorier
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {suppliers
+                  .filter((s) => s.isActive)
+                  .map((supplier) => (
+                    <div key={supplier.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`month-supplier-${supplier.id}`}
+                        checked={monthlyTemplate.supplierIds.includes(supplier.id)}
+                        onCheckedChange={() =>
+                          handleToggleSupplier(monthlyTemplate.id, supplier.id)
+                        }
+                      />
+                      <label
+                        htmlFor={`month-supplier-${supplier.id}`}
+                        className="text-sm cursor-pointer"
+                      >
+                        {supplier.name}
+                      </label>
+                    </div>
+                  ))}
+              </div>
+              {suppliers.filter((s) => s.isActive).length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Aucun fournisseur actif
+                </p>
+              )}
+              {monthlyTemplate.supplierIds.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Si aucun fournisseur sélectionné, tous les fournisseurs seront
+                  inclus
+                </p>
+              )}
             </div>
 
             <Button

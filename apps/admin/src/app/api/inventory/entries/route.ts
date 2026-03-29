@@ -5,6 +5,7 @@ import { successResponse, errorResponse } from "@/lib/api/response"
 import { connectMongoose } from "@/lib/mongodb"
 import { InventoryEntry } from "@/models/inventory/inventoryEntry"
 import { Product } from "@/models/inventory/product"
+import { RecurringTask } from "@coworking-cafe/database"
 import { getRequiredRoles } from "@/lib/inventory/permissions"
 import { inventoryEntryCreateSchema, formatZodError } from "@/lib/inventory/validation"
 
@@ -119,12 +120,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // If taskId is provided, check if the template has supplier filter
+    let supplierIds: string[] = []
+    if (validated.taskId) {
+      try {
+        const recurringTask = await RecurringTask.findById(validated.taskId).lean()
+        if (recurringTask) {
+          const metadata = (recurringTask.metadata || {}) as Record<string, unknown>
+          const templateSupplierIds = metadata.supplierIds as string[] | undefined
+          if (templateSupplierIds && Array.isArray(templateSupplierIds) && templateSupplierIds.length > 0) {
+            supplierIds = templateSupplierIds
+          }
+        }
+      } catch (err) {
+        console.error('[POST /api/inventory/entries] Error fetching template:', err)
+        // Continue without supplier filter
+      }
+    }
+
     // Fetch products: monthly = all active, weekly = short DLC only
-    const productFilter: { isActive: boolean; hasShortDLC?: boolean } = {
+    const productFilter: { isActive: boolean; hasShortDLC?: boolean; supplierId?: { $in: string[] } } = {
       isActive: true,
     }
     if (validated.type === 'weekly') {
       productFilter.hasShortDLC = true
+    }
+    // Apply supplier filter if template has supplierIds
+    if (supplierIds.length > 0) {
+      productFilter.supplierId = { $in: supplierIds }
     }
 
     const products = await Product.find(productFilter)

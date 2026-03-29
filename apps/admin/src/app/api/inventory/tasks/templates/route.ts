@@ -35,6 +35,7 @@ export async function GET() {
         recurrenceDays: t.recurrenceDays || [],
         active: t.active,
         inventoryType: metadata.inventoryType as 'weekly' | 'monthly',
+        supplierIds: (metadata.supplierIds as string[]) || [],
         createdAt: t.createdAt?.toISOString(),
         updatedAt: t.updatedAt?.toISOString(),
       }
