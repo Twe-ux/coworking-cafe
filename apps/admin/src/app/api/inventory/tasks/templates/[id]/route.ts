@@ -141,7 +141,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     await RecurringTask.findByIdAndDelete(id)
 
-    return successResponse(null, 'Template supprimé avec succès')
+    return successResponse({ id }, 'Template supprimé avec succès')
   } catch (error) {
     console.error('[DELETE /api/inventory/tasks/templates/[id]] Error:', error)
     return errorResponse(
