@@ -72,6 +72,10 @@ export default function NewOrderPage() {
   const [selectedSupplierId, setSelectedSupplierId] = useState("");
   const [items, setItems] = useState<OrderItemDisplay[]>([]);
   const [notes, setNotes] = useState("");
+  const [inventoryInfo, setInventoryInfo] = useState<{
+    date: string;
+    hasData: boolean;
+  } | null>(null);
 
   // Dialog states
   const [productDialogOpen, setProductDialogOpen] = useState(false);
@@ -105,31 +109,76 @@ export default function NewOrderPage() {
 
   const fetchProducts = async (supplierId: string) => {
     setLoadingProducts(true);
+    setInventoryInfo(null); // Reset inventory info when changing supplier
     try {
       // Fetch active products
       const resActive = await fetch(
         `/api/inventory/products?supplierId=${supplierId}&active=true`,
       );
       const dataActive = (await resActive.json()) as APIResponse<Product[]>;
+
+      // Fetch latest inventory stock data for this supplier
+      const resInventory = await fetch(
+        `/api/inventory/entries/latest-by-supplier?supplierId=${supplierId}`,
+      );
+      const dataInventory = (await resInventory.json()) as APIResponse<{
+        hasInventory: boolean;
+        inventoryId?: string;
+        inventoryDate?: string;
+        finalizedAt?: string;
+        stockData: Record<string, number>;
+      }>;
+
       if (dataActive.success && dataActive.data) {
         setProducts(dataActive.data);
 
-        // Automatically add all products to the order with quantity set to 0
-        // User will enter real stock to calculate suggested quantity
-        const newItems: OrderItemDisplay[] = dataActive.data.map((product) => ({
-          productId: product._id,
-          productName: product.name,
-          quantity: 0, // Start with 0, user will enter real stock
-          packagingType: product.packagingType,
-          unitPriceHT: product.unitPriceHT,
-          vatRate: product.vatRate,
-          minStock: product.minStock,
-          maxStock: product.maxStock,
-          currentStock: product.currentStock,
-          unitsPerPackage: product.unitsPerPackage || 1,
-          totalHT: 0,
-          totalTTC: 0,
-        }));
+        const stockData = dataInventory.success && dataInventory.data
+          ? dataInventory.data.stockData
+          : {};
+
+        // Store inventory info for display
+        if (dataInventory.success && dataInventory.data?.hasInventory) {
+          setInventoryInfo({
+            date: dataInventory.data.inventoryDate || '',
+            hasData: Object.keys(stockData).length > 0,
+          });
+        } else {
+          setInventoryInfo(null);
+        }
+
+        // Automatically add all products to the order
+        // Pre-fill realStock from latest inventory if available
+        const newItems: OrderItemDisplay[] = dataActive.data.map((product) => {
+          const realStock = stockData[product._id];
+          const hasRealStock = realStock !== undefined;
+
+          // Calculate suggested quantity if we have real stock data
+          const suggestedQty = hasRealStock
+            ? calculateOrderQuantity(
+                realStock,
+                product.minStock,
+                product.maxStock,
+                product.packagingType,
+                product.unitsPerPackage || 1,
+              )
+            : 0;
+
+          return {
+            productId: product._id,
+            productName: product.name,
+            quantity: suggestedQty, // Pre-calculated from inventory
+            packagingType: product.packagingType,
+            unitPriceHT: product.unitPriceHT,
+            vatRate: product.vatRate,
+            minStock: product.minStock,
+            maxStock: product.maxStock,
+            currentStock: product.currentStock,
+            realStock: hasRealStock ? realStock : undefined, // Pre-filled from inventory
+            unitsPerPackage: product.unitsPerPackage || 1,
+            totalHT: 0,
+            totalTTC: 0,
+          };
+        });
         setItems(newItems);
       }
 
@@ -480,12 +529,21 @@ export default function NewOrderPage() {
               </div>
             ) : (
               <>
-                <div className="text-sm text-muted-foreground mb-2">
-                  💡 <strong>Astuce:</strong> Saisissez le stock réel pour
-                  calculer automatiquement la quantité à commander (selon
-                  min/max et conditionnement pack). Vous pouvez aussi saisir
-                  directement la quantité.
-                </div>
+                {inventoryInfo?.hasData ? (
+                  <div className="text-sm bg-green-50 border border-green-200 rounded-md p-3 mb-2">
+                    📊 <strong>Stocks pré-remplis</strong> depuis l'inventaire du{' '}
+                    <strong>{new Date(inventoryInfo.date).toLocaleDateString('fr-FR')}</strong>.
+                    Les quantités à commander ont été calculées automatiquement (Stock Max - Stock Réel).
+                    Vous pouvez les ajuster si nécessaire.
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground mb-2">
+                    💡 <strong>Astuce:</strong> Saisissez le stock réel pour
+                    calculer automatiquement la quantité à commander (selon
+                    min/max et conditionnement pack). Vous pouvez aussi saisir
+                    directement la quantité.
+                  </div>
+                )}
                 <OrderItemsTable
                   items={items}
                   editable
