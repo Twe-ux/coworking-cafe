@@ -21,6 +21,7 @@ interface RouteParams {
 
 /**
  * Calculate order quantity based on stock levels and pack constraints
+ * NEW RULE: Always order to reach maxStock, regardless of minStock
  */
 function calculateOrderQuantity(
   realStock: number,
@@ -29,11 +30,11 @@ function calculateOrderQuantity(
   packagingType: string,
   unitsPerPackage: number
 ): number {
-  // If real stock >= minStock, no need to order
-  if (realStock >= minStock) return 0
-
-  // Calculate need
+  // Calculate need to reach maxStock
   const need = maxStock - realStock
+
+  // Don't order if we already have enough stock (realStock >= maxStock)
+  if (need <= 0) return 0
 
   // If ordering in packs, round up to next pack
   if (packagingType === 'pack' && unitsPerPackage > 1) {
