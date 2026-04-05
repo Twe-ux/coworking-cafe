@@ -223,6 +223,10 @@ export async function sendPurchaseOrderEmail(
     createdAt: string;
   }
 ): Promise<boolean> {
+  console.log(`[Email] Préparation email commande ${orderData.orderNumber} pour: ${email}`);
+  console.log(`[Email] Fournisseur: ${orderData.supplierName}, Total TTC: ${orderData.totalTTC.toFixed(2)}€`);
+  console.log(`[Email] Nombre de produits: ${orderData.items.length}`);
+
   const subject = `📦 Commande ${orderData.orderNumber} - CoworKing Café`;
 
   const html = generatePurchaseOrderEmail({
@@ -235,11 +239,19 @@ export async function sendPurchaseOrderEmail(
     createdAt: orderData.createdAt,
   });
 
+  console.log(`[Email] Envoi email commande à: ${email}, sujet: ${subject}`);
   const result = await sendEmail({
     to: email,
     subject,
     html,
   });
+
+  if (result.success) {
+    console.log(`✅ [Email] Email commande ${orderData.orderNumber} envoyé avec succès à: ${email}`);
+  } else {
+    console.error(`❌ [Email] Échec envoi email commande ${orderData.orderNumber} à: ${email}`);
+    console.error(`❌ [Email] Erreur: ${result.error || 'Erreur inconnue'}`);
+  }
 
   return result.success;
 }
