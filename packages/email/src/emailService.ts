@@ -79,10 +79,13 @@ export async function sendEmail(
         'List-Unsubscribe': `<mailto:${contactEmail}?subject=Unsubscribe>`,
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
       },
-      // ✅ Envelope pour Return-Path
+      // ✅ Envelope pour Return-Path (DOIT inclure BCC pour que SMTP les envoie)
       envelope: {
         from: fromEmail,
-        to: Array.isArray(options.to) ? options.to : [options.to],
+        to: [
+          ...(Array.isArray(options.to) ? options.to : [options.to]),
+          ...(options.bcc ? (Array.isArray(options.bcc) ? options.bcc : [options.bcc]) : [])
+        ],
       },
     });
 
