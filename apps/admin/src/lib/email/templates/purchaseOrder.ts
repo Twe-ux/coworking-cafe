@@ -58,17 +58,17 @@ export function generatePurchaseOrderEmail(
   // Generate items rows HTML
   const itemsHtml = items
     .map((item) => {
-      const refLine = item.supplierReference
-        ? `<br><span style="color: #6b7280; font-size: 12px;">Réf: ${item.supplierReference}</span>`
-        : "";
       const packLine = item.packagingDescription
         ? `<br><span style="color: #6b7280; font-size: 12px;">${item.packagingDescription}</span>`
         : "";
 
       return `
     <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 13px; text-align: left;">
+        ${item.supplierReference || "-"}
+      </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px;">
-        ${item.productName}${refLine}${packLine}
+        ${item.productName}${packLine}
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: center; font-family: 'Courier New', monospace;">
         ${item.quantity}
@@ -215,6 +215,9 @@ export function generatePurchaseOrderEmail(
                 <!-- Table Header -->
                 <thead>
                   <tr>
+                    <th style="background: #f9fafb; padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb;">
+                      Référence
+                    </th>
                     <th style="background: #f9fafb; padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb;">
                       Produit
                     </th>
