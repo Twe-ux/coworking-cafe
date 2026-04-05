@@ -98,8 +98,20 @@ export function ProductInventoryInput({
             )}
           </div>
         </TableCell>
-        <TableCell className="text-center font-mono py-2 w-[120px]">
-          {item.theoreticalQty} {unitLabel}
+        <TableCell className="text-center py-2 w-[120px]">
+          <div className="flex items-center justify-center gap-1.5">
+            <span className="text-sm font-medium">
+              {isPack ? "Pack" : "Unité"}
+            </span>
+            {isPack && (
+              <>
+                <span className="text-sm text-orange-600 font-semibold">×</span>
+                <span className="text-sm text-orange-600 font-semibold font-mono">
+                  {unitsPerPackage}
+                </span>
+              </>
+            )}
+          </div>
         </TableCell>
         <TableCell className="text-center py-2 w-[380px]">
           {/* {isPack && (
@@ -138,8 +150,20 @@ export function ProductInventoryInput({
           )}
         </div>
       </TableCell>
-      <TableCell className="text-center font-mono py-2 w-[120px]">
-        {item.theoreticalQty} {unitLabel}
+      <TableCell className="text-center py-2 w-[120px]">
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="text-sm font-medium">
+            {isPack ? "Pack" : "Unité"}
+          </span>
+          {isPack && (
+            <>
+              <span className="text-sm text-orange-600 font-semibold">×</span>
+              <span className="text-sm text-orange-600 font-semibold font-mono">
+                {unitsPerPackage}
+              </span>
+            </>
+          )}
+        </div>
       </TableCell>
       <TableCell className="py-2 w-[380px]">
         <div className="grid grid-cols-2 gap-3 items-center justify-items-center">

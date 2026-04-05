@@ -74,8 +74,8 @@ export function calculateOrderSuggestion(
     ? maxStock * unitsPerPackage
     : maxStock
 
-  // No order needed if above minimum
-  if (currentStock >= minInUnits) {
+  // No order needed if at or above maximum (not minimum!)
+  if (currentStock >= maxInUnits) {
     return {
       needsOrder: false,
       suggestedPacks: 0,

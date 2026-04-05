@@ -63,7 +63,7 @@ export function InventoryCategorySection({
           <TableHeader>
             <TableRow>
               <TableHead>Produit</TableHead>
-              <TableHead className="text-center">Stock théorique</TableHead>
+              <TableHead className="text-center">Type & Conditionnement</TableHead>
               <TableHead className="text-center">Quantité réelle</TableHead>
               <TableHead className="text-center">Écart</TableHead>
               <TableHead className="text-right">Valeur écart</TableHead>
