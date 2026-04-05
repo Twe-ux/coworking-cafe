@@ -30,11 +30,13 @@ export function generatePurchaseOrderEmail(
 ): string {
   const { orderNumber, supplierName, items, notes, createdAt } = data;
 
-  // Filter out auto-generated notes (DLC task notes)
+  // Filter out auto-generated notes (DLC task notes + inventory notes)
   const shouldShowNotes =
     notes &&
     !notes.includes("Commande DLC générée automatiquement") &&
-    !notes.includes("Référence tâche:");
+    !notes.includes("Référence tâche:") &&
+    !notes.includes("Commande générée automatiquement suite à l'inventaire") &&
+    !notes.includes("Référence inventaire:");
 
   // Translate packaging types to French with plural support
   const translatePackagingType = (type: string, quantity: number): string => {
