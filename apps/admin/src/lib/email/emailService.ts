@@ -240,14 +240,25 @@ export async function sendPurchaseOrderEmail(
   });
 
   console.log(`[Email] Envoi email commande à: ${email}, sujet: ${subject}`);
+
+  // Add BCC to admin email if configured
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (adminEmail) {
+    console.log(`[Email] Copie BCC envoyée à: ${adminEmail}`);
+  }
+
   const result = await sendEmail({
     to: email,
     subject,
     html,
+    bcc: adminEmail, // Send copy to admin (invisible to supplier)
   });
 
   if (result.success) {
     console.log(`✅ [Email] Email commande ${orderData.orderNumber} envoyé avec succès à: ${email}`);
+    if (adminEmail) {
+      console.log(`✅ [Email] Copie BCC envoyée à: ${adminEmail}`);
+    }
   } else {
     console.error(`❌ [Email] Échec envoi email commande ${orderData.orderNumber} à: ${email}`);
     console.error(`❌ [Email] Erreur: ${result.error || 'Erreur inconnue'}`);
