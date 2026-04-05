@@ -1,4 +1,78 @@
-# Scripts de Migration
+# Scripts Admin - CoworKing Café
+
+Scripts de migration, utilitaires et debug pour l'administration.
+
+---
+
+## 📋 Table des Matières
+
+- [Alerte DLC](#alerte-dlc-trigger-dlc-alertsh)
+- [Scripts de Migration](#scripts-de-migration)
+
+---
+
+## 🔔 Alerte DLC (trigger-dlc-alert.sh)
+
+Déclencher manuellement l'alerte de stock DLC (Dates Limites de Consommation courtes).
+
+### Utilisation Rapide
+
+```bash
+# Mode Test (recommandé)
+./scripts/trigger-dlc-alert.sh test
+
+# Mode Production (nécessite CRON_SECRET)
+export CRON_SECRET="votre-secret"
+./scripts/trigger-dlc-alert.sh prod
+```
+
+### Commandes cURL Directes
+
+**Mode Test** (heure/jour actuel, timezone FR) :
+```bash
+CURRENT_TIME=$(TZ=Europe/Paris date +"%H:%M")
+CURRENT_DAY=$(TZ=Europe/Paris date +"%u")
+[ "$CURRENT_DAY" -eq 7 ] && API_DAY=0 || API_DAY=$CURRENT_DAY
+
+curl "https://your-admin.vercel.app/api/cron/dlc-alerts/test?time=${CURRENT_TIME}&day=${API_DAY}" | jq '.'
+```
+
+**Mode Production** (nécessite CRON_SECRET) :
+```bash
+curl -H "Authorization: Bearer ${CRON_SECRET}" \
+  "https://your-admin.vercel.app/api/cron/dlc-alerts" | jq '.'
+```
+
+### Configuration
+
+1. **Modifier l'URL de prod** dans `trigger-dlc-alert.sh` ligne 15
+2. **Récupérer CRON_SECRET** depuis Vercel :
+   ```bash
+   vercel env pull
+   source .env.local
+   ```
+
+### Paramètres (Mode Test)
+
+- `time` : Heure FR au format `HH:mm` (ex: `14:00`)
+- `day` : Jour `0-6` (0=Dimanche, 1=Lundi, ..., 6=Samedi)
+
+### Réponse Attendue
+
+```json
+{
+  "success": true,
+  "data": {
+    "triggeredAlerts": 5,
+    "taskCreated": true,
+    "taskId": "..."
+  }
+}
+```
+
+---
+
+## 📦 Scripts de Migration
 
 ## migrate-dates-to-strings.ts
 
