@@ -86,7 +86,23 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Add products from suppliers with config (if not already added)
+    // Prepare date strings for task creation
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const todayEnd = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59
+    )
+    const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    const systemUserId = process.env.SYSTEM_USER_ID || '000000000000000000000000'
+
+    const createdTasks: string[] = []
+    const skippedSuppliers: string[] = []
+
+    // Process each supplier separately (one task per supplier)
     for (const supplier of suppliersWithAlerts) {
       const config = supplier.dlcAlertConfig
       const daysMatch = config?.days?.includes(currentDay)
@@ -103,97 +119,86 @@ export async function GET(request: NextRequest) {
       console.log(`  - Time match: ${timeMatch} (current: ${currentTime}, config: ${config?.time})`)
       console.log(`  - Should trigger: ${shouldTrigger}`)
 
-      if (shouldTrigger) {
-        // Find all active products from this supplier
-        const supplierProducts = await Product.find({
-          isActive: true,
-          supplierId: supplier._id,
-          // Exclude products that already have their own config
-          'dlcAlertConfig.enabled': { $ne: true },
-        }).lean()
-
-        console.log(`  - Products found: ${supplierProducts.length}`)
-
-        for (const product of supplierProducts) {
-          if (!productsToCount.has(product._id.toString())) {
-            productsToCount.set(product._id.toString(), {
-              productId: product._id.toString(),
-              productName: product.name,
-              source: 'supplier',
-              supplierName: supplier.name,
-            })
-          }
-        }
+      if (!shouldTrigger) {
+        continue
       }
+
+      // Find all active products from this supplier
+      const supplierProducts = await Product.find({
+        isActive: true,
+        supplierId: supplier._id,
+        // Exclude products that already have their own config
+        'dlcAlertConfig.enabled': { $ne: true },
+      }).lean()
+
+      console.log(`  - Products found: ${supplierProducts.length}`)
+
+      if (supplierProducts.length === 0) {
+        console.log(`  - Skipping: No products to count`)
+        continue
+      }
+
+      // Check if task already exists for THIS SUPPLIER today
+      const existingTask = await Task.findOne({
+        title: { $regex: 'Compter stock DLC courte' },
+        'metadata.supplierId': supplier._id.toString(),
+        status: { $in: ['pending', 'completed'] },
+        createdAt: { $gte: todayStart, $lte: todayEnd },
+      })
+
+      if (existingTask) {
+        console.log(`  - Task already exists for ${supplier.name} today (ID: ${existingTask._id})`)
+        skippedSuppliers.push(supplier.name)
+        continue
+      }
+
+      // Create task for this supplier
+      const productsList = supplierProducts.map(p => ({
+        productId: p._id.toString(),
+        productName: p.name,
+      }))
+
+      const task = await Task.create({
+        title: `Compter stock DLC courte - ${supplier.name}`,
+        description: `Compter le stock des produits à DLC courte du fournisseur ${supplier.name} et vérifier si commandes nécessaires.\n\nProduits concernés : ${productsList.map((p) => p.productName).join(', ')}`,
+        priority: 'high',
+        status: 'pending',
+        dueDate: todayDateStr,
+        createdBy: systemUserId,
+        metadata: {
+          type: 'dlc_stock_count',
+          supplierId: supplier._id.toString(),
+          supplierName: supplier.name,
+          productIds: productsList.map((p) => p.productId),
+          triggeredBy: 'cron',
+          triggeredAt: now.toISOString(),
+        },
+      })
+
+      console.log(`  - Task created: ${task._id}`)
+      createdTasks.push(task._id.toString())
     }
 
-    console.log(`[DLC ALERTS] Total products to count: ${productsToCount.size}`)
+    console.log(`[DLC ALERTS] Tasks created: ${createdTasks.length}`)
+    console.log(`[DLC ALERTS] Suppliers skipped (task exists): ${skippedSuppliers.length}`)
     console.log('[DLC ALERTS] ===== CRON EXECUTION END =====')
 
-    if (productsToCount.size === 0) {
+    if (createdTasks.length === 0 && productsToCount.size === 0) {
       return successResponse(
-        { triggeredAlerts: 0, message: 'No DLC alerts matched current day/time' },
+        { triggeredAlerts: 0, tasksCreated: 0, message: 'No DLC alerts matched current day/time' },
         'No alerts to process'
       )
     }
 
-    // Check if task already exists for today
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const todayEnd = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      23,
-      59,
-      59
-    )
-
-    // Format today's date as YYYY-MM-DD string (required by Task model)
-    const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-
-    const existingTask = await Task.findOne({
-      title: { $regex: 'Compter stock DLC courte' },
-      status: { $in: ['pending', 'completed'] },
-      createdAt: { $gte: todayStart, $lte: todayEnd },
-    })
-
-    let taskId = null
-
-    if (!existingTask) {
-      // Get system user ID from env (required by Task model)
-      const systemUserId = process.env.SYSTEM_USER_ID || '000000000000000000000000'
-
-      // Create task for DLC stock count
-      const productsList = Array.from(productsToCount.values())
-      const task = await Task.create({
-        title: 'Compter stock DLC courte',
-        description: `Compter le stock des produits à DLC courte et vérifier si commandes nécessaires.\n\nProduits concernés : ${productsList.map((p) => p.productName).join(', ')}`,
-        priority: 'high',
-        status: 'pending',
-        dueDate: todayDateStr, // String format YYYY-MM-DD (required)
-        createdBy: systemUserId, // Required by Task model
-        metadata: {
-          type: 'dlc_stock_count',
-          productIds: productsList.map((p) => p.productId),
-          triggeredBy: 'cron',
-        },
-      })
-
-      taskId = task._id.toString()
-    }
-
     return successResponse(
       {
-        triggeredAlerts: productsToCount.size,
-        productSources: {
-          ownConfig: Array.from(productsToCount.values()).filter((p) => p.source === 'product').length,
-          supplierConfig: Array.from(productsToCount.values()).filter((p) => p.source === 'supplier').length,
-        },
-        taskCreated: !!taskId,
-        taskId,
+        triggeredAlerts: suppliersWithAlerts.length,
+        tasksCreated: createdTasks.length,
+        taskIds: createdTasks,
+        skippedSuppliers,
         timestamp: now.toISOString(),
       },
-      `Processed ${productsToCount.size} products for DLC alerts`
+      `Created ${createdTasks.length} DLC task(s) for ${createdTasks.length} supplier(s)`
     )
   } catch (error) {
     console.error('[GET /api/cron/dlc-alerts] Error:', error)
