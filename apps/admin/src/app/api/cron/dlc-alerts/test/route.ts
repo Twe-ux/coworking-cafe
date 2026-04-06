@@ -3,166 +3,129 @@ import { successResponse, errorResponse } from '@/lib/api/response'
 import { connectMongoose } from '@/lib/mongodb'
 import { Product } from '@/models/inventory/product'
 import { Supplier } from '@/models/inventory/supplier'
-import { Task } from '@coworking-cafe/database'
 
 export const dynamic = 'force-dynamic'
 
 /**
- * GET /api/cron/dlc-alerts/test?time=12:00&day=1 - Test DLC alerts with custom time/day
+ * GET /api/cron/dlc-alerts/test - Test DLC alerts matching logic
  *
- * Query params:
- * - time: HH:mm format in French timezone (e.g., "14:00") - defaults to current French time
- * - day: 0-6 (0=Sunday, 1=Monday, etc.) - defaults to current day in French timezone
- *
- * Example: /api/cron/dlc-alerts/test?time=14:00&day=1
+ * This endpoint simulates the cron job execution for debugging purposes.
+ * It logs detailed information about suppliers, their configurations, and why they match or don't match.
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-
-    // Get test parameters from query or use current French time
-    const now = new Date()
-    const frenchTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
-    const testTime = searchParams.get('time') || `${String(frenchTime.getHours()).padStart(2, '0')}:${String(frenchTime.getMinutes()).padStart(2, '0')}`
-    const testDay = searchParams.get('day') ? parseInt(searchParams.get('day')!) : frenchTime.getDay()
-
-    console.log(`[TEST] Simulating time: ${testTime}, day: ${testDay}`)
-
     await connectMongoose()
 
-    // Find products with DLC alert config
+    const now = new Date()
+
+    // Convert UTC time to French time (Europe/Paris timezone)
+    const frenchTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
+    const currentDay = frenchTime.getDay() // 0=Sunday, 1=Monday, ..., 6=Saturday
+    const currentHour = frenchTime.getHours()
+    const currentMinute = frenchTime.getMinutes()
+    const currentTime = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`
+
+    console.log('[TEST DLC ALERTS] ===== START =====')
+    console.log('[TEST DLC ALERTS] Current UTC time:', now.toISOString())
+    console.log('[TEST DLC ALERTS] Current French time:', frenchTime.toISOString())
+    console.log('[TEST DLC ALERTS] Current day:', currentDay, getDayName(currentDay))
+    console.log('[TEST DLC ALERTS] Current time:', currentTime)
+
+    // Find products with own alerts
     const productsWithOwnAlerts = await Product.find({
       isActive: true,
       'dlcAlertConfig.enabled': true,
     }).lean()
 
-    // Find suppliers with DLC alert config
+    console.log('[TEST DLC ALERTS] Products with own alerts:', productsWithOwnAlerts.length)
+    productsWithOwnAlerts.forEach(product => {
+      const config = product.dlcAlertConfig
+      const shouldTrigger =
+        config?.days?.includes(currentDay) &&
+        isTimeMatch(currentTime, config?.time || '')
+
+      console.log(`[TEST DLC ALERTS] Product: ${product.name}`)
+      console.log(`  - Config days: ${config?.days}`)
+      console.log(`  - Config time: ${config?.time}`)
+      console.log(`  - Days match: ${config?.days?.includes(currentDay)}`)
+      console.log(`  - Time match: ${isTimeMatch(currentTime, config?.time || '')}`)
+      console.log(`  - Should trigger: ${shouldTrigger}`)
+    })
+
+    // Find suppliers with alerts
     const suppliersWithAlerts = await Supplier.find({
       isActive: true,
       'dlcAlertConfig.enabled': true,
     }).lean()
 
-    // Collect matching products
-    const productsToCount = new Map()
+    console.log('[TEST DLC ALERTS] Suppliers with DLC alerts:', suppliersWithAlerts.length)
 
-    // Check products with own config
-    for (const product of productsWithOwnAlerts) {
-      const config = product.dlcAlertConfig
-      const shouldTrigger =
-        config?.days?.includes(testDay) &&
-        isTimeMatch(testTime, config?.time || '')
+    const debugInfo: any[] = []
 
-      if (shouldTrigger) {
-        productsToCount.set(product._id.toString(), {
-          productId: product._id.toString(),
-          productName: product.name,
-          source: 'product',
-          configTime: config?.time,
-          configDays: config?.days,
-        })
-      }
-    }
-
-    // Check products from suppliers with config
     for (const supplier of suppliersWithAlerts) {
       const config = supplier.dlcAlertConfig
       const shouldTrigger =
-        config?.days?.includes(testDay) &&
-        isTimeMatch(testTime, config?.time || '')
+        config?.days?.includes(currentDay) &&
+        isTimeMatch(currentTime, config?.time || '')
+
+      const info = {
+        supplierName: supplier.name,
+        isActive: supplier.isActive,
+        dlcAlertEnabled: config?.enabled,
+        configDays: config?.days,
+        configTime: config?.time,
+        currentDay,
+        currentDayName: getDayName(currentDay),
+        currentTime,
+        daysMatch: config?.days?.includes(currentDay),
+        timeMatch: isTimeMatch(currentTime, config?.time || ''),
+        shouldTrigger,
+      }
+
+      console.log(`[TEST DLC ALERTS] Supplier: ${supplier.name}`)
+      console.log(`  - Active: ${supplier.isActive}`)
+      console.log(`  - DLC Alert Enabled: ${config?.enabled}`)
+      console.log(`  - Config days: ${JSON.stringify(config?.days)}`)
+      console.log(`  - Config time: ${config?.time}`)
+      console.log(`  - Current day: ${currentDay} (${getDayName(currentDay)})`)
+      console.log(`  - Current time: ${currentTime}`)
+      console.log(`  - Days match: ${config?.days?.includes(currentDay)}`)
+      console.log(`  - Time match: ${isTimeMatch(currentTime, config?.time || '')}`)
+      console.log(`  - Should trigger: ${shouldTrigger}`)
 
       if (shouldTrigger) {
+        // Find products for this supplier
         const supplierProducts = await Product.find({
           isActive: true,
           supplierId: supplier._id,
           'dlcAlertConfig.enabled': { $ne: true },
         }).lean()
 
-        for (const product of supplierProducts) {
-          if (!productsToCount.has(product._id.toString())) {
-            productsToCount.set(product._id.toString(), {
-              productId: product._id.toString(),
-              productName: product.name,
-              source: 'supplier',
-              supplierName: supplier.name,
-              configTime: config?.time,
-              configDays: config?.days,
-            })
-          }
-        }
+        console.log(`  - Products found: ${supplierProducts.length}`)
+        info.productsCount = supplierProducts.length
+        info.productNames = supplierProducts.map(p => p.name)
       }
+
+      debugInfo.push(info)
     }
 
-    if (productsToCount.size === 0) {
-      return successResponse(
-        {
-          testMode: true,
-          testTime,
-          testDay,
-          triggeredAlerts: 0,
-          message: 'No DLC alerts matched simulated day/time',
-          debug: {
-            productsWithAlerts: productsWithOwnAlerts.length,
-            suppliersWithAlerts: suppliersWithAlerts.length,
-          },
-        },
-        'Test completed - No matches'
-      )
-    }
-
-    // Check if task already exists for today
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)
-    const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-
-    const existingTask = await Task.findOne({
-      title: { $regex: 'Compter stock DLC courte' },
-      status: 'pending', // Only check pending tasks in test mode
-      createdAt: { $gte: todayStart, $lte: todayEnd },
-    })
-
-    let taskId = null
-    let taskCreated = false
-
-    if (!existingTask) {
-      const systemUserId = process.env.SYSTEM_USER_ID || '000000000000000000000000'
-      const productsList = Array.from(productsToCount.values())
-
-      const task = await Task.create({
-        title: 'Compter stock DLC courte (TEST)',
-        description: `[TEST MODE] Compter le stock des produits à DLC courte.\n\nProduits : ${productsList.map((p) => p.productName).join(', ')}`,
-        priority: 'high',
-        status: 'pending',
-        dueDate: todayDateStr,
-        createdBy: systemUserId,
-        metadata: {
-          type: 'dlc_stock_count',
-          productIds: productsList.map((p) => p.productId),
-          triggeredBy: 'test',
-          testTime,
-          testDay,
-        },
-      })
-
-      taskId = task._id.toString()
-      taskCreated = true
-    }
+    console.log('[TEST DLC ALERTS] ===== END =====')
 
     return successResponse(
       {
-        testMode: true,
-        testTime,
-        testDay,
-        triggeredAlerts: productsToCount.size,
-        products: Array.from(productsToCount.values()),
-        taskCreated,
-        taskId,
-        existingTaskFound: !!existingTask,
-        timestamp: now.toISOString(),
+        currentUTCTime: now.toISOString(),
+        currentFrenchTime: frenchTime.toISOString(),
+        currentDay,
+        currentDayName: getDayName(currentDay),
+        currentTime,
+        productsWithOwnAlerts: productsWithOwnAlerts.length,
+        suppliersWithAlerts: suppliersWithAlerts.length,
+        debugInfo,
       },
-      `Test completed - ${productsToCount.size} products matched`
+      'DLC alerts test completed'
     )
   } catch (error) {
-    console.error('[GET /api/cron/dlc-alerts/test] Error:', error)
+    console.error('[TEST DLC ALERTS] Error:', error)
     return errorResponse(
       'Error testing DLC alerts',
       error instanceof Error ? error.message : undefined,
@@ -172,13 +135,19 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Check if simulated time matches configured time (within same hour)
+ * Check if current time matches configured time (within 1-hour window)
  */
-function isTimeMatch(simulatedTime: string, configTime: string): boolean {
+function isTimeMatch(currentTime: string, configTime: string): boolean {
   if (!configTime) return false
 
-  const [simHour] = simulatedTime.split(':').map(Number)
-  const [cfgHour] = configTime.split(':').map(Number)
+  const [currentHour, currentMinute] = currentTime.split(':').map(Number)
+  const [configHour, configMinute] = configTime.split(':').map(Number)
 
-  return simHour === cfgHour
+  // Match if current hour equals config hour
+  return currentHour === configHour
+}
+
+function getDayName(day: number): string {
+  const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
+  return days[day] || 'Unknown'
 }

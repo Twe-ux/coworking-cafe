@@ -42,6 +42,14 @@ export async function GET(request: NextRequest) {
     const currentMinute = frenchTime.getMinutes()
     const currentTime = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`
 
+    // 🔍 DEBUG LOGS - START
+    console.log('[DLC ALERTS] ===== CRON EXECUTION START =====')
+    console.log('[DLC ALERTS] UTC time:', now.toISOString())
+    console.log('[DLC ALERTS] French time:', frenchTime.toISOString())
+    console.log('[DLC ALERTS] Current day:', currentDay, getDayName(currentDay))
+    console.log('[DLC ALERTS] Current time:', currentTime)
+    // 🔍 DEBUG LOGS - END
+
     // Find products to count (two sources):
     // 1. Products with their own DLC alert config
     const productsWithOwnAlerts = await Product.find({
@@ -49,11 +57,15 @@ export async function GET(request: NextRequest) {
       'dlcAlertConfig.enabled': true,
     }).lean()
 
+    console.log('[DLC ALERTS] Products with own alerts:', productsWithOwnAlerts.length)
+
     // 2. Suppliers with DLC alert config (all their products)
     const suppliersWithAlerts = await Supplier.find({
       isActive: true,
       'dlcAlertConfig.enabled': true,
     }).lean()
+
+    console.log('[DLC ALERTS] Suppliers with DLC alerts:', suppliersWithAlerts.length)
 
     // Collect all products that should trigger an alert
     const productsToCount = new Map()
@@ -77,9 +89,19 @@ export async function GET(request: NextRequest) {
     // Add products from suppliers with config (if not already added)
     for (const supplier of suppliersWithAlerts) {
       const config = supplier.dlcAlertConfig
-      const shouldTrigger =
-        config?.days?.includes(currentDay) &&
-        isTimeMatch(currentTime, config?.time || '')
+      const daysMatch = config?.days?.includes(currentDay)
+      const timeMatch = isTimeMatch(currentTime, config?.time || '')
+      const shouldTrigger = daysMatch && timeMatch
+
+      // 🔍 DEBUG LOGS - Supplier details
+      console.log(`[DLC ALERTS] Supplier: ${supplier.name}`)
+      console.log(`  - Active: ${supplier.isActive}`)
+      console.log(`  - DLC Alert Enabled: ${config?.enabled}`)
+      console.log(`  - Config days: ${JSON.stringify(config?.days)}`)
+      console.log(`  - Config time: ${config?.time}`)
+      console.log(`  - Days match: ${daysMatch} (current: ${currentDay}, config: ${config?.days})`)
+      console.log(`  - Time match: ${timeMatch} (current: ${currentTime}, config: ${config?.time})`)
+      console.log(`  - Should trigger: ${shouldTrigger}`)
 
       if (shouldTrigger) {
         // Find all active products from this supplier
@@ -89,6 +111,8 @@ export async function GET(request: NextRequest) {
           // Exclude products that already have their own config
           'dlcAlertConfig.enabled': { $ne: true },
         }).lean()
+
+        console.log(`  - Products found: ${supplierProducts.length}`)
 
         for (const product of supplierProducts) {
           if (!productsToCount.has(product._id.toString())) {
@@ -102,6 +126,9 @@ export async function GET(request: NextRequest) {
         }
       }
     }
+
+    console.log(`[DLC ALERTS] Total products to count: ${productsToCount.size}`)
+    console.log('[DLC ALERTS] ===== CRON EXECUTION END =====')
 
     if (productsToCount.size === 0) {
       return successResponse(
@@ -193,4 +220,12 @@ function isTimeMatch(currentTime: string, configTime: string): boolean {
   // Match if current hour equals config hour
   // This allows the task to be created anytime within that hour
   return currentHour === configHour
+}
+
+/**
+ * Get day name in French for logging
+ */
+function getDayName(day: number): string {
+  const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
+  return days[day] || 'Unknown'
 }
