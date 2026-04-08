@@ -18,6 +18,11 @@ export interface AdminCancelClientBookingData {
   totalPrice: number;
   confirmationNumber?: string;
   contactEmail: string;
+  reason?: string;
+  cancellationFees?: number;
+  refundAmount?: number;
+  daysUntilBooking?: number;
+  chargePercentage?: number;
 }
 
 export function generateAdminCancelClientBookingEmail(
@@ -77,7 +82,11 @@ export function generateAdminCancelClientBookingEmail(
       <div class="warning-box" style="background: #FEF2F2; border-left: 4px solid #EF4444; padding: 20px; border-radius: 8px; margin: 28px 0;">
         <p style="margin: 0 0 12px 0; font-weight: 700; color: #991B1B; font-size: 16px;">⚠️ Annulation administrative</p>
         <p style="margin: 0; color: #991B1B; font-size: 15px; line-height: 1.7;">
-          Cette annulation peut être due à un problème technique, une indisponibilité de l'espace ou une autre raison indépendante de notre volonté. Nous nous excusons pour le désagrément occasionné.
+          ${
+            data.reason
+              ? data.reason
+              : "Cette annulation peut être due à un problème technique, une indisponibilité de l'espace ou une autre raison indépendante de notre volonté. Nous nous excusons pour le désagrément occasionné."
+          }
         </p>
       </div>
 
@@ -157,13 +166,57 @@ export function generateAdminCancelClientBookingEmail(
       <!-- Price disclaimer -->
       ${getPriceDisclaimerNote()}
 
-      <!-- Info Remboursement -->
-      <div class="info-box" style="background: #EFF6FF; border-left: 4px solid #3B82F6; padding: 20px; border-radius: 8px; margin: 28px 0;">
-        <p style="margin: 0 0 12px 0; font-weight: 700; color: #1E40AF; font-size: 16px;">💰 Remboursement</p>
-        <p style="margin: 0; color: #1E40AF; font-size: 15px; line-height: 1.7;">
-          Si un paiement a été effectué, vous serez intégralement remboursé sous 5 à 10 jours ouvrés. Le remboursement sera effectué sur le même moyen de paiement utilisé lors de la réservation.
+      <!-- Info Remboursement / Frais -->
+      ${
+        data.chargePercentage !== undefined && data.chargePercentage > 0
+          ? `
+      <!-- Frais d'annulation appliqués -->
+      <div class="warning-box" style="background: #FEF2F2; border-left: 4px solid #EF4444; padding: 20px; border-radius: 8px; margin: 28px 0;">
+        <p style="margin: 0 0 12px 0; font-weight: 700; color: #991B1B; font-size: 16px;">💳 Frais d'annulation</p>
+        <p style="margin: 0 0 12px 0; color: #991B1B; font-size: 15px; line-height: 1.7;">
+          En raison du délai d'annulation (${data.daysUntilBooking} jour${(data.daysUntilBooking || 0) > 1 ? 's' : ''} avant la réservation), des frais d'annulation de <strong>${data.chargePercentage}%</strong> sont appliqués :
+        </p>
+        <div style="background: white; padding: 16px; border-radius: 6px; margin-top: 12px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td style="padding: 8px 0; color: #991B1B; font-size: 15px;">
+                <strong>Montant prélevé :</strong>
+              </td>
+              <td style="padding: 8px 0; text-align: right; color: #EF4444; font-weight: 700; font-size: 16px;">
+                ${(data.cancellationFees || 0).toFixed(2)}€
+              </td>
+            </tr>
+            ${
+              (data.refundAmount || 0) > 0
+                ? `
+            <tr>
+              <td style="padding: 8px 0; color: #059669; font-size: 15px;">
+                <strong>Montant non prélevé :</strong>
+              </td>
+              <td style="padding: 8px 0; text-align: right; color: #10B981; font-weight: 700; font-size: 16px;">
+                ${(data.refundAmount || 0).toFixed(2)}€
+              </td>
+            </tr>
+            `
+                : ""
+            }
+          </table>
+        </div>
+        <p style="margin: 12px 0 0 0; color: #991B1B; font-size: 14px;">
+          Le montant prélevé sera débité de votre empreinte bancaire sous 5 à 10 jours ouvrés.
         </p>
       </div>
+      `
+          : `
+      <!-- Remboursement intégral -->
+      <div class="info-box" style="background: #ECFDF5; border-left: 4px solid #10B981; padding: 20px; border-radius: 8px; margin: 28px 0;">
+        <p style="margin: 0 0 12px 0; font-weight: 700; color: #065F46; font-size: 16px;">💰 Aucun frais</p>
+        <p style="margin: 0; color: #065F46; font-size: 15px; line-height: 1.7;">
+          Votre empreinte bancaire sera annulée. Aucun montant ne sera prélevé.
+        </p>
+      </div>
+      `
+      }
 
       <p style="margin: 28px 0 0 0; font-size: 16px; line-height: 1.7;">Nous vous invitons à effectuer une nouvelle réservation selon vos disponibilités. Notre équipe reste à votre disposition pour vous accompagner.</p>
 

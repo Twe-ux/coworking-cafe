@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Booking, Payment, stripe } from "@coworking-cafe/database";
 import {
   generateAdminCancelAdminBookingEmail,
+  generateAdminCancelClientBookingEmail,
   generateReservationRejectedEmail,
   generateAdminCancellationNotification,
 } from "@coworking-cafe/email";
@@ -60,7 +61,7 @@ export async function POST(
   try {
     await connectMongoose();
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { reason, skipCapture } = body; // skipCapture: admin chooses not to capture deposit
 
@@ -267,7 +268,7 @@ export async function POST(
           chargePercentage: chargePercentage,
         };
 
-        // Choisir le template selon isAdminBooking ET les frais
+        // Choisir le template selon isAdminBooking
         if (populatedBooking.isAdminBooking) {
           // Template admin : pas de mention de paiement
           await sendEmail({
@@ -275,24 +276,14 @@ export async function POST(
             subject: '❌ Réservation annulée - CoworKing Café',
             html: generateAdminCancelAdminBookingEmail(emailData),
           });
-        } else if (wasPending || chargePercentage === 0) {
-          // Réservation pending ou annulation gratuite : pas de frais
-          await sendEmail({
-            to: recipientEmail,
-            subject: '❌ Réservation annulée - CoworKing Café',
-            html: generateReservationRejectedEmail({
-              ...emailData,
-              confirmationNumber: populatedBooking._id.toString(),
-            }),
-          });
         } else {
-          // Annulation avec frais : utiliser template avec détails des frais
-          // TODO: Créer template spécifique pour annulation avec frais
-          // Pour l'instant, utiliser le template classique
+          // Template client avec détails des frais (si applicable)
           await sendEmail({
             to: recipientEmail,
-            subject: '❌ Réservation annulée avec frais - CoworKing Café',
-            html: generateReservationRejectedEmail(emailDataWithFees),
+            subject: chargePercentage === 0
+              ? '❌ Réservation annulée - CoworKing Café'
+              : '❌ Réservation annulée avec frais - CoworKing Café',
+            html: generateAdminCancelClientBookingEmail(emailDataWithFees),
           });
         }
 

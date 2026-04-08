@@ -31,8 +31,17 @@ export async function POST(
   try {
     await connectDB();
 
-    const bookingId = params.id;
+    const { id: bookingId } = await params;
     const user = await getAuthUser();
+
+    // Get optional cancellation reason from request body
+    let reason: string | undefined;
+    try {
+      const body = await request.json();
+      reason = body?.reason;
+    } catch {
+      // No body provided, that's ok
+    }
 
     // Validate booking ID
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
@@ -154,13 +163,14 @@ export async function POST(
     const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
     let refundAmount = 0;
     let cancellationFee = 0;
+    let depositAmount = 0;
 
     if (booking.stripePaymentIntentId) {
       const paymentIntent = await stripe.paymentIntents.retrieve(
         booking.stripePaymentIntentId
       );
 
-      const depositAmount = paymentIntent.amount; // Empreinte en centimes (ex: 70€ = 7000)
+      depositAmount = paymentIntent.amount; // Empreinte en centimes (ex: 70€ = 7000)
       const bookingTotalInCents = Math.round(booking.totalPrice * 100); // Prix total en centimes (ex: 100€ = 10000)
 
       // Calculer les frais sur le PRIX TOTAL de la réservation
@@ -274,8 +284,10 @@ export async function POST(
     // Update booking status
     booking.status = "cancelled";
     booking.cancelledAt = new Date();
-    booking.cancellationFee = cancellationFee / 100;
-    booking.refundAmount = refundAmount / 100;
+    booking.cancelReason = reason || "Annulée par le client"; // Store reason for accounting
+    booking.depositAmount = depositAmount; // Store deposit amount in cents for accounting (will be divided by 100 in display)
+    booking.cancellationFee = cancellationFee / 100; // In euros
+    booking.refundAmount = refundAmount / 100; // In euros
     if (user?.id) {
       booking.cancelledBy = new mongoose.Types.ObjectId(user.id) as any;
     }

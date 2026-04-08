@@ -18,18 +18,9 @@ import { EditBookingDialog } from "../reservations/EditBookingDialog";
 import { DayBookingsModal } from "./DayBookingsModal";
 import { useSession } from "next-auth/react";
 import type { Booking, BookingStatus } from "@/types/booking";
-import { useConfirmBooking, useCancelBooking, useMarkPresent, useMarkNoShow, useDeleteBooking } from "@/hooks/useBookings";
+import { useConfirmBooking, useCancelBooking, useMarkPresent, useMarkNoShow } from "@/hooks/useBookings";
 import { ConfirmActionDialog } from "@/components/booking/ConfirmActionDialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { CancelBookingModal } from "@/components/booking/CancelBookingModal";
 import { Trash2, Loader2 } from "lucide-react";
 
 const spaceTypeColors: Record<string, string> = {
@@ -110,7 +101,6 @@ export function AgendaClient() {
   const cancelBooking = useCancelBooking();
   const markPresent = useMarkPresent();
   const markNoShow = useMarkNoShow();
-  const deleteBooking = useDeleteBooking();
   const [isMarkingPresent, setIsMarkingPresent] = useState(false);
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -118,8 +108,8 @@ export function AgendaClient() {
   const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<"present" | "noshow" | null>(null);
   const [pendingIsAdminBooking, setPendingIsAdminBooking] = useState<boolean>(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteBookingId, setDeleteBookingId] = useState<string | null>(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedBookingForCancel, setSelectedBookingForCancel] = useState<Booking | null>(null);
 
   useEffect(() => {
     fetchBookings();
@@ -280,34 +270,20 @@ export function AgendaClient() {
   };
 
   const handleDelete = (bookingId: string) => {
-    setDeleteBookingId(bookingId);
-    setDeleteDialogOpen(true);
-  };
-
-  const confirmDeleteHandler = async () => {
-    if (!deleteBookingId) return;
-
-    try {
-      setIsDeleting(true);
-      await deleteBooking.mutateAsync(deleteBookingId);
-      setMessage({ type: "success", text: "Réservation supprimée avec succès" });
-      fetchBookings();
-      setDayModalOpen(false);
-      setDeleteDialogOpen(false);
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: error instanceof Error ? error.message : "Erreur lors de la suppression",
-      });
-    } finally {
-      setIsDeleting(false);
-      setDeleteBookingId(null);
+    // Find the full booking object
+    const booking = bookings.find((b) => b._id === bookingId);
+    if (booking) {
+      setSelectedBookingForCancel(booking);
+      setCancelModalOpen(true);
     }
   };
 
-  const cancelDeleteHandler = () => {
-    setDeleteDialogOpen(false);
-    setDeleteBookingId(null);
+  const handleCancellationComplete = () => {
+    setMessage({ type: "success", text: "Réservation annulée avec succès" });
+    fetchBookings();
+    setDayModalOpen(false);
+    setCancelModalOpen(false);
+    setSelectedBookingForCancel(null);
   };
 
   const renderCell = (date: Date, dayBookings: Booking[], cellInfo: { isCurrentMonth: boolean; isToday: boolean }) => {
@@ -492,33 +468,12 @@ export function AgendaClient() {
         isAdminBooking={pendingIsAdminBooking}
       />
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => !open && cancelDeleteHandler()}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <Trash2 className="h-6 w-6 text-red-600" />
-              <AlertDialogTitle>Supprimer la réservation</AlertDialogTitle>
-            </div>
-            <AlertDialogDescription className="text-base">
-              Êtes-vous sûr de vouloir supprimer définitivement cette réservation ? Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                confirmDeleteHandler();
-              }}
-              disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CancelBookingModal
+        booking={selectedBookingForCancel}
+        open={cancelModalOpen}
+        onOpenChange={setCancelModalOpen}
+        onCancelled={handleCancellationComplete}
+      />
     </div>
   );
 }
