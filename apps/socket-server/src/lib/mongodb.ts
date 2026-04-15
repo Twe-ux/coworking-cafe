@@ -8,7 +8,12 @@ export async function connectDB(): Promise<void> {
   }
 
   try {
-    await mongoose.connect(MONGODB_URI)
+    await mongoose.connect(MONGODB_URI, {
+      maxPoolSize: 5,
+      minPoolSize: 1,
+      maxIdleTimeMS: 30000,
+      serverSelectionTimeoutMS: 10000,
+    })
     console.log('✅ MongoDB connected successfully')
   } catch (error) {
     console.error('❌ MongoDB connection error:', error)
