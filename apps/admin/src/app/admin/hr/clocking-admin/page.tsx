@@ -7,7 +7,7 @@ import { ClockingAdminPageSkeleton } from "./ClockingAdminPageSkeleton";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Calendar, CalendarDays, Info, FileText } from "lucide-react";
+import { AlertTriangle, Calendar, CalendarDays, Info, FileText, Mail, X } from "lucide-react";
 import { usePendingJustifications } from "@/hooks/usePendingJustifications";
 import type { Employee } from "@/types/hr";
 import { calculateMonthlyPayroll } from "@/lib/payroll/calculateMonthlyPayroll";
@@ -23,6 +23,8 @@ export default function ClockingAdminPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+  const [isSendingIndividual, setIsSendingIndividual] = useState(false);
+  const [pendingIndividualSend, setPendingIndividualSend] = useState(false);
   const { count: pendingJustifications } = usePendingJustifications();
 
   const fetchEmployees = useCallback(async () => {
@@ -73,6 +75,63 @@ export default function ClockingAdminPage() {
     setCurrentDate(new Date());
   }, []);
 
+  const handleSendIndividualEmails = useCallback(async () => {
+    if (!pendingIndividualSend) {
+      setPendingIndividualSend(true);
+      return;
+    }
+
+    try {
+      setIsSendingIndividual(true);
+      setPendingIndividualSend(false);
+      toast.info("Calcul des heures en cours...");
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+
+      const payrollData = await calculateMonthlyPayroll(employees, year, month);
+
+      const employeesData = payrollData
+        .map((data) => {
+          const emp = employees.find(
+            (e) => e.id === data.employeeId || e._id === data.employeeId
+          );
+          return {
+            email: emp?.email ?? "",
+            firstName: data.firstName,
+            lastName: data.lastName,
+            monthlyContractualHours: data.monthlyContractualHours,
+            hoursWorked: data.hoursWorked,
+            paidLeaveHours: data.paidLeaveHours,
+            sickLeaveHours: data.sickLeaveHours,
+            overtimeHours: data.overtimeHours,
+          };
+        })
+        .filter((e) => e.email);
+
+      toast.info(`Envoi à ${employeesData.length} employé(s)...`);
+
+      const response = await fetch("/api/hr/payroll/send-individual-emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeesData, month, year }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(`Récapitulatifs envoyés à ${result.sentCount} employé(s)`);
+      } else {
+        toast.error(result.error || "Erreur lors de l'envoi");
+      }
+    } catch (error) {
+      console.error("Error sending individual emails:", error);
+      toast.error("Erreur lors de l'envoi des emails");
+    } finally {
+      setIsSendingIndividual(false);
+    }
+  }, [pendingIndividualSend, currentDate, employees]);
+
   const handleGeneratePDF = useCallback(async () => {
     try {
       setIsGenerating(true);
@@ -122,6 +181,36 @@ export default function ClockingAdminPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          {pendingIndividualSend ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleSendIndividualEmails}
+                disabled={isSendingIndividual}
+                className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                Confirmer ({employees.length} employés)
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setPendingIndividualSend(false)}
+                className="border-gray-300 text-gray-500 hover:bg-gray-50"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={handleSendIndividualEmails}
+              disabled={isSendingIndividual || employees.length === 0}
+              className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-700"
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              {isSendingIndividual ? "Envoi..." : "Envoyer récap employés"}
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={handleGeneratePDF}
