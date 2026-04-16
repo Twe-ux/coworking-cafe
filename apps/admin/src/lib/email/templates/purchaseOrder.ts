@@ -16,6 +16,7 @@ interface OrderItem {
   packagingDescription?: string;
   quantity: number;
   packagingType: string;
+  packageUnit?: string;
   unitsPerPackage?: number;
   unitPriceHT: number;
   totalHT: number;
@@ -65,11 +66,12 @@ export function generatePurchaseOrderEmail(
     return isPlural ? translation.plural : translation.singular;
   };
 
-  // Resolve display quantity and unit label based on config
+  // Resolve unit label based on config
+  // 'type' → show packagingType as-is (pack/packs)
+  // 'unit' → for pack products, show packageUnit (kg/L/unité) instead of "pack"
   const resolveQuantityAndUnit = (item: OrderItem): { qty: number; unit: string } => {
-    if (quantityDisplay === 'unit' && item.packagingType === 'pack' && item.unitsPerPackage) {
-      const totalUnits = item.quantity * item.unitsPerPackage;
-      return { qty: totalUnits, unit: translatePackagingType('unit', totalUnits) };
+    if (quantityDisplay === 'unit' && item.packagingType === 'pack' && item.packageUnit) {
+      return { qty: item.quantity, unit: translatePackagingType(item.packageUnit, item.quantity) };
     }
     return {
       qty: item.quantity,

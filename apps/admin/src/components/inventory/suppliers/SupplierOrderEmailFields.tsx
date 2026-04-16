@@ -68,7 +68,7 @@ export function SupplierOrderEmailFields({ control }: SupplierOrderEmailFieldsPr
                     <RadioGroupItem value="type" />
                   </FormControl>
                   <FormLabel className="font-normal">
-                    Type — affiche le conditionnement (<span className="text-gray-500">3 packs, 5 kg, 2 L</span>)
+                    Type — affiche le conditionnement (<span className="text-gray-500">3 packs, 5 cartons</span>)
                   </FormLabel>
                 </FormItem>
                 <FormItem className="flex items-center space-x-3 space-y-0">
@@ -76,7 +76,7 @@ export function SupplierOrderEmailFields({ control }: SupplierOrderEmailFieldsPr
                     <RadioGroupItem value="unit" />
                   </FormControl>
                   <FormLabel className="font-normal">
-                    Unité — converti en unités de base (<span className="text-gray-500">18 unités, 5 kg, 2 L</span>)
+                    Unité — affiche l'unité du produit (<span className="text-gray-500">3 kg, 2 L, 5 unités</span>)
                   </FormLabel>
                 </FormItem>
               </RadioGroup>

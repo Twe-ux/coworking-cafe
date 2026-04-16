@@ -77,7 +77,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Enrich items with product data (supplierReference, packagingDescription)
     const productIds = order.items.map((item) => item.productId)
     const products = await Product.find({ _id: { $in: productIds } })
-      .select('supplierReference packagingDescription')
+      .select('supplierReference packagingDescription packageUnit')
       .lean()
 
     const productMap = new Map(
@@ -96,6 +96,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           packagingDescription: productData?.packagingDescription || undefined,
           quantity: item.quantity,
           packagingType: item.packagingType,
+          packageUnit: (productData as { packageUnit?: string } | undefined)?.packageUnit || undefined,
           unitsPerPackage: item.unitsPerPackage,
           unitPriceHT: item.unitPriceHT,
           totalHT: item.totalHT,

@@ -214,6 +214,7 @@ export async function sendPurchaseOrderEmail(
       packagingDescription?: string;
       quantity: number;
       packagingType: string;
+      packageUnit?: string;
       unitsPerPackage?: number;
       unitPriceHT: number;
       totalHT: number;
@@ -234,7 +235,7 @@ export async function sendPurchaseOrderEmail(
   const html = generatePurchaseOrderEmail({
     orderNumber: orderData.orderNumber,
     supplierName: orderData.supplierName,
-    items: orderData.items,
+    items: orderData.items as Parameters<typeof generatePurchaseOrderEmail>[0]['items'],
     totalHT: orderData.totalHT,
     totalTTC: orderData.totalTTC,
     notes: orderData.notes,
