@@ -23,6 +23,10 @@ export const supplierCreateSchema = z.object({
   isActive: z.boolean().optional(),
   requiresStockManagement: z.boolean().optional().default(true),
   dlcAlertConfig: dlcAlertConfigSchema.optional(),
+  orderEmailConfig: z.object({
+    showReference: z.boolean(),
+    quantityDisplay: z.enum(['type', 'unit']),
+  }).optional(),
 })
 
 export const supplierUpdateSchema = supplierCreateSchema.partial()
