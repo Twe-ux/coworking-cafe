@@ -24,6 +24,10 @@ const supplierSchema = z.object({
     days: z.array(z.number().min(0).max(6)),
     time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Format HH:mm requis'),
   }).optional(),
+  orderEmailConfig: z.object({
+    showReference: z.boolean(),
+    quantityDisplay: z.enum(['type', 'unit']),
+  }).optional(),
 }).refine(
   (data) => !data.dlcAlertConfig?.enabled || (data.dlcAlertConfig?.days?.length ?? 0) > 0,
   {
@@ -45,6 +49,10 @@ const DEFAULT_FORM_VALUES: SupplierFormData = {
     enabled: false,
     days: [],
     time: '09:00',
+  },
+  orderEmailConfig: {
+    showReference: false,
+    quantityDisplay: 'type',
   },
 }
 
@@ -133,6 +141,10 @@ export function useSupplierForm({
           enabled: false,
           days: [],
           time: '09:00',
+        },
+        orderEmailConfig: supplier.orderEmailConfig || {
+          showReference: false,
+          quantityDisplay: 'type',
         },
       })
       setEmailExists(false)

@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { SupplierDLCAlertFields } from './SupplierDLCAlertFields'
+import { SupplierOrderEmailFields } from './SupplierOrderEmailFields'
 import { useSupplierForm } from '@/hooks/inventory/useSupplierForm'
 import type { Supplier, SupplierFormData } from '@/types/inventory'
 
@@ -271,6 +272,9 @@ export function SupplierDialog({
 
             {/* DLC Alert Configuration */}
             <SupplierDLCAlertFields control={form.control} />
+
+            {/* Order Email Template Configuration */}
+            <SupplierOrderEmailFields control={form.control} />
 
             {/* Actions */}
             <div className="flex justify-end space-x-2 pt-4">

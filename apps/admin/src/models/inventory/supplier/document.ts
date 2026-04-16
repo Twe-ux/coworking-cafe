@@ -6,6 +6,11 @@ export interface DLCAlertConfig {
   time: string // Format "HH:mm"
 }
 
+export interface OrderEmailConfig {
+  showReference: boolean
+  quantityDisplay: 'type' | 'unit'
+}
+
 /** Document of a Supplier, as stored in the database. */
 export interface SupplierDocument extends Document {
   name: string
@@ -19,6 +24,7 @@ export interface SupplierDocument extends Document {
   requiresStockManagement: boolean // Indicates if products from this supplier need min/max stock tracking
   dlcAlertConfig?: DLCAlertConfig
   deliveryReminderMessage?: string // Message to display as a task when order is validated (e.g., "Rendre cagette plastique")
+  orderEmailConfig?: OrderEmailConfig
   createdAt: Date
   updatedAt: Date
 }
@@ -81,6 +87,13 @@ export const SupplierSchema = new Schema<SupplierDocument>(
     deliveryReminderMessage: {
       type: String,
       trim: true,
+      required: false,
+    },
+    orderEmailConfig: {
+      type: {
+        showReference: { type: Boolean, default: false },
+        quantityDisplay: { type: String, enum: ['type', 'unit'], default: 'type' },
+      },
       required: false,
     },
   },

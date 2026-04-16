@@ -5,12 +5,18 @@
  * Envoie au fournisseur le détail d'une commande validée
  */
 
+interface OrderEmailConfig {
+  showReference: boolean;
+  quantityDisplay: 'type' | 'unit';
+}
+
 interface OrderItem {
   productName: string;
   supplierReference?: string;
   packagingDescription?: string;
   quantity: number;
   packagingType: string;
+  unitsPerPackage?: number;
   unitPriceHT: number;
   totalHT: number;
 }
@@ -23,12 +29,16 @@ interface PurchaseOrderEmailData {
   totalTTC: number;
   notes?: string;
   createdAt: string;
+  orderEmailConfig?: OrderEmailConfig;
 }
 
 export function generatePurchaseOrderEmail(
   data: PurchaseOrderEmailData,
 ): string {
-  const { orderNumber, supplierName, items, notes, createdAt } = data;
+  const { orderNumber, supplierName, items, notes, createdAt, orderEmailConfig } = data;
+
+  const showReference = orderEmailConfig?.showReference ?? false;
+  const quantityDisplay = orderEmailConfig?.quantityDisplay ?? 'type';
 
   // Filter out auto-generated notes (DLC task notes + inventory notes)
   const shouldShowNotes =
@@ -55,6 +65,18 @@ export function generatePurchaseOrderEmail(
     return isPlural ? translation.plural : translation.singular;
   };
 
+  // Resolve display quantity and unit label based on config
+  const resolveQuantityAndUnit = (item: OrderItem): { qty: number; unit: string } => {
+    if (quantityDisplay === 'unit' && item.packagingType === 'pack' && item.unitsPerPackage) {
+      const totalUnits = item.quantity * item.unitsPerPackage;
+      return { qty: totalUnits, unit: translatePackagingType('unit', totalUnits) };
+    }
+    return {
+      qty: item.quantity,
+      unit: translatePackagingType(item.packagingType, item.quantity),
+    };
+  };
+
   // Generate items rows HTML
   const itemsHtml = items
     .map((item) => {
@@ -62,19 +84,24 @@ export function generatePurchaseOrderEmail(
         ? `<br><span style="color: #6b7280; font-size: 12px;">${item.packagingDescription}</span>`
         : "";
 
+      const { qty, unit } = resolveQuantityAndUnit(item);
+      const refCell = showReference
+        ? `<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 13px; text-align: left;">
+        ${item.supplierReference || "-"}
+      </td>`
+        : "";
+
       return `
     <tr>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-size: 13px; text-align: left;">
-        ${item.supplierReference || "-"}
-      </td>
+      ${refCell}
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px;">
         ${item.productName}${packLine}
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: center; font-family: 'Courier New', monospace;">
-        ${item.quantity}
+        ${qty}
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; text-align: center;">
-        ${translatePackagingType(item.packagingType, item.quantity)}
+        ${unit}
       </td>
     </tr>
   `;
@@ -215,9 +242,7 @@ export function generatePurchaseOrderEmail(
                 <!-- Table Header -->
                 <thead>
                   <tr>
-                    <th style="background: #f9fafb; padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb;">
-                      Référence
-                    </th>
+                    ${showReference ? `<th style="background: #f9fafb; padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb;">Référence</th>` : ''}
                     <th style="background: #f9fafb; padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 2px solid #e5e7eb;">
                       Produit
                     </th>

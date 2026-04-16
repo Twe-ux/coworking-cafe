@@ -214,6 +214,7 @@ export async function sendPurchaseOrderEmail(
       packagingDescription?: string;
       quantity: number;
       packagingType: string;
+      unitsPerPackage?: number;
       unitPriceHT: number;
       totalHT: number;
     }>;
@@ -221,6 +222,7 @@ export async function sendPurchaseOrderEmail(
     totalTTC: number;
     notes?: string;
     createdAt: string;
+    orderEmailConfig?: { showReference: boolean; quantityDisplay: 'type' | 'unit' };
   }
 ): Promise<boolean> {
   console.log(`[Email] Préparation email commande ${orderData.orderNumber} pour: ${email}`);
@@ -237,6 +239,7 @@ export async function sendPurchaseOrderEmail(
     totalTTC: orderData.totalTTC,
     notes: orderData.notes,
     createdAt: orderData.createdAt,
+    orderEmailConfig: orderData.orderEmailConfig,
   });
 
   console.log(`[Email] Envoi email commande à: ${email}, sujet: ${subject}`);

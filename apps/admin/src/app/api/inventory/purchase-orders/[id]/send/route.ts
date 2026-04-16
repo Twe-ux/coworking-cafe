@@ -96,6 +96,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           packagingDescription: productData?.packagingDescription || undefined,
           quantity: item.quantity,
           packagingType: item.packagingType,
+          unitsPerPackage: item.unitsPerPackage,
           unitPriceHT: item.unitPriceHT,
           totalHT: item.totalHT,
         }
@@ -104,6 +105,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       totalTTC: order.totalTTC,
       notes: order.notes,
       createdAt: formattedDate,
+      orderEmailConfig: supplier.orderEmailConfig
+        ? { showReference: supplier.orderEmailConfig.showReference, quantityDisplay: supplier.orderEmailConfig.quantityDisplay }
+        : undefined,
     })
 
     if (!emailSent) {

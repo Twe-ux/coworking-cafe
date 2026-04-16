@@ -6,6 +6,11 @@
 // Supplier (Fournisseur)
 // ----------------------------------------------------------------------------
 
+export interface OrderEmailConfig {
+  showReference: boolean
+  quantityDisplay: 'type' | 'unit'
+}
+
 export interface Supplier {
   _id: string
   name: string
@@ -19,6 +24,7 @@ export interface Supplier {
   isActive: boolean
   requiresStockManagement: boolean
   dlcAlertConfig?: DLCAlertConfig
+  orderEmailConfig?: OrderEmailConfig
   createdAt: string
   updatedAt: string
 }
@@ -34,6 +40,7 @@ export interface SupplierFormData {
   isActive?: boolean
   requiresStockManagement?: boolean
   dlcAlertConfig?: DLCAlertConfig
+  orderEmailConfig?: OrderEmailConfig
 }
 
 // ----------------------------------------------------------------------------
