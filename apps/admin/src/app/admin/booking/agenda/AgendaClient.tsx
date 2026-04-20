@@ -20,7 +20,7 @@ import { useSession } from "next-auth/react";
 import type { Booking, BookingStatus } from "@/types/booking";
 import { useConfirmBooking, useCancelBooking, useMarkPresent, useMarkNoShow } from "@/hooks/useBookings";
 import { ConfirmActionDialog } from "@/components/booking/ConfirmActionDialog";
-import { CancelBookingModal } from "@/components/booking/CancelBookingModal";
+import { QuickCancelDialog } from "../reservations/components/QuickCancelDialog";
 import { Trash2, Loader2 } from "lucide-react";
 
 const spaceTypeColors: Record<string, string> = {
@@ -110,6 +110,7 @@ export function AgendaClient() {
   const [pendingIsAdminBooking, setPendingIsAdminBooking] = useState<boolean>(false);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [selectedBookingForCancel, setSelectedBookingForCancel] = useState<Booking | null>(null);
+  const [cancelModalReason, setCancelModalReason] = useState("");
 
   useEffect(() => {
     fetchBookings();
@@ -180,12 +181,30 @@ export function AgendaClient() {
     }
   };
 
-  const handleCancel = async (bookingId: string, reason: string) => {
+  const handleCancel = async (bookingId: string, reason: string, skipCapture?: boolean) => {
     try {
-      await cancelBooking.mutateAsync({ bookingId, reason });
+      await cancelBooking.mutateAsync({ bookingId, reason, skipCapture });
       setMessage({ type: "success", text: "Réservation annulée avec succès" });
       fetchBookings();
       setDayModalOpen(false);
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Erreur lors de l'annulation",
+      });
+    }
+  };
+
+  const handleCancelFromModal = async (skipCapture: boolean) => {
+    if (!selectedBookingForCancel?._id) return;
+    try {
+      await cancelBooking.mutateAsync({
+        bookingId: selectedBookingForCancel._id,
+        reason: cancelModalReason || "Annulée par l'administrateur",
+        skipCapture,
+      });
+      setCancelModalReason("");
+      handleCancellationComplete();
     } catch (error) {
       setMessage({
         type: "error",
@@ -468,11 +487,18 @@ export function AgendaClient() {
         isAdminBooking={pendingIsAdminBooking}
       />
 
-      <CancelBookingModal
-        booking={selectedBookingForCancel}
+      <QuickCancelDialog
         open={cancelModalOpen}
-        onOpenChange={setCancelModalOpen}
-        onCancelled={handleCancellationComplete}
+        onOpenChange={(open) => {
+          setCancelModalOpen(open);
+          if (!open) { setCancelModalReason(""); setSelectedBookingForCancel(null); }
+        }}
+        reason={cancelModalReason}
+        onReasonChange={setCancelModalReason}
+        onConfirm={handleCancelFromModal}
+        isCancelling={cancelBooking.isPending}
+        bookingId={selectedBookingForCancel?._id || null}
+        bookingStatus={selectedBookingForCancel?.status}
       />
     </div>
   );

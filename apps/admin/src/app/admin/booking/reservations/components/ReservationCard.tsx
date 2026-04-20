@@ -9,8 +9,15 @@ import {
   X,
   Pencil,
   Loader2,
+  MessageSquareMore,
 } from "lucide-react";
 import type { Booking } from "@/types/booking";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   getStatusLabel,
   getStatusBadgeClass,
@@ -71,10 +78,24 @@ export function ReservationCard({
             </div>
 
             {/* Client */}
-            <div className="w-[175px] truncate">
-              <span className="font-semibold text-blue-600">
+            <div className="w-[175px] flex items-center gap-1 min-w-0">
+              <span className="font-semibold text-blue-600 truncate">
                 {displayName || "Client"}
               </span>
+              {booking.notes && (
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="text-red-500 hover:text-red-600 transition-colors cursor-pointer flex-shrink-0">
+                        <MessageSquareMore className="h-4 w-4" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs border-red-500 border">
+                      <p className="text-base whitespace-pre-wrap">{booking.notes}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
 
             {/* Type */}

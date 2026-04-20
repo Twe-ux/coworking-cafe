@@ -44,6 +44,7 @@ interface BookingDocumentWithUser {
   isAdminBooking?: boolean
   notes?: string
   message?: string
+  specialRequests?: string
   contactName?: string
   contactEmail?: string
   contactPhone?: string

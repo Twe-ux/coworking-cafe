@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { formatTimeDisplay, getStatusBadgeClass, getStatusLabel } from "../reservations/utils";
+import { QuickCancelDialog } from "../reservations/components/QuickCancelDialog";
 
 function capitalize(name?: string): string {
   if (!name) return "";
@@ -43,7 +44,7 @@ interface DayBookingsModalProps {
   bookings: Booking[];
   userRole: string;
   onConfirm: (bookingId: string) => void;
-  onCancel: (bookingId: string, reason: string) => void;
+  onCancel: (bookingId: string, reason: string, skipCapture?: boolean) => void;
   onEdit: (booking: Booking) => void;
   onMarkPresent: (bookingId: string) => void;
   onMarkNoShow: (bookingId: string) => void;
@@ -76,9 +77,8 @@ export function DayBookingsModal({
   isDeleting = false,
 }: DayBookingsModalProps) {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [selectedBookingForCancel, setSelectedBookingForCancel] = useState<
-    string | null
-  >(null);
+  const [selectedBookingForCancel, setSelectedBookingForCancel] = useState<string | null>(null);
+  const [selectedBookingStatusForCancel, setSelectedBookingStatusForCancel] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
   const [activeTab, setActiveTab] = useState("ongoing");
 
@@ -126,20 +126,19 @@ export function DayBookingsModal({
   const pendingBookings = ongoingBookings.filter((b) => b.status === "pending");
   const confirmedBookings = ongoingBookings.filter((b) => b.status === "confirmed");
 
-  const handleCancelClick = (bookingId: string) => {
+  const handleCancelClick = (bookingId: string, bookingStatus: string) => {
     setSelectedBookingForCancel(bookingId);
+    setSelectedBookingStatusForCancel(bookingStatus);
     setCancelDialogOpen(true);
   };
 
-  const handleCancelConfirm = () => {
+  const handleCancelFromDialog = (skipCapture: boolean) => {
     if (selectedBookingForCancel) {
-      onCancel(
-        selectedBookingForCancel,
-        cancelReason || "Annulée par l'administrateur",
-      );
+      onCancel(selectedBookingForCancel, cancelReason || "Annulée par l'administrateur", skipCapture);
       setCancelDialogOpen(false);
       setCancelReason("");
       setSelectedBookingForCancel(null);
+      setSelectedBookingStatusForCancel(null);
     }
   };
 
@@ -147,6 +146,7 @@ export function DayBookingsModal({
     setCancelDialogOpen(false);
     setCancelReason("");
     setSelectedBookingForCancel(null);
+    setSelectedBookingStatusForCancel(null);
   };
 
   const renderBookingCard = (booking: Booking, isPending: boolean, showStatusBadge = false, isHistoryTab = false) => {
@@ -254,7 +254,7 @@ export function DayBookingsModal({
                 variant="outline"
                 size="sm"
                 className="h-8 border-red-500 text-red-600 hover:bg-red-100 hover:text-red-700"
-                onClick={() => booking._id && handleCancelClick(booking._id)}
+                onClick={() => booking._id && handleCancelClick(booking._id, booking.status)}
                 disabled={isCancelling}
               >
                 <X className="h-3 w-3 mr-1" />
@@ -460,49 +460,16 @@ export function DayBookingsModal({
         </DialogContent>
       </Dialog>
 
-      {/* Cancel dialog with reason */}
-      <Dialog open={cancelDialogOpen} onOpenChange={handleCancelDialogClose}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Refuser la réservation</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <p className="text-sm text-muted-foreground">
-              Cette raison sera transmise au client par email.
-            </p>
-            <div className="space-y-2">
-              <label htmlFor="cancelReason" className="text-sm font-medium">
-                Raison
-              </label>
-              <textarea
-                id="cancelReason"
-                placeholder="Indiquez la raison de l'annulation..."
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                rows={3}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              className="border-gray-300 text-gray-700 hover:border-green-500 hover:bg-green-50 hover:text-green-700"
-              onClick={handleCancelDialogClose}
-            >
-              Retour
-            </Button>
-            <Button
-              variant="outline"
-              className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
-              onClick={handleCancelConfirm}
-              disabled={isCancelling}
-            >
-              {isCancelling ? "En cours..." : "Confirmer"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <QuickCancelDialog
+        open={cancelDialogOpen}
+        onOpenChange={(open) => { if (!open) handleCancelDialogClose(); }}
+        reason={cancelReason}
+        onReasonChange={setCancelReason}
+        onConfirm={handleCancelFromDialog}
+        isCancelling={isCancelling ?? false}
+        bookingId={selectedBookingForCancel}
+        bookingStatus={selectedBookingStatusForCancel ?? undefined}
+      />
     </>
   );
 }

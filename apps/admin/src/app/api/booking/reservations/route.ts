@@ -45,6 +45,7 @@ interface LeanBookingDocument {
   companyName?: string // Société (champ site)
   notes?: string
   message?: string
+  specialRequests?: string
   amountPaid?: number
   captureMethod?: CaptureMethod
   depositAmount?: number
@@ -82,6 +83,7 @@ interface BookingDocumentObject {
   companyName?: string // Société (champ site)
   notes?: string
   message?: string
+  specialRequests?: string
   amountPaid?: number
   captureMethod?: CaptureMethod
   depositAmount?: number
