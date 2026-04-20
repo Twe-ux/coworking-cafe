@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
         captureMethod: booking.captureMethod,
         depositAmount: booking.depositAmount,
         isAdminBooking: booking.isAdminBooking || false,
-        notes: booking.notes || booking.message || '',
+        notes: booking.notes || booking.message || booking.specialRequests || '',
         createdAt: booking.createdAt?.toISOString(),
         updatedAt: booking.updatedAt?.toISOString(),
         cancelledAt: booking.cancelledAt?.toISOString(),
@@ -340,7 +340,7 @@ export async function POST(request: NextRequest) {
       depositRequired: booking.depositRequired,
       depositFileUrl: booking.depositFileUrl,
       isAdminBooking: booking.isAdminBooking,
-      notes: booking.notes || '',
+      notes: booking.notes || booking.message || booking.specialRequests || '',
       createdAt: booking.createdAt.toISOString(),
       updatedAt: booking.updatedAt.toISOString(),
     }
