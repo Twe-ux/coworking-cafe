@@ -70,6 +70,7 @@ export async function createBookingFromIntent(
     confirmationNumber,
     isPartialPrivatization: metadata.isPartialPrivatization === 'true',
     message: metadata.message || '',
+    specialRequests: metadata.specialRequests || undefined,
   };
 
   try {
