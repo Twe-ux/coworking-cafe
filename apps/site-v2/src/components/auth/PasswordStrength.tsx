@@ -15,9 +15,9 @@ const STRENGTH_LABELS: Record<StrengthLevel, string> = {
 const STRENGTH_COLORS: Record<StrengthLevel, string> = {
   0: "var(--line)",
   1: "var(--danger)",
-  2: "var(--warning)",
-  3: "var(--success)",
-  4: "var(--success)",
+  2: "var(--btn-dark)",
+  3: "var(--main)",
+  4: "var(--main)",
 }
 
 function computeStrength(password: string): StrengthLevel {
@@ -38,10 +38,11 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
   const color = STRENGTH_COLORS[strength]
   const label = STRENGTH_LABELS[strength]
 
-  if (!password) return null
-
   return (
-    <div className="flex flex-col gap-1.5 mt-2">
+    <div
+      className="flex flex-col gap-1.5 mt-2"
+      style={{ minHeight: 32, visibility: password ? 'visible' : 'hidden' }}
+    >
       <div className="flex gap-1">
         {([1, 2, 3, 4] as const).map((level) => (
           <span
@@ -55,10 +56,7 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
         ))}
       </div>
       {label && (
-        <span
-          className="text-[11px]"
-          style={{ color }}
-        >
+        <span className="text-[11px]" style={{ color }}>
           {label}
         </span>
       )}

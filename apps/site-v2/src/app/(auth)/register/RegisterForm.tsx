@@ -36,6 +36,13 @@ export function RegisterForm() {
     form1, form2, onStep1, onStep2,
   } = useRegisterForm()
 
+  const formContent = step === 1 ? (
+    <Step1Form form={form1} submitError={submitError} onSubmit={onStep1} />
+  ) : (
+    <Step2Form form={form2} submitError={submitError} isLoading={isLoading}
+      cguChecked={cguChecked} onToggleCgu={toggleCgu} onSubmit={onStep2} onBack={() => setStep(1)} />
+  )
+
   return (
     <div className="flex items-center justify-center min-h-screen p-6 md:p-8">
       <div className="w-full max-w-[1240px]">
@@ -53,13 +60,7 @@ export function RegisterForm() {
             <StepDots step={step} />
             <div style={{ width: 40 }} />
           </div>
-
-          {step === 1 ? (
-            <Step1Form form={form1} submitError={submitError} onSubmit={onStep1} />
-          ) : (
-            <Step2Form form={form2} submitError={submitError} isLoading={isLoading}
-              cguChecked={cguChecked} onToggleCgu={toggleCgu} onSubmit={onStep2} onBack={() => setStep(1)} />
-          )}
+          {formContent}
         </div>
 
         {/* Desktop */}
@@ -90,7 +91,6 @@ export function RegisterForm() {
                   <AuthDivider text="OU PAR EMAIL" />
                 </>
               )}
-
               {step === 2 && (
                 <button type="button" onClick={() => setStep(1)} aria-label="Retour"
                   className="flex items-center justify-center self-start mb-6"
@@ -98,13 +98,7 @@ export function RegisterForm() {
                   <Icon name="chevLeft" size={16} stroke="var(--body)" />
                 </button>
               )}
-
-              {step === 1 ? (
-                <Step1Form form={form1} submitError={submitError} onSubmit={onStep1} />
-              ) : (
-                <Step2Form form={form2} submitError={submitError} isLoading={isLoading}
-                  cguChecked={cguChecked} onToggleCgu={toggleCgu} onSubmit={onStep2} onBack={() => setStep(1)} />
-              )}
+              {formContent}
             </div>
 
             <div className="flex items-center justify-center gap-1.5 font-mono"

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { UseFormReturn } from "react-hook-form"
+import { UseFormReturn, useWatch } from "react-hook-form"
 
 import { AuthField, PasswordStrength, SubmitButton } from "@/components/auth"
 
@@ -14,8 +14,8 @@ interface Step1FormProps {
 }
 
 export function Step1Form({ form, submitError, onSubmit }: Step1FormProps) {
-  const { register, handleSubmit, watch, formState: { errors } } = form
-  const watchedPassword = watch("password", "")
+  const { register, handleSubmit, formState: { errors } } = form
+  const watchedPassword = useWatch({ control: form.control, name: "password", defaultValue: "" })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
