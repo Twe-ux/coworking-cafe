@@ -77,7 +77,7 @@ function MobileHeader({ currentStep, firstStep, totalSteps, onBack, showBackButt
 
 // ─── Desktop sidebar ──────────────────────────────────────────────────────────
 
-function DesktopSidebar({ currentStep, firstStep, onGoToStep }: BookingProgressProps) {
+function DesktopSidebar({ currentStep, firstStep, onBack, showBackButton, onGoToStep }: BookingProgressProps) {
   // Si firstStep=0 on affiche 5 steps (0→4), sinon 4 steps (1→4)
   const steps = Array.from(
     { length: firstStep === 0 ? 5 : 4 },
@@ -103,6 +103,26 @@ function DesktopSidebar({ currentStep, firstStep, onGoToStep }: BookingProgressP
         <span className="font-sans block" style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
           Café
         </span>
+      </div>
+
+      {/* Back button */}
+      <div className="mb-6" style={{ minHeight: 32 }}>
+        {showBackButton && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-2 transition-colors rounded-[8px] px-2 py-1.5 -mx-2"
+            style={{
+              color: "rgba(255,255,255,0.55)",
+              fontSize: 13,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "white"; e.currentTarget.style.background = "rgba(255,255,255,0.06)" }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.55)"; e.currentTarget.style.background = "transparent" }}
+          >
+            <Icon name="chevLeft" size={14} stroke="currentColor" />
+            <span className="font-sans">Étape précédente</span>
+          </button>
+        )}
       </div>
 
       {/* Steps list */}
