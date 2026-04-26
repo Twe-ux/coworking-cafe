@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -37,12 +38,12 @@ export function Nav({ variant = "light", currentPath = "/" }: NavProps) {
       <div className="wrap flex items-center gap-[clamp(14px,2vw,28px)] py-[18px]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-[10px] shrink-0 no-underline text-inherit">
-          <div
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center"
-            style={{ background: "var(--btn)" }}
-          >
-            <Icon name="building" size={18} stroke="#1A1A1A" />
-          </div>
+          <Image
+            src={isDark ? "/logo-circle-white.webp" : "/logo-circle.webp"}
+            alt="CoworKing Café"
+            width={36}
+            height={36}
+          />
           <div>
             <div className="font-serif text-[16px] tracking-[-0.01em] leading-none">
               CoworKing Café

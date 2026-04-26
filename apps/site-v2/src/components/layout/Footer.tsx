@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Icon } from "@/components/ui/Icon";
+import Image from "next/image";
 
 const COLUMNS = [
   {
@@ -39,9 +39,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-[10px] mb-[14px]">
-              <div className="w-9 h-9 rounded-[10px] bg-[var(--btn)] flex items-center justify-center shrink-0">
-                <Icon name="building" size={18} stroke="#1A1A1A" />
-              </div>
+              <Image src="/logo-circle-white.webp" alt="CoworKing Café" width={36} height={36} className="shrink-0" />
               <span className="font-serif text-[18px]">CoworKing Café</span>
             </div>
             <address className="not-italic text-[13px] opacity-65 leading-[1.55]">

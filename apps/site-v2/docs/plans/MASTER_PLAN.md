@@ -11,7 +11,7 @@
 | Phase | Domaine | Status |
 |-------|---------|--------|
 | 1 | Site public (6 pages) | ✅ DONE |
-| 2 | Auth (login, register, reset) | 🔲 TODO |
+| 2 | Auth (login, register, reset) | ✅ DONE |
 | 3 | Booking flow | 🔲 TODO |
 | 4 | Dashboard membre (PWA) | 🔲 TODO |
 | 5 | Intégrations backend | 🔲 TODO |
@@ -59,34 +59,42 @@
 
 ---
 
-## Phase 2 — Auth 🔲 TODO
+## Phase 2 — Auth ✅ DONE
 
 > Référence : `claude_code_handoff/01_auth.html`
 
 ### Infrastructure Auth
-- [ ] NextAuth v4 config (`src/lib/auth.ts`)
-  - Magic link (email) en priorité
-  - Password fallback
-  - Provider `@coworking-cafe/database` (MongoDB)
-- [ ] Route `app/api/auth/[...nextauth]/route.ts`
-- [ ] Middleware `middleware.ts` — protège `/dashboard/**` et `/booking/checkout`
-- [ ] `(auth)/layout.tsx` — layout minimal sans Nav/Footer
+- [x] NextAuth v4 config (`src/lib/auth.ts`) — CredentialsProvider + JWT callbacks
+- [x] Route `app/api/auth/[...nextauth]/route.ts`
+- [x] Route `app/api/auth/register/route.ts` — Zod validation, duplicate key 409
+- [x] Middleware `src/middleware.ts` — protège `/dashboard/**` et `/booking/checkout`
+- [x] `(auth)/layout.tsx` — layout minimal fond #DDE6DE, sans Nav/Footer
+- [x] `src/app/providers.tsx` — SessionProvider wrapper
+- [x] `src/app/layout.tsx` — body wrappé avec Providers
 
 ### Pages Auth
-- [ ] `/login` — email magic link + password fallback
-- [ ] `/register` — création compte (email + nom + password)
-- [ ] `/reset` — reset password (email + nouveau mot de passe)
+- [x] `/login` — email + password, split desktop, full-screen mobile
+- [x] `/register` — 2 étapes (email+pw → infos+CGU), progress dots, incentive 1h
+- [x] `/reset` — formulaire email + état succès (API email branchée Phase 5)
 
 ### Types
-- [ ] `src/types/user.ts` — `User`, `Session`
+- [x] `src/types/user.ts` — `AuthUser` interface + module augmentation NextAuth
 
-### Composants Auth
-- [ ] `src/components/auth/AuthCard.tsx` — wrapper carte centrée
-- [ ] `src/components/auth/MagicLinkForm.tsx` — formulaire email
-- [ ] `src/components/auth/PasswordForm.tsx` — formulaire password
+### Composants Auth (`src/components/auth/`)
+- [x] `AuthLogo.tsx` — logo avec icône building + Fraunces + eyebrow mono
+- [x] `AuthBrandPanel.tsx` — panneau dark gauche (desktop), stats, décors
+- [x] `AuthField.tsx` — input avec focus ring sauge, label mono, forwardRef
+- [x] `AuthDivider.tsx` — séparateur "OU" / "OU PAR EMAIL"
+- [x] `SocialButton.tsx` — Apple/Google (disabled, "Disponible prochainement")
+- [x] `PasswordStrength.tsx` — 4 barres colorées, 4 niveaux
 
 ### Hooks
-- [ ] `src/hooks/useAuth.ts` — wrapper `useSession()` + helpers
+- [x] `src/hooks/useAuth.ts` — wrapper `useSession()` + helpers
+- [x] `src/app/(auth)/login/useLoginForm.ts` — 59 lignes
+- [x] `src/app/(auth)/register/useRegisterForm.ts` — 103 lignes, fix CGU via setValue
+
+### Architecture fichiers (tous < 200 lignes)
+- `LoginForm.tsx` 169L / `RegisterForm.tsx` 120L / `Step1Form.tsx` 59L / `Step2Form.tsx` 102L
 
 ### Post-auth
 - [ ] Trigger PWA : après connexion → bannière "Installer l'app"
@@ -237,7 +245,7 @@ pnpm --filter @coworking-cafe/site-v2 type-check
 - Dates : `"YYYY-MM-DD"` / `"HH:mm"` — jamais `Date` object
 
 ### Prochaine action
-→ Phase 2 — Auth : lire `01_auth.html`, implémenter NextAuth + pages login/register/reset
+→ Phase 3 — Booking Flow : lire `02_booking_flow.html`, implémenter le flow de réservation
 
 ---
 
