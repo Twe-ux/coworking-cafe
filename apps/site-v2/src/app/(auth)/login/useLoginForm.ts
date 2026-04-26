@@ -52,7 +52,7 @@ export function useLoginForm() {
       setSubmitError(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.default)
       return
     }
-    window.location.href = result.url ?? "/dashboard"
+    window.location.href = "/dashboard"
   }
 
   return {

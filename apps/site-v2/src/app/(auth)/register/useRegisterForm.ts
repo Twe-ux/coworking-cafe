@@ -67,12 +67,16 @@ export function useRegisterForm() {
       })
 
       if (response.ok) {
-        await signIn("credentials", {
+        const result = await signIn("credentials", {
           email: step1Data.email,
           password: step1Data.password,
-          callbackUrl: "/dashboard",
-          redirect: true,
+          redirect: false,
         })
+        if (result?.ok) {
+          window.location.href = "/dashboard"
+        } else {
+          setSubmitError("Compte créé mais connexion automatique échouée. Connectez-vous manuellement.")
+        }
         return
       }
 
