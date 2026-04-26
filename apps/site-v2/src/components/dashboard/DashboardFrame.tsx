@@ -1,6 +1,7 @@
 "use client"
 import { TabBar } from "./TabBar"
 import { Sidebar } from "./Sidebar"
+import { MOCK_USER } from "@/types/dashboard"
 import type { DashboardSection } from "@/types/dashboard"
 
 interface DashboardFrameProps {
@@ -9,7 +10,7 @@ interface DashboardFrameProps {
   children: React.ReactNode
 }
 
-const DARK_SCREENS: DashboardSection[] = ['home']
+const DARK_SCREENS: DashboardSection[] = ["home"]
 
 export function DashboardFrame({ section, onNavigate, children }: DashboardFrameProps) {
   const isDark = DARK_SCREENS.includes(section)
@@ -18,10 +19,16 @@ export function DashboardFrame({ section, onNavigate, children }: DashboardFrame
     <>
       {/* Mobile PWA */}
       <div
-        className="md:hidden flex flex-col"
-        style={{ height: '100svh', overflow: 'hidden', background: isDark ? 'var(--body)' : 'var(--cream)' }}
+        className="md:hidden"
+        style={{
+          height: "100svh",
+          position: "relative",
+          overflow: "hidden",
+          background: isDark ? "var(--body)" : "var(--cream)",
+        }}
       >
-        <div className="flex-1 overflow-y-auto">
+        {/* Scrollable content — padding bottom clears the floating pill */}
+        <div className="h-full overflow-y-auto" style={{ paddingBottom: 102 }}>
           {children}
         </div>
         <TabBar section={section} onNavigate={onNavigate} />
@@ -29,8 +36,14 @@ export function DashboardFrame({ section, onNavigate, children }: DashboardFrame
 
       {/* Desktop */}
       <div className="hidden md:flex h-screen overflow-hidden">
-        <Sidebar section={section} onNavigate={onNavigate} />
-        <main className="flex-1 overflow-y-auto" style={{ background: 'var(--cream)' }}>
+        <Sidebar
+          section={section}
+          onNavigate={onNavigate}
+          userName={MOCK_USER.name}
+          userEmail={MOCK_USER.email}
+          userPlan={MOCK_USER.plan}
+        />
+        <main className="flex-1 overflow-y-auto" style={{ background: "var(--cream)" }}>
           {children}
         </main>
       </div>

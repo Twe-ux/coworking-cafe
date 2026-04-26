@@ -11,6 +11,26 @@ const STATUS_LABELS: Record<BookingStatus, { label: string; color: string; bg: s
   completed: { label: 'Passée',      color: 'var(--gry)',     bg: 'rgba(122,118,107,0.08)' },
 }
 
+function DateBadge({ day, month, sp }: { day: string; month: string; sp: { color: string; bg: string } }) {
+  return (
+    <div style={{
+      width: 48, borderRadius: 12, alignSelf: 'stretch',
+      background: sp.bg,
+      border: `1px solid ${sp.color}33`,
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      gap: 1, flexShrink: 0,
+    }}>
+      <span className="font-serif" style={{ fontSize: 22, fontWeight: 500, color: sp.color, lineHeight: 1 }}>
+        {day}
+      </span>
+      <span className="font-mono" style={{ fontSize: 9, textTransform: 'uppercase', color: sp.color, opacity: 0.8, letterSpacing: '0.08em' }}>
+        {month}
+      </span>
+    </div>
+  )
+}
+
 function BookingRow({ booking }: { booking: DashboardBooking }) {
   const sp = SPACE_COLORS[booking.spaceKey]
   const st = STATUS_LABELS[booking.status]
@@ -18,8 +38,9 @@ function BookingRow({ booking }: { booking: DashboardBooking }) {
     <div style={{
       background: '#fff', borderRadius: 16,
       border: '1px solid var(--line)', padding: '16px',
-      display: 'flex', alignItems: 'center', gap: 14,
+      display: 'flex', alignItems: 'stretch', gap: 14,
     }}>
+      <DateBadge day={booking.day} month={booking.month} sp={sp} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
           <span className="font-mono" style={{ fontSize: 10, padding: '2px 8px', borderRadius: 99, background: sp.bg, color: sp.color, textTransform: 'uppercase', letterSpacing: '0.08em' }}>

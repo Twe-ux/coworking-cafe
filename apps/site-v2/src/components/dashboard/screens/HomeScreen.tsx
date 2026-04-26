@@ -2,6 +2,7 @@
 import { Icon } from "@/components/ui/Icon"
 import { MOCK_UPCOMING, MOCK_STATS, MOCK_USER, SPACE_COLORS } from "@/types/dashboard"
 import type { DashboardSection, DashboardBooking } from "@/types/dashboard"
+import { DesktopHomeScreen } from "./DesktopHomeScreen"
 
 interface HomeScreenProps {
   onNavigate: (section: DashboardSection) => void
@@ -62,7 +63,14 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const user = MOCK_USER
 
   return (
-    <div style={{ paddingBottom: 24 }}>
+    <>
+      {/* Desktop layout */}
+      <div className="hidden md:block" style={{ minHeight: '100%' }}>
+        <DesktopHomeScreen onNavigate={onNavigate} />
+      </div>
+
+      {/* Mobile layout — unchanged */}
+      <div className="md:hidden" style={{ paddingBottom: 24 }}>
       {/* Hero dark */}
       <div
         style={{
@@ -166,5 +174,6 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
         </div>
       </div>
     </div>
+    </>
   )
 }

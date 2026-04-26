@@ -13,7 +13,7 @@
 | 1 | Site public (6 pages) | ✅ DONE |
 | 2 | Auth (login, register, reset) | ✅ DONE |
 | 3 | Booking flow | ✅ DONE (UI) |
-| 4 | Dashboard membre (PWA) | 🟡 PARTIAL (3/8 screens) |
+| 4 | Dashboard membre (PWA) | 🟡 PARTIAL (redesign fidèle, 3/8 screens) |
 | 5 | Intégrations backend | 🔲 TODO |
 | 6 | Polish & production | 🔲 TODO |
 
@@ -147,7 +147,7 @@
 - [x] Theme-color dynamique — géré dans `DashboardFrame.tsx` via `DARK_SCREENS` + `useEffect`
 
 ### Types
-- [x] `src/types/dashboard.ts` — `DashboardSection`, `DashboardBooking`, `DashboardUser`, `DashboardStats`, `SpaceKey`, `BookingStatus`, `SPACE_COLORS`, mock data (68L)
+- [x] `src/types/dashboard.ts` — `DashboardSection` (8 sections), `DashboardBooking` + `day`/`month`, mocks complets (78L)
 
 ### Hooks
 - [x] `src/hooks/usePWA.ts` — détection `display-mode: standalone` + `beforeinstallprompt` (42L)
@@ -155,14 +155,17 @@
 - [ ] `src/hooks/useThemeColor.ts` — extrait si besoin (Phase 5)
 
 ### Composants Shell
-- [x] `src/components/dashboard/DashboardShell.tsx` — useState section, renderScreen() (29L)
-- [x] `src/components/dashboard/DashboardFrame.tsx` — mobile (`h-[100svh]` + TabBar) + desktop (Sidebar) (39L)
-- [x] `src/components/dashboard/TabBar.tsx` — 3 tabs, active pill `var(--btn)`, safe-area iOS (72L)
-- [x] `src/components/dashboard/Sidebar.tsx` — desktop, logo + nav + footer (134L)
+- [x] `src/components/dashboard/DashboardShell.tsx` — switch 8 sections, placeholders pour sections à venir (42L)
+- [x] `src/components/dashboard/DashboardFrame.tsx` — mobile (`position:relative` + pill absolue) + desktop Sidebar (52L)
+- [x] `src/components/dashboard/TabBar.tsx` — pill flottante absolue, 5 tabs dont center Link /booking (86L)
+- [x] `src/components/dashboard/Sidebar.tsx` — 3 groupes nav + user footer (avatar initiales + plan badge) (139L)
 
 ### Écrans Dashboard
-- [x] `screens/HomeScreen.tsx` — hero dark + prochaine résa frosted glass + stats + liste (170L)
-- [x] `screens/BookingsScreen.tsx` — segmented À venir/Passées + BookingRow + chips statut (107L)
+- [x] `screens/HomeScreen.tsx` — mobile inchangé + desktop `<DesktopHomeScreen>` (179L)
+- [x] `screens/DesktopHomeScreen.tsx` — greeting + 4 stat cards + 2fr/1fr grid (loyalty + quick actions) (120L)
+- [x] `screens/DesktopStatCard.tsx` — carte stat réutilisable (26L)
+- [x] `screens/DesktopBookingRow.tsx` — booking row desktop avec date badge coloré (73L)
+- [x] `screens/BookingsScreen.tsx` — segmented À venir/Passées + BookingRow avec date badge coloré (128L)
 - [x] `screens/ProfileScreen.tsx` — avatar initiales + InfoRow + abonnement + signOut (133L)
 - [ ] `screens/HistoryScreen.tsx` — historique + factures (Phase 5)
 - [ ] `screens/WalletScreen.tsx` — solde + recharger (Phase 5)
@@ -251,4 +254,4 @@ pnpm --filter @coworking-cafe/site-v2 type-check
 
 ---
 
-*Dernière mise à jour : 2026-04-27*
+*Dernière mise à jour : 2026-04-26*
