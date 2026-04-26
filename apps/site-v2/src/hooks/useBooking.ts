@@ -128,6 +128,13 @@ export function useBooking(venues: Venue[]) {
     setState((s) => ({ ...s, step: Math.max(s.step - 1, firstStep) as BookingStep }))
   }
 
+  // Navigate to any already-visited step (no jumping ahead)
+  function goToStep(target: BookingStep) {
+    if (target >= firstStep && target <= state.step) {
+      setState((s) => ({ ...s, step: target }))
+    }
+  }
+
   return {
     state,
     pricing,
@@ -144,5 +151,6 @@ export function useBooking(venues: Venue[]) {
     canProceed,
     nextStep,
     prevStep,
+    goToStep,
   }
 }

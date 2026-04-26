@@ -91,7 +91,7 @@ function MobileCTA({ step, total, canProceed, onNext, onConfirm }: MobileCTAProp
 
 export function BookingFlow({ venues }: BookingFlowProps) {
   const booking = useBooking(venues)
-  const { state, pricing, totalSteps, firstStep, canProceed, nextStep, prevStep } = booking
+  const { state, pricing, totalSteps, firstStep, canProceed, nextStep, prevStep, goToStep } = booking
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -180,6 +180,7 @@ export function BookingFlow({ venues }: BookingFlowProps) {
           totalSteps={totalSteps}
           onBack={prevStep}
           showBackButton={showBack}
+          onGoToStep={goToStep}
         />
 
         <div className="flex-1 py-6 px-0" style={{ paddingBottom: 100 }}>
@@ -203,6 +204,7 @@ export function BookingFlow({ venues }: BookingFlowProps) {
           totalSteps={totalSteps}
           onBack={prevStep}
           showBackButton={showBack}
+          onGoToStep={goToStep}
         />
 
         <main

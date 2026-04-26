@@ -10,6 +10,7 @@ interface BookingProgressProps {
   totalSteps: number
   onBack: () => void
   showBackButton: boolean
+  onGoToStep?: (step: BookingStep) => void
 }
 
 const STEP_LABELS: Record<number, string> = {
@@ -76,7 +77,7 @@ function MobileHeader({ currentStep, firstStep, totalSteps, onBack, showBackButt
 
 // ─── Desktop sidebar ──────────────────────────────────────────────────────────
 
-function DesktopSidebar({ currentStep, firstStep }: BookingProgressProps) {
+function DesktopSidebar({ currentStep, firstStep, onGoToStep }: BookingProgressProps) {
   // Si firstStep=0 on affiche 5 steps (0→4), sinon 4 steps (1→4)
   const steps = Array.from(
     { length: firstStep === 0 ? 5 : 4 },
@@ -109,11 +110,22 @@ function DesktopSidebar({ currentStep, firstStep }: BookingProgressProps) {
         {steps.map((step, index) => {
           const isCompleted = step < currentStep
           const isActive = step === currentStep
+          const isClickable = (isCompleted || isActive) && !!onGoToStep
           const stepNumber = step - firstStep + 1
 
           return (
             <div key={step}>
-              <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => isClickable && onGoToStep(step as BookingStep)}
+                disabled={!isClickable}
+                className={cn(
+                  "flex items-center gap-3 w-full text-left rounded-[8px] px-2 py-1 -mx-2 transition-colors",
+                  isClickable && !isActive && "hover:bg-white/8 cursor-pointer",
+                  isActive && "cursor-default",
+                  !isClickable && "cursor-default",
+                )}
+              >
                 {/* Circle */}
                 <div
                   className="flex-shrink-0 flex items-center justify-center rounded-full"
@@ -131,15 +143,10 @@ function DesktopSidebar({ currentStep, firstStep }: BookingProgressProps) {
                   }}
                 >
                   {isCompleted ? (
-                    <Icon
-                      name="check"
-                      size={12}
-                      stroke="var(--body)"
-                      sw={2.5}
-                    />
+                    <Icon name="check" size={12} stroke="var(--body)" sw={2.5} />
                   ) : (
                     <span
-                      className={cn("font-mono", isActive ? "text-white" : "")}
+                      className="font-mono"
                       style={{
                         fontSize: 11,
                         color: isActive ? "white" : "rgba(255,255,255,0.4)",
@@ -155,12 +162,12 @@ function DesktopSidebar({ currentStep, firstStep }: BookingProgressProps) {
                   className="font-sans"
                   style={{
                     fontSize: 13,
-                    color: isActive ? "white" : "rgba(255,255,255,0.4)",
+                    color: isActive ? "white" : isCompleted ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.4)",
                   }}
                 >
                   {STEP_LABELS[step]}
                 </span>
-              </div>
+              </button>
 
               {/* Connector line — not after last step */}
               {index < steps.length - 1 && (
