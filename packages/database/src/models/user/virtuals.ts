@@ -27,11 +27,17 @@ export interface VirtualInactiveUser extends UserDocument {
 export type VirtualUser = (VirtualValidatedUser | VirtualUnvalidatedUser) &
   (VirtualActiveUser | VirtualInactiveUser);
 
-// Insert the virtuals into the UserSchema
-UserSchema.virtual("isEmailVerified").get(function (this: UserDocument) {
-  return !!this.emailVerifiedAt;
-});
+const VIRTUALS_KEY = "__userVirtualsAttached" as const;
 
-UserSchema.virtual("isActive").get(function (this: UserDocument) {
-  return !this.deletedAt;
-});
+export function attachVirtuals() {
+  if ((UserSchema as unknown as Record<string, unknown>)[VIRTUALS_KEY]) return;
+  (UserSchema as unknown as Record<string, unknown>)[VIRTUALS_KEY] = true;
+
+  UserSchema.virtual("isEmailVerified").get(function (this: UserDocument) {
+    return !!this.emailVerifiedAt;
+  });
+
+  UserSchema.virtual("isActive").get(function (this: UserDocument) {
+    return !this.deletedAt;
+  });
+}
