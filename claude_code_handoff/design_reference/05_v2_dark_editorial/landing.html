@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoworKing Café — Accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel">
+function Landing() {
+  return (
+    <>
+      <Nav active="landing" dark/>
+
+      {/* HERO */}
+      <section className="hero-dark">
+        <div className="wrap" style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 320px)', gap: 'clamp(24px, 4vw, 56px)', alignItems: 'flex-end' }} className="hero-grid">
+            <div>
+              <span className="chip chip-dark">
+                <span className="dot" style={{ background: 'var(--btn)' }}/>Ouvert maintenant · Strasbourg
+              </span>
+              <h1 className="h1" style={{ marginTop: 22 }}>
+                Travailler <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>mieux</em>,<br/>
+                un café à <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>la fois</em>.
+              </h1>
+              <p className="lead" style={{ marginTop: 26, maxWidth: 560 }}>
+                Espace de coworking chaleureux au cœur de Strasbourg. Boissons illimitées, Wi-Fi fibre, salles privatisables. Pas d'abonnement imposé — payez seulement le temps que vous restez.
+              </p>
+              <div className="row" style={{ marginTop: 36 }}>
+                <button className="btn btn-primary">Réserver en ligne <Icon name="chevRight" size={15} stroke="#1A1A1A" sw={2.2}/></button>
+                <button className="btn btn-ghost-light"><Icon name="building" size={15} stroke="var(--btn)"/>Découvrir le lieu</button>
+              </div>
+            </div>
+
+            <div className="stack hero-cards">
+              <div className="card-glass">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(242,211,129,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="cookie" size={17} stroke="var(--btn)"/>
+                  </div>
+                  <span className="tag" style={{ color: 'rgba(255,255,255,0.6)' }}>Boissons</span>
+                </div>
+                <div className="serif" style={{ fontSize: 30, lineHeight: 1 }}>+40</div>
+                <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>à volonté, dans le prix</div>
+              </div>
+              <div className="card-glass">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(76,160,110,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="sparkle" size={17} stroke="#7FD49A"/>
+                  </div>
+                  <span className="tag" style={{ color: 'rgba(255,255,255,0.6)' }}>Wi-Fi</span>
+                </div>
+                <div className="serif" style={{ fontSize: 30, lineHeight: 1 }}>1 Gb/s</div>
+                <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>Fibre dédiée, VPN OK</div>
+              </div>
+              <div className="card-btn">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <Icon name="star" size={16} stroke="#1A1A1A" fill="#1A1A1A"/>
+                  <span className="tag" style={{ color: 'rgba(26,26,26,0.65)' }}>Google</span>
+                </div>
+                <div className="serif" style={{ fontSize: 30, lineHeight: 1 }}>4.9<span style={{ fontSize: 15, opacity: 0.6 }}>/5</span></div>
+                <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>280 avis clients</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 60, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <div className="marquee">
+              <span>✦ Télétravailleurs</span>
+              <span>✦ Indépendants</span>
+              <span>✦ Étudiants</span>
+              <span>✦ Équipes</span>
+              <span>✦ Événements privés</span>
+            </div>
+            <span className="mono" style={{ fontSize: 11, opacity: 0.6 }}>↓ SCROLL</span>
+          </div>
+        </div>
+      </section>
+
+      {/* SPACES MAGAZINE SPREAD */}
+      <section className="section section-cream">
+        <div className="wrap">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'clamp(24px, 4vw, 60px)', marginBottom: 32 }} className="two-col">
+            <div>
+              <div className="tag eyebrow">— 01 · Espaces</div>
+              <h2 className="h2">Choisissez votre <em className="accent">ambiance</em></h2>
+            </div>
+            <p className="lead" style={{ alignSelf: 'flex-end', color: 'var(--gry)', maxWidth: 580 }}>
+              Quatre espaces pensés pour des usages différents — du deep-work en solo au brainstorm d'équipe. Réservables à l'heure, à la journée, à la semaine ou au mois.
+            </p>
+          </div>
+          <div className="grid g-4">
+            {SPACES.map((s, i) => (
+              <a key={s.key} href="espaces.html" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <div style={{ height: 170, background: `linear-gradient(160deg, ${s.color}, ${s.color}dd)`, position: 'relative', display: 'flex', alignItems: 'flex-end', padding: 16 }}>
+                    <span className="mono" style={{ position: 'absolute', top: 14, left: 16, fontSize: 10, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.14em' }}>0{i+1}</span>
+                    <div style={{ position: 'absolute', top: 10, right: 10, fontSize: 48, opacity: 0.35 }}>{s.emoji}</div>
+                    <div className="serif" style={{ fontSize: 26, color: '#fff', lineHeight: 1.05 }}>{s.name}</div>
+                  </div>
+                  <div style={{ padding: 18, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ fontSize: 13, color: 'var(--gry)', flex: 1, lineHeight: 1.5 }}>{s.desc}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
+                      <span style={{ fontSize: 14, fontWeight: 500 }}>dès {s.price}€<span style={{ color: 'var(--gry)', fontWeight: 400 }}>/h</span></span>
+                      <Icon name="chevRight" size={14} stroke="var(--main)"/>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CONCEPT */}
+      <section className="section" style={{ background: 'var(--main)', color: '#fff' }}>
+        <div className="wrap">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'clamp(24px, 4vw, 60px)' }} className="two-col">
+            <div>
+              <div className="tag eyebrow" style={{ color: 'var(--btn)' }}>— 02 · Le concept</div>
+              <h2 className="h2">
+                Le café <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>motive</em>.<br/>
+                L'humain <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>relie</em>.
+              </h2>
+            </div>
+            <div className="grid g-2">
+              {[
+                { i: 'cookie', t: 'Payez au temps, pas à la conso', d: 'Entrez, travaillez, servez-vous. On compte les heures, pas les cafés.' },
+                { i: 'building', t: '4 espaces, un seul lieu', d: 'Open-space, salles, événementiel. Adaptez l\'espace à votre besoin.' },
+                { i: 'sparkle', t: 'Fibre + équipement pro', d: 'Écrans, visio, imprimantes, casiers. Le setup d\'un vrai bureau.' },
+                { i: 'people', t: 'Une communauté', d: 'Indépendants, startups, étudiants. Des événements chaque mois.' },
+              ].map((f) => (
+                <div key={f.t} style={{ display: 'flex', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: 'rgba(242,211,129,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name={f.i} size={20} stroke="var(--btn)"/>
+                  </div>
+                  <div>
+                    <div className="serif" style={{ fontSize: 17 }}>{f.t}</div>
+                    <div style={{ fontSize: 13, opacity: 0.8, marginTop: 4, lineHeight: 1.5 }}>{f.d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section className="section section-cream">
+        <div className="wrap">
+          <div className="flex-between" style={{ marginBottom: 32 }}>
+            <div>
+              <div className="tag eyebrow">— 03 · Témoignages</div>
+              <h2 className="h2">Ce qu'ils en <em className="accent">disent</em></h2>
+            </div>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+              <span style={{ display: 'flex', gap: 2 }}>
+                {[...Array(5)].map((_, i) => <Icon key={i} name="star" size={16} fill="var(--btn)" stroke="var(--btn)"/>)}
+              </span>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>4.9 <span style={{ opacity: 0.6, fontSize: 13 }}>· 280 avis Google</span></span>
+            </div>
+          </div>
+          <div className="grid g-3">
+            {[
+              { q: 'Mon bureau de secours qui est devenu mon bureau principal. Le cappuccino est incroyable et le Wi-Fi toujours rapide.', n: 'Léa Marchand', r: 'Designer freelance · 2 ans membre' },
+              { q: 'On privatise la salle verrière pour nos workshops d\'équipe une fois par mois. Toujours impeccable, toujours accueillant.', n: 'Hugo Petit', r: 'CEO · Studio Hélium' },
+              { q: 'Le meilleur rapport qualité/prix du centre-ville. Les boissons à volonté, c\'est un vrai plus pour les longues sessions.', n: 'Anaïs Dubois', r: 'Étudiante Master 2' },
+            ].map((t, i) => (
+              <div key={i} className="card">
+                <div style={{ display: 'flex', gap: 2, marginBottom: 14 }}>
+                  {[...Array(5)].map((_, j) => <Icon key={j} name="star" size={13} fill="var(--btn)" stroke="var(--btn)"/>)}
+                </div>
+                <div className="serif" style={{ fontSize: 17, lineHeight: 1.45 }}>« {t.q} »</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 18 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--main)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Fraunces, serif', fontSize: 14 }}>{t.n.split(' ').map(w => w[0]).slice(0,2).join('')}</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 500 }}>{t.n}</div>
+                    <div style={{ fontSize: 11, color: 'var(--gry)', marginTop: 1 }}>{t.r}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA strip */}
+      <section className="section-dark" style={{ padding: 'clamp(40px, 6vw, 64px) 0' }}>
+        <div className="wrap flex-between">
+          <div>
+            <div className="tag eyebrow" style={{ color: 'var(--btn)' }}>— Prêt à commencer ?</div>
+            <h2 className="h2" style={{ color: '#fff' }}>Votre première <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>heure offerte</em>.</h2>
+          </div>
+          <div className="row">
+            <a href="auth.html" style={{ textDecoration: 'none' }}><button className="btn btn-ghost-light">Créer un compte</button></a>
+            <a href="booking.html" style={{ textDecoration: 'none' }}><button className="btn btn-primary">Réserver <Icon name="chevRight" size={14} stroke="#1A1A1A" sw={2.2}/></button></a>
+          </div>
+        </div>
+      </section>
+
+      <Footer/>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Landing/>);
+</script>
+<style>
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr !important; }
+    .hero-cards { flex-direction: row !important; overflow-x: auto; }
+    .hero-cards > * { min-width: 220px; flex: 1; }
+    .two-col { grid-template-columns: 1fr !important; }
+  }
+</style>
+</body>
+</html>

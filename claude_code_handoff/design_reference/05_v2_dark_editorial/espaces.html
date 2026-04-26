@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nos espaces — CoworKing Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel">
+const DETAILS = {
+  open: ['Wi-Fi fibre 1Gb/s', 'Boissons illimitées', 'Casier sécurisé', 'Imprimante A3', 'Ambiance studieuse'],
+  verriere: ['Lumière naturelle traversante', 'Écran 55" 4K', 'Visio pro intégrée', 'Tableau blanc', 'Boissons illimitées'],
+  etage: ['Privatisation totale', 'Tableau blanc grand format', 'Ambiance cosy', 'Boissons incluses', 'Café spécialité'],
+  event: ['Privatisation complète', 'Sono + lumières', 'Service traiteur possible', 'Vestiaire', 'Nettoyage inclus'],
+};
+
+function Espaces() {
+  return (
+    <>
+      <Nav active="espaces" dark/>
+      <PageHeader num="01" eyebrow="Nos espaces" title="Quatre ambiances," titleAccent="un seul état d'esprit."
+        lead="Du deep-work en solo au brainstorm d'équipe, en passant par vos événements privés : chaque espace a été pensé pour un usage précis."/>
+
+      <section className="section section-cream">
+        <div className="wrap stack" style={{ gap: 'clamp(20px, 3vw, 32px)' }}>
+          {SPACES.map((s, i) => (
+            <article key={s.key} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: i % 2 === 0 ? '1fr 1.2fr' : '1.2fr 1fr', gap: 0 }} className="space-row">
+                {/* Image block */}
+                <div style={{
+                  background: `linear-gradient(160deg, ${s.color}, ${s.color}dd)`,
+                  minHeight: 340, padding: 'clamp(20px, 3vw, 32px)',
+                  display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                  color: '#fff', position: 'relative', overflow: 'hidden',
+                  order: i % 2 === 0 ? 1 : 2,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <span className="mono" style={{ fontSize: 11, letterSpacing: '0.14em', opacity: 0.7 }}>0{i+1} / 04</span>
+                    <span className="chip chip-dark" style={{ background: 'rgba(0,0,0,0.22)', color: '#fff' }}>{s.tag}</span>
+                  </div>
+                  <div style={{ fontSize: 96, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.22 }}>{s.emoji}</div>
+                  <div style={{ position: 'relative' }}>
+                    <div className="serif" style={{ fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: 1.02, letterSpacing: '-0.02em' }}>{s.name}</div>
+                    <div style={{ fontSize: 13, opacity: 0.85, marginTop: 8 }}>{s.cap} · dès {s.price}€/h</div>
+                  </div>
+                </div>
+
+                {/* Content block */}
+                <div style={{ padding: 'clamp(22px, 3vw, 40px)', order: i % 2 === 0 ? 2 : 1, display: 'flex', flexDirection: 'column' }}>
+                  <div className="tag eyebrow">— Espace 0{i+1}</div>
+                  <p style={{ fontSize: 'clamp(15px, 1.3vw, 17px)', lineHeight: 1.55, color: 'var(--body)', margin: '12px 0 22px' }}>{s.desc}</p>
+
+                  <div className="stack" style={{ gap: 10, marginBottom: 24 }}>
+                    {DETAILS[s.key].map(d => (
+                      <div key={d} style={{ display: 'flex', gap: 10, fontSize: 13.5, alignItems: 'center' }}>
+                        <Icon name="check" size={14} stroke={s.color} sw={2.5}/>{d}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="row" style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--line)', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="stat-big">
+                      <span className="n">{s.price}</span>
+                      <span className="u">€ / heure</span>
+                    </div>
+                    <a href="booking.html" style={{ textDecoration: 'none' }}>
+                      <button className="btn btn-dark">Réserver <Icon name="chevRight" size={14} stroke="#fff" sw={2.2}/></button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section section-dark">
+        <div className="wrap flex-between">
+          <div>
+            <div className="tag eyebrow" style={{ color: 'var(--btn)' }}>— Besoin d'aide ?</div>
+            <h2 className="h2" style={{ color: '#fff' }}>Une visite ? <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>On vous guide.</em></h2>
+          </div>
+          <div className="row">
+            <button className="btn btn-ghost-light"><Icon name="calendar" size={14} stroke="var(--btn)"/>Prendre rendez-vous</button>
+            <a href="booking.html" style={{ textDecoration: 'none' }}><button className="btn btn-primary">Réserver <Icon name="chevRight" size={14} stroke="#1A1A1A" sw={2.2}/></button></a>
+          </div>
+        </div>
+      </section>
+
+      <Footer/>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Espaces/>);
+</script>
+<style>
+  @media (max-width: 760px) {
+    .space-row { grid-template-columns: 1fr !important; }
+    .space-row > * { order: unset !important; }
+    .space-row > *:first-child { order: 0 !important; }
+  }
+</style>
+</body>
+</html>

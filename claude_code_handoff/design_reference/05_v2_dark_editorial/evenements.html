@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Événements — CoworKing Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel">
+const EVENTS = [
+  { d: '24', m: 'AVR', day: 'MER', t: 'Apéro du café · Avril', desc: 'Rencontres informelles, bières locales et snacks maison. Ouvert à tous les membres.', tag: 'Communauté', c: '#417972', time: '18h30 → 21h', spots: '32/50' },
+  { d: '06', m: 'MAI', day: 'LUN', t: 'Atelier · Freelance & impôts', desc: 'Intervention d\'un expert-comptable. 90 min + Q&A. Places limitées.', tag: 'Atelier', c: '#8A6B1F', time: '19h → 21h', spots: '12/20' },
+  { d: '15', m: 'MAI', day: 'MER', t: 'Coffee cupping', desc: 'Dégustation comparative de 4 origines. Animée par Julien, notre barista.', tag: 'Dégustation', c: '#5A938B', time: '10h → 11h30', spots: '6/10' },
+  { d: '28', m: 'MAI', day: 'JEU', t: 'Nuit du coworking', desc: 'Soirée ouverte jusqu\'à minuit. Bières, pizzas, billard et bonne musique.', tag: 'Soirée', c: '#C0534C', time: '19h → 00h', spots: '58/120' },
+];
+
+function Evenements() {
+  return (
+    <>
+      <Nav active="evenements" dark/>
+      <PageHeader num="05" eyebrow="Événements" title="Le café vit," titleAccent="aussi le soir."
+        lead="Ateliers, dégustations, apéros, soirées privées. Notre lieu se transforme pour rassembler la communauté — ou accueillir vos propres événements."/>
+
+      {/* Calendar grid */}
+      <section className="section section-cream">
+        <div className="wrap">
+          <div className="flex-between" style={{ marginBottom: 24 }}>
+            <div>
+              <div className="tag eyebrow">— À venir</div>
+              <h2 className="h2">Prochains <em className="accent">rendez-vous</em></h2>
+            </div>
+            <div className="row">
+              <button className="btn btn-ghost" style={{ padding: '10px 14px' }}><Icon name="chevLeft" size={14}/>Avril</button>
+              <button className="btn btn-ghost" style={{ padding: '10px 14px' }}>Mai<Icon name="chevRight" size={14}/></button>
+            </div>
+          </div>
+          <div className="stack" style={{ gap: 14 }}>
+            {EVENTS.map(e => (
+              <article key={e.d + e.m} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr auto', gap: 24, alignItems: 'center', padding: 'clamp(18px, 2.5vw, 28px)' }} className="event-row">
+                  <div style={{ textAlign: 'center', padding: '14px 8px', background: e.c, color: '#fff', borderRadius: 14 }}>
+                    <div className="mono" style={{ fontSize: 10, letterSpacing: '0.14em', opacity: 0.85 }}>{e.day}</div>
+                    <div className="serif" style={{ fontSize: 44, lineHeight: 1, margin: '4px 0' }}>{e.d}</div>
+                    <div className="mono" style={{ fontSize: 10, letterSpacing: '0.14em', opacity: 0.85 }}>{e.m}</div>
+                  </div>
+                  <div>
+                    <span className="chip" style={{ background: `${e.c}22`, color: e.c }}>{e.tag}</span>
+                    <h3 className="h3" style={{ marginTop: 10 }}>{e.t}</h3>
+                    <p style={{ fontSize: 14, color: 'var(--gry)', marginTop: 8, lineHeight: 1.5 }}>{e.desc}</p>
+                    <div className="row" style={{ marginTop: 14, fontSize: 12.5, color: 'var(--gry)', gap: 20 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="clock" size={13} stroke="var(--main)"/>{e.time}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="people" size={13} stroke="var(--main)"/>{e.spots} places</span>
+                    </div>
+                  </div>
+                  <div className="event-cta">
+                    <button className="btn btn-dark">S'inscrire <Icon name="chevRight" size={14} stroke="#fff" sw={2.2}/></button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Privatisation */}
+      <section className="section section-dark">
+        <div className="wrap">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 'clamp(24px, 4vw, 60px)', alignItems: 'center' }} className="two-col">
+            <div>
+              <div className="tag eyebrow" style={{ color: 'var(--btn)' }}>— Privatisation</div>
+              <h2 className="h2" style={{ color: '#fff' }}>Votre soirée, <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>notre lieu.</em></h2>
+              <p className="lead" style={{ color: 'rgba(255,255,255,0.75)', marginTop: 22 }}>
+                Anniversaires, lancements produit, soirées d'entreprise, afterwork. On ferme les portes au public, on installe votre setup, on s'occupe du reste.
+              </p>
+              <div className="row" style={{ marginTop: 30 }}>
+                <button className="btn btn-primary">Demander un devis <Icon name="chevRight" size={14} stroke="#1A1A1A" sw={2.2}/></button>
+                <button className="btn btn-ghost-light">Télécharger la brochure</button>
+              </div>
+            </div>
+            <div className="grid g-2">
+              {[
+                { i: 'people', t: '40 personnes', d: 'Capacité max assise/debout' },
+                { i: 'clock', t: '19h → 02h', d: 'Créneau soirée standard' },
+                { i: 'tag', t: 'dès 80€/h', d: 'Privatisation totale' },
+                { i: 'sparkle', t: 'Sono + lumières', d: 'Équipement inclus' },
+              ].map(f => (
+                <div key={f.t} className="card-glass">
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(242,211,129,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+                    <Icon name={f.i} size={17} stroke="var(--btn)"/>
+                  </div>
+                  <div className="serif" style={{ fontSize: 22, color: '#fff' }}>{f.t}</div>
+                  <div style={{ fontSize: 12.5, opacity: 0.7, marginTop: 4 }}>{f.d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Footer/>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Evenements/>);
+</script>
+<style>
+  @media (max-width: 760px) {
+    .two-col { grid-template-columns: 1fr !important; }
+    .event-row { grid-template-columns: 1fr !important; gap: 14px; }
+    .event-row > :first-child { width: 90px; }
+  }
+</style>
+</body>
+</html>

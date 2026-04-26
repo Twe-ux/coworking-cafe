@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept — CoworKing Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel">
+function Concept() {
+  return (
+    <>
+      <Nav active="concept" dark/>
+
+      {/* Hero manifesto */}
+      <section className="hero-dark">
+        <div className="wrap" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <div className="tag" style={{ color: 'var(--btn)', marginBottom: 16, letterSpacing: '0.2em' }}>— 02 · LE MANIFESTE —</div>
+          <h1 className="h1" style={{ fontSize: 'clamp(40px, 8vw, 108px)', maxWidth: 1100, margin: '0 auto' }}>
+            Le café <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>motive</em>.<br/>
+            L'humain <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>relie</em>.
+          </h1>
+          <p className="lead" style={{ maxWidth: 620, margin: '28px auto 0' }}>
+            On a créé CoworKing Café pour réunir ce que le travail moderne sépare trop souvent : la concentration, la chaleur humaine, et le plaisir d'un bon café.
+          </p>
+        </div>
+      </section>
+
+      {/* 3 Piliers */}
+      <section className="section section-cream">
+        <div className="wrap">
+          <div className="flex-between" style={{ marginBottom: 40 }}>
+            <div>
+              <div className="tag eyebrow">— 01 · Les 3 piliers</div>
+              <h2 className="h2">Notre <em className="accent">philosophie</em></h2>
+            </div>
+          </div>
+          <div className="grid g-3">
+            {[
+              { n: '01', t: 'Payez au temps', d: 'Pas d\'abonnement imposé. Entrez, travaillez, servez-vous un café, et ne payez que les heures passées chez nous.' },
+              { n: '02', t: 'Travaillez sérieusement', d: 'Fibre 1Gb/s, salles insonorisées, équipement pro. Un vrai bureau, sans les contraintes du bail commercial.' },
+              { n: '03', t: 'Rencontrez-vous', d: 'Un lieu où les indépendants, étudiants et équipes se croisent. Événements mensuels, apéros, sessions d\'échange.' },
+            ].map(p => (
+              <div key={p.n} className="card" style={{ padding: 'clamp(22px, 3vw, 36px)' }}>
+                <span className="mono" style={{ fontSize: 11, letterSpacing: '0.18em', color: 'var(--main)' }}>PILIER {p.n}</span>
+                <h3 className="h3" style={{ marginTop: 14 }}>{p.t}</h3>
+                <p style={{ fontSize: 14.5, color: 'var(--gry)', lineHeight: 1.6, marginTop: 12 }}>{p.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Histoire — split */}
+      <section className="section section-dark">
+        <div className="wrap">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: 'clamp(24px, 4vw, 64px)' }} className="two-col">
+            <div>
+              <div className="tag eyebrow" style={{ color: 'var(--btn)' }}>— 02 · Notre histoire</div>
+              <h2 className="h2" style={{ color: '#fff' }}>Né d'une <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>frustration</em>.</h2>
+            </div>
+            <div style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,0.78)' }}>
+              <p style={{ marginTop: 0 }}>En 2022, Thomas et Clara — l'un freelance, l'autre salariée en télétravail — tournaient en rond dans les cafés de Strasbourg. Trop bruyant, Wi-Fi fragile, un café noir à siroter lentement pour avoir le droit de rester.</p>
+              <p>L'idée : créer un lieu où l'on paie son temps, pas ses cafés. Où l'équipement est pro, l'ambiance chaleureuse, et où l'on peut rester 8h sans culpabiliser.</p>
+              <p style={{ marginBottom: 0 }}>Trois ans plus tard, ce sont <strong style={{ color: 'var(--btn)' }}>420+ membres actifs</strong>, quatre espaces, une communauté qui se retrouve chaque mercredi pour les apéros du café.</p>
+            </div>
+          </div>
+
+          <div className="grid g-3" style={{ marginTop: 56 }}>
+            {[
+              ['2022', 'Ouverture rue de la Division Leclerc'],
+              ['2023', 'Inauguration de la Salle Verrière'],
+              ['2024', 'Privatisation de l\'étage & événementiel'],
+            ].map(([year, txt]) => (
+              <div key={year} className="card-glass" style={{ padding: 22 }}>
+                <div className="serif" style={{ fontSize: 38, color: 'var(--btn)', lineHeight: 1 }}>{year}</div>
+                <div style={{ fontSize: 13, opacity: 0.8, marginTop: 10 }}>{txt}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Équipe */}
+      <section className="section section-cream">
+        <div className="wrap">
+          <div className="flex-between" style={{ marginBottom: 32 }}>
+            <div>
+              <div className="tag eyebrow">— 03 · L'équipe</div>
+              <h2 className="h2">Derrière le <em className="accent">comptoir</em></h2>
+            </div>
+          </div>
+          <div className="grid g-4">
+            {[
+              { n: 'Thomas Meyer', r: 'Co-fondateur · Ops', i: 'TM', c: '#417972' },
+              { n: 'Clara Bauer', r: 'Co-fondatrice · Community', i: 'CB', c: '#5A938B' },
+              { n: 'Julien Roth', r: 'Barista · Café spécialité', i: 'JR', c: '#8A6B1F' },
+              { n: 'Sarah Klein', r: 'Events & partenariats', i: 'SK', c: '#C0534C' },
+            ].map(p => (
+              <div key={p.n} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ height: 200, background: `linear-gradient(160deg, ${p.c}, ${p.c}dd)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Fraunces, serif', fontSize: 64, color: '#fff' }}>{p.i}</div>
+                <div style={{ padding: 18 }}>
+                  <div className="serif" style={{ fontSize: 19 }}>{p.n}</div>
+                  <div style={{ fontSize: 12, color: 'var(--gry)', marginTop: 4 }}>{p.r}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Footer/>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Concept/>);
+</script>
+<style>
+  @media (max-width: 760px) { .two-col { grid-template-columns: 1fr !important; } }
+</style>
+</body>
+</html>

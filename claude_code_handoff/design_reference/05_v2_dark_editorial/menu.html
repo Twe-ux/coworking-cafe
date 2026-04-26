@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu — CoworKing Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel">
+const CAT = [
+  { n: '01', t: 'Cafés spécialité', tag: 'Barista', items: [
+    ['Espresso', 'Intense, notes cacao · 7g'], ['Ristretto', 'Court, puissant'], ['Americano', 'Allongé chaud'],
+    ['Flat white', 'Lait texturé 160ml'], ['Cappuccino', 'Mousse dense'], ['Latte macchiato', 'Couches lait & café'],
+    ['Cortado', 'Ratio 1:1'], ['Mocha', 'Cacao amer + lait'],
+  ]},
+  { n: '02', t: 'Thés & infusions', tag: 'Kusmi, Dammann', items: [
+    ['Thé vert Sencha', 'Japon, délicat'], ['Earl Grey', 'Bergamote'], ['Chaï latte', 'Épices, lait chaud'],
+    ['Matcha latte', 'Poudre cérémoniale'], ['Rooibos vanille', 'Sans théine'], ['Infusion menthe', 'Feuilles fraîches'],
+    ['Tisane verveine', 'Relax'], ['Oolong', 'Semi-oxydé'],
+  ]},
+  { n: '03', t: 'Boissons froides', tag: 'Rafraîchissants', items: [
+    ['Cold brew', '12h d\'extraction'], ['Iced latte', 'Café + lait + glace'], ['Limonade maison', 'Citron, basilic'],
+    ['Kombucha', 'Fermenté · gingembre'], ['Matcha tonic', 'Matcha + eau pétillante'], ['Smoothie', 'Fruits de saison'],
+    ['Eau aromatisée', 'Concombre-menthe'], ['Jus frais', 'Pomme ou orange'],
+  ]},
+  { n: '04', t: 'Snacks & sucré', tag: 'Fait maison', sub: true, items: [
+    ['Cookie chocolat', '3,50 €'], ['Banana bread', '4 €'], ['Granola maison', '5 €'],
+    ['Tartine avocat', '7 €'], ['Croque-monsieur', '8,50 €'], ['Salade du jour', '11 €'],
+  ]},
+];
+
+function Menu() {
+  return (
+    <>
+      <Nav active="menu" dark/>
+      <PageHeader num="04" eyebrow="Menu" title="+40 boissons," titleAccent="à volonté."
+        lead="Incluses dans tous nos forfaits. Un vrai barista, des thés premium, des infusions fraîches. Snacks et pâtisseries maison en supplément."/>
+
+      {/* Hero strip — illimité */}
+      <section className="section-cream" style={{ padding: '40px 0' }}>
+        <div className="wrap grid g-4" style={{ gap: 14 }}>
+          {[
+            ['+40', 'Boissons'],
+            ['4,9', 'Note Google'],
+            ['100%', 'Fait maison'],
+            ['0€', 'Sup. conso'],
+          ].map(([n, l]) => (
+            <div key={l} className="card" style={{ textAlign: 'center', padding: '22px 12px' }}>
+              <div className="serif" style={{ fontSize: 'clamp(30px, 3.5vw, 44px)', color: 'var(--main)', lineHeight: 1 }}>{n}</div>
+              <div className="tag" style={{ marginTop: 10 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {CAT.map((c, idx) => (
+        <section key={c.n} className={idx % 2 === 1 ? 'section section-dark' : 'section'} style={{ background: idx % 2 === 1 ? 'var(--body)' : (idx === 0 ? 'var(--cream)' : '#fff') }}>
+          <div className="wrap">
+            <div className="flex-between" style={{ marginBottom: 28 }}>
+              <div>
+                <div className="tag" style={{ color: idx % 2 === 1 ? 'var(--btn)' : 'var(--main)', marginBottom: 10 }}>— {c.n} · {c.tag}</div>
+                <h2 className="h2" style={{ color: idx % 2 === 1 ? '#fff' : 'var(--body)' }}>{c.t}</h2>
+              </div>
+              {c.sub && <span className="chip chip-btn"><Icon name="cookie" size={12} stroke="#1A1A1A"/>En supplément</span>}
+              {!c.sub && <span className="chip" style={{ background: idx % 2 === 1 ? 'rgba(242,211,129,0.18)' : 'rgba(65,121,114,0.1)', color: idx % 2 === 1 ? 'var(--btn)' : 'var(--main)' }}><Icon name="check" size={12} stroke="currentColor" sw={2.5}/>Inclus</span>}
+            </div>
+            <div className="grid g-4">
+              {c.items.map(([name, d]) => (
+                <div key={name} style={{ padding: 18, borderRadius: 16,
+                  background: idx % 2 === 1 ? 'rgba(255,255,255,0.04)' : '#fff',
+                  border: idx % 2 === 1 ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--line)',
+                }}>
+                  <div className="serif" style={{ fontSize: 18, color: idx % 2 === 1 ? '#fff' : 'var(--body)' }}>{name}</div>
+                  <div style={{ fontSize: 12.5, color: idx % 2 === 1 ? 'rgba(255,255,255,0.65)' : 'var(--gry)', marginTop: 6, lineHeight: 1.5 }}>{d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))}
+
+      <Footer/>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Menu/>);
+</script>
+</body>
+</html>

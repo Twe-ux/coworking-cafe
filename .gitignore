@@ -50,6 +50,9 @@ next-env.d.ts
 
 # Misc
 .turbo
+
+# Claude Code — local settings only (skills/ and handoffs are committed)
+.claude/settings.local.json
 # tmp/
 temp/
 

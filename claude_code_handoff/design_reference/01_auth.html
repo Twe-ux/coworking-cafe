@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auth — Login & Register · Mobile + Desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Client Dashboard — mobile PWA refonte
+   Palette existante conservée, traitement moderne */
+:root {
+  --body: #142220;
+  --main: #417972;
+  --main-dark: #2F5955;
+  --main-light: #5A938B;
+  --btn: #F2D381;
+  --btn-dark: #D9B661;
+  --primary: #ffffff;
+  --secondary: #1A1A1A;
+  --gry: #6E6F75;
+  --grayWhite: #E3ECE7;
+  --cream: #F5F9F5;
+  --line: rgba(20, 34, 32, 0.08);
+  --line-on-dark: rgba(255, 255, 255, 0.1);
+  --success: #4CA06E;
+  --warn: #D68A3C;
+  --danger: #C0534C;
+  --shadow: 0 1px 2px rgba(20,34,32,0.04), 0 8px 24px rgba(20,34,32,0.06);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  background: #DDE6DE;
+  background-image:
+    radial-gradient(circle at 15% 10%, #E9F0E7 0%, transparent 50%),
+    radial-gradient(circle at 85% 90%, #D6E1D5 0%, transparent 50%);
+  min-height: 100vh;
+  color: var(--body);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+.stage {
+  min-height: 100vh;
+  padding: 48px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+.stage-header { text-align: center; max-width: 640px; padding: 0 16px; }
+.stage-header h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 36px; font-weight: 400; line-height: 1.1;
+  margin: 0 0 8px; color: var(--body); letter-spacing: -0.02em;
+}
+.stage-header h1 em { font-style: italic; color: var(--main); }
+.stage-header p { font-size: 14px; color: var(--gry); margin: 0; line-height: 1.55; }
+
+.devices-row { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+.device-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--gry); text-align: center; margin-top: 12px;
+}
+
+/* ───── iPhone frame ───── */
+.iphone {
+  width: 390px; height: 844px; border-radius: 52px; overflow: hidden;
+  position: relative; background: #000;
+  box-shadow: 0 40px 80px rgba(20,34,32,0.22), 0 0 0 10px #0a1513, 0 0 0 11px rgba(255,255,255,0.08);
+}
+.island {
+  position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 34px; border-radius: 20px; background: #000; z-index: 50;
+}
+.screen { height: 100%; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.screen-bg-cream { background: var(--cream); }
+.screen-bg-dark { background: var(--body); }
+.screen-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.screen-scroll::-webkit-scrollbar { display: none; }
+
+/* status bar */
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 54px;
+  padding: 18px 30px 0; display: flex; justify-content: space-between;
+  align-items: center; font-size: 15px; font-weight: 600;
+  z-index: 30; pointer-events: none;
+}
+.statusbar.dark { color: #fff; }
+.statusbar.light { color: var(--body); }
+
+/* type */
+.serif { font-family: 'Fraunces', Georgia, serif; font-weight: 400; letter-spacing: -0.01em; }
+.num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-weight: 500; }
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--gry); font-weight: 500;
+}
+
+/* topbar */
+.topbar {
+  padding: 0 20px; min-height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-title {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 500;
+  font-size: 19px; letter-spacing: -0.01em; color: var(--body);
+}
+.ic-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.8); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--body);
+}
+.ic-btn.on-dark { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); color: #fff; }
+.ic-dot {
+  position: absolute; top: 9px; right: 9px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--btn); border: 1.5px solid #fff;
+}
+
+/* card */
+.card { background: #fff; border-radius: 22px; border: 1px solid var(--line); padding: 18px; }
+.card-dark { background: var(--body); color: var(--grayWhite); border: none; }
+.card-main { background: var(--main); color: #fff; border: none; }
+
+/* chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 999px;
+  font-size: 11px; font-weight: 500;
+  background: rgba(65,121,114,0.08); color: var(--main);
+}
+.chip-btn { background: rgba(242,211,129,0.22); color: #8A6B1F; }
+.chip-success { background: rgba(76,160,110,0.14); color: var(--success); }
+.chip-warn { background: rgba(214,138,60,0.14); color: var(--warn); }
+.chip-danger { background: rgba(192,83,76,0.14); color: var(--danger); }
+.chip-dark { background: rgba(255,255,255,0.08); color: var(--grayWhite); }
+
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+/* tab bar */
+.tabbar {
+  position: absolute; left: 14px; right: 14px; bottom: 16px;
+  height: 70px; background: rgba(20,34,32,0.94);
+  color: #fff; border-radius: 32px;
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 0 8px; backdrop-filter: blur(20px);
+  box-shadow: 0 12px 32px rgba(20,34,32,0.28); z-index: 40;
+}
+.tabbar-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 4px; cursor: pointer; color: rgba(255,255,255,0.55);
+  font-size: 10px; font-weight: 500; transition: color 0.2s;
+}
+.tabbar-item.active { color: #fff; }
+.tabbar-icon-wrap {
+  width: 42px; height: 28px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.tabbar-item.active .tabbar-icon-wrap { background: var(--btn); color: var(--secondary); }
+
+/* fab */
+.fab {
+  position: absolute; right: 22px; bottom: 108px;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: var(--btn); color: var(--secondary);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 24px rgba(242,211,129,0.55), 0 2px 6px rgba(0,0,0,0.1);
+  cursor: pointer; z-index: 35;
+}
+
+/* stat card */
+.stat-card {
+  padding: 14px; background: #fff; border-radius: 16px;
+  border: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.stat-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.stat-value {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 28px; color: var(--body); line-height: 1;
+}
+.stat-label { font-size: 11px; color: var(--gry); }
+
+/* space pill */
+.space-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 8px;
+  font-size: 11px; font-weight: 500;
+  background: var(--grayWhite); color: var(--main);
+}
+
+/* swipe */
+.swipe-wrap { position: relative; overflow: hidden; border-radius: 18px; }
+.swipe-actions { position: absolute; top: 0; right: 0; bottom: 0; display: flex; }
+.swipe-btn {
+  width: 70px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; color: #fff; font-size: 11px; font-weight: 500; cursor: pointer;
+}
+.swipe-btn-cancel { background: var(--danger); }
+.swipe-btn-view { background: var(--main); }
+
+/* segmented */
+.segmented {
+  display: flex; background: rgba(65,121,114,0.08);
+  border-radius: 12px; padding: 4px;
+}
+.seg-item {
+  flex: 1; text-align: center; padding: 8px;
+  font-size: 13px; font-weight: 500; color: var(--gry);
+  border-radius: 9px; cursor: pointer; transition: all 0.2s;
+}
+.seg-item.active { background: #fff; color: var(--main); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+
+/* input */
+.input-row {
+  padding: 14px 16px; background: #fff; border-radius: 14px;
+  border: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.input-row label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--gry);
+}
+.input-row .val { font-size: 15px; color: var(--body); }
+
+/* toggle */
+.toggle {
+  width: 42px; height: 26px; border-radius: 14px;
+  background: var(--grayWhite); position: relative; cursor: pointer;
+  transition: background 0.25s;
+}
+.toggle.on { background: var(--main); }
+.toggle-knob {
+  position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+  border-radius: 50%; background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.25s;
+}
+.toggle.on .toggle-knob { transform: translateX(16px); }
+
+/* sheet */
+.sheet-overlay {
+  position: absolute; inset: 0; background: rgba(20,34,32,0.4);
+  z-index: 50; display: flex; align-items: flex-end;
+}
+.sheet-panel {
+  width: 100%; background: var(--cream);
+  border-radius: 28px 28px 0 0; padding: 10px 20px 34px;
+  max-height: 82%; overflow-y: auto;
+  animation: sheetIn 0.32s cubic-bezier(0.32,0.72,0,1);
+}
+@keyframes sheetIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-grabber {
+  width: 36px; height: 5px; border-radius: 3px;
+  background: rgba(20,34,32,0.15); margin: 0 auto 14px;
+}
+
+/* screen slide */
+.screen-enter { animation: slideIn 0.32s cubic-bezier(0.32,0.72,0,1); }
+@keyframes slideIn { from { transform: translateX(12%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* progress ring */
+.ring-wrap { position: relative; width: 76px; height: 76px; }
+.ring-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+
+/* tweaks panel */
+.tweaks-panel {
+  position: fixed; bottom: 20px; right: 20px; width: 280px;
+  background: var(--cream); border: 1px solid var(--line);
+  border-radius: 20px; padding: 16px;
+  z-index: 999; box-shadow: 0 12px 36px rgba(0,0,0,0.15);
+  font-size: 13px; display: none;
+}
+.tweaks-panel.visible { display: block; }
+.tweaks-title {
+  font-family: 'Fraunces', Georgia, serif; font-size: 20px;
+  margin: 0 0 12px; color: var(--body);
+}
+.tweaks-group { margin-bottom: 12px; }
+.tweaks-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--gry); margin-bottom: 6px;
+}
+.tweaks-options { display: flex; gap: 6px; flex-wrap: wrap; }
+.tweaks-opt {
+  padding: 6px 10px; border-radius: 999px;
+  background: #fff; border: 1px solid var(--line);
+  cursor: pointer; font-size: 12px; color: var(--body);
+}
+.tweaks-opt.active { background: var(--main); color: #fff; border-color: var(--main); }
+
+/* avatar */
+.avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--main); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 18px;
+  font-family: 'Fraunces', Georgia, serif;
+}
+.avatar.lg { width: 88px; height: 88px; font-size: 32px; }
+
+/* list item */
+.list-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: #fff;
+  border-radius: 16px; border: 1px solid var(--line); cursor: pointer;
+}
+.list-row-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--grayWhite); color: var(--main);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.list-row-main { flex: 1; min-width: 0; }
+.list-row-title { font-size: 15px; color: var(--body); font-weight: 500; }
+.list-row-sub { font-size: 12px; color: var(--gry); margin-top: 2px; }
+
+/* timeline */
+.timeline-bar {
+  width: 3px; background: linear-gradient(var(--main), rgba(65,121,114,0.1));
+  border-radius: 2px; align-self: stretch;
+}
+
+</style>
+<style>
+.auth-stage { padding: 48px 24px 80px; display: flex; flex-direction: column; align-items: center; gap: 56px; }
+.sec-title { text-align: center; max-width: 640px; padding: 0 16px; }
+.sec-title h2 { font-family: 'Fraunces', serif; font-size: 28px; color: var(--body); margin: 0 0 6px; letter-spacing: -0.02em; font-weight: 400; }
+.sec-title h2 em { color: var(--main); font-style: italic; }
+.sec-title p { font-size: 13px; color: var(--gry); margin: 0; line-height: 1.55; }
+.mobile-row { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+
+/* Inputs */
+.afield { display: flex; flex-direction: column; gap: 6px; }
+.alabel { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gry); }
+.ainput {
+  background: #fff; border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; font-size: 14px; color: var(--body);
+  display: flex; align-items: center; gap: 10px;
+  transition: all 0.15s; font-family: inherit;
+}
+.ainput.focus { border-color: var(--main); box-shadow: 0 0 0 3px rgba(65,121,114,0.1); }
+.ainput input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 14px; color: var(--body);
+}
+.ainput input::placeholder { color: var(--gry); opacity: 0.7; }
+
+.abtn-primary {
+  background: var(--body); color: var(--btn);
+  border: none; border-radius: 12px; padding: 14px 20px;
+  font-family: inherit; font-size: 14px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer; width: 100%;
+}
+.abtn-primary:hover { background: #0a1513; }
+
+.abtn-secondary {
+  background: #fff; color: var(--body);
+  border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px;
+  font-family: inherit; font-size: 13.5px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  cursor: pointer; width: 100%;
+}
+
+.divider {
+  display: flex; align-items: center; gap: 12px; margin: 6px 0;
+  color: var(--gry); font-size: 11px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em;
+}
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+.astep-dots { display: flex; gap: 6px; }
+.astep-dot { width: 22px; height: 4px; border-radius: 2px; background: var(--line); }
+.astep-dot.active { background: var(--main); }
+.astep-dot.done { background: var(--btn); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+
+// ───────────────── Shared pieces ─────────────────
+function Logo({ size = 34, onDark = false }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{
+        width: size, height: size, borderRadius: size * 0.3,
+        background: onDark ? 'var(--btn)' : 'var(--body)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon name="building" size={size * 0.5} stroke={onDark ? 'var(--secondary)' : 'var(--btn)'}/>
+      </div>
+      <div>
+        <div style={{ fontFamily: 'Fraunces, serif', fontSize: size * 0.5, color: onDark ? '#fff' : 'var(--body)', letterSpacing: '-0.01em' }}>CoworKing Café</div>
+        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: '0.14em', color: onDark ? 'rgba(255,255,255,0.5)' : 'var(--gry)', marginTop: 2 }}>ESPACE MEMBRE</div>
+      </div>
+    </div>
+  );
+}
+
+function SocialButton({ brand, children }) {
+  const bg = brand === 'google' ? '#fff' : brand === 'apple' ? '#000' : '#fff';
+  const fg = brand === 'apple' ? '#fff' : 'var(--body)';
+  return (
+    <button className="abtn-secondary" style={{ background: bg, color: fg, border: brand === 'apple' ? 'none' : '1px solid var(--line)' }}>
+      {brand === 'google' && <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.3h5.9c-.3 1.4-1 2.5-2.1 3.3v2.7h3.4c2-1.8 3.3-4.5 3.3-8.1z"/><path fill="#34A853" d="M12 23c2.8 0 5.2-.9 7-2.6l-3.4-2.6c-.9.6-2.1 1-3.6 1-2.8 0-5.1-1.9-5.9-4.4H2.5v2.8C4.3 20.7 7.9 23 12 23z"/><path fill="#FBBC05" d="M6.1 14.4c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.6H2.5C1.8 9 1.4 10.4 1.4 12s.4 3 1.1 4.4l3.6-2z"/><path fill="#EA4335" d="M12 5.5c1.6 0 3 .5 4.1 1.6l3-3C17.2 2.3 14.8 1.4 12 1.4 7.9 1.4 4.3 3.7 2.5 7.6l3.6 2.8c.8-2.5 3.1-4.4 5.9-4.9z"/></svg>}
+      {brand === 'apple' && <svg width="14" height="16" viewBox="0 0 14 16" fill="#fff"><path d="M11.5 8.4c0-2 1.6-2.9 1.7-3-1-1.4-2.4-1.6-3-1.7-1.3-.1-2.5.8-3.2.8-.7 0-1.7-.8-2.8-.7-1.4 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.6 2.1 2.7 2.1s1.5-.7 2.8-.7c1.3 0 1.7.7 2.8.7s1.9-1 2.6-2c.8-1.2 1.2-2.3 1.2-2.4-.1 0-2.4-.9-2.4-3.7zM9.4 2.3c.6-.7 1-1.7.9-2.7-.8 0-1.9.5-2.5 1.3-.5.6-1 1.7-.9 2.6 1 .1 1.9-.5 2.5-1.2z"/></svg>}
+      {children}
+    </button>
+  );
+}
+
+// ───────────────── Mobile — Login ─────────────────
+function MLogin() {
+  const [focused, setFocused] = useState('');
+  return (
+    <div className="iphone">
+      <div className="island"/>
+      <div className="screen" style={{ background: 'var(--cream)' }}>
+        {/* status bar */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 54, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 28px 6px', fontSize: 15, fontWeight: 600, color: 'var(--body)', zIndex: 5, fontFamily: 'Inter' }}>
+          <span>9:41</span>
+          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+            <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="6" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2.5" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2.5" height="10" rx="0.5" fill="currentColor"/></svg>
+            <svg width="22" height="11" viewBox="0 0 22 11"><rect x="0.5" y="0.5" width="18" height="10" rx="3" stroke="currentColor" fill="none" opacity="0.4"/><rect x="2" y="2" width="15" height="7" rx="1.5" fill="currentColor"/></svg>
+          </div>
+        </div>
+
+        <div style={{ height: 54 }}/>
+        <div style={{ padding: '24px 24px 32px', display: 'flex', flexDirection: 'column', gap: 32, flex: 1, overflowY: 'auto' }}>
+          <Logo size={38}/>
+
+          <div>
+            <div className="tag" style={{ color: 'var(--main)', marginBottom: 8 }}>Heureux de vous revoir</div>
+            <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 34, color: 'var(--body)', margin: 0, lineHeight: 1.05, letterSpacing: '-0.02em', fontWeight: 400 }}>
+              Entrez dans votre <em style={{ color: 'var(--main)', fontStyle: 'italic' }}>espace</em>
+            </h1>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="afield">
+              <span className="alabel">Email</span>
+              <div className={`ainput ${focused === 'email' ? 'focus' : ''}`}>
+                <Icon name="mail" size={16} stroke="var(--main)"/>
+                <input type="email" placeholder="claire@exemple.fr" defaultValue="claire.dupont@mail.com" onFocus={() => setFocused('email')} onBlur={() => setFocused('')}/>
+              </div>
+            </div>
+
+            <div className="afield">
+              <span className="alabel" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Mot de passe</span>
+                <span style={{ color: 'var(--main)', textTransform: 'none', letterSpacing: 0, fontSize: 11 }}>Oublié ?</span>
+              </span>
+              <div className={`ainput ${focused === 'pw' ? 'focus' : ''}`}>
+                <Icon name="lock" size={16} stroke="var(--main)"/>
+                <input type="password" placeholder="••••••••" defaultValue="passwordsecret" onFocus={() => setFocused('pw')} onBlur={() => setFocused('')}/>
+                <Icon name="star" size={14} stroke="var(--gry)"/>
+              </div>
+            </div>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--body)', marginTop: 4 }}>
+              <span style={{ width: 20, height: 20, borderRadius: 6, background: 'var(--main)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="check" size={12} stroke="#fff" sw={2.8}/>
+              </span>
+              Rester connecté sur cet appareil
+            </label>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button className="abtn-primary">
+              Se connecter <Icon name="chevRight" size={14} stroke="var(--btn)" sw={2.2}/>
+            </button>
+            <div className="divider">OU</div>
+            <SocialButton brand="apple">Continuer avec Apple</SocialButton>
+            <SocialButton brand="google">Continuer avec Google</SocialButton>
+          </div>
+
+          <div style={{ marginTop: 'auto', textAlign: 'center', fontSize: 13, color: 'var(--gry)' }}>
+            Pas encore de compte ? <span style={{ color: 'var(--main)', fontWeight: 500 }}>Créer un compte</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────── Mobile — Register ─────────────────
+function MRegister() {
+  return (
+    <div className="iphone">
+      <div className="island"/>
+      <div className="screen" style={{ background: 'var(--cream)' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 54, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 28px 6px', fontSize: 15, fontWeight: 600, color: 'var(--body)', zIndex: 5, fontFamily: 'Inter' }}>
+          <span>9:41</span>
+          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+            <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="6" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="2.5" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="2.5" height="10" rx="0.5" fill="currentColor"/></svg>
+            <svg width="22" height="11" viewBox="0 0 22 11"><rect x="0.5" y="0.5" width="18" height="10" rx="3" stroke="currentColor" fill="none" opacity="0.4"/><rect x="2" y="2" width="15" height="7" rx="1.5" fill="currentColor"/></svg>
+          </div>
+        </div>
+
+        <div style={{ height: 54 }}/>
+        {/* topbar with back */}
+        <div style={{ padding: '6px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: '#fff', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="chevLeft" size={16} stroke="var(--body)"/>
+          </div>
+          <div className="astep-dots">
+            <span className="astep-dot done"/>
+            <span className="astep-dot active"/>
+            <span className="astep-dot"/>
+          </div>
+          <div style={{ width: 40 }}/>
+        </div>
+
+        <div style={{ padding: '18px 24px 32px', display: 'flex', flexDirection: 'column', gap: 20, flex: 1, overflowY: 'auto' }}>
+          <div>
+            <div className="tag" style={{ color: 'var(--main)', marginBottom: 6 }}>Étape 2 sur 3</div>
+            <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 30, color: 'var(--body)', margin: 0, lineHeight: 1.05, letterSpacing: '-0.02em', fontWeight: 400 }}>
+              Vos <em style={{ color: 'var(--main)', fontStyle: 'italic' }}>informations</em>
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--gry)', marginTop: 8, lineHeight: 1.5 }}>
+              Pour personnaliser votre espace et sécuriser votre compte.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div className="afield">
+                <span className="alabel">Prénom</span>
+                <div className="ainput"><input defaultValue="Claire"/></div>
+              </div>
+              <div className="afield">
+                <span className="alabel">Nom</span>
+                <div className="ainput"><input defaultValue="Dupont"/></div>
+              </div>
+            </div>
+            <div className="afield">
+              <span className="alabel">Email</span>
+              <div className="ainput focus">
+                <Icon name="mail" size={16} stroke="var(--main)"/>
+                <input defaultValue="claire.dupont@mail.com"/>
+                <Icon name="check" size={14} stroke="var(--success)" sw={2.5}/>
+              </div>
+            </div>
+            <div className="afield">
+              <span className="alabel">Mot de passe</span>
+              <div className="ainput">
+                <Icon name="lock" size={16} stroke="var(--main)"/>
+                <input type="password" defaultValue="passwordabc123"/>
+              </div>
+              {/* Strength */}
+              <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                <span style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--success)' }}/>
+                <span style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--success)' }}/>
+                <span style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--success)' }}/>
+                <span style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--line)' }}/>
+              </div>
+              <span style={{ fontSize: 11, color: 'var(--success)', marginTop: 2 }}>Sécurisé · 8 caractères min.</span>
+            </div>
+          </div>
+
+          <label style={{ display: 'flex', gap: 10, fontSize: 12, color: 'var(--body)', lineHeight: 1.5 }}>
+            <span style={{ width: 20, height: 20, borderRadius: 6, background: 'var(--main)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+              <Icon name="check" size={12} stroke="#fff" sw={2.8}/>
+            </span>
+            J'accepte les <span style={{ color: 'var(--main)', textDecoration: 'underline' }}>CGU</span> et la <span style={{ color: 'var(--main)', textDecoration: 'underline' }}>politique de confidentialité</span>
+          </label>
+
+          <button className="abtn-primary" style={{ marginTop: 'auto' }}>
+            Continuer <Icon name="chevRight" size={14} stroke="var(--btn)" sw={2.2}/>
+          </button>
+
+          <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--gry)' }}>
+            Déjà inscrit ? <span style={{ color: 'var(--main)', fontWeight: 500 }}>Se connecter</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────── Desktop — Split layout ─────────────────
+function DesktopAuth({ mode = 'login' }) {
+  const isLogin = mode === 'login';
+  return (
+    <div style={{
+      width: 1240, height: 780, borderRadius: 18, overflow: 'hidden',
+      display: 'grid', gridTemplateColumns: '1fr 1fr',
+      boxShadow: '0 30px 60px rgba(20,34,32,0.14), 0 0 0 1px var(--line)',
+      background: '#fff',
+    }}>
+      {/* Left — hero brand side */}
+      <div style={{
+        background: 'var(--body)', color: '#fff',
+        padding: '44px 48px', display: 'flex', flexDirection: 'column',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        {/* decorative */}
+        <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(65,121,114,0.3)', filter: 'blur(40px)' }}/>
+        <div style={{ position: 'absolute', bottom: -100, left: -60, width: 300, height: 300, borderRadius: '50%', background: 'rgba(242,211,129,0.12)', filter: 'blur(50px)' }}/>
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Logo size={40} onDark/>
+
+          <div style={{ marginTop: 'auto', maxWidth: 420 }}>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.16em', color: 'var(--btn)', marginBottom: 14 }}>— UN LIEU, MILLE POSSIBLES</div>
+            <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 52, lineHeight: 1, margin: 0, letterSpacing: '-0.03em', fontWeight: 400 }}>
+              Travailler autrement,<br/>
+              <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>ensemble</em>.
+            </h2>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, marginTop: 22 }}>
+              {isLogin
+                ? 'Retrouvez vos réservations, vos crédits horaires et votre programme fidélité dans votre espace membre.'
+                : 'Rejoignez 420+ membres : un café, un coin lecture, et quatre espaces de travail au cœur de la ville.'}
+            </p>
+
+            {/* stats */}
+            <div style={{ display: 'flex', gap: 36, marginTop: 36, paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              {[['420+', 'Membres actifs'], ['4', 'Espaces'], ['7j/7', 'Ouvert']].map(([n, l]) => (
+                <div key={l}>
+                  <div style={{ fontFamily: 'Fraunces, serif', fontSize: 26, color: 'var(--btn)' }}>{n}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right — form */}
+      <div style={{ padding: '44px 60px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+        {/* Top bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="tag" style={{ color: 'var(--gry)' }}>Français · FR</div>
+          <div style={{ fontSize: 13, color: 'var(--gry)' }}>
+            {isLogin ? 'Pas de compte ? ' : 'Déjà inscrit ? '}
+            <span style={{ color: 'var(--main)', fontWeight: 500, borderBottom: '1px solid var(--main)', paddingBottom: 2, cursor: 'pointer' }}>
+              {isLogin ? 'Créer un compte' : 'Se connecter'}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ margin: 'auto 0', paddingTop: 40, paddingBottom: 40, maxWidth: 440, width: '100%' }}>
+          <div className="tag" style={{ color: 'var(--main)', marginBottom: 8 }}>
+            {isLogin ? '— Content de vous revoir —' : '— Bienvenue dans le café —'}
+          </div>
+          <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 44, color: 'var(--body)', margin: 0, letterSpacing: '-0.025em', lineHeight: 1.05, fontWeight: 400 }}>
+            {isLogin ? <>Connectez-vous à votre <em style={{ color: 'var(--main)', fontStyle: 'italic' }}>espace</em></> : <>Créez votre <em style={{ color: 'var(--main)', fontStyle: 'italic' }}>compte</em></>}
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--gry)', marginTop: 14, lineHeight: 1.55 }}>
+            {isLogin
+              ? 'Accédez à vos réservations, votre fidélité et vos factures en un clin d\'œil.'
+              : 'Trois minutes suffisent. Commencez avec 1h offerte sur votre première réservation.'}
+          </p>
+
+          {/* Social row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 28 }}>
+            <SocialButton brand="apple">Apple</SocialButton>
+            <SocialButton brand="google">Google</SocialButton>
+          </div>
+          <div className="divider" style={{ margin: '22px 0' }}>OU PAR EMAIL</div>
+
+          {/* Form */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {!isLogin && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="afield">
+                  <span className="alabel">Prénom</span>
+                  <div className="ainput"><input defaultValue="Claire"/></div>
+                </div>
+                <div className="afield">
+                  <span className="alabel">Nom</span>
+                  <div className="ainput"><input defaultValue="Dupont"/></div>
+                </div>
+              </div>
+            )}
+            <div className="afield">
+              <span className="alabel">Email</span>
+              <div className="ainput focus">
+                <Icon name="mail" size={16} stroke="var(--main)"/>
+                <input defaultValue="claire.dupont@mail.com"/>
+              </div>
+            </div>
+            <div className="afield">
+              <span className="alabel" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Mot de passe</span>
+                {isLogin && <span style={{ color: 'var(--main)', textTransform: 'none', letterSpacing: 0, fontSize: 11, fontFamily: 'Inter' }}>Mot de passe oublié ?</span>}
+              </span>
+              <div className="ainput">
+                <Icon name="lock" size={16} stroke="var(--main)"/>
+                <input type="password" defaultValue={isLogin ? 'motdepassesecret' : 'nouveaumotdepasse'}/>
+                <Icon name="star" size={14} stroke="var(--gry)"/>
+              </div>
+              {!isLogin && (
+                <>
+                  <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
+                    <span style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--success)' }}/>
+                    <span style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--success)' }}/>
+                    <span style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--success)' }}/>
+                    <span style={{ flex: 1, height: 3, borderRadius: 2, background: 'var(--line)' }}/>
+                  </div>
+                  <span style={{ fontSize: 11, color: 'var(--success)', marginTop: 4 }}>Sécurisé · min. 8 caractères</span>
+                </>
+              )}
+            </div>
+
+            <label style={{ display: 'flex', gap: 10, fontSize: 12.5, color: 'var(--body)', lineHeight: 1.5, marginTop: 4 }}>
+              <span style={{ width: 20, height: 20, borderRadius: 6, background: 'var(--main)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                <Icon name="check" size={12} stroke="#fff" sw={2.8}/>
+              </span>
+              {isLogin ? 'Rester connecté sur cet appareil' : <>J'accepte les <span style={{ color: 'var(--main)', textDecoration: 'underline' }}>CGU</span> et la <span style={{ color: 'var(--main)', textDecoration: 'underline' }}>politique de confidentialité</span></>}
+            </label>
+
+            <button className="abtn-primary" style={{ marginTop: 10, padding: '16px 20px' }}>
+              {isLogin ? 'Se connecter' : 'Créer mon compte'} <Icon name="chevRight" size={14} stroke="var(--btn)" sw={2.2}/>
+            </button>
+          </div>
+
+          {!isLogin && (
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', background: 'rgba(242,211,129,0.18)', borderRadius: 12, padding: '12px 14px', marginTop: 20 }}>
+              <Icon name="gift" size={18} stroke="var(--btn-dark)"/>
+              <span style={{ fontSize: 12.5, color: 'var(--body)' }}>
+                <strong>1h offerte</strong> sur votre première réservation
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--gry)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
+          <Icon name="shield" size={10} stroke="var(--gry)"/> PAIEMENT & DONNÉES SÉCURISÉS · RGPD
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────── App ─────────────────
+function App() {
+  return (
+    <div className="auth-stage">
+      <div className="sec-title">
+        <div className="tag" style={{ color: 'var(--main)', marginBottom: 6 }}>— Auth · Login & Register</div>
+        <h2>Entrer dans <em>l'espace</em></h2>
+        <p>Même design, deux form factors. Desktop : split layout (brand à gauche, formulaire à droite) pour immerger dans la marque avant l'action. Mobile : plein écran, hiérarchie claire, SSO Apple/Google en premier pour réduire la friction.</p>
+      </div>
+
+      {/* Desktop Login */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
+        <div className="sec-title" style={{ maxWidth: 560 }}>
+          <div className="tag" style={{ color: 'var(--main)', marginBottom: 4 }}>— 01 —</div>
+          <h2 style={{ fontSize: 22 }}>Desktop · Login</h2>
+          <p>Split 50/50. Côté sombre : logo + punchline + stats pour crédibiliser. Côté clair : SSO prioritaire, puis email/mot de passe.</p>
+        </div>
+        <DesktopAuth mode="login"/>
+      </div>
+
+      {/* Desktop Register */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
+        <div className="sec-title" style={{ maxWidth: 560 }}>
+          <div className="tag" style={{ color: 'var(--main)', marginBottom: 4 }}>— 02 —</div>
+          <h2 style={{ fontSize: 22 }}>Desktop · Register</h2>
+          <p>Même carcasse. Le formulaire étend avec prénom/nom, indicateur de force du mot de passe, CGU et une incentive fidélité pour convertir.</p>
+        </div>
+        <DesktopAuth mode="register"/>
+      </div>
+
+      {/* Mobile */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
+        <div className="sec-title" style={{ maxWidth: 560 }}>
+          <div className="tag" style={{ color: 'var(--main)', marginBottom: 4 }}>— 03 —</div>
+          <h2 style={{ fontSize: 22 }}>Mobile · Login & Register</h2>
+          <p>Login direct, register en 3 étapes avec progress indicator (étape 2 montrée ici : infos perso + mot de passe). CTA épais, champ actif mis en valeur avec halo sauge.</p>
+        </div>
+        <div className="mobile-row">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+            <MLogin/>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.14em', color: 'var(--gry)' }}>MOBILE · LOGIN</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+            <MRegister/>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.14em', color: 'var(--gry)' }}>MOBILE · REGISTER · ÉTAPE 2/3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

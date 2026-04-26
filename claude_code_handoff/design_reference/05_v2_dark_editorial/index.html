@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Index — V2 CoworKing Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { background: var(--body); color: #fff; min-height: 100vh; }
+  .idx-wrap { max-width: 1200px; margin: 0 auto; padding: clamp(40px, 6vw, 80px) clamp(20px, 4vw, 48px); }
+  .idx-head { margin-bottom: 60px; max-width: 720px; }
+  .idx-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--btn); text-transform: uppercase; margin-bottom: 18px; }
+  .idx-title { font-family: 'Fraunces', serif; font-size: clamp(44px, 6vw, 76px); letter-spacing: -0.02em; line-height: 1.02; }
+  .idx-title em { color: var(--btn); font-style: italic; }
+  .idx-lead { font-size: 17px; line-height: 1.55; opacity: 0.75; margin-top: 26px; max-width: 560px; }
+
+  .idx-section { margin-top: 60px; }
+  .idx-section-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 26px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .idx-section-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--btn); letter-spacing: 0.14em; }
+  .idx-section-title { font-family: 'Fraunces', serif; font-size: 28px; color: #fff; }
+  .idx-section-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-left: auto; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; }
+
+  .idx-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 900px) { .idx-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .idx-grid { grid-template-columns: 1fr; } }
+
+  .idx-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 26px 24px;
+    text-decoration: none;
+    color: inherit;
+    display: flex; flex-direction: column; gap: 14px;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .idx-card:hover {
+    background: rgba(242,211,129,0.06);
+    border-color: rgba(242,211,129,0.25);
+    transform: translateY(-2px);
+  }
+  .idx-card .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: var(--btn); }
+  .idx-card .title { font-family: 'Fraunces', serif; font-size: 24px; line-height: 1.1; color: #fff; }
+  .idx-card .desc { font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.6); }
+  .idx-card .path { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; color: rgba(255,255,255,0.4); margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
+  .idx-card .arrow { color: var(--btn); font-size: 16px; }
+
+  .idx-hero {
+    background: linear-gradient(135deg, rgba(242,211,129,0.08) 0%, rgba(65,121,114,0.05) 100%);
+    border: 1px solid rgba(242,211,129,0.2);
+    border-radius: 22px;
+    padding: 36px 32px;
+    margin-top: 20px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px;
+  }
+  @media (max-width: 720px) { .idx-hero { grid-template-columns: 1fr; } }
+  .idx-hero-stat .val { font-family: 'Fraunces', serif; font-size: 44px; color: var(--btn); line-height: 1; }
+  .idx-hero-stat .lbl { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.14em; color: rgba(255,255,255,0.55); margin-top: 8px; text-transform: uppercase; }
+
+  .idx-tech {
+    margin-top: 80px; padding: 30px; background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 18px;
+    font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.7);
+  }
+  .idx-tech strong { color: var(--btn); font-weight: 500; }
+  .idx-tech code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #fff; }
+
+  .idx-footer { margin-top: 60px; padding-top: 26px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: rgba(255,255,255,0.4); text-transform: uppercase; flex-wrap: wrap; gap: 14px; }
+</style>
+</head>
+<body>
+<div class="idx-wrap">
+  <div class="idx-head">
+    <div class="idx-eyebrow">— V2 · Direction « Dark Editorial »</div>
+    <h1 class="idx-title">CoworKing Café. <em>Le dossier complet.</em></h1>
+    <p class="idx-lead">Direction visuelle éditoriale avec fond sombre, typo Fraunces serif, palette sauge + miel. 9 pages HTML autonomes, responsive mobile → desktop, liées entre elles.</p>
+  </div>
+
+  <div class="idx-hero">
+    <div class="idx-hero-stat">
+      <div class="val">8</div>
+      <div class="lbl">Pages publiques + membre</div>
+    </div>
+    <div class="idx-hero-stat">
+      <div class="val">100%</div>
+      <div class="lbl">Responsive mobile / desktop</div>
+    </div>
+    <div class="idx-hero-stat">
+      <div class="val">V2</div>
+      <div class="lbl">Système de design unique</div>
+    </div>
+  </div>
+
+  <!-- Public -->
+  <section class="idx-section">
+    <div class="idx-section-head">
+      <span class="idx-section-num">01</span>
+      <h2 class="idx-section-title">Site public</h2>
+      <span class="idx-section-sub">6 pages</span>
+    </div>
+    <div class="idx-grid">
+      <a class="idx-card" href="landing.html">
+        <span class="num">— 01</span>
+        <span class="title">Accueil</span>
+        <span class="desc">Hero, mur d'usage, signature concept, preuve sociale, CTA réservation. Point d'entrée principal.</span>
+        <span class="path">landing.html<span class="arrow">→</span></span>
+      </a>
+      <a class="idx-card" href="espaces.html">
+        <span class="num">— 02</span>
+        <span class="title">Espaces</span>
+        <span class="desc">Les 4 lieux détaillés : open-space, Verrière, Étage, Événementiel. Équipement + capacité.</span>
+        <span class="path">espaces.html<span class="arrow">→</span></span>
+      </a>
+      <a class="idx-card" href="concept.html">
+        <span class="num">— 03</span>
+        <span class="title">Concept</span>
+        <span class="desc">Histoire, fondateurs, philosophie « Le café motive, l'humain relie », partenaires locaux.</span>
+        <span class="path">concept.html<span class="arrow">→</span></span>
+      </a>
+      <a class="idx-card" href="tarifs.html">
+        <span class="num">— 04</span>
+        <span class="title">Tarifs</span>
+        <span class="desc">3 plans (heure / jour / mois) + salles à la demande + toggle annuel -15% + FAQ.</span>
+        <span class="path">tarifs.html<span class="arrow">→</span></span>
+      </a>
+      <a class="idx-card" href="menu.html">
+        <span class="num">— 05</span>
+        <span class="title">Menu</span>
+        <span class="desc">+40 boissons chaudes et froides incluses, cafés spécialité, thés premium, snacks maison.</span>
+        <span class="path">menu.html<span class="arrow">→</span></span>
+      </a>
+      <a class="idx-card" href="evenements.html">
+        <span class="num">— 06</span>
+        <span class="title">Événements</span>
+        <span class="desc">Calendrier des prochains rendez-vous + bloc privatisation soirées / entreprises.</span>
+        <span class="path">evenements.html<span class="arrow">→</span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Espace membre -->
+  <section class="idx-section">
+    <div class="idx-section-head">
+      <span class="idx-section-num">02</span>
+      <h2 class="idx-section-title">Espace membre</h2>
+      <span class="idx-section-sub">1 page</span>
+    </div>
+    <div class="idx-grid">
+      <a class="idx-card" href="dashboard.html" style="grid-column: span 2;">
+        <span class="num">— 07</span>
+        <span class="title">Dashboard client</span>
+        <span class="desc">Vue d'ensemble membre : stats d'utilisation, prochaines réservations, activité récente, carte fidélité 1240pts, raccourcis. Sidebar dark avec nav complète. Responsive : sidebar devient drawer sous 960px.</span>
+        <span class="path">dashboard.html<span class="arrow">→</span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Système -->
+  <section class="idx-section">
+    <div class="idx-section-head">
+      <span class="idx-section-num">03</span>
+      <h2 class="idx-section-title">Système partagé</h2>
+      <span class="idx-section-sub">3 fichiers</span>
+    </div>
+    <div class="idx-grid">
+      <div class="idx-card" style="opacity: 0.85; cursor: default;">
+        <span class="num">— TOKEN</span>
+        <span class="title">tokens.css</span>
+        <span class="desc">Variables CSS : palette (--main sauge, --btn miel, --body noir), typo Fraunces/Inter/JetBrains, classes utilitaires (nav, btn, card, chip, grid, section).</span>
+        <span class="path">tokens.css</span>
+      </div>
+      <div class="idx-card" style="opacity: 0.85; cursor: default;">
+        <span class="num">— ICON</span>
+        <span class="title">icons.jsx</span>
+        <span class="desc">Composant SVG unique `&lt;Icon name size stroke /&gt;` · ~40 icônes line (home, calendar, clock, wallet, building, sparkle, check…).</span>
+        <span class="path">icons.jsx</span>
+      </div>
+      <div class="idx-card" style="opacity: 0.85; cursor: default;">
+        <span class="num">— COMP</span>
+        <span class="title">shared.jsx</span>
+        <span class="desc">Composants inter-pages : &lt;Nav&gt; avec burger mobile, &lt;PageHeader&gt; éditorial, &lt;Footer&gt; 4 colonnes, constantes BRAND + NAV_LINKS + SPACES.</span>
+        <span class="path">shared.jsx</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="idx-tech">
+    <strong>Stack technique</strong> · React 18 + Babel inline · pas de bundler. Chaque page charge <code>tokens.css</code>, <code>icons.jsx</code> et <code>shared.jsx</code> puis son propre composant. <br/>
+    <strong>Responsive</strong> · grilles CSS avec <code>clamp()</code>, breakpoint navigation à 960px (nav desktop / burger mobile), breakpoint dashboard à 960px (sidebar fixe / drawer). <br/>
+    <strong>Navigation</strong> · liens relatifs entre pages via <code>&lt;a href="page.html"&gt;</code>. La navbar masque automatiquement le lien actif (prop <code>active</code>). <br/>
+    <strong>À produire côté client</strong> · 4 photos des espaces, logo vectoriel définitif, 8-10 portraits équipe/partenaires. Toutes les photos sont actuellement représentées par des placeholders colorés.
+  </div>
+
+  <div class="idx-footer">
+    <span>V2 DARK EDITORIAL · COWORKING CAFÉ STRASBOURG</span>
+    <span>GÉNÉRÉ 2026</span>
+  </div>
+</div>
+</body>
+</html>

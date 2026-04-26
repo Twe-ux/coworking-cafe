@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarifs — CoworKing Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+
+const PLANS = [
+  { key: 'hourly', label: 'À l\'heure', price: 9, unit: '/h', desc: 'Sans engagement. Payez ce que vous utilisez.', features: ['Open-space en libre accès', 'Boissons illimitées', 'Wi-Fi fibre 1Gb/s', 'Casier la journée'], popular: false },
+  { key: 'daily', label: 'Journée', price: 24, unit: '/jour', desc: '9h → 19h, accès complet.', features: ['Tout "À l\'heure"', 'Imprimante A3', 'Place garantie', '-15% après 5 journées/mois'], popular: true },
+  { key: 'monthly', label: 'Mois', price: 179, unit: '/mois', desc: 'Pour ceux qui y vivent presque.', features: ['Accès illimité open-space', 'Casier permanent', '-40% sur les salles', '2 événements inclus'], popular: false },
+];
+
+const ROOMS = [
+  { n: 'Salle Verrière', p: 24, cap: '6 pers.', c: '#5A938B' },
+  { n: 'Salle Étage', p: 30, cap: '10 pers.', c: '#8A6B1F' },
+  { n: 'Événementiel', p: 80, cap: '40 pers.', c: '#C0534C' },
+];
+
+function Tarifs() {
+  const [mode, setMode] = useState('mensuel');
+  const multi = mode === 'annuel' ? 0.85 : 1;
+  return (
+    <>
+      <Nav active="tarifs" dark/>
+      <PageHeader num="03" eyebrow="Tarifs" title="Simple," titleAccent="transparent."
+        lead="Pas de frais cachés, pas d'engagement imposé. Vous payez ce que vous utilisez — et si vous y passez beaucoup de temps, on vous récompense."/>
+
+      {/* Toggle */}
+      <section className="section section-cream" style={{ paddingBottom: 0 }}>
+        <div className="wrap" style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 100, padding: 4, display: 'flex', gap: 2 }}>
+            {['mensuel', 'annuel'].map(m => (
+              <button key={m} onClick={() => setMode(m)} style={{
+                padding: '10px 22px', borderRadius: 100, border: 'none', cursor: 'pointer',
+                background: mode === m ? 'var(--body)' : 'transparent',
+                color: mode === m ? '#fff' : 'var(--body)',
+                fontSize: 13, fontWeight: 500, fontFamily: 'inherit',
+                textTransform: 'capitalize',
+              }}>{m}{m === 'annuel' && <span style={{ marginLeft: 8, color: mode === m ? 'var(--btn)' : 'var(--main)', fontSize: 11 }}>-15%</span>}</button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Plans */}
+      <section className="section section-cream">
+        <div className="wrap grid g-3">
+          {PLANS.map(p => (
+            <div key={p.key} className="card" style={{
+              padding: 'clamp(22px, 3vw, 36px)',
+              background: p.popular ? 'var(--body)' : '#fff',
+              color: p.popular ? '#fff' : 'var(--body)',
+              position: 'relative', borderColor: p.popular ? 'var(--body)' : 'var(--line)',
+            }}>
+              {p.popular && (
+                <span className="chip chip-btn" style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)' }}>
+                  <Icon name="sparkle" size={12} stroke="#1A1A1A" fill="#1A1A1A"/>Le plus choisi
+                </span>
+              )}
+              <div className="tag" style={{ color: p.popular ? 'var(--btn)' : 'var(--main)' }}>{p.label}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 12 }}>
+                <span className="serif" style={{ fontSize: 'clamp(42px, 5vw, 60px)', lineHeight: 1, color: p.popular ? 'var(--btn)' : 'var(--body)' }}>
+                  {Math.round(p.price * (p.key === 'monthly' ? multi : 1))}€
+                </span>
+                <span style={{ fontSize: 14, opacity: 0.7 }}>{p.unit}</span>
+              </div>
+              <p style={{ fontSize: 14, opacity: 0.75, marginTop: 10, lineHeight: 1.5 }}>{p.desc}</p>
+              <div className="stack" style={{ gap: 10, margin: '22px 0' }}>
+                {p.features.map(f => (
+                  <div key={f} style={{ display: 'flex', gap: 10, fontSize: 13.5, alignItems: 'center' }}>
+                    <Icon name="check" size={13} stroke={p.popular ? 'var(--btn)' : 'var(--main)'} sw={2.5}/>{f}
+                  </div>
+                ))}
+              </div>
+              <a href="booking.html" style={{ textDecoration: 'none' }}>
+                <button className={`btn ${p.popular ? 'btn-primary' : 'btn-dark'}`} style={{ width: '100%' }}>
+                  {p.popular ? 'Choisir cette formule' : 'Sélectionner'} <Icon name="chevRight" size={14} stroke={p.popular ? '#1A1A1A' : '#fff'} sw={2.2}/>
+                </button>
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Salles — tableau */}
+      <section className="section section-cream" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div className="flex-between" style={{ marginBottom: 22 }}>
+            <div>
+              <div className="tag eyebrow">— Salles privatisables</div>
+              <h2 className="h2">À l'heure, <em className="accent">à la demande.</em></h2>
+            </div>
+          </div>
+          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', padding: '18px 24px', background: 'rgba(65,121,114,0.06)', borderBottom: '1px solid var(--line)' }} className="pricing-head">
+              <span className="tag">Salle</span>
+              <span className="tag">Capacité</span>
+              <span className="tag">Tarif</span>
+              <span className="tag" style={{ textAlign: 'right' }}>Action</span>
+            </div>
+            {ROOMS.map((r, i) => (
+              <div key={r.n} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', padding: '20px 24px', borderBottom: i < ROOMS.length - 1 ? '1px solid var(--line)' : 'none', alignItems: 'center' }} className="pricing-row">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 10, height: 40, borderRadius: 3, background: r.c }}/>
+                  <div className="serif" style={{ fontSize: 19 }}>{r.n}</div>
+                </div>
+                <div style={{ fontSize: 14 }}>{r.cap}</div>
+                <div className="serif" style={{ fontSize: 20, color: 'var(--main)' }}>{r.p}€<span style={{ fontSize: 13, color: 'var(--gry)', fontWeight: 400 }}>/h</span></div>
+                <div style={{ textAlign: 'right' }}>
+                  <a href="booking.html" style={{ textDecoration: 'none' }}><button className="btn btn-ghost" style={{ padding: '10px 16px', fontSize: 13 }}>Réserver</button></a>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 12.5, color: 'var(--gry)', marginTop: 16, textAlign: 'center' }}>
+            <Icon name="shield" size={12} stroke="var(--gry)"/> Prix TTC · Annulation gratuite jusqu'à J-1 · Tarifs dégressifs à la journée
+          </p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section section-dark">
+        <div className="wrap">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'clamp(24px, 4vw, 60px)' }} className="two-col">
+            <div>
+              <div className="tag eyebrow" style={{ color: 'var(--btn)' }}>— Questions fréquentes</div>
+              <h2 className="h2" style={{ color: '#fff' }}>On vous <em style={{ color: 'var(--btn)', fontStyle: 'italic' }}>répond.</em></h2>
+            </div>
+            <div className="stack">
+              {[
+                ['Y a-t-il un abonnement obligatoire ?', 'Non. Vous pouvez venir 2h par mois comme 200h. On adapte à votre rythme.'],
+                ['Les boissons sont vraiment illimitées ?', 'Oui. Café, thé, matcha, chocolat, infusions — +40 boissons chaudes & froides, dans le prix.'],
+                ['Puis-je réserver pour mon équipe ?', 'Oui, on propose des forfaits équipes dès 5 personnes. Contactez-nous pour un devis.'],
+                ['Annulation ?', 'Gratuite jusqu\'à 24h avant le créneau. Ensuite, une partie du montant est retenue.'],
+              ].map(([q, a]) => (
+                <div key={q} style={{ paddingBottom: 18, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div className="serif" style={{ fontSize: 18, color: '#fff' }}>{q}</div>
+                  <div style={{ fontSize: 14, opacity: 0.75, marginTop: 8, lineHeight: 1.55 }}>{a}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Footer/>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Tarifs/>);
+</script>
+<style>
+  @media (max-width: 760px) {
+    .two-col { grid-template-columns: 1fr !important; }
+    .pricing-head, .pricing-row { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+    .pricing-head > *:nth-child(4), .pricing-row > *:nth-child(4) { grid-column: span 2; text-align: left !important; }
+  }
+</style>
+</body>
+</html>
