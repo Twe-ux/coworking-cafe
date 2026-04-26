@@ -22,7 +22,7 @@ const STEP_LABELS: Record<number, string> = {
 
 // ─── Mobile header ────────────────────────────────────────────────────────────
 
-function MobileHeader({ currentStep, totalSteps, onBack, showBackButton }: BookingProgressProps) {
+function MobileHeader({ currentStep, firstStep, totalSteps, onBack, showBackButton }: BookingProgressProps) {
   const segments = Array.from({ length: totalSteps }, (_, i) => i)
 
   return (
@@ -65,7 +65,7 @@ function MobileHeader({ currentStep, totalSteps, onBack, showBackButton }: Booki
             className="flex-1 rounded-full"
             style={{
               height: 3,
-              background: i <= currentStep ? "var(--main)" : "rgba(255,255,255,0.15)",
+              background: i <= currentStep - firstStep ? "var(--main)" : "rgba(255,255,255,0.15)",
             }}
           />
         ))}
@@ -109,7 +109,7 @@ function DesktopSidebar({ currentStep, firstStep }: BookingProgressProps) {
         {steps.map((step, index) => {
           const isCompleted = step < currentStep
           const isActive = step === currentStep
-          const stepNumber = step + 1
+          const stepNumber = step - firstStep + 1
 
           return (
             <div key={step}>
