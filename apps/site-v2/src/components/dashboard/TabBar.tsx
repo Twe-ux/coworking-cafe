@@ -53,31 +53,30 @@ export function TabBar({ section, onNavigate }: TabBarProps) {
           <button
             key={tab.key}
             onClick={() => onNavigate(tab.key)}
-            style={{ flex: 1, display: "flex", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "10px 4px", background: "none", border: "none", cursor: "pointer" }}
           >
             <div
               style={{
-                width: 64, height: 52, borderRadius: 18,
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-                background: isActive ? "rgba(242,211,129,0.15)" : "transparent",
-                margin: "auto",
+                width: 42, height: 28, borderRadius: 14,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: isActive ? "var(--btn)" : "transparent",
               }}
             >
               <Icon
                 name={tab.icon} size={18}
-                stroke={isActive ? "var(--btn)" : "rgba(255,255,255,0.55)"}
+                stroke={isActive ? "var(--body)" : "rgba(255,255,255,0.55)"}
                 sw={isActive ? 2 : 1.6}
               />
-              <span
-                className="font-mono"
-                style={{
-                  fontSize: 9, textTransform: "uppercase", letterSpacing: "0.04em",
-                  color: isActive ? "var(--btn)" : "rgba(255,255,255,0.5)",
-                }}
-              >
-                {tab.label}
-              </span>
             </div>
+            <span
+              className="font-mono"
+              style={{
+                fontSize: 9, textTransform: "uppercase", letterSpacing: "0.04em",
+                color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
+              }}
+            >
+              {tab.label}
+            </span>
           </button>
         )
       })}

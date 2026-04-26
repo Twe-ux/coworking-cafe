@@ -40,7 +40,7 @@ export function DashboardFrame({ section, onNavigate, children }: DashboardFrame
           section={section}
           onNavigate={onNavigate}
           userName={MOCK_USER.name}
-          userEmail={MOCK_USER.email}
+          userMemberSince={MOCK_USER.memberSince}
           userPlan={MOCK_USER.plan}
         />
         <main className="flex-1 overflow-y-auto" style={{ background: "var(--cream)" }}>

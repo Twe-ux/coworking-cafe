@@ -24,17 +24,21 @@ export function DesktopBookingRow({ booking }: DesktopBookingRowProps) {
     }}>
       {/* Date badge */}
       <div style={{
-        width: 48, borderRadius: 10, alignSelf: 'stretch',
-        background: sp.bg,
-        border: `1px solid ${sp.color}33`,
+        width: 56, borderRadius: 12, alignSelf: 'stretch',
+        background: sp.hex,
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        gap: 1, flexShrink: 0,
+        padding: '10px 4px', flexShrink: 0,
       }}>
-        <span className="font-serif" style={{ fontSize: 20, fontWeight: 500, color: sp.color, lineHeight: 1 }}>
+        {booking.weekday && (
+          <span className="font-mono" style={{ fontSize: 9, letterSpacing: '0.12em', color: '#fff', opacity: 0.85, textTransform: 'uppercase' }}>
+            {booking.weekday}
+          </span>
+        )}
+        <span className="font-serif" style={{ fontSize: 22, lineHeight: 1, margin: '2px 0', color: '#fff' }}>
           {booking.day}
         </span>
-        <span className="font-mono" style={{ fontSize: 9, textTransform: 'uppercase', color: sp.color, opacity: 0.8, letterSpacing: '0.08em' }}>
+        <span className="font-mono" style={{ fontSize: 9, letterSpacing: '0.12em', color: '#fff', opacity: 0.85, textTransform: 'uppercase' }}>
           {booking.month}
         </span>
       </div>

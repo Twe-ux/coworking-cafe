@@ -1,5 +1,4 @@
 "use client"
-import Link from "next/link"
 import { Icon } from "@/components/ui/Icon"
 import type { DashboardSection } from "@/types/dashboard"
 import type { IconName } from "@/components/ui/Icon"
@@ -8,7 +7,7 @@ interface SidebarProps {
   section: DashboardSection
   onNavigate: (section: DashboardSection) => void
   userName: string
-  userEmail: string
+  userMemberSince: string
   userPlan: string
 }
 
@@ -20,31 +19,32 @@ interface NavItem {
 }
 
 interface NavGroup {
-  label?: string
+  label: string
   items: NavItem[]
 }
 
 const NAV_GROUPS: NavGroup[] = [
   {
+    label: 'Tableau de bord',
     items: [
-      { key: 'home', label: 'Tableau de bord', icon: 'home' },
+      { key: 'home',         label: "Vue d'ensemble",     icon: 'home' },
+      { key: 'reservations', label: 'Mes réservations',   icon: 'calendar', badge: '3' },
+      { key: 'history',      label: 'Historique',          icon: 'clock' },
     ],
   },
   {
-    label: 'MON COMPTE',
+    label: 'Mon compte',
     items: [
-      { key: 'reservations', label: 'Mes réservations', icon: 'calendar', badge: '2' },
-      { key: 'history',      label: 'Historique',        icon: 'clock' },
-      { key: 'wallet',       label: 'Portefeuille',       icon: 'wallet' },
-      { key: 'loyalty',      label: 'Fidélité',           icon: 'star' },
+      { key: 'wallet',  label: 'Crédits & facturation', icon: 'wallet' },
+      { key: 'loyalty', label: 'Fidélité',               icon: 'sparkle' },
+      { key: 'profile', label: 'Profil',                 icon: 'user' },
     ],
   },
   {
-    label: 'COMMUNAUTÉ',
+    label: 'Communauté',
     items: [
-      { key: 'profile',   label: 'Profil',     icon: 'user' },
-      { key: 'events',    label: 'Événements', icon: 'sparkle' },
-      { key: 'directory', label: 'Annuaire',   icon: 'people' },
+      { key: 'events',    label: 'Événements',      icon: 'ticket' },
+      { key: 'directory', label: 'Annuaire membres', icon: 'people' },
     ],
   },
 ]
@@ -78,24 +78,24 @@ function NavButton({ item, isActive, onNavigate }: { item: NavItem; isActive: bo
   )
 }
 
-function UserFooter({ name, email, plan }: { name: string; email: string; plan: string }) {
+function UserFooter({ name, memberSince, plan }: { name: string; memberSince: string; plan: string }) {
   return (
-    <div style={{ marginTop: 'auto', background: 'rgba(255,255,255,0.05)', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '14px 12px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-      <div className="font-mono" style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--body)', flexShrink: 0 }}>
+    <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.08)', padding: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div className="font-serif" style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--main), #5A938B)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#fff', flexShrink: 0 }}>
         {getInitials(name)}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, color: '#fff', fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>{name}</div>
-        <div className="font-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{email}</div>
+        <div style={{ fontSize: 13, fontWeight: 500, color: '#fff', fontFamily: 'Inter, sans-serif' }}>{name}</div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {plan} · {memberSince}
+        </div>
       </div>
-      <span className="font-mono" style={{ fontSize: 10, padding: '3px 8px', borderRadius: 6, background: 'rgba(242,211,129,0.15)', color: 'var(--btn)', flexShrink: 0 }}>
-        {plan}
-      </span>
+      <Icon name="chevRight" size={14} stroke="rgba(255,255,255,0.4)" />
     </div>
   )
 }
 
-export function Sidebar({ section, onNavigate, userName, userEmail, userPlan }: SidebarProps) {
+export function Sidebar({ section, onNavigate, userName, userMemberSince, userPlan }: SidebarProps) {
   return (
     <aside style={{ width: 260, height: '100%', background: 'var(--body)', padding: '24px 18px', display: 'flex', flexDirection: 'column', flexShrink: 0, gap: 6 }}>
       {/* Logo block */}
@@ -104,36 +104,26 @@ export function Sidebar({ section, onNavigate, userName, userEmail, userPlan }: 
           <Icon name="building" size={18} stroke="var(--body)" />
         </div>
         <div>
-          <div className="font-serif" style={{ fontSize: 15, color: '#fff', letterSpacing: '-0.01em' }}>CoworKing</div>
-          <div className="font-mono" style={{ fontSize: 9.5, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em' }}>CAFÉ · MEMBRE</div>
+          <div className="font-serif" style={{ fontSize: 15, color: '#fff', letterSpacing: '-0.01em' }}>CoworKing Café</div>
+          <div className="font-mono" style={{ fontSize: 9.5, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em' }}>ESPACE MEMBRE</div>
         </div>
       </div>
 
       {/* Nav groups */}
       <nav style={{ display: 'flex', flexDirection: 'column' }}>
-        {NAV_GROUPS.map((group, gi) => (
-          <div key={gi}>
-            {group.label && (
-              <div className="font-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginLeft: 12, marginBottom: 4, marginTop: gi === 0 ? 0 : 16 }}>
-                {group.label}
-              </div>
-            )}
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label}>
+            <div className="font-mono" style={{ fontSize: 10.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', padding: '18px 14px 8px' }}>
+              — {group.label}
+            </div>
             {group.items.map((item) => (
               <NavButton key={item.key} item={item} isActive={section === item.key} onNavigate={() => onNavigate(item.key)} />
             ))}
           </div>
         ))}
-
-        {/* Nouvelle réservation */}
-        <div style={{ marginTop: 8 }}>
-          <Link href="/booking" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 12, border: '1px solid rgba(242,211,129,0.25)', color: 'rgba(255,255,255,0.65)', fontSize: 14, fontWeight: 500, textDecoration: 'none', fontFamily: 'Inter, sans-serif' }}>
-            <Icon name="plus" size={17} stroke="currentColor" />
-            <span>Nouvelle réservation</span>
-          </Link>
-        </div>
       </nav>
 
-      <UserFooter name={userName} email={userEmail} plan={userPlan} />
+      <UserFooter name={userName} memberSince={userMemberSince} plan={userPlan} />
     </aside>
   )
 }
