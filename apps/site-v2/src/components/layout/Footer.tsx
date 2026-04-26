@@ -33,7 +33,7 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#0B1513] text-white pt-[clamp(40px,6vw,72px)] pb-7">
+    <footer className="bg-[var(--dark-bg)] text-white pt-[clamp(40px,6vw,72px)] pb-7">
       <div className="wrap">
         <div className="grid grid-cols-1 gap-[clamp(24px,4vw,56px)] pb-8 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           {/* Brand */}
@@ -72,7 +72,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="flex flex-wrap justify-between items-center gap-[10px] pt-5 border-t border-[rgba(255,255,255,0.08)] font-mono text-[10.5px] tracking-[0.1em] opacity-50">
+        <div className="flex flex-wrap justify-between items-center gap-[10px] pt-5 border-t border-white/[8%] font-mono text-[10.5px] tracking-[0.1em] opacity-50">
           <span>&#169; 2026 COWORKING CAFE · TOUS DROITS RESERVES</span>
           <span>LE CAFE MOTIVE · L&apos;HUMAIN RELIE</span>
         </div>

@@ -4,7 +4,7 @@ import { SpacesSection } from "@/components/landing/SpacesSection";
 import { ConceptSection } from "@/components/landing/ConceptSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CtaSection } from "@/components/landing/CtaSection";
-import { LocalBusinessSchema } from "@/components/seo/LocalBusinessSchema";
+import { LocalBusinessSchema } from "@/components/layout/LocalBusinessSchema";
 
 export const metadata: Metadata = {
   title: "CoworKing Café Strasbourg — Coworking + Café",

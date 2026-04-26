@@ -22,7 +22,7 @@ export function PricingPlans() {
               className="px-[22px] py-[10px] rounded-full text-[13px] font-medium capitalize transition-all"
               style={{
                 background: mode === m ? "var(--body)" : "transparent",
-                color: mode === m ? "#fff" : "var(--body)",
+                color: mode === m ? "var(--white)" : "var(--body)",
               }}
             >
               {m}
@@ -56,8 +56,8 @@ export function PricingPlans() {
                 }}
               >
                 {p.popular && (
-                  <span className="absolute -top-[14px] left-1/2 -translate-x-1/2 inline-flex items-center gap-[6px] px-[14px] py-[6px] rounded-full bg-[var(--btn)] text-[11px] font-mono tracking-[0.1em] text-[#1A1A1A] whitespace-nowrap">
-                    <Icon name="sparkle" size={12} stroke="#1A1A1A" fill="#1A1A1A" />
+                  <span className="absolute -top-[14px] left-1/2 -translate-x-1/2 inline-flex items-center gap-[6px] px-[14px] py-[6px] rounded-full bg-[var(--btn)] text-[11px] font-mono tracking-[0.1em] text-[var(--body)] whitespace-nowrap">
+                    <Icon name="sparkle" size={12} stroke="var(--body)" fill="var(--body)" />
                     Le plus choisi
                   </span>
                 )}
@@ -105,7 +105,7 @@ export function PricingPlans() {
                     <Icon
                       name="chevRight"
                       size={14}
-                      stroke={p.popular ? "#1A1A1A" : "#fff"}
+                      stroke={p.popular ? "var(--body)" : "var(--white)"}
                       sw={2.2}
                     />
                   </Button>

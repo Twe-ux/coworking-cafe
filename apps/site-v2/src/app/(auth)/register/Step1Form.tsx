@@ -2,8 +2,7 @@
 
 import Link from "next/link"
 import { UseFormReturn } from "react-hook-form"
-import { AuthField, PasswordStrength } from "@/components/auth"
-import { Icon } from "@/components/ui/Icon"
+import { AuthField, PasswordStrength, SubmitButton } from "@/components/auth"
 import type { Step1Values } from "./useRegisterForm"
 
 interface Step1FormProps {
@@ -44,11 +43,7 @@ export function Step1Form({ form, submitError, onSubmit }: Step1FormProps) {
         </div>
       </div>
 
-      <button type="submit" className="flex items-center justify-center gap-2 w-full font-sans font-medium"
-        style={{ background: "var(--body)", color: "var(--btn)", borderRadius: 12, padding: "14px 20px", fontSize: 14, border: "none", cursor: "pointer" }}>
-        Continuer
-        <Icon name="chevRight" size={14} stroke="var(--btn)" sw={2.2} />
-      </button>
+      <SubmitButton>Continuer</SubmitButton>
 
       <div className="text-center text-sm" style={{ color: "var(--gry)" }}>
         Déjà inscrit ?{" "}

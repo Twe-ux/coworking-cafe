@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { UseFormReturn } from "react-hook-form"
-import { AuthField } from "@/components/auth"
+import { AuthField, SubmitButton } from "@/components/auth"
 import { Icon } from "@/components/ui/Icon"
 import type { Step2Values } from "./useRegisterForm"
 
@@ -85,13 +85,7 @@ export function Step2Form({ form, submitError, isLoading, cguChecked, onToggleCg
         </span>
       </div>
 
-      <button type="submit" disabled={isLoading}
-        className="flex items-center justify-center gap-2 w-full font-sans font-medium transition-opacity disabled:opacity-60"
-        style={{ background: "var(--body)", color: "var(--btn)", borderRadius: 12, padding: "14px 20px",
-          fontSize: 14, border: "none", cursor: isLoading ? "not-allowed" : "pointer" }}>
-        {isLoading ? "Création du compte…" : "Créer mon compte"}
-        {!isLoading && <Icon name="chevRight" size={14} stroke="var(--btn)" sw={2.2} />}
-      </button>
+      <SubmitButton loading={isLoading}>Créer mon compte</SubmitButton>
 
       <div className="text-center text-sm" style={{ color: "var(--gry)" }}>
         Déjà inscrit ?{" "}

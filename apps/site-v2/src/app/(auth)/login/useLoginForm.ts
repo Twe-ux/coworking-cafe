@@ -19,6 +19,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   default: "Une erreur est survenue. Veuillez réessayer.",
 }
 
+export type UseLoginFormReturn = ReturnType<typeof useLoginForm>
+
 export function useLoginForm() {
   const searchParams = useSearchParams()
   const errorParam = searchParams.get("error")

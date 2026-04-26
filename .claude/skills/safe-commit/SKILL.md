@@ -101,11 +101,18 @@ pnpm --filter @coworking-cafe/[package] type-check
 # Si modifications dans plusieurs apps → exécuter pour chaque app impactée
 ```
 
+Ensuite, si des fichiers `.test.ts(x)` existent dans l'app concernée, lancer les tests unitaires :
+
+```bash
+# Tests unitaires (Vitest) — uniquement si .test.ts(x) existent
+pnpm --filter @coworking-cafe/site-v2 test:unit
+```
+
 **Note :** Les tests E2E (Playwright) ne bloquent pas le commit — ils sont exécutés en CI.
 
 **Résultat Gate 2 :**
 
-Si erreurs TS ou lint : **Gate 2 ÉCHOUÉ**
+Si erreurs TS, lint ou tests unitaires : **Gate 2 ÉCHOUÉ**
 ```
 ❌ GATE 2 ÉCHOUÉ — Qualité bloquante
 
@@ -113,7 +120,8 @@ Type-check : 3 erreurs
   src/components/X.tsx:12 — Property 'foo' does not exist
   ...
 
-Lint : 2 erreurs
+Tests unitaires : 2 échecs
+  FAIL src/lib/calendar.test.ts > generateICS > formats DTSTART correctly
   ...
 
 Corrige ces erreurs puis relance /safe-commit.
@@ -167,7 +175,7 @@ EOF
 ✅ COMMIT CRÉÉ
 
 Gate 1 (Review)  : ✅ X fichiers analysés, 0 bloquant
-Gate 2 (Quality) : ✅ type-check OK · lint OK
+Gate 2 (Quality) : ✅ type-check OK · lint OK · tests OK (X/X)
 Commit           : <hash> <message>
 Fichiers         : X changed, Y insertions(+), Z deletions(-)
 ```

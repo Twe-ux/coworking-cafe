@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import Link from "next/link"
-import { AuthLogo, AuthField } from "@/components/auth"
+import { AuthLogo, AuthField, SubmitButton } from "@/components/auth"
 import { Icon } from "@/components/ui/Icon"
 
 const schema = z.object({
@@ -162,25 +162,7 @@ export function ResetForm() {
             {...register("email")}
           />
 
-          <button
-            type="submit"
-            disabled={formState === "loading"}
-            className="flex items-center justify-center gap-2 w-full font-sans font-medium transition-opacity disabled:opacity-60"
-            style={{
-              background: "var(--body)",
-              color: "var(--btn)",
-              borderRadius: 12,
-              padding: "14px 20px",
-              fontSize: 14,
-              border: "none",
-              cursor: formState === "loading" ? "not-allowed" : "pointer",
-            }}
-          >
-            {formState === "loading" ? "Envoi en cours…" : "Envoyer le lien"}
-            {formState !== "loading" && (
-              <Icon name="chevRight" size={14} stroke="var(--btn)" sw={2.2} />
-            )}
-          </button>
+          <SubmitButton loading={formState === "loading"}>Envoyer le lien</SubmitButton>
         </form>
 
         <div className="text-center text-sm" style={{ color: "var(--gry)" }}>

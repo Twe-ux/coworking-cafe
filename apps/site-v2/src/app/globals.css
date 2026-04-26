@@ -16,6 +16,14 @@
   --color-line:     #E8E2D4;
   --color-gry:      #7A766B;
   --color-danger:   #C0534C;
+  --color-dark-bg:      #0B1513;
+  --color-main-dark:    #2F5955;
+  --color-success:      #4CA06E;
+  --color-warning:      #D68A3C;
+  --color-white:        #FFFFFF;
+  --color-black:        #000000;
+  --color-accent-green: #7FD49A;
+  --color-auth-bg:      #DDE6DE;
 
   /* Typography — families */
   --font-serif:     var(--font-fraunces), Georgia, serif;
@@ -45,6 +53,14 @@
   --line:     #E8E2D4;
   --gry:      #7A766B;
   --danger:   #C0534C;
+  --dark-bg:      #0B1513;
+  --main-dark:    #2F5955;
+  --success:      #4CA06E;
+  --warning:      #D68A3C;
+  --white:        #FFFFFF;
+  --black:        #000000;
+  --accent-green: #7FD49A;
+  --auth-bg:      #DDE6DE;
 
   /* Max-width container */
   --wrap:     1200px;
@@ -222,7 +238,7 @@ body {
 
 /* ─── Hero dark ─── */
 .hero-dark {
-  background: linear-gradient(160deg, #1A1A1A 0%, #2F5955 60%, #417972 110%);
+  background: linear-gradient(160deg, var(--body) 0%, var(--main-dark) 60%, var(--main) 110%);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -248,9 +264,9 @@ body {
 
 /* ─── Sections ─── */
 .section         { padding: clamp(48px, 8vw, 96px) 0; }
-.section-dark    { background: var(--body); color: #fff; padding: clamp(48px, 8vw, 96px) 0; }
+.section-dark    { background: var(--body); color: var(--white); padding: clamp(48px, 8vw, 96px) 0; }
 .section-cream   { background: var(--cream); }
-.section-main    { background: var(--main); color: #fff; padding: clamp(48px, 8vw, 96px) 0; }
+.section-main    { background: var(--main); color: var(--white); padding: clamp(48px, 8vw, 96px) 0; }
 
 /* ─── Card glass (sur fonds dark) ─── */
 .card-glass {
@@ -260,11 +276,11 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 18px;
   padding: 18px;
-  color: #fff;
+  color: var(--white);
 }
 .card-btn {
   background: var(--btn);
-  color: #1A1A1A;
+  color: var(--body);
   border-radius: 18px;
   padding: 18px;
 }

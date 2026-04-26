@@ -23,7 +23,7 @@ export function AuthBrandPanel({ mode }: AuthBrandPanelProps) {
       className="relative overflow-hidden flex flex-col"
       style={{
         background: "var(--body)",
-        color: "#fff",
+        color: "var(--white)",
         padding: "44px 48px",
       }}
     >
@@ -83,7 +83,7 @@ export function AuthBrandPanel({ mode }: AuthBrandPanelProps) {
               margin: 0,
               letterSpacing: "-0.03em",
               fontWeight: 400,
-              color: "#fff",
+              color: "var(--white)",
             }}
           >
             Travailler autrement,

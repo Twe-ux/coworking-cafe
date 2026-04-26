@@ -22,6 +22,8 @@ export const step2Schema = z.object({
 export type Step1Values = z.infer<typeof step1Schema>
 export type Step2Values = z.infer<typeof step2Schema>
 
+export type UseRegisterFormReturn = ReturnType<typeof useRegisterForm>
+
 export function useRegisterForm() {
   const [step, setStep] = useState<1 | 2>(1)
   const [step1Data, setStep1Data] = useState<Step1Values | null>(null)
@@ -74,7 +76,9 @@ export function useRegisterForm() {
         return
       }
 
-      const body = (await response.json()) as { error?: string }
+      const ResponseSchema = z.object({ error: z.string().optional() })
+      const bodyResult = ResponseSchema.safeParse(await response.json())
+      const body = bodyResult.success ? bodyResult.data : { error: undefined }
       if (response.status === 409) {
         setSubmitError("Cet email est déjà utilisé.")
         setStep(1)

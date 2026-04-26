@@ -14,7 +14,7 @@ export default function AuthLayout({
     <div
       style={{
         minHeight: "100vh",
-        background: "#DDE6DE",
+        background: "var(--auth-bg)",
         backgroundImage:
           "radial-gradient(circle at 15% 10%, #E9F0E7 0%, transparent 50%), radial-gradient(circle at 85% 90%, #D6E1D5 0%, transparent 50%)",
       }}

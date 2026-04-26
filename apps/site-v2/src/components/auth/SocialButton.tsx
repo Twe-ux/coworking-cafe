@@ -1,5 +1,3 @@
-"use client"
-
 interface SocialButtonProps {
   brand: "google" | "apple"
   onClick?: () => void

@@ -16,8 +16,8 @@ const STATS = [
     label: "Wi-Fi",
     value: "1 Gb/s",
     sub: "Fibre dédiée, VPN OK",
-    iconBg: "rgba(76,160,110,0.22)",
-    iconColor: "#7FD49A",
+    iconBg: "color-mix(in srgb, var(--success) 22%, transparent)",
+    iconColor: "var(--accent-green)",
   },
 ];
 
@@ -51,7 +51,7 @@ export function HeroSection() {
               <Link href="/booking">
                 <Button variant="primary" size="md">
                   Réserver en ligne
-                  <Icon name="chevRight" size={15} stroke="#1A1A1A" sw={2.2} />
+                  <Icon name="chevRight" size={15} stroke="var(--body)" sw={2.2} />
                 </Button>
               </Link>
               <Link href="/espaces">
@@ -88,15 +88,15 @@ export function HeroSection() {
             {/* Rating card */}
             <div className="card-btn shrink-0 min-w-[220px]">
               <div className="flex items-center gap-[10px] mb-[10px]">
-                <Icon name="star" size={16} stroke="#1A1A1A" fill="#1A1A1A" />
-                <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#1A1A1A]/65">
+                <Icon name="star" size={16} stroke="var(--body)" fill="var(--body)" />
+                <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--body)]/65">
                   Google
                 </span>
               </div>
-              <div className="font-serif text-[30px] leading-none text-[#1A1A1A]">
+              <div className="font-serif text-[30px] leading-none text-[var(--body)]">
                 4.9<span className="text-[15px] opacity-60">/5</span>
               </div>
-              <div className="text-[12px] text-[#1A1A1A]/75 mt-[4px]">280 avis clients</div>
+              <div className="text-[12px] text-[var(--body)]/75 mt-[4px]">280 avis clients</div>
             </div>
           </div>
         </div>

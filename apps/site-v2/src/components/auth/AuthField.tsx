@@ -75,7 +75,7 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
             "border rounded-[12px] px-4 py-3.5",
             isFocused
               ? "border-[var(--main)] shadow-[0_0_0_3px_rgba(65,121,114,0.1)]"
-              : "border-[rgba(20,34,32,0.08)]"
+              : "border-dark-bg/8"
           )}
         >
           {iconName && (

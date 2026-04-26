@@ -1,5 +1,3 @@
-"use client"
-
 interface PasswordStrengthProps {
   password: string
 }

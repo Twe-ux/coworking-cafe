@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { AuthLogo, AuthBrandPanel, AuthField, AuthDivider, SocialButton } from "@/components/auth"
+import { AuthLogo, AuthBrandPanel, AuthField, AuthDivider, SocialButton, SubmitButton } from "@/components/auth"
 import { Icon } from "@/components/ui/Icon"
 import { useLoginForm } from "./useLoginForm"
 
@@ -63,24 +63,12 @@ export function LoginForm() {
     </label>
   )
 
-  const submitBtn = (
-    <button type="submit" disabled={isLoading}
-      className="flex items-center justify-center gap-2 w-full font-sans font-medium transition-opacity disabled:opacity-60"
-      style={{ background: "var(--body)", color: "var(--btn)", borderRadius: 12,
-        padding: "14px 20px", fontSize: 14, border: "none",
-        cursor: isLoading ? "not-allowed" : "pointer", marginTop: 10 }}
-    >
-      {isLoading ? "Connexion…" : "Se connecter"}
-      {!isLoading && <Icon name="chevRight" size={14} stroke="var(--btn)" sw={2.2} />}
-    </button>
-  )
-
   const formBody = (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
       {errorBanner}
       {fields}
       {rememberCheckbox}
-      {submitBtn}
+      <SubmitButton loading={isLoading} mt={10}>Se connecter</SubmitButton>
     </form>
   )
 

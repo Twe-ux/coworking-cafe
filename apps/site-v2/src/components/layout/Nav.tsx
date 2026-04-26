@@ -30,7 +30,7 @@ export function Nav({ variant = "light", currentPath = "/" }: NavProps) {
         "sticky top-0 z-50 border-b",
         "backdrop-blur-[20px]",
         isDark
-          ? "bg-[rgba(11,21,19,0.8)] border-[rgba(255,255,255,0.1)] text-white"
+          ? "bg-[var(--dark-bg)]/80 border-white/10 text-white"
           : "bg-[rgba(250,246,238,0.85)] border-[var(--line)] text-[var(--body)]"
       )}
       aria-label="Navigation principale"
@@ -100,7 +100,7 @@ function MobileNav({ isDark, currentPath }: { isDark: boolean; currentPath: stri
       <SheetTrigger
         className={cn(
           "p-[6px] rounded-[8px]",
-          isDark ? "text-white hover:bg-[rgba(255,255,255,0.1)]" : "text-[var(--body)] hover:bg-[var(--line)]"
+          isDark ? "text-white hover:bg-white/10" : "text-[var(--body)] hover:bg-[var(--line)]"
         )}
         aria-label="Ouvrir le menu"
       >
@@ -109,7 +109,7 @@ function MobileNav({ isDark, currentPath }: { isDark: boolean; currentPath: stri
       <SheetContent
         side="left"
         className={cn("w-[300px] p-0", isDark ? "text-white" : "text-[var(--body)]")}
-        style={{ background: isDark ? "#0B1513" : "var(--cream)" }}
+        style={{ background: isDark ? "var(--dark-bg)" : "var(--cream)" }}
         showCloseButton={false}
       >
         <nav className="flex flex-col p-6 gap-1" aria-label="Menu mobile">
