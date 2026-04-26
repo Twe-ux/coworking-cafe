@@ -99,12 +99,12 @@ export function Step4Confirm({
               Remise forfait
               <span
                 className="font-mono"
-                style={{ fontSize: 11, color: "#227558", background: "rgba(34,117,88,0.12)", borderRadius: 99, paddingInline: 6, paddingBlock: 2 }}
+                style={{ fontSize: 11, color: "var(--main)", background: "rgba(65,121,114,0.12)", borderRadius: 99, paddingInline: 6, paddingBlock: 2 }}
               >
                 {discountLabel}
               </span>
             </span>
-            <span className="font-mono" style={{ fontSize: 13, color: "#227558" }}>
+            <span className="font-mono" style={{ fontSize: 13, color: "var(--main)" }}>
               -{(pricing.base * pricing.discount).toFixed(2)}€
             </span>
           </div>
