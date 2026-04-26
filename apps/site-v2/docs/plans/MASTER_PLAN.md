@@ -12,7 +12,7 @@
 |-------|---------|--------|
 | 1 | Site public (6 pages) | ✅ DONE |
 | 2 | Auth (login, register, reset) | ✅ DONE |
-| 3 | Booking flow | 🔲 TODO |
+| 3 | Booking flow | ✅ DONE (UI) |
 | 4 | Dashboard membre (PWA) | 🔲 TODO |
 | 5 | Intégrations backend | 🔲 TODO |
 | 6 | Polish & production | 🔲 TODO |
@@ -102,30 +102,34 @@
 
 ---
 
-## Phase 3 — Booking Flow 🔲 TODO
+## Phase 3 — Booking Flow ✅ DONE (UI) / 🔲 Stripe TODO
 
 > Référence : `claude_code_handoff/02_booking_flow.html`
 
 ### Architecture
-- [ ] Route `/booking/page.tsx` — gestion steps via `searchParams` (`?step=1`)
-- [ ] Mobile : 4 étapes séquentielles
-- [ ] Desktop : 3 colonnes (steps + récap live + résumé)
+- [x] Route `/booking/page.tsx` — hors route groups, plein écran
+- [x] Mobile : 4 étapes séquentielles + sticky CTA bottom
+- [x] Desktop : 3 colonnes (sidebar progress 240px + main + summary 380px)
+- [x] Multi-venue : step 0 (VenueSelector) si `venues.length > 1`, invisible si 1 seul commerce
 
-### Types
-- [ ] `src/types/booking.ts` — `BookingStep`, `BookingState`, `BookingService`
+### Types (src/types/)
+- [x] `booking.ts` — `BookingStep`, `BookingState`, `BookingService`, `PriceBreakdown`, `Space` + constantes `SPACES`, `BOOKING_SERVICES`, `TYPE_MULTIPLIERS`, `TYPE_LABELS` (69L)
+- [x] `venue.ts` — `Venue` + `VENUES` constant (19L)
 
 ### Hooks
-- [ ] `src/hooks/useBooking.ts` — state machine des étapes, prix, services
+- [x] `src/hooks/useBooking.ts` — state machine, pricing, navigation multi-venue (146L)
 
 ### Composants
-- [ ] `src/components/booking/BookingFlow.tsx` — orchestrateur
-- [ ] `src/components/booking/steps/Step1Space.tsx` — choix espace
-- [ ] `src/components/booking/steps/Step2DateTime.tsx` — date + heure
-- [ ] `src/components/booking/steps/Step3Options.tsx` — services additionnels
-- [ ] `src/components/booking/steps/Step4Confirm.tsx` — récap + Stripe
-- [ ] `src/components/booking/BookingSummary.tsx` — colonne récap desktop
+- [x] `src/components/booking/BookingFlow.tsx` — orchestrateur mobile+desktop (229L)
+- [x] `src/components/booking/BookingProgress.tsx` — header mobile (segments) + sidebar desktop (cercles) (193L)
+- [x] `src/components/booking/BookingSummary.tsx` — panneau right desktop (172L)
+- [x] `src/components/booking/VenueSelector.tsx` — step 0 multi-venue, null si 1 seul (74L)
+- [x] `src/components/booking/steps/Step1Space.tsx` — cards espace (110L)
+- [x] `src/components/booking/steps/Step2DateTime.tsx` — type + date scroll + horaires + stepper (188L)
+- [x] `src/components/booking/steps/Step3Options.tsx` — services + textarea (147L)
+- [x] `src/components/booking/steps/Step4Confirm.tsx` — récap + breakdown + placeholder paiement (191L)
 
-### Intégration Stripe
+### Intégration Stripe (Phase 5)
 - [ ] `src/lib/stripe.ts` — lazy init
 - [ ] `app/api/checkout/route.ts` — création PaymentIntent
 - [ ] `app/api/webhook/route.ts` — traitement webhook Stripe
@@ -245,8 +249,8 @@ pnpm --filter @coworking-cafe/site-v2 type-check
 - Dates : `"YYYY-MM-DD"` / `"HH:mm"` — jamais `Date` object
 
 ### Prochaine action
-→ Phase 3 — Booking Flow : lire `02_booking_flow.html`, implémenter le flow de réservation
+→ Phase 4 — Dashboard Membre (PWA) : lire `dashboard.html` + `03_dashboard_mobile.html`
 
 ---
 
-*Dernière mise à jour : 2026-04-22*
+*Dernière mise à jour : 2026-04-26*

@@ -41,6 +41,11 @@ const PATHS: Record<string, React.ReactNode> = {
   help: <><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 115 0c0 1.5-2.5 2-2.5 4M12 17h.01"/></>,
   wifi: <><path d="M2 8.5c3.1-3 6.2-4.5 10-4.5s6.9 1.5 10 4.5"/><path d="M6 12.5c1.8-1.8 3.8-2.7 6-2.7s4.2.9 6 2.7"/><path d="M10 16.5c.6-.6 1.2-.9 2-.9s1.4.3 2 .9"/><circle cx="12" cy="20" r="1" fill="currentColor"/></>,
   coffee: <><path d="M17 8h1a4 4 0 010 8h-1M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/></>,
+  monitor: <><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>,
+  users: <><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M15 20c0-2.2 1.8-4 4-4"/></>,
+  layout: <><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></>,
+  utensils: <><path d="M3 2v6c0 2.2 1.8 4 4 4s4-1.8 4-4V2"/><path d="M7 10v12M14 2v4a4 4 0 008 0V2"/><path d="M18 6v16"/></>,
+  car: <><path d="M5 17H3a2 2 0 01-2-2v-4l2-5h14l2 5v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></>,
 };
 
 export type IconName = keyof typeof PATHS;
