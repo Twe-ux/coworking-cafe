@@ -2,7 +2,9 @@
 
 import Link from "next/link"
 import { UseFormReturn } from "react-hook-form"
+
 import { AuthField, PasswordStrength, SubmitButton } from "@/components/auth"
+
 import type { Step1Values } from "./useRegisterForm"
 
 interface Step1FormProps {

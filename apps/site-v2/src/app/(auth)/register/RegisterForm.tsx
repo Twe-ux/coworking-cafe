@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+
 import { AuthLogo, AuthBrandPanel, AuthDivider, SocialButton } from "@/components/auth"
 import { Icon } from "@/components/ui/Icon"
 import { useRegisterForm } from "./useRegisterForm"

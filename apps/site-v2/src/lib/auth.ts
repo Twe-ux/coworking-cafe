@@ -31,7 +31,8 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.givenName ?? null,
           }
-        } catch {
+        } catch (error) {
+          console.error("[NextAuth] authorize error:", error instanceof Error ? error.message : String(error))
           return null
         }
       },

@@ -2,8 +2,10 @@
 
 import Link from "next/link"
 import { UseFormReturn } from "react-hook-form"
+
 import { AuthField, SubmitButton } from "@/components/auth"
 import { Icon } from "@/components/ui/Icon"
+
 import type { Step2Values } from "./useRegisterForm"
 
 interface Step2FormProps {

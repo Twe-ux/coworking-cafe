@@ -5,6 +5,7 @@ import { EventCard } from "@/components/evenements/EventCard";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import type { IconName } from "@/components/ui/Icon";
+import { FeatureCard } from "@/components/ui";
 import { EVENEMENTS } from "@/types/evenement";
 
 export const metadata: Metadata = {
@@ -85,7 +86,7 @@ export default function EvenementsPage() {
                 <Link href="/contact">
                   <Button variant="primary" size="md">
                     Demander un devis
-                    <Icon name="chevRight" size={14} stroke="#1A1A1A" sw={2.2} />
+                    <Icon name="chevRight" size={14} stroke="var(--body)" sw={2.2} />
                   </Button>
                 </Link>
                 <Button variant="ghost-light" size="md">
@@ -96,16 +97,7 @@ export default function EvenementsPage() {
 
             <div className="grid grid-cols-2 gap-[12px]">
               {PRIVATISATION_FEATURES.map((f) => (
-                <div key={f.title} className="card-glass">
-                  <div
-                    className="w-9 h-9 rounded-[10px] flex items-center justify-center mb-[14px]"
-                    style={{ background: "rgba(242,211,129,0.18)" }}
-                  >
-                    <Icon name={f.icon} size={17} stroke="var(--btn)" />
-                  </div>
-                  <div className="font-serif text-[22px] text-white">{f.title}</div>
-                  <div className="text-[12.5px] text-white/70 mt-1">{f.desc}</div>
-                </div>
+                <FeatureCard key={f.title} icon={f.icon} title={f.title} desc={f.desc} />
               ))}
             </div>
           </div>

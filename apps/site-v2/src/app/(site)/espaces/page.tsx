@@ -58,7 +58,7 @@ export default function EspacesPage() {
             <Link href="/booking">
               <Button variant="primary" size="md">
                 Réserver
-                <Icon name="chevRight" size={14} stroke="#1A1A1A" sw={2.2} />
+                <Icon name="chevRight" size={14} stroke="var(--body)" sw={2.2} />
               </Button>
             </Link>
           </div>

@@ -30,6 +30,7 @@ export function useLoginForm() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
     register,
@@ -39,13 +40,19 @@ export function useLoginForm() {
 
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true)
-    await signIn("credentials", {
+    setSubmitError(null)
+    const result = await signIn("credentials", {
       email: data.email,
       password: data.password,
-      callbackUrl: "/dashboard",
-      redirect: true,
+      redirect: false,
     })
     setIsLoading(false)
+    if (!result?.ok) {
+      const code = result?.error ?? "default"
+      setSubmitError(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.default)
+      return
+    }
+    window.location.href = result.url ?? "/dashboard"
   }
 
   return {
@@ -56,6 +63,7 @@ export function useLoginForm() {
     rememberMe,
     setRememberMe,
     errorMessage,
+    submitError,
     onSubmit,
   }
 }

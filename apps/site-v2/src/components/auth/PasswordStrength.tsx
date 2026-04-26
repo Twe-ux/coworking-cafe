@@ -14,10 +14,10 @@ const STRENGTH_LABELS: Record<StrengthLevel, string> = {
 
 const STRENGTH_COLORS: Record<StrengthLevel, string> = {
   0: "var(--line)",
-  1: "#C0534C",
-  2: "#D68A3C",
-  3: "#4CA06E",
-  4: "#4CA06E",
+  1: "var(--danger)",
+  2: "var(--warning)",
+  3: "var(--success)",
+  4: "var(--success)",
 }
 
 function computeStrength(password: string): StrengthLevel {

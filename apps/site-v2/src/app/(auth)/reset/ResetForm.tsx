@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import Link from "next/link"
+
 import { AuthLogo, AuthField, SubmitButton } from "@/components/auth"
 import { Icon } from "@/components/ui/Icon"
 

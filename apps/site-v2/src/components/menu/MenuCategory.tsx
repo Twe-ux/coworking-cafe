@@ -39,7 +39,7 @@ export function MenuCategory({ n, title, tag, included, dark, items, background 
             </span>
           ) : (
             <span className="inline-flex items-center gap-[6px] px-[12px] py-[6px] rounded-full bg-[var(--btn)] text-[11px] font-mono tracking-[0.1em] text-[#1A1A1A]">
-              <Icon name="cookie" size={12} stroke="#1A1A1A" />
+              <Icon name="cookie" size={12} stroke="var(--body)" />
               En supplément
             </span>
           )}

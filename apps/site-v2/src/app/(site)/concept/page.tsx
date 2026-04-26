@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Icon } from "@/components/ui/Icon";
-import type { IconName } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
@@ -28,18 +26,12 @@ const TIMELINE = [
 ] as const;
 
 const TEAM = [
-  { n: "Thomas Meyer", r: "Co-fondateur · Ops", i: "TM", c: "#417972" },
-  { n: "Clara Bauer", r: "Co-fondatrice · Community", i: "CB", c: "#5A938B" },
-  { n: "Julien Roth", r: "Barista · Café spécialité", i: "JR", c: "#8A6B1F" },
-  { n: "Sarah Klein", r: "Events & partenariats", i: "SK", c: "#C0534C" },
+  { n: "Thomas Meyer", r: "Co-fondateur · Ops", i: "TM", c: "var(--main)" },
+  { n: "Clara Bauer", r: "Co-fondatrice · Community", i: "CB", c: "var(--main-dark)" },
+  { n: "Julien Roth", r: "Barista · Café spécialité", i: "JR", c: "var(--btn-dark)" },
+  { n: "Sarah Klein", r: "Events & partenariats", i: "SK", c: "var(--danger)" },
 ];
 
-const PRIVATISATION_FEATURES: { icon: IconName; title: string; desc: string }[] = [
-  { icon: "people", title: "40 personnes", desc: "Capacité max assise/debout" },
-  { icon: "clock", title: "19h → 02h", desc: "Créneau soirée standard" },
-  { icon: "tag", title: "dès 80€/h", desc: "Privatisation totale" },
-  { icon: "sparkle", title: "Sono + lumières", desc: "Équipement inclus" },
-];
 
 export default function ConceptPage() {
   return (

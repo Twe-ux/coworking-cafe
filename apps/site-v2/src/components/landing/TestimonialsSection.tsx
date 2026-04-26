@@ -1,31 +1,6 @@
-import { Icon } from "@/components/ui/Icon";
+import { StarRating } from "@/components/ui/StarRating";
+import { Avatar } from "@/components/ui/Avatar";
 import { TESTIMONIALS } from "@/types/space";
-
-function StarRow({ count = 5, size = 13 }: { count?: number; size?: number }) {
-  return (
-    <div className="flex gap-[2px]">
-      {Array.from({ length: count }).map((_, i) => (
-        <Icon key={i} name="star" size={size} fill="var(--btn)" stroke="var(--btn)" />
-      ))}
-    </div>
-  );
-}
-
-function Initials({ name }: { name: string }) {
-  const letters = name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("");
-  return (
-    <div
-      className="w-9 h-9 rounded-full flex items-center justify-center font-serif text-[14px] text-white shrink-0"
-      style={{ background: "var(--main)" }}
-    >
-      {letters}
-    </div>
-  );
-}
 
 export function TestimonialsSection() {
   return (
@@ -40,7 +15,7 @@ export function TestimonialsSection() {
             </h2>
           </div>
           <div className="flex items-center gap-[14px]">
-            <StarRow count={5} size={16} />
+            <StarRating count={5} size={16} />
             <span className="text-[14px] font-medium">
               4.9{" "}
               <span className="text-[var(--gry)] text-[13px]">
@@ -57,12 +32,12 @@ export function TestimonialsSection() {
               key={t.name}
               className="rounded-[20px] border border-[var(--line)] bg-white p-[22px] flex flex-col"
             >
-              <StarRow count={5} size={13} />
+              <StarRating count={5} size={13} />
               <blockquote className="font-serif text-[17px] leading-[1.45] mt-[14px] flex-1">
                 «&nbsp;{t.quote}&nbsp;»
               </blockquote>
               <div className="flex items-center gap-[10px] mt-[18px]">
-                <Initials name={t.name} />
+                <Avatar name={t.name} />
                 <div>
                   <div className="text-[13px] font-medium">{t.name}</div>
                   <div className="text-[11px] text-[var(--gry)] mt-[2px]">

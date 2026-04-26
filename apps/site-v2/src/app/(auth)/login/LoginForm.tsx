@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+
 import { AuthLogo, AuthBrandPanel, AuthField, AuthDivider, SocialButton, SubmitButton } from "@/components/auth"
 import { Icon } from "@/components/ui/Icon"
 import { useLoginForm } from "./useLoginForm"
@@ -14,6 +15,7 @@ export function LoginForm() {
     rememberMe,
     setRememberMe,
     errorMessage,
+    submitError,
     onSubmit,
   } = useLoginForm()
 
@@ -27,12 +29,13 @@ export function LoginForm() {
     </Link>
   )
 
-  const errorBanner = errorMessage ? (
+  const displayError = submitError ?? errorMessage
+  const errorBanner = displayError ? (
     <div
       className="text-sm px-4 py-3 rounded-[12px]"
       style={{ background: "rgba(192,83,76,0.08)", color: "var(--danger)", border: "1px solid rgba(192,83,76,0.2)" }}
     >
-      {errorMessage}
+      {displayError}
     </div>
   ) : null
 
