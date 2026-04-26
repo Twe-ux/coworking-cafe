@@ -13,7 +13,7 @@
 | 1 | Site public (6 pages) | ✅ DONE |
 | 2 | Auth (login, register, reset) | ✅ DONE |
 | 3 | Booking flow | ✅ DONE (UI) |
-| 4 | Dashboard membre (PWA) | 🔲 TODO |
+| 4 | Dashboard membre (PWA) | 🟡 PARTIAL (3/8 screens) |
 | 5 | Intégrations backend | 🔲 TODO |
 | 6 | Polish & production | 🔲 TODO |
 
@@ -136,45 +136,43 @@
 
 ---
 
-## Phase 4 — Dashboard Membre (PWA) 🔲 TODO
+## Phase 4 — Dashboard Membre (PWA) 🟡 PARTIAL
 
 > Référence : `claude_code_handoff/05_v2_dark_editorial/dashboard.html` (desktop)
 > Référence : `claude_code_handoff/03_dashboard_mobile.html` (mobile/PWA)
 
 ### Architecture PWA
-- [ ] `dashboard/layout.tsx` — Auth guard + PWA shell
-  - `height: 100svh; overflow: hidden` sur html/body
-  - `.dashboard-screen` → `overflow-y: auto` (scroll ici seulement)
-  - `<TabBar>` sticky bottom
-- [ ] `public/manifest.json` — `start_url: /dashboard`, `scope: /dashboard`
-- [ ] Theme-color dynamique selon la page active
+- [x] `dashboard/layout.tsx` — Auth guard (`getServerSession` + redirect `/login`) (18L)
+- [x] `public/manifest.json` — `start_url: /dashboard`, `scope: /dashboard`, `display: standalone` ← déjà en Phase 1 via `manifest.ts`
+- [x] Theme-color dynamique — géré dans `DashboardFrame.tsx` via `DARK_SCREENS` + `useEffect`
 
 ### Types
-- [ ] `src/types/dashboard.ts` — `DashboardScreen`, `Booking`, `LoyaltyData`
+- [x] `src/types/dashboard.ts` — `DashboardSection`, `DashboardBooking`, `DashboardUser`, `DashboardStats`, `SpaceKey`, `BookingStatus`, `SPACE_COLORS`, mock data (68L)
 
 ### Hooks
-- [ ] `src/hooks/useDashboardNavigation.ts` — tab active + history
-- [ ] `src/hooks/usePWA.ts` — détection mode PWA + prompt install
-- [ ] `src/hooks/useThemeColor.ts` — meta theme-color dynamique
+- [x] `src/hooks/usePWA.ts` — détection `display-mode: standalone` + `beforeinstallprompt` (42L)
+- [ ] `src/hooks/useDashboardNavigation.ts` — tab active + history (Phase 5)
+- [ ] `src/hooks/useThemeColor.ts` — extrait si besoin (Phase 5)
 
 ### Composants Shell
-- [ ] `src/components/dashboard/DashboardShell.tsx` — app shell
-- [ ] `src/components/dashboard/TabBar.tsx` — bottom nav mobile (5 tabs)
-- [ ] `src/components/dashboard/Sidebar.tsx` — nav desktop
+- [x] `src/components/dashboard/DashboardShell.tsx` — useState section, renderScreen() (29L)
+- [x] `src/components/dashboard/DashboardFrame.tsx` — mobile (`h-[100svh]` + TabBar) + desktop (Sidebar) (39L)
+- [x] `src/components/dashboard/TabBar.tsx` — 3 tabs, active pill `var(--btn)`, safe-area iOS (72L)
+- [x] `src/components/dashboard/Sidebar.tsx` — desktop, logo + nav + footer (134L)
 
 ### Écrans Dashboard
-- [ ] `screens/HomeScreen.tsx` — prochaine résa + solde + actions rapides
-- [ ] `screens/BookingsScreen.tsx` — réservations à venir
-- [ ] `screens/HistoryScreen.tsx` — historique + factures
-- [ ] `screens/WalletScreen.tsx` — solde + recharger
-- [ ] `screens/LoyaltyScreen.tsx` — programme fidélité + badges
-- [ ] `screens/ProfileScreen.tsx` — infos perso + préférences
-- [ ] `screens/EventsScreen.tsx` — événements + inscriptions
-- [ ] `screens/DirectoryScreen.tsx` — annuaire membres
+- [x] `screens/HomeScreen.tsx` — hero dark + prochaine résa frosted glass + stats + liste (170L)
+- [x] `screens/BookingsScreen.tsx` — segmented À venir/Passées + BookingRow + chips statut (107L)
+- [x] `screens/ProfileScreen.tsx` — avatar initiales + InfoRow + abonnement + signOut (133L)
+- [ ] `screens/HistoryScreen.tsx` — historique + factures (Phase 5)
+- [ ] `screens/WalletScreen.tsx` — solde + recharger (Phase 5)
+- [ ] `screens/LoyaltyScreen.tsx` — programme fidélité + badges (Phase 5)
+- [ ] `screens/EventsScreen.tsx` — événements + inscriptions (Phase 5)
+- [ ] `screens/DirectoryScreen.tsx` — annuaire membres (Phase 5)
 
 ### Routes Dashboard
-- [ ] `app/dashboard/page.tsx` → redirect vers `home` screen
-- [ ] `app/dashboard/[section]/page.tsx` — route dynamique par section
+- [x] `app/dashboard/page.tsx` — redirect `/dashboard/home` (3L)
+- [x] `app/dashboard/[section]/page.tsx` — notFound() sur section invalide (15L)
 
 ---
 
@@ -249,8 +247,8 @@ pnpm --filter @coworking-cafe/site-v2 type-check
 - Dates : `"YYYY-MM-DD"` / `"HH:mm"` — jamais `Date` object
 
 ### Prochaine action
-→ Phase 4 — Dashboard Membre (PWA) : lire `dashboard.html` + `03_dashboard_mobile.html`
+→ Phase 5 — Intégrations backend : brancher API `/dashboard` sur `@coworking-cafe/database`
 
 ---
 
-*Dernière mise à jour : 2026-04-26*
+*Dernière mise à jour : 2026-04-27*
