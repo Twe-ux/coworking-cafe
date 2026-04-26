@@ -4,12 +4,13 @@ import { notFound } from "next/navigation"
 
 const VALID_SECTIONS: DashboardSection[] = ["home", "reservations", "profile"]
 
-export default function DashboardSectionPage({
+export default async function DashboardSectionPage({
   params,
 }: {
-  params: { section: string }
+  params: Promise<{ section: string }>
 }) {
-  if (!VALID_SECTIONS.includes(params.section as DashboardSection)) notFound()
+  const { section } = await params
+  if (!VALID_SECTIONS.includes(section as DashboardSection)) notFound()
 
-  return <DashboardShell initialSection={params.section as DashboardSection} />
+  return <DashboardShell initialSection={section as DashboardSection} />
 }
