@@ -63,7 +63,7 @@ export const metadata: Metadata = {
   // iOS PWA — keeps standalone mode across all routes (scope "/" in manifest)
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "CoworKing",
   },
 };
