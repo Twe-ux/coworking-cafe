@@ -1,19 +1,44 @@
-"use client"
-import { TabBar } from "./TabBar"
-import { Sidebar } from "./Sidebar"
-import { MOCK_USER } from "@/types/dashboard"
-import type { DashboardSection } from "@/types/dashboard"
+"use client";
+import { applySafeAreaColor } from "@/lib/safeArea";
+import type { DashboardSection } from "@/types/dashboard";
+import { MOCK_USER } from "@/types/dashboard";
+import { useEffect } from "react";
+import { Sidebar } from "./Sidebar";
+import { TabBar } from "./TabBar";
 
 interface DashboardFrameProps {
-  section: DashboardSection
-  onNavigate: (section: DashboardSection) => void
-  children: React.ReactNode
+  section: DashboardSection;
+  onNavigate: (section: DashboardSection) => void;
+  children: React.ReactNode;
 }
 
-const DARK_SCREENS: DashboardSection[] = ["home"]
+/** Background color per section — drives both safe-area bars */
+const SECTION_BG: Record<DashboardSection, string> = {
+  home: "#1A1A1A", // var(--body) — dark
+  reservations: "#FAF6EE", // var(--cream)
+  history: "#FAF6EE",
+  wallet: "#FAF6EE",
+  loyalty: "#FAF6EE",
+  profile: "#FAF6EE",
+  events: "#FAF6EE",
+  directory: "#FAF6EE",
+};
 
-export function DashboardFrame({ section, onNavigate, children }: DashboardFrameProps) {
-  const isDark = DARK_SCREENS.includes(section)
+export function DashboardFrame({
+  section,
+  onNavigate,
+  children,
+}: DashboardFrameProps) {
+  const bg = SECTION_BG[section];
+  const isDark = section === "home";
+
+  useEffect(() => {
+    applySafeAreaColor(bg);
+    return () => {
+      // Restore auth-page color on unmount (signout → /login)
+      applySafeAreaColor("#DDE6DE");
+    };
+  }, [bg]);
 
   return (
     <>
@@ -27,8 +52,11 @@ export function DashboardFrame({ section, onNavigate, children }: DashboardFrame
           background: isDark ? "var(--body)" : "var(--cream)",
         }}
       >
-        {/* Scrollable content — padding bottom clears the floating pill */}
-        <div className="h-full overflow-y-auto" style={{ paddingBottom: 102 }}>
+        {/* Scrollable content — top clears transparent status bar, bottom clears pill */}
+        <div
+          className="h-full overflow-y-auto"
+          style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: 102 }}
+        >
           {children}
         </div>
         <TabBar section={section} onNavigate={onNavigate} />
@@ -43,10 +71,13 @@ export function DashboardFrame({ section, onNavigate, children }: DashboardFrame
           userMemberSince={MOCK_USER.memberSince}
           userPlan={MOCK_USER.plan}
         />
-        <main className="flex-1 overflow-y-auto" style={{ background: "var(--cream)" }}>
+        <main
+          className="flex-1 overflow-y-auto"
+          style={{ background: "var(--cream)" }}
+        >
           {children}
         </main>
       </div>
     </>
-  )
+  );
 }

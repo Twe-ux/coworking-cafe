@@ -36,7 +36,7 @@ export function ResetForm() {
 
   if (formState === "success") {
     return (
-      <div className="flex items-center justify-center min-h-screen p-6">
+      <div className="flex items-center justify-center min-h-full p-6">
         <div
           className="flex flex-col items-center text-center max-w-[380px] w-full"
           style={{ gap: 24 }}
@@ -107,7 +107,7 @@ export function ResetForm() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6">
+    <div className="flex items-center justify-center min-h-full p-6">
       <div className="flex flex-col max-w-[380px] w-full" style={{ gap: 28 }}>
         <AuthLogo />
 

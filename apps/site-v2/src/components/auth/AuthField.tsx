@@ -20,6 +20,7 @@ interface AuthFieldProps {
   onChange?: React.ChangeEventHandler<HTMLInputElement>
   onBlur?: React.FocusEventHandler<HTMLInputElement>
   value?: string
+  defaultValue?: string
 }
 
 export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
@@ -37,10 +38,24 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
       onChange,
       onBlur,
       value,
+      defaultValue,
     },
     ref
   ) {
     const [isFocused, setIsFocused] = useState(false)
+
+    // Mobile-specific attributes derived from type
+    const mobileAttrs =
+      type === "email"
+        ? ({
+            autoCapitalize: "none",
+            autoCorrect: "off",
+            spellCheck: false,
+            inputMode: "email" as const,
+          } as const)
+        : type === "text"
+          ? ({ autoCapitalize: "sentences", autoCorrect: "on" } as const)
+          : undefined
 
     function handleFocus() {
       setIsFocused(true)
@@ -88,7 +103,9 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
             type={type}
             placeholder={placeholder}
             autoComplete={autoComplete}
-            value={value}
+            {...(value !== undefined ? { value } : {})}
+            {...(defaultValue !== undefined ? { defaultValue } : {})}
+            {...mobileAttrs}
             onChange={onChange}
             onFocus={handleFocus}
             onBlur={handleBlur}

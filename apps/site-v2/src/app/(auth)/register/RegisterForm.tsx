@@ -45,7 +45,7 @@ export function RegisterForm() {
   )
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6 md:p-8">
+    <div className="flex items-center justify-center min-h-full p-6 md:p-8">
       <div className="w-full max-w-[400px] md:max-w-[1240px]">
 
         {/*
@@ -55,7 +55,7 @@ export function RegisterForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 md:overflow-hidden md:rounded-[18px] md:bg-white md:shadow-[0_30px_60px_rgba(20,34,32,0.14),0_0_0_1px_var(--line)]">
 
           {/* Brand panel — desktop left column only */}
-          <div className="hidden md:block">
+          <div className="hidden md:block h-full">
             <AuthBrandPanel mode="register" />
           </div>
 

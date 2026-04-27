@@ -16,6 +16,7 @@ export type LoginFormValues = z.infer<typeof schema>
 
 const ERROR_MESSAGES: Record<string, string> = {
   CredentialsSignin: "Email ou mot de passe incorrect.",
+  network: "Connexion impossible. Vérifiez votre connexion réseau.",
   default: "Une erreur est survenue. Veuillez réessayer.",
 }
 
@@ -41,18 +42,27 @@ export function useLoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true)
     setSubmitError(null)
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    })
-    setIsLoading(false)
-    if (!result?.ok) {
-      const code = result?.error ?? "default"
-      setSubmitError(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.default)
-      return
+    try {
+      const result = await signIn("credentials", {
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+        redirect: false,
+      })
+      setIsLoading(false)
+      if (result === null || result === undefined) {
+        setSubmitError(ERROR_MESSAGES.network)
+        return
+      }
+      if (!result.ok) {
+        const code = result.error ?? "default"
+        setSubmitError(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.default)
+        return
+      }
+      window.location.href = "/dashboard"
+    } catch {
+      setIsLoading(false)
+      setSubmitError(ERROR_MESSAGES.network)
     }
-    window.location.href = "/dashboard"
   }
 
   return {

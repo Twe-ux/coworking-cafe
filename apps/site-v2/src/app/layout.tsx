@@ -1,12 +1,12 @@
-import type { Metadata, Viewport } from "next";
-import { fraunces, inter, jetbrainsMono } from "@/lib/fonts";
 import { cn } from "@/lib/cn";
-import { Providers } from "./providers";
+import { fraunces, inter, jetbrainsMono } from "@/lib/fonts";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_URL ?? "https://coworkingcafe.fr"
+    process.env.NEXT_PUBLIC_URL ?? "https://coworkingcafe.fr",
   ),
   title: {
     default: "CoworKing Café Strasbourg — Coworking + Café",
@@ -60,6 +60,12 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  // iOS PWA — keeps standalone mode across all routes (scope "/" in manifest)
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CoworKing",
+  },
 };
 
 export const viewport: Viewport = {
@@ -80,12 +86,12 @@ export default function RootLayout({
         fraunces.variable,
         inter.variable,
         jetbrainsMono.variable,
-        "font-sans"
+        "font-sans",
       )}
     >
       <body className="font-sans antialiased">
-          <Providers>{children}</Providers>
-        </body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

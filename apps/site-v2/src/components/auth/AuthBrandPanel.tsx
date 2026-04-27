@@ -20,7 +20,7 @@ const TEXTS = {
 export function AuthBrandPanel({ mode }: AuthBrandPanelProps) {
   return (
     <div
-      className="relative overflow-hidden flex flex-col"
+      className="relative overflow-hidden flex flex-col h-full"
       style={{
         background: "var(--body)",
         color: "var(--white)",

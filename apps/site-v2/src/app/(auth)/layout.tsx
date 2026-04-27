@@ -1,4 +1,9 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
+
+export const viewport: Viewport = {
+  // Non-PWA browsers: tint the Safari toolbar with the auth bg color
+  themeColor: "#DDE6DE",
+}
 
 export const metadata: Metadata = {
   title: { default: "Espace membre", template: "%s | CoworKing Café" },
@@ -11,15 +16,10 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--auth-bg)",
-        backgroundImage:
-          "radial-gradient(circle at 15% 10%, #E9F0E7 0%, transparent 50%), radial-gradient(circle at 85% 90%, #D6E1D5 0%, transparent 50%)",
-      }}
-    >
-      {children}
+    <div className="auth-layout">
+      <div className="auth-scroll">
+        {children}
+      </div>
     </div>
   )
 }
