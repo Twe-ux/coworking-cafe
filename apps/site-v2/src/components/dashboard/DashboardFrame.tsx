@@ -3,6 +3,7 @@ import { applySafeAreaColor } from "@/lib/safeArea";
 import type { DashboardSection } from "@/types/dashboard";
 import { MOCK_USER } from "@/types/dashboard";
 import { useEffect } from "react";
+import { DashboardBrowserNav } from "./DashboardBrowserNav";
 import { Sidebar } from "./Sidebar";
 import { TabBar } from "./TabBar";
 
@@ -42,22 +43,25 @@ export function DashboardFrame({
 
   return (
     <>
-      {/* Mobile PWA */}
+      {/* Mobile */}
       <div
-        className="md:hidden"
-        style={{
-          height: "100%",
-          overflow: "hidden",
-          background: isDark ? "var(--body)" : "var(--cream)",
-        }}
+        className="md:hidden flex flex-col overflow-hidden"
+        style={{ height: "100dvh", background: isDark ? "var(--body)" : "var(--cream)" }}
       >
-        {/* Scrollable content */}
-        <div className="h-full overflow-y-auto" style={{ paddingBottom: 80 }}>
+        {/* Browser top nav — hidden in PWA standalone mode */}
+        <div className="standalone:hidden shrink-0">
+          <DashboardBrowserNav section={section} onNavigate={onNavigate} />
+        </div>
+
+        {/* Scrollable content — extra bottom padding in PWA mode for the TabBar pill */}
+        <div className="flex-1 overflow-y-auto pb-6 standalone:pb-[80px]">
           {children}
         </div>
 
-        {/* TabBar — fixed pill, immune to scroll and svh recalculation */}
-        <TabBar section={section} onNavigate={onNavigate} />
+        {/* TabBar pill — only shown in PWA standalone mode */}
+        <div className="hidden standalone:block">
+          <TabBar section={section} onNavigate={onNavigate} />
+        </div>
       </div>
 
       {/* Desktop */}
