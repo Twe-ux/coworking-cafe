@@ -29,7 +29,7 @@ export function LoginForm() {
   const displayError = submitError ?? errorMessage;
 
   return (
-    <div className="flex items-center justify-center min-h-full p-6 pt-0 md:p-8">
+    <div className="flex items-center justify-center min-h-screen px-8 pt-8 pb-6 md:p-8">
       <div className="w-full max-w-[400px] md:max-w-[1240px]">
         <div className="grid grid-cols-1 md:grid-cols-2 md:overflow-hidden md:rounded-[18px] md:bg-white md:shadow-[0_30px_60px_rgba(20,34,32,0.14),0_0_0_1px_var(--line)]">
           {/* Brand panel — desktop left column only */}
@@ -40,7 +40,7 @@ export function LoginForm() {
           {/* Form column — always rendered once */}
           <div className="flex flex-col md:overflow-y-auto md:bg-white md:px-[60px] md:py-[44px]">
             {/* Mobile logo */}
-            <div className="md:hidden mb-8">
+            <div className="md:hidden mb-10">
               <AuthLogo />
             </div>
 
@@ -83,7 +83,7 @@ export function LoginForm() {
 
             {/* Social buttons — mobile: vertical, desktop: 2 cols */}
             <div
-              className="flex flex-col gap-2.5 md:grid md:gap-2.5 mb-4"
+              className="flex flex-col gap-2.5 md:grid md:gap-2.5 mb-5"
               style={{ gridTemplateColumns: "1fr 1fr" }}
             >
               <SocialButton brand="apple" />
@@ -95,7 +95,7 @@ export function LoginForm() {
             <form
               onSubmit={handleSubmit(onSubmit)}
               noValidate
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-5"
             >
               <ErrorAlert message={displayError} />
               <div className="flex flex-col gap-3.5">

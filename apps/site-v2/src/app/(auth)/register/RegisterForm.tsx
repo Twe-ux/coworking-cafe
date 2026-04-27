@@ -25,7 +25,7 @@ export function RegisterForm() {
   )
 
   return (
-    <div className="flex items-center justify-center min-h-full p-6 md:p-8">
+    <div className="flex items-center justify-center min-h-screen px-8 pt-8 pb-6 md:p-8">
       <div className="w-full max-w-[400px] md:max-w-[1240px]">
 
         {/*
@@ -43,7 +43,7 @@ export function RegisterForm() {
           <div className="flex flex-col md:overflow-y-auto md:bg-white md:px-[60px] md:py-[44px]">
 
             {/* Mobile top bar */}
-            <div className="md:hidden mb-6">
+            <div className="md:hidden mb-8">
               {step === 2 ? (
                 <button type="button" onClick={() => setStep(1)} aria-label="Retour"
                   className="flex items-center justify-center"

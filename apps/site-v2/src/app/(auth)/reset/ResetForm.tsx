@@ -39,7 +39,7 @@ export function ResetForm() {
 
   if (formState === "success") {
     return (
-      <div className="flex items-center justify-center min-h-full p-6">
+      <div className="flex items-center justify-center min-h-screen px-8 pt-8 pb-6">
         <div
           className="flex flex-col items-center text-center max-w-[380px] w-full"
           style={{ gap: 24 }}
@@ -110,8 +110,8 @@ export function ResetForm() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-full p-6">
-      <div className="flex flex-col max-w-[380px] w-full" style={{ gap: 28 }}>
+    <div className="flex items-center justify-center min-h-screen px-8 pt-8 pb-6">
+      <div className="flex flex-col max-w-[380px] w-full" style={{ gap: 40 }}>
         <AuthLogo />
 
         <div>
@@ -151,7 +151,7 @@ export function ResetForm() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
           <AuthField
             fieldId="email"
             label="Email"

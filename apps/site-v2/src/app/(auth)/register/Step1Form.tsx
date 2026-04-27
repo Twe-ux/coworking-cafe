@@ -18,7 +18,7 @@ export function Step1Form({ form, submitError, onSubmit }: Step1FormProps) {
   const watchedPassword = useWatch({ control: form.control, name: "password", defaultValue: "" })
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
       <div>
         <div className="eyebrow" style={{ color: "var(--main)", marginBottom: 6 }}>
           Étape 1 sur 2
