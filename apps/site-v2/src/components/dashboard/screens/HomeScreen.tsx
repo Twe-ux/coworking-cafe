@@ -18,8 +18,8 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
         <DesktopHomeScreen onNavigate={onNavigate} />
       </div>
 
-      {/* Mobile */}
-      <div className="md:hidden" style={{ paddingBottom: 24 }}>
+      {/* Mobile — standalone: 24px bottom breathing room / browser: none (hamburger is fixed) */}
+      <div className="md:hidden standalone:pb-6">
         <HomeHero
           booking={MOCK_UPCOMING[0] ?? null}
           user={MOCK_USER}
@@ -29,17 +29,37 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
 
         {/* Prochaines réservations */}
         <div style={{ padding: "16px 16px 0" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
             <span
               className="font-mono"
-              style={{ fontSize: 11, color: "var(--gry)", textTransform: "uppercase", letterSpacing: "0.1em" }}
+              style={{
+                fontSize: 11,
+                color: "var(--gry)",
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+              }}
             >
               Prochaines · {MOCK_UPCOMING.length}
             </span>
             <button
               onClick={() => onNavigate("reservations")}
               className="font-mono"
-              style={{ fontSize: 11, color: "var(--main)", background: "none", border: "none", cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.08em" }}
+              style={{
+                fontSize: 11,
+                color: "var(--main)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
             >
               Tout voir →
             </button>
