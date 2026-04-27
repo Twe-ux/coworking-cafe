@@ -46,7 +46,7 @@ export function DashboardFrame({
       <div
         className="md:hidden flex flex-col"
         style={{
-          height: "100svh",
+          height: "105svh",
           overflow: "hidden",
           background: isDark ? "var(--body)" : "var(--cream)",
         }}
@@ -57,17 +57,22 @@ export function DashboardFrame({
         <div
           style={{
             flexShrink: 0,
-            height: "calc(102px + env(safe-area-inset-bottom, 0px))",
+            height: "calc(70px + env(safe-area-inset-bottom, 0px))",
             position: "relative",
           }}
         >
           {/* Fill the home-indicator zone with the pill's background so no
               raw safe-area strip shows through below the floating pill */}
-          <div style={{
-            position: "absolute", bottom: 0, left: 0, right: 0,
-            height: "env(safe-area-inset-bottom, 0px)",
-            background: "rgba(20,34,32,0.94)",
-          }} />
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "env(safe-area-inset-bottom, 0px)",
+              background: "rgba(20,34,32,0.94)",
+            }}
+          />
           <TabBar section={section} onNavigate={onNavigate} />
         </div>
       </div>
