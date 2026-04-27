@@ -20,7 +20,8 @@ const TABS: TabConfig[] = [
 ]
 
 const PILL_STYLE: React.CSSProperties = {
-  position: "absolute", left: 14, right: 14, bottom: 16,
+  position: "absolute", left: 14, right: 14,
+  bottom: "env(safe-area-inset-bottom, 8px)",
   height: 70, borderRadius: 32,
   background: "rgba(20,34,32,0.94)", backdropFilter: "blur(20px)",
   display: "flex", alignItems: "center", paddingInline: 8,

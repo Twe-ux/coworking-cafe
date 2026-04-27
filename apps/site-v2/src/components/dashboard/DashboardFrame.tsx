@@ -56,7 +56,7 @@ export function DashboardFrame({
           {children}
         </div>
         {/* TabBar — normal flex item, unaffected by zoom or svh recalculation */}
-        <div style={{ flexShrink: 0, height: 102, position: "relative" }}>
+        <div style={{ flexShrink: 0, height: "calc(70px + env(safe-area-inset-bottom, 16px))", position: "relative" }}>
           <TabBar section={section} onNavigate={onNavigate} />
         </div>
       </div>
