@@ -26,7 +26,6 @@ export function DashboardBrowserNav({
   onNavigate,
 }: DashboardBrowserNavProps) {
   const [open, setOpen] = useState(false);
-  const isDark = section === "home";
 
   function navigate(s: DashboardSection) {
     onNavigate(s);
@@ -35,33 +34,32 @@ export function DashboardBrowserNav({
 
   return (
     <>
-      {/* Floating hamburger button */}
+      {/* Floating hamburger — bottom-left, auto-inverts via mix-blend-mode */}
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Menu"
         style={{
           position: "fixed",
-          top: "calc(env(safe-area-inset-top, 0px) + 12px)",
-          left: 16,
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)",
+          left: 20,
           width: 44,
           height: 44,
           borderRadius: "50%",
-          background: isDark ? "rgba(255,255,255,0.12)" : "rgba(26,26,26,0.06)",
-          border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(26,26,26,0.08)"}`,
-          WebkitBackdropFilter: "blur(12px)",
-          backdropFilter: "blur(12px)",
+          /* white circle — mix-blend-mode:difference inverts it automatically:
+             over cream (#FAF6EE) → appears near-black
+             over dark (#1A1A1A) → appears near-white   */
+          background: "rgba(255,255,255,0.92)",
+          mixBlendMode: "difference",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
           zIndex: 31,
+          border: "none",
         }}
       >
-        <Icon
-          name={open ? "x" : "menu"}
-          size={20}
-          stroke={isDark ? "rgba(255,255,255,0.9)" : "var(--body)"}
-        />
+        {/* Icon always white — blends with the already-inverted button bg */}
+        <Icon name={open ? "x" : "menu"} size={20} stroke="white" />
       </button>
 
       {/* Transparent scrim — closes popover on outside click */}
@@ -72,12 +70,12 @@ export function DashboardBrowserNav({
         />
       )}
 
-      {/* iOS-style popover menu — no bottom:0, no safe area interference */}
+      {/* iOS-style popover menu — opens upward from bottom button */}
       {open && (
         <div
           style={{
             position: "fixed",
-            top: "calc(env(safe-area-inset-top, 0px) + 66px)",
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 74px)",
             left: 12,
             width: 230,
             background: "rgba(28,28,30,0.96)",
