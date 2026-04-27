@@ -52,10 +52,7 @@ export function DashboardFrame({
         }}
       >
         {/* Scrollable content */}
-        <div
-          className="h-full overflow-y-auto"
-          style={{ paddingBottom: 110 }}
-        >
+        <div className="h-full overflow-y-auto" style={{ paddingBottom: 80 }}>
           {children}
         </div>
 

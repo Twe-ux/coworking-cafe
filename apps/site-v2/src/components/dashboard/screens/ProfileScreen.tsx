@@ -13,7 +13,7 @@ export function ProfileScreen() {
   const stats = MOCK_STATS
 
   return (
-    <div style={{ background: 'var(--cream)', minHeight: '100%' }}>
+    <div style={{ background: 'var(--cream)', minHeight: '100dvh' }}>
       {/* Sticky header — covers safe-area zone with solid background */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
