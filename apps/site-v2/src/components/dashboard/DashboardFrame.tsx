@@ -14,7 +14,7 @@ interface DashboardFrameProps {
 
 /** Background color per section — drives both safe-area bars */
 const SECTION_BG: Record<DashboardSection, string> = {
-  home: "#1A1A1A", // var(--body) — dark
+  home: "#417972", // var(--main) — top of hero gradient
   reservations: "#FAF6EE", // var(--cream)
   history: "#FAF6EE",
   wallet: "#FAF6EE",
