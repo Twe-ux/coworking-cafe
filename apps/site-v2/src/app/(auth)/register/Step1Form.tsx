@@ -26,6 +26,11 @@ export function Step1Form({ form, submitError, onSubmit }: Step1FormProps) {
         <h1 className="font-serif" style={{ fontSize: 34, fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.02em", color: "var(--body)", margin: 0 }}>
           Créez votre <em style={{ color: "var(--main)", fontStyle: "italic" }}>compte</em>
         </h1>
+        {/* Step progress — below title */}
+        <div className="flex gap-2 mt-4">
+          <span style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--main)" }} />
+          <span style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--line)" }} />
+        </div>
       </div>
 
       {submitError && (

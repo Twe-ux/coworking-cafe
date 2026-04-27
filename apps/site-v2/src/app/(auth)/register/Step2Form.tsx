@@ -15,20 +15,13 @@ interface Step2FormProps {
   cguChecked: boolean
   onToggleCgu: () => void
   onSubmit: (data: Step2Values) => void
-  onBack: () => void
 }
 
-export function Step2Form({ form, submitError, isLoading, cguChecked, onToggleCgu, onSubmit, onBack }: Step2FormProps) {
+export function Step2Form({ form, submitError, isLoading, cguChecked, onToggleCgu, onSubmit }: Step2FormProps) {
   const { register, handleSubmit, formState: { errors } } = form
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-      {/* Back button — mobile only (desktop has its own) */}
-      <button type="button" onClick={onBack} aria-label="Retour" className="md:hidden flex items-center justify-center self-start"
-        style={{ width: 44, height: 44, borderRadius: 12, background: "var(--white)", border: "1px solid var(--line)" }}>
-        <Icon name="chevLeft" size={16} stroke="var(--body)" />
-      </button>
-
       <div>
         <div className="eyebrow" style={{ color: "var(--main)", marginBottom: 6 }}>
           Étape 2 sur 2
@@ -36,6 +29,11 @@ export function Step2Form({ form, submitError, isLoading, cguChecked, onToggleCg
         <h1 className="font-serif" style={{ fontSize: 34, fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.02em", color: "var(--body)", margin: 0 }}>
           Vos <em style={{ color: "var(--main)", fontStyle: "italic" }}>informations</em>
         </h1>
+        {/* Step progress — below title */}
+        <div className="flex gap-2 mt-4">
+          <span style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--btn)" }} />
+          <span style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--main)" }} />
+        </div>
       </div>
 
       {submitError && (

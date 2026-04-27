@@ -8,26 +8,6 @@ import { useRegisterForm } from "./useRegisterForm"
 import { Step1Form } from "./Step1Form"
 import { Step2Form } from "./Step2Form"
 
-type DotState = "done" | "active" | "pending"
-
-function StepDots({ step }: { step: 1 | 2 }) {
-  const states: [DotState, DotState, DotState] =
-    step === 1 ? ["active", "pending", "pending"] : ["done", "active", "pending"]
-
-  const colors: Record<DotState, string> = {
-    done: "var(--btn)",
-    active: "var(--main)",
-    pending: "var(--line)",
-  }
-
-  return (
-    <div className="flex gap-1.5">
-      {states.map((state, i) => (
-        <span key={i} style={{ width: 22, height: 4, borderRadius: 2, background: colors[state] }} />
-      ))}
-    </div>
-  )
-}
 
 export function RegisterForm() {
   const {
@@ -41,7 +21,7 @@ export function RegisterForm() {
     <Step1Form form={form1} submitError={submitError} onSubmit={onStep1} />
   ) : (
     <Step2Form form={form2} submitError={submitError} isLoading={isLoading}
-      cguChecked={cguChecked} onToggleCgu={toggleCgu} onSubmit={onStep2} onBack={() => setStep(1)} />
+      cguChecked={cguChecked} onToggleCgu={toggleCgu} onSubmit={onStep2} />
   )
 
   return (
@@ -63,7 +43,7 @@ export function RegisterForm() {
           <div className="flex flex-col md:overflow-y-auto md:bg-white md:px-[60px] md:py-[44px]">
 
             {/* Mobile top bar */}
-            <div className="md:hidden flex items-center justify-between mb-6">
+            <div className="md:hidden mb-6">
               {step === 2 ? (
                 <button type="button" onClick={() => setStep(1)} aria-label="Retour"
                   className="flex items-center justify-center"
@@ -71,13 +51,10 @@ export function RegisterForm() {
                   <Icon name="chevLeft" size={16} stroke="var(--body)" />
                 </button>
               ) : <AuthLogo />}
-              <StepDots step={step} />
-              <div style={{ width: 40 }} />
             </div>
 
             {/* Desktop top bar */}
-            <div className="hidden md:flex justify-between items-center mb-[40px]">
-              <StepDots step={step} />
+            <div className="hidden md:flex justify-end items-center mb-[40px]">
               <div className="text-sm" style={{ color: "var(--gry)" }}>
                 Déjà inscrit ?{" "}
                 <Link href="/login" className="font-medium"
