@@ -52,14 +52,12 @@ export function DashboardFrame({
 
   return (
     <>
-      {/* Mobile */}
+      {/* Mobile
+          browser:    h-dvh  → fills the dynamic viewport (100dvh adapts as address bar shows/hides)
+          standalone: h-full → resolves via body 100svh set by iOS PWA shell              */}
       <div
-        className="md:hidden"
-        style={{
-          height: "100%",
-          overflow: "hidden",
-          background: isDark ? "var(--body)" : "var(--cream)",
-        }}
+        className="md:hidden h-dvh standalone:h-full overflow-hidden"
+        style={{ background: isDark ? "var(--body)" : "var(--cream)" }}
       >
         {/* Scrollable content */}
         <div className="h-full overflow-y-auto" style={{ paddingBottom: 80 }}>

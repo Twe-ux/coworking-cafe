@@ -26,13 +26,10 @@ export function HomeHero({ booking, user, onNavigate }: HomeHeroProps) {
 
   return (
     <div
-      className=" rounded-b-[34px] standalone:rounded-t-[50px] rounded-t-[36px]"
+      className="rounded-b-[34px] standalone:rounded-t-[50px] standalone:mx-[5px]"
       style={{
         background:
           "linear-gradient(160deg, var(--main) 0%, #2F5955 60%, var(--body) 100%)",
-        // borderRadius: "0px 0px 34px 34px",
-        marginLeft: 5,
-        marginRight: 5,
         /* max() ensures at least 16px top padding in browser devtools (env = 0) */
         paddingTop: "max(env(safe-area-inset-top, 0px), 16px)",
         paddingLeft: 22,
