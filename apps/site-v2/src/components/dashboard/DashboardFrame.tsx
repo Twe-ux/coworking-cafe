@@ -44,22 +44,21 @@ export function DashboardFrame({
     <>
       {/* Mobile PWA */}
       <div
-        className="md:hidden"
+        className="md:hidden flex flex-col"
         style={{
           height: "100svh",
-          position: "relative",
           overflow: "hidden",
           background: isDark ? "var(--body)" : "var(--cream)",
         }}
       >
-        {/* Scrollable content — screens own their top safe-area padding individually */}
-        <div
-          className="h-full overflow-y-auto"
-          style={{ paddingBottom: 102 }}
-        >
+        {/* Scrollable content — flex:1 so TabBar always stays at bottom */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {children}
         </div>
-        <TabBar section={section} onNavigate={onNavigate} />
+        {/* TabBar — normal flex item, unaffected by zoom or svh recalculation */}
+        <div style={{ flexShrink: 0, height: 102, position: "relative" }}>
+          <TabBar section={section} onNavigate={onNavigate} />
+        </div>
       </div>
 
       {/* Desktop */}

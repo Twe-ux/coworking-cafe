@@ -72,6 +72,9 @@ export const viewport: Viewport = {
   themeColor: "#FAF6EE",
   width: "device-width",
   initialScale: 1,
+  // viewport-fit=cover is required for black-translucent status bar:
+  // without it, iOS letterboxes the app and env(safe-area-inset-top) = 0
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
