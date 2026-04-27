@@ -44,37 +44,31 @@ export function DashboardFrame({
     <>
       {/* Mobile PWA */}
       <div
-        className="md:hidden flex flex-col"
+        className="md:hidden"
         style={{
-          height: "105svh",
+          height: "100svh",
           overflow: "hidden",
           background: isDark ? "var(--body)" : "var(--cream)",
         }}
       >
-        {/* Scrollable content — flex:1 so TabBar always stays at bottom */}
-        <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
-        {/* TabBar — normal flex item, unaffected by zoom or svh recalculation */}
+        {/* Scrollable content — paddingBottom keeps content above the fixed pill */}
         <div
-          style={{
-            flexShrink: 0,
-            height: "calc(70px + env(safe-area-inset-bottom, 0px))",
-            position: "relative",
-          }}
+          className="h-full overflow-y-auto"
+          style={{ paddingBottom: "calc(90px + env(safe-area-inset-bottom, 0px))" }}
         >
-          {/* Fill the home-indicator zone with the pill's background so no
-              raw safe-area strip shows through below the floating pill */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "env(safe-area-inset-bottom, 0px)",
-              background: "rgba(20,34,32,0.94)",
-            }}
-          />
-          <TabBar section={section} onNavigate={onNavigate} />
+          {children}
         </div>
+
+        {/* Fill the home-indicator zone — fixed, matches pill background */}
+        <div style={{
+          position: "fixed", bottom: 0, left: 0, right: 0,
+          height: "env(safe-area-inset-bottom, 0px)",
+          background: "var(--body)",
+          zIndex: 39,
+        }} />
+
+        {/* TabBar — fixed pill, immune to scroll and svh recalculation */}
+        <TabBar section={section} onNavigate={onNavigate} />
       </div>
 
       {/* Desktop */}

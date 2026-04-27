@@ -8,19 +8,19 @@ interface TabBarProps {
 }
 
 const TABS: { key: DashboardSection; label: string; icon: string }[] = [
-  { key: "home",         label: "Accueil", icon: "home"     },
-  { key: "reservations", label: "Résas",   icon: "calendar" },
-  { key: "profile",      label: "Profil",  icon: "user"     },
+  { key: "home", label: "Accueil", icon: "home" },
+  { key: "reservations", label: "Résas", icon: "calendar" },
+  { key: "profile", label: "Profil", icon: "user" },
 ];
 
 const PILL_STYLE: React.CSSProperties = {
-  position: "absolute",
+  position: "fixed",
   left: 14,
   right: 14,
-  bottom: 16,
+  bottom: 20,
   height: 70,
   borderRadius: 32,
-  background: "rgba(20,34,32,0.94)",
+  background: "var(--body)",
   backdropFilter: "blur(20px)",
   display: "flex",
   alignItems: "center",
