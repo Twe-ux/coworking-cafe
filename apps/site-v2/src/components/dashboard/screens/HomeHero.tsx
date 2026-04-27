@@ -26,7 +26,7 @@ export function HomeHero({ booking, user, onNavigate }: HomeHeroProps) {
 
   return (
     <div
-      className="rounded-b-[34px] standalone:rounded-t-[50px] standalone:mx-[5px]"
+      className="rounded-[34px] standalone:rounded-t-[50px] mx-[5px]"
       style={{
         background:
           "linear-gradient(160deg, var(--main) 0%, #2F5955 60%, var(--body) 100%)",
