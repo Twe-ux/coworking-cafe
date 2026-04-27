@@ -33,8 +33,7 @@ export function HomeHero({ booking, user, onNavigate }: HomeHeroProps) {
         overflow: 'hidden',
       }}
     >
-      {/* Décors absolus */}
-      <div style={{ position: 'absolute', top: -80, right: -60, width: 220, height: 220, borderRadius: '50%', background: 'rgba(242,211,129,0.1)', pointerEvents: 'none' }} />
+      {/* Décor absolu */}
       <div style={{ position: 'absolute', bottom: -50, left: -30, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
 
       {/* Topbar row */}
