@@ -30,7 +30,7 @@ export function DashboardBrowserNav({
         style={{
           position: "fixed",
           top: "calc(env(safe-area-inset-top, 0px) + 12px)",
-          right: 16,
+          left: 16,
           width: 44,
           height: 44,
           borderRadius: "50%",
