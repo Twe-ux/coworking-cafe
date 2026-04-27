@@ -31,6 +31,8 @@ export interface DashboardBooking {
 export interface DashboardUser {
   name: string
   email: string
+  phone?: string
+  company?: string
   plan: string
   memberSince: string
 }
@@ -53,6 +55,8 @@ export const SPACE_COLORS: Record<SpaceKey, { label: string; color: string; bg: 
 export const MOCK_USER: DashboardUser = {
   name: 'Claire Dubois',
   email: 'claire.dubois@exemple.fr',
+  phone: '+33 6 12 34 56 78',
+  company: 'Studio Hélium',
   plan: 'Membre +',
   memberSince: 'Janvier 2025',
 }
