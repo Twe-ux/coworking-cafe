@@ -13,9 +13,9 @@ interface DashboardFrameProps {
   children: React.ReactNode;
 }
 
-/** Background color per section — drives both safe-area bars */
+/** Background color per section — drives body/html bg (bottom safe-area / home indicator) */
 const SECTION_BG: Record<DashboardSection, string> = {
-  home: "#1A1A1A", // var(--body) — dark safe-area on home
+  home: "#1A1A1A", // var(--body) — dark home indicator zone
   reservations: "#FAF6EE", // var(--cream)
   history: "#FAF6EE",
   wallet: "#FAF6EE",
@@ -23,6 +23,15 @@ const SECTION_BG: Record<DashboardSection, string> = {
   profile: "#FAF6EE",
   events: "#FAF6EE",
   directory: "#FAF6EE",
+};
+
+/**
+ * theme-color override for meta[theme-color] only (status bar top in browser mode).
+ * In PWA black-translucent the status bar is transparent so this has no visual effect.
+ * For home: match the hero gradient start color so there's no dark/green step in browser.
+ */
+const SECTION_TOP_COLOR: Partial<Record<DashboardSection, string>> = {
+  home: "#417972", // matches HomeHero gradient start (var(--main))
 };
 
 export function DashboardFrame({
@@ -34,12 +43,12 @@ export function DashboardFrame({
   const isDark = section === "home";
 
   useEffect(() => {
-    applySafeAreaColor(bg);
+    applySafeAreaColor(bg, SECTION_TOP_COLOR[section]);
     return () => {
       // Restore auth-page color on unmount (signout → /login)
       applySafeAreaColor("#DDE6DE");
     };
-  }, [bg]);
+  }, [bg, section]);
 
   return (
     <>

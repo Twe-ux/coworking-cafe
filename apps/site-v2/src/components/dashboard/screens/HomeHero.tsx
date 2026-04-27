@@ -30,7 +30,8 @@ export function HomeHero({ booking, user, onNavigate }: HomeHeroProps) {
         background:
           "linear-gradient(160deg, var(--main) 0%, #2F5955 60%, var(--body) 100%)",
         borderRadius: "0 0 34px 34px",
-        paddingTop: "env(safe-area-inset-top)",
+        /* max() ensures at least 16px top padding in browser devtools (env = 0) */
+        paddingTop: "max(env(safe-area-inset-top, 0px), 16px)",
         paddingLeft: 22,
         paddingRight: 22,
         paddingBottom: 28,
