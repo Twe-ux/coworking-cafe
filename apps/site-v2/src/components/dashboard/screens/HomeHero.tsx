@@ -23,7 +23,7 @@ export function HomeHero({ booking, user, onNavigate }: HomeHeroProps) {
   return (
     <div
       style={{
-        background: 'linear-gradient(160deg, var(--main) 0%, #2F5955 60%, var(--body) 100%)',
+        background: 'linear-gradient(160deg, #213D39 0%, #142523 60%, var(--body) 100%)',
         borderRadius: '0 0 34px 34px',
         paddingTop: 'env(safe-area-inset-top)',
         paddingLeft: 22,
