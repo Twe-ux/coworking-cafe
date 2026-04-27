@@ -52,11 +52,15 @@ export function DashboardFrame({
         }}
       >
         {/* Scrollable content — flex:1 so TabBar always stays at bottom */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          {children}
-        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
         {/* TabBar — normal flex item, unaffected by zoom or svh recalculation */}
-        <div style={{ flexShrink: 0, height: "calc(70px + env(safe-area-inset-bottom, 16px))", position: "relative" }}>
+        <div
+          style={{
+            flexShrink: 0,
+            height: 102,
+            position: "relative",
+          }}
+        >
           <TabBar section={section} onNavigate={onNavigate} />
         </div>
       </div>
