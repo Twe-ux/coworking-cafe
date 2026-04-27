@@ -52,10 +52,10 @@ export function DashboardFrame({
           background: isDark ? "var(--body)" : "var(--cream)",
         }}
       >
-        {/* Scrollable content — top clears transparent status bar, bottom clears pill */}
+        {/* Scrollable content — screens own their top safe-area padding individually */}
         <div
           className="h-full overflow-y-auto"
-          style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: 102 }}
+          style={{ paddingBottom: 102 }}
         >
           {children}
         </div>

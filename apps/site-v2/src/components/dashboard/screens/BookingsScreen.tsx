@@ -80,7 +80,7 @@ export function BookingsScreen() {
   const bookings = tab === 'upcoming' ? MOCK_UPCOMING : MOCK_PAST
 
   return (
-    <div style={{ padding: '24px 16px', background: 'var(--cream)', minHeight: '100%' }}>
+    <div style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 16, paddingRight: 16, paddingBottom: 24, background: 'var(--cream)', minHeight: '100%' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 className="font-serif" style={{ fontSize: 26, color: 'var(--body)', margin: 0 }}>

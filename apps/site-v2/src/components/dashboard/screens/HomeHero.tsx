@@ -25,7 +25,10 @@ export function HomeHero({ booking, user, onNavigate }: HomeHeroProps) {
       style={{
         background: 'linear-gradient(160deg, var(--main) 0%, #2F5955 60%, var(--body) 100%)',
         borderRadius: '0 0 34px 34px',
-        padding: '0 22px 28px',
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingLeft: 22,
+        paddingRight: 22,
+        paddingBottom: 28,
         position: 'relative',
         overflow: 'hidden',
       }}

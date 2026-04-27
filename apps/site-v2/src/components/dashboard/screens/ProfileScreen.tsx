@@ -13,7 +13,7 @@ export function ProfileScreen() {
   const stats = MOCK_STATS
 
   return (
-    <div style={{ padding: '24px 16px 40px', background: 'var(--cream)', minHeight: '100%' }}>
+    <div style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 16, paddingRight: 16, paddingBottom: 40, background: 'var(--cream)', minHeight: '100%' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
