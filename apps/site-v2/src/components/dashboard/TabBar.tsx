@@ -1,27 +1,16 @@
 "use client";
 import { Icon } from "@/components/ui/Icon";
 import type { DashboardSection } from "@/types/dashboard";
-import Link from "next/link";
 
 interface TabBarProps {
   section: DashboardSection;
   onNavigate: (section: DashboardSection) => void;
 }
 
-type RegularTab = {
-  kind: "regular";
-  key: DashboardSection;
-  label: string;
-  icon: string;
-};
-type TabConfig = RegularTab | { kind: "center" };
-
-const TABS: TabConfig[] = [
-  { kind: "regular", key: "home", label: "Accueil", icon: "home" },
-  { kind: "regular", key: "reservations", label: "Résas", icon: "calendar" },
-  { kind: "center" },
-  { kind: "regular", key: "profile", label: "Profil", icon: "user" },
-  { kind: "regular", key: "events", label: "Plus", icon: "menu" },
+const TABS: { key: DashboardSection; label: string; icon: string }[] = [
+  { key: "home",         label: "Accueil", icon: "home"     },
+  { key: "reservations", label: "Résas",   icon: "calendar" },
+  { key: "profile",      label: "Profil",  icon: "user"     },
 ];
 
 const PILL_STYLE: React.CSSProperties = {
@@ -43,31 +32,7 @@ const PILL_STYLE: React.CSSProperties = {
 export function TabBar({ section, onNavigate }: TabBarProps) {
   return (
     <div style={PILL_STYLE}>
-      {TABS.map((tab, i) => {
-        if (tab.kind === "center") {
-          return (
-            <div
-              key="center"
-              style={{ flex: 1, display: "flex", justifyContent: "center" }}
-            >
-              <Link
-                href="/booking"
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background: "var(--btn)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Icon name="plus" size={20} stroke="var(--body)" sw={2} />
-              </Link>
-            </div>
-          );
-        }
-
+      {TABS.map((tab) => {
         const isActive = section === tab.key;
         return (
           <button
