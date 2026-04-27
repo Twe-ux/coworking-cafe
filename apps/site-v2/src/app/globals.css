@@ -306,6 +306,17 @@ body:has(.launch-page) {
     height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    /* Push content below transparent status bar */
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /*
+    auth-scroll handles the safe-area — inner wrappers only need
+    a small gap (12px) to breathe just below the status bar.
+    This overrides Tailwind pt-8 because globals.css is outside @layer utilities.
+  */
+  .auth-form-wrapper {
+    padding-top: 12px;
   }
 }
 

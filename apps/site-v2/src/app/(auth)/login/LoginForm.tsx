@@ -29,7 +29,7 @@ export function LoginForm() {
   const displayError = submitError ?? errorMessage;
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-8 pt-8 pb-6 md:p-8">
+    <div className="auth-form-wrapper flex items-center justify-center min-h-screen px-8 pt-8 pb-6 md:p-8">
       <div className="w-full max-w-[400px] md:max-w-[1240px]">
         <div className="grid grid-cols-1 md:grid-cols-2 md:overflow-hidden md:rounded-[18px] md:bg-white md:shadow-[0_30px_60px_rgba(20,34,32,0.14),0_0_0_1px_var(--line)]">
           {/* Brand panel — desktop left column only */}
