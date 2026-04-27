@@ -54,18 +54,25 @@ export function DashboardFrame({
         {/* Scrollable content — paddingBottom keeps content above the fixed pill */}
         <div
           className="h-full overflow-y-auto"
-          style={{ paddingBottom: "calc(90px + env(safe-area-inset-bottom, 0px))" }}
+          style={{
+            paddingBottom: "calc(90px + env(safe-area-inset-bottom, 0px))",
+          }}
         >
           {children}
         </div>
 
         {/* Fill the home-indicator zone — fixed, matches pill background */}
-        <div style={{
-          position: "fixed", bottom: 0, left: 0, right: 0,
-          height: "env(safe-area-inset-bottom, 0px)",
-          background: "var(--body)",
-          zIndex: 39,
-        }} />
+        <div
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "env(safe-area-inset-bottom, 0px)",
+            background: "var(--body)",
+            zIndex: 39,
+          }}
+        />
 
         {/* TabBar — fixed pill, immune to scroll and svh recalculation */}
         <TabBar section={section} onNavigate={onNavigate} />

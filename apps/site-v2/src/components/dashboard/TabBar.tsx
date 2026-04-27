@@ -17,7 +17,7 @@ const PILL_STYLE: React.CSSProperties = {
   position: "fixed",
   left: 14,
   right: 14,
-  bottom: 20,
+  bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)",
   height: 70,
   borderRadius: 32,
   background: "var(--body)",
