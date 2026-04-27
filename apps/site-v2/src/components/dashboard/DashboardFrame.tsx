@@ -45,20 +45,24 @@ export function DashboardFrame({
     <>
       {/* Mobile */}
       <div
-        className="md:hidden flex flex-col overflow-hidden"
-        style={{ height: "100dvh", background: isDark ? "var(--body)" : "var(--cream)" }}
+        className="md:hidden"
+        style={{
+          height: "100%",
+          overflow: "hidden",
+          background: isDark ? "var(--body)" : "var(--cream)",
+        }}
       >
-        {/* Browser top nav — hidden in PWA standalone mode */}
-        <div className="standalone:hidden shrink-0">
-          <DashboardBrowserNav section={section} onNavigate={onNavigate} />
-        </div>
-
-        {/* Scrollable content — extra bottom padding in PWA mode for the TabBar pill */}
-        <div className="flex-1 overflow-y-auto pb-6 standalone:pb-[80px]">
+        {/* Scrollable content */}
+        <div className="h-full overflow-y-auto" style={{ paddingBottom: 80 }}>
           {children}
         </div>
 
-        {/* TabBar pill — only shown in PWA standalone mode */}
+        {/* Floating hamburger — browser mode only (position: fixed) */}
+        <div className="standalone:hidden">
+          <DashboardBrowserNav section={section} onNavigate={onNavigate} />
+        </div>
+
+        {/* TabBar pill — PWA standalone only (position: fixed) */}
         <div className="hidden standalone:block">
           <TabBar section={section} onNavigate={onNavigate} />
         </div>

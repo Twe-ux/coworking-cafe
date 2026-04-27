@@ -23,58 +23,37 @@ export function DashboardBrowserNav({
 
   return (
     <>
-      {/* Top bar — respects safe-area-inset-top for notched phones */}
-      <div
+      {/* Floating hamburger button — top-right, below status bar */}
+      <button
+        onClick={() => setOpen(true)}
+        aria-label="Ouvrir le menu"
         style={{
-          paddingTop: "env(safe-area-inset-top, 0px)",
-          background: isDark ? "var(--body)" : "var(--cream)",
-          borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "var(--line)"}`,
-          flexShrink: 0,
+          position: "fixed",
+          top: "calc(env(safe-area-inset-top, 0px) + 12px)",
+          right: 16,
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          background: isDark
+            ? "rgba(255,255,255,0.12)"
+            : "rgba(26,26,26,0.06)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(26,26,26,0.08)"}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          zIndex: 30,
         }}
       >
-        <div
-          style={{
-            height: 56,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingInline: 20,
-          }}
-        >
-          <span
-            className="font-serif"
-            style={{
-              fontSize: 17,
-              letterSpacing: "-0.01em",
-              color: isDark ? "var(--white)" : "var(--body)",
-            }}
-          >
-            CoworKing Café
-          </span>
-          <button
-            onClick={() => setOpen(true)}
-            aria-label="Ouvrir le menu"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 40,
-              height: 40,
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            <Icon
-              name="menu"
-              size={22}
-              stroke={isDark ? "var(--white)" : "var(--body)"}
-            />
-          </button>
-        </div>
-      </div>
+        <Icon
+          name="menu"
+          size={20}
+          stroke={isDark ? "rgba(255,255,255,0.9)" : "var(--body)"}
+        />
+      </button>
 
-      {/* Drawer */}
       <NavDrawer
         open={open}
         section={section}
