@@ -84,8 +84,9 @@ export function useRegisterForm() {
       const bodyResult = ResponseSchema.safeParse(await response.json())
       const body = bodyResult.success ? bodyResult.data : { error: undefined }
       if (response.status === 409) {
-        setSubmitError("Cet email est déjà utilisé.")
+        setStep1Data(null)
         setStep(1)
+        setSubmitError("Cet email est déjà utilisé. Veuillez en choisir un autre.")
       } else {
         setSubmitError(body.error ?? "Une erreur est survenue.")
       }

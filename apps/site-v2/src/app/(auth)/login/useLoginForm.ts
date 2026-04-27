@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { signIn } from "next-auth/react"
-import { useSearchParams } from "next/navigation"
 
 const schema = z.object({
   email: z.string().email("Email invalide"),
@@ -23,6 +23,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 export type UseLoginFormReturn = ReturnType<typeof useLoginForm>
 
 export function useLoginForm() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const errorParam = searchParams.get("error")
   const errorMessage = errorParam
@@ -30,7 +31,6 @@ export function useLoginForm() {
     : null
 
   const [isLoading, setIsLoading] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
@@ -48,20 +48,19 @@ export function useLoginForm() {
         password: data.password,
         redirect: false,
       })
-      setIsLoading(false)
       if (result === null || result === undefined) {
         setSubmitError(ERROR_MESSAGES.network)
         return
       }
       if (!result.ok) {
-        const code = result.error ?? "default"
-        setSubmitError(ERROR_MESSAGES[code] ?? ERROR_MESSAGES.default)
+        setSubmitError(ERROR_MESSAGES[result.error ?? "default"] ?? ERROR_MESSAGES.default)
         return
       }
-      window.location.href = "/dashboard"
+      router.push("/dashboard")
     } catch {
-      setIsLoading(false)
       setSubmitError(ERROR_MESSAGES.network)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -70,8 +69,6 @@ export function useLoginForm() {
     handleSubmit,
     errors,
     isLoading,
-    rememberMe,
-    setRememberMe,
     errorMessage,
     submitError,
     onSubmit,

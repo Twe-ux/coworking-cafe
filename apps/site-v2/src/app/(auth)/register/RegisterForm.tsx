@@ -67,7 +67,7 @@ export function RegisterForm() {
               {step === 2 ? (
                 <button type="button" onClick={() => setStep(1)} aria-label="Retour"
                   className="flex items-center justify-center"
-                  style={{ width: 40, height: 40, borderRadius: 12, background: "#fff", border: "1px solid var(--line)" }}>
+                  style={{ width: 44, height: 44, borderRadius: 12, background: "var(--white)", border: "1px solid var(--line)" }}>
                   <Icon name="chevLeft" size={16} stroke="var(--body)" />
                 </button>
               ) : <AuthLogo />}
@@ -102,7 +102,7 @@ export function RegisterForm() {
             {step === 2 && (
               <button type="button" onClick={() => setStep(1)} aria-label="Retour"
                 className="hidden md:flex items-center justify-center self-start mb-6"
-                style={{ width: 40, height: 40, borderRadius: 12, background: "#fff", border: "1px solid var(--line)" }}>
+                style={{ width: 44, height: 44, borderRadius: 12, background: "var(--white)", border: "1px solid var(--line)" }}>
                 <Icon name="chevLeft" size={16} stroke="var(--body)" />
               </button>
             )}

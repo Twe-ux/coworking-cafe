@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+
 import Link from "next/link"
-import { useForm } from "react-hook-form"
+
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { AuthLogo, AuthField, SubmitButton } from "@/components/auth"
@@ -19,15 +21,16 @@ type FormState = "idle" | "loading" | "success"
 
 export function ResetForm() {
   const [formState, setFormState] = useState<FormState>("idle")
+  const [submittedEmail, setSubmittedEmail] = useState("")
 
   const {
     register,
     handleSubmit,
-    getValues,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
-  async function onSubmit() {
+  async function onSubmit(data: FormValues) {
+    setSubmittedEmail(data.email)
     setFormState("loading")
     // Simulate API call — will be wired in Phase 5
     await new Promise<void>((resolve) => setTimeout(resolve, 1200))
@@ -80,7 +83,7 @@ export function ResetForm() {
             >
               Un lien de réinitialisation a été envoyé à{" "}
               <strong style={{ color: "var(--body)" }}>
-                {getValues("email")}
+                {submittedEmail}
               </strong>
               . Pensez à vérifier vos spams.
             </p>
@@ -113,11 +116,8 @@ export function ResetForm() {
 
         <div>
           <div
-            className="font-mono"
+            className="eyebrow"
             style={{
-              fontSize: 10,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
               color: "var(--main)",
               marginBottom: 8,
             }}

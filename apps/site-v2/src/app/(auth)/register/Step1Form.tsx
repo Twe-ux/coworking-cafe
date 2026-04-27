@@ -20,7 +20,7 @@ export function Step1Form({ form, submitError, onSubmit }: Step1FormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
       <div>
-        <div className="font-mono" style={{ fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--main)", marginBottom: 6 }}>
+        <div className="eyebrow" style={{ color: "var(--main)", marginBottom: 6 }}>
           Étape 1 sur 2
         </div>
         <h1 className="font-serif" style={{ fontSize: 34, fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.02em", color: "var(--body)", margin: 0 }}>

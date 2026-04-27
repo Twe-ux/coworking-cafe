@@ -25,12 +25,12 @@ export function Step2Form({ form, submitError, isLoading, cguChecked, onToggleCg
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
       {/* Back button — mobile only (desktop has its own) */}
       <button type="button" onClick={onBack} aria-label="Retour" className="md:hidden flex items-center justify-center self-start"
-        style={{ width: 40, height: 40, borderRadius: 12, background: "#fff", border: "1px solid var(--line)" }}>
+        style={{ width: 44, height: 44, borderRadius: 12, background: "var(--white)", border: "1px solid var(--line)" }}>
         <Icon name="chevLeft" size={16} stroke="var(--body)" />
       </button>
 
       <div>
-        <div className="font-mono" style={{ fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--main)", marginBottom: 6 }}>
+        <div className="eyebrow" style={{ color: "var(--main)", marginBottom: 6 }}>
           Étape 2 sur 2
         </div>
         <h1 className="font-serif" style={{ fontSize: 34, fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.02em", color: "var(--body)", margin: 0 }}>
@@ -59,7 +59,7 @@ export function Step2Form({ form, submitError, isLoading, cguChecked, onToggleCg
             <button type="button" role="checkbox" aria-checked={cguChecked} onClick={onToggleCgu}
               className="flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors"
               style={{ width: 20, height: 20, borderRadius: 6,
-                background: cguChecked ? "var(--main)" : "#fff",
+                background: cguChecked ? "var(--main)" : "var(--white)",
                 border: cguChecked ? "none" : "1px solid var(--line)" }}>
               {cguChecked && <Icon name="check" size={12} stroke="#fff" sw={2.8} />}
             </button>

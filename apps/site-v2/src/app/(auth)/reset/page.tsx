@@ -3,6 +3,7 @@ import { ResetForm } from "./ResetForm"
 
 export const metadata: Metadata = {
   title: "Mot de passe oublié",
+  description: "Réinitialisez votre mot de passe CoworKing Café.",
   robots: { index: false },
 }
 
