@@ -18,7 +18,12 @@ const NAV_ITEMS: { key: DashboardSection; label: string; icon: IconName }[] = [
 ];
 
 function getInitials(name: string): string {
-  return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
 }
 
 export function DashboardBrowserNav({
@@ -40,22 +45,18 @@ export function DashboardBrowserNav({
         aria-label="Menu"
         style={{
           position: "fixed",
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)",
-          left: 20,
-          width: 44,
-          height: 44,
+          bottom: "env(safe-area-inset-bottom)",
+          left: 34,
+          width: 48,
+          height: 48,
           borderRadius: "50%",
-          /* white circle — mix-blend-mode:difference inverts it automatically:
-             over cream (#FAF6EE) → appears near-black
-             over dark (#1A1A1A) → appears near-white   */
-          background: "rgba(255,255,255,0.92)",
-          mixBlendMode: "difference",
+          background: "rgba(28,28,30,0.9)",
+          border: "0.7px solid #FAF6EE",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
           zIndex: 31,
-          border: "none",
         }}
       >
         {/* Icon always white — blends with the already-inverted button bg */}
@@ -75,14 +76,16 @@ export function DashboardBrowserNav({
         <div
           style={{
             position: "fixed",
-            bottom: "calc(env(safe-area-inset-bottom, 0px) + 74px)",
-            left: 12,
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 60px)",
+            left: 24,
             width: 230,
             background: "rgba(28,28,30,0.96)",
             borderRadius: 16,
             zIndex: 30,
+            border: "1px solid #111111",
             overflow: "hidden",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.06)",
+            boxShadow:
+              "0 8px 32px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.06)",
           }}
         >
           {/* Nav items */}
@@ -106,7 +109,9 @@ export function DashboardBrowserNav({
                     fontFamily: "Inter, sans-serif",
                     fontSize: 15,
                     fontWeight: active ? 600 : 400,
-                    background: active ? "rgba(242,211,129,0.12)" : "transparent",
+                    background: active
+                      ? "rgba(242,211,129,0.12)"
+                      : "transparent",
                     color: active ? "var(--btn)" : "rgba(255,255,255,0.88)",
                     marginBottom: i < NAV_ITEMS.length - 1 ? 1 : 0,
                   }}
@@ -123,7 +128,13 @@ export function DashboardBrowserNav({
           </div>
 
           {/* Separator */}
-          <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "6px 0" }} />
+          <div
+            style={{
+              height: 1,
+              background: "rgba(255,255,255,0.08)",
+              margin: "6px 0",
+            }}
+          />
 
           {/* User row */}
           <div
@@ -152,14 +163,37 @@ export function DashboardBrowserNav({
               {getInitials(MOCK_USER.name)}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: "var(--white)", fontFamily: "Inter, sans-serif" }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "var(--white)",
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
                 {MOCK_USER.name}
               </div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "rgba(255,255,255,0.4)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {MOCK_USER.plan}
               </div>
             </div>
-            <button style={{ display: "flex", alignItems: "center", background: "none", border: "none", cursor: "pointer" }}>
+            <button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
               <Icon name="logout" size={16} stroke="rgba(255,255,255,0.35)" />
             </button>
           </div>
