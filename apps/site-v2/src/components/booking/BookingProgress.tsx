@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Icon } from "@/components/ui/Icon"
 import type { BookingStep } from "@/types/booking"
 import { DesktopSidebar } from "./BookingProgressDesktop"
@@ -11,6 +12,7 @@ interface BookingProgressProps {
   onBack: () => void
   showBackButton: boolean
   onGoToStep?: (step: BookingStep) => void
+  isAuthenticated?: boolean
 }
 
 const STEP_LABELS: Record<number, string> = {
@@ -23,7 +25,7 @@ const STEP_LABELS: Record<number, string> = {
 
 // ─── Mobile header ────────────────────────────────────────────────────────────
 
-function MobileHeader({ currentStep, firstStep, totalSteps, onBack, showBackButton }: BookingProgressProps) {
+function MobileHeader({ currentStep, firstStep, totalSteps, onBack, showBackButton, isAuthenticated }: BookingProgressProps) {
   const segments = Array.from({ length: totalSteps }, (_, i) => i)
 
   return (
@@ -35,14 +37,19 @@ function MobileHeader({ currentStep, firstStep, totalSteps, onBack, showBackButt
             onClick={onBack}
             aria-label="Retour"
             className="flex-shrink-0 flex items-center justify-center rounded-full text-white"
-            style={{
-              width: 32,
-              height: 32,
-              background: "rgba(255,255,255,0.08)",
-            }}
+            style={{ width: 32, height: 32, background: "rgba(255,255,255,0.08)" }}
           >
             <Icon name="chevLeft" size={20} />
           </button>
+        ) : isAuthenticated ? (
+          <Link
+            href="/dashboard"
+            aria-label="Mon espace"
+            className="flex-shrink-0 flex items-center justify-center rounded-full text-white"
+            style={{ width: 32, height: 32, background: "rgba(255,255,255,0.08)" }}
+          >
+            <Icon name="chevLeft" size={20} />
+          </Link>
         ) : (
           <div style={{ width: 32, height: 32, flexShrink: 0 }} />
         )}

@@ -28,15 +28,6 @@ const RECHARGE_HISTORY: RechargeHistory[] = [
   { date: "12 jan. 2026",  amount: "500 crédits", price: "40€", method: "Apple Pay" },
 ];
 
-const EYEBROW: React.CSSProperties = {
-  fontFamily: "var(--font-mono, monospace)",
-  fontSize: 10,
-  textTransform: "uppercase",
-  letterSpacing: "0.14em",
-  color: "var(--gry)",
-  margin: 0,
-};
-
 export function WalletScreen() {
   const [selected, setSelected] = useState<number | null>(null);
 
@@ -81,7 +72,7 @@ export function WalletScreen() {
 
         {/* Section recharge */}
         <div>
-          <p className="font-mono" style={{ ...EYEBROW, marginBottom: 12 }}>Recharger</p>
+          <p className="eyebrow" style={{ marginBottom: 12 }}>Recharger</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
             {RECHARGE_OPTIONS.map((opt) => (
               <button
@@ -128,7 +119,7 @@ export function WalletScreen() {
 
         {/* Historique */}
         <div>
-          <p className="font-mono" style={{ ...EYEBROW, marginBottom: 12 }}>Dernières recharges</p>
+          <p className="eyebrow" style={{ marginBottom: 12 }}>Dernières recharges</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {RECHARGE_HISTORY.map((entry, i) => (
               <div

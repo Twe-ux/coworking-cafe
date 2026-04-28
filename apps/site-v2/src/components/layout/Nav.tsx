@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -23,6 +24,8 @@ interface NavProps {
 
 export function Nav({ variant = "light", currentPath = "/" }: NavProps) {
   const isDark = variant === "dark";
+  const { data: session } = useSession();
+  const isAuth = !!session;
 
   return (
     <nav
@@ -72,12 +75,21 @@ export function Nav({ variant = "light", currentPath = "/" }: NavProps) {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-[10px] shrink-0">
-          <Link
-            href="/login"
-            className="text-[13.5px] font-medium opacity-[0.72] hover:opacity-100 no-underline text-inherit"
-          >
-            Se connecter
-          </Link>
+          {isAuth ? (
+            <Link
+              href="/dashboard"
+              className="text-[13.5px] font-medium opacity-[0.72] hover:opacity-100 no-underline text-inherit"
+            >
+              Mon espace
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="text-[13.5px] font-medium opacity-[0.72] hover:opacity-100 no-underline text-inherit"
+            >
+              Se connecter
+            </Link>
+          )}
           <Link href="/booking">
             <Button variant={isDark ? "primary" : "dark"} size="sm">
               Réserver
@@ -87,14 +99,14 @@ export function Nav({ variant = "light", currentPath = "/" }: NavProps) {
 
         {/* Mobile burger */}
         <div className="lg:hidden ml-auto">
-          <MobileNav isDark={isDark} currentPath={currentPath} />
+          <MobileNav isDark={isDark} currentPath={currentPath} isAuth={isAuth} />
         </div>
       </div>
     </nav>
   );
 }
 
-function MobileNav({ isDark, currentPath }: { isDark: boolean; currentPath: string }) {
+function MobileNav({ isDark, currentPath, isAuth }: { isDark: boolean; currentPath: string; isAuth: boolean }) {
   return (
     <Sheet>
       <SheetTrigger
@@ -129,9 +141,15 @@ function MobileNav({ isDark, currentPath }: { isDark: boolean; currentPath: stri
             </Link>
           ))}
           <div className="pt-4 flex flex-col gap-3">
-            <Link href="/login" className="no-underline">
-              <Button variant="ghost" className="w-full">Se connecter</Button>
-            </Link>
+            {isAuth ? (
+              <Link href="/dashboard" className="no-underline">
+                <Button variant="ghost" className="w-full">Mon espace</Button>
+              </Link>
+            ) : (
+              <Link href="/login" className="no-underline">
+                <Button variant="ghost" className="w-full">Se connecter</Button>
+              </Link>
+            )}
             <Link href="/booking" className="no-underline">
               <Button variant="primary" className="w-full">Réserver</Button>
             </Link>

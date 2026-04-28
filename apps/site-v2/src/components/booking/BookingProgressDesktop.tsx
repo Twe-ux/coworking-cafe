@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Icon } from "@/components/ui/Icon"
 import { cn } from "@/lib/cn"
 import type { BookingStep } from "@/types/booking"
@@ -10,6 +11,7 @@ interface DesktopSidebarProps {
   onBack: () => void
   showBackButton: boolean
   onGoToStep?: (step: BookingStep) => void
+  isAuthenticated?: boolean
 }
 
 const STEP_LABELS: Record<number, string> = {
@@ -20,7 +22,7 @@ const STEP_LABELS: Record<number, string> = {
   4: "Confirmation",
 }
 
-export function DesktopSidebar({ currentStep, firstStep, onBack, showBackButton, onGoToStep }: DesktopSidebarProps) {
+export function DesktopSidebar({ currentStep, firstStep, onBack, showBackButton, onGoToStep, isAuthenticated }: DesktopSidebarProps) {
   // Si firstStep=0 on affiche 5 steps (0→4), sinon 4 steps (1→4)
   const steps = Array.from(
     { length: firstStep === 0 ? 5 : 4 },
@@ -46,6 +48,18 @@ export function DesktopSidebar({ currentStep, firstStep, onBack, showBackButton,
         <span className="font-sans block" style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
           Café
         </span>
+        {isAuthenticated && (
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-1.5 mt-3 transition-opacity hover:opacity-100"
+            style={{ opacity: 0.5, textDecoration: "none" }}
+          >
+            <Icon name="chevLeft" size={12} stroke="var(--btn)" />
+            <span className="font-mono" style={{ fontSize: 10, color: "var(--btn)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              Mon espace
+            </span>
+          </Link>
+        )}
       </div>
 
       {/* Back button */}

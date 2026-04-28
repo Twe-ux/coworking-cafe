@@ -13,29 +13,7 @@ const TABS: { key: HistoryTab; label: string }[] = [
   { key: "quarter", label: "Ce trimestre" },
 ];
 
-function filterBookings(bookings: DashboardBooking[], tab: HistoryTab): DashboardBooking[] {
-  if (tab === "all") return bookings;
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0-based
-
-  return bookings.filter((b) => {
-    const d = new Date(b.date);
-    if (tab === "month") {
-      return d.getFullYear() === year && d.getMonth() === month;
-    }
-    const quarter = Math.floor(month / 3);
-    const dQuarter = Math.floor(d.getMonth() / 3);
-    return d.getFullYear() === year && dQuarter === quarter;
-  });
-}
-
-interface TransactionRowProps {
-  booking: DashboardBooking;
-}
-
-function TransactionRow({ booking }: TransactionRowProps) {
+function TransactionRow({ booking }: { booking: DashboardBooking }) {
   const sp = SPACE_COLORS[booking.spaceKey];
 
   return (
@@ -112,7 +90,14 @@ function TransactionRow({ booking }: TransactionRowProps) {
 
 export function HistoryScreen() {
   const [tab, setTab] = useState<HistoryTab>("all");
-  const transactions = filterBookings(MOCK_PAST, tab);
+  const now = new Date();
+  const transactions = MOCK_PAST.filter((b) => {
+    if (tab === "all") return true;
+    const d = new Date(b.date);
+    if (tab === "month") return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    const q = Math.floor(now.getMonth() / 3);
+    return d.getFullYear() === now.getFullYear() && Math.floor(d.getMonth() / 3) === q;
+  });
 
   return (
     <div style={{ background: "var(--cream)", minHeight: "100dvh", display: "flex", flexDirection: "column" }}>

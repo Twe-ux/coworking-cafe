@@ -1,3 +1,5 @@
+"use client"
+
 import { Icon } from "@/components/ui/Icon";
 import type { IconName } from "@/components/ui/Icon";
 import { MOCK_STATS } from "@/types/dashboard";

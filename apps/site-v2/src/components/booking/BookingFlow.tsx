@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 import type { Venue } from "@/types/venue"
 import { SPACES, BOOKING_SERVICES } from "@/types/booking"
 import { useBooking } from "@/hooks/useBooking"
@@ -22,6 +23,8 @@ interface BookingFlowProps {
 export function BookingFlow({ venues }: BookingFlowProps) {
   const booking = useBooking(venues)
   const { state, pricing, totalSteps, firstStep, canProceed, nextStep, prevStep, goToStep } = booking
+  const { data: session } = useSession()
+  const isAuthenticated = !!session
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -111,6 +114,7 @@ export function BookingFlow({ venues }: BookingFlowProps) {
           onBack={prevStep}
           showBackButton={showBack}
           onGoToStep={goToStep}
+          isAuthenticated={isAuthenticated}
         />
 
         <div className="flex-1 py-6 px-0" style={{ paddingBottom: 100 }}>
@@ -135,6 +139,7 @@ export function BookingFlow({ venues }: BookingFlowProps) {
           onBack={prevStep}
           showBackButton={showBack}
           onGoToStep={goToStep}
+          isAuthenticated={isAuthenticated}
         />
 
         <main

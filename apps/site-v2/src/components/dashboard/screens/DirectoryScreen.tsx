@@ -2,8 +2,6 @@
 import { Icon } from "@/components/ui/Icon";
 import { useState } from "react";
 
-// ─── Types & Data ─────────────────────────────────────────────────────────────
-
 interface Member {
   id: string;
   name: string;
@@ -11,35 +9,29 @@ interface Member {
   company: string;
   sector: string;
   joinLabel: string;
-  website?: string;
 }
 
 const SECTORS = ["Tous", "Design", "Tech", "Conseil", "Créatif", "Autre"] as const;
 type Sector = (typeof SECTORS)[number];
 
 const MOCK_MEMBERS: Member[] = [
-  { id: "m1", name: "Alice Dupont",   initials: "AD", company: "Studio Créatif",   sector: "Design",  joinLabel: "Depuis 8 mois", website: "alice-designs.com" },
+  { id: "m1", name: "Alice Dupont",   initials: "AD", company: "Studio Créatif",   sector: "Design",  joinLabel: "Depuis 8 mois" },
   { id: "m2", name: "Marc Lenoir",    initials: "ML", company: "Tech Solutions",   sector: "Tech",    joinLabel: "Depuis 2 mois" },
   { id: "m3", name: "Sophie Bernard", initials: "SB", company: "Conseil RH",       sector: "Conseil", joinLabel: "Depuis 1 an" },
   { id: "m4", name: "Julien Martin",  initials: "JM", company: "Freelance Dev",    sector: "Tech",    joinLabel: "Depuis 5 mois" },
-  { id: "m5", name: "Clara Petit",    initials: "CP", company: "Agence Com",       sector: "Créatif", joinLabel: "Depuis 3 mois", website: "agence-clara.fr" },
+  { id: "m5", name: "Clara Petit",    initials: "CP", company: "Agence Com",       sector: "Créatif", joinLabel: "Depuis 3 mois" },
   { id: "m6", name: "Thomas Roy",     initials: "TR", company: "Consultant Indep", sector: "Conseil", joinLabel: "Depuis 6 mois" },
 ];
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function DirectoryScreen() {
   const [search, setSearch] = useState("");
   const [sector, setSector] = useState<Sector>("Tous");
 
-  const filtered = MOCK_MEMBERS.filter((m) => {
-    const matchSector = sector === "Tous" || m.sector === sector;
-    const matchSearch =
-      search === "" ||
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.company.toLowerCase().includes(search.toLowerCase());
-    return matchSector && matchSearch;
-  });
+  const q = search.toLowerCase();
+  const filtered = MOCK_MEMBERS.filter((m) =>
+    (sector === "Tous" || m.sector === sector) &&
+    (q === "" || m.name.toLowerCase().includes(q) || m.company.toLowerCase().includes(q))
+  );
 
   return (
     <div style={{ background: "var(--cream)", minHeight: "100dvh", display: "flex", flexDirection: "column", maxWidth: 640, margin: "0 auto" }}>
@@ -130,7 +122,11 @@ export function DirectoryScreen() {
       {/* List */}
       <div style={{ paddingLeft: 16, paddingRight: 16, paddingBottom: 24, flex: 1 }}>
         {filtered.length === 0 ? (
-          <EmptyState />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 64, gap: 12 }}>
+            <Icon name="search" size={40} stroke="var(--gry)" sw={1.2} />
+            <p className="font-sans" style={{ fontSize: 15, fontWeight: 500, color: "var(--body)", margin: 0 }}>Aucun membre trouvé</p>
+            <p className="font-sans" style={{ fontSize: 13, color: "var(--gry)", margin: 0 }}>Essayez une autre recherche</p>
+          </div>
         ) : (
           <MemberList members={filtered} />
         )}
@@ -138,8 +134,6 @@ export function DirectoryScreen() {
     </div>
   );
 }
-
-// ─── MemberList ───────────────────────────────────────────────────────────────
 
 function MemberList({ members }: { members: Member[] }) {
   return (
@@ -162,7 +156,7 @@ function MemberList({ members }: { members: Member[] }) {
                 width: 44,
                 height: 44,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, var(--main), #2e5e58)",
+                background: "var(--main)",
                 color: "#fff",
                 fontSize: 15,
                 display: "flex",
@@ -198,18 +192,3 @@ function MemberList({ members }: { members: Member[] }) {
   );
 }
 
-// ─── EmptyState ───────────────────────────────────────────────────────────────
-
-function EmptyState() {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 64, gap: 12 }}>
-      <Icon name="search" size={40} stroke="var(--gry)" sw={1.2} />
-      <p className="font-sans" style={{ fontSize: 15, fontWeight: 500, color: "var(--body)", margin: 0 }}>
-        Aucun membre trouvé
-      </p>
-      <p className="font-sans" style={{ fontSize: 13, color: "var(--gry)", margin: 0 }}>
-        Essayez une autre recherche
-      </p>
-    </div>
-  );
-}
