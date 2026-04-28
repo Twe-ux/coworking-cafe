@@ -13,25 +13,49 @@ const TABS: { key: DashboardSection; label: string; icon: string }[] = [
   { key: "profile", label: "Profil", icon: "user" },
 ];
 
-const PILL_STYLE: React.CSSProperties = {
-  position: "fixed",
-  left: 14,
-  right: 14,
-  bottom: 20,
-  height: 70,
-  borderRadius: 32,
-  background: "var(--body)",
-  backdropFilter: "blur(20px)",
-  display: "flex",
-  alignItems: "center",
-  paddingInline: 8,
-  boxShadow: "0 8px 32px rgba(0,0,0,0.28)",
-  zIndex: 40,
-};
+/** Dark sections (dark bg) → use light pill */
+const DARK_SECTIONS: DashboardSection[] = ["home"];
 
 export function TabBar({ section, onNavigate }: TabBarProps) {
+  const onDark = DARK_SECTIONS.includes(section);
+
+  // Pill
+  const pillBg = onDark ? "rgba(250,246,238,0.95)" : "var(--body)";
+  const pillShadow = onDark
+    ? "0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)"
+    : "0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.14)";
+
+  // Active tab
+  const activeTabBg = onDark ? "var(--main)" : "var(--btn)";
+  const activeIconStroke = onDark ? "#fff" : "var(--body)";
+  const activeLabelColor = onDark ? "var(--body)" : "#fff";
+
+  // Inactive tab
+  const inactiveIconStroke = onDark
+    ? "rgba(26,26,26,0.4)"
+    : "rgba(255,255,255,0.55)";
+  const inactiveLabelColor = onDark
+    ? "rgba(26,26,26,0.45)"
+    : "rgba(255,255,255,0.5)";
+
   return (
-    <div style={PILL_STYLE}>
+    <div
+      style={{
+        position: "fixed",
+        left: 14,
+        right: 14,
+        bottom: 20,
+        height: 70,
+        borderRadius: 32,
+        background: pillBg,
+        backdropFilter: "blur(20px)",
+        display: "flex",
+        alignItems: "center",
+        paddingInline: 8,
+        boxShadow: pillShadow,
+        zIndex: 40,
+      }}
+    >
       {TABS.map((tab) => {
         const isActive = section === tab.key;
         return (
@@ -58,13 +82,13 @@ export function TabBar({ section, onNavigate }: TabBarProps) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: isActive ? "var(--btn)" : "transparent",
+                background: isActive ? activeTabBg : "transparent",
               }}
             >
               <Icon
                 name={tab.icon}
                 size={18}
-                stroke={isActive ? "var(--body)" : "rgba(255,255,255,0.55)"}
+                stroke={isActive ? activeIconStroke : inactiveIconStroke}
                 sw={isActive ? 2 : 1.6}
               />
             </div>
@@ -74,7 +98,7 @@ export function TabBar({ section, onNavigate }: TabBarProps) {
                 fontSize: 9,
                 textTransform: "uppercase",
                 letterSpacing: "0.04em",
-                color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
+                color: isActive ? activeLabelColor : inactiveLabelColor,
               }}
             >
               {tab.label}

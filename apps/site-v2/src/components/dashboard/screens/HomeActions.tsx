@@ -15,7 +15,7 @@ export function HomeActions({ stats, onNavigate }: HomeActionsProps) {
     <div style={{ paddingBottom: 24 }}>
       <QuickActions
         active={stats.active}
-        hoursBooked={stats.hoursBooked}
+        completed={stats.completed}
         onNavigate={onNavigate}
       />
       <LoyaltyCard
@@ -25,7 +25,7 @@ export function HomeActions({ stats, onNavigate }: HomeActionsProps) {
       <StatsGrid
         active={stats.active}
         hoursBooked={stats.hoursBooked}
-        savings={stats.savings}
+        completed={stats.completed}
       />
       <PromoCarousel />
     </div>

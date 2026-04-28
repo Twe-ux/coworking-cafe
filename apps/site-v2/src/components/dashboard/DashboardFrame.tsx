@@ -2,7 +2,7 @@
 import { applySafeAreaColor } from "@/lib/safeArea";
 import type { DashboardSection } from "@/types/dashboard";
 import { MOCK_USER } from "@/types/dashboard";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { DashboardBrowserNav } from "./DashboardBrowserNav";
 import { Sidebar } from "./Sidebar";
 import { TabBar } from "./TabBar";
@@ -41,6 +41,16 @@ export function DashboardFrame({
 }: DashboardFrameProps) {
   const bg = SECTION_BG[section];
   const isDark = section === "home";
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
+  const desktopScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // In browser mode h-full doesn't constrain height → window scrolls
+    window.scrollTo({ top: 0, behavior: "instant" });
+    // In PWA mode the div is the scroll container
+    mobileScrollRef.current?.scrollTo({ top: 0, behavior: "instant" });
+    desktopScrollRef.current?.scrollTo({ top: 0, behavior: "instant" });
+  }, [section]);
 
   useEffect(() => {
     applySafeAreaColor(bg, SECTION_TOP_COLOR[section]);
@@ -60,7 +70,7 @@ export function DashboardFrame({
         style={{ background: isDark ? "var(--body)" : "var(--cream)" }}
       >
         {/* Scrollable content */}
-        <div className="h-full overflow-y-auto" style={{ paddingBottom: 80 }}>
+        <div ref={mobileScrollRef} className="h-full overflow-y-auto" style={{ paddingBottom: 80 }}>
           {children}
         </div>
 
@@ -85,6 +95,7 @@ export function DashboardFrame({
           userPlan={MOCK_USER.plan}
         />
         <main
+          ref={desktopScrollRef}
           className="flex-1 overflow-y-auto"
           style={{ background: "var(--cream)" }}
         >

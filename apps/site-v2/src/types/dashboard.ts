@@ -40,6 +40,7 @@ export interface DashboardUser {
 export interface DashboardStats {
   active: number
   hoursBooked: number
+  completed: number
   savings: number
   memberPoints: number
   nextReward: number
@@ -64,6 +65,7 @@ export const MOCK_USER: DashboardUser = {
 export const MOCK_STATS: DashboardStats = {
   active: 2,
   hoursBooked: 48,
+  completed: 12,
   savings: 124,
   memberPoints: 340,
   nextReward: 500,

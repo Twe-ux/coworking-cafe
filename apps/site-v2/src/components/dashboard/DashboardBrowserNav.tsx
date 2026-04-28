@@ -17,13 +17,49 @@ const NAV_ITEMS: { key: DashboardSection; label: string; icon: IconName }[] = [
   { key: "profile", label: "Profil", icon: "user" },
 ];
 
+/** Dark sections (dark bg) → use light button + light menu */
+const DARK_SECTIONS: DashboardSection[] = ["home"];
+
+function getTheme(onDark: boolean) {
+  return {
+    btnBg:          onDark ? "rgba(250,246,238,0.92)" : "rgba(26,26,26,0.90)",
+    btnBorder:      onDark ? "rgba(0,0,0,0.2)"        : "rgba(250,246,238,0.25)",
+    btnIcon:        onDark ? "var(--body)"             : "#fff",
+    menuBg:         onDark ? "rgba(250,246,238,0.97)"  : "rgba(26,26,26,0.97)",
+    menuBorder:     onDark ? "rgba(0,0,0,0.2)"         : "rgba(255,255,255,0.08)",
+    menuShadow:     onDark
+      ? "0 8px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)"
+      : "0 8px 40px rgba(0,0,0,0.40), 0 2px 8px rgba(0,0,0,0.20), 0 0 0 1px rgba(255,255,255,0.06)",
+    itemColor:      onDark ? "var(--body)"             : "rgba(255,255,255,0.88)",
+    itemIconColor:  onDark ? "var(--gry)"              : "rgba(255,255,255,0.55)",
+    activeItemBg:   onDark ? "rgba(65,121,114,0.10)"   : "rgba(242,211,129,0.12)",
+    activeItemColor:onDark ? "var(--main)"             : "var(--btn)",
+    separatorColor: onDark ? "rgba(0,0,0,0.08)"        : "rgba(255,255,255,0.08)",
+    userNameColor:  onDark ? "var(--body)"             : "#fff",
+    userPlanColor:  onDark ? "var(--gry)"              : "rgba(255,255,255,0.4)",
+    logoutIconColor:onDark ? "rgba(0,0,0,0.3)"         : "rgba(255,255,255,0.35)",
+  };
+}
+
 function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
+  return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+}
+
+function UserFooter({ nameColor, planColor, logoutColor }: { nameColor: string; planColor: string; logoutColor: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px 14px" }}>
+      <div className="font-serif" style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--main)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff", flexShrink: 0 }}>
+        {getInitials(MOCK_USER.name)}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: nameColor, fontFamily: "Inter, sans-serif" }}>{MOCK_USER.name}</div>
+        <div style={{ fontSize: 11, color: planColor, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{MOCK_USER.plan}</div>
+      </div>
+      <button style={{ display: "flex", alignItems: "center", background: "none", border: "none", cursor: "pointer" }}>
+        <Icon name="logout" size={16} stroke={logoutColor} />
+      </button>
+    </div>
+  );
 }
 
 export function DashboardBrowserNav({
@@ -31,6 +67,7 @@ export function DashboardBrowserNav({
   onNavigate,
 }: DashboardBrowserNavProps) {
   const [open, setOpen] = useState(false);
+  const t = getTheme(DARK_SECTIONS.includes(section));
 
   function navigate(s: DashboardSection) {
     onNavigate(s);
@@ -39,19 +76,18 @@ export function DashboardBrowserNav({
 
   return (
     <>
-      {/* Floating hamburger — bottom-left, auto-inverts via mix-blend-mode */}
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Menu"
         style={{
           position: "fixed",
-          bottom: "env(safe-area-inset-bottom)",
+          bottom: "env(safe-area-inset-bottom, 0px)",
           left: 34,
           width: 48,
           height: 48,
           borderRadius: "50%",
-          background: "rgba(28,28,30,0.9)",
-          border: "0.7px solid #FAF6EE",
+          background: t.btnBg,
+          border: `2px solid ${t.btnBorder}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -59,11 +95,9 @@ export function DashboardBrowserNav({
           zIndex: 31,
         }}
       >
-        {/* Icon always white — blends with the already-inverted button bg */}
-        <Icon name={open ? "x" : "menu"} size={20} stroke="white" />
+        <Icon name={open ? "x" : "menu"} size={20} stroke={t.btnIcon} />
       </button>
 
-      {/* Transparent scrim — closes popover on outside click */}
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -71,7 +105,6 @@ export function DashboardBrowserNav({
         />
       )}
 
-      {/* iOS-style popover menu — opens upward from bottom button */}
       {open && (
         <div
           style={{
@@ -79,16 +112,14 @@ export function DashboardBrowserNav({
             bottom: "calc(env(safe-area-inset-bottom, 0px) + 60px)",
             left: 24,
             width: 230,
-            background: "rgba(28,28,30,0.96)",
+            background: t.menuBg,
             borderRadius: 16,
             zIndex: 30,
-            border: "1px solid #111111",
+            border: `1px solid ${t.menuBorder}`,
             overflow: "hidden",
-            boxShadow:
-              "0 8px 32px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.06)",
+            boxShadow: t.menuShadow,
           }}
         >
-          {/* Nav items */}
           <div style={{ padding: "6px 6px 0" }}>
             {NAV_ITEMS.map((item, i) => {
               const active = section === item.key;
@@ -109,17 +140,15 @@ export function DashboardBrowserNav({
                     fontFamily: "Inter, sans-serif",
                     fontSize: 15,
                     fontWeight: active ? 600 : 400,
-                    background: active
-                      ? "rgba(242,211,129,0.12)"
-                      : "transparent",
-                    color: active ? "var(--btn)" : "rgba(255,255,255,0.88)",
+                    background: active ? t.activeItemBg : "transparent",
+                    color: active ? t.activeItemColor : t.itemColor,
                     marginBottom: i < NAV_ITEMS.length - 1 ? 1 : 0,
                   }}
                 >
                   <Icon
                     name={item.icon}
                     size={17}
-                    stroke={active ? "var(--btn)" : "rgba(255,255,255,0.6)"}
+                    stroke={active ? t.activeItemColor : t.itemIconColor}
                   />
                   {item.label}
                 </button>
@@ -127,76 +156,8 @@ export function DashboardBrowserNav({
             })}
           </div>
 
-          {/* Separator */}
-          <div
-            style={{
-              height: 1,
-              background: "rgba(255,255,255,0.08)",
-              margin: "6px 0",
-            }}
-          />
-
-          {/* User row */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "10px 14px 14px",
-            }}
-          >
-            <div
-              className="font-serif"
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: "50%",
-                background: "var(--main)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 12,
-                color: "var(--white)",
-                flexShrink: 0,
-              }}
-            >
-              {getInitials(MOCK_USER.name)}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: "var(--white)",
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                {MOCK_USER.name}
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "rgba(255,255,255,0.4)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {MOCK_USER.plan}
-              </div>
-            </div>
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              <Icon name="logout" size={16} stroke="rgba(255,255,255,0.35)" />
-            </button>
-          </div>
+          <div style={{ height: 1, background: t.separatorColor, margin: "6px 0" }} />
+          <UserFooter nameColor={t.userNameColor} planColor={t.userPlanColor} logoutColor={t.logoutIconColor} />
         </div>
       )}
     </>

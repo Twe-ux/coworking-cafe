@@ -136,7 +136,7 @@
 
 ---
 
-## Phase 4 — Dashboard Membre (PWA) 🟡 PARTIAL
+## Phase 4 — Dashboard Membre (PWA) 🟡 IN PROGRESS
 
 > Référence : `claude_code_handoff/05_v2_dark_editorial/dashboard.html` (desktop)
 > Référence : `claude_code_handoff/03_dashboard_mobile.html` (mobile/PWA)
@@ -156,12 +156,22 @@
 
 ### Composants Shell
 - [x] `src/components/dashboard/DashboardShell.tsx` — switch 8 sections, placeholders pour sections à venir (42L)
-- [x] `src/components/dashboard/DashboardFrame.tsx` — mobile (pill absolue) + desktop Sidebar (52L)
+- [x] `src/components/dashboard/DashboardFrame.tsx` — mobile + desktop Sidebar + `SECTION_TOP_COLOR` home=#417972 + `applySafeAreaColor(bg, topColor)` (updated)
 - [x] `src/components/dashboard/TabBar.tsx` — pill flottante, active state var(--btn) 42×28, 5 tabs (85L)
 - [x] `src/components/dashboard/Sidebar.tsx` — 3 groupes "— label", avatar gradient, footer plan·durée+chevRight (129L)
+- [x] `src/components/dashboard/DashboardBrowserNav.tsx` — bouton hamburger flottant bas-gauche, popover upward, dark button (border #FAF6EE)
+
+### Écrans Dashboard — Mobile HomeScreen (PWA)
+- [x] `screens/HomeScreen.tsx` — mobile hero + desktop `<DesktopHomeScreen>`, standalone:pb-6 (179L)
+- [x] `screens/HomeHero.tsx` — hero gradient sauge, HeroBookingCard, safe-area-top, mx-[5px] rounded (141L)
+- [x] `screens/HeroBookingCard.tsx` — card "prochaine réservation" extraite de HomeHero (130L) NEW
+- [x] `screens/HomeActions.tsx` — orchestrateur QuickActions + LoyaltyCard + StatsGrid + PromoCarousel (33L)
+- [x] `screens/QuickActions.tsx` — 2-col grid, "Nouvelle réservation" + "Mes réservations", count actives/passées (117L)
+- [x] `screens/LoyaltyCard.tsx` — dark card, points font-mono, barre progression, "boisson offerte" (94L)
+- [x] `screens/StatsGrid.tsx` — 3 stats : actives / heures / complétées, icônes thématiques (138L)
+- [x] `screens/BookingMiniCard.tsx` — date badge coloré + StatusChip confirmed/pending + prix font-mono (114L)
 
 ### Écrans Dashboard — Desktop HomeScreen
-- [x] `screens/HomeScreen.tsx` — mobile hero + desktop `<DesktopHomeScreen>` (179L)
 - [x] `screens/DesktopHomeScreen.tsx` — orchestrateur : topbar + 4 stats + 2fr/1fr grid (112L)
 - [x] `screens/DesktopTopbar.tsx` — eyebrow + H1 greeting + bell + CTA réservation (87L)
 - [x] `screens/DesktopStatCard.tsx` — tag/val/unit/delta/deltaPos avec flèche colorée (56L)
@@ -172,7 +182,8 @@
 
 ### Écrans Dashboard — Autres
 - [x] `screens/BookingsScreen.tsx` — segmented À venir/Passées + BookingRow date badge (128L)
-- [x] `screens/ProfileScreen.tsx` — avatar initiales + InfoRow + abonnement + signOut (133L)
+- [x] `screens/ProfileScreen.tsx` — avatar gradient, plan chip miel, InfoCard + SettingsCard + StatCard, signOut (124L)
+- [x] `screens/ProfileRows.tsx` — InfoCard (grouped fields + dividers), SettingsCard, StatCard — rewritten (115L)
 - [ ] `screens/HistoryScreen.tsx` — historique transactions + factures téléchargeables
 - [ ] `screens/WalletScreen.tsx` — solde crédits + recharger + historique
 - [ ] `screens/LoyaltyScreen.tsx` — programme fidélité + paliers + badges

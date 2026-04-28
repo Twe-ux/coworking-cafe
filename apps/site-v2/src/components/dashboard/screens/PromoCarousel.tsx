@@ -1,32 +1,88 @@
 import { Icon } from "@/components/ui/Icon";
 
+interface PromoCard {
+  id: number;
+  title: string;
+  body: string;
+  color: string;
+  iconName: "gift" | "ticket";
+  textColor: string;
+}
+
+const PROMOS: PromoCard[] = [
+  {
+    id: 1,
+    title: "Happy Hour",
+    body: "-20% sur les open-space après 17h",
+    color: "#F2D381",
+    iconName: "gift",
+    textColor: "var(--body)",
+  },
+  {
+    id: 2,
+    title: "Privatisation weekend",
+    body: "Tarif dégressif dès 4h",
+    color: "#5A938B",
+    iconName: "ticket",
+    textColor: "#fff",
+  },
+];
+
 export function PromoCarousel() {
   return (
-    <div style={{ marginTop: 12, paddingBottom: 4 }}>
-      <div style={{ padding: "0 16px", overflowX: "auto", scrollbarWidth: "none" as const }}>
-        <div style={{ display: "flex", gap: 10, width: "fit-content", paddingBottom: 4 }}>
-          {/* Happy Hour */}
-          <div style={{ flexShrink: 0, width: 200, borderRadius: 18, padding: 16, background: "var(--btn)" }}>
-            <Icon name="tag" size={20} stroke="var(--body)" />
-            <div className="font-serif" style={{ fontSize: 18, color: "var(--body)", marginTop: 10, lineHeight: 1.1 }}>
-              Happy Hour
-            </div>
-            <div className="font-sans" style={{ fontSize: 12, color: "rgba(0,0,0,0.6)", marginTop: 6, lineHeight: 1.4 }}>
-              -20% sur les open-space après 17h
-            </div>
-          </div>
+    <div style={{ padding: "22px 0 0" }}>
+      {/* Section eyebrow */}
+      <div
+        className="font-mono"
+        style={{
+          fontSize: 10,
+          textTransform: "uppercase",
+          letterSpacing: "0.14em",
+          color: "var(--gry)",
+          marginBottom: 12,
+          paddingLeft: 20,
+        }}
+      >
+        Pour vous
+      </div>
 
-          {/* Privatisation weekend */}
-          <div style={{ flexShrink: 0, width: 200, borderRadius: 18, padding: 16, background: "var(--main)" }}>
-            <Icon name="tag" size={20} stroke="var(--white)" />
-            <div className="font-serif" style={{ fontSize: 18, color: "var(--white)", marginTop: 10, lineHeight: 1.1 }}>
-              Privatisation weekend
+      {/* Horizontal scroll */}
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          padding: "0 20px",
+          overflowX: "auto",
+          scrollbarWidth: "none",
+        }}
+      >
+        {PROMOS.map((promo) => (
+          <div
+            key={promo.id}
+            style={{
+              flexShrink: 0,
+              width: 220,
+              background: promo.color,
+              color: promo.textColor,
+              borderRadius: 18,
+              padding: 16,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <Icon name={promo.iconName} size={20} stroke={promo.textColor} />
+            <div
+              className="font-serif"
+              style={{ fontSize: 18, lineHeight: 1.2 }}
+            >
+              {promo.title}
             </div>
-            <div className="font-sans" style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", marginTop: 6, lineHeight: 1.4 }}>
-              Tarif dégressif dès 4h
+            <div style={{ fontSize: 12, opacity: 0.75 }}>
+              {promo.body}
             </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
