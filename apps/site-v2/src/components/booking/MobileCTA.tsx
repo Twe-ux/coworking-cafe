@@ -1,5 +1,6 @@
 "use client"
 
+import type React from "react"
 import { Icon } from "@/components/ui/Icon"
 
 export interface MobileCTAProps {
@@ -7,7 +8,7 @@ export interface MobileCTAProps {
   total: number
   canProceed: boolean
   onNext: () => void
-  onConfirm: () => void
+  onConfirm?: () => void // Optional — omit at step 4 (payment embedded in StripePaymentForm)
 }
 
 const CARD_STYLE: React.CSSProperties = {
@@ -28,38 +29,54 @@ const BTN_BASE: React.CSSProperties = {
   fontSize: 14,
 }
 
-export function MobileCTA({ step, total, canProceed, onNext, onConfirm }: MobileCTAProps) {
+// ─── Total display ────────────────────────────────────────────────────────────
+
+function TotalDisplay({ total }: { total: number }) {
+  return (
+    <div className="flex-1">
+      <div className="font-mono uppercase" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--gry)", marginBottom: 2 }}>
+        Total estimé
+      </div>
+      <div className="flex items-baseline gap-1">
+        <span className="font-serif" style={{ fontSize: 22, color: "var(--body)" }}>
+          {total > 0 ? total.toFixed(2) : "—"}
+        </span>
+        {total > 0 && (
+          <>
+            <span className="font-sans" style={{ fontSize: 13, color: "var(--gry)" }}>€</span>
+            <span className="font-sans" style={{ fontSize: 10, color: "var(--gry)", marginLeft: 4 }}>TTC</span>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── MobileCTA ────────────────────────────────────────────────────────────────
+
+export function MobileCTA({ step, total, canProceed, onNext }: MobileCTAProps) {
   const isConfirm = step === 4
+
+  // At step 4 the pay button lives inside StripePaymentForm — show total only
+  if (isConfirm) {
+    return (
+      <div className="fixed z-30 flex items-center" style={CARD_STYLE}>
+        <TotalDisplay total={total} />
+      </div>
+    )
+  }
 
   return (
     <div className="fixed z-30 flex items-center gap-3" style={CARD_STYLE}>
-      {/* Total */}
-      <div className="flex-1">
-        <div className="font-mono uppercase" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--gry)", marginBottom: 2 }}>
-          Total estimé
-        </div>
-        <div className="flex items-baseline gap-1">
-          <span className="font-serif" style={{ fontSize: 22, color: "var(--body)" }}>
-            {total > 0 ? total.toFixed(2) : "—"}
-          </span>
-          {total > 0 && <>
-            <span className="font-sans" style={{ fontSize: 13, color: "var(--gry)" }}>€</span>
-            <span className="font-sans" style={{ fontSize: 10, color: "var(--gry)", marginLeft: 4 }}>TTC</span>
-          </>}
-        </div>
-      </div>
+      <TotalDisplay total={total} />
 
-      {/* CTA */}
       <button
-        onClick={isConfirm ? onConfirm : onNext}
+        onClick={onNext}
         disabled={!canProceed}
         className="font-sans font-semibold flex items-center gap-2 transition-opacity disabled:opacity-40"
         style={{ ...BTN_BASE, background: "var(--body)", color: "#fff", cursor: canProceed ? "pointer" : "not-allowed" }}
       >
-        {isConfirm
-          ? <><Icon name="check" size={16} stroke="#fff" sw={2.2} /> Payer</>
-          : <>Continuer <Icon name="chevRight" size={15} stroke="#fff" sw={2} /></>
-        }
+        Continuer <Icon name="chevRight" size={15} stroke="#fff" sw={2} />
       </button>
     </div>
   )

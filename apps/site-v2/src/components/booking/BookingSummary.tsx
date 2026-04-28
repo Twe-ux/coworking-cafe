@@ -13,6 +13,8 @@ interface BookingSummaryProps {
   currentStep: BookingStep
   onNext: () => void
   onConfirm: () => void
+  /** At step 4, payment is embedded in StripePaymentForm — hide the CTA button */
+  paymentEmbedded?: boolean
 }
 
 function SummaryRow({ label, value }: { label: string; value: string | null }) {
@@ -37,6 +39,7 @@ export function BookingSummary({
   currentStep,
   onNext,
   onConfirm,
+  paymentEmbedded = false,
 }: BookingSummaryProps) {
   const space = spaces.find((s) => s.id === state.spaceId)
   const selectedServices = services.filter((s) => state.services.includes(s.id))
@@ -125,48 +128,50 @@ export function BookingSummary({
       )}
 
       {/* CTA — poussé en bas */}
-      <div className="mt-auto pt-6">
-        {isConfirmStep ? (
-          <button
-            onClick={onConfirm}
-            disabled={!canProceed}
-            className="w-full flex items-center justify-center font-sans font-medium transition-opacity disabled:opacity-40"
-            style={{
-              height: 52,
-              borderRadius: 999,
-              background: "var(--btn)",
-              color: "var(--body)",
-              border: "none",
-              fontSize: 15,
-              cursor: canProceed ? "pointer" : "not-allowed",
-            }}
-          >
-            <Icon name="check" size={15} stroke="var(--body)" sw={2.5} />
-            <span className="ml-2">Confirmer et payer — {pricing.total.toFixed(2)}€</span>
-          </button>
-        ) : (
-          <button
-            onClick={onNext}
-            disabled={!canProceed}
-            className="w-full flex items-center justify-center gap-2 font-sans font-medium transition-opacity disabled:opacity-40"
-            style={{
-              height: 52,
-              borderRadius: 999,
-              background: "var(--body)",
-              color: "white",
-              border: "none",
-              fontSize: 15,
-              cursor: canProceed ? "pointer" : "not-allowed",
-            }}
-          >
-            Continuer
-            <Icon name="chevRight" size={16} stroke="white" sw={2} />
-          </button>
-        )}
-        <p className="font-mono text-center mt-3" style={{ fontSize: 10, color: "var(--gry)" }}>
-          PAIEMENT SÉCURISÉ · ANNULATION J-1
-        </p>
-      </div>
+      {!paymentEmbedded && (
+        <div className="mt-auto pt-6">
+          {isConfirmStep ? (
+            <button
+              onClick={onConfirm}
+              disabled={!canProceed}
+              className="w-full flex items-center justify-center font-sans font-medium transition-opacity disabled:opacity-40"
+              style={{
+                height: 52,
+                borderRadius: 999,
+                background: "var(--btn)",
+                color: "var(--body)",
+                border: "none",
+                fontSize: 15,
+                cursor: canProceed ? "pointer" : "not-allowed",
+              }}
+            >
+              <Icon name="check" size={15} stroke="var(--body)" sw={2.5} />
+              <span className="ml-2">Confirmer et payer — {pricing.total.toFixed(2)}€</span>
+            </button>
+          ) : (
+            <button
+              onClick={onNext}
+              disabled={!canProceed}
+              className="w-full flex items-center justify-center gap-2 font-sans font-medium transition-opacity disabled:opacity-40"
+              style={{
+                height: 52,
+                borderRadius: 999,
+                background: "var(--body)",
+                color: "white",
+                border: "none",
+                fontSize: 15,
+                cursor: canProceed ? "pointer" : "not-allowed",
+              }}
+            >
+              Continuer
+              <Icon name="chevRight" size={16} stroke="white" sw={2} />
+            </button>
+          )}
+          <p className="font-mono text-center mt-3" style={{ fontSize: 10, color: "var(--gry)" }}>
+            PAIEMENT SÉCURISÉ · ANNULATION J-1
+          </p>
+        </div>
+      )}
     </aside>
   )
 }

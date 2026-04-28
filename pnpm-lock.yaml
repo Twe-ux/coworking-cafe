@@ -448,6 +448,9 @@ importers:
       sonner:
         specifier: ^2.0.0
         version: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      stripe:
+        specifier: ^19.3.1
+        version: 19.3.1(@types/node@20.19.30)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
@@ -14510,6 +14513,12 @@ snapshots:
       min-indent: 1.0.1
 
   strip-json-comments@3.1.1: {}
+
+  stripe@19.3.1(@types/node@20.19.30):
+    dependencies:
+      qs: 6.14.1
+    optionalDependencies:
+      '@types/node': 20.19.30
 
   stripe@19.3.1(@types/node@24.10.7):
     dependencies:

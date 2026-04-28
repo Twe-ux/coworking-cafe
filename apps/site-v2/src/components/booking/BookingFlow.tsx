@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
 import { useSession } from "next-auth/react"
 import type { Venue } from "@/types/venue"
 import { SPACES, BOOKING_SERVICES } from "@/types/booking"
 import { useBooking } from "@/hooks/useBooking"
+import { useStripeCheckout } from "@/hooks/useStripeCheckout"
 import { BookingProgress } from "@/components/booking/BookingProgress"
 import { BookingSummary } from "@/components/booking/BookingSummary"
 import { MobileCTA } from "@/components/booking/MobileCTA"
@@ -26,16 +26,13 @@ export function BookingFlow({ venues }: BookingFlowProps) {
   const { data: session } = useSession()
   const isAuthenticated = !!session
 
-  const [isLoading, setIsLoading] = useState(false)
-
-  function handleConfirm() {
-    setIsLoading(true)
-    // Placeholder — Phase 5 branchera Stripe ici
-    setTimeout(() => {
-      setIsLoading(false)
-      // TODO: redirect to /booking/confirmation
-    }, 1500)
-  }
+  const { clientSecret, isCreating: isCreatingIntent, error: intentError } = useStripeCheckout({
+    state,
+    pricing,
+    spaces: SPACES,
+    services: BOOKING_SERVICES,
+    enabled: state.step === 4,
+  })
 
   function renderStep() {
     switch (state.step) {
@@ -88,8 +85,9 @@ export function BookingFlow({ venues }: BookingFlowProps) {
             pricing={pricing}
             spaces={SPACES}
             services={BOOKING_SERVICES}
-            onConfirm={handleConfirm}
-            isLoading={isLoading}
+            clientSecret={clientSecret}
+            isCreatingIntent={isCreatingIntent}
+            intentError={intentError}
           />
         )
       default:
@@ -99,6 +97,7 @@ export function BookingFlow({ venues }: BookingFlowProps) {
 
   const proceed = canProceed()
   const showBack = state.step > firstStep
+  const isStep4 = state.step === 4
 
   return (
     <>
@@ -121,12 +120,12 @@ export function BookingFlow({ venues }: BookingFlowProps) {
           {renderStep()}
         </div>
 
+        {/* At step 4, MobileCTA shows total only — pay button is in StripePaymentForm */}
         <MobileCTA
           step={state.step}
           total={pricing.total}
           canProceed={proceed}
           onNext={nextStep}
-          onConfirm={handleConfirm}
         />
       </div>
 
@@ -149,6 +148,7 @@ export function BookingFlow({ venues }: BookingFlowProps) {
           {renderStep()}
         </main>
 
+        {/* paymentEmbedded=true hides the duplicate "Confirmer et payer" button */}
         <BookingSummary
           state={state}
           pricing={pricing}
@@ -157,7 +157,8 @@ export function BookingFlow({ venues }: BookingFlowProps) {
           canProceed={proceed}
           currentStep={state.step}
           onNext={nextStep}
-          onConfirm={handleConfirm}
+          onConfirm={() => undefined}
+          paymentEmbedded={isStep4}
         />
       </div>
     </>
