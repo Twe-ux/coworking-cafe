@@ -11,6 +11,7 @@ const INITIAL_STATE: BookingState = {
   bookingType: "hourly",
   date: null,
   startTime: null,
+  endTime: null,
   people: 1,
   services: [],
   specialRequest: "",
@@ -19,13 +20,15 @@ const INITIAL_STATE: BookingState = {
 
 function calculateHours(state: BookingState): number {
   if (state.bookingType === "hourly") {
-    // Pour simplifier : on compte 1h par défaut si pas d'endTime
-    return 1
+    if (!state.startTime || !state.endTime) return 0
+    const [sh, sm] = state.startTime.split(":").map(Number)
+    const [eh, em] = state.endTime.split(":").map(Number)
+    return Math.max(0, (eh * 60 + em - sh * 60 - sm) / 60)
   }
   if (state.bookingType === "daily") return 10
   if (state.bookingType === "weekly") return 50   // 5j × 10h
   if (state.bookingType === "monthly") return 200  // 20j × 10h
-  return 1
+  return 0
 }
 
 function calculatePricing(state: BookingState): PriceBreakdown {
@@ -73,15 +76,19 @@ export function useBooking(venues: Venue[]) {
   }
 
   function setBookingType(bookingType: BookingType) {
-    setState((s) => ({ ...s, bookingType, startTime: null }))
+    setState((s) => ({ ...s, bookingType, startTime: null, endTime: null }))
   }
 
   function setDate(date: string) {
-    setState((s) => ({ ...s, date, startTime: null }))
+    setState((s) => ({ ...s, date, startTime: null, endTime: null }))
   }
 
   function setStartTime(startTime: string) {
-    setState((s) => ({ ...s, startTime }))
+    setState((s) => ({ ...s, startTime, endTime: null }))
+  }
+
+  function setEndTime(endTime: string) {
+    setState((s) => ({ ...s, endTime }))
   }
 
   function setPeople(people: number) {
@@ -109,8 +116,7 @@ export function useBooking(venues: Venue[]) {
       case 1: return state.spaceId !== null
       case 2: {
         if (state.date === null) return false
-        // startTime requis uniquement pour les réservations horaires
-        if (state.bookingType === "hourly") return state.startTime !== null
+        if (state.bookingType === "hourly") return state.startTime !== null && state.endTime !== null
         return true
       }
       case 3: return true
@@ -145,6 +151,7 @@ export function useBooking(venues: Venue[]) {
     setBookingType,
     setDate,
     setStartTime,
+    setEndTime,
     setPeople,
     toggleService,
     setSpecialRequest,

@@ -4,24 +4,39 @@ import { cn } from "@/lib/cn"
 import type { BookingType } from "@/types/booking"
 import { DateCalendar } from "./DateCalendar"
 import { TypeCards } from "./TypeCards"
+import { TimeSlots, DurationRow, DailyCard, PeopleStepper } from "./Step2DateTimeParts"
 
 interface Step2DateTimeProps {
   bookingType: BookingType
   date: string | null
   startTime: string | null
+  endTime: string | null
   people: number
   maxPeople: number
   onTypeChange: (type: BookingType) => void
   onDateChange: (date: string) => void
   onTimeChange: (time: string) => void
+  onEndTimeChange: (time: string) => void
   onPeopleChange: (n: number) => void
 }
 
-const TIME_SLOTS = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"]
+const ALL_SLOTS = [
+  "08:00","08:30","09:00","09:30","10:00","10:30",
+  "11:00","11:30","12:00","12:30","13:00","13:30",
+  "14:00","14:30","15:00","15:30","16:00","16:30",
+  "17:00","17:30","18:00","18:30","19:00","19:30",
+  "20:00","20:30","21:00","21:30","22:00",
+]
 
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="eyebrow mb-3">{children}</p>
+function getEndSlots(startTime: string): string[] {
+  const [sh, sm] = startTime.split(":").map(Number)
+  const startMinutes = sh * 60 + sm
+  return ALL_SLOTS.filter((slot) => {
+    const [eh, em] = slot.split(":").map(Number)
+    return eh * 60 + em > startMinutes + 29
+  })
 }
+
 
 function buildDateChips(): Array<{ label: string; value: string }> {
   const chips: Array<{ label: string; value: string }> = []
@@ -36,34 +51,17 @@ function buildDateChips(): Array<{ label: string; value: string }> {
   return chips
 }
 
-function PeopleStepper({
-  people, maxPeople, onPeopleChange,
-}: { people: number; maxPeople: number; onPeopleChange: (n: number) => void }) {
-  return (
-    <div className="flex items-center gap-4">
-      <button type="button" aria-label="Réduire le nombre de participants" disabled={people <= 1}
-        onClick={() => onPeopleChange(Math.max(1, people - 1))}
-        className={cn("w-9 h-9 rounded-full flex items-center justify-center font-sans text-[18px]",
-          "bg-[rgba(0,0,0,0.06)] text-[var(--body)] transition-opacity", people <= 1 && "opacity-30 cursor-not-allowed")}
-      >−</button>
-      <div className="flex flex-col items-center min-w-[32px]">
-        <span className="font-serif text-[24px] text-[var(--body)] leading-none">{people}</span>
-        <span className="font-mono text-[10px] text-[var(--gry)] uppercase mt-1">max {maxPeople}</span>
-      </div>
-      <button type="button" aria-label="Augmenter le nombre de participants" disabled={people >= maxPeople}
-        onClick={() => onPeopleChange(Math.min(maxPeople, people + 1))}
-        className={cn("w-9 h-9 rounded-full flex items-center justify-center font-sans text-[18px]",
-          "bg-[rgba(0,0,0,0.06)] text-[var(--body)] transition-opacity", people >= maxPeople && "opacity-30 cursor-not-allowed")}
-      >+</button>
-    </div>
-  )
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return <p className="eyebrow mb-3">{children}</p>
 }
 
+// ── Main component ────────────────────────────────────────────────────────────
 export function Step2DateTime({
-  bookingType, date, startTime, people, maxPeople,
-  onTypeChange, onDateChange, onTimeChange, onPeopleChange,
+  bookingType, date, startTime, endTime, people, maxPeople,
+  onTypeChange, onDateChange, onTimeChange, onEndTimeChange, onPeopleChange,
 }: Step2DateTimeProps) {
   const dateChips = buildDateChips()
+  const endSlots = startTime ? getEndSlots(startTime) : []
   const sep = "pt-6 border-t border-[var(--line)]"
 
   return (
@@ -80,18 +78,23 @@ export function Step2DateTime({
             <PeopleStepper people={people} maxPeople={maxPeople} onPeopleChange={onPeopleChange} />
           </section>
           {bookingType === "hourly" && (
+            <>
+              <section className={sep}>
+                <Eyebrow>Heure d&apos;arrivée</Eyebrow>
+                <TimeSlots slots={ALL_SLOTS} active={startTime} onSelect={onTimeChange} layout="grid" />
+              </section>
+              {startTime && (
+                <section className={sep}>
+                  <Eyebrow>Heure de départ</Eyebrow>
+                  <TimeSlots slots={endSlots} active={endTime} onSelect={onEndTimeChange} layout="grid" />
+                  {startTime && endTime && <DurationRow startTime={startTime} endTime={endTime} />}
+                </section>
+              )}
+            </>
+          )}
+          {bookingType === "daily" && (
             <section className={sep}>
-              <Eyebrow>Heure de début</Eyebrow>
-              <div className="grid grid-cols-4 gap-2">
-                {TIME_SLOTS.map((slot) => (
-                  <button key={slot} type="button" onClick={() => onTimeChange(slot)}
-                    className={cn("py-[11px] rounded-[10px] font-mono text-[13px] text-center cursor-pointer transition-all duration-150",
-                      startTime === slot
-                        ? "bg-[var(--body)] text-white"
-                        : "bg-white border border-[var(--line)] text-[var(--body)] hover:border-[var(--main)]")}
-                  >{slot}</button>
-                ))}
-              </div>
+              <DailyCard />
             </section>
           )}
         </div>
@@ -120,18 +123,23 @@ export function Step2DateTime({
           </div>
         </section>
         {bookingType === "hourly" && (
+          <>
+            <section className={sep}>
+              <Eyebrow>Heure d&apos;arrivée</Eyebrow>
+              <TimeSlots slots={ALL_SLOTS} active={startTime} onSelect={onTimeChange} layout="scroll" />
+            </section>
+            {startTime && (
+              <section className={sep}>
+                <Eyebrow>Heure de départ</Eyebrow>
+                <TimeSlots slots={endSlots} active={endTime} onSelect={onEndTimeChange} layout="scroll" />
+                {endTime && <DurationRow startTime={startTime} endTime={endTime} />}
+              </section>
+            )}
+          </>
+        )}
+        {bookingType === "daily" && (
           <section className={sep}>
-            <Eyebrow>Heure de début</Eyebrow>
-            <div className="flex flex-wrap gap-2">
-              {TIME_SLOTS.map((slot) => (
-                <button key={slot} type="button" onClick={() => onTimeChange(slot)}
-                  className={cn("px-3 py-2 rounded-[8px] font-mono text-[13px] cursor-pointer transition-all duration-150",
-                    startTime === slot
-                      ? "bg-[var(--body)] text-white"
-                      : "bg-[rgba(65,121,114,0.08)] text-[var(--main)] hover:bg-[var(--main)] hover:text-white")}
-                >{slot}</button>
-              ))}
-            </div>
+            <DailyCard />
           </section>
         )}
         <section className={sep}>

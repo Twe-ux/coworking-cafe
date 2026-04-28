@@ -59,11 +59,13 @@ export function BookingFlow({ venues }: BookingFlowProps) {
             bookingType={state.bookingType}
             date={state.date}
             startTime={state.startTime}
+            endTime={state.endTime}
             people={state.people}
             maxPeople={selectedSpace?.maxPeople ?? 50}
             onTypeChange={booking.setBookingType}
             onDateChange={booking.setDate}
             onTimeChange={booking.setStartTime}
+            onEndTimeChange={booking.setEndTime}
             onPeopleChange={booking.setPeople}
           />
         )

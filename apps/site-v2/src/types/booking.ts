@@ -25,6 +25,7 @@ export interface BookingState {
   bookingType: BookingType
   date: string | null        // "YYYY-MM-DD"
   startTime: string | null   // "HH:mm"
+  endTime: string | null     // "HH:mm" — heure de départ (hourly only)
   people: number
   services: string[]         // service ids
   specialRequest: string
