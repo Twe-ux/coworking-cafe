@@ -120,14 +120,19 @@
 - [x] `src/hooks/useBooking.ts` — state machine, pricing, navigation multi-venue (146L)
 
 ### Composants
-- [x] `src/components/booking/BookingFlow.tsx` — orchestrateur mobile+desktop (229L)
-- [x] `src/components/booking/BookingProgress.tsx` — header mobile (segments) + sidebar desktop (cercles) (193L)
+- [x] `src/components/booking/BookingFlow.tsx` — orchestrateur mobile+desktop (160L) ↓ MobileCTA extrait
+- [x] `src/components/booking/BookingProgress.tsx` — header mobile sticky dark + segments (87L) ↓ DesktopSidebar extrait
+- [x] `src/components/booking/BookingProgressDesktop.tsx` — sidebar dark 240px, steps cercles, astuce tip box miel (169L) NEW
+- [x] `src/components/booking/MobileCTA.tsx` — floating white card (safe-area, Total + Continuer/Payer) (66L) NEW
 - [x] `src/components/booking/BookingSummary.tsx` — panneau right desktop (172L)
 - [x] `src/components/booking/VenueSelector.tsx` — step 0 multi-venue, null si 1 seul (74L)
-- [x] `src/components/booking/steps/Step1Space.tsx` — cards espace (110L)
-- [x] `src/components/booking/steps/Step2DateTime.tsx` — type + date scroll + horaires + stepper (188L)
+- [x] `src/components/booking/steps/Step1Space.tsx` — SPACE_THEMES/FEATURES, MobileCard list + DesktopCard 2-col avec features (196L)
+- [x] `src/components/booking/steps/Step2DateTime.tsx` — mobile (date chips scroll + time flex-wrap) / desktop (DateCalendar droite) (144L)
+- [x] `src/components/booking/steps/TypeCards.tsx` — TYPE_ICONS record, 2-col grid active=--main, iconSize prop (53L) NEW
+- [x] `src/components/booking/steps/DateCalendar.tsx` — grille 7-col, Mon-first offset, today/active/past states, légende (105L) NEW
 - [x] `src/components/booking/steps/Step3Options.tsx` — services + textarea (147L)
-- [x] `src/components/booking/steps/Step4Confirm.tsx` — récap + breakdown + placeholder paiement (191L)
+- [x] `src/components/booking/steps/Step4Confirm.tsx` — desktop md:grid-cols-2 (RecapCard+Payment / Price+Fidelity+CGU+CTA) (190L)
+- [x] `src/components/booking/steps/Step4Recap.tsx` — RecapCard (SPACE_COLORS header coloré + rows) + FidelityCard (miel +N pts) (165L) NEW
 
 ### Intégration Stripe (Phase 5)
 - [ ] `src/lib/stripe.ts` — lazy init
@@ -271,4 +276,4 @@ pnpm --filter @coworking-cafe/site-v2 type-check
 
 ---
 
-*Dernière mise à jour : 2026-04-27*
+*Dernière mise à jour : 2026-04-28*
