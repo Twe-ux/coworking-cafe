@@ -6,6 +6,7 @@ import { SPACES, BOOKING_SERVICES } from "@/types/booking"
 import { useBooking } from "@/hooks/useBooking"
 import { BookingProgress } from "@/components/booking/BookingProgress"
 import { BookingSummary } from "@/components/booking/BookingSummary"
+import { MobileCTA } from "@/components/booking/MobileCTA"
 import { VenueSelector } from "@/components/booking/VenueSelector"
 import { Step1Space } from "@/components/booking/steps/Step1Space"
 import { Step2DateTime } from "@/components/booking/steps/Step2DateTime"
@@ -14,77 +15,6 @@ import { Step4Confirm } from "@/components/booking/steps/Step4Confirm"
 
 interface BookingFlowProps {
   venues: Venue[]
-}
-
-// ─── Mobile CTA ───────────────────────────────────────────────────────────────
-
-interface MobileCTAProps {
-  step: number
-  total: number
-  canProceed: boolean
-  onNext: () => void
-  onConfirm: () => void
-}
-
-function MobileCTA({ step, total, canProceed, onNext, onConfirm }: MobileCTAProps) {
-  const isConfirmStep = step === 4
-  const containerBg = isConfirmStep ? "var(--btn)" : "var(--body)"
-  const totalColor = isConfirmStep ? "var(--body)" : "white"
-
-  return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between"
-      style={{
-        background: containerBg,
-        padding: "16px 20px",
-        paddingBottom: "max(16px, env(safe-area-inset-bottom))",
-      }}
-    >
-      {/* Total */}
-      <span className="font-serif" style={{ fontSize: 22, color: totalColor }}>
-        {total > 0 ? `${total.toFixed(2)}€` : "—"}
-      </span>
-
-      {/* CTA button */}
-      {isConfirmStep ? (
-        <button
-          onClick={onConfirm}
-          disabled={!canProceed}
-          className="font-sans font-medium transition-opacity disabled:opacity-40"
-          style={{
-            height: 48,
-            borderRadius: 999,
-            background: "var(--body)",
-            color: "white",
-            border: "none",
-            fontSize: 14,
-            paddingInline: 24,
-            cursor: canProceed ? "pointer" : "not-allowed",
-          }}
-        >
-          Payer — {total.toFixed(2)}€
-        </button>
-      ) : (
-        <button
-          onClick={onNext}
-          disabled={!canProceed}
-          className="font-sans font-medium transition-opacity disabled:opacity-40"
-          style={{
-            height: 48,
-            borderRadius: 999,
-            background: "var(--btn)",
-            color: "var(--body)",
-            border: "none",
-            fontSize: 14,
-            paddingInline: 24,
-            cursor: canProceed ? "pointer" : "not-allowed",
-          }}
-        >
-          Continuer →
-        </button>
-      )}
-    </div>
-  )
 }
 
 // ─── BookingFlow ──────────────────────────────────────────────────────────────
