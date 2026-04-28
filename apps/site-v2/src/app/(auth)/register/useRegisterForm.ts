@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -25,6 +26,7 @@ export type Step2Values = z.infer<typeof step2Schema>
 export type UseRegisterFormReturn = ReturnType<typeof useRegisterForm>
 
 export function useRegisterForm() {
+  const router = useRouter()
   const [step, setStep] = useState<1 | 2>(1)
   const [step1Data, setStep1Data] = useState<Step1Values | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -62,7 +64,8 @@ export function useRegisterForm() {
         body: JSON.stringify({
           email: step1Data.email,
           password: step1Data.password,
-          givenName: `${data.firstName}${data.lastName ? " " + data.lastName : ""}`,
+          firstName: data.firstName,
+          lastName: data.lastName,
         }),
       })
 
@@ -73,7 +76,7 @@ export function useRegisterForm() {
           redirect: false,
         })
         if (result?.ok) {
-          window.location.href = "/dashboard"
+          router.push("/dashboard")
         } else {
           setSubmitError("Compte créé mais connexion automatique échouée. Connectez-vous manuellement.")
         }

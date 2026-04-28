@@ -4,6 +4,8 @@ export interface AuthUser {
   email: string
   name?: string | null
   givenName?: string
+  firstName?: string
+  lastName?: string
 }
 
 // NextAuth module augmentation

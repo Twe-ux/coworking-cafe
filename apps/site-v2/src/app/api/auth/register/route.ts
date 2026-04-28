@@ -9,7 +9,8 @@ import {
 const registerSchema = z.object({
   email: z.string().email("Email invalide"),
   password: z.string().min(8, "Mot de passe trop court (8 caractères min.)"),
-  givenName: z.string().min(2, "Prénom trop court (2 caractères min.)"),
+  firstName: z.string().min(2, "Prénom trop court (2 caractères min.)"),
+  lastName: z.string().optional(),
 })
 
 export async function POST(request: Request) {
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const { email, password, givenName } = parsed.data
+  const { email, password, firstName, lastName } = parsed.data
 
   try {
     await connectToDatabase()
@@ -44,7 +45,8 @@ export async function POST(request: Request) {
     await new UserModel({
       email: email.toLowerCase(),
       password,
-      givenName,
+      firstName,
+      lastName,
       role: role._id,
     }).save()
 

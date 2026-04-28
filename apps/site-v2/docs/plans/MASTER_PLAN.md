@@ -13,7 +13,7 @@
 | 1 | Site public (6 pages) | ✅ DONE |
 | 2 | Auth (login, register, reset) | ✅ DONE |
 | 3 | Booking flow | ✅ DONE (UI) |
-| 4 | Dashboard membre (PWA) | 🟡 PARTIAL (shell + HomeScreen complet, 3/8 screens) |
+| 4 | Dashboard membre (PWA) | ✅ DONE (UI — 8/8 screens) |
 | 5 | Intégrations backend | 🔲 TODO |
 | 6 | Polish & production | 🔲 TODO |
 
@@ -141,7 +141,7 @@
 
 ---
 
-## Phase 4 — Dashboard Membre (PWA) 🟡 IN PROGRESS
+## Phase 4 — Dashboard Membre (PWA) ✅ DONE (UI)
 
 > Référence : `claude_code_handoff/05_v2_dark_editorial/dashboard.html` (desktop)
 > Référence : `claude_code_handoff/03_dashboard_mobile.html` (mobile/PWA)
@@ -189,15 +189,15 @@
 - [x] `screens/BookingsScreen.tsx` — segmented À venir/Passées + BookingRow date badge (128L)
 - [x] `screens/ProfileScreen.tsx` — avatar gradient, plan chip miel, InfoCard + SettingsCard + StatCard, signOut (124L)
 - [x] `screens/ProfileRows.tsx` — InfoCard (grouped fields + dividers), SettingsCard, StatCard — rewritten (115L)
-- [ ] `screens/HistoryScreen.tsx` — historique transactions + factures téléchargeables
-- [ ] `screens/WalletScreen.tsx` — solde crédits + recharger + historique
-- [ ] `screens/LoyaltyScreen.tsx` — programme fidélité + paliers + badges
-- [ ] `screens/EventsScreen.tsx` — événements à venir + inscriptions
-- [ ] `screens/DirectoryScreen.tsx` — annuaire membres + recherche
+- [x] `screens/HistoryScreen.tsx` — historique transactions + tabs Toutes/Mois/Trimestre (196L)
+- [x] `screens/WalletScreen.tsx` — solde crédits + recharger + historique (163L)
+- [x] `screens/LoyaltyScreen.tsx` — programme fidélité + paliers + badges (144L)
+- [x] `screens/EventsScreen.tsx` — événements à venir + inscriptions (158L)
+- [x] `screens/DirectoryScreen.tsx` — annuaire membres + recherche + filtre secteur (194L)
 
 ### Routes Dashboard
 - [x] `app/dashboard/page.tsx` — redirect `/dashboard/home` (3L)
-- [x] `app/dashboard/[section]/page.tsx` — notFound() sur section invalide (15L)
+- [x] `app/dashboard/[section]/page.tsx` — notFound() sur section invalide, toutes 8 sections valides (18L)
 
 ---
 
@@ -273,6 +273,7 @@ pnpm --filter @coworking-cafe/site-v2 type-check
 
 ### Prochaine action
 → Phase 5 — Intégrations backend : brancher API `/dashboard` sur `@coworking-cafe/database`
+→ Auth review findings : 13 points listés dans le rapport `/opusplan` (3 bloquants + 10 recommandations)
 
 ---
 

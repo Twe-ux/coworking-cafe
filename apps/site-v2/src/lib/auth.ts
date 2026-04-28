@@ -29,7 +29,9 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user._id.toString(),
             email: user.email,
-            name: user.givenName ?? null,
+            name: user.firstName
+              ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}`
+              : (user.givenName ?? null),
           }
         } catch (error) {
           console.error("[NextAuth] authorize error:", error instanceof Error ? error.message : String(error))

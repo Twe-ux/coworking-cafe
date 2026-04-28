@@ -59,7 +59,7 @@ export function Step2Form({ form, submitError, isLoading, cguChecked, onToggleCg
               style={{ width: 20, height: 20, borderRadius: 6,
                 background: cguChecked ? "var(--main)" : "var(--white)",
                 border: cguChecked ? "none" : "1px solid var(--line)" }}>
-              {cguChecked && <Icon name="check" size={12} stroke="#fff" sw={2.8} />}
+              {cguChecked && <Icon name="check" size={12} stroke="white" sw={2.8} />}
             </button>
             <span className="text-xs leading-relaxed" style={{ color: "var(--body)" }}>
               J&apos;accepte les{" "}

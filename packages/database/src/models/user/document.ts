@@ -6,6 +6,8 @@ export interface UserDocument extends Document {
   password: string;
   username?: string;
   givenName?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   companyName?: string;
   role: ObjectId;
@@ -40,6 +42,8 @@ export const UserSchema = new Schema<UserDocument>(
     },
     username: { type: String, trim: true },
     givenName: { type: String, trim: true },
+    firstName: { type: String, trim: true },
+    lastName: { type: String, trim: true },
     phone: { type: String, trim: true },
     companyName: { type: String, trim: true },
     role: {
