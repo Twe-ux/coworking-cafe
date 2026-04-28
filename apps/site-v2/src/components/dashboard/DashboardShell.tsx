@@ -4,18 +4,15 @@ import { DashboardFrame } from "./DashboardFrame";
 import { HomeScreen } from "./screens/HomeScreen";
 import { BookingsScreen } from "./screens/BookingsScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
+import { HistoryScreen } from "./screens/HistoryScreen";
+import { WalletScreen } from "./screens/WalletScreen";
+import { LoyaltyScreen } from "./screens/LoyaltyScreen";
+import { EventsScreen } from "./screens/EventsScreen";
+import { DirectoryScreen } from "./screens/DirectoryScreen";
 import type { DashboardSection } from "@/types/dashboard";
 
 interface DashboardShellProps {
   initialSection?: DashboardSection;
-}
-
-function Placeholder({ section }: { section: DashboardSection }) {
-  return (
-    <div style={{ padding: 24 }}>
-      <h1 className="font-serif">{section}</h1>
-    </div>
-  );
 }
 
 export function DashboardShell({
@@ -32,15 +29,15 @@ export function DashboardShell({
       case "profile":
         return <ProfileScreen />;
       case "history":
-        return <Placeholder section={section} />;
+        return <HistoryScreen />;
       case "wallet":
-        return <Placeholder section={section} />;
+        return <WalletScreen />;
       case "loyalty":
-        return <Placeholder section={section} />;
+        return <LoyaltyScreen />;
       case "events":
-        return <Placeholder section={section} />;
+        return <EventsScreen />;
       case "directory":
-        return <Placeholder section={section} />;
+        return <DirectoryScreen />;
     }
   }
 

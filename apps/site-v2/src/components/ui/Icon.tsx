@@ -46,6 +46,7 @@ const PATHS: Record<string, React.ReactNode> = {
   layout: <><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></>,
   utensils: <><path d="M3 2v6c0 2.2 1.8 4 4 4s4-1.8 4-4V2"/><path d="M7 10v12M14 2v4a4 4 0 008 0V2"/><path d="M18 6v16"/></>,
   car: <><path d="M5 17H3a2 2 0 01-2-2v-4l2-5h14l2 5v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></>,
+  download: <><path d="M12 3v13M7 11l5 5 5-5"/><path d="M5 20h14"/></>,
 };
 
 export type IconName = keyof typeof PATHS;
