@@ -143,7 +143,11 @@ export function DirectPurchaseEditForm({ purchase }: DirectPurchaseEditFormProps
   };
 
   const getItemTotalHT = (item: typeof items[0]) => {
-    return item.quantity * item.unitPriceHT;
+    const pricePerItem =
+      item.packagingType === 'pack' && item.unitsPerPackage
+        ? item.unitPriceHT * item.unitsPerPackage
+        : item.unitPriceHT;
+    return item.quantity * pricePerItem;
   };
 
   const totalHT = items.reduce((sum, item) => sum + getItemTotalHT(item), 0);
