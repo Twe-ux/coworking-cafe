@@ -150,7 +150,7 @@ export function ScheduleDayCell({
               ? "bg-gray-500 text-white border-gray-500"
               : absence.type === "sick_leave"
                 ? "bg-red-500 text-white border-red-500"
-                : "bg-black text-white border-black";
+                : "bg-gray-200 text-white border-gray-200";
 
           return (
             <div
