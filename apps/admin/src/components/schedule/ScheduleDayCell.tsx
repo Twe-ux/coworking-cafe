@@ -147,10 +147,10 @@ export function ScheduleDayCell({
           const label = absenceTypeLabels[absence.type] || "Absent";
           const bgColor =
             absence.type === "paid_leave"
-              ? "bg-green-500 text-white border-green-500"
+              ? "bg-gray-500 text-white border-gray-500"
               : absence.type === "sick_leave"
                 ? "bg-red-500 text-white border-red-500"
-                : "bg-orange-500 text-white border-orange-500";
+                : "bg-black text-white border-black";
 
           return (
             <div
