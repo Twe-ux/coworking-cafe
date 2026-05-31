@@ -9,11 +9,13 @@ import { HomePageHeader } from "@/components/home/HomePageHeader";
 import { OutOfStockAlert } from "@/components/home/OutOfStockAlert";
 import { PointagesSection } from "@/components/home/PointagesSection";
 import { TodayTasksCard } from "@/components/home/TodayTasksCard";
+import { StaffNotepad } from "@/components/home/notepad/StaffNotepad";
 import { OutOfStockList } from "@/components/inventory/OutOfStockList";
 import { ReceiveOrderButton } from "@/components/inventory/orders/ReceiveOrderButton";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHomePageDataQuery } from "@/hooks/useHomePageDataQuery";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 
 /**
@@ -28,6 +30,17 @@ import { useEffect, useMemo } from "react";
 export default function HomePage() {
   const { employees, shifts, isLoading, error, refetch } =
     useHomePageDataQuery();
+
+  const { data: criticalRuptures = [] } = useQuery<unknown[]>({
+    queryKey: ["out-of-stock", "compact"],
+    queryFn: async () => {
+      const res = await fetch("/api/inventory/ruptures?criticalOnly=true");
+      if (!res.ok) return [];
+      const result = await res.json();
+      return result.data || [];
+    },
+  });
+  const hasOutOfStockItems = criticalRuptures.length > 0;
 
   // Refetch immédiat quand la fenêtre redevient active
   useEffect(() => {
@@ -94,8 +107,18 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        {/* Liste de courses - visible si ruptures */}
-        <OutOfStockList variant="compact" />
+        {/* Liste de courses 2/5 + Bloc Note 3/5 (ou Bloc Note pleine largeur) */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
+          {hasOutOfStockItems && (
+            <div className="lg:col-span-2">
+              <OutOfStockList variant="compact" />
+            </div>
+          )}
+          <div className={hasOutOfStockItems ? "lg:col-span-3" : "lg:col-span-5"}>
+            <StaffNotepad />
+          </div>
+        </div>
+
         {currentWeek && (
           <WeekCard
             week={currentWeek}

@@ -47,6 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         counts.outOfStockCount,
         isDev,
         isAdmin,
+        counts.unreadStaffNotes,
       );
     }
 

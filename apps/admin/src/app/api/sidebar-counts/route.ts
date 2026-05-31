@@ -9,6 +9,7 @@ import TimeEntry from "@/models/timeEntry";
 import { Booking } from "@coworking-cafe/database";
 import { PurchaseOrder } from "@/models/inventory/purchaseOrder";
 import { Product } from "@/models/inventory/product";
+import { StaffNote } from "@/models/staffNote";
 
 interface SidebarCounts {
   pendingBookings: number;
@@ -17,6 +18,7 @@ interface SidebarCounts {
   pendingJustifications: number;
   draftOrders: number;
   outOfStockCount: number;
+  unreadStaffNotes: number;
 }
 
 /**
@@ -56,19 +58,20 @@ export async function GET(
       productsQuery.updatedAt = { $gt: new Date(productsSeenAt) };
     }
 
-    // Run all 6 count queries in parallel
-    const [unreadMessages, pendingAbsences, pendingBookings, pendingJustifications, draftOrders, outOfStockCount] =
+    // Run all count queries in parallel
+    const [unreadMessages, pendingAbsences, pendingBookings, pendingJustifications, draftOrders, outOfStockCount, unreadStaffNotes] =
       await Promise.all([
         ContactMail.countDocuments({ status: "unread" }),
         Absence.countDocuments({ status: "pending", isActive: true }),
         Booking.countDocuments(bookingsQuery),
         TimeEntry.countDocuments({
           isOutOfSchedule: true,
-          justificationRead: { $ne: true }, // Only count unread justifications
+          justificationRead: { $ne: true },
           isActive: true,
         }),
         PurchaseOrder.countDocuments({ status: "draft" }),
         Product.countDocuments(productsQuery),
+        StaffNote.countDocuments({ destination: "admin", isRead: false }),
       ]);
 
     const counts: SidebarCounts = {
@@ -78,6 +81,7 @@ export async function GET(
       pendingJustifications,
       draftOrders,
       outOfStockCount,
+      unreadStaffNotes,
     };
 
     return successResponse(counts);

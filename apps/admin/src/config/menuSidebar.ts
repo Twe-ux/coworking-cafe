@@ -15,6 +15,7 @@ import {
   Home,
   ListTodo,
   Mail,
+  NotebookPen,
   Package,
   PartyPopper,
   ScanQrCode,
@@ -105,6 +106,7 @@ export function getAdminMenu(
   outOfStockCount: number,
   isDev: boolean,
   isAdmin: boolean,
+  unreadStaffNotes: number = 0,
 ): MenuSection[] {
   const sections: MenuSection[] = [
     // Section Général (sans label)
@@ -199,6 +201,12 @@ export function getAdminMenu(
               url: "/admin/hr/employees?tab=availability",
             },
           ],
+        },
+        {
+          title: "Notes Staff",
+          url: "/admin/staff-notes",
+          icon: NotebookPen,
+          badge: unreadStaffNotes > 0 ? unreadStaffNotes : undefined,
         },
         {
           title: "Tâches",
