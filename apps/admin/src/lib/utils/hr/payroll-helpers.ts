@@ -23,10 +23,21 @@ interface EmployeeWithTrialTermination {
   trialPeriodTerminationLetter?: Buffer;
 }
 
+export interface SickLeaveWithDocument {
+  employeeFirstName: string;
+  employeeLastName: string;
+  startDate: string;
+  endDate: string;
+  document: Buffer;
+  filename: string;
+  mimeType: string;
+}
+
 export interface MonthlyChanges {
   newEmployees: EmployeeWithContract[];
   resignations: EmployeeWithResignation[];
   trialPeriodTerminations: EmployeeWithTrialTermination[];
+  sickLeaveDocuments: SickLeaveWithDocument[];
 }
 
 // ==================== HELPERS ====================
@@ -122,11 +133,16 @@ export async function detectMonthlyChanges(
 ): Promise<MonthlyChanges> {
   const { connectMongoose } = await import('@/lib/mongodb');
   const { Employee: EmployeeModel } = await import('@/models/employee');
+  const { default: AbsenceModel } = await import('@/models/absence');
 
   await connectMongoose();
 
   // Date prefix for regex matching (e.g., "2026-03")
   const monthPrefix = `${year}-${String(month).padStart(2, '0')}`;
+
+  const monthStart = `${year}-${String(month).padStart(2, '0')}-01`;
+  const lastDay = new Date(year, month, 0).getDate();
+  const monthEnd = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
   console.log(`[detectMonthlyChanges] Searching for month: ${monthPrefix}`);
 
@@ -197,5 +213,33 @@ export async function detectMonthlyChanges(
     }
   );
 
-  return { newEmployees, resignations, trialPeriodTerminations };
+  // Query sick leave absences with an uploaded document that overlap this month
+  const sickLeaveAbsenceDocs = await AbsenceModel.find({
+    type: 'sick_leave',
+    isActive: true,
+    'sickLeaveDocument.contentBase64': { $exists: true, $ne: '' },
+    endDate: { $gte: monthStart },
+    startDate: { $lte: monthEnd },
+  })
+    .populate('employeeId', 'firstName lastName')
+    .lean();
+
+  console.log(`[detectMonthlyChanges] Found ${sickLeaveAbsenceDocs.length} sick leave document(s)`);
+
+  const sickLeaveDocuments: SickLeaveWithDocument[] = sickLeaveAbsenceDocs
+    .filter((absence) => absence.sickLeaveDocument?.contentBase64)
+    .map((absence) => {
+      const emp = absence.employeeId as unknown as { firstName: string; lastName: string };
+      return {
+        employeeFirstName: emp?.firstName ?? '',
+        employeeLastName: emp?.lastName ?? '',
+        startDate: absence.startDate,
+        endDate: absence.endDate,
+        document: Buffer.from(absence.sickLeaveDocument!.contentBase64, 'base64'),
+        filename: absence.sickLeaveDocument!.filename,
+        mimeType: absence.sickLeaveDocument!.mimeType,
+      };
+    });
+
+  return { newEmployees, resignations, trialPeriodTerminations, sickLeaveDocuments };
 }

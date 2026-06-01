@@ -55,6 +55,24 @@ export default function ClockingAdminPage() {
     fetchEmployees();
   }, [fetchEmployees]);
 
+  const fetchPayrollEmployees = useCallback(async (year: number, month: number): Promise<Employee[]> => {
+    const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const endDate = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+    const response = await fetch(
+      `/api/hr/employees?startDate=${startDate}&endDate=${endDate}&fullData=true&includeInactive=true`
+    );
+    const result = await response.json();
+
+    if (!result.success) return [];
+
+    return (result.data || []).filter((emp: Employee) => {
+      return emp.email !== "dev@coworkingcafe.com" &&
+             !(emp.firstName === "Admin" && emp.lastName === "Dev");
+    });
+  }, []);
+
   const handlePreviousMonth = useCallback(() => {
     setCurrentDate((prev) => {
       const d = new Date(prev);
@@ -89,11 +107,12 @@ export default function ClockingAdminPage() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
 
-      const payrollData = await calculateMonthlyPayroll(employees, year, month);
+      const payrollEmployees = await fetchPayrollEmployees(year, month);
+      const payrollData = await calculateMonthlyPayroll(payrollEmployees, year, month);
 
       const employeesData = payrollData
         .map((data) => {
-          const emp = employees.find(
+          const emp = payrollEmployees.find(
             (e) => e.id === data.employeeId || e._id === data.employeeId
           );
           return {
@@ -130,7 +149,7 @@ export default function ClockingAdminPage() {
     } finally {
       setIsSendingIndividual(false);
     }
-  }, [pendingIndividualSend, currentDate, employees]);
+  }, [pendingIndividualSend, currentDate, fetchPayrollEmployees]);
 
   const handleGeneratePDF = useCallback(async () => {
     try {
@@ -140,8 +159,9 @@ export default function ClockingAdminPage() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
 
-      // Calculate payroll data for current month
-      const payrollData = await calculateMonthlyPayroll(employees, year, month);
+      // Fetch employees active during this specific month (includes inactive if ended during month)
+      const payrollEmployees = await fetchPayrollEmployees(year, month);
+      const payrollData = await calculateMonthlyPayroll(payrollEmployees, year, month);
 
       // Generate PDF
       const blob = await generatePayrollPDF({
@@ -160,7 +180,7 @@ export default function ClockingAdminPage() {
     } finally {
       setIsGenerating(false);
     }
-  }, [currentDate, employees]);
+  }, [currentDate, fetchPayrollEmployees]);
 
   if (isLoading) {
     return <ClockingAdminPageSkeleton />;

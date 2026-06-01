@@ -99,14 +99,23 @@ export async function calculateMonthlyPayroll(
   const lastDay = new Date(year, month, 0).getDate();
   const endDate = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
 
+  // Filter employees who were actually active during this month:
+  // - hired before or during the month (hireDate <= last day of month)
+  // - no end date, or end date is within or after the month start
+  const activeEmployees = employees.filter((employee) => {
+    if (employee.hireDate > endDate) return false;
+    if (employee.endDate && employee.endDate < startDate) return false;
+    return true;
+  });
+
   // Fetch time entries for all employees in the month
-  const monthlyHours = await fetchMonthlyHours(employees, startDate, endDate);
+  const monthlyHours = await fetchMonthlyHours(activeEmployees, startDate, endDate);
 
   // Fetch absences for all employees in the month
-  const monthlyAbsences = await fetchMonthlyAbsences(employees, startDate, endDate);
+  const monthlyAbsences = await fetchMonthlyAbsences(activeEmployees, startDate, endDate);
 
   // Calculate payroll data for each employee
-  const payrollData: EmployeePayrollData[] = employees.map((employee) => {
+  const payrollData: EmployeePayrollData[] = activeEmployees.map((employee) => {
     // Debug: log employee data to check what fields are present
     console.log("🔍 Employee data:", {
       id: employee.id,

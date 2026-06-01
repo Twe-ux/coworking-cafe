@@ -67,9 +67,10 @@ export async function GET(request: NextRequest) {
       query.startDate = { $lte: endDate };
     }
 
-    // Fetch absences
+    // Fetch absences — exclude contentBase64 to keep responses lightweight
     const absences = await Absence.find(query)
       .populate('employeeId', 'firstName lastName email')
+      .select('-sickLeaveDocument.contentBase64')
       .sort({ startDate: -1, createdAt: -1 })
       .limit(limit)
       .lean();

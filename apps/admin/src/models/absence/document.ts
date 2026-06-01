@@ -36,6 +36,12 @@ export interface IAbsence extends Document, IAbsenceMethods {
   totalHours: number;
   paidHours: number;
   isActive: boolean;
+  sickLeaveDocument?: {
+    filename: string;
+    contentBase64: string;
+    mimeType: string;
+    uploadedAt: string; // YYYY-MM-DD
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -146,6 +152,12 @@ export const AbsenceSchema = new Schema<IAbsence>(
       type: Boolean,
       default: true,
       index: true,
+    },
+    sickLeaveDocument: {
+      filename: { type: String },
+      contentBase64: { type: String },
+      mimeType: { type: String },
+      uploadedAt: { type: String },
     },
   },
   {

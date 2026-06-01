@@ -57,6 +57,13 @@ export interface Absence {
   totalHours: number; // Total hours of absence
   paidHours: number; // Hours paid (paid_leave only)
 
+  // Sick leave justification document (optional, uploaded after declaration)
+  sickLeaveDocument?: {
+    filename: string;
+    mimeType: string;
+    uploadedAt: string; // YYYY-MM-DD (contentBase64 excluded from list responses)
+  };
+
   // Metadata
   isActive: boolean;
   createdAt: Date | string;

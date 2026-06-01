@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AbsenceStatusBadge } from "./AbsenceStatusBadge";
 import { AbsenceWeekPreview } from "./AbsenceWeekPreview";
-import { Check, X, Calendar, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, X, Calendar, Clock, ChevronDown, ChevronUp, Upload, Download, Trash2, Paperclip } from "lucide-react";
 import type { Absence } from "@/types/absence";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 
 interface AbsenceCardProps {
@@ -24,6 +24,10 @@ interface AbsenceCardProps {
 export function AbsenceCard({ absence, onStatusChange }: AbsenceCardProps) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [documentMeta, setDocumentMeta] = useState(absence.sickLeaveDocument ?? null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const typeLabels = {
     unavailability: "Indisponibilité",
@@ -67,6 +71,58 @@ export function AbsenceCard({ absence, onStatusChange }: AbsenceCardProps) {
       toast.error("Erreur de connexion");
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`/api/hr/absences/${absence._id}/document`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setDocumentMeta({ filename: data.data.filename, mimeType: file.type, uploadedAt: data.data.uploadedAt });
+        toast.success("Justificatif uploadé");
+      } else {
+        toast.error(data.error || "Erreur lors de l'upload");
+      }
+    } catch {
+      toast.error("Erreur de connexion");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDownloadDocument = () => {
+    window.open(`/api/hr/absences/${absence._id}/document`, "_blank");
+  };
+
+  const handleDeleteDocument = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/hr/absences/${absence._id}/document`, { method: "DELETE" });
+      const data = await response.json();
+
+      if (data.success) {
+        setDocumentMeta(null);
+        toast.success("Justificatif supprimé");
+      } else {
+        toast.error(data.error || "Erreur lors de la suppression");
+      }
+    } catch {
+      toast.error("Erreur de connexion");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -165,6 +221,59 @@ export function AbsenceCard({ absence, onStatusChange }: AbsenceCardProps) {
                 </>
               )}
             </Button>
+
+            {/* Sick leave document upload */}
+            {absence.type === "sick_leave" && (
+              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                {documentMeta ? (
+                  <>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 gap-1">
+                      <Paperclip className="h-3 w-3" />
+                      {documentMeta.filename}
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDownloadDocument}
+                      title="Télécharger le justificatif"
+                      className="border-blue-500 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDeleteDocument}
+                      disabled={isDeleting}
+                      title="Supprimer le justificatif"
+                      className="border-red-500 text-red-700 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="border-orange-500 text-orange-700 hover:bg-orange-50 hover:text-orange-700"
+                    >
+                      <Upload className="h-4 w-4 mr-1" />
+                      {isUploading ? "Upload..." : "Uploader justificatif"}
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Week preview */}
             {showPreview && (

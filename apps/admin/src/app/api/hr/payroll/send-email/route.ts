@@ -39,6 +39,7 @@ async function buildAttachments(
   hasResignation: boolean;
   hasTrialTermination: boolean;
   hasDpae: boolean;
+  hasSickLeaveDocuments: boolean;
 }> {
   const { month, year, employeeId, employeeName } = payload;
   const nameSlug = employeeName || "employe";
@@ -54,6 +55,7 @@ async function buildAttachments(
   let hasResignation = false;
   let hasTrialTermination = false;
   let hasDpae = false;
+  let hasSickLeaveDocuments = false;
 
   const monthlyChanges = await detectMonthlyChanges(month, year);
 
@@ -146,7 +148,18 @@ async function buildAttachments(
     });
   }
 
-  return { attachments, hasContract, hasResignation, hasTrialTermination, hasDpae };
+  // Attach sick leave justification documents for the month
+  monthlyChanges.sickLeaveDocuments.forEach((doc) => {
+    const empSlug = `${doc.employeeFirstName}-${doc.employeeLastName}`.toLowerCase();
+    const ext = doc.mimeType === 'application/pdf' ? 'pdf' : doc.mimeType === 'image/png' ? 'png' : 'jpg';
+    attachments.push({
+      filename: `arret-maladie-${empSlug}-${doc.startDate}.${ext}`,
+      content: doc.document,
+    });
+    hasSickLeaveDocuments = true;
+  });
+
+  return { attachments, hasContract, hasResignation, hasTrialTermination, hasDpae, hasSickLeaveDocuments };
 }
 
 /**
@@ -193,8 +206,8 @@ export async function POST(request: NextRequest) {
     const monthName = MONTH_NAMES[month - 1];
     const pdfBuffer = Buffer.from(pdfBase64, "base64");
 
-    // Build attachments with optional contract/resignation letter/trial termination letter/DPAE
-    const { attachments, hasContract, hasResignation, hasTrialTermination, hasDpae } =
+    // Build attachments with optional contract/resignation/DPAE/sick leave documents
+    const { attachments, hasContract, hasResignation, hasTrialTermination, hasDpae, hasSickLeaveDocuments } =
       await buildAttachments(payload, pdfBuffer);
 
     console.log(
@@ -203,7 +216,8 @@ export async function POST(request: NextRequest) {
         `${hasContract ? " [+contract]" : ""}` +
         `${hasDpae ? " [+DPAE]" : ""}` +
         `${hasResignation ? " [+resignation]" : ""}` +
-        `${hasTrialTermination ? " [+trial termination]" : ""}`
+        `${hasTrialTermination ? " [+trial termination]" : ""}` +
+        `${hasSickLeaveDocuments ? " [+arrêts maladie]" : ""}`
     );
 
     const subject = buildPayrollSubject({
@@ -250,6 +264,7 @@ export async function POST(request: NextRequest) {
       hasResignation,
       hasTrialTermination,
       hasDpae,
+      hasSickLeaveDocuments,
     });
   } catch (error) {
     console.error("Error sending payroll email:", error);
