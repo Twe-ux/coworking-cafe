@@ -13,7 +13,15 @@ import type { Employee } from "@/types/hr";
 import { calculateMonthlyPayroll } from "@/lib/payroll/calculateMonthlyPayroll";
 import { generatePayrollPDF } from "@/lib/pdf/generatePayrollPDF";
 import { PayrollPreviewModal } from "@/components/hr/payroll/PayrollPreviewModal";
+import { MissingSickLeaveDocsModal } from "@/components/hr/payroll/MissingSickLeaveDocsModal";
 import { toast } from "sonner";
+
+interface MissingDoc {
+  _id: string;
+  employeeName: string;
+  startDate: string;
+  endDate: string;
+}
 
 export default function ClockingAdminPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -26,6 +34,11 @@ export default function ClockingAdminPage() {
   const [isSendingIndividual, setIsSendingIndividual] = useState(false);
   const [pendingIndividualSend, setPendingIndividualSend] = useState(false);
   const { count: pendingJustifications } = usePendingJustifications();
+
+  // Missing sick leave docs pre-flight
+  const [missingDocs, setMissingDocs] = useState<MissingDoc[]>([]);
+  const [showMissingModal, setShowMissingModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<"pdf" | "individual" | null>(null);
 
   const fetchEmployees = useCallback(async () => {
     try {
@@ -93,19 +106,21 @@ export default function ClockingAdminPage() {
     setCurrentDate(new Date());
   }, []);
 
-  const handleSendIndividualEmails = useCallback(async () => {
-    if (!pendingIndividualSend) {
-      setPendingIndividualSend(true);
-      return;
+  const checkMissingDocs = useCallback(async (year: number, month: number): Promise<MissingDoc[]> => {
+    try {
+      const res = await fetch(`/api/hr/payroll/missing-sick-docs?month=${month}&year=${year}`);
+      const data = await res.json();
+      return data.success ? (data.data ?? []) : [];
+    } catch {
+      return [];
     }
+  }, []);
 
+  const runSendIndividualEmails = useCallback(async (year: number, month: number) => {
     try {
       setIsSendingIndividual(true);
       setPendingIndividualSend(false);
       toast.info("Calcul des heures en cours...");
-
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
 
       const payrollEmployees = await fetchPayrollEmployees(year, month);
       const payrollData = await calculateMonthlyPayroll(payrollEmployees, year, month);
@@ -149,28 +164,18 @@ export default function ClockingAdminPage() {
     } finally {
       setIsSendingIndividual(false);
     }
-  }, [pendingIndividualSend, currentDate, fetchPayrollEmployees]);
+  }, [fetchPayrollEmployees]);
 
-  const handleGeneratePDF = useCallback(async () => {
+  const runGeneratePDF = useCallback(async (year: number, month: number) => {
     try {
       setIsGenerating(true);
       toast.info("Génération du PDF en cours...");
 
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
-
-      // Fetch employees active during this specific month (includes inactive if ended during month)
       const payrollEmployees = await fetchPayrollEmployees(year, month);
       const payrollData = await calculateMonthlyPayroll(payrollEmployees, year, month);
 
-      // Generate PDF
-      const blob = await generatePayrollPDF({
-        payrollData,
-        month,
-        year,
-      });
+      const blob = await generatePayrollPDF({ payrollData, month, year });
 
-      // Store blob and open preview modal
       setPdfBlob(blob);
       setIsPreviewOpen(true);
       toast.success("PDF généré avec succès");
@@ -180,7 +185,54 @@ export default function ClockingAdminPage() {
     } finally {
       setIsGenerating(false);
     }
-  }, [currentDate, fetchPayrollEmployees]);
+  }, [fetchPayrollEmployees]);
+
+  const handleSendIndividualEmails = useCallback(async () => {
+    if (!pendingIndividualSend) {
+      setPendingIndividualSend(true);
+      return;
+    }
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+
+    const missing = await checkMissingDocs(year, month);
+    if (missing.length > 0) {
+      setMissingDocs(missing);
+      setPendingAction("individual");
+      setShowMissingModal(true);
+      return;
+    }
+
+    await runSendIndividualEmails(year, month);
+  }, [pendingIndividualSend, currentDate, checkMissingDocs, runSendIndividualEmails]);
+
+  const handleGeneratePDF = useCallback(async () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+
+    const missing = await checkMissingDocs(year, month);
+    if (missing.length > 0) {
+      setMissingDocs(missing);
+      setPendingAction("pdf");
+      setShowMissingModal(true);
+      return;
+    }
+
+    await runGeneratePDF(year, month);
+  }, [currentDate, checkMissingDocs, runGeneratePDF]);
+
+  const handleMissingDocsResolved = useCallback(async () => {
+    setShowMissingModal(false);
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+    if (pendingAction === "pdf") {
+      await runGeneratePDF(year, month);
+    } else if (pendingAction === "individual") {
+      await runSendIndividualEmails(year, month);
+    }
+    setPendingAction(null);
+  }, [pendingAction, currentDate, runGeneratePDF, runSendIndividualEmails]);
 
   if (isLoading) {
     return <ClockingAdminPageSkeleton />;
@@ -302,6 +354,14 @@ export default function ClockingAdminPage() {
         pdfBlob={pdfBlob}
         month={currentDate.getMonth() + 1}
         year={currentDate.getFullYear()}
+      />
+
+      {/* Missing sick leave documents pre-flight modal */}
+      <MissingSickLeaveDocsModal
+        isOpen={showMissingModal}
+        missingDocs={missingDocs}
+        onClose={() => { setShowMissingModal(false); setPendingAction(null); }}
+        onAllResolved={handleMissingDocsResolved}
       />
     </div>
   );
