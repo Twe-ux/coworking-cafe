@@ -16,7 +16,7 @@ interface PreviewPayload {
 interface AttachmentPreview {
   filename: string;
   size: number; // Size in bytes
-  type: "payroll" | "contract" | "dpae" | "resignation" | "trial-termination";
+  type: "payroll" | "contract" | "dpae" | "resignation" | "trial-termination" | "sick-leave";
 }
 
 interface PreviewResponse {
@@ -28,6 +28,7 @@ interface PreviewResponse {
   hasResignation?: boolean;
   hasTrialTermination?: boolean;
   hasDpae?: boolean;
+  hasSickLeaveDocuments?: boolean;
   error?: string;
 }
 
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PreviewRe
     let hasResignation = false;
     let hasTrialTermination = false;
     let hasDpae = false;
+    let hasSickLeaveDocuments = false;
 
     // Add contract attachments for ALL new employees
     monthlyChanges.newEmployees.forEach((newEmp) => {
@@ -153,6 +155,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<PreviewRe
       }
     });
 
+    // Add sick leave documents
+    monthlyChanges.sickLeaveDocuments.forEach((sickDoc) => {
+      const nameSlug = `${sickDoc.employeeFirstName}-${sickDoc.employeeLastName}`.toLowerCase();
+      attachments.push({
+        filename: `arret-maladie-${nameSlug}-${sickDoc.startDate}.pdf`,
+        size: sickDoc.document.length,
+        type: "sick-leave",
+      });
+      hasSickLeaveDocuments = true;
+    });
+
     // Build email subject and body
     const subject = buildPayrollSubject({
       monthName,
@@ -181,6 +194,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<PreviewRe
       hasResignation,
       hasTrialTermination,
       hasDpae,
+      hasSickLeaveDocuments,
     });
   } catch (error) {
     console.error("Error previewing payroll email:", error);

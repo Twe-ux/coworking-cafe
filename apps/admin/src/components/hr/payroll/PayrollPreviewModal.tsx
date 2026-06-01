@@ -28,7 +28,7 @@ interface PayrollPreviewModalProps {
 interface AttachmentPreview {
   filename: string;
   size: number;
-  type: "payroll" | "contract" | "dpae" | "resignation";
+  type: "payroll" | "contract" | "dpae" | "resignation" | "trial-termination" | "sick-leave";
 }
 
 interface EmailPreview {
@@ -38,6 +38,7 @@ interface EmailPreview {
   hasContract: boolean;
   hasResignation: boolean;
   hasDpae: boolean;
+  hasSickLeaveDocuments: boolean;
 }
 
 export function PayrollPreviewModal({
@@ -99,6 +100,7 @@ export function PayrollPreviewModal({
           hasContract: result.hasContract,
           hasResignation: result.hasResignation,
           hasDpae: result.hasDpae,
+          hasSickLeaveDocuments: result.hasSickLeaveDocuments ?? false,
         });
       } else {
         toast.error(result.error || "Erreur lors du chargement de la prévisualisation");
@@ -216,6 +218,10 @@ export function PayrollPreviewModal({
         return "📝";
       case "resignation":
         return "📬";
+      case "trial-termination":
+        return "📤";
+      case "sick-leave":
+        return "🏥";
       default:
         return "📎";
     }
@@ -289,11 +295,11 @@ export function PayrollPreviewModal({
                 </div>
 
                 {/* Warning if no supplementary docs */}
-                {!emailPreview.hasContract && !emailPreview.hasResignation && !emailPreview.hasDpae && (
+                {!emailPreview.hasContract && !emailPreview.hasResignation && !emailPreview.hasDpae && !emailPreview.hasSickLeaveDocuments && (
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      Aucun document supplémentaire (contrat, DPAE, démission) pour ce mois
+                      Aucun document supplémentaire (contrat, DPAE, démission, AM) pour ce mois
                     </AlertDescription>
                   </Alert>
                 )}
