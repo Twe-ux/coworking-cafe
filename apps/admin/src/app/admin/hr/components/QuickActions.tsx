@@ -24,7 +24,7 @@ export function QuickActions() {
   const [employees, setEmployees] = useState<SimpleEmployee[]>([]);
 
   useEffect(() => {
-    fetch('/api/hr/employees?status=active')
+    fetch('/api/hr/employees?includeInactive=true')
       .then((r) => r.json())
       .then((data) => {
         if (data.success) {
