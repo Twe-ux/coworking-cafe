@@ -51,14 +51,19 @@ export async function POST(
     const today = new Date();
     const uploadedAt = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    absence.sickLeaveDocument = {
-      filename: file.name,
-      contentBase64,
-      mimeType: file.type,
-      uploadedAt,
-    };
-
-    await absence.save();
+    // Use $set directly to bypass Mongoose nested-path change-detection
+    await Absence.findByIdAndUpdate(
+      params.id,
+      {
+        $set: {
+          'sickLeaveDocument.filename': file.name,
+          'sickLeaveDocument.contentBase64': contentBase64,
+          'sickLeaveDocument.mimeType': file.type,
+          'sickLeaveDocument.uploadedAt': uploadedAt,
+        },
+      },
+      { new: true }
+    );
 
     return successResponse({ filename: file.name, uploadedAt });
   } catch (error) {
@@ -120,13 +125,14 @@ export async function DELETE(
   try {
     await connectMongoose();
 
-    const absence = await Absence.findById(params.id);
-    if (!absence) {
+    const updated = await Absence.findByIdAndUpdate(
+      params.id,
+      { $unset: { sickLeaveDocument: '' } },
+      { new: true }
+    );
+    if (!updated) {
       return errorResponse('Absence introuvable', undefined, 404);
     }
-
-    absence.sickLeaveDocument = undefined;
-    await absence.save();
 
     return successResponse({ message: 'Document supprimé' });
   } catch (error) {
