@@ -15,6 +15,8 @@ export interface UseBookingHandlersParams {
     setStartTime: (time: string) => void;
     setEndTime: (time: string) => void;
     setArrivalTime: (time: string) => void;
+    setCalculatedPrice: (price: number) => void;
+    setDuration: (duration: string) => void;
     saveToSessionStorage: (price: number, duration: string) => void;
   };
   accordion: {
@@ -106,6 +108,8 @@ export function useBookingHandlers({
     bookingState.setStartTime("");
     bookingState.setEndTime("");
     bookingState.setArrivalTime("");
+    bookingState.setCalculatedPrice(0);
+    bookingState.setDuration("");
   };
 
   const handleStepClick = (step: number) => {
