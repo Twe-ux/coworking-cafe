@@ -86,16 +86,31 @@ export function isShiftBeforeCutoff(startTime: string): boolean {
 }
 
 /**
- * Organize shifts by morning/afternoon time slots
+ * Organize shifts by morning/afternoon time slots.
+ * With 2+ shifts: sort by start time and always place first in left column,
+ * second in right column — so they display side by side regardless of the
+ * 14:30 cutoff (fixes the 09:00-12:00 + 13:00-17:00 both-in-morning case).
+ * With 1 shift: use the 14:30 cutoff rule.
  */
 export function organizeShiftsByTimeSlots(shifts: Shift[]): {
   morning: Shift[];
   afternoon: Shift[];
 } {
-  const morning = shifts.filter((shift) => isShiftBeforeCutoff(shift.startTime));
-  const afternoon = shifts.filter((shift) => !isShiftBeforeCutoff(shift.startTime));
+  if (shifts.length === 0) return { morning: [], afternoon: [] };
 
-  return { morning, afternoon };
+  if (shifts.length >= 2) {
+    const sorted = [...shifts].sort((a, b) => {
+      const [ah, am] = a.startTime.split(":").map(Number);
+      const [bh, bm] = b.startTime.split(":").map(Number);
+      return ah * 60 + am - (bh * 60 + bm);
+    });
+    return { morning: [sorted[0]], afternoon: sorted.slice(1) };
+  }
+
+  return {
+    morning: shifts.filter((shift) => isShiftBeforeCutoff(shift.startTime)),
+    afternoon: shifts.filter((shift) => !isShiftBeforeCutoff(shift.startTime)),
+  };
 }
 
 /**
