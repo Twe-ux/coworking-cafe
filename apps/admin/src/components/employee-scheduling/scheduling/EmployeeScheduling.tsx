@@ -26,9 +26,10 @@ export function EmployeeScheduling({
   employees: propEmployees = DEFAULT_EMPLOYEES,
   shifts: propShifts = [],
   unavailabilities: propUnavailabilities = [],
-  onAddShift,
+  onDayClick,
   readOnly = false,
   userRole = "",
+  showHeader = true,
 }: EmployeeSchedulingProps) {
   const [unavailabilityModalOpen, setUnavailabilityModalOpen] = useState(false);
   const employees = propEmployees;

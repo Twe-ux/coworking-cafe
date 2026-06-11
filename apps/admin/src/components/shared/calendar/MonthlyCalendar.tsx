@@ -219,7 +219,7 @@ export function MonthlyCalendar<T = any>({
                   <div
                     key={weekIndex}
                     className="flex flex-col bg-gray-50 p-2 mt-px"
-                    style={{ height: cellHeight }}
+                    style={{ minHeight: cellHeight }}
                   >
                     {renderSidebarWeek ? (
                       renderSidebarWeek(weekInfo, weekData, weekSecondaryData)
@@ -246,8 +246,8 @@ export function MonthlyCalendar<T = any>({
           )}
 
           {/* Grille calendrier */}
-          <div className="flex-1 rounded-lg border border-gray-400">
-            <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg bg-gray-400">
+          <div className="flex-1 overflow-hidden rounded-lg border border-gray-400">
+            <div className="grid grid-cols-7 gap-px rounded-lg bg-gray-400">
               {/* En-têtes des jours */}
               {DAYS_HEADERS.map((day) => (
                 <div
@@ -287,7 +287,7 @@ export function MonthlyCalendar<T = any>({
                           : ""
                       }
                     `}
-                    style={{ height: cellHeight }}
+                    style={{ minHeight: cellHeight }}
                     onClick={() => handleCellClick(dayInfo.date)}
                   >
                     {/* Numéro du jour */}
@@ -304,7 +304,7 @@ export function MonthlyCalendar<T = any>({
                     </div>
 
                     {/* Contenu personnalisé */}
-                    <div className="flex-1 overflow-hidden">
+                    <div className="flex-1">
                       {renderCell(dayInfo.date, dayData, dayInfo)}
                     </div>
                   </div>

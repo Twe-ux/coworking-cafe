@@ -12,9 +12,10 @@ export interface EmployeeSchedulingProps {
   employees?: Employee[]
   shifts?: Shift[]
   unavailabilities?: IUnavailabilityWithEmployee[]
-  onAddShift?: (date: Date) => void
+  onDayClick?: (date: Date) => void
   readOnly?: boolean
   userRole?: string
+  showHeader?: boolean
 }
 
 export interface WeekData {

@@ -124,31 +124,70 @@ export function TodayReservationsCard({
           />
         ) : variant === "admin" ? (
           <div className="space-y-4">
-            {todayReservations.length > 0 && (
-              <div className="space-y-2">
-                {todayReservations.map((booking) => {
-                  const spaceType = getSpaceType(booking.spaceName);
-                  const borderClass = SPACE_TYPE_COLORS[spaceType];
-                  const displayName =
-                    booking.clientCompany || booking.clientName;
-                  const isProcessing = processingId === booking._id;
-
-                  return (
-                    <AdminReservationRow
-                      key={booking._id}
-                      booking={booking}
-                      borderClass={borderClass}
-                      displayName={displayName}
-                      isProcessing={isProcessing}
-                      actionType={actionType}
-                      onMarkPresent={(id) => handleMarkPresent(id, booking.isAdminBooking)}
-                      onMarkNoShow={(id) => handleMarkNoShow(id, booking.isAdminBooking)}
-                      processingDisabled={processingId !== null}
-                    />
-                  );
-                })}
-              </div>
-            )}
+            {todayReservations.length > 0 && (() => {
+              const activeToday = todayReservations.filter(
+                (b) => b.status === "confirmed",
+              );
+              const validatedToday = todayReservations.filter(
+                (b) => b.status === "completed" || b.status === "no-show",
+              );
+              return (
+                <div className="space-y-2">
+                  {activeToday.map((booking) => {
+                    const spaceType = getSpaceType(booking.spaceName);
+                    const borderClass = SPACE_TYPE_COLORS[spaceType];
+                    const displayName =
+                      booking.clientCompany || booking.clientName;
+                    const isProcessing = processingId === booking._id;
+                    return (
+                      <AdminReservationRow
+                        key={booking._id}
+                        booking={booking}
+                        borderClass={borderClass}
+                        displayName={displayName}
+                        isProcessing={isProcessing}
+                        actionType={actionType}
+                        onMarkPresent={(id) =>
+                          handleMarkPresent(id, booking.isAdminBooking)
+                        }
+                        onMarkNoShow={(id) =>
+                          handleMarkNoShow(id, booking.isAdminBooking)
+                        }
+                        processingDisabled={processingId !== null}
+                      />
+                    );
+                  })}
+                  {validatedToday.length > 0 && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+                      <div className="px-3 py-1.5 text-xs font-medium text-gray-400 border-b border-gray-200">
+                        Traitées ({validatedToday.length})
+                      </div>
+                      <div className="divide-y divide-gray-100">
+                        {validatedToday.map((booking) => {
+                          const spaceType = getSpaceType(booking.spaceName);
+                          const borderClass = SPACE_TYPE_COLORS[spaceType];
+                          const displayName =
+                            booking.clientCompany || booking.clientName;
+                          return (
+                            <AdminReservationRow
+                              key={booking._id}
+                              booking={booking}
+                              borderClass={borderClass}
+                              displayName={displayName}
+                              isProcessing={false}
+                              actionType={null}
+                              onMarkPresent={handleMarkPresent}
+                              onMarkNoShow={handleMarkNoShow}
+                              processingDisabled={true}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {tomorrowReservations.length > 0 && (
               <div className="space-y-2">

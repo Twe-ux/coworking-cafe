@@ -106,9 +106,32 @@ export function AdminReservationRow({
     );
   };
 
+  // Compact single-line layout for validated reservations
+  if (isValidated) {
+    const timeLabel =
+      booking.startTime && booking.endTime
+        ? `${booking.startTime}-${booking.endTime}`
+        : "Journée";
+    return (
+      <div className="flex items-center gap-2 px-2 py-1 text-xs text-gray-400">
+        {booking.status === "completed" ? (
+          <CheckCircle2 className="h-3 w-3 flex-shrink-0 text-green-500" />
+        ) : (
+          <XCircle className="h-3 w-3 flex-shrink-0 text-orange-400" />
+        )}
+        <span className="truncate font-medium text-gray-500">
+          {capitalize(booking.spaceName)}
+        </span>
+        <span>·</span>
+        <span className="truncate">{displayName}</span>
+        <span className="flex-shrink-0 ml-auto whitespace-nowrap">{timeLabel}</span>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`border rounded-lg border-l-4 ${isValidated ? "border-gray-200 opacity-60 bg-gray-50" : borderClass} py-2.5 px-3 ${!isValidated ? "hover:bg-green-50" : ""} transition-colors`}
+      className={`border rounded-lg border-l-4 ${borderClass} py-2.5 px-3 hover:bg-green-50 transition-colors`}
     >
       <div className="flex items-center gap-3">
         {/* Colonne principale avec 2 lignes */}
@@ -169,22 +192,8 @@ export function AdminReservationRow({
           </div>
         </div>
 
-        {/* Boutons actions ou badge statut validé */}
-        {isValidated ? (
-          <div className="flex-shrink-0">
-            {booking.status === "completed" ? (
-              <Badge className="bg-green-100 text-green-700 border-green-300 gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Présent
-              </Badge>
-            ) : (
-              <Badge className="bg-orange-100 text-orange-700 border-orange-300 gap-1">
-                <XCircle className="h-3 w-3" />
-                No-show
-              </Badge>
-            )}
-          </div>
-        ) : booking.status === "confirmed" ? (
+        {/* Boutons actions */}
+        {booking.status === "confirmed" ? (
           <div className="flex gap-1 flex-shrink-0">
             <Button
               variant="outline"

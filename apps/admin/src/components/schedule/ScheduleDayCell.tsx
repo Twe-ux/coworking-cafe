@@ -49,7 +49,7 @@ function ShiftButton({ shift, employee, onShiftClick }: ShiftButtonProps) {
   return (
     <button
       onClick={(e) => onShiftClick(shift, e)}
-      className="flex h-5 w-full items-center justify-center rounded px-1 text-xs font-medium text-white"
+      className="flex w-full items-center justify-center rounded px-1 py-0.5 text-xs font-medium text-white"
       style={{ backgroundColor: employee.color || "#9CA3AF" }}
       title={`${employee.firstName} - ${shift.startTime} à ${shift.endTime}`}
     >
@@ -82,7 +82,7 @@ function TimeSlotColumn({
   if (shifts.length === 0) {
     return (
       <button
-        className="h-5 w-full rounded py-0.5 transition-colors hover:bg-gray-100"
+        className="w-full rounded py-1 transition-colors hover:bg-gray-100"
         onClick={(e) => {
           e.stopPropagation();
           onEmptySlotClick?.(date, employee.id, period);
@@ -155,7 +155,7 @@ export function ScheduleDayCell({
           return (
             <div
               key={employee.id}
-              className={`flex h-5 items-center justify-center gap-2 rounded border px-1 text-xs font-medium ${bgColor}`}
+              className={`flex items-center justify-center gap-1 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}
               title={`${employee.firstName} - ${label}`}
             >
               <CalendarOff className="h-3 w-3" />
@@ -172,7 +172,7 @@ export function ScheduleDayCell({
         const afternoonShifts = employeeShifts?.afternoonShifts ?? [];
 
         return (
-          <div key={employee.id} className="flex h-5 items-center gap-2">
+          <div key={employee.id} className="flex items-start gap-1">
             {/* Morning column (before 14:30) */}
             <div className="flex-1 min-w-0 text-center">
               <TimeSlotColumn
