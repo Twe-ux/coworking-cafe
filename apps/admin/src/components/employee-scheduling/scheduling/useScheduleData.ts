@@ -48,12 +48,25 @@ export function useScheduleData({
   )
 
   /**
-   * Organize shifts by morning/afternoon slots
+   * Organize shifts by morning/afternoon slots.
+   * With 2+ shifts: sort by start time and place first in left column,
+   * rest in right column — so they always display side by side.
+   * With 1 shift: use the 14:30 cutoff rule.
    */
   const organizeShiftsByTimeSlots = useCallback((shiftsToOrganize: Shift[]): OrganizedShifts => {
+    if (shiftsToOrganize.length === 0) return { morning: [], afternoon: [] }
+
+    if (shiftsToOrganize.length >= 2) {
+      const sorted = [...shiftsToOrganize].sort((a, b) => {
+        const [ah, am] = a.startTime.split(':').map(Number)
+        const [bh, bm] = b.startTime.split(':').map(Number)
+        return ah * 60 + am - (bh * 60 + bm)
+      })
+      return { morning: [sorted[0]], afternoon: sorted.slice(1) }
+    }
+
     const morning = shiftsToOrganize.filter((shift) => isShiftBeforeCutoff(shift.startTime))
     const afternoon = shiftsToOrganize.filter((shift) => !isShiftBeforeCutoff(shift.startTime))
-
     return { morning, afternoon }
   }, [])
 

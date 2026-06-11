@@ -81,7 +81,7 @@ export function DayCell({
       </div>
 
       {/* Employee shifts */}
-      <div className="flex-1 space-y-1 overflow-hidden">
+      <div className="space-y-1">
         {employees.map((employee) => {
           const employeeShifts = positionedShifts.find(
             (ps) => ps.employee.id === employee.id,
