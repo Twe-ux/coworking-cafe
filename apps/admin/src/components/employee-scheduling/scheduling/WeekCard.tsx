@@ -82,8 +82,8 @@ export function WeekCard({
           />
 
           {/* Calendar Grid */}
-          <div className="flex-1 rounded-lg border border-gray-400">
-            <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg bg-gray-400">
+          <div className="flex-1 overflow-hidden rounded-lg border border-gray-400">
+            <div className="grid grid-cols-7 gap-px rounded-lg bg-gray-400">
               {/* Day Headers */}
               {DAYS_OF_WEEK.map((day, dayIndex) => (
                 <div

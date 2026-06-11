@@ -106,7 +106,7 @@ export function DayCell({
                   : "bg-orange-100 text-orange-700 border-orange-300";
 
             return (
-              <div key={employee.id} className="grid h-5 grid-cols-2 gap-2">
+              <div key={employee.id} className="grid grid-cols-2 gap-1">
                 <div className="col-span-2">
                   <div
                     className={`flex items-center justify-center gap-1 rounded border px-1 py-0.5 text-xs font-medium ${bgColor}`}
@@ -120,7 +120,7 @@ export function DayCell({
           }
 
           return (
-            <div key={employee.id} className="grid h-5 grid-cols-2 gap-2">
+            <div key={employee.id} className="grid grid-cols-2 gap-1">
               {/* Morning column (before 14:30) */}
               <div className="space-y-1 text-center">
                 {morningShifts.length > 0 ? (
