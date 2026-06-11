@@ -23,7 +23,7 @@ async function fetchTodayReservations(
   const params = new URLSearchParams({
     startDate: today,
     endDate: tomorrowStr,
-    status: "confirmed",
+    status: "confirmed,completed,no-show",
   });
 
   if (!isAuthenticated) {

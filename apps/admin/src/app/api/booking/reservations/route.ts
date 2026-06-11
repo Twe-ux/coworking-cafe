@@ -164,8 +164,10 @@ export async function GET(request: NextRequest) {
     const filter: Record<string, unknown> = {}
 
     // Apply status filter if provided (works in both public and authenticated modes)
+    // Supports comma-separated values: e.g. "confirmed,completed,no-show"
     if (status) {
-      filter.status = status
+      const statuses = status.split(",").map((s) => s.trim()).filter(Boolean)
+      filter.status = statuses.length > 1 ? { $in: statuses } : statuses[0]
     }
 
     if (spaceId) filter.space = spaceId

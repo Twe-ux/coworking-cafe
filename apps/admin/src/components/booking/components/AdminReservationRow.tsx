@@ -9,12 +9,14 @@ import {
 } from "@/components/ui/tooltip";
 import type { Booking } from "@/types/booking";
 import {
+  CheckCircle2,
   Clock,
   Loader2,
   MessageSquareMore,
   UserCheck,
   UserX,
   Users,
+  XCircle,
 } from "lucide-react";
 
 interface AdminReservationRowProps {
@@ -60,6 +62,9 @@ export function AdminReservationRow({
   processingDisabled,
   isTomorrow = false,
 }: AdminReservationRowProps) {
+  const isValidated =
+    booking.status === "completed" || booking.status === "no-show";
+
   const spaceType = getSpaceType(booking.spaceName);
 
   // Utiliser la fonction utilitaire pour déterminer le type
@@ -103,7 +108,7 @@ export function AdminReservationRow({
 
   return (
     <div
-      className={`border rounded-lg border-l-4 ${borderClass} py-2.5 px-3 hover:bg-green-50 transition-colors`}
+      className={`border rounded-lg border-l-4 ${isValidated ? "border-gray-200 opacity-60 bg-gray-50" : borderClass} py-2.5 px-3 ${!isValidated ? "hover:bg-green-50" : ""} transition-colors`}
     >
       <div className="flex items-center gap-3">
         {/* Colonne principale avec 2 lignes */}
@@ -164,8 +169,22 @@ export function AdminReservationRow({
           </div>
         </div>
 
-        {/* Boutons actions */}
-        {booking.status === "confirmed" && (
+        {/* Boutons actions ou badge statut validé */}
+        {isValidated ? (
+          <div className="flex-shrink-0">
+            {booking.status === "completed" ? (
+              <Badge className="bg-green-100 text-green-700 border-green-300 gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                Présent
+              </Badge>
+            ) : (
+              <Badge className="bg-orange-100 text-orange-700 border-orange-300 gap-1">
+                <XCircle className="h-3 w-3" />
+                No-show
+              </Badge>
+            )}
+          </div>
+        ) : booking.status === "confirmed" ? (
           <div className="flex gap-1 flex-shrink-0">
             <Button
               variant="outline"
@@ -196,7 +215,7 @@ export function AdminReservationRow({
               No-show
             </Button>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

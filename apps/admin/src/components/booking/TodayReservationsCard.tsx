@@ -67,22 +67,30 @@ export function TodayReservationsCard({
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowDate = tomorrow.toISOString().split("T")[0];
 
-  // Filtrer selon la variante
-  const filteredReservations =
-    variant === "admin"
-      ? reservations.filter((b) => b.status === "confirmed")
-      : reservations;
+  const VALIDATED_STATUSES = ["completed", "no-show"] as const;
+  const ACTIVE_STATUSES = ["confirmed", "completed", "no-show"] as const;
 
-  const todayReservations = filteredReservations
-    .filter((booking) => booking.startDate === today)
+  // Today: confirmed + validated (completed/no-show), sorted by start time
+  // Validated reservations sort last within same time, confirmed first
+  const todayReservations = reservations
+    .filter(
+      (b) =>
+        b.startDate === today &&
+        (ACTIVE_STATUSES as readonly string[]).includes(b.status),
+    )
     .sort((a, b) => {
       const timeA = a.startTime || "23:59";
       const timeB = b.startTime || "23:59";
-      return timeA.localeCompare(timeB);
+      if (timeA !== timeB) return timeA.localeCompare(timeB);
+      // Same time: confirmed before validated
+      const aValidated = (VALIDATED_STATUSES as readonly string[]).includes(a.status);
+      const bValidated = (VALIDATED_STATUSES as readonly string[]).includes(b.status);
+      return Number(aValidated) - Number(bValidated);
     });
 
-  const tomorrowReservations = filteredReservations
-    .filter((booking) => booking.startDate === tomorrowDate)
+  // Tomorrow: confirmed only
+  const tomorrowReservations = reservations
+    .filter((b) => b.startDate === tomorrowDate && b.status === "confirmed")
     .sort((a, b) => {
       const timeA = a.startTime || "23:59";
       const timeB = b.startTime || "23:59";
