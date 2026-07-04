@@ -1,56 +1,52 @@
 // Service Worker pour CoworKing Café PWA
-// Cache les assets pour une utilisation offline
-
-const CACHE_NAME = 'coworking-cafe-v3';
+const CACHE_NAME = "coworking-cafe-v4"; // ⬅️ BUMP : purge l'ancien cache (dont /booking périmé)
 const urlsToCache = [
-  '/booking',
-  '/logo/favicon.svg',
-  '/logo/favicon-96x96.png',
-  '/logo/android-chrome-192x192.png',
-  '/logo/android-chrome-512x512.png',
+  // '/booking' RETIRÉ — la page a migré vers book.coworkingcafe.fr/reserver
+  "/logo/favicon.svg",
+  "/logo/favicon-96x96.png",
+  "/logo/android-chrome-192x192.png",
+  "/logo/android-chrome-512x512.png",
 ];
 
-// Installation du service worker
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
+  self.skipWaiting(); // ⬅️ prend la main tout de suite (pas d'attente de fermeture d'onglet)
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)),
   );
 });
 
-// Activation du service worker
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches
+      .keys()
+      .then((names) =>
+        Promise.all(
+          names.map((n) => (n !== CACHE_NAME ? caches.delete(n) : null)),
+        ),
+      )
+      .then(() => self.clients.claim()), // ⬅️ contrôle les onglets ouverts immédiatement
   );
 });
 
-// Interception des requêtes
-self.addEventListener('fetch', (event) => {
-  // Ne cache que les requêtes GET
-  if (event.request.method !== 'GET') return;
-
-  // Ne JAMAIS mettre en cache les routes auth et APIs
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
-  const noCachePaths = ['/api/auth', '/api/bookings', '/api/payments', '/dashboard'];
-  if (noCachePaths.some(path => url.pathname.startsWith(path))) {
+  // Toujours réseau (jamais de cache) → le 308 vers book.coworkingcafe.fr est honoré
+  const noCachePaths = [
+    "/api/auth",
+    "/api/bookings",
+    "/api/payments",
+    "/dashboard",
+    "/booking",
+    "/auth",
+  ];
+  if (noCachePaths.some((path) => url.pathname.startsWith(path))) {
     event.respondWith(fetch(event.request));
     return;
   }
-
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Retourne depuis le cache si disponible, sinon fetch
-        return response || fetch(event.request);
-      })
+    caches
+      .match(event.request)
+      .then((response) => response || fetch(event.request)),
   );
 });
