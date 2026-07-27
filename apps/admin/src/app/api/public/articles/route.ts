@@ -36,8 +36,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     const [docs, total] = await Promise.all([
+      // On lit `content` (pour estimer le temps de lecture si non stocké) mais on
+      // ne le renvoie PAS dans la liste : toPublicArticle ne l'inclut qu'en détail.
       Article.find(filter)
-        .select('-content')
         .populate('author', 'username name')
         .populate('category', 'name slug')
         .sort({ publishedAt: -1 })
