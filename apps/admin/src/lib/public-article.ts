@@ -14,8 +14,6 @@ export interface PublicArticle {
   createdAt: string | null
   readingTime: number
   isFeatured: boolean
-  metaTitle: string | null
-  metaDescription: string | null
   metaKeywords: string[]
   content?: string // présent uniquement sur le détail
 }
@@ -30,8 +28,6 @@ export interface LeanArticle {
   imgAlt?: string
   readingTime?: number
   isFeatured?: boolean
-  metaTitle?: string
-  metaDescription?: string
   metaKeywords?: string[]
   publishedAt?: Date | string
   createdAt?: Date | string
@@ -41,15 +37,6 @@ export interface LeanArticle {
 
 function toIso(d?: Date | string): string | null {
   return d ? new Date(d).toISOString() : null
-}
-
-// Temps de lecture (minutes) : valeur stockée si > 0, sinon estimée depuis le
-// contenu (~200 mots/min). Garantit une valeur cohérente liste ET détail, même
-// si le champ n'a pas été calculé à la sauvegarde côté CMS.
-function readingTimeMinutes(a: LeanArticle): number {
-  if (a.readingTime && a.readingTime > 0) return a.readingTime
-  const words = (a.content ?? '').trim().split(/\s+/).filter(Boolean).length
-  return Math.max(1, Math.round(words / 200))
 }
 
 export function toPublicArticle(
@@ -70,10 +57,8 @@ export function toPublicArticle(
       : null,
     publishedAt: toIso(a.publishedAt),
     createdAt: toIso(a.createdAt),
-    readingTime: readingTimeMinutes(a),
+    readingTime: a.readingTime ?? 0,
     isFeatured: Boolean(a.isFeatured),
-    metaTitle: a.metaTitle ?? null,
-    metaDescription: a.metaDescription ?? null,
     metaKeywords: a.metaKeywords ?? [],
     ...(opts.includeContent ? { content: a.content ?? '' } : {}),
   }
