@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectMongoose } from '@/lib/mongodb'
-import { Article } from '@/models/article'
-import { Category } from '@/models/category'
+import { connectDB } from '@/lib/db'
+import { Article, Category } from '@coworking-cafe/database'
 import { toPublicArticle, PUBLIC_CORS, type LeanArticle } from '@/lib/public-article'
 
 export const dynamic = 'force-dynamic'
@@ -20,7 +19,7 @@ export async function OPTIONS(): Promise<NextResponse> {
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    await connectMongoose()
+    await connectDB()
 
     const { searchParams } = new URL(request.url)
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'))

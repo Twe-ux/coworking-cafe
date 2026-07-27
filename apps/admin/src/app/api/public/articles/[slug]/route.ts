@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectMongoose } from '@/lib/mongodb'
-import { Article } from '@/models/article'
-import { Category } from '@/models/category'
+import { connectDB } from '@/lib/db'
+import { Article, Category } from '@coworking-cafe/database'
 import { toPublicArticle, PUBLIC_CORS, type LeanArticle } from '@/lib/public-article'
 
 export const dynamic = 'force-dynamic'
@@ -23,7 +22,7 @@ export async function GET(
   { params }: { params: { slug: string } }
 ): Promise<NextResponse> {
   try {
-    await connectMongoose()
+    await connectDB()
 
     const doc = await Article.findOne({
       slug: params.slug,
